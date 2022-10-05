@@ -5,14 +5,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
-    <meta name="author" content="indonesiaminer.com">
+    <meta name="author" content="djakarta-miningclub.com">
     <meta name="generator" content="Hugo 0.98.0">
     <title>DMC Register Membership</title>
     <meta name="description" content="Register Membership " />
     <meta property="og:title" content="Register Membership " />
-    <meta property="og:url" content="https://indonesiaminer.com/register/2022-01-12062209-nickel-summit/event" />
+    <meta property="og:url" content="" />
     <meta property="og:description" content="Register Membership" />
-    <meta property="og:image" content="https://indonesiaminer.com/uploads/1/2022-07/indonesia_miner_events.png" />
+    <meta property="og:image" content="" />
     <meta property="og:type" content="register" />
     <meta property="og:locale" content="en_GB" />
     <meta property="og:locale:alternate" content="fr_FR" />
@@ -22,6 +22,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
         integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/css/intlTelInput.css" />
+    <script src="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -77,9 +80,11 @@
             white-space: nowrap;
             -webkit-overflow-scrolling: touch;
         }
+
+        .iti {
+            display: grid;
+        }
     </style>
-
-
     <!-- Custom styles for this template -->
     <link href="{{ asset('new-zoom/form-validation.css') }}" rel="stylesheet">
 </head>
@@ -152,8 +157,8 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="phone" class="form-label">Mobile number *</label>
-                                <input type="number" class="form-control" name="phone" placeholder="+628xxxx"
-                                    value="{{ old('phone') }}" required>
+                                <input type="tel" class="form-control" name="phone"id="phone" placeholder=""
+                                    value="+62" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
@@ -180,8 +185,7 @@
                                 <label for="company_website" class="form-label">Company Webstie *<span
                                         class="text-muted"></span></label>
                                 <input type="text" class="form-control" name="company_website"
-                                    value="{{ old('company_website') }}" placeholder="https://yourwebsite.com"
-                                    required>
+                                    value="{{ old('company_website') }}" placeholder="www.yourcompany.com" required>
                                 <div class="invalid-feedback">
                                     Please enter a valid company website .
                                 </div>
@@ -356,6 +360,17 @@
         }
 
         select.addEventListener("change", handleCountryChange.bind(this));
+    </script>
+
+
+    <script>
+        var input = document.querySelector("#phone");
+        window.intlTelInput(input, {
+            separateDialCode: true,
+            initialCountry: "id",
+
+        });
+        console.log(window.intlTelInput)
     </script>
 </body>
 
