@@ -332,7 +332,6 @@
         let country;
 
         xhttp.onreadystatechange = function() {
-            console.log('this.status', this.status);
             if (this.readyState == 4 && this.status == 200) {
                 country = JSON.parse(xhttp.responseText);
                 assignValues();
@@ -345,7 +344,6 @@
         function assignValues() {
             country.forEach(country => {
                 const option = document.createElement("option");
-                console.log('country', country)
                 option.value = country.cioc;
                 option.textContent = country.name.common;
                 select.appendChild(option);
@@ -366,11 +364,10 @@
     <script>
         var input = document.querySelector("#phone");
         window.intlTelInput(input, {
-            separateDialCode: true,
+            // separateDialCode: true,
             initialCountry: "id",
 
         });
-        console.log(window.intlTelInput)
     </script>
 </body>
 

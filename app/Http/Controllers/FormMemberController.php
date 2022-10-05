@@ -31,7 +31,6 @@ class FormMemberController extends Controller
         }
         $explore = $request->explore;
         $cci = $request->cci;
-        dd($request->all());
         $findUsers = MemberModel::where('phone', $phone)->orWhere('email', $email)->first();
         if (!empty($findUsers)) {
             $findUsers->company_name = $company_name;
