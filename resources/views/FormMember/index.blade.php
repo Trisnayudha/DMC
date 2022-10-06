@@ -133,6 +133,8 @@
                                     <option value="Pte Ltd">Pte Ltd</option>
                                     <option value="Assosiation">Assosiation</option>
                                     <option value="Government">Government</option>
+                                    <option value="Pty Ltd">Pty Ltd</option>
+                                    <option value="">Other</option>
                                 </select>
                                 <div class="invalid-feedback">
                                     Please select a valid prefix company name.
@@ -157,8 +159,8 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="phone" class="form-label">Mobile number *</label>
-                                <input type="tel" class="form-control" name="phone"id="phone" placeholder=""
-                                    value="+62" required>
+                                <input type="tel" class="form-control" name="phone"id="phone"
+                                    placeholder="" value="+62" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
@@ -247,7 +249,6 @@
 
                         </div>
                         <hr class="my-4">
-                        <h4 class="mb-3">Multiple Choice</h4>
 
                         <div class="my-3">
                             <div class="form-check">
