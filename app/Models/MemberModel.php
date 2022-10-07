@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class MemberModel extends Model
 {
     use HasFactory;
-    protected $table = 'xtwp_djak_mc';
+    protected $table = 'xtwp_users_dmc';
 
     protected $fillable = [
         'company_name',
