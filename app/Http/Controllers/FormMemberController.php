@@ -50,8 +50,8 @@ class FormMemberController extends Controller
         } else {
             $validated = $request->validate([
                 'company_name' => 'required',
-                'phone' => 'required|unique:xtwp_djak_mc',
-                'email' => 'required|unique:xtwp_djak_mc',
+                'phone' => 'required|unique:xtwp_users_dmc',
+                'email' => 'required|unique:xtwp_users_dmc',
                 'name' => 'required',
                 'job_title' => 'required',
                 'company_website' => 'required',
