@@ -13,7 +13,7 @@ class CreateTableXtwpDjakMc extends Migration
      */
     public function up()
     {
-        Schema::create('xtwp_djak_mc', function (Blueprint $table) {
+        Schema::create('xtwp_users_dmc', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->string('company_name')->nullable();

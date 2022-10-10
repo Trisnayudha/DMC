@@ -91,6 +91,20 @@ class FormMemberController extends Controller
             $save->cci = $cci;
             $save->save();
 
+
+            $send = new EmailSender();
+            $send->subject = "Membership";
+            $send->template = "email.membership";
+            $send->data = [
+                "name" => $name,
+                'email' => $email,
+
+            ];
+            $send->name = $name;
+            $send->from = env('EMAIL_SENDER');
+            $send->name_sender = env('EMAIL_NAME');
+            $send->to = $email;
+            $send->sendEmail();
             return redirect()->back()->with('alert', 'New Membership DMC!');
         }
     }
