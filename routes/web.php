@@ -16,3 +16,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
+Route::get('/test', [FormMemberController::class, 'test']);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\EmailSender;
 use App\Models\MemberModel;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,23 @@ class FormMemberController extends Controller
     {
         return view('FormMember.index');
     }
+    public function test()
+    {
+        // dd('test');
+        $send = new EmailSender();
+        $send->subject = "Membership";
+        $send->template = "email.test";
+        $send->data = [
+            "name" => 'Nama',
+            'email' => 'test@gmail.com',
 
+        ];
+        $send->from = env('EMAIL_SENDER');
+        $send->name_sender = env('EMAIL_NAME');
+        $send->to = 'yudha@indonesiaminer.com';
+        $send->sendEmail();
+        dd($send);
+    }
     public function store(Request $request)
     {
         $prefix = $request->prefix;
