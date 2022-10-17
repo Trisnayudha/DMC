@@ -201,15 +201,15 @@
                                     Please provide a Mobile Number
                                 </div>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-6">
                                 <label for="office_number" class="form-label">Office Number</label>
-                                <input type="number" class="form-control" name="office_number" placeholder=""
-                                    required>
-                                <div class="invalid-feedback" {{ old('office_number') }}>
-                                    Please provide a Postal Code
+                                <input type="tel" class="form-control" name="office_number"id="office_number"
+                                    placeholder="" value="+62" required>
+                                <div class="invalid-feedback">
+                                    Please provide a Mobile Number
                                 </div>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                                 <label for="portal_code" class="form-label">Postal Code</label>
                                 <input type="number" class="form-control" name="portal_code" placeholder=""
                                     required>
@@ -217,7 +217,7 @@
                                     Please provide a Postal Code
                                 </div>
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                                 <label for="city" class="form-label">City</label>
                                 <input type="text" class="form-control" name="city" placeholder="" required>
                                 <div class="invalid-feedback" {{ old('city') }}>
@@ -304,9 +304,8 @@
         <footer class="my-5 pt-5 text-muted text-center text-small">
             <p class="mb-1">&copy; Djakarta Mining Club</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="#">Privacy</a></li>
+                <li class="list-inline-item"><a href="{{ url('/privacy') }}">Privacy</a></li>
                 <li class="list-inline-item"><a href="#">Terms</a></li>
-                <li class="list-inline-item"><a href="#">Support</a></li>
             </ul>
         </footer>
     </div>
@@ -388,6 +387,12 @@
     <script>
         var input = document.querySelector("#phone");
         window.intlTelInput(input, {
+            // separateDialCode: true,
+            initialCountry: "id",
+
+        });
+        var input2 = document.querySelector("#office_number");
+        window.intlTelInput(input2, {
             // separateDialCode: true,
             initialCountry: "id",
 
