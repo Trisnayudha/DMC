@@ -90,179 +90,117 @@
 </head>
 
 <body class="bg-light">
-    <div class="container">
-        <h1>Privacy Policy for Djakarta - Mining Club</h1>
+    <div class="container mt-5">
+        <p>Djakarta Mining Club (&ldquo;us&rdquo; or &ldquo;we&rdquo;) respects the privacy of the parties visiting our
+            Website, requests to receive our newsletters and other promotional. This Privacy Policy is intended to
+            educate you on our policies and practices regarding the collection, use and disclosure of any Personal
+            Information (defined below) and Anonymous Information (defined below) you submit to us or we collect through
+            our Website. The home page which is located at www.djakarta-miningclub.com. The home page and accompanying
+            pages will collectively be known as &ldquo;Website.&rdquo;</p>
 
-        <p>At https://djakarta-miningclub.com, accessible from https://djakarta-miningclub.com, one of our main
-            priorities
-            is the privacy of our visitors. This Privacy Policy document contains types of information that is collected
-            and
-            recorded by https://djakarta-miningclub.com and how we use it.</p>
+        <p>&ldquo;Personal Information&rdquo; is information about you that is personally identifiable to you, like your
+            name, address, and email address, as well as other non-public information that is associated with the
+            foregoing. &ldquo;Anonymous Information&rdquo; is information that is not associated with or linked to your
+            Personal Information; Anonymous Information does not allow the identification of individual persons. We
+            collect and use Personal Information and Anonymous Information as indicated in this Privacy Policy.</p>
 
-        <p>If you have additional questions or require more information about our Privacy Policy, do not hesitate to
-            contact
-            us.</p>
+        <p>Before submitting your Personal Information to the Website, please review this Privacy Policy carefully. By
+            using or accessing the Website, signing up for a membership or communicating with us via mail, email or
+            telephone, you are accepting the practices described in this Privacy Policy.</p>
 
-        <p>This Privacy Policy applies only to our online activities and is valid for visitors to our website with
-            regards
-            to the information that they shared and/or collect in https://djakarta-miningclub.com. This policy is not
-            applicable to any information collected offline or via channels other than this website.</p>
+        <p>User Consent/Legal Basis When you submit any Personal Information through our Website, you agree to the terms
+            of this Privacy Policy and you expressly consent to the treatment of your Personal Information defined in
+            this Privacy Policy. Other legal basis for collecting Personal Information are: (i) where we need the
+            Personal Information for performance of a contract or requested service; or (ii) where the collection and
+            use is in our or another&rsquo;s legitimate interests and not overridden by your data protection interests
+            or fundamental rights and freedoms. In some cases, we may also have a legal obligation to collect the
+            Personal Information in question. If we collect your Personal Information with your consent, you may
+            withdraw your consent at any time as provided below. You understand and agree that we may collect, use,
+            disclose and otherwise process the Personal Information you provide even if you are located outside
+            Indonesian.</p>
 
-        <h2>Consent</h2>
+        <p>Information Collected We may collect Personal Information that you submit to us voluntarily through our
+            Website. We collect this information when you register, create and edit a profile, answer survey questions,
+            enter contests, use certain features on the Website or other methods of submitting information. The types of
+            information you can choose to provide on our Website may include, without limitation: &bull; Name, username,
+            password, email address, and other contact information. &bull; Billing and shipping addresses, credit card
+            number, and expiration date. &bull; We or our third-party service providers may also gather information
+            relating to your devices, including: device model, operating system, browser type, unique device identifier,
+            IP address, mobile phone number, mobile network carrier, and location (such as application installations).
+            &bull; Other Personal Information you choose to provide such as your preferences, etc.</p>
 
-        <p>By using our website, you hereby consent to our Privacy Policy and agree to its terms.</p>
+        <p>Use of Information We may use your Personal Information for the following general and business purposes:
+            &bull; To fulfill or respond to your inquiries. &bull; To address administrative needs and communications.
+            &bull; To improve our products and services. &bull; To contact you for internal business purposes. &bull; To
+            provide you with newsletters, surveys, promotions, and notices on changes and upgrades to our products and
+            services. We use Anonymous Information such as web or mobile pages you have viewed, in order to analyze
+            request and usage patterns so that we may improve our products and services, enhance our user experience,
+            and gather broad demographic information for aggregate use. Anonymous Information consists of data that
+            would not identify you personally; these records exclude information (such as your name) that makes them
+            personally identifiable to you. We may disclose Anonymous Information to third parties that promote our
+            products and services. We reserve the right to use and disclose Anonymous Information to third parties in
+            our discretion.</p>
 
-        <h2>Information we collect</h2>
+        <p>Information Sharing Except as otherwise stated in this Privacy Policy, we do not sell, trade or rent with
+            third parties for their marketing purposes and we will not disclose financial information that is part of
+            your Personal Information unless you request or authorize that we do so. If you provide Personal Information
+            for a certain reason, we may use the Personal Information in connection with the reason for which it was
+            provided. For instance, if you contact us by e-mail, we will use the Personal Information you provide to
+            answer your question or resolve your problem and will respond to the email address from which the contact
+            came. We may disclose Personal Information to our corporate subsidiaries or affiliated entities. Any
+            Personal Information provided to our subsidiaries or entities affiliated with us will be treated by those
+            subsidiaries and affiliated entities in accordance with the terms of this Privacy Policy. We may share your
+            Personal Information with third party vendor and suppliers to provide you with the products and services
+            that we offer you through the Website and to send you the Newsletters. You expressly consent to the sharing
+            of your Personal Information with our contractors and third-party service providers (for the sole purpose of
+            providing products and services to you. These service providers are contractually obligated to ensure the
+            confidentiality of Personal Information and implement appropriate security measures. We use third-party
+            payment processors for any purchases you make through the Website or Newsletters. Be advised that we do not
+            have access to any Personal Information, including credit card numbers or other financial information, you
+            provide to these processors. This Privacy Policy does not apply to them, and we do not accept any
+            responsibility or liability for their policies. We may participate in co-branding or co-promotional
+            agreements with third parties pursuant to which we may share Personal Information with such third parties
+            (&ldquo;Partner Companies&rdquo;). For example, we may participate in agreements with Partner Companies
+            pursuant to which we provide the Partner Companies with a URL and a customer registration page co-branded
+            with, or private labeled by, the Partner Companies, and the Partner Companies distributes and promotes the
+            URL to its customers. A Partner Company may have access to Personal Information that we collect from their
+            customers. As a result, if you register on the Website through a Partner Company, we may provide your
+            Personal Information to the Partner Company. We do not control the privacy practices of these Partner
+            Companies. We may offer you the chance to participate in drawings, contests, giveaways, and promotions
+            (&ldquo;Special Promotions&rdquo;) through our Website. By registering for a Special Promotion, you agree to
+            the official rules that govern that Special Promotion, which may contain specific requirements of you,
+            including, except where prohibited by law, allowing the sponsor(s) of the Special Promotion to use your
+            name, voice and/or likeness in advertising or marketing associated with the Special Promotion. If you choose
+            to enter a drawing, contest or other promotion, personally identifiable information may be disclosed to
+            third parties or the public in connection with the administration of such Special Promotion, including,
+            without limitation, in connection with winner selection, prize fulfillment, and as required by law or
+            permitted by the Special Promotion&rsquo;s official rules, such as on a winners list. We may use your
+            Personal Information in order to provide to third parties non-personal aggregated information about you that
+            does not allow you to be identified or contacted and that is combined with the Personal Information of other
+            users (&quot;Aggregate Information&quot;). For example, we might inform third parties regarding the number
+            of users of our Website and the activities they conduct while on our Website. We might also inform a company
+            that performs services or that provides products and/or services to us (that may or may not be a business
+            partner or an advertiser on our Website) that v50% of our users live in Indonesia&quot; or that &quot;85% of
+            our users have purchased products and/or services which can be downloaded from our Website.&quot; Depending
+            on the circumstances, we may or may not charge third parties for this Aggregate Information. We may not
+            limit the third parties' use of the Aggregate Information. Under the following scenarios, we may be required
+            to share your Personal Information: &bull; If we believe it is necessary to share information in order to
+            investigate, prevent or take action regarding illegal activities, suspected fraud, situations involving
+            possible threats to the physical safety of any person, violations of our Terms of Use or as otherwise
+            required by law. &bull; If we respond to subpoenas, court orders or legal process, or if we need to
+            establish or exercise our legal rights or defend against legal claims. &bull; If we believe it is necessary
+            to restrict or inhibit any user from using any of our Websites, including, without limitation, by means of
+            &ldquo;hacking&rdquo; or defacing any portion thereof.</p>
 
-        <p>The personal information that you are asked to provide, and the reasons why you are asked to provide it, will
-            be
-            made clear to you at the point we ask you to provide your personal information.</p>
-        <p>If you contact us directly, we may receive additional information about you such as your name, email address,
-            phone number, the contents of the message and/or attachments you may send us, and any other information you
-            may
-            choose to provide.</p>
-        <p>When you register for an Account, we may ask for your contact information, including items such as name,
-            company
-            name, address, email address, and telephone number.</p>
-
-        <h2>How we use your information</h2>
-
-        <p>We use the information we collect in various ways, including to:</p>
-
-        <ul>
-            <li>Provide, operate, and maintain our website</li>
-            <li>Improve, personalize, and expand our website</li>
-            <li>Understand and analyze how you use our website</li>
-            <li>Develop new products, services, features, and functionality</li>
-            <li>Communicate with you, either directly or through one of our partners, including for customer service, to
-                provide you with updates and other information relating to the website, and for marketing and
-                promotional
-                purposes</li>
-            <li>Send you emails</li>
-            <li>Find and prevent fraud</li>
-        </ul>
-
-        <h2>Log Files</h2>
-
-        <p>https://djakarta-miningclub.com follows a standard procedure of using log files. These files log visitors
-            when
-            they visit websites. All hosting companies do this and a part of hosting services' analytics. The
-            information
-            collected by log files include internet protocol (IP) addresses, browser type, Internet Service Provider
-            (ISP),
-            date and time stamp, referring/exit pages, and possibly the number of clicks. These are not linked to any
-            information that is personally identifiable. The purpose of the information is for analyzing trends,
-            administering the site, tracking users' movement on the website, and gathering demographic information.</p>
-
-
-        <h2>Google DoubleClick DART Cookie</h2>
-
-        <p>Google is one of a third-party vendor on our site. It also uses cookies, known as DART cookies, to serve ads
-            to
-            our site visitors based upon their visit to www.website.com and other sites on the internet. However,
-            visitors
-            may choose to decline the use of DART cookies by visiting the Google ad and content network Privacy Policy
-            at
-            the following URL – <a
-                href="https://policies.google.com/technologies/ads">https://policies.google.com/technologies/ads</a></p>
-
-        <h2>Our Advertising Partners</h2>
-
-        <p>Some of advertisers on our site may use cookies and web beacons. Our advertising partners are listed below.
-            Each
-            of our advertising partners has their own Privacy Policy for their policies on user data. For easier access,
-            we
-            hyperlinked to their Privacy Policies below.</p>
-
-        <ul>
-            <li>
-                <p>Google</p>
-                <p><a
-                        href="https://policies.google.com/technologies/ads">https://policies.google.com/technologies/ads</a>
-                </p>
-            </li>
-        </ul>
-
-        <h2>Advertising Partners Privacy Policies</h2>
-
-        <P>You may consult this list to find the Privacy Policy for each of the advertising partners of
-            https://djakarta-miningclub.com.</p>
-
-        <p>Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons that are
-            used in
-            their respective advertisements and links that appear on https://djakarta-miningclub.com, which are sent
-            directly to users' browser. They automatically receive your IP address when this occurs. These technologies
-            are
-            used to measure the effectiveness of their advertising campaigns and/or to personalize the advertising
-            content
-            that you see on websites that you visit.</p>
-
-        <p>Note that https://djakarta-miningclub.com has no access to or control over these cookies that are used by
-            third-party advertisers.</p>
-
-        <h2>Third Party Privacy Policies</h2>
-
-        <p>https://djakarta-miningclub.com's Privacy Policy does not apply to other advertisers or websites. Thus, we
-            are
-            advising you to consult the respective Privacy Policies of these third-party ad servers for more detailed
-            information. It may include their practices and instructions about how to opt-out of certain options. </p>
-
-        <p>You can choose to disable cookies through your individual browser options. To know more detailed information
-            about cookie management with specific web browsers, it can be found at the browsers' respective websites.
-        </p>
-
-        <h2>CCPA Privacy Rights (Do Not Sell My Personal Information)</h2>
-
-        <p>Under the CCPA, among other rights, California consumers have the right to:</p>
-        <p>Request that a business that collects a consumer's personal data disclose the categories and specific pieces
-            of
-            personal data that a business has collected about consumers.</p>
-        <p>Request that a business delete any personal data about the consumer that a business has collected.</p>
-        <p>Request that a business that sells a consumer's personal data, not sell the consumer's personal data.</p>
-        <p>If you make a request, we have one month to respond to you. If you would like to exercise any of these
-            rights,
-            please contact us.</p>
-
-        <h2>GDPR Data Protection Rights</h2>
-
-        <p>We would like to make sure you are fully aware of all of your data protection rights. Every user is entitled
-            to
-            the following:</p>
-        <p>The right to access – You have the right to request copies of your personal data. We may charge you a small
-            fee
-            for this service.</p>
-        <p>The right to rectification – You have the right to request that we correct any information you believe is
-            inaccurate. You also have the right to request that we complete the information you believe is incomplete.
-        </p>
-        <p>The right to erasure – You have the right to request that we erase your personal data, under certain
-            conditions.
-        </p>
-        <p>The right to restrict processing – You have the right to request that we restrict the processing of your
-            personal
-            data, under certain conditions.</p>
-        <p>The right to object to processing – You have the right to object to our processing of your personal data,
-            under
-            certain conditions.</p>
-        <p>The right to data portability – You have the right to request that we transfer the data that we have
-            collected to
-            another organization, or directly to you, under certain conditions.</p>
-        <p>If you make a request, we have one month to respond to you. If you would like to exercise any of these
-            rights,
-            please contact us.</p>
-
-        <h2>Children's Information</h2>
-
-        <p>Another part of our priority is adding protection for children while using the internet. We encourage parents
-            and
-            guardians to observe, participate in, and/or monitor and guide their online activity.</p>
-
-        <p>https://djakarta-miningclub.com does not knowingly collect any Personal Identifiable Information from
-            children
-            under the age of 13. If you think that your child provided this kind of information on our website, we
-            strongly
-            encourage you to contact us immediately and we will do our best efforts to promptly remove such information
-            from
-            our records.</p>
+        <p>You have options regarding the collection, use and sharing of your Personal Information under certain
+            circumstances. When you receive promotional communications from us, you may specify a preference to stop
+            receiving further promotional communications from us and you will have the chance to &ldquo;opt-out&rdquo;
+            by following the unsubscribe instructions indicated in the communication you receive. You may also contact
+            us via email at secretariat@djakarta-miningclub.com to opt-out of receiving any promotional communications.
+            (Please include &ldquo;Opt-Out&rdquo; in the subject line.) Despite your selected preferences, we may send
+            you non-marketing communications regarding the services we provide to you, such as notices about
+            administrative updates, transaction reports, notices of new Website releases, and notices regarding changes
+            to the Website, updates to our Privacy Policy, Terms of Use, or other policies.</p>
     </div>
 </body>
 
