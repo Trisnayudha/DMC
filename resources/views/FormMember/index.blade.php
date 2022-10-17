@@ -201,6 +201,29 @@
                                     Please provide a Mobile Number
                                 </div>
                             </div>
+                            <div class="col-sm-4">
+                                <label for="office_number" class="form-label">Office Number</label>
+                                <input type="number" class="form-control" name="office_number" placeholder=""
+                                    required>
+                                <div class="invalid-feedback" {{ old('office_number') }}>
+                                    Please provide a Postal Code
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="portal_code" class="form-label">Postal Code</label>
+                                <input type="number" class="form-control" name="portal_code" placeholder=""
+                                    required>
+                                <div class="invalid-feedback" {{ old('portal_code') }}>
+                                    Please provide a Postal Code
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" name="city" placeholder="" required>
+                                <div class="invalid-feedback" {{ old('city') }}>
+                                    Please provide a City
+                                </div>
+                            </div>
 
                             <div class="col-sm-6 mb-3">
                                 <label for="country" class="form-label">Country * </label>

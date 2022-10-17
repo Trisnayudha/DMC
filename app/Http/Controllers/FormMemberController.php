@@ -40,6 +40,9 @@ class FormMemberController extends Controller
         $company_website = $request->company_website;
         $country = $request->country;
         $address = $request->address;
+        $city = $request->city;
+        $office_number = $request->office_number;
+        $portal_code = $request->portal_code;
         $company_category = $request->company_category;
         $company_other = $request->company_other;
 
@@ -58,6 +61,9 @@ class FormMemberController extends Controller
             $findUsers->company_website = $company_website;
             $findUsers->country = $country;
             $findUsers->address = $address;
+            $findUsers->city = $city;
+            $findUsers->office_number = $office_number;
+            $findUsers->portal_code = $portal_code;
             $findUsers->company_category = $company_category;
             $findUsers->explore = $explore;
             $findUsers->cci = $cci;
@@ -86,6 +92,9 @@ class FormMemberController extends Controller
             $save->company_website = $company_website;
             $save->country = $country;
             $save->address = $address;
+            $save->portal_code = $portal_code;
+            $save->city = $city;
+            $save->office_number = $office_number;
             $save->company_category = $company_category;
             $save->explore = $explore;
             $save->cci = $cci;
