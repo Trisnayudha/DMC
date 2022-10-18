@@ -15,19 +15,20 @@ class FormMemberController extends Controller
     public function test()
     {
         // dd('test');
-        $send = new EmailSender();
-        $send->subject = "Membership";
-        $send->template = "email.test";
-        $send->data = [
-            "name" => 'Nama',
-            'email' => 'test@gmail.com',
+        return view('email.membership');
+        // $send = new EmailSender();
+        // $send->subject = "Membership";
+        // $send->template = "email.test";
+        // $send->data = [
+        //     "name" => 'Nama',
+        //     'email' => 'test@gmail.com',
 
-        ];
-        $send->from = env('EMAIL_SENDER');
-        $send->name_sender = env('EMAIL_NAME');
-        $send->to = 'yudha@indonesiaminer.com';
-        $send->sendEmail();
-        dd($send);
+        // ];
+        // $send->from = env('EMAIL_SENDER');
+        // $send->name_sender = env('EMAIL_NAME');
+        // $send->to = 'yudha@indonesiaminer.com';
+        // $send->sendEmail();
+        // dd($send);
     }
     public function store(Request $request)
     {

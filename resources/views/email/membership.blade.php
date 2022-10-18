@@ -123,6 +123,26 @@
             </p>
             <p>Follow us on our social media, Join the conversation #djakartaminingclub |
                 @djakartaminingclub</p>
+            <br>
+            <p style="text-align: center">
+                <a href="https://www.linkedin.com/company/djakartaminingclub/" style="color:white">
+                    <img src="{{ asset('icon/linkedin.svg') }}" alt="linkedin" height="30" width="30"
+                        target="_blank">
+                </a>
+                <a href="https://m.facebook.com/Djakarta-Mining-Club-Coal-Club-Indonesia-107144144168442/?ref=page_internal"
+                    style="color:white">
+                    <img src="{{ asset('icon/facebook.svg') }}" alt="facebook" height="30" width="30"
+                        target="_blank">
+                </a>
+                <a href="https://www.instagram.com/djakartaminingclub/" style="color:white">
+                    <img src="{{ asset('icon/instagram.svg') }}" alt="instagram" height="30" width="30"
+                        target="_blank">
+                </a>
+                <a href="https://youtube.com/channel/UCsoC5rNFrHTi4ZSFPdYmikQ" style="color:white">
+                    <img src="{{ asset('icon/youtube.svg') }}" alt="youtube" height="30" width="30"
+                        target="_blank">
+                </a>
+            </p>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.
