@@ -100,25 +100,29 @@
 <body>
 
     <div class="body">
-        <div class="header-email">
-            <img src="{{ asset('/image/dmc.png') }}" alt="Image" class="img-logo">
-        </div>
         <div class="body-email">
             <p>
-                Thank you for signing up as a member of Djakarta Mining Club. Keep an eye on your inbox for the next
-                events update, DMC Weekly Mining News and other mining clubs activities.
+                Your membership in the Djakarta Mining Club has the potential to make a significant impact
+                on both you and the mining industry as a whole. We are grateful to have you join us!
+            </p>
+            <p>
+                As a member, you will gain access to valuable insight from industry updates, networking and
+                professional development opportunities. Members also enjoy discount members fee to attend
+                our event &amp; events of other mining partners throughout asia pacific.
+            </p>
+            <p>Our events bring the Indonesia mining industry together. Hear from the leaders of our
+                industry and gain valuable insight into their companies and technologies. Plus, network with
+                other professionals interested in mining.</p>
+            <p>
+                See you at our Next Event!
             </p>
             <br>
             <p>
-                Stay to Network!
+                If you have any questions, please contact us at secretariat@djakarta-miningclub.com or +62
+                8111937300.
             </p>
-            <br>
-            <p>
-                Regards,
-            </p>
-            <p>
-                Secretariat Djakarta Mining Club
-            </p>
+            <p>Follow us on our social media, Join the conversation #djakartaminingclub |
+                @djakartaminingclub</p>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.

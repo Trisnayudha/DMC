@@ -102,7 +102,7 @@ class FormMemberController extends Controller
 
 
             $send = new EmailSender();
-            $send->subject = "Membership";
+            $send->subject = "Your Membership is Activated!";
             $send->template = "email.membership";
             $send->data = [
                 "name" => $name,
