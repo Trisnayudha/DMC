@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\EmailSender;
 use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
@@ -74,17 +75,19 @@ class AuthController extends Controller
             ]
         );
         if ($validate->fails()) {
-            $response['status'] = false;
+            $data = [
+                'email' => $validate->errors()->first('email'),
+                'phone' => $validate->errors()->first('phone')
+            ];
+            $response['status'] = 422;
             $response['message'] = 'Something was wrong';
-            $response['payload'] = $validate->errors()->first();
-
-            return response()->json($response, 422);
+            $response['payload'] = $data;
         } else {
-            $response['status'] = true;
+            $response['status'] = 200;
             $response['message'] = 'Next';
             $response['payload'] = null;
-            return response()->json($response, 200);
         }
+        return response()->json($response);
     }
 
     public function signup(Request $request)
@@ -115,7 +118,8 @@ class AuthController extends Controller
             ]
         );
         $name = $request->name;
-        $phone = $request->phone;
+        $country_phone = $request->country_phone;
+        $phone = $country_phone . $request->phone;
         $email = $request->email;
         $password = $request->password;
         $prefix = $request->prefix;
@@ -127,7 +131,8 @@ class AuthController extends Controller
         $company_other = $request->company_other;
         $company_website = $request->company_website;
         $city = $request->city;
-        $office_number = $request->office_number;
+        $country_phone_office = $request->country_phone_office;
+        $office_number = $country_phone_office . $request->office_number;
         $portal_code = $request->portal_code;
         $cci = $request->cci;
         $explore = $request->explore;
@@ -135,11 +140,9 @@ class AuthController extends Controller
             $company_category = $company_other;
         }
         if ($validate->fails()) {
-            $response['status'] = false;
+            $response['status'] = 401;
             $response['message'] = 'Something was wrong';
             $response['payload'] = $validate->errors()->first();
-
-            return response()->json($response, 422);
         } else {
             $user = User::create([
                 'name' => $name,
@@ -165,16 +168,15 @@ class AuthController extends Controller
                 'company_id' => $company->id
             ]);
             $user->assignRole('guest');
-            $role = $this->user->checkrole($user->id);
-            $response['status'] = true;
+            $response['status'] = 200;
             $response['message'] = 'Register Successfully';
             $response['payload'] = [
                 'id' => $user->id,
                 'email' => $email,
                 'phone' => $phone,
             ];
-            return response()->json($response, 200);
         }
+        return response()->json($response);
     }
     public function requestOtp(Request $request)
     {
@@ -182,9 +184,39 @@ class AuthController extends Controller
         Log::info("otp = " . $otp);
         $email = $request->email;
         $phone = $request->phone;
+        $iscond = $request->iscond;
         if (!empty($email)) {
-            $user = User::where('email', '=', $email)->update(['otp' => $otp]);
-            dd('email:' . $user);
+            $user = User::where('email', '=', $email)->first();
+            $stat = User::where('email', '=', $email)->update(['otp' => $otp]);
+            if (!empty($user)) {
+                $send = new EmailSender();
+                if ($iscond == 'signup') {
+                    $send->subject = "OTP Register";
+                    $wording = 'We received a request to register your account. To register, please use this
+                    code:';
+                } elseif ($iscond == 'forgot') {
+                    $send->subject = "OTP Forgot Password";
+                    $wording = 'We received a request to reset the password for your account. To reset the password, please use this
+                    code:';
+                }
+                $send->template = "email.tokenverify";
+                $send->data = [
+                    'name' => $user->name,
+                    'wording' => $wording,
+                    'otp' => $otp
+                ];
+                $send->from = env('EMAIL_SENDER');
+                $send->name_sender = env('EMAIL_NAME');
+                $send->to = $email;
+                $send->sendEmail();
+                $response['status'] = 200;
+                $response['message'] = 'Successfully send OTP to Email';
+                $response['payload'] = $send;
+            } else {
+                $response['status'] = 401;
+                $response['message'] = 'Email was Wrong';
+                $response['payload'] = null;
+            }
         } else {
             $user = ProfileModel::where('phone', '=', $phone)->join('users', 'users.id', '=', 'profiles.users_id')->first();
             $stat = ProfileModel::where('phone', '=', $phone)->join('users', 'users.id', '=', 'profiles.users_id')->update(['users.otp' => $otp]);
@@ -192,21 +224,89 @@ class AuthController extends Controller
                 $send = new WhatsappApi();
                 $send->phone = $phone;
                 $send->message = 'Dear ' . $user->name . '
-                Your OTP is: ' . $otp;
+Your verification code (OTP) ' . $otp;
                 $send->WhatsappMessage();
-                $response['status'] = true;
+                $data = [
+                    'phone' => $phone,
+                    'whatsapp' => json_decode($send->res),
+                ];
+                $response['status'] = 200;
                 $response['message'] = 'Successfully send OTP to Whatsapp';
-                $response['payload'] = json_decode($send->res);
-                return response()->json($response, 422);
+                $response['payload'] = $data;
             } else {
-                $response['status'] = false;
-                $response['message'] = 'Phone Number Wrong';
+                $response['status'] = 401;
+                $response['message'] = 'Phone Number was Wrong';
                 $response['payload'] = null;
-                return response()->json($response, 422);
             }
         }
+        return response()->json($response);
     }
-
+    public function verifyOtp(Request $request)
+    {
+        $email = $request->email;
+        $phone = $request->phone;
+        if (!empty($email)) {
+            $user  = User::where([['email', '=', $request->email], ['otp', '=', $request->otp]])->first();
+            if (!empty($user)) {
+                User::where('email', '=', $request->email)->update([
+                    'otp' => null,
+                    'verify_email' => 'verified'
+                ]);
+                $check = User::where('id', '=', $user->id)->first();
+                auth()->login($user, true);
+                $role = $this->user->checkrole($user->id);
+                $accessToken = auth()->user()->createToken('token-name')->plainTextToken;
+                $data = [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $role[0]->name,
+                    'token' => $accessToken,
+                    'verify_email' => $check->verify_email,
+                    'verify_phone' => $check->verify_phone
+                ];
+                $response['status'] = 200;
+                $response['message'] = 'Successfully OTP';
+                $response['payload'] = $data;
+            } else {
+                $response['status'] = 401;
+                $response['message'] = 'OTP Invalid';
+                $response['payload'] = null;
+            }
+        } else {
+            $user = ProfileModel::where([['profiles.phone', '=', $phone], ['users.otp', '=', $request->otp]])->join('users', 'users.id', '=', 'profiles.users_id')->first();
+            $userlogin  = User::where('email', '=', $user->email)->first();
+            // dd($user);
+            if (!empty($user)) {
+                User::where('email', '=', $user->email)->update([
+                    'otp' => null,
+                    'verify_phone' => 'verified'
+                ]);
+                $check = User::where('id', '=', $user->id)->first();
+                auth()->login($userlogin, true);
+                // dd($user);
+                $role = $this->user->checkrole($user->id);
+                $accessToken = auth()->user()->createToken('token-name')->plainTextToken;
+                $data = [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $role[0]->name,
+                    'token' => $accessToken,
+                    'verify_email' => $check->verify_email,
+                    'verify_phone' => $check->verify_phone
+                ];
+                $response['status'] = 200;
+                $response['message'] = 'Successfully OTP';
+                $response['payload'] = $data;
+            } else {
+                $response['status'] = 401;
+                $response['message'] = 'OTP Invalid';
+                $response['payload'] = null;
+            }
+        }
+        return response()->json($response);
+    }
     public function register(Request $request)
     {
         $validate = Validator::make(
