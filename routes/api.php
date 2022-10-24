@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/check-signup', [AuthController::class, 'check']);
+Route::post('/signup', [AuthController::class, 'signup']);
+
+Route::any('request_otp', [AuthController::class, 'requestOtp']);
+Route::post('verify_otp', [AuthController::class, 'verifyOtp']);

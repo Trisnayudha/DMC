@@ -16,6 +16,16 @@ class CreateCompanyTable extends Migration
         Schema::create('company', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('company_name')->nullable();
+            $table->string('company_website')->nullable();
+            $table->string('company_category')->nullable();
+            $table->string('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('portal_code')->nullable();
+            $table->string('office_number')->nullable();
+            $table->string('country')->nullable();
+            $table->string('cci')->nullable();
+            $table->string('explore')->nullable();
         });
     }
 
