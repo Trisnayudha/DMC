@@ -145,7 +145,7 @@ Your verification code (OTP) ' . $otp;
             ];
             $response['status'] = 422;
             $response['message'] = 'Invalid data';
-            $response['payload'] = $validate->errors()->first('email');
+            $response['payload'] = $data;
         } else if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             $role = $this->user->checkrole($user->id);
