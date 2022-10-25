@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -531,18 +532,60 @@ Your verification code (OTP) ' . $otp;
             $response['message'] = 'Invalid data';
             $response['payload'] = $data;
         } else {
-            $response['status'] = 422;
-            $response['message'] = 'Yudha tamvan';
-            $response['payload'] = null;
+            $otp = rand(10000, 99999);
+            Log::info("otp = " . $otp);
+            User::where('email', '=', $request->email)->update(['otp' => $otp]);
+            $data = [
+                'email' => $request->email,
+                'otp' => $otp
+            ];
+            $response['status'] = 200;
+            $response['message'] = 'Email Found';
+            $response['payload'] = $data;
         }
         return response()->json($response);
     }
 
     public function resetpassword(Request $request)
     {
-        $response['status'] = 422;
-        $response['message'] = 'Yudha tamvan';
-        $response['payload'] = null;
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'email' => ['required', 'email', 'exists:users,email'],
+                'password' => ['required']
+            ],
+            [
+                'email.required' => 'Email wajib diisi',
+                'email.exists' => 'Email Not Found'
+            ]
+        );
+
+        if ($validate->fails()) {
+            $data = [
+                'email' => $validate->errors()->first('email')
+            ];
+            $response['status'] = 422;
+            $response['message'] = 'Invalid data';
+            $response['payload'] = $data;
+        } else {
+            $email = $request->email;
+            $password = Hash::make($request->password);
+            $otp = $request->otp;
+            $user = User::where([['email', '=', $email], ['otp', '=', $otp]])->first();
+            if (!empty($user)) {
+                User::where('email', '=', $email)->update(['password' => $password]);
+                $response['status'] = 200;
+                $response['message'] = 'Successfully change password';
+                $response['payload'] = null;
+            } else {
+                $data = [
+                    'otp' => 'OTP not sync'
+                ];
+                $response['status'] = 422;
+                $response['message'] = 'Something was wrong';
+                $response['payload'] = $data;
+            }
+        }
         return response()->json($response);
     }
 }
