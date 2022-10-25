@@ -315,6 +315,7 @@ Your verification code (OTP) ' . $otp;
                         'verify_email' => $user->verify_email,
                         'verify_phone' => $user->verify_phone
                     ];
+                    MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;
                     $response['message'] = 'Successfully Register';
                     $response['payload'] = $data;
@@ -367,6 +368,7 @@ Your verification code (OTP) ' . $otp;
                         'verify_email' => $user->verify_email,
                         'verify_phone' => $user->verify_phone
                     ];
+                    MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;
                     $response['message'] = 'Successfully Register';
                     $response['payload'] = $data;
