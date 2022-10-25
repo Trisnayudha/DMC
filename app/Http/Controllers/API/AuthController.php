@@ -69,9 +69,12 @@ Your verification code (OTP) ' . $otp;
                 $response['message'] = 'Successfully send OTP to Whatsapp';
                 $response['payload'] = $data;
             } else {
+                $data = [
+                    'phone' => 'Phone number not verified'
+                ];
                 $response['status'] = 422;
-                $response['message'] = 'Phone number belum verified';
-                $response['payload'] = null;
+                $response['message'] = 'Invalid phone number';
+                $response['payload'] = $data;
             }
         }
         return response()->json($response);
@@ -118,9 +121,12 @@ Your verification code (OTP) ' . $otp;
                 $response['message'] = 'Successfully Login';
                 $response['payload'] = $data;
             } else {
+                $data = [
+                    'otp' => 'Invalid OTP'
+                ];
                 $response['status'] = 422;
                 $response['message'] = 'OTP was Wrong';
-                $response['payload'] = null;
+                $response['payload'] = $data;
             }
         }
         return response()->json($response);
@@ -504,54 +510,39 @@ Your verification code (OTP) ' . $otp;
         ], 200);
     }
 
-    public function resetpassword(Request $request)
+    public function forgot(Request $request)
     {
         $validate = Validator::make(
             $request->all(),
             [
-                'name' => ['required', 'string', 'max:255'],
-                'nik' => ['required']
+                'email' => ['required', 'email', 'exists:users,email'],
             ],
             [
-                'nik.required' => 'NIK Harap diisi',
-                'name.required' => 'Name Harap diisi',
-                'name.string' => 'Harap memasukan Nama berupa String',
+                'email.required' => 'Email wajib diisi',
+                'email.exists' => 'Email Not Found'
             ]
         );
+
         if ($validate->fails()) {
-            $response['status'] = false;
-            $response['message'] = $validate->errors()->first();
-
-            return response()->json($response, 422);
+            $data = [
+                'email' => $validate->errors()->first('email')
+            ];
+            $response['status'] = 422;
+            $response['message'] = 'Invalid data';
+            $response['payload'] = $data;
         } else {
-            try {
-
-                $user = User::where('name', $request['name'])->firstOrFail();
-                try {
-                    $profile = Profile::where('nik', $request['nik'])->firstOrFail();
-                } catch (\Throwable $th) {
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'NIK tidak ditemukan'
-                    ], 422);
-                }
-                //throw $th;
-                $proses = User::where('id', $user->id)->update(['restpass' => '1']);
-                $success['Information'] = 'Data Request Password sedang dikonfirmasi';
-                $success['id'] =  $user->id;
-                $success['NIK'] =  $profile->nik;
-                $success['Name'] =  $user->name;
-                activity()->log('Melakukan Request Reset Password');
-                return response()->json([
-                    'status' => true,
-                    'message' => $success
-                ]);
-            } catch (ModelNotFoundException $e) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Nama tidak ditemukan'
-                ], 422);
-            }
+            $response['status'] = 422;
+            $response['message'] = 'Yudha tamvan';
+            $response['payload'] = null;
         }
+        return response()->json($response);
+    }
+
+    public function resetpassword(Request $request)
+    {
+        $response['status'] = 422;
+        $response['message'] = 'Yudha tamvan';
+        $response['payload'] = null;
+        return response()->json($response);
     }
 }

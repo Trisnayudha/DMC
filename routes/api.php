@@ -28,3 +28,6 @@ Route::post('/signup', [AuthController::class, 'signup']);
 
 Route::any('request_otp', [AuthController::class, 'requestOtp']);
 Route::post('verify_otp', [AuthController::class, 'verifyOtp']);
+
+Route::post('/forgot-password', [AuthController::class, 'forgot']);
+Route::post('/reset-password', [AuthController::class, 'resetpassword']);
