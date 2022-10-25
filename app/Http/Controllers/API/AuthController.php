@@ -6,6 +6,7 @@ use App\Helpers\EmailSender;
 use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
+use App\Models\MemberModel;
 use App\Models\Profiles\Profile;
 use App\Models\Profiles\ProfileApi;
 use App\Models\Profiles\ProfileModel;
@@ -144,34 +145,47 @@ class AuthController extends Controller
             $response['message'] = 'Something was wrong';
             $response['payload'] = $validate->errors()->first();
         } else {
-            $user = User::create([
-                'name' => $name,
-                'email' =>  $email,
-                'password' => Hash::make($password),
-            ]);
-            $company = CompanyModel::create([
-                'company_name' => $company_name,
-                'company_website' => $company_website,
-                'company_category' => $company_category,
-                'address' => $address,
-                'city' => $city,
-                'portal_code' => $portal_code,
-                'office_number' => $office_number,
-                'country' => $country,
-                'cci' => $cci,
-                'explore' => $explore
-            ]);
-            $profile = ProfileModel::create([
-                'phone' => $phone,
-                'job_title' => $job_title,
-                'users_id' => $user->id,
-                'company_id' => $company->id
-            ]);
-            $user->assignRole('guest');
+            $findUsers = MemberModel::where('phone', $phone)->orWhere('email', $email)->first();
+            if (!empty($findUsers)) {
+                $findUsers->company_name = $company_name;
+                $findUsers->phone = $phone;
+                $findUsers->email = $email;
+                $findUsers->name = $name;
+                $findUsers->job_title = $job_title;
+                $findUsers->company_website = $company_website;
+                $findUsers->country = $country;
+                $findUsers->address = $address;
+                $findUsers->city = $city;
+                $findUsers->office_number = $office_number;
+                $findUsers->portal_code = $portal_code;
+                $findUsers->company_category = $company_category;
+                $findUsers->explore = $explore;
+                $findUsers->password = Hash::make($password);
+                $findUsers->cci = $cci;
+
+                $findUsers->save();
+            } else {
+                $save = new MemberModel();
+                $save->company_name = $company_name;
+                $save->phone = $phone;
+                $save->email = $email;
+                $save->name = $name;
+                $save->job_title = $job_title;
+                $save->company_website = $company_website;
+                $save->country = $country;
+                $save->address = $address;
+                $save->portal_code = $portal_code;
+                $save->city = $city;
+                $save->office_number = $office_number;
+                $save->company_category = $company_category;
+                $save->explore = $explore;
+                $save->cci = $cci;
+                $save->password = Hash::make($password);
+                $save->save();
+            }
             $response['status'] = 200;
-            $response['message'] = 'Register Successfully';
+            $response['message'] = 'Save data Successfully';
             $response['payload'] = [
-                'id' => $user->id,
                 'email' => $email,
                 'phone' => $phone,
             ];
@@ -184,21 +198,14 @@ class AuthController extends Controller
         Log::info("otp = " . $otp);
         $email = $request->email;
         $phone = $request->phone;
-        $iscond = $request->iscond;
         if (!empty($email)) {
-            $user = User::where('email', '=', $email)->first();
-            $stat = User::where('email', '=', $email)->update(['otp' => $otp]);
+            $user = MemberModel::where('email', '=', $email)->first();
+            $stat = MemberModel::where('email', '=', $email)->update(['otp' => $otp]);
             if (!empty($user)) {
                 $send = new EmailSender();
-                if ($iscond == 'signup') {
-                    $send->subject = "OTP Register";
-                    $wording = 'We received a request to register your account. To register, please use this
+                $send->subject = "OTP Register";
+                $wording = 'We received a request to register your account. To register, please use this
                     code:';
-                } elseif ($iscond == 'forgot') {
-                    $send->subject = "OTP Forgot Password";
-                    $wording = 'We received a request to reset the password for your account. To reset the password, please use this
-                    code:';
-                }
                 $send->template = "email.tokenverify";
                 $send->data = [
                     'name' => $user->name,
@@ -218,8 +225,8 @@ class AuthController extends Controller
                 $response['payload'] = null;
             }
         } else {
-            $user = ProfileModel::where('phone', '=', $phone)->join('users', 'users.id', '=', 'profiles.users_id')->first();
-            $stat = ProfileModel::where('phone', '=', $phone)->join('users', 'users.id', '=', 'profiles.users_id')->update(['users.otp' => $otp]);
+            $user = MemberModel::where('phone', '=', $phone)->first();
+            $stat = MemberModel::where('phone', '=', $phone)->update(['otp' => $otp]);
             if (!empty($user)) {
                 $send = new WhatsappApi();
                 $send->phone = $phone;
@@ -241,68 +248,133 @@ Your verification code (OTP) ' . $otp;
         }
         return response()->json($response);
     }
+
+
     public function verifyOtp(Request $request)
     {
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'email' => ['unique:users'],
+                'phone' => ['unique:profiles'],
+            ],
+            [
+                'phone.unique' => 'Nomor Handphone sudah terdaftar',
+                'email.unique' => 'Email sudah digunakan'
+            ]
+        );
         $email = $request->email;
         $phone = $request->phone;
-        if (!empty($email)) {
-            $user  = User::where([['email', '=', $request->email], ['otp', '=', $request->otp]])->first();
-            if (!empty($user)) {
-                User::where('email', '=', $request->email)->update([
-                    'otp' => null,
-                    'verify_email' => 'verified'
-                ]);
-                $check = User::where('id', '=', $user->id)->first();
-                auth()->login($user, true);
-                $role = $this->user->checkrole($user->id);
-                $accessToken = auth()->user()->createToken('token-name')->plainTextToken;
-                $data = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $role[0]->name,
-                    'token' => $accessToken,
-                    'verify_email' => $check->verify_email,
-                    'verify_phone' => $check->verify_phone
-                ];
-                $response['status'] = 200;
-                $response['message'] = 'Successfully OTP';
-                $response['payload'] = $data;
-            } else {
-                $response['status'] = 401;
-                $response['message'] = 'OTP Invalid';
-                $response['payload'] = null;
-            }
+        if ($validate->fails()) {
+            $response['status'] = 401;
+            $response['message'] = 'Something was wrong';
+            $response['payload'] = $validate->errors()->first();
         } else {
-            $user = ProfileModel::where([['profiles.phone', '=', $phone], ['users.otp', '=', $request->otp]])->join('users', 'users.id', '=', 'profiles.users_id')->first();
-            $userlogin  = User::where('email', '=', $user->email)->first();
-            // dd($user);
-            if (!empty($user)) {
-                User::where('email', '=', $user->email)->update([
-                    'otp' => null,
-                    'verify_phone' => 'verified'
-                ]);
-                $check = User::where('id', '=', $user->id)->first();
-                auth()->login($userlogin, true);
-                // dd($user);
-                $role = $this->user->checkrole($user->id);
-                $accessToken = auth()->user()->createToken('token-name')->plainTextToken;
-                $data = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $role[0]->name,
-                    'token' => $accessToken,
-                    'verify_email' => $check->verify_email,
-                    'verify_phone' => $check->verify_phone
-                ];
-                $response['status'] = 200;
-                $response['message'] = 'Successfully OTP';
-                $response['payload'] = $data;
+
+            if (!empty($email)) {
+                $findUser  = MemberModel::where([['email', '=', $email], ['otp', '=', $request->otp]])->first();
+                if (!empty($findUser)) {
+                    $user = User::create([
+                        'name' => $findUser->name,
+                        'email' =>  $findUser->email,
+                        'password' => Hash::make($findUser->password),
+                        'verify_email' => 'verified',
+                        'isStatus' => 'Active'
+                    ]);
+                    $user->assignRole('guest');
+                    $company = CompanyModel::create([
+                        'company_name' => $findUser->company_name,
+                        'company_website' => $findUser->company_website,
+                        'company_category' => $findUser->company_category,
+                        'address' => $findUser->address,
+                        'city' => $findUser->city,
+                        'portal_code' => $findUser->portal_code,
+                        'office_number' => $findUser->office_number,
+                        'country' => $findUser->country,
+                        'cci' => $findUser->cci,
+                        'explore' => $findUser->explore
+                    ]);
+                    $profile = ProfileModel::create([
+                        'phone' => $findUser->phone,
+                        'job_title' => $findUser->job_title,
+                        'users_id' => $user->id,
+                        'company_id' => $company->id
+                    ]);
+                    $user = User::where('id', '=', $user->id)->first();
+
+                    auth()->login($user, true);
+
+                    $role = $this->user->checkrole($user->id);
+                    $accessToken = auth()->user()->createToken('token-name')->plainTextToken;
+                    $data = [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $role[0]->name,
+                        'token' => $accessToken,
+                        'verify_email' => $user->verify_email,
+                        'verify_phone' => $user->verify_phone
+                    ];
+                    $response['status'] = 200;
+                    $response['message'] = 'Successfully Register';
+                    $response['payload'] = $data;
+                } else {
+                    $response['status'] = 401;
+                    $response['message'] = 'OTP Invalid';
+                    $response['payload'] = null;
+                }
             } else {
-                $response['status'] = 401;
-                $response['message'] = 'OTP Invalid';
-                $response['payload'] = null;
+                $findUser = MemberModel::where([['phone', '=', $phone], ['otp', '=', $request->otp]])->first();
+                if (!empty($findUser)) {
+                    $user = User::create([
+                        'name' => $findUser->name,
+                        'email' =>  $findUser->email,
+                        'password' => Hash::make($findUser->password),
+                        'verify_phone' => 'verified',
+                        'isStatus' => 'Active'
+                    ]);
+                    $user->assignRole('guest');
+                    $company = CompanyModel::create([
+                        'company_name' => $findUser->company_name,
+                        'company_website' => $findUser->company_website,
+                        'company_category' => $findUser->company_category,
+                        'address' => $findUser->address,
+                        'city' => $findUser->city,
+                        'portal_code' => $findUser->portal_code,
+                        'office_number' => $findUser->office_number,
+                        'country' => $findUser->country,
+                        'cci' => $findUser->cci,
+                        'explore' => $findUser->explore
+                    ]);
+                    $profile = ProfileModel::create([
+                        'phone' => $findUser->phone,
+                        'job_title' => $findUser->job_title,
+                        'users_id' => $user->id,
+                        'company_id' => $company->id
+                    ]);
+                    $user = User::where('id', '=', $user->id)->first();
+
+                    auth()->login($user, true);
+
+                    $role = $this->user->checkrole($user->id);
+                    $accessToken = auth()->user()->createToken('token-name')->plainTextToken;
+                    $data = [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $role[0]->name,
+                        'token' => $accessToken,
+                        'verify_email' => $user->verify_email,
+                        'verify_phone' => $user->verify_phone
+                    ];
+                    $response['status'] = 200;
+                    $response['message'] = 'Successfully Register';
+                    $response['payload'] = $data;
+                } else {
+                    $response['status'] = 401;
+                    $response['message'] = 'OTP Invalid';
+                    $response['payload'] = null;
+                }
             }
         }
         return response()->json($response);

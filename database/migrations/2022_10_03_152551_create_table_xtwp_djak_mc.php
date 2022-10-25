@@ -19,8 +19,8 @@ class CreateTableXtwpDjakMc extends Migration
             $table->string('company_name')->nullable();
             $table->string('name')->nullable();
             $table->string('job_title')->nullable();
-            $table->string('phone')->unique();
-            $table->string('email')->unique();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
             $table->string('company_website')->nullable();
             $table->string('company_category')->nullable();
             $table->string('address')->nullable();
@@ -30,6 +30,8 @@ class CreateTableXtwpDjakMc extends Migration
             $table->string('country')->nullable();
             $table->string('cci')->nullable();
             $table->string('explore')->nullable();
+            $table->string('password')->nullable();
+            $table->string('otp')->nullable();
         });
     }
 

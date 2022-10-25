@@ -22,5 +22,6 @@ class MemberModel extends Model
         'country',
         'cci',
         'explore',
+        'password'
     ];
 }
