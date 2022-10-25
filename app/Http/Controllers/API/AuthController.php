@@ -29,35 +29,147 @@ class AuthController extends Controller
     {
         $this->user = $user;
     }
-    public function login(Request $request)
+    public function signin_phone(Request $request)
     {
-        $validate = Validator::make($request->all(), [
-            'email' => ['required', 'email', 'exists:users,email'],
-        ]);
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'phone' => ['required', 'exists:profiles,phone'],
+            ],
+            [
+                'phone.required' => 'Phone wajib di isi',
+                'phone.exists' => 'Phone Number tidak ditemukan'
+            ]
+        );
 
         if ($validate->fails()) {
-            $response['status'] = false;
-            $response['message'] = 'Email tidak ditemukan';
-            $response['payload'] = $validate->errors();
+            $data = [
+                'phone' => $validate->errors()->first('phone')
+            ];
+            $response['status'] = 422;
+            $response['message'] = 'Invalid data';
+            $response['payload'] = $data;
+        } else {
+            $phone = $request->phone;
+            $findUser = ProfileModel::where([['phone', '=', $phone], ['users.verify_phone', '=', 'verified']])->join('users', 'users.id', 'profiles.users_id')->first();
+            if (!empty($findUser)) {
+                $otp = rand(1000, 9999);
+                Log::info("otp = " . $otp);
+                User::where('id', '=', $findUser->users_id)->update(['otp' => $otp]);
+                $send = new WhatsappApi();
+                $send->phone = $phone;
+                $send->message = 'Dear ' . $findUser->name . '
+Your verification code (OTP) ' . $otp;
+                $send->WhatsappMessage();
+                $data = [
+                    'phone' => $phone,
+                    'whatsapp' => json_decode($send->res),
+                ];
+                $response['status'] = 200;
+                $response['message'] = 'Successfully send OTP to Whatsapp';
+                $response['payload'] = $data;
+            } else {
+                $response['status'] = 422;
+                $response['message'] = 'Phone number belum verified';
+                $response['payload'] = null;
+            }
+        }
+        return response()->json($response);
+    }
 
-            return response()->json($response, 422);
+    public function verify_signin_phone(Request $request)
+    {
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'phone' => ['required', 'exists:profiles,phone'],
+            ],
+            [
+                'phone.required' => 'Phone wajib di isi',
+                'phone.exists' => 'Phone Number tidak ditemukan'
+            ]
+        );
+
+        if ($validate->fails()) {
+            $data = [
+                'phone' => $validate->errors()->first('phone')
+            ];
+            $response['status'] = 422;
+            $response['message'] = 'Invalid data';
+            $response['payload'] = $data;
+        } else {
+            $phone = $request->phone;
+            $otp = $request->otp;
+            $findUser = ProfileModel::where([['phone', '=', $phone], ['users.otp', '=', $otp]])->join('users', 'users.id', 'profiles.users_id')->first();
+            if (!empty($findUser)) {
+                User::where('id', '=', $findUser->users_id)->update(['otp' => null]);
+                $user = User::where('id', '=', $findUser->id)->first();
+                $role = $this->user->checkrole($findUser->id);
+                $data = [
+                    'id' => $findUser->id,
+                    'name' => $findUser->name,
+                    'email' => $findUser->email,
+                    'role' => $role[0]->name,
+                    'token' => $user->createToken('token-name')->plainTextToken,
+                    'verify_email' => $findUser->verify_email,
+                    'verify_phone' => $findUser->verify_phone
+                ];
+                $response['status'] = 200;
+                $response['message'] = 'Successfully Login';
+                $response['payload'] = $data;
+            } else {
+                $response['status'] = 422;
+                $response['message'] = 'OTP was Wrong';
+                $response['payload'] = null;
+            }
+        }
+        return response()->json($response);
+    }
+
+    public function signin_email(Request $request)
+    {
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'email' => ['required', 'email', 'exists:users,email'],
+            ],
+            [
+                'email.required' => 'Email wajib diisi',
+                'email.exists' => 'Email Not Found'
+            ]
+        );
+
+        if ($validate->fails()) {
+            $data = [
+                'email' => $validate->errors()->first('email')
+            ];
+            $response['status'] = 422;
+            $response['message'] = 'Invalid data';
+            $response['payload'] = $validate->errors()->first('email');
         } else if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             $role = $this->user->checkrole($user->id);
-            $success['id'] =  $user->id;
-            $success['token'] = $user->createToken('token-name')->plainTextToken;
-            $success['email'] =  $user->email;
-            $success['role'] = $role[0]->name;
-            return response()->json([
-                'status' => 'Login Successfully!',
-                'data' => $success
-            ]);
+            $data = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $role[0]->name,
+                'token' => $user->createToken('token-name')->plainTextToken,
+                'verify_email' => $user->verify_email,
+                'verify_phone' => $user->verify_phone
+            ];
+            $response['status'] = 200;
+            $response['message'] = 'Successfully Login';
+            $response['payload'] = $data;
         } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Password salah'
-            ], 400);
+            $data = [
+                'password' => 'Password was wrong'
+            ];
+            $response['status'] = 422;
+            $response['message'] = 'Invalid data';
+            $response['payload'] = $data;
         }
+        return response()->json($response);
     }
 
     public function check(Request $request)
@@ -270,14 +382,13 @@ Your verification code (OTP) ' . $otp;
             $response['message'] = 'Something was wrong';
             $response['payload'] = $validate->errors()->first();
         } else {
-
             if (!empty($email)) {
                 $findUser  = MemberModel::where([['email', '=', $email], ['otp', '=', $request->otp]])->first();
                 if (!empty($findUser)) {
                     $user = User::create([
                         'name' => $findUser->name,
                         'email' =>  $findUser->email,
-                        'password' => Hash::make($findUser->password),
+                        'password' => $findUser->password,
                         'verify_email' => 'verified',
                         'isStatus' => 'Active'
                     ]);
@@ -330,7 +441,7 @@ Your verification code (OTP) ' . $otp;
                     $user = User::create([
                         'name' => $findUser->name,
                         'email' =>  $findUser->email,
-                        'password' => Hash::make($findUser->password),
+                        'password' => $findUser->password,
                         'verify_phone' => 'verified',
                         'isStatus' => 'Active'
                     ]);
@@ -381,55 +492,7 @@ Your verification code (OTP) ' . $otp;
         }
         return response()->json($response);
     }
-    public function register(Request $request)
-    {
-        $validate = Validator::make(
-            $request->all(),
-            [
-                'name' => ['string'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'password' => ['required', 'string', 'min:5'],
-                'phone' => ['required', 'unique:profiles'],
-            ],
-            [
-                'phone.required' => 'Harap Masukan Nomor Handphone',
-                'phone.unique' => 'Nomor Handphone sudah terdaftar',
-                'password.required' => 'Password Harap diisi',
-                'email.required' => 'Email Harap diisi',
-                'email.unique' => 'Email sudah digunakan'
-            ]
-        );
 
-        if ($validate->fails()) {
-            $response['status'] = false;
-            $response['message'] = $validate->errors()->first();
-
-            return response()->json($response, 422);
-        } else {
-
-            $user = User::create([
-                'name' => $request['name'],
-                'email' => $request['email'],
-                'verif' => '0',
-                'restpass' => '0',
-                'password' => Hash::make($request['password']),
-            ]);
-            $user->assignRole('guest');
-            $user->user_id_profile()->create([
-                'phone' => $request['phone'],
-            ])->id;
-            $user->user_id_profileusaha()->create()->id;
-            $role = $this->user->checkrole($user->id);
-            $response['status'] = true;
-            $response['message'] = 'Berhasil registrasi donkksss';
-            $response['id'] = $user->id;
-            $response['email'] = $request['email'];
-            $response['phone'] = $request['phone'];
-            $response['token'] = $user->createToken('token-name')->plainTextToken;
-            $response['role'] = $role[0]->name;
-            return response()->json($response, 200);
-        }
-    }
 
     public function logout(Request $request)
     {
