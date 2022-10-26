@@ -535,13 +535,64 @@ Your verification code (OTP) ' . $otp;
             $otp = rand(10000, 99999);
             Log::info("otp = " . $otp);
             User::where('email', '=', $request->email)->update(['otp' => $otp]);
-            $data = [
-                'email' => $request->email,
+            $send = new EmailSender();
+            $send->subject = "OTP Forgot Password";
+            $wording = 'We received a request to reset the password for your account. To reset the password, please use this
+            code:';
+            $send->template = "email.tokenverify";
+            $send->data = [
+                'name' => 'Mr/Mrs',
+                'wording' => $wording,
                 'otp' => $otp
             ];
+            $send->from = env('EMAIL_SENDER');
+            $send->name_sender = env('EMAIL_NAME');
+            $send->to = $request->email;
+            $send->sendEmail();
             $response['status'] = 200;
             $response['message'] = 'Email Found';
+            $response['payload'] = $send;
+        }
+        return response()->json($response);
+    }
+
+    public function verify_forgot(Request $request)
+    {
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'email' => ['required', 'email', 'exists:users,email'],
+                'otp' => ['required']
+            ],
+            [
+                'email.required' => 'Email wajib diisi',
+                'email.exists' => 'Email Not Found'
+            ]
+        );
+        if ($validate->fails()) {
+            $data = [
+                'email' => $validate->errors()->first('email')
+            ];
+            $response['status'] = 422;
+            $response['message'] = 'Invalid data';
             $response['payload'] = $data;
+        } else {
+            //
+            $email = $request->email;
+            $otp = $request->otp;
+            $user = User::where([['email', '=', $email], ['otp', '=', $otp]])->first();
+            if (!empty($user)) {
+                $response['status'] = 200;
+                $response['message'] = 'Berhasil Verify OTP';
+                $response['payload'] = null;
+            } else {
+                $data = [
+                    'otp' => 'OTP not sync'
+                ];
+                $response['status'] = 422;
+                $response['message'] = 'Something was Wrong';
+                $response['payload'] = $data;
+            }
         }
         return response()->json($response);
     }
@@ -573,6 +624,7 @@ Your verification code (OTP) ' . $otp;
             $otp = $request->otp;
             $user = User::where([['email', '=', $email], ['otp', '=', $otp]])->first();
             if (!empty($user)) {
+                User::where('id', '=', $user->id)->update(['otp' => null]);
                 User::where('email', '=', $email)->update(['password' => $password]);
                 $response['status'] = 200;
                 $response['message'] = 'Successfully change password';
