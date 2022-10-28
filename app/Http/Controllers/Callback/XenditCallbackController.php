@@ -20,7 +20,7 @@ use PDF;
 class XenditCallbackController extends Controller
 {
 
-    public function postInvoice(Request $request)
+    public function invoice()
     {
         try {
             //        contoh respon callback invoice
