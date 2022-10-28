@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\Callback\XenditCallbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/xendit/invoice', [XenditCallbackController::class, 'invoice']);
 
 Route::post('/signin-phone', [AuthController::class, 'signin_phone']);
 Route::post('/verify_signin_phone', [AuthController::class, 'verify_signin_phone']);

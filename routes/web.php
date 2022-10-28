@@ -21,5 +21,3 @@ Route::get('/test', [FormMemberController::class, 'test']);
 Route::get('/privacy', function () {
     return view('privacy-policy');
 });
-
-Route::get('/xendit/invoice', [XenditCallbackController::class, 'invoice']);
