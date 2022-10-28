@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\Callback\XenditCallbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,3 +36,6 @@ Route::post('verify_otp', [AuthController::class, 'verifyOtp']);
 Route::post('/forgot-password', [AuthController::class, 'forgot']);
 Route::post('/verify_forgot', [AuthController::class, 'verify_forgot']);
 Route::post('/reset-password', [AuthController::class, 'resetpassword']);
+
+
+Route::get('/list-payment', [PaymentController::class, 'listbank']);

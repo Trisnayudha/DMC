@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Callback\XenditCallbackController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\FormMemberController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +22,6 @@ Route::get('/test', [FormMemberController::class, 'test']);
 Route::get('/privacy', function () {
     return view('privacy-policy');
 });
+
+Route::get('/register-event', [EventController::class, 'view']);
+Route::post('/payment-personal', [EventController::class, 'payment_personal']);

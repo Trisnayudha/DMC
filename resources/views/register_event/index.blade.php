@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="djakarta-miningclub.com">
     <meta name="generator" content="Hugo 0.98.0">
-    <title>DMC Register Membership</title>
+    <title>DMC Register Event</title>
     <meta name="description" content="Register Membership " />
     <meta property="og:title" content="Register Membership " />
     <meta property="og:url" content="" />
@@ -93,248 +93,302 @@
 
     <div class="container">
         <main>
-            <div class="py-5 text-center">
-                <img class="d-block mx-auto mb-4" src="../assets/brand/bootstrap-logo.svg" alt="" width="72"
-                    height="57">
-                <h2>Checkout form</h2>
-                <p class="lead">Below is an example form built entirely with Bootstrap’s form controls. Each required
-                    form group has a validation state that can be triggered by attempting to submit the form without
-                    completing it.</p>
+            <div class="py-2 text-center">
+                <img style="border: none; width:400px" src="{{ asset('image/dmc.png') }}" alt="">
+                <h2 style="text-transform: uppercase">REGISTER EVENT
+                </h2>
+                <p class="lead"> Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS</p>
             </div>
+            <hr class="my-1">
 
             <div class="row g-5">
-                <div class="col-md-5 col-lg-4 order-md-last">
-                    <h4 class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-primary">Your cart</span>
-                        <span class="badge bg-primary rounded-pill">3</span>
-                    </h4>
-                    <ul class="list-group mb-3">
-                        <li class="list-group-item d-flex justify-content-between lh-sm">
-                            <div>
-                                <h6 class="my-0">Product name</h6>
-                                <small class="text-muted">Brief description</small>
-                            </div>
-                            <span class="text-muted">$12</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between lh-sm">
-                            <div>
-                                <h6 class="my-0">Second product</h6>
-                                <small class="text-muted">Brief description</small>
-                            </div>
-                            <span class="text-muted">$8</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between lh-sm">
-                            <div>
-                                <h6 class="my-0">Third item</h6>
-                                <small class="text-muted">Brief description</small>
-                            </div>
-                            <span class="text-muted">$5</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between bg-light">
-                            <div class="text-success">
-                                <h6 class="my-0">Promo code</h6>
-                                <small>EXAMPLECODE</small>
-                            </div>
-                            <span class="text-success">−$5</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>Total (USD)</span>
-                            <strong>$20</strong>
-                        </li>
-                    </ul>
 
-                    <form class="card p-2">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Promo code">
-                            <button type="submit" class="btn btn-secondary">Redeem</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-md-7 col-lg-8">
-                    <h4 class="mb-3">Billing address</h4>
-                    <form class="needs-validation" novalidate>
+                <div class="col-md-12 col-lg-12">
+                    <h4 class="mb-3">* Required information</h4>
+                    <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation" novalidate>
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @csrf
+                        <!-- {{ csrf_field() }} -->
                         <div class="row g-3">
-                            <div class="col-sm-6">
-                                <label for="firstName" class="form-label">First name</label>
-                                <input type="text" class="form-control" id="firstName" placeholder="" value=""
-                                    required>
+                            <div class="col-md-2 mb-1">
+                                <label for="company_name" class="form-label">Company name *</label>
+                                <select class="custom-select d-block w-100" id="prefix" name="prefix" required>
+                                    <option value="PT">PT</option>
+                                    <option value="CV">CV</option>
+                                    <option value="Ltd">Ltd</option>
+                                    <option value="GmbH">GmbH</option>
+                                    <option value="Limited">Limited</option>
+                                    <option value="Llc">Llc</option>
+                                    <option value="Corp">Corp</option>
+                                    <option value="Pte Ltd">Pte Ltd</option>
+                                    <option value="Assosiation">Assosiation</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Pty Ltd">Pty Ltd</option>
+                                    <option value="">Other</option>
+                                </select>
                                 <div class="invalid-feedback">
-                                    Valid first name is required.
+                                    Please select a valid prefix company name.
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <label for="company_name" class="form-label" style="color: white">. </label>
+                                <input type="text" class="form-control" name="company_name"
+                                    placeholder="Your company name" value="{{ old('company_name') }}" required>
+                                <div class="invalid-feedback">
+                                    Valid company name is required.
                                 </div>
                             </div>
 
                             <div class="col-sm-6">
-                                <label for="lastName" class="form-label">Last name</label>
-                                <input type="text" class="form-control" id="lastName" placeholder="" value=""
-                                    required>
+                                <label for="name" class="form-label">Full name *</label>
+                                <input type="text" class="form-control" name="name" placeholder=""
+                                    value="{{ old('name') }}" required>
                                 <div class="invalid-feedback">
-                                    Valid last name is required.
+                                    Valid name is required.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="phone" class="form-label">Mobile number *</label>
+                                <input type="tel" class="form-control" name="phone"id="phone"
+                                    placeholder="" value="+62" required>
+                                <div class="invalid-feedback">
+                                    Please provide a Mobile Number
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="job_title" class="form-label">Job Title *</label>
+                                <input type="text" class="form-control" name="job_title" placeholder="" required
+                                    value="{{ old('job_title') }}">
+                                <div class="invalid-feedback">
+                                    Please enter your Job Title.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="email" class="form-label">Email Address * <span
+                                        class="text-muted"></span></label>
+                                <input type="email" class="form-control" name="email"
+                                    placeholder="Your work email" required value="{{ old('email') }}">
+                                <div class="invalid-feedback">
+                                    Please enter a valid email address.
                                 </div>
                             </div>
 
-                            <div class="col-12">
-                                <label for="username" class="form-label">Username</label>
-                                <div class="input-group has-validation">
-                                    <span class="input-group-text">@</span>
-                                    <input type="text" class="form-control" id="username" placeholder="Username"
-                                        required>
+                            <div class="col-sm-6">
+                                <label for="company_website" class="form-label">Company Webstie *<span
+                                        class="text-muted"></span></label>
+                                <input type="text" class="form-control" name="company_website"
+                                    value="{{ old('company_website') }}" placeholder="www.yourcompany.com" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid company website .
+                                </div>
+                            </div>
+
+
+                            <div class="col-sm-12">
+                                <label for="address" class="form-label">Address *</label>
+                                <input type="text" class="form-control" name="address" placeholder="" required>
+                                <div class="invalid-feedback" {{ old('address') }}>
+                                    Please provide a Mobile Number
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="office_number" class="form-label">Office Number</label>
+                                <input type="tel" class="form-control" name="office_number"id="office_number"
+                                    placeholder="" value="+62" required>
+                                <div class="invalid-feedback">
+                                    Please provide a Mobile Number
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <label for="portal_code" class="form-label">Postal Code</label>
+                                <input type="number" class="form-control" name="portal_code" placeholder=""
+                                    required>
+                                <div class="invalid-feedback" {{ old('portal_code') }}>
+                                    Please provide a Postal Code
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" name="city" placeholder="" required>
+                                <div class="invalid-feedback" {{ old('city') }}>
+                                    Please provide a City
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 mb-3">
+                                <label for="country" class="form-label">Country * </label>
+                                <select class="form-control js-example-basic-single" name="country" id="country"
+                                    placeholder="" required>
+                                    <option value="Indonesia" selected>Indonesia</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide a valid Country
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="company_category" class="form-label">Company Category *</label>
+                                <select class="form-control js-example-basic-single d-block w-100"
+                                    name="company_category" id="company_category" required>
+                                    <option value="">--Select--</option>
+                                    <option value="Coal Mining">Coal Mining</option>
+                                    <option value="Minerals Producer">Minerals Producer</option>
+                                    <option value="Supplier/Distributor/Manufacturer">
+                                        Supplier/Distributor/Manufacturer
+                                    </option>
+                                    <option value="Contrator">Contrator</option>
+                                    <option value="Association / Organization / Government">
+                                        Association / Organization / Government</option>
+                                    <option value="Financial Services">Financial Services</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Investors">Investors</option>
+                                    <option value="Logistics and Shipping">Logistics and Shipping</option>
+                                    <option value="Media">Media</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please enter your Company Other
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mb-6">
+                                <div class="myDiv">
+                                    <label for="company_other" class="form-label">Company Other *</label>
+                                    <input type="text" class="form-control" name="company_other" placeholder="">
                                     <div class="invalid-feedback">
-                                        Your username is required.
+                                        Please enter your Company Other
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-12">
-                                <label for="email" class="form-label">Email <span
-                                        class="text-muted">(Optional)</span></label>
-                                <input type="email" class="form-control" id="email"
-                                    placeholder="you@example.com">
-                                <div class="invalid-feedback">
-                                    Please enter a valid email address for shipping updates.
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="address" placeholder="1234 Main St"
-                                    required>
-                                <div class="invalid-feedback">
-                                    Please enter your shipping address.
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <label for="address2" class="form-label">Address 2 <span
-                                        class="text-muted">(Optional)</span></label>
-                                <input type="text" class="form-control" id="address2"
-                                    placeholder="Apartment or suite">
-                            </div>
-
-                            <div class="col-md-5">
-                                <label for="country" class="form-label">Country</label>
-                                <select class="form-select" id="country" required>
-                                    <option value="">Choose...</option>
-                                    <option>United States</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Please select a valid country.
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="state" class="form-label">State</label>
-                                <select class="form-select" id="state" required>
-                                    <option value="">Choose...</option>
-                                    <option>California</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Please provide a valid state.
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label for="zip" class="form-label">Zip</label>
-                                <input type="text" class="form-control" id="zip" placeholder="" required>
-                                <div class="invalid-feedback">
-                                    Zip code required.
-                                </div>
-                            </div>
                         </div>
-
                         <hr class="my-4">
-
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="same-address">
-                            <label class="form-check-label" for="same-address">Shipping address is the same as my
-                                billing address</label>
-                        </div>
-
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="save-info">
-                            <label class="form-check-label" for="save-info">Save this information for next
-                                time</label>
-                        </div>
-
-                        <hr class="my-4">
-
-                        <h4 class="mb-3">Payment</h4>
 
                         <div class="my-3">
                             <div class="form-check">
                                 <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
-                                    checked required>
-                                <label class="form-check-label" for="credit">Credit card</label>
+                                    checked required value="member">
+                                <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
                             </div>
                             <div class="form-check">
                                 <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-                                    required>
-                                <label class="form-check-label" for="debit">Debit card</label>
-                            </div>
-                            <div class="form-check">
-                                <input id="paypal" name="paymentMethod" type="radio" class="form-check-input"
-                                    required>
-                                <label class="form-check-label" for="paypal">PayPal</label>
-                            </div>
-                        </div>
-
-                        <div class="row gy-3">
-                            <div class="col-md-6">
-                                <label for="cc-name" class="form-label">Name on card</label>
-                                <input type="text" class="form-control" id="cc-name" placeholder="" required>
-                                <small class="text-muted">Full name as displayed on card</small>
-                                <div class="invalid-feedback">
-                                    Name on card is required
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="cc-number" class="form-label">Credit card number</label>
-                                <input type="text" class="form-control" id="cc-number" placeholder="" required>
-                                <div class="invalid-feedback">
-                                    Credit card number is required
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label for="cc-expiration" class="form-label">Expiration</label>
-                                <input type="text" class="form-control" id="cc-expiration" placeholder=""
-                                    required>
-                                <div class="invalid-feedback">
-                                    Expiration date required
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label for="cc-cvv" class="form-label">CVV</label>
-                                <input type="text" class="form-control" id="cc-cvv" placeholder="" required>
-                                <div class="invalid-feedback">
-                                    Security code required
-                                </div>
+                                    required value="nonmember">
+                                <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
                             </div>
                         </div>
 
                         <hr class="my-4">
 
-                        <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to checkout</button>
+                        <button class="w-80 btn btn-primary btn-lg" type="submit">Checkout</button>
                     </form>
                 </div>
             </div>
         </main>
 
         <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">&copy; 2017–2021 Company Name</p>
+            <p class="mb-1">&copy; Djakarta Mining Club</p>
             <ul class="list-inline">
-                <li class="list-inline-item"><a href="#">Privacy</a></li>
+                <li class="list-inline-item"><a href="{{ url('/privacy') }}">Privacy</a></li>
                 <li class="list-inline-item"><a href="#">Terms</a></li>
-                <li class="list-inline-item"><a href="#">Support</a></li>
             </ul>
         </footer>
     </div>
 
 
-    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous">
+    </script>
 
-    <script src="form-validation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.js-example-basic-single').select2();
+        });
+        $(document).ready(function() {
+            $('#company_category').on('change', function() {
+                var demovalue = $(this).val();
+                if (demovalue == 'other') {
+                    $('.myDiv').css('display', 'grid');
+                } else {
+                    $('.myDiv').css('display', 'none');
+                }
+            });
+        });
+    </script>
+    <script src="{{ asset('new-zoom/form-validation.js') }}"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        @if (session('alert'))
+            swal({
+                text: "{{ session('alert') }}",
+                icon: "success",
+                buttons: false,
+                timer: 15000,
+            }).then(function() {
+                window.location = "https://djakarta-miningclub.com/";
+            });
+        @endif
+
+        const xhttp = new XMLHttpRequest();
+        const select = document.getElementById("country");
+        const flag = document.getElementById("flag");
+
+        let country;
+
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                country = JSON.parse(xhttp.responseText);
+                assignValues();
+                handleCountryChange();
+            }
+        };
+        xhttp.open("GET", "https://restcountries.com/v3.1/all", true);
+        xhttp.send();
+
+        function assignValues() {
+            country.forEach(country => {
+                const option = document.createElement("option");
+                option.value = country.cioc;
+                option.textContent = country.name.common;
+                select.appendChild(option);
+            });
+        }
+
+        function handleCountryChange() {
+            const countryData = country.find(
+                country => select.value === country.alpha2Code
+            );
+            flag.style.backgroundImage = `url(${countryData.flag})`;
+        }
+
+        select.addEventListener("change", handleCountryChange.bind(this));
+    </script>
+
+
+    <script>
+        var input = document.querySelector("#phone");
+        window.intlTelInput(input, {
+            // separateDialCode: true,
+            initialCountry: "id",
+
+        });
+        var input2 = document.querySelector("#office_number");
+        window.intlTelInput(input2, {
+            // separateDialCode: true,
+            initialCountry: "id",
+
+        });
+    </script>
 </body>
 
 </html>

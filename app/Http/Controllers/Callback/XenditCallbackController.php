@@ -68,7 +68,7 @@ class XenditCallbackController extends Controller
 
 
             $res['api_status'] = 0;
-            $res['api_message'] = 'Payment is not found';
+            $res['api_message'] = $payment_method;
 
             return response()->json($res, 200);
         } catch (\Exception $msg) {
