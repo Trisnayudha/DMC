@@ -217,6 +217,9 @@
                 <td align="right">Total: IDR {{ $total_price }}</td>
             </tr>
         </table>
+        @if ($link != null)
+            <a href="{{ $link }}">Please click here to process your payment.</a>
+        @endif
         <br>
         <br>
         Thank you for registering for one of Djakarta Mining Club events.<br />

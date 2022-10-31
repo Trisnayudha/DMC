@@ -155,7 +155,7 @@
 
                 <div class="col-md-12 col-lg-12">
                     <h4 class="mb-3">* Required information</h4>
-                    <form action="{{ url('/register-free') }}" method="POST" class="needs-validation" novalidate>
+                    <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation" novalidate>
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>

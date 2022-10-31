@@ -27,4 +27,3 @@ Route::get('/privacy', function () {
 Route::get('/register-event', [EventController::class, 'view']);
 Route::get('/register-event/free', [EventController::class, 'view2']);
 Route::post('/payment-personal', [EventController::class, 'payment_personal']);
-Route::post('/register-free', [EventController::class, 'register_free']);

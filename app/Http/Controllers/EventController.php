@@ -45,98 +45,13 @@ class EventController extends Controller
         if ($company_category == 'other') {
             $company_category = $company_other;
         }
-        $explore = $request->explore;
-        $cci = $request->cci;
-        // dd($request->all());
-
-        $paymentMethod = $request->paymentMethod;
-        if ($paymentMethod == 'member') {
-            $total_price = 900000;
-        } else {
-            $total_price = 1000000;
-        }
-        // init xendit
-        $isProd = env('XENDIT_ISPROD');
-        if ($isProd) {
-            $secretKey = env('XENDIT_SECRET_KEY_PROD');
-        } else {
-            $secretKey = env('XENDIT_SECRET_KEY_TEST');
-        }
-        // params invoice
-        Xendit::setApiKey($secretKey);
-        $date = date('d-m-Y H:i:s');
-        $convert = strtotime($date);
-
-        $params = [
-            'external_id' => 'DMC-' . $convert,
-            'payer_email' => $email,
-            'description' => 'Invoice Event DMC',
-            'amount' => $total_price,
-            'success_redirect_url' => url('/'),
-            'failure_redirect_url' => url('/'),
-        ];
-        // $createInvoice = Invoice::create($params);
-        $data = [
-            'code_payment' => 'DMC-' . time(),
-            'create_date' => date('d, M Y H:i'),
-            'due_date' => date('d, M Y H:i', strtotime($date . ' +1 day')),
-            'users_name' => $name,
-            'users_email' => $email,
-            'phone' => $phone,
-            'company_name' => $company_name,
-            'address_company' => $address,
-            'status' => 'WAITING',
-            'events_name' => 'DMC',
-            'event_price' => number_format($total_price, 0, ',', '.'),
-            'voucher_price' => 0,
-            'total_price' => number_format($total_price, 0, ',', '.'),
-            'link' => null
-        ];
-        $pdf = Pdf::loadView('email.invoice-new', $data);
-        // $content = $pdf->download()->getOriginalContent();
-        // $output_file = '/public/ticket/ticket-' . time() . '.pdf';
-        // Storage::disk('local')->put($output_file, $content); //storage/app/public/img/qr-code/img-1557309130.png
-        Mail::send('email.test', $data, function ($message) use ($pdf) {
-            $message->from(env('EMAIL_SENDER'));
-            $message->to('yudha@indonesiaminer.com');
-            $message->subject('test invoice');
-            $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
-        });
-        return view('email.invoice-new', $data);
-        // $content = $pdf->download()->getOriginalContent();
-        // $output_file = '/uploads/ticket/ticket-' . time() . '.pdf';
-        // dd($createInvoice);
-        // payment log invoice
-        // XenditInvoice::saveInvoice($save->id, $users_id, $createInvoice);
-        // $linkPay = $createInvoice['invoice_url'];
-    }
-
-    public function register_free(Request $request)
-    {
-        $prefix = $request->prefix;
-        $company_name = $request->company_name . ", " . $prefix;
-        $phone = $request->phone;
-        $email = $request->email;
-        $name = $request->name;
-        $job_title = $request->job_title;
-        $company_website = $request->company_website;
-        $country = $request->country;
-        $address = $request->address;
-        $city = $request->city;
-        $office_number = $request->office_number;
-        $portal_code = $request->portal_code;
-        $company_category = $request->company_category;
-        $company_other = $request->company_other;
-
-        if ($company_category == 'other') {
-            $company_category = $company_other;
-        }
         $paymentMethod = $request->paymentMethod;
 
         $user = MemberModel::firstOrNew(
             ['email' =>  $email],
             ['phone' => $phone]
         );
+        $user->phone = $phone;
         $user->company_name = $company_name;
         $user->job_title = $job_title;
         $user->name = $name;
@@ -149,15 +64,50 @@ class EventController extends Controller
         $user->portal_code = $portal_code;
         $user->save();
 
+        if ($paymentMethod == 'member') {
+            $total_price = 900000;
+        } else if ($paymentMethod == 'nonmember') {
+            $total_price = 1000000;
+        } else {
+            $total_price  = 0;
+        }
+
+        if ($paymentMethod != 'free') {
+
+            // init xendit
+            $isProd = env('XENDIT_ISPROD');
+            if ($isProd) {
+                $secretKey = env('XENDIT_SECRET_KEY_PROD');
+            } else {
+                $secretKey = env('XENDIT_SECRET_KEY_TEST');
+            }
+            // params invoice
+            Xendit::setApiKey($secretKey);
+            $date = date('d-m-Y H:i:s');
+
+            $params = [
+                'external_id' => 'DMC-' . time(),
+                'payer_email' => $email,
+                'description' => 'Invoice Event DMC',
+                'amount' => $total_price,
+                'success_redirect_url' => 'https://djakarta-miningclub.com',
+                'failure_redirect_url' => url('/'),
+            ];
+            $createInvoice = Invoice::create($params);
+            $linkPay = $createInvoice['invoice_url'];
+        }
+
         $payment = Payment::firstOrNew(['member_id' => $user->id]);
         if ($paymentMethod == 'free') {
             $payment->package = $paymentMethod;
-            $payment->price = 0;
+            $payment->price = $total_price;
             $payment->status = 'Approve';
             // $payment->link = null;
         } else {
+            $payment->package = $paymentMethod;
+            $payment->price = $total_price;
             $payment->status = 'Waiting';
-            // $payment->link = null;
+            $payment->link = $linkPay;
         }
         $payment->save();
 
@@ -169,34 +119,8 @@ class EventController extends Controller
             $user_event->save();
         }
 
-        if ($paymentMethod == 'member') {
-            $total_price = 900000;
-        } else if ($paymentMethod == 'nonmember') {
-            $total_price = 1000000;
-        } else {
-            $total_price  = 0;
-        }
-        // // init xendit
-        // $isProd = env('XENDIT_ISPROD');
-        // if ($isProd) {
-        //     $secretKey = env('XENDIT_SECRET_KEY_PROD');
-        // } else {
-        //     $secretKey = env('XENDIT_SECRET_KEY_TEST');
-        // }
-        // // params invoice
-        // Xendit::setApiKey($secretKey);
-        $date = date('d-m-Y H:i:s');
-        // $convert = strtotime($date);
 
-        // $params = [
-        //     'external_id' => 'DMC-' . $convert,
-        //     'payer_email' => $email,
-        //     'description' => 'Invoice Event DMC',
-        //     'amount' => $total_price,
-        //     'success_redirect_url' => url('/'),
-        //     'failure_redirect_url' => url('/'),
-        // ];
-        // $createInvoice = Invoice::create($params);
+
         $data = [
             'code_payment' => 'DMC-' . time(),
             'create_date' => date('d, M Y H:i'),
@@ -211,7 +135,7 @@ class EventController extends Controller
             'event_price' => number_format($total_price, 0, ',', '.'),
             'voucher_price' => 0,
             'total_price' => number_format($total_price, 0, ',', '.'),
-            'link' => null
+            'link' => $linkPay
         ];
 
         if ($paymentMethod == 'free') {
@@ -224,11 +148,11 @@ class EventController extends Controller
             $send->sendEmail();
         } else {
             $pdf = Pdf::loadView('email.invoice-new', $data);
-            Mail::send('email.test', $data, function ($message) use ($pdf) {
+            Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
                 $message->from(env('EMAIL_SENDER'));
-                $message->to('yudha@indonesiaminer.com');
-                $message->subject('test invoice');
-                $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
+                $message->to($email);
+                $message->subject('Invoice Events - Payment');
+                // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
             });
         }
         return redirect()->back()->with('alert', 'Register Successfully');
