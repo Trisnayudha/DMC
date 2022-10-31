@@ -231,5 +231,6 @@ class EventController extends Controller
                 $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
             });
         }
+        return redirect()->back()->with('alert', 'Register Successfully');
     }
 }
