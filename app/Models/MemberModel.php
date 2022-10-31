@@ -22,6 +22,9 @@ class MemberModel extends Model
         'country',
         'cci',
         'explore',
-        'password'
+        'password',
+        'office_number',
+        'city',
+        'portal_code'
     ];
 }
