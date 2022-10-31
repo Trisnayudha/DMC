@@ -97,7 +97,8 @@
                 <img style="border: none; width:400px" src="{{ asset('image/dmc.png') }}" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
-                <p class="lead"> The 53rd Djakarta Mining Club Networking Event </p>
+                <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
+                    by OPIS </p>
             </div>
             <h6>Detail event</h6>
             <div class="row g-5">
