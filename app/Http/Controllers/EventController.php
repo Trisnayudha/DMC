@@ -132,7 +132,7 @@ class EventController extends Controller
             'users_email' => $email,
             'phone' => $phone,
             'company_name' => $company_name,
-            'address_company' => $address,
+            'company_address' => $address,
             'status' => 'WAITING',
             'events_name' => 'DMC',
             'event_price' => number_format($total_price, 0, ',', '.'),
