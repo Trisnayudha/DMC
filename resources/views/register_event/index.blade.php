@@ -99,6 +99,55 @@
                 </h2>
                 <p class="lead"> Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS</p>
             </div>
+            <h6>Detail event</h6>
+            <div class="row g-5">
+                <div class="col-3">
+                    <p>
+                        Date
+                    </p>
+                    <p>
+                        Time
+                    </p>
+                    <p>
+                        Venue
+                    </p>
+                </div>
+
+                <div class="col-9">
+                    <p>
+                        : Wednesday – November 30, 2022
+                    </p>
+                    <p>: 2.00 – 8.00 pm </p>
+                    <p>: The Dharmawangsa Hotel Jakarta, Indonesia</p>
+
+                </div>
+                <br>
+                <div class="col-3">
+                    <p>Topic</p>
+                </div>
+                <div class="col-9">
+                    <p>: Energy Market Briefing 2022</p>
+                </div>
+            </div>
+            <br>
+            <h6>Health and Safety Protocols (COVID-19 Prevention) :</h6>
+            <div class="row g-5">
+                <div class="col-12">
+                    <p>
+                        1. Self-Assessment (If you are feeling unwell and/or experiencing symptoms of COVID-19, you
+                        should not attend).
+                    </p>
+                    <p>
+                        2. Wearing a Mask.
+                    </p>
+                    <p>
+                        3. Scan/ Check in at The Venue with PeduliLindungi App
+                    </p>
+                    <p>
+                        4. Show Proof of Vaccination (Min. 3 doses of vaccine)
+                    </p>
+                </div>
+            </div>
             <hr class="my-1">
 
             <div class="row g-5">
