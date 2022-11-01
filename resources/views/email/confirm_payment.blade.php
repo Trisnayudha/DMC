@@ -222,10 +222,10 @@
         @endif
         <br>
         <br>
-        Thank you for registering for one of Djakarta Mining Club events.<br />
+        Thank you for registering for one of Djakarta Mining Club and Coal Club Indonesia events.<br />
         <br />
         <p>Regards,</p>
-        <span>Djakarta Mining Club</span><br />
+        <span>Djakarta Mining Club and Coal Club Indonesia</span><br />
         <div style="text-align: center;font-size: 15px">
             Gedung 47 Lantai 2 – 201B
             Jalan Letjen TB Simatupang No. 47, Tanjung Barat
