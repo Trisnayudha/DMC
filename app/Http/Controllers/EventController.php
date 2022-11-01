@@ -134,7 +134,7 @@ class EventController extends Controller
             'company_name' => $company_name,
             'company_address' => $address,
             'status' => 'WAITING',
-            'events_name' => 'DMC',
+            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
             'price' => number_format($total_price, 0, ',', '.'),
             'voucher_price' => 0,
             'total_price' => number_format($total_price, 0, ',', '.'),
@@ -151,7 +151,7 @@ class EventController extends Controller
             $send->sendEmail();
             return redirect()->back()->with('alert', 'Register Successfully');
         } else {
-            $pdf = Pdf::loadView('email.invoice-new', $data);
+            // $pdf = Pdf::loadView('email.invoice-new', $data);
             Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
