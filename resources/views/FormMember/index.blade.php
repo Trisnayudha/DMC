@@ -253,6 +253,7 @@
                                     <option value="Investors">Investors</option>
                                     <option value="Logistics and Shipping">Logistics and Shipping</option>
                                     <option value="Media">Media</option>
+                                    <option value="Consultant">Consultant</option>
                                     <option value="other">Other</option>
                                 </select>
                                 <div class="invalid-feedback">
