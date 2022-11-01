@@ -61,7 +61,7 @@ class XenditCallbackController extends Controller
             $payment_channel = request('payment_channel');
             $payment_destination = request('payment_destination');
 
-            $check = Payment::where('code_payment', $external_id)->first();
+            $check = Payment::where('code_payment', '=', $external_id)->first();
             if (!empty($check)) {
                 if (in_array($status, ['PAID'])) {
                     $check->status = "Paid Off";
@@ -73,15 +73,19 @@ class XenditCallbackController extends Controller
                         ->first();
 
                     $data = [
-                        'name' => $findUser->name,
-                        'email' => $findUser->email,
+                        'users_name' => $findUser->name,
+                        'users_email' => $findUser->email,
+                        'phone' => $findUser->phone,
                         'company_name' => $findUser->company_name,
-                        'company_address' => $findUser->company_address,
-                        'status' => $findUser->status,
-                        'code' => $findUser->code_payment,
-                        'created_at' => date('d, M Y H:i'),
+                        'company_address' => $findUser->address,
+                        'status' => 'Paid Off',
+                        'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
+                        'code_payment' => $findUser->code_payment,
+                        'created_date' => date('d, M Y H:i'),
                         'package_name' => $findUser->package,
                         'price' => number_format($findUser->price, 0, ',', '.'),
+                        'total_price' => number_format($findUser->price, 0, ',', '.'),
+                        'voucher_price' => number_format(0, 0, ',', '.'),
                     ];
                     $pdf = Pdf::loadView('email.invoice-new', $data);
                     Mail::send('email.success-register-event', $data, function ($message) use ($pdf, $findUser) {

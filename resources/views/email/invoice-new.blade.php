@@ -145,7 +145,7 @@
                             <td align="right">
                                 Invoice no: {{ $code_payment }}<br />
                                 Created: {{ $create_date }}<br />
-                                Due date: {{ $due_date }}
+
                             </td>
                         </tr>
                     </table>
@@ -165,7 +165,7 @@
 
                             <td align="right">
                                 {{ $company_name }}<br />
-                                {{ $address_company }}
+                                {{ $company_address }}
                             </td>
                         </tr>
                     </table>
@@ -202,7 +202,7 @@
             <tr class="item">
                 <td>{{ $events_name }}</td>
 
-                <td align="right">IDR {{ $event_price }}</td>
+                <td align="right">IDR {{ $price }}</td>
             </tr>
 
             <tr class="item last">

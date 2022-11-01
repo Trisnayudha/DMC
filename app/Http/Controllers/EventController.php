@@ -149,6 +149,7 @@ class EventController extends Controller
             $send->subject = 'Registration successfully to The 53rd Djakarta Mining Club Networking Event';
             $send->template = 'email.success-register-event';
             $send->sendEmail();
+            return redirect()->back()->with('alert', 'Register Successfully');
         } else {
             $pdf = Pdf::loadView('email.invoice-new', $data);
             Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
@@ -157,7 +158,7 @@ class EventController extends Controller
                 $message->subject('Invoice Events - Payment');
                 // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
             });
+            return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
         }
-        return redirect()->back()->with('alert', 'Register Successfully');
     }
 }
