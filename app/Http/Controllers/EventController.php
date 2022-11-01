@@ -69,6 +69,8 @@ class EventController extends Controller
             $total_price = 900000;
         } else if ($paymentMethod == 'nonmember') {
             $total_price = 1000000;
+        } else if ($paymentMethod == 'onsite') {
+            $total_price = 1200000;
         } else {
             $total_price  = 0;
         }
