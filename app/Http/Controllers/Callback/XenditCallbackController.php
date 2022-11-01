@@ -81,7 +81,7 @@ class XenditCallbackController extends Controller
                         'status' => 'Paid Off',
                         'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
                         'code_payment' => $findUser->code_payment,
-                        'created_date' => date('d, M Y H:i'),
+                        'create_date' => date('d, M Y H:i'),
                         'package_name' => $findUser->package,
                         'price' => number_format($findUser->price, 0, ',', '.'),
                         'total_price' => number_format($findUser->price, 0, ',', '.'),
