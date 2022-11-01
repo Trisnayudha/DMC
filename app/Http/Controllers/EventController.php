@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Xendit\Invoice;
 use Xendit\Xendit;
+use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
@@ -71,7 +72,7 @@ class EventController extends Controller
         } else {
             $total_price  = 0;
         }
-
+        $codePayment = strtoupper(Str::random(7));
         if ($paymentMethod != 'free') {
 
             // init xendit
@@ -86,7 +87,7 @@ class EventController extends Controller
             $date = date('d-m-Y H:i:s');
 
             $params = [
-                'external_id' => 'DMC-' . time(),
+                'external_id' => $codePayment,
                 'payer_email' => $email,
                 'description' => 'Invoice Event DMC',
                 'amount' => $total_price,
@@ -96,6 +97,7 @@ class EventController extends Controller
             $createInvoice = Invoice::create($params);
             $linkPay = $createInvoice['invoice_url'];
         }
+
 
         $payment = Payment::firstOrNew(['member_id' => $user->id]);
         if ($paymentMethod == 'free') {
@@ -108,6 +110,7 @@ class EventController extends Controller
             $payment->price = $total_price;
             $payment->status = 'Waiting';
             $payment->link = $linkPay;
+            $payment->code_payment = $codePayment;
         }
         $payment->save();
 

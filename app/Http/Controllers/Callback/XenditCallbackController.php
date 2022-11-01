@@ -4,18 +4,13 @@ namespace App\Http\Controllers\Callback;
 
 use App\Helpers\EmailSender;
 use App\Helpers\XenditInvoice;
-use App\Repositories\CompanyRegPay;
-use App\Repositories\CompanyRegSponsors;
-use App\Repositories\Payment;
-use App\Repositories\UsersDelegate;
-use App\Repositories\UsersCompany;
-use App\Repositories\EventsCompany;
-use App\Traits\Payment as TraitPayment;
-use App\Traits\PaymentRegisterSponsors as TraitPaymentRegisterSponsors;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Payments\Payment;
 use App\Repositories\Company;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+
 
 class XenditCallbackController extends Controller
 {
@@ -66,10 +61,48 @@ class XenditCallbackController extends Controller
             $payment_channel = request('payment_channel');
             $payment_destination = request('payment_destination');
 
+            $check = Payment::where('code_payment', $external_id)->first();
+            if (!empty($check)) {
+                if (in_array($status, ['PAID'])) {
+                    $check->status = "Paid Off";
+                    $check->payment_method = $payment_method;
+                    $check->link = null;
 
-            $res['api_status'] = 0;
-            $res['api_message'] = $payment_method;
+                    $findUser = Payment::where('code_payment', $external_id)
+                        ->join('xtwp_users_dmc as a', 'a.id', 'payment.member_id')
+                        ->first();
 
+                    $data = [
+                        'name' => $findUser->name,
+                        'email' => $findUser->email,
+                        'company_name' => $findUser->company_name,
+                        'company_address' => $findUser->company_address,
+                        'status' => $findUser->status,
+                        'code' => $findUser->code_payment,
+                        'created_at' => date('d, M Y H:i'),
+                        'package_name' => $findUser->package,
+                        'price' => number_format($findUser->price, 0, ',', '.'),
+                    ];
+                    $pdf = Pdf::loadView('email.invoice-new', $data);
+                    Mail::send('email.success-register-event', $data, function ($message) use ($pdf, $findUser) {
+                        $message->from(env('EMAIL_SENDER'));
+                        $message->to($findUser->email);
+                        $message->subject('Thank You For Payment - Indonesia Miner ');
+                        $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
+                    });
+                    $res['api_status'] = 1;
+                    $res['api_message'] = 'Payment status is updated';
+                } else {
+                    $check->status = "Expired";
+                    $check->link = null;
+                    $res['api_status'] = 0;
+                    $res['api_message'] = 'Payment is Expired';
+                }
+                $check->save();
+            } else {
+                $res['api_status'] = 0;
+                $res['api_message'] = 'Payment is not Found';
+            }
             return response()->json($res, 200);
         } catch (\Exception $msg) {
             $res['api_status'] = 0;

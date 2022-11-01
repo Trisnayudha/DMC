@@ -18,6 +18,7 @@ class CreatePayment extends Migration
             $table->timestamps();
             $table->integer('member_id')->nullable();
             $table->string('package')->nullable();
+            $table->string('code_payment')->nullable();
             $table->string('payment_method')->nullable();
             $table->decimal('price', 22, 2)->nullable();
             $table->string('status')->nullable();
