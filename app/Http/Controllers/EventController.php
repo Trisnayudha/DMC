@@ -135,7 +135,7 @@ class EventController extends Controller
             'company_address' => $address,
             'status' => 'WAITING',
             'events_name' => 'DMC',
-            'event_price' => number_format($total_price, 0, ',', '.'),
+            'price' => number_format($total_price, 0, ',', '.'),
             'voucher_price' => 0,
             'total_price' => number_format($total_price, 0, ',', '.'),
             'link' => $linkPay
