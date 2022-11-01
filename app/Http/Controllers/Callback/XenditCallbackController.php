@@ -87,12 +87,12 @@ class XenditCallbackController extends Controller
                         'total_price' => number_format($findUser->price, 0, ',', '.'),
                         'voucher_price' => number_format(0, 0, ',', '.'),
                     ];
-                    $pdf = Pdf::loadView('email.invoice-new', $data);
-                    Mail::send('email.success-register-event', $data, function ($message) use ($pdf, $findUser) {
+                    // $pdf = Pdf::loadView('email.invoice-new', $data);
+                    Mail::send('email.success-register-event', $data, function ($message) use ($findUser) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($findUser->email);
                         $message->subject('Thank You For Payment - Indonesia Miner ');
-                        $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
+                        // $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                     });
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Payment status is updated';
