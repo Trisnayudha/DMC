@@ -150,8 +150,9 @@
                 </tr>
             </table>
             <br>
-            <p>If you have any questions or trouble logging in, please contact our support team at
-                secretariat@djakarta-miningclub.com or WhatsApp at +62811 1937 300</p>
+            <p>If you have any questions or are having trouble logging in, please contact our support team at
+                secretariat@djakarta-miningclub.com / secretariat@coalclubindonesia.com or +62 8111937300 on WhatsApp.
+            </p>
 
             <p>Best regards,</p>
             <span>Djakarta Mining Club</span>
