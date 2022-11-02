@@ -119,7 +119,7 @@
                     <p>
                         : Wednesday – November 30, 2022
                     </p>
-                    <p>: 2.00 – 8.00 pm </p>
+                    <p>: 2.00 - 6.00pm </p>
                     <p>: The Dharmawangsa Hotel Jakarta, Indonesia</p>
 
                 </div>

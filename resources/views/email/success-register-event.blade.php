@@ -146,7 +146,7 @@
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>2.00 - 8.00 pm</td>
+                    <td>2.00 - 6.00pm</td>
                 </tr>
                 <tr>
                     <th>Venue</th>
