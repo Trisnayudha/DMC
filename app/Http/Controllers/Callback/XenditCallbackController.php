@@ -91,7 +91,7 @@ class XenditCallbackController extends Controller
                     Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($findUser->email);
-                        $message->subject('Thank You For Payment - Indonesia Miner ');
+                        $message->subject('Thank you for payment - The 53rd Djakarta Mining Club Networking Event');
                         $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                     });
                     $res['api_status'] = 1;

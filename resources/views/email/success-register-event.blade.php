@@ -134,19 +134,24 @@
                     </th>
                 </tr>
                 <tr>
-                    <th>Event</th>
+                    <th>Topic</th>
                     <th>:</th>
-                    <td>The 53rd Djakarta Mining Club Networking Event</td>
+                    <td>Energy Market Briefing 2022 </td>
                 </tr>
                 <tr>
-                    <th>Date/Time</th>
+                    <th>Date</th>
                     <th>:</th>
-                    <td>30 Nov 2022, 2.00 - 8.00 pm</td>
+                    <td>Wednesday – November 30, 2022</td>
                 </tr>
                 <tr>
-                    <th>Vanue</th>
+                    <th>Time</th>
                     <th>:</th>
-                    <td>The Dharmawangsa Hotel, Jakarta</td>
+                    <td>2.00 - 8.00 pm</td>
+                </tr>
+                <tr>
+                    <th>Venue</th>
+                    <th>:</th>
+                    <td>The Dharmawangsa Hotel Jakarta, Indonesia</td>
                 </tr>
             </table>
             <br>
@@ -155,7 +160,7 @@
             </p>
 
             <p>Best regards,</p>
-            <span>Djakarta Mining Club</span>
+            <span>Djakarta Mining Club and Coal Club Indonesia</span>
         </div>
         <div class="footer-email">
             Please do not respond to emails sent to this address. Our system sends this email automatically.
