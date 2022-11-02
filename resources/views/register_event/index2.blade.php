@@ -94,7 +94,8 @@
     <div class="container">
         <main>
             <div class="py-2 text-center">
-                <img style="border: none; width:400px" src="{{ asset('image/dmc.png') }}" alt="">
+                <img style="border-radius: 15px; margin-bottom: 19px " src="{{ asset('image/logo-dmc-cci.jpeg') }}"
+                    class="img-fluid" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
                 <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
