@@ -12,7 +12,7 @@
     <meta property="og:title" content="Register Membership " />
     <meta property="og:url" content="" />
     <meta property="og:description" content="Register Membership" />
-    <meta property="og:image" content="" />
+    <meta property="og:image" content="{{ asset('image/meta.jpeg') }}" />
     <meta property="og:type" content="register" />
     <meta property="og:locale" content="en_GB" />
     <meta property="og:locale:alternate" content="fr_FR" />
@@ -94,7 +94,7 @@
     <div class="container">
         <main>
             <div class="py-2 text-center">
-                <img style="border-radius: 15px; margin-bottom: 19px " src="{{ asset('image/logo-dmc-cci.jpeg') }}"
+                <img style="border-radius: 15px; margin-bottom: 19px " src="{{ asset('image/logo-dmc-cci.png') }}"
                     class="img-fluid" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
