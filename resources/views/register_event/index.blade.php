@@ -10,7 +10,7 @@
     <title>DMC Register Event</title>
     <meta name="description" content="Register Event " />
     <meta property="og:title" content="Register Event " />
-    <meta property="og:url" content="" />
+    <meta property="og:url" content="https://djakarta-miningclub.com" />
     <meta property="og:description" content="Register Event" />
     <meta property="og:image" content="{{ asset('image/meta.jpeg') }}" />
     <meta property="og:type" content="register" />
