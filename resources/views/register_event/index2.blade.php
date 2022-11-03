@@ -98,8 +98,8 @@
                     class="img-fluid" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
-                <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
-                    by OPIS </p>
+                {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
+                    by OPIS </p> --}}
             </div>
             <h6>Detail event</h6>
             <div class="row g-5">
