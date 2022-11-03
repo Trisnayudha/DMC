@@ -8,10 +8,10 @@
     <meta name="author" content="djakarta-miningclub.com">
     <meta name="generator" content="Hugo 0.98.0">
     <title>DMC Register Event</title>
-    <meta name="description" content="Register Membership " />
-    <meta property="og:title" content="Register Membership " />
+    <meta name="description" content="Register Event " />
+    <meta property="og:title" content="Register Event " />
     <meta property="og:url" content="" />
-    <meta property="og:description" content="Register Membership" />
+    <meta property="og:description" content="Register Event" />
     <meta property="og:image" content="{{ asset('image/meta.jpeg') }}" />
     <meta property="og:type" content="register" />
     <meta property="og:locale" content="en_GB" />
