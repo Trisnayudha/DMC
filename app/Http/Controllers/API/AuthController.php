@@ -395,10 +395,9 @@ Your verification code (OTP) ' . $otp;
             if (!empty($email)) {
                 $findUser  = MemberModel::where([['email', '=', $email], ['otp', '=', $request->otp]])->first();
                 if (!empty($findUser)) {
-                    $image = QrCode::format('png')->merge('https://api.djakarta-miningclub.com/image/dmc.png', 0.3, true)
-                        ->size(200)->errorCorrection('H')
-                        ->generate($codePayment);
-                    $output_file = '/uploads/qr-code/img-' . time() . '.png';
+                    $image = QrCode::size(200)->generate($codePayment);
+                    $output_file = 'public/uploads/qr-code/img-' . time() . '.png';
+                    $output_db = 'storage/uploads/qr-code/img-' . time() . '.png';
                     Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                     $user = User::create([
                         'name' => $findUser->name,
@@ -406,7 +405,7 @@ Your verification code (OTP) ' . $otp;
                         'password' => $findUser->password,
                         'verify_email' => 'verified',
                         'isStatus' => 'Active',
-                        'qrcode' => $output_file,
+                        'qrcode' => $output_db,
                         'uname' => $codePayment,
                     ]);
                     $user->assignRole('guest');
@@ -455,10 +454,9 @@ Your verification code (OTP) ' . $otp;
             } else {
                 $findUser = MemberModel::where([['phone', '=', $phone], ['otp', '=', $request->otp]])->first();
                 if (!empty($findUser)) {
-                    $image = QrCode::format('png')->merge('https://api.djakarta-miningclub.com/image/dmc.png', 0.3, true)
-                        ->size(200)->errorCorrection('H')
-                        ->generate($codePayment);
-                    $output_file = '/uploads/qr-code/img-' . time() . '.png';
+                    $image = QrCode::size(200)->generate($codePayment);
+                    $output_file = 'public/uploads/qr-code/img-' . time() . '.png';
+                    $output_db = 'storage/uploads/qr-code/img-' . time() . '.png';
                     Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                     $user = User::create([
                         'name' => $findUser->name,
@@ -466,7 +464,7 @@ Your verification code (OTP) ' . $otp;
                         'password' => $findUser->password,
                         'verify_phone' => 'verified',
                         'isStatus' => 'Active',
-                        'qrcode' => $output_file,
+                        'qrcode' => $output_db,
                         'uname' => $codePayment
                     ]);
                     $user->assignRole('guest');
