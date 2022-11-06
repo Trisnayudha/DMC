@@ -25,7 +25,9 @@ class User extends Authenticatable
         'verify_email',
         'verify_phone',
         'otp',
-        'isStatus'
+        'isStatus',
+        'uname',
+        'qrcode'
 
     ];
 

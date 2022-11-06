@@ -20,7 +20,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -281,7 +284,6 @@ Your verification code (OTP) ' . $otp;
                 $findUsers->explore = $explore;
                 $findUsers->password = Hash::make($password);
                 $findUsers->cci = $cci;
-
                 $findUsers->save();
             } else {
                 $save = new MemberModel();
@@ -389,15 +391,23 @@ Your verification code (OTP) ' . $otp;
             $response['message'] = 'Something was wrong';
             $response['payload'] = $validate->errors()->first();
         } else {
+            $codePayment = strtoupper(Str::random(7));
             if (!empty($email)) {
                 $findUser  = MemberModel::where([['email', '=', $email], ['otp', '=', $request->otp]])->first();
                 if (!empty($findUser)) {
+                    $image = QrCode::format('png')->merge('https://api.djakarta-miningclub.com/image/dmc.png', 0.3, true)
+                        ->size(200)->errorCorrection('H')
+                        ->generate($codePayment);
+                    $output_file = '/uploads/qr-code/img-' . time() . '.png';
+                    Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                     $user = User::create([
                         'name' => $findUser->name,
                         'email' =>  $findUser->email,
                         'password' => $findUser->password,
                         'verify_email' => 'verified',
-                        'isStatus' => 'Active'
+                        'isStatus' => 'Active',
+                        'qrcode' => $output_file,
+                        'uname' => $codePayment,
                     ]);
                     $user->assignRole('guest');
                     $company = CompanyModel::create([
@@ -445,12 +455,19 @@ Your verification code (OTP) ' . $otp;
             } else {
                 $findUser = MemberModel::where([['phone', '=', $phone], ['otp', '=', $request->otp]])->first();
                 if (!empty($findUser)) {
+                    $image = QrCode::format('png')->merge('https://api.djakarta-miningclub.com/image/dmc.png', 0.3, true)
+                        ->size(200)->errorCorrection('H')
+                        ->generate($codePayment);
+                    $output_file = '/uploads/qr-code/img-' . time() . '.png';
+                    Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                     $user = User::create([
                         'name' => $findUser->name,
                         'email' =>  $findUser->email,
                         'password' => $findUser->password,
                         'verify_phone' => 'verified',
-                        'isStatus' => 'Active'
+                        'isStatus' => 'Active',
+                        'qrcode' => $output_file,
+                        'uname' => $codePayment
                     ]);
                     $user->assignRole('guest');
                     $company = CompanyModel::create([

@@ -163,4 +163,9 @@ class EventController extends Controller
             return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
         }
     }
+
+    public function sponsor()
+    {
+        return view('register_event.sponsor');
+    }
 }
