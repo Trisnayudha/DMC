@@ -4,6 +4,7 @@ use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FormMemberController;
 use App\Models\Payments\Payment;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -37,3 +38,11 @@ Route::get('/asu', function () {
         ->first();
     dd($findUser->code_payment);
 });
+
+Auth::routes([
+    'register' => false, // Registration Routes...
+    'reset' => false, // Password Reset Routes...
+    'verify' => false, // Email Verification Routes...
+]);
+
+Route::get('/admin/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
