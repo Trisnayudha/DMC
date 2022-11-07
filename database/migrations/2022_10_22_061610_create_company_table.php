@@ -16,6 +16,7 @@ class CreateCompanyTable extends Migration
         Schema::create('company', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('prefix')->nullable();
             $table->string('company_name')->nullable();
             $table->string('company_website')->nullable();
             $table->string('company_category')->nullable();
@@ -25,6 +26,7 @@ class CreateCompanyTable extends Migration
             $table->string('portal_code')->nullable();
             $table->string('prefix_office_number')->nullable();
             $table->string('office_number')->nullable();
+            $table->string('full_office_number')->nullable();
             $table->string('country')->nullable();
             $table->string('cci')->nullable();
             $table->string('explore')->nullable();

@@ -242,11 +242,12 @@ Your verification code (OTP) ' . $otp;
         );
         $name = $request->name;
         $country_phone = $request->country_phone;
-        $phone = $country_phone . $request->phone;
+        $phone = $request->phone;
+        $fullphone = $request->country_phone . $request->phone;
         $email = $request->email;
         $password = $request->password;
         $prefix = $request->prefix;
-        $company_name = $request->company_name . ", " . $prefix;
+        $company_name = $request->company_name;
         $job_title = $request->job_title;
         $address = $request->address;
         $country = $request->country;
@@ -255,7 +256,7 @@ Your verification code (OTP) ' . $otp;
         $company_website = $request->company_website;
         $city = $request->city;
         $country_phone_office = $request->country_phone_office;
-        $office_number = $country_phone_office . $request->office_number;
+        $office_number = $request->office_number;
         $portal_code = $request->portal_code;
         $cci = $request->cci;
         $explore = $request->explore;
@@ -266,8 +267,11 @@ Your verification code (OTP) ' . $otp;
         } else {
             $findUsers = MemberModel::where('phone', $phone)->orWhere('email', $email)->first();
             if (!empty($findUsers)) {
+                $findUsers->prefix = $prefix;
                 $findUsers->company_name = $company_name;
+                $findUsers->prefix_phone = $country_phone;
                 $findUsers->phone = $phone;
+                $findUsers->fullphone = $fullphone;
                 $findUsers->email = $email;
                 $findUsers->name = $name;
                 $findUsers->job_title = $job_title;
@@ -275,6 +279,7 @@ Your verification code (OTP) ' . $otp;
                 $findUsers->country = $country;
                 $findUsers->address = $address;
                 $findUsers->city = $city;
+                $findUsers->prefix_office_number = $country_phone_office;
                 $findUsers->office_number = $office_number;
                 $findUsers->portal_code = $portal_code;
                 $findUsers->company_category = $company_category;
@@ -285,8 +290,11 @@ Your verification code (OTP) ' . $otp;
                 $findUsers->save();
             } else {
                 $save = new MemberModel();
+                $save->prefix = $prefix;
                 $save->company_name = $company_name;
+                $save->prefix_phone = $country_phone;
                 $save->phone = $phone;
+                $save->fullphone = $fullphone;
                 $save->email = $email;
                 $save->name = $name;
                 $save->job_title = $job_title;
@@ -295,6 +303,7 @@ Your verification code (OTP) ' . $otp;
                 $save->address = $address;
                 $save->portal_code = $portal_code;
                 $save->city = $city;
+                $save->prefix_office_number = $country_phone_office;
                 $save->office_number = $office_number;
                 $save->company_category = $company_category;
                 $save->company_other = $company_other;
@@ -307,7 +316,7 @@ Your verification code (OTP) ' . $otp;
             $response['message'] = 'Save data Successfully';
             $response['payload'] = [
                 'email' => $email,
-                'phone' => $phone,
+                'phone' => $fullphone,
             ];
         }
         return response()->json($response);
@@ -345,8 +354,8 @@ Your verification code (OTP) ' . $otp;
                 $response['payload'] = null;
             }
         } else {
-            $user = MemberModel::where('phone', '=', $phone)->first();
-            $stat = MemberModel::where('phone', '=', $phone)->update(['otp' => $otp]);
+            $user = MemberModel::where('fullphone', '=', $phone)->first();
+            $stat = MemberModel::where('fullphone', '=', $phone)->update(['otp' => $otp]);
             if (!empty($user)) {
                 $send = new WhatsappApi();
                 $send->phone = $phone;
@@ -415,13 +424,17 @@ Your verification code (OTP) ' . $otp;
                         'address' => $findUser->address,
                         'city' => $findUser->city,
                         'portal_code' => $findUser->portal_code,
+                        'prefix_office_number' => $findUser->prefix_office_number,
                         'office_number' => $findUser->office_number,
+                        'full_office_number' => $findUser->full_office_number,
                         'country' => $findUser->country,
                         'cci' => $findUser->cci,
                         'explore' => $findUser->explore
                     ]);
                     $profile = ProfileModel::create([
+                        'prefix_phone' => $findUser->prefix_phone,
                         'phone' => $findUser->phone,
+                        'fullphone' => $findUser->fullphone,
                         'job_title' => $findUser->job_title,
                         'users_id' => $user->id,
                         'company_id' => $company->id
@@ -451,7 +464,7 @@ Your verification code (OTP) ' . $otp;
                     $response['payload'] = null;
                 }
             } else {
-                $findUser = MemberModel::where([['phone', '=', $phone], ['otp', '=', $request->otp]])->first();
+                $findUser = MemberModel::where([['fullphone', '=', $phone], ['otp', '=', $request->otp]])->first();
                 if (!empty($findUser)) {
                     $image = QrCode::size(200)->generate($codePayment);
                     $output_file = 'public/uploads/qr-code/img-' . time() . '.png';
@@ -468,19 +481,25 @@ Your verification code (OTP) ' . $otp;
                     ]);
                     $user->assignRole('guest');
                     $company = CompanyModel::create([
+                        'prefix' => $findUser->prefix,
                         'company_name' => $findUser->company_name,
                         'company_website' => $findUser->company_website,
-                        'company_category' => $findUser->company_category,
                         'address' => $findUser->address,
+                        'company_category' => $findUser->company_category,
+                        'company_other' => $findUser->company_other,
                         'city' => $findUser->city,
                         'portal_code' => $findUser->portal_code,
+                        'prefix_office_number' => $findUser->prefix_office_number,
                         'office_number' => $findUser->office_number,
+                        'full_office_number' => $findUser->full_office_number,
                         'country' => $findUser->country,
                         'cci' => $findUser->cci,
                         'explore' => $findUser->explore
                     ]);
                     $profile = ProfileModel::create([
+                        'prefix_phone' => $findUser->prefix_phone,
                         'phone' => $findUser->phone,
+                        'fullphone' => $findUser->fullphone,
                         'job_title' => $findUser->job_title,
                         'users_id' => $user->id,
                         'company_id' => $company->id

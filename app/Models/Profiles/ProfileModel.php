@@ -12,6 +12,7 @@ class ProfileModel extends Model
     protected $fillable = [
         'prefix_phone',
         'phone',
+        'fullphone',
         'image',
         'job_title',
         'company_id',

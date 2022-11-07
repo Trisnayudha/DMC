@@ -10,6 +10,7 @@ class CompanyModel extends Model
     use HasFactory;
     protected $table = 'company';
     protected $fillable = [
+        'prefix',
         'company_name',
         'company_website',
         'company_category',
@@ -19,6 +20,7 @@ class CompanyModel extends Model
         'portal_code',
         'prefix_office_number',
         'office_number',
+        'full_office_number',
         'country',
         'cci',
         'explore'

@@ -11,11 +11,13 @@ class MemberModel extends Model
     protected $table = 'xtwp_users_dmc';
 
     protected $fillable = [
+        'prefix',
         'company_name',
         'name',
         'job_title',
         'prefix_phone',
         'phone',
+        'fullphone',
         'email',
         'company_website',
         'company_category',
@@ -27,6 +29,7 @@ class MemberModel extends Model
         'password',
         'prefix_office_number',
         'office_number',
+        'full_office_number',
         'city',
         'portal_code'
     ];
