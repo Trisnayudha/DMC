@@ -259,9 +259,6 @@ Your verification code (OTP) ' . $otp;
         $portal_code = $request->portal_code;
         $cci = $request->cci;
         $explore = $request->explore;
-        if ($company_category == 'other') {
-            $company_category = $company_other;
-        }
         if ($validate->fails()) {
             $response['status'] = 401;
             $response['message'] = 'Something was wrong';
@@ -281,6 +278,7 @@ Your verification code (OTP) ' . $otp;
                 $findUsers->office_number = $office_number;
                 $findUsers->portal_code = $portal_code;
                 $findUsers->company_category = $company_category;
+                $findUsers->company_other = $company_other;
                 $findUsers->explore = $explore;
                 $findUsers->password = Hash::make($password);
                 $findUsers->cci = $cci;
@@ -299,6 +297,7 @@ Your verification code (OTP) ' . $otp;
                 $save->city = $city;
                 $save->office_number = $office_number;
                 $save->company_category = $company_category;
+                $save->company_other = $company_other;
                 $save->explore = $explore;
                 $save->cci = $cci;
                 $save->password = Hash::make($password);

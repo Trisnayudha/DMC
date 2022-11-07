@@ -19,13 +19,16 @@ class CreateTableXtwpDjakMc extends Migration
             $table->string('company_name')->nullable();
             $table->string('name')->nullable();
             $table->string('job_title')->nullable();
+            $table->string('prefix_phone')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->string('company_website')->nullable();
             $table->string('company_category')->nullable();
+            $table->string('company_other')->nullable();
             $table->string('address')->nullable();
             $table->string('city')->nullable();
             $table->string('portal_code')->nullable();
+            $table->string('prefix_office_number')->nullable();
             $table->string('office_number')->nullable();
             $table->string('country')->nullable();
             $table->string('cci')->nullable();

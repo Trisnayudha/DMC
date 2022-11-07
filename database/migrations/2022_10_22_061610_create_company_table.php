@@ -19,9 +19,11 @@ class CreateCompanyTable extends Migration
             $table->string('company_name')->nullable();
             $table->string('company_website')->nullable();
             $table->string('company_category')->nullable();
+            $table->string('company_other')->nullable();
             $table->string('address')->nullable();
             $table->string('city')->nullable();
             $table->string('portal_code')->nullable();
+            $table->string('prefix_office_number')->nullable();
             $table->string('office_number')->nullable();
             $table->string('country')->nullable();
             $table->string('cci')->nullable();
