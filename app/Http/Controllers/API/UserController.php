@@ -15,64 +15,57 @@ use Newsletter;
 class UserController extends Controller
 {
 
-    public function __construct()
-    {
-        $this->id = auth('sanctum')->user()->id;
-    }
-
     public function index()
     {
-        $id = $this->id;
-        $check = User::where('id', $id)->first();
-        if (!empty($check)) {
-            // dd(substr()uniqid());
-            $mailchimp = Newsletter::hasMember('yudha@indonesiaminer.com'); //returns a boolean
-            $findUser = User::join('profiles', 'profiles.users_id', 'users.id')->join('company', 'company.id', 'profiles.company_id')->first();
-            $data = [
-                'name' => $findUser->name,
-                'email' => $findUser->email,
-                'uuid' => $findUser->uname,
-                'qrcode' => $findUser->qrcode,
-                'date_register' => date('m/y', strtotime($findUser->created_at)),
-                'subscribe' => $mailchimp
+        $id =  auth('sanctum')->user()->id;
+        if (!empty($id)) {
+            $check = User::where('id', $id)->first();
+            if (!empty($check)) {
+                // dd(substr()uniqid());
+                $mailchimp = Newsletter::hasMember($check->email); //returns a boolean
+                $findUser = User::join('profiles', 'profiles.users_id', 'users.id')->join('company', 'company.id', 'profiles.company_id')->first();
+                $data = [
+                    'name' => $findUser->name,
+                    'email' => $findUser->email,
+                    'phone' => $findUser->phone,
+                    'uuid' => $findUser->uname,
+                    'qrcode' => $findUser->qrcode,
+                    'date_register' => date('m/y', strtotime($findUser->created_at)),
+                    'image' => $findUser->image,
+                    'company_name' => preg_replace('/^([^,]*).*$/', '$1', $findUser->company_name),
+                    'job_title' => $findUser->job_title,
+                    'office_number' => $findUser->office_number,
+                    'company_website' => $findUser->company_website,
+                    'address' => $findUser->address,
+                    'country' => $findUser->country,
+                    'city' => $findUser->city,
+                    'postal_code' => $findUser->portal_code,
+                    'company_category' => $findUser->company_category,
+                    'cci' => $findUser->cci,
+                    'explore' => $findUser->explore,
+                    'subscribe' => $mailchimp
 
-            ];
-            $response['status'] = 200;
-            $response['message'] = 'User Found';
-            $response['payload'] = $data;
+                ];
+                $response['status'] = 200;
+                $response['message'] = 'User Found';
+                $response['payload'] = $data;
+            } else {
+                $response['status'] = 401;
+                $response['message'] = 'User Not Found';
+                $response['payload'] = null;
+            }
         } else {
-            $response['status'] = 401;
-            $response['message'] = 'User Not Found';
+            $response['status'] = 404;
+            $response['message'] = 'Token Not Found';
             $response['payload'] = null;
         }
-        return response()->json($response, 200);
-    }
 
-    public function edit_profile()
-    {
-        $id = $this->id;
-        $check = User::where('users.id', $id)->join('profiles', 'profiles.users_id', 'users.id')->first();
-        if (!empty($check)) {
-
-            $data = [
-                'id' => $check->id,
-                'name' => $check->name,
-                'image' => $check->image
-            ];
-            $response['status'] = 200;
-            $response['message'] = 'User Found';
-            $response['payload'] = $data;
-        } else {
-            $response['status'] = 401;
-            $response['message'] = 'User Not Found';
-            $response['payload'] = null;
-        }
         return response()->json($response, 200);
     }
 
     public function update_profile(Request $request)
     {
-        $id = $this->id;
+        $id = auth('sanctum')->user()->id;
 
         $check = User::where('id', $id)->first();
         $profile = ProfileModel::where('users_id', $check->id)->first();
@@ -101,38 +94,9 @@ class UserController extends Controller
         return response()->json($response, 200);
     }
 
-    public function edit_company()
-    {
-        $id = $this->id;
-        $check = User::where('users.id', $id)->join('profiles', 'profiles.users_id', 'users.id')->join('company', 'company.id', 'profiles.company_id')->first();
-        if (!empty($check)) {
-            $data = [
-                'company_name' => preg_replace('/^([^,]*).*$/', '$1', $check->company_name),
-                'job_title' => $check->job_title,
-                'office_number' => $check->office_number,
-                'company_website' => $check->company_website,
-                'address' => $check->address,
-                'country' => $check->country,
-                'city' => $check->city,
-                'postal_code' => $check->portal_code,
-                'company_category' => $check->company_category,
-                'cci' => $check->cci,
-                'explore' => $check->explore,
-            ];
-            $response['status'] = 200;
-            $response['message'] = 'User Found';
-            $response['payload'] = $data;
-        } else {
-            $response['status'] = 401;
-            $response['message'] = 'User Not Found';
-            $response['payload'] = null;
-        }
-        return response()->json($response, 200);
-    }
-
     public function update_company(Request $request)
     {
-        $id = $this->id;
+        $id = auth('sanctum')->user()->id;
         $check = User::where('users.id', $id)->join('profiles', 'profiles.users_id', 'users.id')
             ->join('company', 'company.id', 'profiles.company_id')
             ->select('users.id as users_id', 'profiles.id as profile_id', 'company.id as company_id')
@@ -168,7 +132,7 @@ class UserController extends Controller
 
     public function changePassword(Request $request)
     {
-        $id = $this->id;
+        $id = auth('sanctum')->user()->id;
         $validate = Validator::make($request->all(), [
             'current_password' => 'required',
             'new_password' => 'required|different:current_password|string|min:6',

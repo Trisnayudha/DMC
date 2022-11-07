@@ -40,9 +40,7 @@ Route::post('/reset-password', [AuthController::class, 'resetpassword']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Route Menggunakan Token API
     Route::post('profile', [UserController::class, 'index']);
-    Route::post('profile/edit_profile', [UserController::class, 'edit_profile']);
     Route::post('profile/update_profile', [UserController::class, 'update_profile']);
-    Route::post('profile/edit_company', [UserController::class, 'edit_company']);
     Route::post('profile/update_company', [UserController::class, 'update_company']);
     Route::post('profile/changePassword', [UserController::class, 'changePassword']);
 });
