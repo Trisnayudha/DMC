@@ -143,18 +143,12 @@ class UserController extends Controller
         $id = auth('sanctum')->user()->id;
         $validate = Validator::make($request->all(), [
             'current_password' => 'required',
-            'new_password' => 'required|different:current_password|string|min:6',
         ], [
             'current_password.required' => 'Password saat tidak boleh kosong',
-            'new_password.required' => 'Silahkan isi password baru anda',
-            'new_password.different' => 'Silahkan masukan password baru anda',
-            'new_password.min' => 'Password minimal 6 karakter',
-
         ]);
         if ($validate->fails()) {
             $data = [
                 'current_password' => $validate->errors()->first('current_password'),
-                'new_password' => $validate->errors()->first('new_password')
             ];
             $response['status'] = 422;
             $response['message'] = 'Invalid data';
@@ -163,12 +157,28 @@ class UserController extends Controller
 
             $user = User::where('id', $id)->first();
             if (Hash::check($request->current_password, $user->password)) {
+                $validate = Validator::make($request->all(), [
+                    'new_password' => 'required|different:current_password|string|min:6',
+                ], [
+                    'new_password.required' => 'Silahkan isi password baru anda',
+                    'new_password.different' => 'Password harus berbeda',
+                    'new_password.min' => 'Password minimal 6 karakter',
 
-                $user->password = Hash::make($request->new_password);
-                $user->save();
-                $response['status'] = 200;
-                $response['message'] = 'Successfully Update new password';
-                $response['payload'] = null;
+                ]);
+                if ($validate->fails()) {
+                    $data = [
+                        'new_password' => $validate->errors()->first('new_password')
+                    ];
+                    $response['status'] = 422;
+                    $response['message'] = 'Invalid data';
+                    $response['payload'] = $data;
+                } else {
+                    $user->password = Hash::make($request->new_password);
+                    $user->save();
+                    $response['status'] = 200;
+                    $response['message'] = 'Successfully Update new password';
+                    $response['payload'] = null;
+                }
             } else {
                 $data = [
                     'current_password' => 'Password was wrong',
