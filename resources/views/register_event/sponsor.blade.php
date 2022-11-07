@@ -156,7 +156,7 @@
 
                 <div class="col-md-12 col-lg-12">
                     <h4 class="mb-3">* Required information</h4>
-                    <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation" novalidate>
+                    <form action="{{ url('/regis-sponsor') }}" method="POST" class="needs-validation" novalidate>
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
@@ -182,7 +182,7 @@
                         <div class="row g-3">
                             <div class="col-sm-6">
                                 <label for="name" class="form-label">Full name *</label>
-                                <input type="text" class="form-control" name="name" placeholder=""
+                                <input type="text" class="form-control" name="name[]" placeholder=""
                                     value="{{ old('name') }}" required>
                                 <div class="invalid-feedback">
                                     Valid name is required.
@@ -190,7 +190,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="phone" class="form-label">Mobile number *</label>
-                                <input type="tel" class="form-control" name="phone"id="phone" placeholder=""
+                                <input type="tel" class="phone form-control" name="phone[]" placeholder=""
                                     value="+62" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
@@ -198,7 +198,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="job_title" class="form-label">Job Title *</label>
-                                <input type="text" class="form-control" name="job_title" placeholder="" required
+                                <input type="text" class="form-control" name="job_title[]" placeholder="" required
                                     value="{{ old('job_title') }}">
                                 <div class="invalid-feedback">
                                     Please enter your Job Title.
@@ -207,33 +207,22 @@
                             <div class="col-sm-6">
                                 <label for="email" class="form-label">Email Address * <span
                                         class="text-muted"></span></label>
-                                <input type="email" class="form-control" name="email"
+                                <input type="email" class="form-control" name="email[]"
                                     placeholder="Your work email" required value="{{ old('email') }}">
                                 <div class="invalid-feedback">
                                     Please enter a valid email address.
                                 </div>
                             </div>
-                            <div class="col-sm-12 mt-5 flex mr-auto">
+                            <div class="col-sm-12 mt-2">
 
-                                <button class="btn btn-primary"> Tambah data</button>
+                                <a href="javascript:void(0)" class="addData btn btn-primary float-right"> Tambah
+                                    data</a>
                             </div>
                         </div>
+
+                        <div class="customer"></div>
                         <hr class="my-4">
                         <input type="hidden" name="paymentMethod" id="paymentMethod" value="free">
-                        {{-- <div class="my-3">
-                            <div class="form-check">
-                                <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
-                                    checked required value="member">
-                                <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
-                            </div>
-                            <div class="form-check">
-                                <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-                                    required value="nonmember">
-                                <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
-                            </div>
-                        </div>
-
-                        <hr class="my-4"> --}}
 
                         <button class="w-80 btn btn-primary btn-lg" type="submit">Register Event</button>
                     </form>
@@ -251,9 +240,7 @@
     </div>
 
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
-    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous">
     </script>
@@ -287,45 +274,9 @@
                 window.location = "https://djakarta-miningclub.com/";
             });
         @endif
-
-        const xhttp = new XMLHttpRequest();
-        const select = document.getElementById("country");
-        const flag = document.getElementById("flag");
-
-        let country;
-
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                country = JSON.parse(xhttp.responseText);
-                assignValues();
-                handleCountryChange();
-            }
-        };
-        xhttp.open("GET", "https://restcountries.com/v3.1/all", true);
-        xhttp.send();
-
-        function assignValues() {
-            country.forEach(country => {
-                const option = document.createElement("option");
-                option.value = country.cioc;
-                option.textContent = country.name.common;
-                select.appendChild(option);
-            });
-        }
-
-        function handleCountryChange() {
-            const countryData = country.find(
-                country => select.value === country.alpha2Code
-            );
-            flag.style.backgroundImage = `url(${countryData.flag})`;
-        }
-
-        select.addEventListener("change", handleCountryChange.bind(this));
     </script>
-
-
     <script>
-        var input = document.querySelector("#phone");
+        var input = document.querySelector(".phone");
         window.intlTelInput(input, {
             // separateDialCode: true,
             initialCountry: "id",
@@ -336,6 +287,57 @@
             // separateDialCode: true,
             initialCountry: "id",
 
+        });
+    </script>
+
+    <script type="text/javascript">
+        var i = 0;
+        $(".addData").click(function() {
+            ++i;
+            $(".customer").append(
+                `  <div class="row g-3 tambah">
+                            <div class="col-sm-6">
+                                <label for="name" class="form-label">Full name *</label>
+                                <input type="text" class="form-control" name="name[]" placeholder=""
+                                    value="{{ old('name') }}" required>
+                                <div class="invalid-feedback">
+                                    Valid name is required.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="phone" class="form-label">Mobile number *</label>
+                                <input type="tel" class="phone form-control" name="phone[]" placeholder=""
+                                    value="+62" required>
+                                <div class="invalid-feedback">
+                                    Please provide a Mobile Number
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="job_title" class="form-label">Job Title *</label>
+                                <input type="text" class="form-control" name="job_title[]" placeholder="" required
+                                    value="{{ old('job_title') }}">
+                                <div class="invalid-feedback">
+                                    Please enter your Job Title.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="email" class="form-label">Email Address * <span
+                                        class="text-muted"></span></label>
+                                <input type="email" class="form-control" name="email[]"
+                                    placeholder="Your work email" required value="{{ old('email') }}">
+                                <div class="invalid-feedback">
+                                    Please enter a valid email address.
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-2">
+                                <a href="javascript:void(0)" class="remove btn btn-danger float-right">Hapus
+                                    data</a>
+                            </div>
+                        </div>`
+            );
+        });
+        $(document).on('click', '.remove', function() {
+            $(this).parents('.tambah').remove();
         });
     </script>
 </body>

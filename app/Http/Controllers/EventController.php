@@ -70,7 +70,7 @@ class EventController extends Controller
         } else if ($paymentMethod == 'nonmember') {
             $total_price = 1000000;
         } else if ($paymentMethod == 'onsite') {
-            $total_price = 1200000;
+            $total_price = 1250000;
         } else {
             $total_price  = 0;
         }
@@ -167,5 +167,10 @@ class EventController extends Controller
     public function sponsor()
     {
         return view('register_event.sponsor');
+    }
+
+    public function register_sponsor(Request $request)
+    {
+        dd($request->all());
     }
 }

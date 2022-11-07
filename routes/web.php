@@ -18,7 +18,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [FormMemberController::class, 'index']);
+Route::get('/', function () {
+    return view('welcome');
+});
 Route::post('/membership', [FormMemberController::class, 'store']);
 Route::get('/test', [FormMemberController::class, 'test']);
 Route::get('/privacy', function () {
@@ -28,6 +30,7 @@ Route::get('/privacy', function () {
 Route::get('/register-event', [EventController::class, 'view']);
 Route::get('/register-event/free', [EventController::class, 'view2']);
 Route::get('/register-event/sponsor', [EventController::class, 'sponsor']);
+Route::post('/regis-sponsor', [EventController::class, 'register_sponsor']);
 Route::post('/payment-personal', [EventController::class, 'payment_personal']);
 
 Route::get('/asu', function () {

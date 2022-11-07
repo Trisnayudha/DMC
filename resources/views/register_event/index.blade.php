@@ -336,7 +336,7 @@
                             <div class="form-check">
                                 <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
                                     required value="onsite">
-                                <label class="form-check-label" for="debit">On site (IDR. 1.200.000)</label>
+                                <label class="form-check-label" for="debit">On site (IDR. 1.250.000)</label>
                             </div>
                         </div>
 
