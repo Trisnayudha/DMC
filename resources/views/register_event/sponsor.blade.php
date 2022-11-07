@@ -173,8 +173,9 @@
                                 <label for="">Choose your Company</label>
                                 <select name="company" id="company"
                                     class="form-control js-example-basic-single d-block w-100">
-                                    <option value="a">PT iNdoneisa</option>
-                                    <option value="a">PT DMC</option>
+                                    @foreach ($company as $value)
+                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
@@ -306,7 +307,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="phone" class="form-label">Mobile number *</label>
-                                <input type="tel" class="phone form-control" name="phone[]" placeholder=""
+                                <input type="tel" class="phone form-control" name="phone[]" id="phone" placeholder=""
                                     value="+62" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
@@ -335,6 +336,12 @@
                             </div>
                         </div>`
             );
+            var input = document.querySelector("#phone");
+            window.intlTelInput(input, {
+                // separateDialCode: true,
+                initialCountry: "id",
+
+            });
         });
         $(document).on('click', '.remove', function() {
             $(this).parents('.tambah').remove();

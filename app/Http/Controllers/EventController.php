@@ -6,6 +6,7 @@ use App\Helpers\EmailSender;
 use App\Models\Events\UserRegister;
 use App\Models\MemberModel;
 use App\Models\Payments\Payment;
+use App\Models\Sponsors\Sponsor;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -166,11 +167,29 @@ class EventController extends Controller
 
     public function sponsor()
     {
-        return view('register_event.sponsor');
+        $company = Sponsor::get();
+        $data = [
+            'company' => $company
+        ];
+        return view('register_event.sponsor', $data);
     }
 
     public function register_sponsor(Request $request)
     {
-        dd($request->all());
+        $findSponsor = Sponsor::find($request->company);
+        foreach ($request->name as $key => $value) {
+            $create = MemberModel::create([
+                'sponsor_id' => $request->company,
+                'company_name' => $findSponsor->name,
+                'address' => $findSponsor->address,
+                'office_number' => $findSponsor->office_number,
+                'company_website' => $findSponsor->company_website,
+                'name' => $request->name[$key],
+                'phone' => $request->phone[$key],
+                'job_title' => $request->job_title[$key],
+                'email' => $request->email[$key],
+            ]);
+        }
+        return redirect()->back()->with('alert', 'Successfully Registering as Sponsor');
     }
 }
