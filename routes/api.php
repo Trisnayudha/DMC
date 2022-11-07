@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\PaymentController;
+use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\Callback\XenditCallbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,15 @@ Route::post('verify_otp', [AuthController::class, 'verifyOtp']);
 Route::post('/forgot-password', [AuthController::class, 'forgot']);
 Route::post('/verify_forgot', [AuthController::class, 'verify_forgot']);
 Route::post('/reset-password', [AuthController::class, 'resetpassword']);
+
+Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Route Menggunakan Token API
+    Route::post('profile', [UserController::class, 'index']);
+    Route::post('profile/edit_profile', [UserController::class, 'edit_profile']);
+    Route::post('profile/update_profile', [UserController::class, 'update_profile']);
+    Route::post('profile/edit_company', [UserController::class, 'edit_company']);
+    Route::post('profile/update_company', [UserController::class, 'update_company']);
+    Route::post('profile/changePassword', [UserController::class, 'changePassword']);
+});
 
 
 Route::get('/list-payment', [PaymentController::class, 'listbank']);
