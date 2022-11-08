@@ -7,8 +7,8 @@
     <meta name="description" content="{{ config('app.name', 'Laravel') }}">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>ASIK</title>
-    <link rel="icon" type="image/png" href="{{asset('images/logo_launcher.png')}}" />
+    <title>DMC</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_launcher.png') }}" />
 
     <!-- General CSS Files -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -39,8 +39,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css">
     <script src="/plugins/jquery/jquery.min.js"></script>
     <script src="/plugins/sweetalert2/sweetalert2.all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
@@ -107,12 +106,12 @@
     <script src="{{ asset('stisla/assets/js/custom.js') }}"></script>
     <script>
         $(document).ready(function() {
-                $('.select2').select2();
-                $(".select2-tags").select2({
-                    tags: true
-                });
-
+            $('.select2').select2();
+            $(".select2-tags").select2({
+                tags: true
             });
+
+        });
     </script>
 
     @yield('client_scripts')

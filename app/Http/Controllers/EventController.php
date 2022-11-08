@@ -9,6 +9,7 @@ use App\Models\Payments\Payment;
 use App\Models\Sponsors\Sponsor;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Xendit\Invoice;
@@ -17,6 +18,18 @@ use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
+    public function sementara()
+    {
+        $list = DB::table('users_event')
+            ->join('xtwp_users_dmc', 'xtwp_users_dmc.id', 'users_event.users_id')
+            ->join('payment', 'payment.id', 'users_event.payment_id')
+            ->get();
+
+        $data = [
+            'payment' => $list
+        ];
+        return view('admin.events.sementara', $data);
+    }
     public function view()
     {
         return view('register_event.index');
@@ -76,6 +89,8 @@ class EventController extends Controller
             $total_price  = 0;
         }
         $codePayment = strtoupper(Str::random(7));
+        $date = date('d-m-Y H:i:s');
+        $linkPay = null;
         if ($paymentMethod != 'free') {
 
             // init xendit
@@ -87,7 +102,7 @@ class EventController extends Controller
             }
             // params invoice
             Xendit::setApiKey($secretKey);
-            $date = date('d-m-Y H:i:s');
+
 
             $params = [
                 'external_id' => $codePayment,
@@ -100,7 +115,6 @@ class EventController extends Controller
             $createInvoice = Invoice::create($params);
             $linkPay = $createInvoice['invoice_url'];
         }
-
 
         $payment = Payment::firstOrNew(['member_id' => $user->id]);
         if ($paymentMethod == 'free') {

@@ -42,3 +42,5 @@ Auth::routes([
 Route::get('/admin/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('payment', [PaymentController::class, 'index'])->name('payment');
+
+Route::get('/events-sementara', [EventController::class, 'sementara'])->name('events-sementara');
