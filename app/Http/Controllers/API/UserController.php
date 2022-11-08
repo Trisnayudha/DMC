@@ -115,15 +115,15 @@ class UserController extends Controller
             ->select('users.id as users_id', 'profiles.id as profile_id', 'company.id as company_id')
             ->first();
         // dd($check);
-        $country_phone_office = $request->country_phone_office;
-        $office_number = $country_phone_office . $request->office_number;
         if (!empty($check)) {
             $updateCompany = CompanyModel::where('id', $check->company_id)->first();
             $updateProfile = ProfileModel::where('id', $check->profile_id)->first();
             $updateProfile->job_title = $request->job_title;
             $updateProfile->save();
+            $updateCompany->prefix = $request->prefix;
             $updateCompany->company_name = $request->company_name;
-            $updateCompany->office_number = $office_number;
+            $updateCompany->prefix_office_number = $request->prefix_office_number;
+            $updateCompany->office_number = $request->office_number;
             $updateCompany->company_website = $request->company_website;
             $updateCompany->address = $request->address;
             $updateCompany->country = $request->country;
