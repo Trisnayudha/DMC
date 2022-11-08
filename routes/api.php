@@ -43,6 +43,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('profile/update_profile', [UserController::class, 'update_profile']);
     Route::post('profile/update_company', [UserController::class, 'update_company']);
     Route::post('profile/changePassword', [UserController::class, 'changePassword']);
+    Route::post('profile/subscribe', [UserController::class, 'subscribe']);
+    Route::post('profile/unsubscribe', [UserController::class, 'unsubscribe']);
 });
 
 

@@ -22,7 +22,12 @@ class UserController extends Controller
             $check = User::where('id', $id)->first();
             if (!empty($check)) {
                 // dd(substr()uniqid());
-                $mailchimp = Newsletter::hasMember($check->email); //returns a boolean
+                $mailchimp = Newsletter::isSubscribed($check->email); //returns a boolean
+                if ($mailchimp == true) {
+                    $mailchimp = 'subscribe';
+                } else {
+                    $mailchimp = 'unsubscribe';
+                }
                 $findUser = User::join('profiles', 'profiles.users_id', 'users.id')->join('company', 'company.id', 'profiles.company_id')->first();
                 $data = [
                     'name' => $findUser->name,
@@ -189,6 +194,45 @@ class UserController extends Controller
                 $response['message'] = 'Invalid data';
                 $response['payload'] = $data;
             }
+        }
+        return response()->json($response, 200);
+    }
+
+    public function subscribe()
+    {
+        $id = auth('sanctum')->user()->id;
+
+        $findUsers = User::where('id', $id)->first();
+
+        if (!empty($findUsers)) {
+            Newsletter::subscribeOrUpdate($findUsers->email);
+
+            $response['status'] = 200;
+            $response['message'] = 'Successfully Subscribe Email';
+            $response['payload'] = null;
+        } else {
+            $response['status'] = 401;
+            $response['message'] = 'User Not Found';
+            $response['payload'] = null;
+        }
+        return response()->json($response, 200);
+    }
+
+    public function unsubscribe()
+    {
+        $id = auth('sanctum')->user()->id;
+
+        $findUsers = User::where('id', $id)->first();
+
+        if (!empty($findUsers)) {
+            Newsletter::unsubscribe($findUsers->email);
+            $response['status'] = 200;
+            $response['message'] = 'Successfully UnSubscribe Email';
+            $response['payload'] = null;
+        } else {
+            $response['status'] = 401;
+            $response['message'] = 'User Not Found';
+            $response['payload'] = null;
         }
         return response()->json($response, 200);
     }
