@@ -188,11 +188,11 @@ Your verification code (OTP) ' . $otp;
             $request->all(),
             [
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'phone' => ['required', 'unique:profiles']
+                'fullphone' => ['required', 'unique:profiles']
             ],
             [
-                'phone.required' => 'Harap Masukan Nomor Handphone',
-                'phone.unique' => 'Nomor Handphone sudah terdaftar',
+                'fullphone.required' => 'Harap Masukan Nomor Handphone',
+                'fullphone.unique' => 'Nomor Handphone sudah terdaftar',
                 'email.required' => 'Email Harap diisi',
                 'email.unique' => 'Email sudah digunakan'
             ]
@@ -200,7 +200,7 @@ Your verification code (OTP) ' . $otp;
         if ($validate->fails()) {
             $data = [
                 'email' => $validate->errors()->first('email'),
-                'phone' => $validate->errors()->first('phone')
+                'fullphone' => $validate->errors()->first('fullphone')
             ];
             $response['status'] = 422;
             $response['message'] = 'Something was wrong';
