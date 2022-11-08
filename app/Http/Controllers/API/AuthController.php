@@ -423,6 +423,7 @@ Your verification code (OTP) ' . $otp;
                         'company_name' => $findUser->company_name,
                         'company_website' => $findUser->company_website,
                         'company_category' => $findUser->company_category,
+                        'company_other' => $findUser->company_other,
                         'address' => $findUser->address,
                         'city' => $findUser->city,
                         'portal_code' => $findUser->portal_code,
