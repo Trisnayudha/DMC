@@ -12,8 +12,36 @@
         <a href="">DMC</a>
     </div>
     <ul class="sidebar-menu">
-        <li class=""><a class="nav-link" href="{{ Route('home') }}"><i class="fas fa-desktop"></i>
-                <span>Dashboard</span></a></li>
+        <li class="">
+            <a class="nav-link" href="{{ Route('home') }}">
+                <i class="fas fa-desktop"></i>
+                <span>Dashboard</span></a>
+        </li>
+        <li class="">
+            <a class="nav-link" href="{{ Route('home') }}">
+                <i class="fa fa-university" aria-hidden="true"></i>
+                <span>Sponsors</span></a>
+        </li>
+        <li class="">
+            <a href="" class="nav-link">
+                <i class="fa fa-credit-card"></i>
+                <span>Payment</span> </a>
+        </li>
+        <li class="">
+            <a href="" class="nav-link">
+                <i class="fa fa-cc-visa" aria-hidden="true"></i>
+                <span>Invoice</span> </a>
+        </li>
+        <li class="">
+            <a href="" class="nav-link">
+                <i class="fa fa-user"></i>
+                <span>Users</span> </a>
+        </li>
+        <li class="">
+            <a href="" class="nav-link">
+                <i class="fa fa-users" aria-hidden="true"></i>
+                <span>Users Management</span> </a>
+        </li>
 
     </ul>
 
