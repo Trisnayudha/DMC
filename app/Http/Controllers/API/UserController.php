@@ -126,6 +126,8 @@ class UserController extends Controller
             $updateCompany->portal_code = $request->postal_code;
             $updateCompany->cci = $request->cci;
             $updateCompany->explore = $request->explore;
+            $updateCompany->company_category = $request->company_category;
+            $updateCompany->company_other = $request->company_other;
             $updateCompany->save();
             $response['status'] = 200;
             $response['message'] = 'Company Update Successfully';
