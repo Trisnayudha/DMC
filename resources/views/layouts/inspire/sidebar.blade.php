@@ -23,13 +23,13 @@
                 <span>Sponsors</span></a>
         </li>
         <li class="">
-            <a href="" class="nav-link">
+            <a href="{{ Route('payment') }}" class="nav-link">
                 <i class="fa fa-credit-card"></i>
                 <span>Payment</span> </a>
         </li>
         <li class="">
             <a href="" class="nav-link">
-                <i class="fa fa-cc-visa" aria-hidden="true"></i>
+                <i class="fa fa-credit-card" aria-hidden="true"></i>
                 <span>Invoice</span> </a>
         </li>
         <li class="">

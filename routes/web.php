@@ -3,6 +3,7 @@
 use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FormMemberController;
+use App\Http\Controllers\PaymentController;
 use App\Models\Payments\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -32,13 +33,6 @@ Route::get('/register-event/sponsor', [EventController::class, 'sponsor']);
 Route::post('/regis-sponsor', [EventController::class, 'register_sponsor']);
 Route::post('/payment-personal', [EventController::class, 'payment_personal']);
 
-Route::get('/asu', function () {
-    $findUser = Payment::where('code_payment', 'LADWM3I')
-        ->join('xtwp_users_dmc as a', 'a.id', 'payment.member_id')
-        ->first();
-    dd($findUser->code_payment);
-});
-
 Auth::routes([
     'register' => false, // Registration Routes...
     'reset' => false, // Password Reset Routes...
@@ -46,3 +40,5 @@ Auth::routes([
 ]);
 
 Route::get('/admin/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('payment', [PaymentController::class, 'index'])->name('payment');
