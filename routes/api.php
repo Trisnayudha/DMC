@@ -45,6 +45,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('profile/changePassword', [UserController::class, 'changePassword']);
     Route::post('profile/subscribe', [UserController::class, 'subscribe']);
     Route::post('profile/unsubscribe', [UserController::class, 'unsubscribe']);
+
+    Route::post('/profile/request_otp', [UserController::class, 'requestOtp']);
+    Route::post('/profile/verify_otp', [UserController::class, 'verifyOtp']);
+    Route::post('/profile/check', [UserController::class, 'check']);
 });
 
 

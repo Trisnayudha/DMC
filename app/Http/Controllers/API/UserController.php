@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\EmailSender;
+use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
+use App\Models\MemberModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Newsletter;
@@ -235,5 +239,264 @@ class UserController extends Controller
             $response['payload'] = null;
         }
         return response()->json($response, 200);
+    }
+
+    public function requestOtp(Request $request)
+    {
+        $otp = rand(1000, 9999);
+        Log::info("otp = " . $otp);
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'params' => 'required'
+            ],
+        );
+        if ($validate->fails()) {
+            $data = [
+                'params' => $validate->errors()->first('params')
+            ];
+            $response['status'] = 401;
+            $response['message'] = 'Something was wrong';
+            $response['payload'] = $data;
+        } else {
+            $email = $request->email;
+            $phone = $request->phone;
+            $params = $request->params;
+            if (!empty($email)) {
+                $user = User::where('email', '=', $email)->first();
+                $stat = User::where('email', '=', $email)->update(['otp' => $otp]);
+                if (!empty($user)) {
+                    $send = new EmailSender();
+                    $send->subject = "OTP Register";
+                    if ($params == 'change') {
+                        $wording = 'We received a request to change your account. To change, please use this
+                    code:';
+                    } elseif ($params == 'verify') {
+                        $wording = 'We received a request to verify your account. To verify, please use this
+                    code:';
+                    } else {
+                        $data = [
+                            'params' => 'Please Choose params ( verify / change )'
+                        ];
+                        $response['status'] = 401;
+                        $response['message'] = 'Something was wrong';
+                        $response['payload'] = $data;
+                        return response()->json($response);
+                    }
+
+                    $send->template = "email.tokenverify";
+                    $send->data = [
+                        'name' => $user->name,
+                        'wording' => $wording,
+                        'otp' => $otp
+                    ];
+                    $send->from = env('EMAIL_SENDER');
+                    $send->name_sender = env('EMAIL_NAME');
+                    $send->to = $email;
+                    $send->sendEmail();
+                    $response['status'] = 200;
+                    $response['message'] = 'Successfully send OTP to Email';
+                    $response['payload'] = $send;
+                } else {
+                    $response['status'] = 401;
+                    $response['message'] = 'Email was Wrong';
+                    $response['payload'] = null;
+                }
+            } else {
+                $user = ProfileModel::where('fullphone', '=', $phone)->first();
+                $stat = ProfileModel::where('fullphone', '=', $phone)->join('users', 'users.id', 'profiles.users_id')->update(['users.otp' => $otp]);
+                if (!empty($user)) {
+                    $send = new WhatsappApi();
+                    $send->phone = $phone;
+                    if ($params == 'change') {
+                        $send->message = 'Dear ' . $user->name . '
+Your change phone number code (OTP) ' . $otp;
+                    } elseif ($params == 'verify') {
+                        $send->message = 'Dear ' . $user->name . '
+Your verification code (OTP) ' . $otp;
+                    } else {
+                        $data = [
+                            'params' => 'Please Choose params ( verify / change )'
+                        ];
+                        $response['status'] = 401;
+                        $response['message'] = 'Something was wrong';
+                        $response['payload'] = $data;
+                        return response()->json($response);
+                    }
+
+                    $send->WhatsappMessage();
+                    $data = [
+                        'phone' => $phone,
+                        'whatsapp' => json_decode($send->res),
+                    ];
+                    $response['status'] = 200;
+                    $response['message'] = 'Successfully send OTP to Whatsapp';
+                    $response['payload'] = $data;
+                } else {
+                    $response['status'] = 401;
+                    $response['message'] = 'Phone Number was Wrong';
+                    $response['payload'] = null;
+                }
+            }
+        }
+        return response()->json($response);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        //verify Email
+        $email = $request->email;
+
+        //change Email
+        $new_email = $request->new_email;
+
+        //change phone number
+        $prefix_phone = $request->prefix_phone;
+        $old_phone = $request->old_phone;
+        $new_phone = $request->new_phone;
+
+        //verify phone number
+        $phone = $request->phone;
+        if (!empty($phone)) {
+            $old_phone = $phone;
+        }
+
+        $otp = $request->otp;
+        $params = $request->params;
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'params' => 'required'
+            ],
+        );
+        if ($validate->fails()) {
+            $data = [
+                'params' => $validate->errors()->first('params')
+            ];
+            $response['status'] = 401;
+            $response['message'] = 'Something was wrong';
+            $response['payload'] = $data;
+        } else {
+            if (!empty($old_phone)) {
+                $findUser = ProfileModel::join('users', 'users.id', 'profiles.users_id')
+                    ->where([['profiles.fullphone', $old_phone], ['users.otp', $otp]])->first();
+                if (!empty($findUser)) {
+                    if ($params == 'change' && !empty($prefix_phone) && !empty($new_phone)) {
+                        $fullphone = $prefix_phone . $new_phone;
+                        $change = ProfileModel::where('fullphone', $findUser->fullphone)->first();
+                        $change->fullphone = $fullphone;
+                        $change->prefix_phone = $prefix_phone;
+                        $change->phone = $new_phone;
+                        $change->save();
+                        User::where('id', $findUser->users_id)->update(['otp' => null], ['verify_phone' => 'verified']);
+                        $response['status'] = 200;
+                        $response['message'] = 'Success Change Phone Number';
+                        $response['payload'] = null;
+                    } elseif ($params == 'verify') {
+                        $verify = ProfileModel::where('fullphone', $old_phone)->first();
+                        User::where('id', $verify->users_id)->update(['otp' => null], ['verify_phone' => 'verified']);
+                        $response['status'] = 200;
+                        $response['message'] = 'Success Verify Phone Number';
+                        $response['payload'] = null;
+                    } else {
+                        $data = [
+                            'params' => 'Please Choose params ( verify / change )'
+                        ];
+                        $response['status'] = 401;
+                        $response['message'] = 'Something was wrong';
+                        $response['payload'] = $data;
+                        return response()->json($response);
+                    }
+                } else {
+                    $response['status'] = 401;
+                    $response['message'] = 'Something was wrong';
+                    $response['payload'] = null;
+                }
+            } elseif (!empty($email)) {
+                $findUser = User::where([['email', $email], ['otp', $otp]])->first();
+                if (!empty($findUser)) {
+                    if ($params == "change") {
+                        $change = User::where('email', $email)->first();
+                        $change->email = $new_email;
+                        $change->verify_email = 'verified';
+                        $change->otp = null;
+                        $change->save();
+                        $response['status'] = 200;
+                        $response['message'] = 'Success Change Email';
+                        $response['payload'] = null;
+                    } elseif ($params == "verify") {
+                        $change = User::where('email', $email)->first();
+                        $change->verify_email = 'verified';
+                        $change->otp = null;
+                        $change->save();
+
+                        $response['status'] = 200;
+                        $response['message'] = 'Success Verify Email';
+                        $response['payload'] = null;
+                    } else {
+                        $data = [
+                            'params' => 'Please Choose params ( verify / change )'
+                        ];
+                        $response['status'] = 401;
+                        $response['message'] = 'Something was wrong';
+                        $response['payload'] = $data;
+                        return response()->json($response);
+                    }
+                } else {
+                    $response['status'] = 401;
+                    $response['message'] = 'Something was wrong';
+                    $response['payload'] = null;
+                }
+            } else {
+                $data = [
+                    'phone' => 'choose verify/change',
+                    'email' => 'choose verify',
+                    'new_email' => 'required with email'
+                ];
+                $response['status'] = 401;
+                $response['message'] = 'Something was wrong';
+                $response['payload'] = $data;
+            }
+        }
+        return response()->json($response);
+    }
+
+    public function check(Request $request)
+    {
+        $phone = $request->phone;
+        $email = $request->email;
+
+        if (!empty($phone)) {
+            //
+            $check = ProfileModel::where('fullphone', $phone)->first();
+            if (empty($check)) {
+                $response['status'] = 200;
+                $response['message'] = 'Next';
+                $response['payload'] = null;
+            } else {
+                $data = [
+                    'phone' => 'Phone number already used',
+                ];
+                $response['status'] = 401;
+                $response['message'] = 'Something was wrong';
+                $response['payload'] = $data;
+            }
+        } else {
+            $check = User::where('email', $email)->first();
+            if (empty($check)) {
+                $response['status'] = 200;
+                $response['message'] = 'Next';
+                $response['payload'] = null;
+            } else {
+                $data = [
+                    'email' => 'Email address already used',
+                ];
+                $response['status'] = 401;
+                $response['message'] = 'Something was wrong';
+                $response['payload'] = $data;
+            }
+        }
+
+        return response()->json($response);
     }
 }
