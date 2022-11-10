@@ -32,7 +32,10 @@ class UserController extends Controller
                 } else {
                     $mailchimp = 'unsubscribe';
                 }
-                $findUser = User::join('profiles', 'profiles.users_id', 'users.id')->join('company', 'company.id', 'profiles.company_id')->first();
+                $findUser = User::join('profiles', 'profiles.users_id', 'users.id')
+                    ->join('company', 'company.id', 'profiles.company_id')
+                    ->where('users.id', $id)
+                    ->first();
                 $data = [
                     'name' => $findUser->name,
                     'email' => $findUser->email,

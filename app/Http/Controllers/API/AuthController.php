@@ -38,7 +38,7 @@ class AuthController extends Controller
         $validate = Validator::make(
             $request->all(),
             [
-                'phone' => ['required', 'exists:profiles,phone'],
+                'phone' => ['required', 'exists:profiles,fullphone'],
             ],
             [
                 'phone.required' => 'Phone wajib di isi',
@@ -55,7 +55,7 @@ class AuthController extends Controller
             $response['payload'] = $data;
         } else {
             $phone = $request->phone;
-            $findUser = ProfileModel::where([['phone', '=', $phone], ['users.verify_phone', '=', 'verified']])->join('users', 'users.id', 'profiles.users_id')->first();
+            $findUser = ProfileModel::where([['fullphone', '=', $phone], ['users.verify_phone', '=', 'verified']])->join('users', 'users.id', 'profiles.users_id')->first();
             if (!empty($findUser)) {
                 $otp = rand(1000, 9999);
                 Log::info("otp = " . $otp);
@@ -89,7 +89,7 @@ Your verification code (OTP) ' . $otp;
         $validate = Validator::make(
             $request->all(),
             [
-                'phone' => ['required', 'exists:profiles,phone'],
+                'phone' => ['required', 'exists:profiles,fullphone'],
             ],
             [
                 'phone.required' => 'Phone wajib di isi',
@@ -107,7 +107,7 @@ Your verification code (OTP) ' . $otp;
         } else {
             $phone = $request->phone;
             $otp = $request->otp;
-            $findUser = ProfileModel::where([['phone', '=', $phone], ['users.otp', '=', $otp]])->join('users', 'users.id', 'profiles.users_id')->first();
+            $findUser = ProfileModel::where([['fullphone', '=', $phone], ['users.otp', '=', $otp]])->join('users', 'users.id', 'profiles.users_id')->first();
             if (!empty($findUser)) {
                 User::where('id', '=', $findUser->users_id)->update(['otp' => null]);
                 $user = User::where('id', '=', $findUser->id)->first();
