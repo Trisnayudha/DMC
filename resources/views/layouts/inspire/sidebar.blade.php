@@ -23,6 +23,11 @@
                 <span>Events sementara</span></a>
         </li>
         <li class="">
+            <a class="nav-link" href="{{ Route('events-sementara') }}">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                <span>Events</span></a>
+        </li>
+        <li class="">
             <a class="nav-link" href="">
                 <i class="fa fa-university" aria-hidden="true"></i>
                 <span>Sponsors</span></a>

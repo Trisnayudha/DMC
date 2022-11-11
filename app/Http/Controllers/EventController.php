@@ -77,6 +77,7 @@ class EventController extends Controller
         $user->city = $city;
         $user->office_number = $office_number;
         $user->portal_code = $portal_code;
+        $user->register_as = 'Events';
         $user->save();
 
         if ($paymentMethod == 'member') {
@@ -120,7 +121,8 @@ class EventController extends Controller
         if ($paymentMethod == 'free') {
             $payment->package = $paymentMethod;
             $payment->price = $total_price;
-            $payment->status = 'Approve';
+            $payment->status = 'Waiting';
+            $payment->code_payment = $codePayment;
             // $payment->link = null;
         } else {
             $payment->package = $paymentMethod;
@@ -131,18 +133,18 @@ class EventController extends Controller
         }
         $payment->save();
 
-        if ($paymentMethod == 'free') {
-            $user_event = UserRegister::firstOrNew(
-                ['users_id' =>  $user->id],
-                ['payment_id' => $payment->id]
-            );
-            $user_event->save();
-        }
+        // if ($paymentMethod == 'free') {
+        //     $user_event = UserRegister::firstOrNew(
+        //         ['users_id' =>  $user->id],
+        //         ['payment_id' => $payment->id]
+        //     );
+        //     $user_event->save();
+        // }
 
 
 
         $data = [
-            'code_payment' => 'DMC-' . time(),
+            'code_payment' => $codePayment,
             'create_date' => date('d, M Y H:i'),
             'due_date' => date('d, M Y H:i', strtotime($date . ' +1 day')),
             'users_name' => $name,
@@ -163,8 +165,8 @@ class EventController extends Controller
             $send->to = $email;
             $send->from = env('EMAIL_SENDER');
             $send->data = $data;
-            $send->subject = 'Registration successfully to The 53rd Djakarta Mining Club Networking Event';
-            $send->template = 'email.success-register-event';
+            $send->subject = 'Thank you for registering for Energy Market Briefing 2022';
+            $send->template = 'email.waiting-approval';
             $send->sendEmail();
             return redirect()->back()->with('alert', 'Register Successfully');
         } else {
@@ -202,6 +204,15 @@ class EventController extends Controller
                 'phone' => $request->phone[$key],
                 'job_title' => $request->job_title[$key],
                 'email' => $request->email[$key],
+                'register_as' => 'Event-Sponsor'
+            ]);
+            $codePayment = strtoupper(Str::random(7));
+            Payment::create([
+                'member_id' => $create->id,
+                'package' => 'free',
+                'price' => 0,
+                'code_payment' => $codePayment,
+                'status' => 'Waiting'
             ]);
         }
         return redirect()->back()->with('alert', 'Successfully Registering as Sponsor');

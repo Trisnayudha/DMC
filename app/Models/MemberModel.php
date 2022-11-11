@@ -32,6 +32,7 @@ class MemberModel extends Model
         'full_office_number',
         'city',
         'portal_code',
-        'sponsor_id'
+        'sponsor_id',
+        'register_as'
     ];
 }

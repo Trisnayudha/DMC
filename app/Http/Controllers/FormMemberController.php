@@ -68,7 +68,7 @@ class FormMemberController extends Controller
             $findUsers->company_category = $company_category;
             $findUsers->explore = $explore;
             $findUsers->cci = $cci;
-
+            $findUsers->register_as = 'Member';
             $findUsers->save();
             return redirect()->back()->with('alert', 'Updated data!');
         } else {
@@ -99,6 +99,7 @@ class FormMemberController extends Controller
             $save->company_category = $company_category;
             $save->explore = $explore;
             $save->cci = $cci;
+            $save->register_as = 'Member';
             $save->save();
 
 

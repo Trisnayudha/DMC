@@ -22,12 +22,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
-Route::get('/test', [FormMemberController::class, 'test']);
+Route::get('/test', function () {
+    return view('email.waiting-approval');
+});
 Route::get('/privacy', function () {
     return view('privacy-policy');
 });
 
-Route::get('/register-event', [EventController::class, 'view']);
+// Route::get('/register-event', [EventController::class, 'view']);
 Route::get('/register-event/free', [EventController::class, 'view2']);
 Route::get('/register-event/sponsor', [EventController::class, 'sponsor']);
 Route::post('/regis-sponsor', [EventController::class, 'register_sponsor']);
