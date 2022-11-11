@@ -53,6 +53,7 @@
                                         <thead>
                                             <tr>
                                                 <th width="10px">No</th>
+                                                <th>Date Register</th>
                                                 <th>Nama</th>
                                                 <th>Job Title</th>
                                                 <th>Company</th>
@@ -68,6 +69,7 @@
                                             @foreach ($payment as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
+                                                    <td>{{ date('d,F H:i'), strtotime($post->created_at) }}</td>
                                                     <td>{{ $post->name }}</td>
                                                     <td>{{ $post->job_title }}</td>
                                                     <td>{{ $post->company_name }}</td>
