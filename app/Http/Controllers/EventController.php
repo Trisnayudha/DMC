@@ -165,7 +165,7 @@ class EventController extends Controller
             $send->to = $email;
             $send->from = env('EMAIL_SENDER');
             $send->data = $data;
-            $send->subject = 'Thank you for registering for Energy Market Briefing 2022';
+            $send->subject = 'Thank you for registering Energy Market Briefing 2022 ';
             $send->template = 'email.waiting-approval';
             $send->sendEmail();
             return redirect()->back()->with('alert', 'Register Successfully');
