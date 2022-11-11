@@ -40,13 +40,13 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
-                                <div class="float-right">
+                                {{-- <div class="float-right">
                                     <a href="javascript:void(0)"
                                         class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
                                         id="addNewCategory">
                                         <i class="fas fa-plus-circle"></i>
                                         Add Payment</a>
-                                </div>
+                                </div> --}}
 
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
@@ -58,7 +58,8 @@
                                                 <th>Company</th>
                                                 <th>Email</th>
                                                 <th>Phone Number</th>
-                                                <th>Package</th>
+                                                <th>Office Number</th>
+                                                <th>Status Approval</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
@@ -72,13 +73,30 @@
                                                     <td>{{ $post->company_name }}</td>
                                                     <td>{{ $post->email }}</td>
                                                     <td>{{ $post->phone }}</td>
-                                                    <td>{{ $post->package }}</td>
+                                                    <td>{{ $post->office_number }}</td>
                                                     <td>
-                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
-                                                            class="btn btn-success edit"><span
-                                                                class="fa fa-edit"></span></a>
-                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
-                                                            class="btn btn-danger delete"><span class=" fa fa-trash"></a>
+                                                        <span
+                                                            class="badge badge-pill {{ $post->status == 'Approve' ? 'badge-primary' : 'badge-warning' }}">
+                                                            {{ $post->status }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="#" data-toggle="dropdown"
+                                                            class="btn btn-info dropdown-toggle">Action</a>
+                                                        <ul class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
+                                                            <form action="#" method="post">
+                                                                <li>
+                                                                    @csrf
+                                                                    <button type="submit"
+                                                                        class="dropdown-item">Approve</button>
+                                                                </li>
+                                                                <li>
+                                                                    <button type="submit"
+                                                                        class="dropdown-item">Reject</button>
+                                                                </li>
+                                                            </form>
+                                                        </ul>
+                                                        <a href="#" data-id="{{ $post->id }}"
+                                                            class="btn btn-success"><span class=" fa fa-eye"></a>
                                                     </td>
 
                                                 </tr>
@@ -92,39 +110,6 @@
                 </div>
             </div>
         </section>
-
-    </div>
-    <div class="modal fade" id="category-model" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="ajaxCategoryModel"></h4>
-                </div>
-                <div class="modal-body">
-                    <form action="javascript:void(0)" id="addEditCategoryForm" name="addEditCategoryForm"
-                        class="form-horizontal" method="POST">
-                        <input type="hidden" name="id" id="id">
-                        <div class="form-group">
-                            <label for="name" class="col-sm-4">Nama Category</label>
-                            <div class="col-sm-12">
-                                <input type="text" class="form-control" id="category_name" name="category_name"
-                                    placeholder="Enter Category">
-                                <span id="category_nameError" class="alert-message"></span>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary" id="btn-save" value="addNewCategory">Save
-                                changes
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-
-                </div>
-            </div>
-        </div>
     </div>
     <script type="text/javascript">
         $(document).ready(function($) {

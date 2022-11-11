@@ -20,9 +20,8 @@ class EventController extends Controller
 {
     public function sementara()
     {
-        $list = DB::table('users_event')
-            ->join('xtwp_users_dmc', 'xtwp_users_dmc.id', 'users_event.users_id')
-            ->join('payment', 'payment.id', 'users_event.payment_id')
+        $list = DB::table('payment')
+            ->join('xtwp_users_dmc', 'xtwp_users_dmc.id', 'payment.member_id')
             ->get();
 
         $data = [
