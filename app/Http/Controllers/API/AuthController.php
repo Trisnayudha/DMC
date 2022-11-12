@@ -407,7 +407,7 @@ Your verification code (OTP) ' . $otp;
                 if (!empty($findUser)) {
                     $image = QrCode::format('png')
                         ->size(300)->errorCorrection('H')
-                        ->generate($codePayment);
+                        ->generate('ASU');
                     $output_file = '/public/uploads/qr-code/img-' . time() . '.png';
                     $db = '/storage/uploads/qr-code/img-' . time() . '.png';
                     Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
