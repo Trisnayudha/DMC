@@ -19,14 +19,15 @@ class TestController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
         $image = QrCode::format('png')
-            ->size(200)->errorCorrection('H')
-            ->generate('A simple example of QR code!');
-        $output_file = '/img/qr-code/img-' . time() . '.png';
-        $a = Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+            ->size(300)->errorCorrection('H')
+            ->generate('ABDC');
+        $output_file = '/public/upload/qr-code/img-' . time() . '.png';
+        $db = '/storage/upload/qr-code/img-' . time() . '.png';
+        Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
 
 
 
         // storage/app/images/file.png
-        dd($output_file);
+        dd($db);
     }
 }
