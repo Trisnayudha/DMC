@@ -396,12 +396,12 @@ Your verification code (OTP) ' . $otp;
         );
         $email = $request->email;
         $phone = $request->phone;
+        $codePayment = strtoupper(Str::random(7));
         if ($validate->fails()) {
             $response['status'] = 401;
             $response['message'] = 'Something was wrong';
             $response['payload'] = $validate->errors()->first();
         } else {
-            $codePayment = strtoupper(Str::random(7));
             if (!empty($email)) {
                 $findUser  = MemberModel::where([['email', '=', $email], ['otp', '=', $request->otp]])->first();
                 if (!empty($findUser)) {
@@ -409,7 +409,7 @@ Your verification code (OTP) ' . $otp;
                         ->size(300)->errorCorrection('H')
                         ->generate($codePayment);
                     $output_file = '/public/upload/qr-code/img-' . time() . '.png';
-                    $output_db = '/storage/upload/qr-code/img-' . time() . '.png';
+                    $db = '/storage/upload/qr-code/img-' . time() . '.png';
                     Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                     $user = User::create([
                         'name' => $findUser->name,
@@ -417,7 +417,7 @@ Your verification code (OTP) ' . $otp;
                         'password' => $findUser->password,
                         'verify_email' => 'verified',
                         'isStatus' => 'Active',
-                        'qrcode' => $output_db,
+                        'qrcode' => $db,
                         'uname' => $codePayment,
                     ]);
                     $user->assignRole('guest');
