@@ -4,6 +4,7 @@ use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FormMemberController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\TestController;
 use App\Models\Payments\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,9 +23,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
-Route::get('/test', function () {
-    return view('email.waiting-approval');
-});
+Route::get('/test', [TestController::class, 'test']);
+Route::post('/test/upload', [TestController::class, 'upload']);
 Route::get('/privacy', function () {
     return view('privacy-policy');
 });

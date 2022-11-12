@@ -93,11 +93,10 @@ class UserController extends Controller
 
             $file = $request->image;
             if (!empty($file)) {
-                $filename = $request->image->getClientOriginalName();
-                $output_file = 'public/uploads/image-profile/img-' . time() . '.png';
-                $output_db = 'storage/uploads/image-profile/img-' . time() . '.png';
-                Storage::disk('local')->put($output_file, $filename); //storage/app/public/img/qr-code/img-1557309130.png
-                $profile->image = $output_db;
+                $imageName = time() . '.' . $request->image->extension();
+                $db = '/storage/profile/' . $imageName;
+                $save_folder = $request->image->storeAs('public/profile', $imageName);
+                $profile->image = $db;
                 $profile->save();
             }
             $check->name = $request->name;

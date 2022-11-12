@@ -408,6 +408,9 @@ Your verification code (OTP) ' . $otp;
                     $image = QrCode::size(200)->generate($codePayment);
                     $output_file = 'public/uploads/qr-code/img-' . time() . '.png';
                     $output_db = 'storage/uploads/qr-code/img-' . time() . '.png';
+                    $imageName = time();
+                    $db = '/storage/profile/' . $imageName;
+                    $save_folder = $request->image->storeAs('public/profile', $imageName);
                     Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                     $user = User::create([
                         'name' => $findUser->name,
