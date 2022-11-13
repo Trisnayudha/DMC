@@ -268,43 +268,37 @@ class UserController extends Controller
             if (!empty($email)) {
                 $user = User::where('email', '=', $email)->first();
                 $stat = User::where('email', '=', $email)->update(['otp' => $otp]);
-                if (!empty($user)) {
-                    $send = new EmailSender();
-                    $send->subject = "OTP Register";
-                    if ($params == 'change') {
-                        $wording = 'We received a request to change your account. To change, please use this
+                $send = new EmailSender();
+                $send->subject = "OTP Register";
+                if ($params == 'change') {
+                    $wording = 'We received a request to change your account. To change, please use this
                     code:';
-                    } elseif ($params == 'verify') {
-                        $wording = 'We received a request to verify your account. To verify, please use this
+                } elseif ($params == 'verify') {
+                    $wording = 'We received a request to verify your account. To verify, please use this
                     code:';
-                    } else {
-                        $data = [
-                            'params' => 'Please Choose params ( verify / change )'
-                        ];
-                        $response['status'] = 401;
-                        $response['message'] = 'Something was wrong';
-                        $response['payload'] = $data;
-                        return response()->json($response);
-                    }
-
-                    $send->template = "email.tokenverify";
-                    $send->data = [
-                        'name' => $user->name,
-                        'wording' => $wording,
-                        'otp' => $otp
-                    ];
-                    $send->from = env('EMAIL_SENDER');
-                    $send->name_sender = env('EMAIL_NAME');
-                    $send->to = $email;
-                    $send->sendEmail();
-                    $response['status'] = 200;
-                    $response['message'] = 'Successfully send OTP to Email';
-                    $response['payload'] = $send;
                 } else {
+                    $data = [
+                        'params' => 'Please Choose params ( verify / change )'
+                    ];
                     $response['status'] = 401;
-                    $response['message'] = 'Email was Wrong';
-                    $response['payload'] = null;
+                    $response['message'] = 'Something was wrong';
+                    $response['payload'] = $data;
+                    return response()->json($response);
                 }
+
+                $send->template = "email.tokenverify";
+                $send->data = [
+                    'name' => $user->name,
+                    'wording' => $wording,
+                    'otp' => $otp
+                ];
+                $send->from = env('EMAIL_SENDER');
+                $send->name_sender = env('EMAIL_NAME');
+                $send->to = $email;
+                $send->sendEmail();
+                $response['status'] = 200;
+                $response['message'] = 'Successfully send OTP to Email';
+                $response['payload'] = $send;
             } else {
                 $user = ProfileModel::where('users_id', '=', $id)->first();
                 $stat = ProfileModel::where('users_id', '=', $id)->join('users', 'users.id', 'profiles.users_id')->update(['users.otp' => $otp]);
