@@ -266,8 +266,8 @@ class UserController extends Controller
             $phone = $request->phone;
             $params = $request->params;
             if (!empty($email)) {
-                $user = User::where('email', '=', $email)->first();
-                $stat = User::where('email', '=', $email)->update(['otp' => $otp]);
+                $user = User::where('id', '=', $id)->first();
+                $stat = User::where('id', '=', $id)->update(['otp' => $otp]);
                 $send = new EmailSender();
                 $send->subject = "OTP Register";
                 if ($params == 'change') {
