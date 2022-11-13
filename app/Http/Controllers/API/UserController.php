@@ -245,6 +245,7 @@ class UserController extends Controller
 
     public function requestOtp(Request $request)
     {
+        $id = auth('sanctum')->user()->id;
         $otp = rand(1000, 9999);
         Log::info("otp = " . $otp);
         $validate = Validator::make(
@@ -305,40 +306,33 @@ class UserController extends Controller
                     $response['payload'] = null;
                 }
             } else {
-                $user = ProfileModel::where('fullphone', '=', $phone)->first();
-                $stat = ProfileModel::where('fullphone', '=', $phone)->join('users', 'users.id', 'profiles.users_id')->update(['users.otp' => $otp]);
-                if (!empty($user)) {
-                    $send = new WhatsappApi();
-                    $send->phone = $phone;
-                    if ($params == 'change') {
-                        $send->message = 'Dear ' . $user->name . '
+                $user = ProfileModel::where('users_id', '=', $id)->first();
+                $stat = ProfileModel::where('users_id', '=', $id)->join('users', 'users.id', 'profiles.users_id')->update(['users.otp' => $otp]);
+                $send = new WhatsappApi();
+                $send->phone = $phone;
+                if ($params == 'change') {
+                    $send->message = 'Dear ' . $user->name . '
 Your change phone number code (OTP) ' . $otp;
-                    } elseif ($params == 'verify') {
-                        $send->message = 'Dear ' . $user->name . '
+                } elseif ($params == 'verify') {
+                    $send->message = 'Dear ' . $user->name . '
 Your verification code (OTP) ' . $otp;
-                    } else {
-                        $data = [
-                            'params' => 'Please Choose params ( verify / change )'
-                        ];
-                        $response['status'] = 401;
-                        $response['message'] = 'Something was wrong';
-                        $response['payload'] = $data;
-                        return response()->json($response);
-                    }
-
-                    $send->WhatsappMessage();
-                    $data = [
-                        'phone' => $phone,
-                        'whatsapp' => json_decode($send->res),
-                    ];
-                    $response['status'] = 200;
-                    $response['message'] = 'Successfully send OTP to Whatsapp';
-                    $response['payload'] = $data;
                 } else {
+                    $data = [
+                        'params' => 'Please Choose params ( verify / change )'
+                    ];
                     $response['status'] = 401;
-                    $response['message'] = 'Phone Number was Wrong';
-                    $response['payload'] = null;
+                    $response['message'] = 'Something was wrong';
+                    $response['payload'] = $data;
+                    return response()->json($response);
                 }
+                $send->WhatsappMessage();
+                $data = [
+                    'phone' => $phone,
+                    'whatsapp' => json_decode($send->res),
+                ];
+                $response['status'] = 200;
+                $response['message'] = 'Successfully send OTP to Whatsapp';
+                $response['payload'] = $data;
             }
         }
         return response()->json($response);
