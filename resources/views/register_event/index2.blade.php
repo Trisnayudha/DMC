@@ -84,6 +84,14 @@
         .iti {
             display: grid;
         }
+
+        .swal-modal .swal-text {
+            text-align: center;
+        }
+
+        .swal-footer {
+            text-align: center;
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="{{ asset('new-zoom/form-validation.css') }}" rel="stylesheet">
@@ -209,7 +217,7 @@
                             <div class="col-sm-6">
                                 <label for="phone" class="form-label">Mobile number *</label>
                                 <input type="tel" class="form-control" name="phone"id="phone"
-                                    placeholder="" value="+62" required>
+                                    placeholder="" value="{{ old('phone') ? old('phone') : '+62' }}" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
@@ -245,15 +253,17 @@
 
                             <div class="col-sm-12">
                                 <label for="address" class="form-label">Address *</label>
-                                <input type="text" class="form-control" name="address" placeholder="" required>
-                                <div class="invalid-feedback" {{ old('address') }}>
+                                <input type="text" class="form-control" name="address" placeholder="" required
+                                    value="{{ old('address') }}">
+                                <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <label for="office_number" class="form-label">Office Number</label>
                                 <input type="tel" class="form-control" name="office_number"id="office_number"
-                                    placeholder="" value="+62" required>
+                                    placeholder="" value="{{ old('office_number') ? old('office_number') : '+62' }}"
+                                    required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
@@ -261,14 +271,15 @@
                             <div class="col-sm-3">
                                 <label for="portal_code" class="form-label">Postal Code</label>
                                 <input type="number" class="form-control" name="portal_code" placeholder=""
-                                    required>
+                                    required value="{{ old('portal_code') }}">
                                 <div class="invalid-feedback" {{ old('portal_code') }}>
                                     Please provide a Postal Code
                                 </div>
                             </div>
                             <div class="col-sm-3">
                                 <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" name="city" placeholder="" required>
+                                <input type="text" class="form-control" name="city" placeholder="" required
+                                    value="{{ old('city') }}">
                                 <div class="invalid-feedback" {{ old('city') }}>
                                     Please provide a City
                                 </div>
@@ -388,6 +399,11 @@
                 timer: 15000,
             }).then(function() {
                 window.location = "https://djakarta-miningclub.com/";
+            });
+        @elseif (session('error'))
+            swal({
+                text: "{{ session('error') }}",
+                icon: "error",
             });
         @endif
 

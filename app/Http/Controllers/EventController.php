@@ -18,13 +18,10 @@ use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     public function sementara()
     {
+        $this->middleware('auth');
         $list = DB::table('payment')
             ->join('xtwp_users_dmc', 'xtwp_users_dmc.id', 'payment.member_id')
             ->get();
@@ -47,7 +44,7 @@ class EventController extends Controller
     public function payment_personal(Request $request)
     {
         $prefix = $request->prefix;
-        $company_name = $request->company_name . ", " . $prefix;
+        $company_name = $request->company_name;
         $phone = $request->phone;
         $email = $request->email;
         $name = $request->name;
@@ -60,21 +57,18 @@ class EventController extends Controller
         $portal_code = $request->portal_code;
         $company_category = $request->company_category;
         $company_other = $request->company_other;
-
-        if ($company_category == 'other') {
-            $company_category = $company_other;
-        }
         $paymentMethod = $request->paymentMethod;
 
         $user = MemberModel::firstOrNew(
             ['email' =>  $email],
-            ['phone' => $phone]
         );
+        $user->prefix = $prefix;
         $user->phone = $phone;
         $user->company_name = $company_name;
         $user->job_title = $job_title;
         $user->name = $name;
         $user->company_website = $company_website;
+        $user->company_other = $company_other;
         $user->company_category = $company_category;
         $user->address = $address;
         $user->country = $country;
@@ -120,32 +114,7 @@ class EventController extends Controller
             $createInvoice = Invoice::create($params);
             $linkPay = $createInvoice['invoice_url'];
         }
-
-        $payment = Payment::firstOrNew(['member_id' => $user->id]);
-        if ($paymentMethod == 'free') {
-            $payment->package = $paymentMethod;
-            $payment->price = $total_price;
-            $payment->status = 'Waiting';
-            $payment->code_payment = $codePayment;
-            // $payment->link = null;
-        } else {
-            $payment->package = $paymentMethod;
-            $payment->price = $total_price;
-            $payment->status = 'Waiting';
-            $payment->link = $linkPay;
-            $payment->code_payment = $codePayment;
-        }
-        $payment->save();
-
-        // if ($paymentMethod == 'free') {
-        //     $user_event = UserRegister::firstOrNew(
-        //         ['users_id' =>  $user->id],
-        //         ['payment_id' => $payment->id]
-        //     );
-        //     $user_event->save();
-        // }
-
-
+        $check = MemberModel::where('email', $email)->join('payment', 'payment.member_id', 'xtwp_users_dmc.id')->first();
 
         $data = [
             'code_payment' => $codePayment,
@@ -164,25 +133,53 @@ class EventController extends Controller
             'link' => $linkPay
         ];
 
-        if ($paymentMethod == 'free') {
-            $send = new EmailSender();
-            $send->to = $email;
-            $send->from = env('EMAIL_SENDER');
-            $send->data = $data;
-            $send->subject = 'Thank you for registering Energy Market Briefing 2022 ';
-            $send->template = 'email.waiting-approval';
-            $send->sendEmail();
-            return redirect()->back()->with('alert', 'Register Successfully');
+        if (empty($check)) {
+            $payment = Payment::firstOrNew(['member_id' => $user->id]);
+            if ($paymentMethod == 'free') {
+                $payment->package = $paymentMethod;
+                $payment->price = $total_price;
+                $payment->status = 'Waiting';
+                $payment->code_payment = $codePayment;
+                // $payment->link = null;
+            } else {
+                $payment->package = $paymentMethod;
+                $payment->price = $total_price;
+                $payment->status = 'Waiting';
+                $payment->link = $linkPay;
+                $payment->code_payment = $codePayment;
+            }
+            $payment->save();
+            if ($paymentMethod == 'free') {
+                $send = new EmailSender();
+                $send->to = $email;
+                $send->from = env('EMAIL_SENDER');
+                $send->data = $data;
+                $send->subject = 'Thank you for registering Energy Market Briefing 2022 ';
+                $send->template = 'email.waiting-approval';
+                $send->sendEmail();
+                return redirect()->back()->with('alert', 'Register Successfully');
+            } else {
+                // $pdf = Pdf::loadView('email.invoice-new', $data);
+                Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
+                    $message->from(env('EMAIL_SENDER'));
+                    $message->to($email);
+                    $message->subject('Invoice Events - Payment');
+                    // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
+                });
+                return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
+            }
         } else {
-            // $pdf = Pdf::loadView('email.invoice-new', $data);
-            Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
-                $message->from(env('EMAIL_SENDER'));
-                $message->to($email);
-                $message->subject('Invoice Events - Payment');
-                // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
-            });
-            return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
+            return redirect()->back()->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
         }
+
+
+        // if ($paymentMethod == 'free') {
+        //     $user_event = UserRegister::firstOrNew(
+        //         ['users_id' =>  $user->id],
+        //         ['payment_id' => $payment->id]
+        //     );
+        //     $user_event->save();
+        // }
     }
 
     public function sponsor()
