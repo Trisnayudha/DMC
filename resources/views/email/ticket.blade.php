@@ -162,7 +162,7 @@
 
             {{-- <a href="{{ $events_link }}" class="btn-link-confirm">Join Event</a> --}}
 
-            <img src="{!! QrCode::format('png')->generate('Embed me into an e-mail!'), 'QrCode.png', 'image/png' !!}" alt="qr_code">
+            <img src="{{ asset($image) }}" alt="qr_code">
             {{-- {!! QrCode::size(100)->generate('ABC') !!} --}}
             <br />
             <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811

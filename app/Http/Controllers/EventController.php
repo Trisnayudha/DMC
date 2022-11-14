@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Xendit\Invoice;
 use Xendit\Xendit;
 use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class EventController extends Controller
 {
@@ -226,17 +227,25 @@ class EventController extends Controller
         $val = $request->val;
         $update = Payment::where('id', $id)->first();
         if (!empty($update)) {
-            if ($val == 'approve') {
-                $update->status = "Approve";
-            } else {
-                $update->status = "Reject";
-            }
-            $update->save();
             $check = DB::table('payment')
                 ->join('xtwp_users_dmc', 'xtwp_users_dmc.id', 'payment.member_id')
                 ->select('payment.*', 'xtwp_users_dmc.*', 'payment.id as payment_id')
                 ->where('payment.id', '=', $id)
                 ->first();
+            if ($val == 'approve') {
+                $update->status = "Approve";
+                $image = QrCode::format('png')
+                    ->size(300)->errorCorrection('H')
+                    ->generate($check->code_payment);
+                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                $update->qr_code = $db;
+            } else {
+                $update->status = "Reject";
+            }
+            $update->save();
+
             // dd($check);
             $data = [
                 'code_payment' => $check->code_payment,
@@ -248,6 +257,7 @@ class EventController extends Controller
                 'company_name' => $check->company_name,
                 'company_address' => $check->address,
                 'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
+                'image' => $db
             ];
             $email = $check->email;
             // $pdf = Pdf::loadView('email.invoice-new', $data);

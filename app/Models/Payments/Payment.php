@@ -17,7 +17,8 @@ class Payment extends Model
         'price',
         'status',
         'link',
-        'code_payment'
+        'code_payment',
+        'qr_code'
     ];
 
     public static function arrayCode()
