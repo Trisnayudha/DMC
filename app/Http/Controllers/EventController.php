@@ -265,7 +265,7 @@ class EventController extends Controller
             Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject('Invoice Events - Payment');
+                $message->subject($code_payment . ' - Your registration is approved for Energy Market Briefing 2022');
                 $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
             });
             // $pdf = Pdf::loadView('email.ticket', $data);
