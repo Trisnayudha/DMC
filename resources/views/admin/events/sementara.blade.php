@@ -85,13 +85,22 @@
                                                         <a href="#" data-toggle="dropdown"
                                                             class="btn btn-info dropdown-toggle">Action</a>
                                                         <ul class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
-                                                            <form action="#" method="post">
+                                                            <form action="{{ url('request-event') }}" method="post">
                                                                 <li>
                                                                     @csrf
+                                                                    <input type="hidden" name="id" id="id"
+                                                                        value="{{ $post->payment_id }}">
+                                                                    <input type="hidden" name="val" value="approve">
                                                                     <button type="submit"
                                                                         class="dropdown-item">Approve</button>
                                                                 </li>
+                                                            </form>
+                                                            <form action="{{ url('request-event') }}" method="post">
                                                                 <li>
+                                                                    @csrf
+                                                                    <input type="hidden" name="id" id="id"
+                                                                        value="{{ $post->payment_id }}">
+                                                                    <input type="hidden" name="val" value="reject">
                                                                     <button type="submit"
                                                                         class="dropdown-item">Reject</button>
                                                                 </li>

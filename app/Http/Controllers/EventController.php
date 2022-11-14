@@ -24,8 +24,8 @@ class EventController extends Controller
         $this->middleware('auth');
         $list = DB::table('payment')
             ->join('xtwp_users_dmc', 'xtwp_users_dmc.id', 'payment.member_id')
+            ->select('payment.*', 'xtwp_users_dmc.*', 'payment.id as payment_id')
             ->get();
-
         $data = [
             'payment' => $list
         ];
@@ -217,5 +217,51 @@ class EventController extends Controller
             ]);
         }
         return redirect()->back()->with('alert', 'Successfully Registering as Sponsor');
+    }
+
+    public function request(Request $request)
+    {
+        // dd($request->all());
+        $id = $request->id;
+        $val = $request->val;
+        $update = Payment::where('id', $id)->first();
+        if (!empty($update)) {
+            if ($val == 'approve') {
+                $update->status = "Approve";
+            } else {
+                $update->status = "Reject";
+            }
+            $update->save();
+            $check = DB::table('payment')
+                ->join('xtwp_users_dmc', 'xtwp_users_dmc.id', 'payment.member_id')
+                ->select('payment.*', 'xtwp_users_dmc.*', 'payment.id as payment_id')
+                ->where('payment.id', '=', $id)
+                ->first();
+            // dd($check);
+            $data = [
+                'code_payment' => $check->code_payment,
+                'create_date' => date('d, M Y H:i'),
+                'users_name' => $check->name,
+                'users_email' => $check->email,
+                'phone' => $check->phone,
+                'job_title' => $check->job_title,
+                'company_name' => $check->company_name,
+                'company_address' => $check->address,
+                'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
+            ];
+            $email = $check->email;
+            // $pdf = Pdf::loadView('email.invoice-new', $data);
+            // Mail::send('email.approval-event', $data, function ($message) use ($email) {
+            //     $message->from(env('EMAIL_SENDER'));
+            //     $message->to($email);
+            //     $message->subject('Invoice Events - Payment');
+            //     // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
+            // });
+            $pdf = Pdf::loadView('email.ticket', $data);
+            return $pdf->stream();
+            // return redirect()->back()->with('alert', 'Successfully Approval');
+        } else {
+            dd("Payment not found");
+        }
     }
 }
