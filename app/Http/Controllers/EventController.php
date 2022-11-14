@@ -260,16 +260,17 @@ class EventController extends Controller
                 'image' => $db
             ];
             $email = $check->email;
-            // $pdf = Pdf::loadView('email.invoice-new', $data);
-            // Mail::send('email.approval-event', $data, function ($message) use ($email) {
-            //     $message->from(env('EMAIL_SENDER'));
-            //     $message->to($email);
-            //     $message->subject('Invoice Events - Payment');
-            //     // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
-            // });
+            $code_payment = $check->code_payment;
             $pdf = Pdf::loadView('email.ticket', $data);
-            return $pdf->stream();
-            // return redirect()->back()->with('alert', 'Successfully Approval');
+            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment) {
+                $message->from(env('EMAIL_SENDER'));
+                $message->to($email);
+                $message->subject('Invoice Events - Payment');
+                $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
+            });
+            // $pdf = Pdf::loadView('email.ticket', $data);
+            // return $pdf->stream();
+            return redirect()->back()->with('alert', 'Successfully Approval');
         } else {
             dd("Payment not found");
         }
