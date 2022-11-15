@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Callback\XenditCallbackController;
+use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FormMemberController;
 use App\Http\Controllers\PaymentController;
@@ -48,3 +49,8 @@ Route::get('payment', [PaymentController::class, 'index'])->name('payment');
 Route::get('/events-sementara', [EventController::class, 'sementara'])->name('events-sementara');
 
 Route::post('/request-event', [EventController::class, 'request']);
+
+Route::get('/events', [EventController::class, 'index'])->name('events');
+Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+Route::post('events/store', [EventController::class, 'store'])->name('events.store');
+Route::get('/events-category', [EventCategoryController::class, 'index'])->name('events-category');

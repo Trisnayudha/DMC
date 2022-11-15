@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\EmailSender;
+use App\Models\Events\Events;
 use App\Models\Events\UserRegister;
 use App\Models\MemberModel;
 use App\Models\Payments\Payment;
@@ -20,6 +21,45 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class EventController extends Controller
 {
 
+    public function index()
+    {
+        $list = Events::get();
+
+        $data = [
+            'list' => $list
+        ];
+        return view('admin.events.event', $data);
+    }
+
+    public function create()
+    {
+        return view('admin.events.create');
+    }
+
+    public function store(Request $request)
+    {
+        $save = new Events();
+        $save->name = $request->name;
+        $save->location = $request->location;
+        $save->description = $request->description;
+        $save->type = $request->type;
+        $save->start_date = $request->start_date;
+        $save->end_date = $request->end_date;
+        $save->start_time = $request->start_time;
+        $save->end_time = $request->end_time;
+        $save->status = $request->status;
+        $save->slug = Str::slug($request->name);
+        $file = $request->image;
+        if (!empty($file)) {
+            $imageName = time() . '.' . $request->image->extension();
+            $db = '/storage/events/' . $imageName;
+            $save_folder = $request->image->storeAs('public/events', $imageName);
+            $save->image = $db;
+        }
+        $save->save();
+        return redirect()->route('events')->with('success', 'Successfully create new event');
+    }
+
     public function sementara()
     {
         $this->middleware('auth');
@@ -32,6 +72,7 @@ class EventController extends Controller
         ];
         return view('admin.events.sementara', $data);
     }
+
     public function view()
     {
         return view('register_event.index');

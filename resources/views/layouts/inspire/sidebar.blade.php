@@ -23,7 +23,7 @@
                 <span>Events sementara</span></a>
         </li>
         <li class="">
-            <a class="nav-link" href="{{ Route('events-sementara') }}">
+            <a class="nav-link" href="{{ Route('events') }}">
                 <i class="fa fa-calendar" aria-hidden="true"></i>
                 <span>Events</span></a>
         </li>
