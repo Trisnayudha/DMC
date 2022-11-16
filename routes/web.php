@@ -4,6 +4,7 @@ use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FormMemberController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TestController;
 use App\Models\Payments\Payment;
@@ -54,3 +55,8 @@ Route::get('/events', [EventController::class, 'index'])->name('events');
 Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
 Route::post('events/store', [EventController::class, 'store'])->name('events.store');
 Route::get('/events-category', [EventCategoryController::class, 'index'])->name('events-category');
+
+
+Route::get('/news', [NewsController::class, 'index'])->name('news');
+Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
+Route::post('/news/store', [NewsController::class, 'store'])->name('news.store');

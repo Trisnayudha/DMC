@@ -23,7 +23,7 @@ class EventController extends Controller
 
     public function index()
     {
-        $list = Events::get();
+        $list = Events::orderBy('id', 'desc')->get();
 
         $data = [
             'list' => $list

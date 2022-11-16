@@ -27,6 +27,15 @@
                 <i class="fa fa-calendar" aria-hidden="true"></i>
                 <span>Events</span></a>
         </li>
+        <li class="dropdown">
+            <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa fa-calendar"
+                    aria-hidden="true"></i>
+                <span>News</span></a>
+            <ul class="dropdown-menu">
+                <li><a class="nav-link" href="{{ Route('news') }}">News List</a></li>
+                <li><a class="nav-link" href="layout-transparent.html">News Category</a></li>
+            </ul>
+        </li>
         <li class="">
             <a class="nav-link" href="">
                 <i class="fa fa-university" aria-hidden="true"></i>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\Callback\XenditCallbackController;
@@ -50,6 +51,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('/profile/verify_otp', [UserController::class, 'verifyOtp']);
     Route::post('/profile/check', [UserController::class, 'check']);
 });
-
+Route::post('/events', [EventController::class, 'index']);
 
 Route::get('/list-payment', [PaymentController::class, 'listbank']);
