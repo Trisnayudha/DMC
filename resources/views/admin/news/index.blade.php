@@ -66,7 +66,7 @@
                                             @foreach ($list as $post)
                                                 <tr>
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ date('d, F H:i', strtotime($post->created_at)) }}</td>
+                                                    <td>{{ date('d, F Y', strtotime($post->date_news)) }}</td>
                                                     <td>
                                                         <img alt="image" src="{{ asset($post->image) }}"
                                                             class="rounded-circle" width="35" data-toggle="tooltip">
@@ -98,3 +98,11 @@
         </section>
     </div>
 @endsection
+
+@push('bottom')
+    <script>
+        $(document).ready(function() {
+            $('#laravel_crud').DataTable();
+        });
+    </script>
+@endpush

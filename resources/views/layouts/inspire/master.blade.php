@@ -115,6 +115,7 @@
     </script>
 
     @yield('client_scripts')
+    @stack('bottom')
 </body>
 
 </html>
