@@ -185,7 +185,7 @@
                 <li>Please note that picking up a badge for someone else is not permitted, all attendees will need to
                     collect their own badge and show a matching business card to gain entry.</li>
                 <li>If you are unable to attend, please contact our team for substitution of delegate information at the
-                    latest by 2 hours before the event.</li>
+                    latest by 1 day before the event.</li>
             </ul>
             </p>
             <p>
