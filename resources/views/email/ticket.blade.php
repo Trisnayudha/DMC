@@ -130,6 +130,11 @@
 
             <table class="table">
                 <tr>
+                    <th colspan="3">
+                        REGISTRATION DETAILS
+                    </th>
+                </tr>
+                <tr>
                     <th>Name</th>
                     <th>:</th>
                     <td>{{ $users_name }}</td>
