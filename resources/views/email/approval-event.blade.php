@@ -144,7 +144,7 @@
             <table class="table">
                 <tr>
                     <th colspan="3">
-                        REGISTRATION DETAILS
+                        EVENT DETAILS :
                     </th>
                 </tr>
                 <tr>
