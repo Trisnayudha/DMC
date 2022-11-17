@@ -311,7 +311,7 @@ class EventController extends Controller
             });
             // $pdf = Pdf::loadView('email.ticket', $data);
             // return $pdf->stream();
-            return redirect()->back()->with('alert', 'Successfully Approval');
+            return redirect()->back()->with('success', 'Successfully Approval');
         } else {
             dd("Payment not found");
         }
