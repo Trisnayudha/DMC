@@ -101,7 +101,7 @@
             border-collapse: collapse;
             width: 100%;
             max-width: 100%;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             background-color: transparent;
             color: #555;
         }
@@ -112,7 +112,7 @@
             border-top-width: 0;
             border-bottom: 1px solid;
             border-color: transparent !important;
-            padding: .75rem !important;
+            padding: .50rem !important;
             text-align: left;
         }
     </style>
