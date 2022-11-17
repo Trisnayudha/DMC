@@ -276,7 +276,7 @@ class EventController extends Controller
             if ($val == 'approve') {
                 $update->status = "Approve";
                 $image = QrCode::format('png')
-                    ->size(300)->errorCorrection('H')
+                    ->size(200)->errorCorrection('H')
                     ->generate($check->code_payment);
                 $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
                 $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';

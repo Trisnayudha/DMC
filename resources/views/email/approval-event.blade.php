@@ -143,25 +143,6 @@
             </p>
             <table class="table">
                 <tr>
-                    <th>Name</th>
-                    <th>:</th>
-                    <td>{{ $users_name }}</td>
-                </tr>
-                <tr>
-                    <th>Position</th>
-                    <th>:</th>
-                    <td>{{ $job_title }}</td>
-                </tr>
-                <tr>
-                    <th>Company</th>
-                    <th>:</th>
-                    <td>{{ $company_name }}</td>
-                </tr>
-
-            </table>
-            <br>
-            <table class="table">
-                <tr>
                     <th colspan="3">
                         REGISTRATION DETAILS
                     </th>
@@ -184,7 +165,8 @@
                 <tr>
                     <th>Venue</th>
                     <th>:</th>
-                    <td>The Dharmawangsa Hotel Jakarta, Indonesia</td>
+                    <td>Nusantara Ballroom, The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
+                        Kebayoran Baru, 12160, Indonesia)</td>
                 </tr>
             </table>
 

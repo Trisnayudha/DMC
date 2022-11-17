@@ -130,30 +130,31 @@
 
             <table class="table">
                 <tr>
-                    <th colspan="3">
-                        Your event information below:
-                    </th>
+                    <th>Name</th>
+                    <th>:</th>
+                    <td>{{ $users_name }}</td>
                 </tr>
                 <tr>
-                    <th>Topic</th>
+                    <th>Position</th>
                     <th>:</th>
-                    <td>Energy Market Briefing 2022 </td>
+                    <td>{{ $job_title }}</td>
                 </tr>
                 <tr>
-                    <th>Date</th>
+                    <th>Company</th>
                     <th>:</th>
-                    <td>Wednesday – November 30, 2022</td>
+                    <td>{{ $company_name }}</td>
                 </tr>
                 <tr>
-                    <th>Time</th>
+                    <th>Email</th>
                     <th>:</th>
-                    <td>2.00 - 6.00pm</td>
+                    <td>{{ $users_email }}</td>
                 </tr>
                 <tr>
-                    <th>Venue</th>
+                    <th>Mobile Number</th>
                     <th>:</th>
-                    <td>The Dharmawangsa Hotel Jakarta, Indonesia</td>
+                    <td>{{ $phone }}</td>
                 </tr>
+
             </table>
 
             <p>Below is your QR CODE, please use to check-in and get your delegate badge, you must present this document
