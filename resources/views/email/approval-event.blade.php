@@ -181,11 +181,11 @@
             </p>
             <p>
             <ul>
-                <li>Bring Your Business Card to change with a badge at our registration table.</li>
-                <li>Please note that picking up a pass for someone else is not permitted, all attendees will need to
-                    collect their own badge and show a matching business card and badge to gain entry. </li>
+                <li>Bring your business card to change with a badge at our registration table.</li>
+                <li>Please note that picking up a badge for someone else is not permitted, all attendees will need to
+                    collect their own badge and show a matching business card to gain entry.</li>
                 <li>If you are unable to attend, please contact our team for substitution of delegate information at the
-                    latest by 2 Hour before the event.</li>
+                    latest by 2 hours before the event.</li>
             </ul>
             </p>
             <p>
