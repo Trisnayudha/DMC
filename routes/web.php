@@ -56,6 +56,7 @@ Route::get('/events/create', [EventController::class, 'create'])->name('events.c
 Route::post('events/store', [EventController::class, 'store'])->name('events.store');
 Route::get('/events-category', [EventCategoryController::class, 'index'])->name('events-category');
 
+Route::post('/events-import', [EventController::class, 'import'])->name('events.import');
 
 Route::get('/news', [NewsController::class, 'index'])->name('news');
 Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');

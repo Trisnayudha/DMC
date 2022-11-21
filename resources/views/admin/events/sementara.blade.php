@@ -40,14 +40,12 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
-                                {{-- <div class="float-right">
-                                    <a href="javascript:void(0)"
-                                        class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
-                                        id="addNewCategory">
+                                <div class="float-right">
+                                    <a href="javascript:;"
+                                        class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3" id="modal-2">
                                         <i class="fas fa-plus-circle"></i>
-                                        Add Payment</a>
-                                </div> --}}
-
+                                        Import Data</a>
+                                </div>
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
                                         <thead>
@@ -122,106 +120,41 @@
             </div>
         </section>
     </div>
-    <script type="text/javascript">
-        $(document).ready(function($) {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $('#addNewCategory').click(function() {
-                $('#addEditCategoryForm').trigger("reset");
-                $('#ajaxCategoryModel').html("Add Book");
-                $('#category-model').modal('show');
-            });
+    <div class="modal fade" tabindex="-1" role="dialog" id="example">
+        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Excel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ Route('events.import') }}" method="post" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group">
+                            <input type="file" name="uploaded_file" id="uploaded_file">
+                            <button type="submit" class="btn btn-success">Upload</button>
+                        </div>
 
-            $(document).on('click', '.edit', function() {
-                var id = $(this).data('id');
+                    </form>
+                </div>
+                <div class="modal-footer bg-whitesmoke br">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a href="{{ url('sample/sample.xlsx') }}" class="btn btn-primary" download>Download example xlsx</a>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
 
-                // ajax
-                $.ajax({
-                    type: "POST",
-                    url: "{{ url('editcategory') }}",
-                    data: {
-                        id: id
-                    },
-                    dataType: 'json',
-                    success: function(res) {
-                        $('#ajaxCategoryModel').html("Edit Book");
-                        $('#category-model').modal('show');
-                        $('#id').val(res.id);
-                        $('#category_name').val(res.category_name);
-                    }
-                });
-            });
-            $(document).on('click', '.delete', function() {
-
-                var id = $(this).data('id');
-                Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            type: "POST",
-                            url: "{{ url('deletecategory') }}",
-                            data: {
-                                id: id
-                            },
-                            dataType: 'json',
-                            success: function(res) {
-                                Swal.fire({
-                                        title: "Success",
-                                        icon: "success",
-                                        showConfirmButton: false,
-                                        position: 'center',
-                                        timer: 1500
-                                    }),
-                                    window.location.reload();
-                            }
-                        });
-                    }
-                });
-
-
-            });
-            $(document).on('click', '#btn-save', function(event) {
-                var id = $("#id").val();
-                var category_name = $("#category_name").val();
-                $("#btn-save").html('Please Wait...');
-                $("#btn-save").attr("disabled", true);
-
-                // ajax
-                $.ajax({
-                    type: "POST",
-                    url: "{{ url('addcategory') }}",
-                    data: {
-                        id: id,
-                        category_name: category_name,
-                    },
-                    dataType: 'json',
-                    success: function(res) {
-                        Swal.fire({
-                                title: "Success",
-                                icon: "success",
-                                showConfirmButton: false,
-                                position: 'center',
-                                timer: 1500
-                            }),
-                            window.location.reload();
-                        $("#btn-save").html('Submit');
-                        $("#btn-save").attr("disabled", false);
-                    }
-                });
-            });
+@push('bottom')
+    <script>
+        $('#modal-2').click(function() {
+            $('#example').modal('show');
         });
         $(document).ready(function() {
             $('#laravel_crud').DataTable();
         });
     </script>
-@endsection
+@endpush

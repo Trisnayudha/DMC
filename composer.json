@@ -14,6 +14,7 @@
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
         "laravelcollective/html": "^6.3",
+        "phpoffice/phpspreadsheet": "^1.25",
         "realrashid/sweet-alert": "^5.1",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-newsletter": "^4.11",
