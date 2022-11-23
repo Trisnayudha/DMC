@@ -11,12 +11,10 @@ class NewsCategoryController extends Controller
     public function index()
     {
         $list = NewsCategory::orderBy('id', 'desc')->get();
-        $data = [
-            'list' => $list
-        ];
+
         $response['status'] = 200;
         $response['message'] = 'Success';
-        $response['payload'] = $data;
+        $response['payload'] = $list;
         return response()->json($response);
     }
 }

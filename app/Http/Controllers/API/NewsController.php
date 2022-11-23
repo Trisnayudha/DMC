@@ -19,12 +19,9 @@ class NewsController extends Controller
         foreach ($banner as $value) {
             $value['date_news'] = date('d, M Y H:i', strtotime($value->date_news));
         }
-        $data = [
-            'carosel' => $banner
-        ];
         $response['status'] = 200;
         $response['message'] = 'Success';
-        $response['payload'] = $data;
+        $response['payload'] = $banner;
         return response()->json($response);
     }
 
@@ -37,12 +34,9 @@ class NewsController extends Controller
         foreach ($news as $value) {
             $value->date_news = date('d, M Y H:i', strtotime($value->date_news));
         }
-        $data = [
-            'list_news' => $news,
-        ];
         $response['status'] = 200;
         $response['message'] = 'Success';
-        $response['payload'] = $data;
+        $response['payload'] = $news;
         return response()->json($response);
     }
 
@@ -52,13 +46,9 @@ class NewsController extends Controller
         // dd($detail);
         $detail->date_news = date('d, M Y H:i', strtotime($detail->date_news));
 
-        $data = [
-            'detail' => $detail
-        ];
-
         $response['status'] = 200;
         $response['message'] = 'Success';
-        $response['payload'] = $data;
+        $response['payload'] = $detail;
         return response()->json($response);
     }
 }

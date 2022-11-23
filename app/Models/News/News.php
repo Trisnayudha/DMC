@@ -9,6 +9,7 @@ class News extends Model
 {
     use HasFactory;
     protected $table = 'news';
+    protected $casts = ['id' => 'int'];
     protected $fillable = [
         'highlight',
         'all_highlight',

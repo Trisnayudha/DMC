@@ -9,6 +9,7 @@ class NewsCategoryList extends Model
 {
     use HasFactory;
     protected $table = 'news_category_list';
+    protected $casts = ['id' => 'int'];
     protected $fillable = [
         'news_id',
         'news_category_id'
