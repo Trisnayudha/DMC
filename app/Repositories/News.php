@@ -174,17 +174,16 @@ class News extends NewsModel
         $column_filter = "news.date_news";
         $type_filter = "desc";
 
-        return DB::table('news')
-            ->select(
-                'news.id',
-                'news.title',
-                'news.slug',
-                'news.image',
-                'news.location',
-                'news.date_news',
-                'news.desc',
-                'news.views'
-            )
+        return NewsModel::select(
+            'news.id',
+            'news.title',
+            'news.slug',
+            'news.image',
+            'news.location',
+            'news.date_news',
+            'news.desc',
+            'news.views'
+        )
             ->where(function ($q) use ($search, $except) {
                 if (!empty($search)) {
                     $q->where('news.title', 'LIKE', '%' . $search . '%');
