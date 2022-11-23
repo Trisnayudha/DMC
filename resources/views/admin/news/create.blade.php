@@ -104,8 +104,8 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group{{ $errors->has('category_id') ? ' has-error' : '' }}">
-                                        {{-- {!! Form::label('Kategori *') !!}
-                                        {!! Form::select('category_id[]', $categories->pluck('value', 'id'), null, [
+                                        {!! Form::label('Kategori *') !!}
+                                        {!! Form::select('category_id[]', $categories->pluck('name_category', 'id'), null, [
                                             'multiple' => 'multiple',
                                             'class' => 'form-control select2',
                                         ]) !!}
@@ -113,7 +113,7 @@
                                             <span class="help-block">
                                                 <strong style="color:red">{{ $errors->first('category_id') }}</strong>
                                             </span>
-                                        @endif --}}
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -136,7 +136,7 @@
                                             </div>
                                             {!! Form::text('date_news', date('Y-m-d H:i'), [
                                                 'class' => 'form-control
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    datepicker',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            datepicker',
                                                 'placeholder' => 'Tanggal Mulai',
                                             ]) !!}
                                         </div>

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Events\EventsCategory;
+use App\Models\News\NewsCategory;
 use Illuminate\Http\Request;
 
-class EventCategoryController extends Controller
+class NewsCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,9 +14,9 @@ class EventCategoryController extends Controller
      */
     public function index()
     {
-        $data = EventsCategory::orderBy('id', 'desc')->paginate(10);
+        $data = NewsCategory::orderBy('id', 'desc')->paginate(10);
         return view(
-            'admin.events-category.index',
+            'admin.news-category.index',
             ['category' => $data]
         );
     }
@@ -29,12 +29,12 @@ class EventCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $data   =   EventsCategory::updateOrCreate(
+        $data   =   NewsCategory::updateOrCreate(
             [
                 'id' => $request->id
             ],
             [
-                'category_name' => $request->category_name,
+                'name_category' => $request->category_name,
             ]
         );
         // activity()->log('Menambahkan Data Kategori');
@@ -51,7 +51,7 @@ class EventCategoryController extends Controller
     public function edit(Request $request)
     {
         $where = array('id' => $request->id);
-        $data  = EventsCategory::where($where)->first();
+        $data  = NewsCategory::where($where)->first();
         // activity()->log('Edit Data Kategori');
         return response()->json($data);
     }
@@ -65,7 +65,7 @@ class EventCategoryController extends Controller
      */
     public function destroy(Request $request)
     {
-        $data = EventsCategory::where('id', $request->id)->delete();
+        $data = NewsCategory::where('id', $request->id)->delete();
         // activity()->log('Menghapus Data Kategori');
         return response()->json(['success' => true]);
     }

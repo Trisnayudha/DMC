@@ -37,7 +37,7 @@
                 <span>News</span></a>
             <ul class="dropdown-menu">
                 <li><a class="nav-link" href="{{ Route('news') }}">News List</a></li>
-                <li><a class="nav-link" href="layout-transparent.html">News Category</a></li>
+                <li><a class="nav-link" href="{{ Route('news.category') }}">News Category</a></li>
             </ul>
         </li>
         <li class="">

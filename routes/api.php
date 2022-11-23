@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\EventController;
+use App\Http\Controllers\API\NewsCategoryController;
 use App\Http\Controllers\API\NewsController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\UserController;
@@ -52,7 +53,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('/profile/verify_otp', [UserController::class, 'verifyOtp']);
     Route::post('/profile/check', [UserController::class, 'check']);
 });
-Route::post('/events', [EventController::class, 'index']);
-Route::post('/news', [NewsController::class, 'index']);
+Route::post('/news/category', [NewsCategoryController::class, 'index']);
+Route::post('/carosel', [NewsController::class, 'index']);
+Route::post('/news', [NewsController::class, 'ListAll']);
+Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
 
+Route::post('/events', [EventController::class, 'index']);
 Route::get('/list-payment', [PaymentController::class, 'listbank']);

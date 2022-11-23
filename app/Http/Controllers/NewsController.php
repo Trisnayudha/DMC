@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\News\News;
+use App\Models\News\NewsCategory;
+use App\Models\News\NewsCategoryList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -23,7 +25,12 @@ class NewsController extends Controller
 
     public function create()
     {
-        return view('admin.news.create');
+        $categories = NewsCategory::orderBy('id', 'desc')->get();
+
+        $data = [
+            'categories' => $categories
+        ];
+        return view('admin.news.create', $data);
     }
 
     public function store(Request $request)
@@ -49,6 +56,13 @@ class NewsController extends Controller
             $save->image = $db;
         }
         $save->save();
+
+        foreach ($request->category_id as $key => $value) {
+            $category = NewsCategoryList::create([
+                'news_id' => $save->id,
+                'news_category_id' => $request->category_id[$key]
+            ]);
+        }
         return redirect()->route('news')->with('success', 'Successfully create news');
     }
 }
