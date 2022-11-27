@@ -268,6 +268,7 @@ class EventController extends Controller
         // dd($request->all());
         $id = $request->id;
         $val = $request->val;
+        $db = null;
         $update = Payment::where('id', $id)->first();
         if (!empty($update)) {
             $check = DB::table('payment')
@@ -304,16 +305,29 @@ class EventController extends Controller
             ];
             $email = $check->email;
             $code_payment = $check->code_payment;
-            $pdf = Pdf::loadView('email.ticket', $data);
-            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment) {
-                $message->from(env('EMAIL_SENDER'));
-                $message->to($email);
-                $message->subject($code_payment . ' - Your registration is approved for Energy Market Briefing 2022');
-                $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
-            });
+            if ($val == 'approve') {
+                $pdf = Pdf::loadView('email.ticket', $data);
+                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment) {
+                    $message->from(env('EMAIL_SENDER'));
+                    $message->to($email);
+                    $message->subject($code_payment . ' - Your registration is approved for Energy Market Briefing 2022');
+                    $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
+                });
+                return redirect()->back()->with('success', 'Successfully Approval');
+            } else {
+                $send = new EmailSender();
+                $send->from = env('EMAIL_SENDER');
+                $send->to = $email;
+                $send->data = $data;
+                $send->subject = '[FULLY BOOKED] Energy Market Briefing 2022';
+                $send->name = $check->name;
+                $send->template = 'email.reject-event';
+                $send->sendEmail();
+                return redirect()->back()->with('success', 'Successfully Reject Register');
+            }
             // $pdf = Pdf::loadView('email.ticket', $data);
             // return $pdf->stream();
-            return redirect()->back()->with('success', 'Successfully Approval');
+
         } else {
             dd("Payment not found");
         }
