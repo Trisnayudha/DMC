@@ -55,7 +55,12 @@ Route::post('/request-event', [EventController::class, 'request']);
 Route::get('/events', [EventController::class, 'index'])->name('events');
 Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
 Route::post('events/store', [EventController::class, 'store'])->name('events.store');
-Route::get('/events-category', [EventCategoryController::class, 'index'])->name('events-category');
+
+//Events Category
+Route::get('/events/category', [EventCategoryController::class, 'index'])->name('events.category');
+Route::post('/events/addcategory', [EventCategoryController::class, 'store']);
+Route::post('/events/editcategory', [EventCategoryController::class, 'edit']);
+Route::post('/events/deletecategory', [EventCategoryController::class, 'destroy']);
 
 Route::post('/events-import', [EventController::class, 'import'])->name('events.import');
 

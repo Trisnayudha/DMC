@@ -80,7 +80,7 @@
                                             @foreach ($category as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ $post->name_category }}</td>
+                                                    <td>{{ $post->category_name }}</td>
                                                     <td>
 
                                                         <a href="javascript:void(0)" data-id="{{ $post->id }}"
@@ -148,7 +148,7 @@
             });
             $('#addNewCategory').click(function() {
                 $('#addEditCategoryForm').trigger("reset");
-                $('#ajaxCategoryModel').html("Add Book");
+                $('#ajaxCategoryModel').html("Add Category");
                 $('#category-model').modal('show');
             });
 
@@ -158,13 +158,13 @@
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('news/editcategory') }}",
+                    url: "{{ url('events/editcategory') }}",
                     data: {
                         id: id
                     },
                     dataType: 'json',
                     success: function(res) {
-                        $('#ajaxCategoryModel').html("Edit Book");
+                        $('#ajaxCategoryModel').html("Edit Category");
                         $('#category-model').modal('show');
                         $('#id').val(res.id);
                         $('#category_name').val(res.category_name);
@@ -186,7 +186,7 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "POST",
-                            url: "{{ url('news/deletecategory') }}",
+                            url: "{{ url('events/deletecategory') }}",
                             data: {
                                 id: id
                             },
@@ -210,12 +210,13 @@
             $(document).on('click', '#btn-save', function(event) {
                 var id = $("#id").val();
                 var category_name = $("#category_name").val();
+                console.log(category_name)
                 $("#btn-save").html('Please Wait...');
                 $("#btn-save").attr("disabled", true);
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('news/addcategory') }}",
+                    url: "{{ url('events/addcategory') }}",
                     data: {
                         id: id,
                         category_name: category_name,

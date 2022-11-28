@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Helpers\EmailSender;
 use App\Models\Events\Events;
+use App\Models\Events\EventsCategory;
+use App\Models\Events\EventsCategoryList;
 use App\Models\Events\UserRegister;
 use App\Models\MemberModel;
 use App\Models\Payments\Payment;
@@ -35,7 +37,12 @@ class EventController extends Controller
 
     public function create()
     {
-        return view('admin.events.create');
+        $categories = EventsCategory::orderBy('id', 'desc')->get();
+
+        $data = [
+            'categories' => $categories
+        ];
+        return view('admin.events.create', $data);
     }
 
     public function store(Request $request)
@@ -59,6 +66,13 @@ class EventController extends Controller
             $save->image = $db;
         }
         $save->save();
+
+        foreach ($request->category_id as $key => $value) {
+            $category = EventsCategoryList::create([
+                'events_id' => $save->id,
+                'events_category_id' => $request->category_id[$key]
+            ]);
+        }
         return redirect()->route('events')->with('success', 'Successfully create new event');
     }
 

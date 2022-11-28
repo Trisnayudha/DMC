@@ -147,7 +147,7 @@
                                             </div>
                                             {!! Form::text('start_date', date('Y-m-d'), [
                                                 'class' => 'form-control
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        datepicker',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                datepicker',
                                                 'placeholder' => 'Tanggal Mulai',
                                             ]) !!}
                                         </div>
@@ -187,7 +187,7 @@
                                             {!! Form::text('end_time', date('H:i'), [
                                                 'class' => 'form-control ',
                                                 'placeholder' => 'Waktu
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Selesai',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Selesai',
                                             ]) !!}
                                             <span class="input-group-addon">
                                                 <span class="fa fa-clock-o"></span>
@@ -246,8 +246,8 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group{{ $errors->has('category_id') ? ' has-error' : '' }}">
-                                        {{-- {!! Form::label('Kategori *') !!}
-                                        {!! Form::select('category_id[]', $categories->pluck('value', 'id'), null, [
+                                        {!! Form::label('Kategori *') !!}
+                                        {!! Form::select('category_id[]', $categories->pluck('category_name', 'id'), null, [
                                             'multiple' => 'multiple',
                                             'class' => 'form-control select2',
                                         ]) !!}
@@ -255,7 +255,7 @@
                                             <span class="help-block">
                                                 <strong style="color:red">{{ $errors->first('category_id') }}</strong>
                                             </span>
-                                        @endif --}}
+                                        @endif
                                     </div>
                                 </div>
                             </div>

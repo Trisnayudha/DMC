@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\EventController;
+use App\Http\Controllers\API\EventsCategoryController;
 use App\Http\Controllers\API\NewsCategoryController;
 use App\Http\Controllers\API\NewsController;
 use App\Http\Controllers\API\PaymentController;
@@ -58,5 +59,6 @@ Route::post('/carosel', [NewsController::class, 'index']);
 Route::post('/news', [NewsController::class, 'ListAll']);
 Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
 
+Route::post('/events/category', [EventsCategoryController::class, 'index']);
 Route::post('/events', [EventController::class, 'index']);
 Route::get('/list-payment', [PaymentController::class, 'listbank']);

@@ -28,7 +28,7 @@
                 <span>Events</span></a>
             <ul class="dropdown-menu">
                 <li><a class="nav-link" href="{{ Route('events') }}">Events List</a></li>
-                <li><a class="nav-link" href="layout-transparent.html">Events Category</a></li>
+                <li><a class="nav-link" href="{{ Route('events.category') }}">Events Category</a></li>
             </ul>
         </li>
         <li class="dropdown">
