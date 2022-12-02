@@ -19,6 +19,7 @@ class Events extends EventsEvents
             'events.end_date',
             'events.start_time',
             'events.image',
+            'events.slug'
         )
             ->leftJoin('event_category_list', function ($join) {
                 $join->on('events.id', '=', 'event_category_list.events_id');

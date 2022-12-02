@@ -169,7 +169,7 @@ class News extends NewsModel
             ->paginate(10);
         return $query;
     }
-    public static function listAllNewsOnlySearch($search, $except = [], $limit)
+    public static function listAllNewsOnlySearch($search, $except = [], $limit, $category)
     {
         $column_filter = "news.date_news";
         $type_filter = "desc";
@@ -184,9 +184,19 @@ class News extends NewsModel
             'news.desc',
             'news.views'
         )
-            ->where(function ($q) use ($search, $except) {
+            ->leftJoin('news_category_list', function ($join) {
+                $join->on('news.id', '=', 'news_category_list.news_id');
+            })
+            ->leftJoin('news_category', function ($join) {
+                $join->on('news_category.id', '=', 'news_category_list.news_category_id');
+            })
+            ->where(function ($q) use ($search, $except, $category) {
                 if (!empty($search)) {
                     $q->where('news.title', 'LIKE', '%' . $search . '%');
+                }
+
+                if (!empty($category)) {
+                    $q->where('news_category_list.news_category_id', '=', $category);
                 }
             })
             ->whereNotIn('news.date_news', $except)

@@ -29,8 +29,9 @@ class NewsController extends Controller
     {
         $limit = $request->limit;
         $search = $request->search;
+        $category = $request->category;
         $bannersPluck = RepositoriesNews::listAllToArray();
-        $news = RepositoriesNews::listAllNewsOnlySearch($search, $bannersPluck, $limit);
+        $news = RepositoriesNews::listAllNewsOnlySearch($search, $bannersPluck, $limit, $category);
         foreach ($news as $value) {
             $value->date_news = date('d, M Y H:i', strtotime($value->date_news));
         }
