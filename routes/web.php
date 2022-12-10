@@ -8,6 +8,7 @@ use App\Http\Controllers\NewsCategoryController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\VideosController;
 use App\Models\Payments\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -73,3 +74,9 @@ Route::get('news/category', [NewsCategoryController::class, 'index'])->name('new
 Route::post('news/addcategory', [NewsCategoryController::class, 'store']);
 Route::post('news/editcategory', [NewsCategoryController::class, 'edit']);
 Route::post('news/deletecategory', [NewsCategoryController::class, 'destroy']);
+
+//Videos Highlight
+Route::get('videos', [VideosController::class, 'index'])->name('videos');
+Route::post('videos/addcategory', [VideosController::class, 'store']);
+Route::post('videos/editcategory', [VideosController::class, 'edit']);
+Route::post('videos/deletecategory', [VideosController::class, 'destroy']);

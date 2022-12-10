@@ -22,6 +22,11 @@
                 <i class="fa fa-university" aria-hidden="true"></i>
                 <span>Events sementara</span></a>
         </li>
+        <li class="">
+            <a class="nav-link" href="{{ Route('videos') }}">
+                <i class="fa fa-university" aria-hidden="true"></i>
+                <span>Videos Highlight</span></a>
+        </li>
         <li class="dropdown">
             <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa fa-calendar"
                     aria-hidden="true"></i>

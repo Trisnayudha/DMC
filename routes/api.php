@@ -8,6 +8,7 @@ use App\Http\Controllers\API\NewsCategoryController;
 use App\Http\Controllers\API\NewsController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\VideosContorller;
 use App\Http\Controllers\Callback\XenditCallbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -64,3 +65,5 @@ Route::post('/events', [EventController::class, 'index']);
 Route::get('/list-payment', [PaymentController::class, 'listbank']);
 
 Route::post('/carosel', [HomeController::class, 'index']);
+
+Route::post('/videos_highlight', [VideosContorller::class, 'index']);
