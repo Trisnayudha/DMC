@@ -62,6 +62,8 @@ Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
 
 Route::post('/events/category', [EventsCategoryController::class, 'index']);
 Route::post('/events', [EventController::class, 'index']);
+Route::post('/events/{slug}/detail', [EventController::class, 'detail']);
+
 Route::get('/list-payment', [PaymentController::class, 'listbank']);
 
 Route::post('/carosel', [HomeController::class, 'index']);

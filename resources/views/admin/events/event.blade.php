@@ -78,6 +78,8 @@
                                                         </div>
                                                     </td>
                                                     <td>
+                                                        <a href="#" class="btn btn-primary" title="View Tickets">
+                                                            <span>ticket</span></a>
                                                         <a href="#" class="btn btn-primary" title="Lihat Peserta">
                                                             <span class="fa fa-user"></span></a>
                                                         <a href="#" class="btn btn-success" title="Edit Data">

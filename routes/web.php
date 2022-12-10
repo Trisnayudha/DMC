@@ -3,6 +3,7 @@
 use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventsTicketController;
 use App\Http\Controllers\FormMemberController;
 use App\Http\Controllers\NewsCategoryController;
 use App\Http\Controllers\NewsController;
@@ -62,6 +63,11 @@ Route::get('/events/category', [EventCategoryController::class, 'index'])->name(
 Route::post('/events/addcategory', [EventCategoryController::class, 'store']);
 Route::post('/events/editcategory', [EventCategoryController::class, 'edit']);
 Route::post('/events/deletecategory', [EventCategoryController::class, 'destroy']);
+
+Route::get('/events/tickets', [EventsTicketController::class, 'index'])->name('events.tickets');
+Route::post('/events-tickets/addcategory', [EventsTicketController::class, 'store']);
+Route::post('/events-tickets/editcategory', [EventsTicketController::class, 'edit']);
+Route::post('/events-tickets/deletecategory', [EventsTicketController::class, 'destroy']);
 
 Route::post('/events-import', [EventController::class, 'import'])->name('events.import');
 

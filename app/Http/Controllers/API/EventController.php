@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
+use App\Models\Events\EventsTicket;
 use App\Repositories\Events as RepositoriesEvents;
 use Illuminate\Http\Request;
 
@@ -31,6 +32,26 @@ class EventController extends Controller
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = $data;
+        return response()->json($response);
+    }
+    public function detail($slug)
+    {
+        $findEvent = RepositoriesEvents::findEvent($slug);
+        $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->get();
+        if (!empty($findEvent)) {
+            $data = [
+                'detail' => $findEvent,
+                'ticket' => $findTicket
+            ];
+
+            $response['status'] = 200;
+            $response['message'] = 'Success';
+            $response['payload'] = $data;
+        } else {
+            $response['status'] = 404;
+            $response['message'] = 'Event Not Found';
+            $response['payload'] = null;
+        }
         return response()->json($response);
     }
 }

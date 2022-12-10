@@ -44,4 +44,9 @@ class Events extends EventsEvents
             ->orderby($column_filter, $type_filter)
             ->paginate($limit);
     }
+
+    public static function findEvent($slug)
+    {
+        return EventsEvents::where('slug', $slug)->first();
+    }
 }
