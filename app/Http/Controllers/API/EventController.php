@@ -37,6 +37,7 @@ class EventController extends Controller
     public function detail($slug)
     {
         $findEvent = RepositoriesEvents::findEvent($slug);
+        $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
         $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->get();
         if (!empty($findEvent)) {
             $data = [
