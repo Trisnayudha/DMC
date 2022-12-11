@@ -127,6 +127,7 @@
                             {!! Form::label('Events') !!}
                             {!! Form::select('events_id', $events->pluck('name', 'id'), null, [
                                 'class' => 'form-control select2',
+                                'id' => 'events_id',
                             ]) !!}
                             @if ($errors->has('events_id'))
                                 <span class="help-block">
