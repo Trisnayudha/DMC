@@ -186,7 +186,7 @@
                         <div class="form-group{{ $errors->has('description') ? ' has-error' : '' }}">
                             {!! Form::label('Deskripsi *') !!}
                             {!! Form::textarea('description', old('description'), [
-                                'id' => 'my-editor',
+                                'id' => 'description',
                                 'class' => 'form-control my-editor',
                                 'placeholder' => 'Berita',
                             ]) !!}
@@ -299,7 +299,7 @@
                 var price_rupiah = $("#price_rupiah").val();
                 var price_dollar = $("#price_dollar").val();
                 var type = $("#type").val();
-                var description = $("#my_editor").val();
+                var description = $("#description").val();
                 var status_ticket = $("#status_ticket").val();
                 var status_sold = $("#status_sold").val();
                 $("#btn-save").html('Please Wait...');
