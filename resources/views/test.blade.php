@@ -10,6 +10,8 @@
 
 <body>
     <a href="discipleapp://">Open My App</a>
+    <br>
+    <a href="dmcapps://">Open DMC App</a>
 </body>
 
 </html>
