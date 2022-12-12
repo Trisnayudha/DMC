@@ -12,6 +12,8 @@
     <a href="discipleapp://">Open My App</a>
     <br>
     <a href="dmcapps://">Open DMC App</a>
+    <br>
+    <a href="discipleship://">Open My App 2</a>
 </body>
 
 </html>
