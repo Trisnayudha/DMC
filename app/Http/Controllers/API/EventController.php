@@ -45,6 +45,10 @@ class EventController extends Controller
         $listUser = [
             'already_register' => $findUser ? true : false
         ];
+        foreach ($findTicket as $val => $key) {
+            $key->price_rupiah = $key->type == 'free' ? 0 : $key->price_rupiah;
+            $key->price_dollar = $key->type == 'free' ? 0 : $key->price_dollar;
+        }
         if (!empty($findEvent)) {
             $data = [
                 'detail' => $findEvent,
