@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
 use App\Models\Events\EventsTicket;
+use App\Models\Events\UserRegister;
 use App\Repositories\Events as RepositoriesEvents;
 use Illuminate\Http\Request;
 
@@ -36,13 +37,19 @@ class EventController extends Controller
     }
     public function detail($slug)
     {
+        $id =  auth('sanctum')->user()->id;
         $findEvent = RepositoriesEvents::findEvent($slug);
         $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
         $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->get();
+        $findUser = UserRegister::where('users_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
+        $listUser = [
+            'already_register' => $findUser ? true : false
+        ];
         if (!empty($findEvent)) {
             $data = [
                 'detail' => $findEvent,
-                'ticket' => $findTicket
+                'ticket' => $findTicket,
+                'users' => $listUser,
             ];
 
             $response['status'] = 200;

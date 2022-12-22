@@ -173,13 +173,25 @@
                         </div>
                         <div class="form-group{{ $errors->has('status_sold') ? ' has-error' : '' }}">
                             {!! Form::label('Status Sold') !!}
-                            {!! Form::select('status_sold', ['on' => 'Available', 'off' => 'Not Available'], null, [
+                            {!! Form::select('status_sold', ['on' => 'Aktif', 'off' => 'Non-Aktif'], null, [
                                 'class' => 'form-control',
                                 'id' => 'status_sold',
                             ]) !!}
                             @if ($errors->has('status_sold'))
                                 <span class="help-block">
                                     <strong>{{ $errors->first('status_sold') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+                        <div class="form-group{{ $errors->has('type') ? ' has-error' : '' }}">
+                            {!! Form::label('Type Ticket') !!}
+                            {!! Form::select('type', ['paid' => 'Paid Off', 'free' => 'Free'], null, [
+                                'class' => 'form-control',
+                                'id' => 'type',
+                            ]) !!}
+                            @if ($errors->has('type'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('type') }}</strong>
                                 </span>
                             @endif
                         </div>
@@ -317,6 +329,7 @@
                         description: description,
                         status_ticket: status_ticket,
                         status_sold: status_sold,
+                        type: type
                     },
                     dataType: 'json',
                     success: function(res) {

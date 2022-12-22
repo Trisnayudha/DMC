@@ -43,6 +43,7 @@ class EventsTicketController extends Controller
                 'status_ticket' => $request->status_ticket,
                 'description' => $request->description,
                 'status_sold' => $request->status_sold,
+                'type' => $request->type,
             ]
         );
         // activity()->log('Menambahkan Data Kategori');
