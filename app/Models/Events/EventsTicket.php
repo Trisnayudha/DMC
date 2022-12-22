@@ -9,7 +9,11 @@ class EventsTicket extends Model
 {
     use HasFactory;
     protected $table = 'events_tickets';
-    protected $casts = ['events_id' => 'int'];
+    protected $casts = [
+        'events_id' => 'int',
+        'price_rupiah' => 'int',
+        'price_dollar' => 'int'
+    ];
     protected $fillable = [
         'events_id',
         'title',
