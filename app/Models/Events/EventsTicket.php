@@ -9,6 +9,7 @@ class EventsTicket extends Model
 {
     use HasFactory;
     protected $table = 'events_tickets';
+    protected $casts = ['events_id' => 'int'];
     protected $fillable = [
         'events_id',
         'title',
