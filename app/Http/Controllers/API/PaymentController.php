@@ -32,10 +32,17 @@ class PaymentController extends Controller
         // params invoice
         Xendit::setApiKey($secretKey);
         $getPaymentChannels = VirtualAccounts::getVABanks();
+        // foreach ($getPaymentChannels as $row => $key) {
+
+        // }
+        $available_payment = array_filter($getPaymentChannels, function ($key) {
+            // dd($key['is_activated']);
+            return $key['is_activated'] == true;
+        });
 
         $response['status'] = 200;
         $response['message'] = 'List Bank';
-        $response['payload'] = $getPaymentChannels;
+        $response['payload'] = array_values($available_payment);
 
         return response()->json($response);
     }
@@ -100,20 +107,20 @@ class PaymentController extends Controller
                 ];
 
                 $createVA = VirtualAccounts::create($params);
-                $save_va = new PaymentUsersVA();
-                $save_va->payment_id = $save->id;
-                $save_va->is_closed = $createVA['is_closed'];
-                $save_va->status = $createVA['status'];
-                $save_va->currency = $createVA['currency'];
-                $save_va->country = $createVA['country'];
-                $save_va->owner_id = $createVA['owner_id'];
-                $save_va->bank_code = $createVA['bank_code'];
-                $save_va->merchant_code = $createVA['merchant_code'];
-                $save_va->account_number = $createVA['account_number'];
-                $save_va->expected_amount = $createVA['expected_amount'];
-                $save_va->expiration_date = $createVA['expiration_date'];
-                $save_va->is_single_use = $createVA['is_single_use'];
-                $save_va->save();
+                // $save_va = new PaymentUsersVA();
+                // $save_va->payment_id = $save->id;
+                // $save_va->is_closed = $createVA['is_closed'];
+                // $save_va->status = $createVA['status'];
+                // $save_va->currency = $createVA['currency'];
+                // $save_va->country = $createVA['country'];
+                // $save_va->owner_id = $createVA['owner_id'];
+                // $save_va->bank_code = $createVA['bank_code'];
+                // $save_va->merchant_code = $createVA['merchant_code'];
+                // $save_va->account_number = $createVA['account_number'];
+                // $save_va->expected_amount = $createVA['expected_amount'];
+                // $save_va->expiration_date = $createVA['expiration_date'];
+                // $save_va->is_single_use = $createVA['is_single_use'];
+                // $save_va->save();
             }
             $response['status'] = 200;
             $response['message'] = 'success';
