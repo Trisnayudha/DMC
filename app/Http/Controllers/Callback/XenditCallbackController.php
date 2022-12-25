@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Callback;
 
 use App\Helpers\EmailSender;
+use App\Helpers\WhatsappApi;
 use App\Helpers\XenditInvoice;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -117,9 +118,13 @@ class XenditCallbackController extends Controller
     public function fva(Request $request)
     {
         try {
+            $send = new WhatsappApi();
+            $send->phone = '083829314436';
+            $send->message = 'Succes Fully Payment';
+            $send->WhatsappMessage();
             $res['api_status'] = 1;
             $res['api_message'] = $request->all();
-            return response()->json($res, 500);
+            return response()->json($res, 200);
         } catch (\Exception $msg) {
             $res['api_status'] = 0;
             $res['api_message'] = $msg->getMessage();
