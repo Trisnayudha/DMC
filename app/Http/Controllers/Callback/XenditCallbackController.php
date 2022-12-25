@@ -117,7 +117,9 @@ class XenditCallbackController extends Controller
     public function fva(Request $request)
     {
         try {
-            dd($request->all());
+            $res['api_status'] = 1;
+            $res['api_message'] = $request->all();
+            return response()->json($res, 500);
         } catch (\Exception $msg) {
             $res['api_status'] = 0;
             $res['api_message'] = $msg->getMessage();
