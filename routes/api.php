@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/xendit/invoice', [XenditCallbackController::class, 'invoice']);
+Route::post('/xendit/fva', [XenditCallbackController::class, 'fva']);
 
 Route::post('/signin-phone', [AuthController::class, 'signin_phone']);
 Route::post('/verify_signin_phone', [AuthController::class, 'verify_signin_phone']);

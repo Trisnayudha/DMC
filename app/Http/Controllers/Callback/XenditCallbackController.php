@@ -114,4 +114,14 @@ class XenditCallbackController extends Controller
             return response()->json($res, 500);
         }
     }
+    public function fva(Request $request)
+    {
+        try {
+            dd($request->all());
+        } catch (\Exception $msg) {
+            $res['api_status'] = 0;
+            $res['api_message'] = $msg->getMessage();
+            return response()->json($res, 500);
+        }
+    }
 }

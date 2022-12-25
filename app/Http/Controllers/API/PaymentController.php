@@ -31,13 +31,11 @@ class PaymentController extends Controller
         }
         // params invoice
         Xendit::setApiKey($secretKey);
-        $getPaymentChannels = VirtualAccounts::getVABanks();
-        // foreach ($getPaymentChannels as $row => $key) {
+        $getPaymentChannels = PaymentChannels::list();
 
-        // }
         $available_payment = array_filter($getPaymentChannels, function ($key) {
             // dd($key['is_activated']);
-            return $key['is_activated'] == true;
+            return $key['is_enabled'] == true && ($key['channel_category'] == 'VIRTUAL_ACCOUNT' || $key['channel_category'] == 'CREDIT_CARD');
         });
 
         $response['status'] = 200;
