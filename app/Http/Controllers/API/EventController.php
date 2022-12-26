@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
 use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
+use App\Models\Payments\Payment;
 use App\Repositories\Events as RepositoriesEvents;
 use Illuminate\Http\Request;
 
@@ -42,8 +43,10 @@ class EventController extends Controller
         $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
         $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->get();
         $findUser = UserRegister::where('users_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
+        $findPayment = Payment::where('events_id', '=', $findEvent->id)->where('member_id', '=', $findUser->id)->first();
         $listUser = [
-            'already_register' => $findUser ? true : false
+            'already_register' => $findUser ? true : false,
+            'waiting_payment' => $findPayment->status_register == 'Waiting' ? true : false
         ];
         foreach ($findTicket as $val => $key) {
             $key->price_rupiah = $key->type == 'free' ? 0 : $key->price_rupiah;
