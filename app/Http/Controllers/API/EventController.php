@@ -46,7 +46,7 @@ class EventController extends Controller
         $findPayment = Payment::where('member_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
         $listUser = [
             'already_register' => $findUser ? true : false,
-            'waiting_payment' => $findPayment->status_registration == 'Waiting' ? true : false
+            'waiting_payment' => $findPayment ? ($findPayment->status_registration == 'Waiting' ? true : false) : false
         ];
         foreach ($findTicket as $val => $key) {
             $key->price_rupiah = $key->type == 'free' ? 0 : $key->price_rupiah;
