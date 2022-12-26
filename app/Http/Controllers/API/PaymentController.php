@@ -57,12 +57,12 @@ class PaymentController extends Controller
         $package = $type == 'paid' ? 'Premium' : 'Silver';
         $payment_method = $payment_method == 'other' ? 'Free-pass' : $payment_method;
         // $payment_method = $payment ? $payment : 'free pas';
-        $image = QrCode::format('png')
-            ->size(200)->errorCorrection('H')
-            ->generate($codePayment);
+        // $image = QrCode::format('png')
+        //     ->size(200)->errorCorrection('H')
+        //     ->generate($codePayment);
         $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
         $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
-        Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+        // Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
         $findPayment = Payment::where('member_id', '=', $id)->where('events_id', '=', $events_id)->first();
         $findUsers = User::where('id', '=', $id)->first();
         $findTicket = EventsTicket::where('id', '=', $tickets_id)->first();
@@ -74,7 +74,7 @@ class PaymentController extends Controller
             $save->payment_method = $payment_method;
             $save->tickets_id = $tickets_id;
             $save->events_id = $events_id;
-
+            $save->status_registration = ($type == 'free' ? 'Free' : 'Waiting');
             $save->qr_code = $db;
             $save->save();
             if ($type == 'free') {

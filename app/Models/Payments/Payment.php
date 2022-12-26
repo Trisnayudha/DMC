@@ -16,7 +16,7 @@ class Payment extends Model
         'payment_method',
         'events_id',
         'tickets_id',
-        'status',
+        'status_registration',
         'link',
         'code_payment',
         'qr_code'
