@@ -74,12 +74,7 @@ class PaymentController extends Controller
             $save->payment_method = $payment_method;
             $save->tickets_id = $tickets_id;
             $save->events_id = $events_id;
-            if ($type == 'free') {
 
-                $save->status = 'Free';
-            } else {
-                $save->status = 'Waiting';
-            }
             $save->qr_code = $db;
             $save->save();
             if ($type == 'free') {
