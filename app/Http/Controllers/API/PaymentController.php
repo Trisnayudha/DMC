@@ -68,12 +68,12 @@ class PaymentController extends Controller
         $findTicket = EventsTicket::where('id', '=', $tickets_id)->first();
         $save = new Payment();
         if ($findPayment == null) {
-            // $save->member_id = $id;
-            // $save->package = $package;
-            // $save->code_payment = $codePayment;
-            // $save->payment_method = $payment_method;
-            // $save->tickets_id = $tickets_id;
-            // $save->events_id = $events_id;
+            $save->member_id = $id;
+            $save->package = $package;
+            $save->code_payment = $codePayment;
+            $save->payment_method = $payment_method;
+            $save->tickets_id = $tickets_id;
+            $save->events_id = $events_id;
 
             $save->qr_code = $db;
             $save->save();
