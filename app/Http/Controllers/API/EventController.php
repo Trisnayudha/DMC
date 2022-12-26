@@ -43,10 +43,10 @@ class EventController extends Controller
         $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
         $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->get();
         $findUser = UserRegister::where('users_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
-        $findPayment = Payment::where('events_id', '=', $findEvent->id)->where('member_id', '=', $findUser->id)->first();
+        $findPayment = Payment::where('member_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
         $listUser = [
             'already_register' => $findUser ? true : false,
-            'waiting_payment' => $findPayment->status_register == 'Waiting' ? true : false
+            'waiting_payment' => $findPayment->status_registration == 'Waiting' ? true : false
         ];
         foreach ($findTicket as $val => $key) {
             $key->price_rupiah = $key->type == 'free' ? 0 : $key->price_rupiah;
