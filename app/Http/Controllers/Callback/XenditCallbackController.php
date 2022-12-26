@@ -8,6 +8,7 @@ use App\Helpers\XenditInvoice;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Payments\Payment;
+use App\Models\Payments\PaymentUsersVA;
 use App\Repositories\Company;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
@@ -117,13 +118,40 @@ class XenditCallbackController extends Controller
     }
     public function fva(Request $request)
     {
+        // "updated": "2017-02-15T11:01:52.896Z",
+        // "created": "2017-02-15T11:01:52.896Z",
+        // "payment_id": "1487156512722",
+        // "callback_virtual_account_id": "58a434ba39cc9e4a230d5a2b",
+        // "owner_id": "5824128aa6f9f9b648be9d76",
+        // "external_id": "fixed-va-1487156410",
+        // "account_number": "1001470126",
+        // "bank_code": "MANDIRI",
+        // "amount": 80000,
+        // "transaction_timestamp": "2017-02-15T11:01:52.722Z",
+        // "merchant_code": "88464",
+        // "id": "58a435201b6ce2a355f46070"
         try {
-            $send = new WhatsappApi();
-            $send->phone = '083829314436';
-            $send->message = 'Succes Fully Payment';
-            $send->WhatsappMessage();
-            $res['api_status'] = 1;
-            $res['api_message'] = $request->all();
+            $owner_id = $request->owner_id;
+            $external_id = $request->external_id;
+
+            $findPayment = Payment::where('code_payment', '=', $external_id)->first();
+
+            if (!empty($findPayment)) {
+                $findUsersVA = PaymentUsersVA::where('payment_id', '=', $findPayment->id)->first();
+                $findPayment->status = 'Paid Off';
+                $findPayment->save();
+                $findUsersVA->status = 'Paid Off';
+                $findUsersVA->save();
+                $send = new WhatsappApi();
+                $send->phone = '083829314436';
+                $send->message = 'Succes Fully Payment';
+                $send->WhatsappMessage();
+                $res['api_status'] = 1;
+                $res['api_message'] = $request->all();
+            } else {
+                $res['api_status'] = 0;
+                $res['api_message'] = 'Payment Not Found';
+            }
             return response()->json($res, 200);
         } catch (\Exception $msg) {
             $res['api_status'] = 0;
