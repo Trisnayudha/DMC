@@ -100,8 +100,8 @@ class XenditCallbackController extends Controller
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Payment status is updated';
                 } else {
-                    $check->status = "Expired";
-                    $check->link = null;
+                    // $check->status_registration = "Expired";
+                    // $check->link = null;
                     $res['api_status'] = 0;
                     $res['api_message'] = 'Payment is Expired';
                 }
@@ -154,7 +154,7 @@ class XenditCallbackController extends Controller
             $send->message = 'Succes Fully Payment';
             $send->WhatsappMessage();
             $res['api_status'] = 1;
-            $res['api_message'] = $request->all();
+            $res['api_message'] = $external_id;
             // } else {
             //     $res['api_status'] = 0;
             //     $res['api_message'] = 'Payment Not Found';
