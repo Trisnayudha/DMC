@@ -7,6 +7,7 @@ use App\Helpers\WhatsappApi;
 use App\Helpers\XenditInvoice;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Payments\PaymentUsersVA;
 use App\Repositories\Company;
@@ -142,6 +143,12 @@ class XenditCallbackController extends Controller
                 $findPayment->save();
                 $findUsersVA->status = 'Paid Off';
                 $findUsersVA->save();
+
+                $UserEvent = new UserRegister();
+                $UserEvent->users_id = $findPayment->member_id;
+                $UserEvent->events_id = $findPayment->events_id;
+                $UserEvent->payment_id = $findPayment->id;
+                $UserEvent->save();
                 $send = new WhatsappApi();
                 $send->phone = '083829314436';
                 $send->message = 'Succes Fully Payment';
