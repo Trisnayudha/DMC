@@ -139,7 +139,7 @@ class XenditCallbackController extends Controller
 
             if (!empty($findPayment)) {
                 $findUsersVA = PaymentUsersVA::where('payment_id', '=', $findPayment->id)->first();
-                $findPayment->status = 'Paid Off';
+                $findPayment->status_registration = 'Paid Off';
                 $findPayment->save();
                 $findUsersVA->status = 'Paid Off';
                 $findUsersVA->save();
