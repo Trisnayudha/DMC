@@ -135,20 +135,20 @@ class XenditCallbackController extends Controller
             $owner_id = $request->owner_id;
             $external_id = $request->external_id;
 
-            $findPayment = Payment::where('code_payment', '=', $external_id)->first();
+            // $findPayment = Payment::where('code_payment', '=', $external_id)->first();
 
-            // if (!empty($findPayment)) {
-            $findUsersVA = PaymentUsersVA::where('payment_id', '=', $findPayment->id)->first();
-            $findPayment->status_registration = 'Paid Off';
-            $findPayment->save();
-            $findUsersVA->status = 'Paid Off';
-            $findUsersVA->save();
+            // // if (!empty($findPayment)) {
+            // $findUsersVA = PaymentUsersVA::where('payment_id', '=', $findPayment->id)->first();
+            // $findPayment->status_registration = 'Paid Off';
+            // $findPayment->save();
+            // $findUsersVA->status = 'Paid Off';
+            // $findUsersVA->save();
 
-            $UserEvent = new UserRegister();
-            $UserEvent->users_id = $findPayment->member_id;
-            $UserEvent->events_id = $findPayment->events_id;
-            $UserEvent->payment_id = $findPayment->id;
-            $UserEvent->save();
+            // $UserEvent = new UserRegister();
+            // $UserEvent->users_id = $findPayment->member_id;
+            // $UserEvent->events_id = $findPayment->events_id;
+            // $UserEvent->payment_id = $findPayment->id;
+            // $UserEvent->save();
             $send = new WhatsappApi();
             $send->phone = '083829314436';
             $send->message = 'Succes Fully Payment';
