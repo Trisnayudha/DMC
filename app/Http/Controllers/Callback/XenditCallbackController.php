@@ -133,7 +133,7 @@ class XenditCallbackController extends Controller
         // "id": "58a435201b6ce2a355f46070"
         try {
             //     $owner_id = $request->owner_id;
-            $external_id = $request->external_id;
+            $external_id = request('external_id');
 
             $findPayment = Payment::where('code_payment', '=', $external_id)->first();
 
