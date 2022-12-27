@@ -131,39 +131,39 @@ class XenditCallbackController extends Controller
         // "transaction_timestamp": "2017-02-15T11:01:52.722Z",
         // "merchant_code": "88464",
         // "id": "58a435201b6ce2a355f46070"
-        // try {
-        //     $owner_id = $request->owner_id;
-        //     $external_id = $request->external_id;
+        try {
+            //     $owner_id = $request->owner_id;
+            $external_id = $request->external_id;
 
-        // $findPayment = Payment::where('code_payment', '=', $external_id)->first();
+            $findPayment = Payment::where('code_payment', '=', $external_id)->first();
 
-        // // if (!empty($findPayment)) {
-        // $findUsersVA = PaymentUsersVA::where('payment_id', '=', $findPayment->id)->first();
-        // $findPayment->status_registration = 'Paid Off';
-        // $findPayment->save();
-        // $findUsersVA->status = 'Paid Off';
-        // $findUsersVA->save();
+            if (!empty($findPayment)) {
+                $findUsersVA = PaymentUsersVA::where('payment_id', '=', $findPayment->id)->first();
+                $findPayment->status_registration = 'Paid Off';
+                $findPayment->save();
+                $findUsersVA->status = 'Paid Off';
+                $findUsersVA->save();
 
-        // $UserEvent = new UserRegister();
-        // $UserEvent->users_id = $findPayment->member_id;
-        // $UserEvent->events_id = $findPayment->events_id;
-        // $UserEvent->payment_id = $findPayment->id;
-        // $UserEvent->save();
-        $send = new WhatsappApi();
-        $send->phone = '083829314436';
-        $send->message = 'Succes Fully Payment';
-        $send->WhatsappMessage();
-        $res['api_status'] = 1;
-        // $res['api_message'] = $external_id;
-        // } else {
-        //     $res['api_status'] = 0;
-        //     $res['api_message'] = 'Payment Not Found';
-        // }
-        return response()->json($res, 200);
-        // } catch (\Exception $msg) {
-        //     $res['api_status'] = 0;
-        //     $res['api_message'] = $msg->getMessage();
-        //     return response()->json($res, 500);
-        // }
+                $UserEvent = new UserRegister();
+                $UserEvent->users_id = $findPayment->member_id;
+                $UserEvent->events_id = $findPayment->events_id;
+                $UserEvent->payment_id = $findPayment->id;
+                $UserEvent->save();
+                $send = new WhatsappApi();
+                $send->phone = '083829314436';
+                $send->message = 'Succes Fully Payment';
+                $send->WhatsappMessage();
+                $res['api_status'] = 1;
+                $res['api_message'] = $external_id;
+            } else {
+                $res['api_status'] = 0;
+                $res['api_message'] = 'Payment Not Found';
+            }
+            return response()->json($res, 200);
+        } catch (\Exception $msg) {
+            $res['api_status'] = 0;
+            $res['api_message'] = $msg->getMessage();
+            return response()->json($res, 500);
+        }
     }
 }
