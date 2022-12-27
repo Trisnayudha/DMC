@@ -5,8 +5,8 @@
     <style>
         .icon {
             color: #4caf50;
-            width: 86px;
-            height: 86px;
+            width: 180px;
+            height: 180px;
         }
 
         .container {
@@ -22,7 +22,7 @@
             font-family: sans-serif;
             color: #4caf50;
             font-weight: 700;
-            font-size: 20px;
+            font-size: 48px;
             text-align: center;
         }
     </style>
