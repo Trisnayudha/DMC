@@ -67,6 +67,10 @@ class XenditCallbackController extends Controller
             $check = Payment::where('code_payment', '=', $external_id)->first();
             if (!empty($check)) {
                 if ($payment_method == 'CREDIT_CARD') {
+                    $send = new WhatsappApi();
+                    $send->phone = '083829314436';
+                    $send->message = 'Succes Fully Payment';
+                    $send->WhatsappMessage();
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Payment status is updated';
                 } else {
