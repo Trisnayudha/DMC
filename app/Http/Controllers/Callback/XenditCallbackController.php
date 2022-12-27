@@ -66,50 +66,57 @@ class XenditCallbackController extends Controller
 
             $check = Payment::where('code_payment', '=', $external_id)->first();
             if (!empty($check)) {
-                if (in_array($status, ['PAID'])) {
-                    $check->status = "Paid Off";
-                    $check->payment_method = $payment_method;
-                    $check->link = null;
-
-                    $findUser = Payment::where('code_payment', $external_id)
-                        ->join('xtwp_users_dmc as a', 'a.id', 'payment.member_id')
-                        ->first();
-
-                    $data = [
-                        'users_name' => $findUser->name,
-                        'users_email' => $findUser->email,
-                        'phone' => $findUser->phone,
-                        'company_name' => $findUser->company_name,
-                        'company_address' => $findUser->address,
-                        'status' => 'Paid Off',
-                        'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
-                        'code_payment' => $findUser->code_payment,
-                        'create_date' => date('d, M Y H:i'),
-                        'package_name' => $findUser->package,
-                        'price' => number_format($findUser->price, 0, ',', '.'),
-                        'total_price' => number_format($findUser->price, 0, ',', '.'),
-                        'voucher_price' => number_format(0, 0, ',', '.'),
-                    ];
-                    $pdf = Pdf::loadView('email.invoice-new', $data);
-                    Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
-                        $message->from(env('EMAIL_SENDER'));
-                        $message->to($findUser->email);
-                        $message->subject('Thank you for payment - The 53rd Djakarta Mining Club Networking Event');
-                        $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
-                    });
+                if ($payment_method == 'CREDIT_CARD') {
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Payment status is updated';
-                } elseif (in_array($status, ['ACTIVE'])) {
-                    // $check->status_registration = "Expired";
-                    // $check->link = null;
-                    $res['api_status'] = 1;
-                    $res['api_message'] = 'FVA ACTIVE';
+                } else {
+
+                    if (in_array($status, ['PAID'])) {
+                        $check->status = "Paid Off";
+                        $check->payment_method = $payment_method;
+                        $check->link = null;
+
+                        $findUser = Payment::where('code_payment', $external_id)
+                            ->join('xtwp_users_dmc as a', 'a.id', 'payment.member_id')
+                            ->first();
+
+                        $data = [
+                            'users_name' => $findUser->name,
+                            'users_email' => $findUser->email,
+                            'phone' => $findUser->phone,
+                            'company_name' => $findUser->company_name,
+                            'company_address' => $findUser->address,
+                            'status' => 'Paid Off',
+                            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
+                            'code_payment' => $findUser->code_payment,
+                            'create_date' => date('d, M Y H:i'),
+                            'package_name' => $findUser->package,
+                            'price' => number_format($findUser->price, 0, ',', '.'),
+                            'total_price' => number_format($findUser->price, 0, ',', '.'),
+                            'voucher_price' => number_format(0, 0, ',', '.'),
+                        ];
+                        $pdf = Pdf::loadView('email.invoice-new', $data);
+                        Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
+                            $message->from(env('EMAIL_SENDER'));
+                            $message->to($findUser->email);
+                            $message->subject('Thank you for payment - The 53rd Djakarta Mining Club Networking Event');
+                            $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
+                        });
+                        $res['api_status'] = 1;
+                        $res['api_message'] = 'Payment status is updated';
+                    } elseif (in_array($status, ['ACTIVE'])) {
+                        // $check->status_registration = "Expired";
+                        // $check->link = null;
+                        $res['api_status'] = 1;
+                        $res['api_message'] = 'FVA ACTIVE';
+                    }
+                    $check->save();
                 }
-                $check->save();
             } else {
                 $res['api_status'] = 0;
                 $res['api_message'] = 'Payment is not Found';
             }
+
             return response()->json($res, 200);
         } catch (\Exception $msg) {
             $res['api_status'] = 0;
