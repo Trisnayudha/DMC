@@ -69,4 +69,47 @@ class EventController extends Controller
         }
         return response()->json($response);
     }
+
+    public function myEvent(Request $request)
+    {
+        $id =  auth('sanctum')->user()->id;
+        $filter = $request->filter;
+        $limit = $request->limit;
+        $date = date('Y-m-d');
+        $findMyEvent = UserRegister::where('users_id', $id)->first();
+        if (!empty($findMyEvent)) {
+            $findDetail = UserRegister::join('events', 'events.id', 'users_event.events_id')
+                ->join('payment', 'payment.id', 'users_event.payment_id')
+                ->where(function ($q) use ($filter, $date) {
+                    if ($filter == 'active') {
+                        $q->where('events.end_date', '>=', $date);
+                    } else {
+                        $q->where('events.end_date', '<', $date);
+                    }
+                })
+                ->where('users_event.users_id', '=', $id)
+                ->select(
+                    'events.id as events_id',
+                    'events.name as event_name',
+                    'events.start_date',
+                    'events.location',
+                    'events.start_time',
+                    'events.image',
+                    'payment.code_payment',
+                    'payment.qr_code',
+                    'payment.status_registration'
+                )
+                ->paginate($limit);
+
+
+            $response['status'] = 200;
+            $response['message'] = 'Success';
+            $response['payload'] = $findDetail;
+        } else {
+            $response['status'] = 404;
+            $response['message'] = 'Event Not Found';
+            $response['payload'] = null;
+        }
+        return response()->json($response);
+    }
 }

@@ -67,6 +67,9 @@ class XenditCallbackController extends Controller
             $check = Payment::where('code_payment', '=', $external_id)->first();
             if (!empty($check)) {
                 if ($payment_method == 'CREDIT_CARD') {
+                    $check->status_registration = "Paid Off";
+                    $check->payment_method = $payment_method;
+                    $check->link = null;
                     $UserEvent = new UserRegister();
                     $UserEvent->users_id = $check->member_id;
                     $UserEvent->events_id = $check->events_id;
@@ -81,7 +84,7 @@ class XenditCallbackController extends Controller
                 } else {
 
                     if (in_array($status, ['PAID'])) {
-                        $check->status = "Paid Off";
+                        $check->status_registration = "Paid Off";
                         $check->payment_method = $payment_method;
                         $check->link = null;
 
@@ -118,9 +121,15 @@ class XenditCallbackController extends Controller
                         // $check->link = null;
                         $res['api_status'] = 1;
                         $res['api_message'] = 'FVA ACTIVE';
+                    } else {
+                        $check->status_registration = "Expired";
+                        $check->payment_method = $payment_method;
+                        $check->link = null;
+                        $res['api_status'] = 1;
+                        $res['api_message'] = 'Expired';
                     }
-                    $check->save();
                 }
+                $check->save();
             } else {
                 $res['api_status'] = 0;
                 $res['api_message'] = 'Payment is not Found';
