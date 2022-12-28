@@ -89,7 +89,7 @@ class EventController extends Controller
                 })
                 ->where('users_event.users_id', '=', $id)
                 ->select(
-                    'events.id as events_id',
+                    'events.id',
                     'events.name as event_name',
                     'events.start_date',
                     'events.location',
