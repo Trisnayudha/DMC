@@ -178,7 +178,7 @@ class PaymentController extends Controller
                 $save->events_id = $events_id;
                 $save->status_registration = ($type == 'free' ? 'Free' : 'Waiting');
                 $save->qr_code = $db;
-                $save->save();
+
                 // init xendit
                 $isProd = env('XENDIT_ISPROD');
                 if ($isProd) {
@@ -197,7 +197,24 @@ class PaymentController extends Controller
                     'failure_redirect_url' => url('/'),
                 ];
                 $createInvoice = Invoice::create($params);
-                // $linkPay = $createInvoice['invoice_url'];
+
+                $linkPay = $createInvoice['invoice_url'];
+                $save->link = $linkPay;
+                $save->save();
+                $save_va = new PaymentUsersVA();
+                $save_va->payment_id = $save->id;
+                $save_va->is_closed = 0;
+                $save_va->status = "PENDING";
+                // $save_va->currency = $createInvoice['currency'];
+                // $save_va->country = $createVA['country'];
+                $save_va->owner_id = $createInvoice['user_id'];
+                $save_va->bank_code = 'CREDIT_CARD';
+                // $save_va->merchant_code = $createInvoice['merchant_code'];
+                // $save_va->account_number = $createInvoice['account_number'];
+                $save_va->expected_amount = $createInvoice['amount'];
+                $save_va->expiration_date = $createInvoice['expiry_date'];
+                $save_va->is_single_use = 0;
+                $save_va->save();
                 $response['status'] = 200;
                 $response['message'] = 'success';
                 $response['payload'] = $createInvoice ? $createInvoice : null;

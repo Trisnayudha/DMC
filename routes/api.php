@@ -61,6 +61,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('/payment', [PaymentController::class, 'payment']);
 
     Route::post('/events/myEvent', [EventController::class, 'myEvent']);
+    Route::post('/events/waitingPay', [EventController::class, 'waitingPay']);
+    Route::post('/detail/payment', [EventController::class, 'detailPayment']);
 });
 Route::post('/news/category', [NewsCategoryController::class, 'index']);
 Route::post('/news', [NewsController::class, 'ListAll']);

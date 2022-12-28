@@ -99,6 +99,7 @@ class EventController extends Controller
                     'payment.qr_code',
                     'payment.status_registration'
                 )
+                ->orderBy('payment.id', 'desc')
                 ->paginate($limit);
 
 
@@ -108,6 +109,51 @@ class EventController extends Controller
         } else {
             $response['status'] = 404;
             $response['message'] = 'Event Not Found';
+            $response['payload'] = null;
+        }
+        return response()->json($response);
+    }
+
+    public function waitingPay()
+    {
+        $id =  auth('sanctum')->user()->id;
+
+        $findWaiting = Payment::where('member_id', $id)->where('status_registration', '=', 'Waiting')->first();
+
+        if (!empty($findWaiting)) {
+            $findDetail = Payment::where('member_id', $id)->where('status_registration', '=', 'Waiting')
+                ->join('payment_users_va', 'payment_users_va.payment_id', 'payment.id')
+                ->orderBy('payment.id', 'desc')
+                ->get();
+
+            $response['status'] = 200;
+            $response['message'] = 'Success';
+            $response['payload'] = $findDetail;
+        } else {
+            $response['status'] = 404;
+            $response['message'] = 'Payment Not Found';
+            $response['payload'] = null;
+        }
+        return response()->json($response);
+    }
+
+    public function detailPayment(Request $request)
+    {
+        $payment_id = $request->payment_id;
+
+        $findPayment = Payment::where('payment.id', $payment_id)->first();
+
+        if (!empty($findPayment)) {
+            $findDetail = Payment::where('payment.id', $payment_id)
+                ->join('payment_users_va', 'payment_users_va.payment_id', 'payment.id')
+                ->first();
+
+            $response['status'] = 200;
+            $response['message'] = 'Success';
+            $response['payload'] = $findDetail;
+        } else {
+            $response['status'] = 404;
+            $response['message'] = 'Payment Not Found';
             $response['payload'] = null;
         }
         return response()->json($response);
