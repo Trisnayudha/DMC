@@ -11,10 +11,10 @@ class PaymentUsersVA extends Model
     use HasFactory;
     protected $table = 'payment_users_va';
     protected $casts = [
+        'payment_id' => 'int',
         'merchant_code' => 'int',
         'account_number' => 'int',
-        'expected_amount' => 'int',
-        'payment_id' => 'int'
+        'expected_amount' => 'int'
     ];
     protected $fillable = [
         'payment_id',
