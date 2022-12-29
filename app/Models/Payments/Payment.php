@@ -10,6 +10,12 @@ class Payment extends Model
 {
     use HasFactory;
     protected $table = 'payment';
+    protected $casts = [
+        'id' => 'int',
+        'member_id' => 'int',
+        'events_id' => 'int',
+        'tickets_id' => 'int'
+    ];
     protected $fillable = [
         'member_id',
         'package',
