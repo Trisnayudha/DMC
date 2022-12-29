@@ -13,7 +13,8 @@ class PaymentUsersVA extends Model
     protected $casts = [
         'merchant_code' => 'int',
         'account_number' => 'int',
-        'expected_amount' => 'int'
+        'expected_amount' => 'int',
+        'payment_id' => 'int'
     ];
     protected $fillable = [
         'payment_id',
