@@ -206,7 +206,7 @@ class PaymentController extends Controller
                 $save_va->is_closed = 0;
                 $save_va->status = "PENDING";
                 // $save_va->currency = $createInvoice['currency'];
-                // $save_va->country = $createVA['country'];
+                $save_va->country = 'IDR';
                 $save_va->owner_id = $createInvoice['user_id'];
                 $save_va->bank_code = 'CREDIT_CARD';
                 // $save_va->merchant_code = $createInvoice['merchant_code'];
