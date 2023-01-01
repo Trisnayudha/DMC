@@ -107,9 +107,9 @@ class EventController extends Controller
             $response['message'] = 'Success';
             $response['payload'] = $findDetail;
         } else {
-            $response['status'] = 404;
+            $response['status'] = 200;
             $response['message'] = 'Event Not Found';
-            $response['payload'] = null;
+            $response['payload'] = [];
         }
         return response()->json($response);
     }
@@ -123,6 +123,7 @@ class EventController extends Controller
         if (!empty($findWaiting)) {
             $findDetail = Payment::where('member_id', $id)->where('status_registration', '=', 'Waiting')
                 ->join('payment_users_va', 'payment_users_va.payment_id', 'payment.id')
+                ->join('events', 'events.id', 'payment.events_id')
                 ->orderBy('payment.id', 'desc')
                 ->get();
 
@@ -130,9 +131,9 @@ class EventController extends Controller
             $response['message'] = 'Success';
             $response['payload'] = $findDetail;
         } else {
-            $response['status'] = 404;
+            $response['status'] = 200;
             $response['message'] = 'Payment Not Found';
-            $response['payload'] = null;
+            $response['payload'] = [];
         }
         return response()->json($response);
     }
