@@ -38,6 +38,10 @@ Route::get('/privacy', function () {
     return view('privacy-policy');
 });
 
+Route::get('/term', function () {
+    return view('term-condition');
+});
+
 Route::get('/register-event', [EventController::class, 'view2']);
 // Route::get('/register-event/free', [EventController::class, 'view2']);
 // Route::get('/register-event/sponsor', [EventController::class, 'sponsor']);

@@ -3,9 +3,11 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventsCategoryController;
+use App\Http\Controllers\API\FaqController;
 use App\Http\Controllers\API\HomeController;
 use App\Http\Controllers\API\NewsCategoryController;
 use App\Http\Controllers\API\NewsController;
+use App\Http\Controllers\API\NotifController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VideosContorller;
@@ -77,3 +79,7 @@ Route::post('/list-payment', [PaymentController::class, 'listbank']);
 Route::post('/carosel', [HomeController::class, 'index']);
 
 Route::post('/videos_highlight', [VideosContorller::class, 'index']);
+
+Route::post('/faq', [FaqController::class, 'index']);
+
+Route::post('/notif', [NotifController::class, 'index']);
