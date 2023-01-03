@@ -12,6 +12,7 @@ use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VideosContorller;
 use App\Http\Controllers\Callback\XenditCallbackController;
+use App\Http\Controllers\API\ContactUsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -65,6 +66,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('/events/myEvent', [EventController::class, 'myEvent']);
     Route::post('/events/waitingPay', [EventController::class, 'waitingPay']);
     Route::post('/detail/payment', [EventController::class, 'detailPayment']);
+
+    Route::post('/contact_us', [ContactUsController::class, 'index']);
 });
 Route::post('/news/category', [NewsCategoryController::class, 'index']);
 Route::post('/news', [NewsController::class, 'ListAll']);
