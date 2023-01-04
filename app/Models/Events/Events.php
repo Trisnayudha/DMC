@@ -21,6 +21,7 @@ class Events extends Model
         'event_category_id',
         'slug',
         'status',
-        'type'
+        'type',
+        'maps'
     ];
 }

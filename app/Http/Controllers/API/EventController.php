@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
+use App\Models\Events\EventsSpeakers;
 use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
@@ -40,23 +41,45 @@ class EventController extends Controller
     {
         $id =  auth('sanctum')->user()->id;
         $findEvent = RepositoriesEvents::findEvent($slug);
-        $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
-        $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->get();
-        $findUser = UserRegister::where('users_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
-        $findPayment = Payment::where('member_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
-        $listUser = [
-            'already_register' => $findUser ? true : false,
-            'waiting_payment' => $findPayment ? ($findPayment->status_registration == 'Waiting' ? true : false) : false
-        ];
-        foreach ($findTicket as $val => $key) {
-            $key->price_rupiah = $key->type == 'free' ? 0 : $key->price_rupiah;
-            $key->price_dollar = $key->type == 'free' ? 0 : $key->price_dollar;
-        }
+
         if (!empty($findEvent)) {
+            $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
+            $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->get();
+            $findUser = UserRegister::where('users_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
+            $checkMember = UserRegister::join('payment', 'users_event.payment_id', 'payment.id')
+                ->where('users_event.users_id', '=', $id)
+                ->where('users_event.events_id', '=', $findEvent->id)
+                ->where('payment.package', '=', 'Platinum++')
+                ->first();
+            $findPayment = Payment::where('member_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
+            $findSpeakers = EventsSpeakers::where('events_id', $findEvent->id)
+                ->join('users', 'users.id', 'events_speakers.users_id')
+                ->join('profiles', 'profiles.users_id', 'users.id')
+                ->join('company', 'company.id', 'profiles.company_id')
+                ->select('users.id', 'users.name', 'profiles.image', 'company.company_name', 'profiles.job_title')
+                ->get();
+
+            $findParticipant = UserRegister::where('events_id', $findEvent->id)
+                ->join('users', 'users.id', 'users_event.users_id')
+                ->join('profiles', 'profiles.users_id', 'users.id')
+                ->join('company', 'company.id', 'profiles.company_id')
+                ->select('users.id', 'users.name', 'profiles.image', 'company.company_name', 'profiles.job_title')
+                ->get();
+            $listUser = [
+                'already_register' => $findUser ? true : false,
+                'waiting_payment' => $findPayment ? ($findPayment->status_registration == 'Waiting' ? true : false) : false,
+                'view_participant' => $checkMember ? true : false
+            ];
+            foreach ($findTicket as $val => $key) {
+                $key->price_rupiah = $key->type == 'free' ? 0 : $key->price_rupiah;
+                $key->price_dollar = $key->type == 'free' ? 0 : $key->price_dollar;
+            }
             $data = [
                 'detail' => $findEvent,
                 'ticket' => $findTicket,
                 'users' => $listUser,
+                'speakers' => $findSpeakers,
+                'participants' => $findParticipant
             ];
 
             $response['status'] = 200;
