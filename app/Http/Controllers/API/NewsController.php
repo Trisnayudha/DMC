@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\News\News;
+use App\Models\News\NewsBookmark;
 use App\Repositories\News as RepositoriesNews;
 use Illuminate\Http\Request;
 
@@ -13,6 +14,7 @@ class NewsController extends Controller
     {
         $this->service = $service;
     }
+
     public function index(Request $request)
     {
         $banner = RepositoriesNews::listAll();
@@ -50,6 +52,28 @@ class NewsController extends Controller
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = $detail;
+        return response()->json($response);
+    }
+
+    public function bookmark(Request $request)
+    {
+        $id =  auth('sanctum')->user()->id;
+        $news_id = $request->news_id;
+
+        $post = NewsBookmark::insert([
+            'users_id' => $id,
+            'news_id' => $news_id
+        ]);
+        if ($post) {
+
+            $response['status'] = 200;
+            $response['message'] = 'Success Bookmark News';
+            $response['payload'] = null;
+        } else {
+            $response['status'] = 404;
+            $response['message'] = 'Failed Bookmark News';
+            $response['payload'] = null;
+        }
         return response()->json($response);
     }
 }
