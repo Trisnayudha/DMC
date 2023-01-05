@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
+use App\Models\Events\EventsPresent;
 use App\Models\Events\EventsSpeakers;
 use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
@@ -120,12 +121,15 @@ class EventController extends Controller
                     'events.image',
                     'payment.code_payment',
                     'payment.qr_code',
-                    'payment.status_registration'
+                    'payment.status_registration',
+                    'payment.package as present',
+                    'users_event.present'
                 )
                 ->orderBy('payment.id', 'desc')
                 ->paginate($limit);
-
-
+            foreach ($findDetail as $val => $key) {
+                $key->present = $key->present == 1 ? true : false;
+            }
             $response['status'] = 200;
             $response['message'] = 'Success';
             $response['payload'] = $findDetail;

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddMapsToEvents extends Migration
+class CreateUsersPresentEvent extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddMapsToEvents extends Migration
      */
     public function up()
     {
-        Schema::table('events', function (Blueprint $table) {
-            $table->text('maps')->nullable();
+        Schema::create('users_present_event', function (Blueprint $table) {
+            $table->id();
+            $table->integer('users_id')->nullable();
+            $table->integer('events_id')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddMapsToEvents extends Migration
      */
     public function down()
     {
-        Schema::table('events', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('users_present_event');
     }
 }

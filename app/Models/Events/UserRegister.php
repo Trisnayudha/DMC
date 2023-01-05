@@ -12,6 +12,7 @@ class UserRegister extends Model
     protected $fillable = [
         'users_id',
         'events_id',
-        'payment_id'
+        'payment_id',
+        'present'
     ];
 }
