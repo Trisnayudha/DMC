@@ -51,7 +51,10 @@ class NewsController extends Controller
         $id =  auth('sanctum')->user()->id;
         $detail = News::where('slug', '=', $slug)->first();
         $findLike = NewsLike::where('users_id', '=', $id)->where('news_id', '=', $detail->id)->first();
-        $findComment = NewsComment::where('news_id', '=', $detail->id)->paginate($limit);
+        $findComment = NewsComment::where('news_id', '=', $detail->id)
+            ->join('users', 'news_comment.users_id', 'users.id')
+            ->select('users.id', 'users.name', 'news_comment.comment', 'news_comment.created_at')
+            ->paginate($limit);
         // dd($detail);
         $detail->date_news = date('d, M Y H:i', strtotime($detail->date_news));
         $detail->like = $findLike ? true : false;

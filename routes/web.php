@@ -9,6 +9,7 @@ use App\Http\Controllers\NewsCategoryController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VideosController;
 use App\Models\Payments\Payment;
 use Illuminate\Support\Facades\Auth;
@@ -94,3 +95,6 @@ Route::get('videos', [VideosController::class, 'index'])->name('videos');
 Route::post('videos/addcategory', [VideosController::class, 'store']);
 Route::post('videos/editcategory', [VideosController::class, 'edit']);
 Route::post('videos/deletecategory', [VideosController::class, 'destroy']);
+
+Route::get('/admin/users', [UsersController::class, 'index'])->name('users');
+Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
