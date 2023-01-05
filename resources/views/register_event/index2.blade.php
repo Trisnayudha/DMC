@@ -125,10 +125,10 @@
 
                 <div class="col-9">
                     <p>
-                        : Wednesday – November 30, 2022
+                        : Thursday - 26 January 2023
                     </p>
-                    <p>: 2.00 - 6.00pm </p>
-                    <p>: The Dharmawangsa Hotel Jakarta, Indonesia</p>
+                    <p>: 04.00 pm - 07.00 pm (Jakarta Time) </p>
+                    <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
 
                 </div>
                 <br>
@@ -136,7 +136,7 @@
                     <p>Topic</p>
                 </div>
                 <div class="col-9">
-                    <p>: Energy Market Briefing 2022</p>
+                    <p>: Mineral Trends 2023</p>
                 </div>
             </div>
             <br>
@@ -334,7 +334,7 @@
                         </div>
                         <hr class="my-4">
                         <input type="hidden" name="paymentMethod" id="paymentMethod" value="free">
-                        {{-- <div class="my-3">
+                        <div class="my-3">
                             <div class="form-check">
                                 <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
                                     checked required value="member">
@@ -347,7 +347,7 @@
                             </div>
                         </div>
 
-                        <hr class="my-4"> --}}
+                        <hr class="my-4">
 
                         <button class="w-80 btn btn-primary btn-lg" type="submit">Register Event</button>
                     </form>
