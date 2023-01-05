@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\Notification;
 use App\Http\Controllers\Controller;
 use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
@@ -90,6 +91,10 @@ class PaymentController extends Controller
                 $saveUser->users_id = $id;
                 $saveUser->payment_id = $save->id;
                 $saveUser->save();
+                $notif = new Notification();
+                $notif->id = $id;
+                $notif->message = 'Register events successfully';
+                $notif->NotifApp();
             } else {
                 // init xendit
                 $isProd = env('XENDIT_ISPROD');
@@ -126,6 +131,10 @@ class PaymentController extends Controller
                 $save_va->expiration_date = $createVA['expiration_date'];
                 $save_va->is_single_use = $createVA['is_single_use'];
                 $save_va->save();
+                $notif = new Notification();
+                $notif->id = $id;
+                $notif->message = 'Invoice ' . $codePayment . ' created succesfully';
+                $notif->NotifApp();
             }
             $response['status'] = 200;
             $response['message'] = 'success';
@@ -215,6 +224,10 @@ class PaymentController extends Controller
                 $save_va->expiration_date = $createInvoice['expiry_date'];
                 $save_va->is_single_use = 0;
                 $save_va->save();
+                $notif = new Notification();
+                $notif->id = $id;
+                $notif->message = 'Invoice ' . $codePayment . ' created succesfully';
+                $notif->NotifApp();
                 $response['status'] = 200;
                 $response['message'] = 'success';
                 $response['payload'] = $createInvoice ? $createInvoice : null;

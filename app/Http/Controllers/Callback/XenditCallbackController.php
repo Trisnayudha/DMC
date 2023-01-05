@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Callback;
 
 use App\Helpers\EmailSender;
+use App\Helpers\Notification;
 use App\Helpers\WhatsappApi;
 use App\Helpers\XenditInvoice;
 use Illuminate\Http\Request;
@@ -114,6 +115,10 @@ class XenditCallbackController extends Controller
                             $message->subject('Thank you for payment - The 53rd Djakarta Mining Club Networking Event');
                             $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                         });
+                        $notif = new Notification();
+                        $notif->id = $check->member_id;
+                        $notif->message = 'Payment successfully';
+                        $notif->NotifApp();
                         $res['api_status'] = 1;
                         $res['api_message'] = 'Payment status is updated';
                     } elseif (in_array($status, ['ACTIVE'])) {
@@ -178,6 +183,10 @@ class XenditCallbackController extends Controller
                 $send->phone = '083829314436';
                 $send->message = 'Succes Fully Payment';
                 $send->WhatsappMessage();
+                $notif = new Notification();
+                $notif->id = $findPayment->member_id;
+                $notif->message = 'Payment successfully';
+                $notif->NotifApp();
                 $res['api_status'] = 1;
                 $res['api_message'] = $external_id;
             } else {
