@@ -51,13 +51,16 @@ class NewsController extends Controller
         $id =  auth('sanctum')->user()->id;
         $detail = News::where('slug', '=', $slug)->first();
         $findLike = NewsLike::where('users_id', '=', $id)->where('news_id', '=', $detail->id)->first();
+        $findBookmark = NewsBookmark::where('users_id', '=', $id)->where('news_id', '=', $detail->id)->first();
         $findComment = NewsComment::where('news_id', '=', $detail->id)
             ->join('users', 'news_comment.users_id', 'users.id')
-            ->select('users.id', 'users.name', 'news_comment.comment', 'news_comment.created_at')
+            ->leftjoin('profiles', 'profiles.users_id', 'users.id')
+            ->select('users.id', 'users.name', 'news_comment.comment', 'news_comment.created_at', 'profiles.image')
+            ->orderBy('news_comment.id', 'desc')
             ->paginate($limit);
-        // dd($detail);
         $detail->date_news = date('d, M Y H:i', strtotime($detail->date_news));
         $detail->like = $findLike ? true : false;
+        $detail->bookmark = $findBookmark ? true : false;
         $insert = NewsViews::create([
             'users_id' => $id,
             'news_id' => $detail->id
@@ -77,18 +80,19 @@ class NewsController extends Controller
         $id =  auth('sanctum')->user()->id;
         $news_id = $request->news_id;
 
-        $post = NewsBookmark::create([
-            'users_id' => $id,
-            'news_id' => $news_id
-        ]);
-        if ($post) {
-
+        $findlike = NewsBookmark::where('users_id', '=', $id)->where('news_id', '=', $news_id)->first();
+        if ($findlike) {
+            NewsBookmark::where('users_id', '=', $id)->where('news_id', '=', $news_id)->delete();
             $response['status'] = 200;
-            $response['message'] = 'Success Bookmark News';
+            $response['message'] = 'Remove Bookmark';
             $response['payload'] = null;
         } else {
-            $response['status'] = 404;
-            $response['message'] = 'Failed Bookmark News';
+            $post = NewsBookmark::create([
+                'users_id' => $id,
+                'news_id' => $news_id
+            ]);
+            $response['status'] = 200;
+            $response['message'] = 'Add Bookmark';
             $response['payload'] = null;
         }
         return response()->json($response);
