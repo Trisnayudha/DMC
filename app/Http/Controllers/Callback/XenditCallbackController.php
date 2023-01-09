@@ -83,8 +83,8 @@ class XenditCallbackController extends Controller
                     'code_payment' => $findUser->code_payment,
                     'create_date' => date('d, M Y H:i'),
                     'package_name' => $findUser->package,
-                    'price' => number_format($findUser->price_rupiah, 0, ',', '.'),
-                    'total_price' => number_format($findUser->price_rupiah, 0, ',', '.'),
+                    'price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                    'total_price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
                     'voucher_price' => number_format(0, 0, ',', '.'),
                 ];
 
