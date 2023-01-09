@@ -67,6 +67,26 @@ class XenditCallbackController extends Controller
 
             $check = Payment::where('code_payment', '=', $external_id)->first();
             if (!empty($check)) {
+                $findUser = Payment::where('code_payment', $external_id)
+                    ->join('users as a', 'a.id', 'payment.member_id')
+                    ->first();
+
+                $data = [
+                    'users_name' => $findUser->name,
+                    'users_email' => $findUser->email,
+                    'phone' => $findUser->phone,
+                    'company_name' => $findUser->company_name,
+                    'company_address' => $findUser->address,
+                    'status' => 'Paid Off',
+                    'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
+                    'code_payment' => $findUser->code_payment,
+                    'create_date' => date('d, M Y H:i'),
+                    'package_name' => $findUser->package,
+                    'price' => number_format($findUser->price, 0, ',', '.'),
+                    'total_price' => number_format($findUser->price, 0, ',', '.'),
+                    'voucher_price' => number_format(0, 0, ',', '.'),
+                ];
+
                 if ($payment_method == 'CREDIT_CARD') {
                     $check->status_registration = "Paid Off";
                     $check->payment_method = $payment_method;
@@ -76,6 +96,15 @@ class XenditCallbackController extends Controller
                     $UserEvent->events_id = $check->events_id;
                     $UserEvent->payment_id = $check->id;
                     $UserEvent->save();
+
+                    $pdf = Pdf::loadView('email.invoice-new', $data);
+                    Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
+                        $message->from(env('EMAIL_SENDER'));
+                        $message->to($findUser->email);
+                        $message->subject('Thank you for payment - The 53rd Djakarta Mining Club Networking Event');
+                        $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
+                    });
+
                     $send = new WhatsappApi();
                     $send->phone = '083829314436';
                     $send->message = 'Succes Fully Paymen Apps';
@@ -89,25 +118,6 @@ class XenditCallbackController extends Controller
                         $check->payment_method = $payment_method;
                         $check->link = null;
 
-                        $findUser = Payment::where('code_payment', $external_id)
-                            ->join('users as a', 'a.id', 'payment.member_id')
-                            ->first();
-
-                        $data = [
-                            'users_name' => $findUser->name,
-                            'users_email' => $findUser->email,
-                            'phone' => $findUser->phone,
-                            'company_name' => $findUser->company_name,
-                            'company_address' => $findUser->address,
-                            'status' => 'Paid Off',
-                            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
-                            'code_payment' => $findUser->code_payment,
-                            'create_date' => date('d, M Y H:i'),
-                            'package_name' => $findUser->package,
-                            'price' => number_format($findUser->price, 0, ',', '.'),
-                            'total_price' => number_format($findUser->price, 0, ',', '.'),
-                            'voucher_price' => number_format(0, 0, ',', '.'),
-                        ];
                         $pdf = Pdf::loadView('email.invoice-new', $data);
                         Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
                             $message->from(env('EMAIL_SENDER'));
