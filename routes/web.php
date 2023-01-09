@@ -48,7 +48,7 @@ Route::get('/register-event', [EventController::class, 'view2']);
 // Route::get('/register-event/sponsor', [EventController::class, 'sponsor']);
 Route::post('/regis-sponsor', [EventController::class, 'register_sponsor']);
 Route::post('/payment-personal', [EventController::class, 'payment_personal']);
-
+Route::post('/register/email', [UsersController::class, 'check_email']);
 Auth::routes([
     'register' => false, // Registration Routes...
     'reset' => false, // Password Reset Routes...

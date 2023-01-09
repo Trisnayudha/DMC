@@ -81,4 +81,17 @@ class UsersController extends Controller
             return back()->withErrors('There was a problem uploading the data!');
         }
     }
+
+    public function check_email(Request $request)
+    {
+        $email = $request->email;
+
+        $check = User::where('email', '=', $email)->first();
+        if ($check) {
+            $res['status'] = 1;
+        } else {
+            $res['status'] = 0;
+        }
+        return response()->json($res);
+    }
 }

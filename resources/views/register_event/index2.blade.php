@@ -102,8 +102,8 @@
     <div class="container">
         <main>
             <div class="py-2 text-center">
-                <img style="border-radius: 15px; margin-bottom: 19px " src="{{ asset('image/logo-dmc-cci.png') }}"
-                    class="img-fluid" alt="">
+                <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
+                    src="{{ asset('image/dmc.png') }}" class="img-fluid" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
                 {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
@@ -233,7 +233,7 @@
                             <div class="col-sm-6">
                                 <label for="email" class="form-label">Email Address * <span
                                         class="text-muted"></span></label>
-                                <input type="email" class="form-control" name="email"
+                                <input type="email" class="form-control" name="email" id="email"
                                     placeholder="Your work email" required value="{{ old('email') }}">
                                 <div class="invalid-feedback">
                                     Please enter a valid email address.
@@ -333,19 +333,7 @@
 
                         </div>
                         <hr class="my-4">
-                        <input type="hidden" name="paymentMethod" id="paymentMethod" value="free">
-                        <div class="my-3">
-                            <div class="form-check">
-                                <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
-                                    checked required value="member">
-                                <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
-                            </div>
-                            <div class="form-check">
-                                <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-                                    required value="nonmember">
-                                <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
-                            </div>
-                        </div>
+                        <div class="customer"></div>
 
                         <hr class="my-4">
 
@@ -373,6 +361,20 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"
+        integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.js"
+        integrity="sha512-nO7wgHUoWPYGCNriyGzcFwPSF+bPDOR+NvtOYy2wMcWkrnCNPKBcFEkU80XIN14UVja0Gdnff9EmydyLlOL7mQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.slim.js"
+        integrity="sha512-M3zrhxXOYQaeBJYLBv7DsKg2BWwSubf6htVyjSkjc9kPqx7Se98+q1oYyBJn2JZXzMaZvUkB8QzKAmeVfzj9ug=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.slim.min.js"
+        integrity="sha512-jxwTCbLJmXPnV277CvAjAcWAjURzpephk0f0nO2lwsvcoDMqBdy1rh1jEwWWTabX1+Grdmj9GFAgtN22zrV0KQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
     <script>
         $(document).ready(function() {
             $('.js-example-basic-single').select2();
@@ -455,6 +457,55 @@
             // separateDialCode: true,
             initialCountry: "id",
 
+        });
+        $(document).ready(function() {
+            $('#email').change(function() {
+                var email = $("#email").val();
+                console.log(email);
+                var listErrorPrefixs = $("#listStringPrefix").val();
+                var member = ``
+                var nonmember = ` `
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ url('/register/email') }}',
+                    headers: {
+                        'X-CSRF-Token': '{{ csrf_token() }}',
+                    },
+                    data: 'email=' + email,
+                    success: function(msg) {
+                        console.log(msg)
+                        if (msg.status == 1) {
+                            // Mendapatkan elemen yang akan dihapus
+
+                            $(".customer").append(
+                                `  <div class="form-check member">
+                                <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
+                                    checked required value="member">
+                                <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
+                            </div>`
+                            );
+                        } else {
+                            $(".customer").append(
+                                `  <div class="form-check non-member">
+                                <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
+                                    checked required value="nonmember">
+                                <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
+                            </div>`
+                            );
+                        }
+                        // if (msg == 'found same') {
+                        //     swal("Warning", "Email (" + email +
+                        //         ") is Already Registered", "warning");
+                        //     $("#email").val("");
+                        // } else if (msg == 'error prefix') {
+                        //     swal("Warning",
+                        //         "Sorry you can't use email, which is affiliated " +
+                        //         listErrorPrefixs, "warning");
+                        //     $("#email").val("");
+                        // }
+                    }
+                });
+            });
         });
     </script>
 </body>
