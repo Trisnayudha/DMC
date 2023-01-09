@@ -8,6 +8,7 @@ use App\Helpers\WhatsappApi;
 use App\Helpers\XenditInvoice;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Payments\PaymentUsersVA;
@@ -70,7 +71,7 @@ class XenditCallbackController extends Controller
                 $findUser = Payment::where('code_payment', $external_id)
                     ->join('users as a', 'a.id', 'payment.member_id')
                     ->first();
-
+                $findTicket = EventsTicket::where('id', '=', $findUser->tickets_id)->first();
                 $data = [
                     'users_name' => $findUser->name,
                     'users_email' => $findUser->email,
@@ -78,12 +79,12 @@ class XenditCallbackController extends Controller
                     'company_name' => $findUser->company_name,
                     'company_address' => $findUser->address,
                     'status' => 'Paid Off',
-                    'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
+                    'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
                     'code_payment' => $findUser->code_payment,
                     'create_date' => date('d, M Y H:i'),
                     'package_name' => $findUser->package,
-                    'price' => number_format($findUser->price, 0, ',', '.'),
-                    'total_price' => number_format($findUser->price, 0, ',', '.'),
+                    'price' => number_format($findUser->price_rupiah, 0, ',', '.'),
+                    'total_price' => number_format($findUser->price_rupiah, 0, ',', '.'),
                     'voucher_price' => number_format(0, 0, ',', '.'),
                 ];
 

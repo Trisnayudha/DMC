@@ -136,22 +136,22 @@
                 <tr>
                     <th>Topic</th>
                     <th>:</th>
-                    <td>Energy Market Briefing 2022 </td>
+                    <td>Mineral Trends 2023 </td>
                 </tr>
                 <tr>
                     <th>Date</th>
                     <th>:</th>
-                    <td>Wednesday – November 30, 2022</td>
+                    <td>Thursday - 26 January 2023</td>
                 </tr>
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>2.00 - 6.00pm</td>
+                    <td>04.00 pm - 07.00 pm (Jakarta Time)/td>
                 </tr>
                 <tr>
                     <th>Venue</th>
                     <th>:</th>
-                    <td>The Dharmawangsa Hotel Jakarta, Indonesia</td>
+                    <td>Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</td>
                 </tr>
             </table>
             <br>
