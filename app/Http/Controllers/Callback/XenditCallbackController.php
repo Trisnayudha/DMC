@@ -90,7 +90,7 @@ class XenditCallbackController extends Controller
                         $check->link = null;
 
                         $findUser = Payment::where('code_payment', $external_id)
-                            ->join('xtwp_users_dmc as a', 'a.id', 'payment.member_id')
+                            ->join('users as a', 'a.id', 'payment.member_id')
                             ->first();
 
                         $data = [
