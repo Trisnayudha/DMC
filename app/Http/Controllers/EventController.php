@@ -116,7 +116,6 @@ class EventController extends Controller
         $company_category = $request->company_category;
         $company_other = $request->company_other;
         $paymentMethod = $request->paymentMethod;
-        dd($paymentMethod);
         $user = MemberModel::firstOrNew(
             ['email' =>  $email],
         );
