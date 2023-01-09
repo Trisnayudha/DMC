@@ -42,7 +42,7 @@ class UsersController extends Controller
                 $user->name = $sheet->getCell('B' . $row)->getValue();
                 $user->email = $sheet->getCell('E' . $row)->getValue();
                 $user->verify_phone = 'verified';
-                $user->password = Hash::make('DMCAPPS');
+                // $user->password = Hash::make('DMCAPPS');
                 $user->save();
                 $company = new CompanyModel();
                 $company->company_name = $sheet->getCell('A' . $row)->getValue();
@@ -55,7 +55,7 @@ class UsersController extends Controller
                 $company->full_office_number = $sheet->getCell('L' . $row)->getValue();
                 $company->save();
 
-                $profile = ProfileModel::firstOrNew(array('phone' => $sheet->getCell('D' . $row)->getValue()));
+                $profile = new ProfileModel();
                 $profile->fullphone = $sheet->getCell('D' . $row)->getValue();
                 $profile->job_title = $sheet->getCell('C' . $row)->getValue();
                 $profile->users_id = $user->id;

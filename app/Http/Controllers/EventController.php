@@ -116,7 +116,7 @@ class EventController extends Controller
         $company_category = $request->company_category;
         $company_other = $request->company_other;
         $paymentMethod = $request->paymentMethod;
-
+        dd($paymentMethod);
         $user = MemberModel::firstOrNew(
             ['email' =>  $email],
         );
@@ -205,6 +205,12 @@ class EventController extends Controller
                 $payment->status = 'Waiting';
                 $payment->link = $linkPay;
                 $payment->code_payment = $codePayment;
+                $payment->events_id = 1;
+                if ($paymentMethod == 'member') {
+                    $payment->tickets_id = 1;
+                } else if ($paymentMethod == 'nonmember') {
+                    $payment->tickets_id = 2;
+                }
             }
             $payment->save();
             if ($paymentMethod == 'free') {
