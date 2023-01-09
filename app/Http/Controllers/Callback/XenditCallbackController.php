@@ -78,7 +78,7 @@ class XenditCallbackController extends Controller
                     $UserEvent->save();
                     $send = new WhatsappApi();
                     $send->phone = '083829314436';
-                    $send->message = 'Succes Fully Payment';
+                    $send->message = 'Succes Fully Paymen Apps';
                     $send->WhatsappMessage();
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Payment status is updated';
@@ -117,7 +117,7 @@ class XenditCallbackController extends Controller
                         });
                         $notif = new Notification();
                         $notif->id = $check->member_id;
-                        $notif->message = 'Payment successfully';
+                        $notif->message = 'Payment successfully Web';
                         $notif->NotifApp();
                         $res['api_status'] = 1;
                         $res['api_message'] = 'Payment status is updated';
