@@ -461,7 +461,7 @@
         $(document).ready(function() {
             $('#email').change(function() {
                 var email = $("#email").val();
-                console.log(email);
+
                 var listErrorPrefixs = $("#listStringPrefix").val();
                 var member = ``
                 var nonmember = ` `
@@ -473,10 +473,11 @@
                     },
                     data: 'email=' + email,
                     success: function(msg) {
-                        console.log(msg)
+
                         if (msg.status == 1) {
                             // Mendapatkan elemen yang akan dihapus
-
+                            $('.member').remove();
+                            $('.non-member').remove();
                             $(".customer").append(
                                 `  <div class="form-check member">
                                 <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
@@ -485,6 +486,8 @@
                             </div>`
                             );
                         } else {
+                            $('.member').remove();
+                            $('.non-member').remove();
                             $(".customer").append(
                                 `  <div class="form-check non-member">
                                 <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
