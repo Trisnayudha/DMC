@@ -171,7 +171,7 @@ class EventController extends Controller
             $createInvoice = Invoice::create($params);
             $linkPay = $createInvoice['invoice_url'];
         }
-        $check = MemberModel::where('email', $email)->join('payment', 'payment.member_id', 'xtwp_users_dmc.id')->first();
+        $check = MemberModel::where('email', $email)->join('payment', 'payment.member_id', 'xtwp_users_dmc.id')->where('payment.events_id', '=', '1')->first();
 
         $data = [
             'code_payment' => $codePayment,
