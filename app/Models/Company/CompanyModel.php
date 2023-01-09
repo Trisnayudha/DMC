@@ -23,6 +23,7 @@ class CompanyModel extends Model
         'full_office_number',
         'country',
         'cci',
-        'explore'
+        'explore',
+        'users_id'
     ];
 }

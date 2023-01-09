@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\EmailSender;
+use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
 use App\Models\Events\EventsCategory;
 use App\Models\Events\EventsCategoryList;
 use App\Models\Events\UserRegister;
 use App\Models\MemberModel;
 use App\Models\Payments\Payment;
+use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
@@ -116,24 +119,37 @@ class EventController extends Controller
         $company_category = $request->company_category;
         $company_other = $request->company_other;
         $paymentMethod = $request->paymentMethod;
-        $user = MemberModel::firstOrNew(
+
+        $user = User::firstOrNew(
             ['email' =>  $email],
         );
-        $user->prefix = $prefix;
-        $user->phone = $phone;
-        $user->company_name = $company_name;
-        $user->job_title = $job_title;
         $user->name = $name;
-        $user->company_website = $company_website;
-        $user->company_other = $company_other;
-        $user->company_category = $company_category;
-        $user->address = $address;
-        $user->country = $country;
-        $user->city = $city;
-        $user->office_number = $office_number;
-        $user->portal_code = $portal_code;
-        $user->register_as = 'Events';
+        $user->email = $email;
         $user->save();
+
+        $company = CompanyModel::firstOrNew([
+            'users_id' => $user->id
+        ]);
+        $company->prefix = $prefix;
+        $company->company_name = $company_name;
+        $company->company_website = $company_website;
+        $company->company_category = $company_category;
+        $company->company_other = $company_other;
+        $company->address = $address;
+        $company->city = $city;
+        $company->portal_code = $portal_code;
+        $company->office_number = $office_number;
+        $company->country = $country;
+        $company->users_id = $user->id;
+        $company->save();
+        $profile = ProfileModel::firstOrNew([
+            'users_id' => $user->id
+        ]);
+        $profile->phone = $phone;
+        $profile->job_title = $job_title;
+        $profile->users_id = $user->id;
+        $profile->company_id = $company->id;
+        $profile->save();
 
         if ($paymentMethod == 'member') {
             $total_price = 900000;
@@ -171,7 +187,7 @@ class EventController extends Controller
             $createInvoice = Invoice::create($params);
             $linkPay = $createInvoice['invoice_url'];
         }
-        $check = MemberModel::where('email', $email)->join('payment', 'payment.member_id', 'xtwp_users_dmc.id')->where('payment.events_id', '=', '1')->first();
+        $check = Payment::where('events_id', '=', '1')->where('member_id', '=', $user->id)->first();
 
         $data = [
             'code_payment' => $codePayment,
@@ -183,7 +199,7 @@ class EventController extends Controller
             'company_name' => $company_name,
             'company_address' => $address,
             'status' => 'WAITING',
-            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
+            'events_name' => 'Mineral Trends 2023',
             'price' => number_format($total_price, 0, ',', '.'),
             'voucher_price' => 0,
             'total_price' => number_format($total_price, 0, ',', '.'),
@@ -194,14 +210,14 @@ class EventController extends Controller
             $payment = Payment::firstOrNew(['member_id' => $user->id]);
             if ($paymentMethod == 'free') {
                 $payment->package = $paymentMethod;
-                $payment->price = $total_price;
-                $payment->status = 'Waiting';
+                // $payment->price = $total_price;
+                $payment->status_registration = 'Waiting';
                 $payment->code_payment = $codePayment;
                 // $payment->link = null;
             } else {
                 $payment->package = $paymentMethod;
-                $payment->price = $total_price;
-                $payment->status = 'Waiting';
+                // $payment->price = $total_price;
+                $payment->status_registration = 'Waiting';
                 $payment->link = $linkPay;
                 $payment->code_payment = $codePayment;
                 $payment->events_id = 1;

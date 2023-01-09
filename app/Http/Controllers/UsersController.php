@@ -41,10 +41,12 @@ class UsersController extends Controller
                 $user = User::firstOrNew(array('email' => $sheet->getCell('E' . $row)->getValue()));
                 $user->name = $sheet->getCell('B' . $row)->getValue();
                 $user->email = $sheet->getCell('E' . $row)->getValue();
-                $user->verify_phone = 'verified';
+                // $user->verify_phone = 'verified';
                 // $user->password = Hash::make('DMCAPPS');
                 $user->save();
-                $company = new CompanyModel();
+                $company = CompanyModel::firstOrNew([
+                    'users_id' => $user->id
+                ]);
                 $company->company_name = $sheet->getCell('A' . $row)->getValue();
                 $company->company_website = $sheet->getCell('F' . $row)->getValue();
                 $company->company_category = $sheet->getCell('G' . $row)->getValue();
@@ -55,7 +57,9 @@ class UsersController extends Controller
                 $company->full_office_number = $sheet->getCell('L' . $row)->getValue();
                 $company->save();
 
-                $profile = new ProfileModel();
+                $profile = ProfileModel::firstOrNew([
+                    'users_id' => $user->id
+                ]);
                 $profile->fullphone = $sheet->getCell('D' . $row)->getValue();
                 $profile->job_title = $sheet->getCell('C' . $row)->getValue();
                 $profile->users_id = $user->id;
