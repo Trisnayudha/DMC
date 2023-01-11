@@ -36,6 +36,7 @@ class ScanController extends Controller
             if (!empty($check)) {
                 $detail = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
                     ->leftjoin('company', 'company.id', 'profiles.company_id')
+                    ->select('users.id', 'users.name', 'users.image', 'users.verify_email', 'users.verify_phone', 'company.prefix', 'company.company_name')
                     ->where('users.uname', '=', $uname)->first();
                 $response['status'] = 200;
                 $response['message'] = 'User Found';
