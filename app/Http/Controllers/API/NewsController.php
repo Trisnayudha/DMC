@@ -141,4 +141,25 @@ class NewsController extends Controller
         }
         return response()->json($response);
     }
+
+    public function bookmarkList($limit = 10)
+    {
+        $id =  auth('sanctum')->user()->id;
+        $check = NewsBookmark::where('users_id', '=', $id)->first();
+        if (!empty($check)) {
+            $detail = News::join('news_bookmark', 'news_bookmark.news_id', 'news.id')
+                ->where('news_bookmark.users_id', '=', $id)
+                ->select('news.*')
+                ->paginate($limit);
+            $response['status'] = 200;
+            $response['message'] = 'Data Bookmark Found';
+            $response['payload'] = $detail;
+        } else {
+            $response['status'] = 200;
+            $response['message'] = 'Data kosong';
+            $response['payload'] = null;
+        }
+
+        return response()->json($response, 200);
+    }
 }

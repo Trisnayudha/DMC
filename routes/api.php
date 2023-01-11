@@ -13,6 +13,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VideosContorller;
 use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\API\ContactUsController;
+use App\Http\Controllers\API\ScanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -73,6 +74,15 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('/news/bookmark', [NewsController::class, 'bookmark']);
     Route::post('/news/like', [NewsController::class, 'like']);
     Route::post('/news/comment', [NewsController::class, 'comment']);
+
+    Route::post('/bookmark_list', [NewsController::class, 'bookmarkList']);
+
+
+    Route::post('/scan/users_event', [ScanController::class, 'usersEvent']);
+    Route::post('/scan/users', [ScanController::class, 'users']);
+
+    Route::post('/scan/request_connection', [ScanController::class, 'postRequest']);
+    Route::post('/list_connection', [ScanController::class, 'listConnected']);
 });
 Route::post('/news/category', [NewsCategoryController::class, 'index']);
 Route::post('/news', [NewsController::class, 'ListAll']);
