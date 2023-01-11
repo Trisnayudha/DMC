@@ -99,7 +99,8 @@ class ScanController extends Controller
 
         $check = UsersConnection::where('users_id', '=', $id)->first();
         if (!empty($check)) {
-            $detail = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
+            $detail = UsersConnection::leftJoin('users', 'users.id', 'users_connection.users_id_target')
+                ->leftjoin('profiles', 'profiles.users_id', 'users.id')
                 ->leftjoin('company', 'company.id', 'profiles.company_id')
                 ->select(
                     'users.id',
@@ -114,7 +115,8 @@ class ScanController extends Controller
                     'company.prefix',
                     'company.company_name'
                 )
-                ->where('users.id', '=', $id)->paginate($limit);
+                ->where('users_connection.users_id', $id)
+                ->paginate($limit);
             $response['status'] = 200;
             $response['message'] = 'User Found';
             $response['payload'] = $detail;
