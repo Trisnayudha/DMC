@@ -107,7 +107,7 @@ class ScanController extends Controller
                     'users.email',
                     'profiles.fullphone',
                     'company.full_office_number',
-                    'company.website',
+                    'company.company_website',
                     'profiles.image',
                     'users.verify_email',
                     'users.verify_phone',
