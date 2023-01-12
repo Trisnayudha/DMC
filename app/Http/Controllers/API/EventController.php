@@ -38,7 +38,8 @@ class EventController extends Controller
         $response['payload'] = $data;
         return response()->json($response);
     }
-    public function detail($slug)
+
+    public function detail($slug, $limit = 5)
     {
         $id =  auth('sanctum')->user()->id;
         $findEvent = RepositoriesEvents::findEvent($slug);
@@ -65,7 +66,7 @@ class EventController extends Controller
                 ->join('profiles', 'profiles.users_id', 'users.id')
                 ->join('company', 'company.id', 'profiles.company_id')
                 ->select('users.id', 'users.name', 'profiles.image', 'company.company_name', 'profiles.job_title')
-                ->get();
+                ->paginate($limit);
             $listUser = [
                 'already_register' => $findUser ? true : false,
                 'waiting_payment' => $findPayment ? ($findPayment->status_registration == 'Waiting' ? true : false) : false,

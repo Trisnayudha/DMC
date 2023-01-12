@@ -422,6 +422,7 @@ Your verification code (OTP) ' . $otp;
                     ]);
                     $user->assignRole('guest');
                     $company = CompanyModel::create([
+                        'prefix' => $findUser->prefix,
                         'company_name' => $findUser->company_name,
                         'company_website' => $findUser->company_website,
                         'company_category' => $findUser->company_category,
