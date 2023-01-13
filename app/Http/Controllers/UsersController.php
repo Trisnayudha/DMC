@@ -102,7 +102,7 @@ class UsersController extends Controller
 
     public function member()
     {
-        $list = MemberModel::where('register_as', '=', 'Member')->get();
+        $list = MemberModel::where('register_as', '=', 'Member')->orderBy('created_at', 'desc')->get();
         $data = [
             'list' => $list
         ];
