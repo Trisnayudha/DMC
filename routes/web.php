@@ -98,3 +98,5 @@ Route::post('videos/deletecategory', [VideosController::class, 'destroy']);
 
 Route::get('/admin/users', [UsersController::class, 'index'])->name('users');
 Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
+
+Route::get('/admin/member', [UsersController::class, 'member'])->name('members');

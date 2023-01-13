@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company\CompanyModel;
+use App\Models\MemberModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -97,5 +98,14 @@ class UsersController extends Controller
             $res['status'] = 0;
         }
         return response()->json($res);
+    }
+
+    public function member()
+    {
+        $list = MemberModel::where('register_as', '=', 'Member')->get();
+        $data = [
+            'list' => $list
+        ];
+        return view('admin.member.index', $data);
     }
 }

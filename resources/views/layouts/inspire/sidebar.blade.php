@@ -23,6 +23,11 @@
                 <span>Events sementara</span></a>
         </li>
         <li class="">
+            <a class="nav-link" href="{{ Route('members') }}">
+                <i class="fa fa-user" aria-hidden="true"></i>
+                <span>Members DMC</span></a>
+        </li>
+        <li class="">
             <a class="nav-link" href="{{ Route('videos') }}">
                 <i class="fa fa-university" aria-hidden="true"></i>
                 <span>Videos Highlight</span></a>
