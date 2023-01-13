@@ -102,6 +102,7 @@ class UsersController extends Controller
 
     public function member()
     {
+        $this->middleware('auth');
         $list = MemberModel::where('register_as', '=', 'Member')->orderBy('created_at', 'desc')->get();
         $data = [
             'list' => $list
