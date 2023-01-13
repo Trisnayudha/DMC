@@ -13,6 +13,10 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class UsersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function index()
     {
         $list = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
@@ -102,7 +106,7 @@ class UsersController extends Controller
 
     public function member()
     {
-        $this->middleware('auth');
+
         $list = MemberModel::where('register_as', '=', 'Member')->orderBy('created_at', 'desc')->get();
         $data = [
             'list' => $list
