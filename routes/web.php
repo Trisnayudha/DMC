@@ -35,6 +35,10 @@ Route::get('ajax', function () {
     return view('ajax');
 });
 
+Route::get('/scan', function () {
+    return view('scan');
+});
+
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
 Route::get('/test', [TestController::class, 'test']);
