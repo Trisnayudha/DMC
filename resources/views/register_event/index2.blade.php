@@ -463,8 +463,7 @@
                 var email = $("#email").val();
 
                 var listErrorPrefixs = $("#listStringPrefix").val();
-                var member = ``
-                var nonmember = ` `
+                console.log(email)
                 $.ajax({
                     type: 'POST',
                     url: '{{ url('/register/email') }}',
@@ -473,8 +472,9 @@
                     },
                     data: 'email=' + email,
                     success: function(msg) {
-
+                        console.log(msg)
                         if (msg.status == 1) {
+
                             // Mendapatkan elemen yang akan dihapus
                             $('.member').remove();
                             $('.non-member').remove();
