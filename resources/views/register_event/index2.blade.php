@@ -112,32 +112,35 @@
             <h6>Detail event</h6>
             <div class="row g-5">
                 <div class="col-3">
+                    <p>Title</p>
+                </div>
+                <div class="col-9">
+                    <p>: Mineral Trends 2023</p>
+                </div>
+                <div class="col-3">
                     <p>
                         Date
                     </p>
                     <p>
                         Time
                     </p>
+                    <p>Concept</p>
                     <p>
-                        Venue
+                        Location
                     </p>
                 </div>
 
                 <div class="col-9">
                     <p>
-                        : Thursday - 26 January 2023
+                        : Wednesday - 8 February 2023
                     </p>
                     <p>: 04.00 pm - 07.00 pm (Jakarta Time) </p>
+                    <p>: Live - Networking Dinner</p>
                     <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
 
                 </div>
                 <br>
-                <div class="col-3">
-                    <p>Topic</p>
-                </div>
-                <div class="col-9">
-                    <p>: Mineral Trends 2023</p>
-                </div>
+
             </div>
             <br>
             <h6>Health and Safety Protocols (COVID-19 Prevention) :</h6>
