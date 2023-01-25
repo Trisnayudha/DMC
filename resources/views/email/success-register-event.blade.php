@@ -134,14 +134,14 @@
                     </th>
                 </tr>
                 <tr>
-                    <th>Topic</th>
+                    <th>Title</th>
                     <th>:</th>
                     <td>Mineral Trends 2023 </td>
                 </tr>
                 <tr>
                     <th>Date</th>
                     <th>:</th>
-                    <td>Thursday - 26 January 2023</td>
+                    <td>Wednesday - 8 February 2023</td>
                 </tr>
                 <tr>
                     <th>Time</th>
@@ -149,7 +149,12 @@
                     <td>04.00 pm - 07.00 pm (Jakarta Time)/td>
                 </tr>
                 <tr>
-                    <th>Venue</th>
+                    <th>Concept</th>
+                    <th>:</th>
+                    <td>Live – Networking Dinner</td>
+                </tr>
+                <tr>
+                    <th>Location</th>
                     <th>:</th>
                     <td>Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</td>
                 </tr>
