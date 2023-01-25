@@ -123,7 +123,7 @@ class XenditCallbackController extends Controller
                         Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($findUser->email);
-                            $message->subject('Thank you for payment - The 53rd Djakarta Mining Club Networking Event');
+                            $message->subject('Thank you for payment - The 54th Djakarta Mining Club Event ');
                             $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                         });
                         $notif = new Notification();

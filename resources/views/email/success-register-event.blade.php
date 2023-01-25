@@ -124,7 +124,7 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for The 53rd Djakarta Mining Club Networking Event has been successfully confirmed.
+            <p>Your registration for The 54rd Djakarta Mining Club Networking Event has been successfully confirmed.
             </p>
 
             <table class="table">
@@ -146,7 +146,7 @@
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>04.00 pm - 07.00 pm (Jakarta Time)/td>
+                    <td>04.00 pm - 07.00 pm (Jakarta Time)</td>
                 </tr>
                 <tr>
                     <th>Concept</th>
