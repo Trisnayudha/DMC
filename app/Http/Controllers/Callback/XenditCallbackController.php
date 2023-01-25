@@ -130,7 +130,7 @@ Phone Number: ' . $findUser->phone . '
 Company : ' . $findUser->company_name . '
 
 Thank you
-Best Regard Bot DMC
+Best Regards Bot DMC
 ';
                     $send->WhatsappMessage();
                     $res['api_status'] = 1;
