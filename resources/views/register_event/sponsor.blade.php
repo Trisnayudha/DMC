@@ -94,8 +94,8 @@
     <div class="container">
         <main>
             <div class="py-2 text-center">
-                <img style="border-radius: 15px; margin-bottom: 19px " src="{{ asset('image/logo-dmc-cci.png') }}"
-                    class="img-fluid" alt="">
+                <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
+                    src="{{ asset('image/dmc.png') }}" class="img-fluid" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
                 {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
@@ -104,52 +104,37 @@
             <h6>Detail event</h6>
             <div class="row g-5">
                 <div class="col-3">
+                    <p>Title</p>
+                </div>
+                <div class="col-9">
+                    <p>: Mineral Trends 2023</p>
+                </div>
+                <div class="col-3">
                     <p>
                         Date
                     </p>
                     <p>
                         Time
                     </p>
+                    <p>Concept</p>
                     <p>
-                        Venue
+                        Location
                     </p>
                 </div>
 
                 <div class="col-9">
                     <p>
-                        : Wednesday – November 30, 2022
+                        : Wednesday - 8 February 2023
                     </p>
-                    <p>: 2.00 - 6.00pm </p>
-                    <p>: The Dharmawangsa Hotel Jakarta, Indonesia</p>
+                    <p>: 04.00 pm - 07.00 pm (Jakarta Time) </p>
+                    <p>: Live - Networking Dinner</p>
+                    <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
 
                 </div>
                 <br>
-                <div class="col-3">
-                    <p>Topic</p>
-                </div>
-                <div class="col-9">
-                    <p>: Energy Market Briefing 2022</p>
-                </div>
+
             </div>
             <br>
-            <h6>Health and Safety Protocols (COVID-19 Prevention) :</h6>
-            <div class="row g-5">
-                <div class="col-12">
-                    <p>
-                        1. Self-Assessment (If you are feeling unwell and/or experiencing symptoms of COVID-19, you
-                        should not attend).
-                    </p>
-                    <p>
-                        2. Wearing a Mask.
-                    </p>
-                    <p>
-                        3. Scan/ Check in at The Venue with PeduliLindungi App
-                    </p>
-                    <p>
-                        4. Show Proof of Vaccination (Min. 3 doses of vaccine)
-                    </p>
-                </div>
-            </div>
             <hr class="my-1">
 
             <div class="row g-5">
