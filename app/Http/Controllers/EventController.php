@@ -216,7 +216,7 @@ class EventController extends Controller
                 // $payment->link = null;
             } else {
                 $payment->package = $paymentMethod;
-                // $payment->price = $total_price;
+                $payment->payment_method = 'Credit Card';
                 $payment->status_registration = 'Waiting';
                 $payment->link = $linkPay;
                 $payment->code_payment = $codePayment;
@@ -242,7 +242,7 @@ class EventController extends Controller
                 Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject('Invoice Events - Payment');
+                    $message->subject('Invoice - Waiting for Payment');
                     // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
                 });
                 return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');

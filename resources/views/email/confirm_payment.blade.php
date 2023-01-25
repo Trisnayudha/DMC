@@ -200,7 +200,7 @@
             </tr>
 
             <tr class="item">
-                <td>{{ $events_name }}</td>
+                <td>Mineral Trends 2023 - Wednesday, 8th of February 2023</td>
 
                 <td align="right">IDR {{ $price }}</td>
             </tr>
