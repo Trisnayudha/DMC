@@ -143,7 +143,7 @@
 
             </div>
             <br>
-            <h6>Health and Safety Protocols (COVID-19 Prevention) :</h6>
+            {{-- <h6>Health and Safety Protocols (COVID-19 Prevention) :</h6>
             <div class="row g-5">
                 <div class="col-12">
                     <p>
@@ -160,7 +160,7 @@
                         4. Show Proof of Vaccination (Min. 3 doses of vaccine)
                     </p>
                 </div>
-            </div>
+            </div> --}}
             <hr class="my-1">
 
             <div class="row g-5">
