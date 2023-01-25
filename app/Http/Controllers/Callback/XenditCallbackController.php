@@ -15,7 +15,8 @@ use App\Models\Payments\PaymentUsersVA;
 use App\Repositories\Company;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class XenditCallbackController extends Controller
 {
@@ -68,6 +69,12 @@ class XenditCallbackController extends Controller
 
             $check = Payment::where('code_payment', '=', $external_id)->first();
             if (!empty($check)) {
+                $image = QrCode::format('png')
+                    ->size(200)->errorCorrection('H')
+                    ->generate($external_id);
+                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                 $findUser = Payment::where('code_payment', $external_id)
                     ->join('users as a', 'a.id', 'payment.member_id')
                     ->first();
@@ -92,6 +99,8 @@ class XenditCallbackController extends Controller
                     $check->status_registration = "Paid Off";
                     $check->payment_method = $payment_method;
                     $check->link = null;
+
+                    $check->qr_code = $db;
                     $UserEvent = new UserRegister();
                     $UserEvent->users_id = $check->member_id;
                     $UserEvent->events_id = $check->events_id;
@@ -102,13 +111,25 @@ class XenditCallbackController extends Controller
                     Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($findUser->email);
-                        $message->subject('Thank you for payment - The 53rd Djakarta Mining Club Networking Event');
+                        $message->subject('Thank you for payment - The 54th Djakarta Mining Club Networking Event');
                         $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                     });
 
                     $send = new WhatsappApi();
                     $send->phone = '083829314436';
-                    $send->message = 'Succes Fully Paymen Apps';
+                    $send->message = '
+Hai Mba Fany
+
+Success payment dari ' . $findUser->name . '
+Detail Informasinya:
+Nama : ' . $findUser->name . '
+Email: ' . $findUser->email . '
+Phone Number: ' . $findUser->phone . '
+Company : ' . $findUser->company_name . '
+
+Thank you
+Best Regard Bot DMC
+';
                     $send->WhatsappMessage();
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Payment status is updated';
@@ -118,7 +139,7 @@ class XenditCallbackController extends Controller
                         $check->status_registration = "Paid Off";
                         $check->payment_method = $payment_method;
                         $check->link = null;
-
+                        $check->qr_code = $db;
                         $pdf = Pdf::loadView('email.invoice-new', $data);
                         Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
                             $message->from(env('EMAIL_SENDER'));
