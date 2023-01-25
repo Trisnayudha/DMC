@@ -77,6 +77,8 @@ class XenditCallbackController extends Controller
                 Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                 $findUser = Payment::where('code_payment', $external_id)
                     ->join('users as a', 'a.id', 'payment.member_id')
+                    ->join('profiles as b', 'a.id', 'b.users_id')
+                    ->join('company as c', 'c.id', 'b.company_id')
                     ->first();
                 $findTicket = EventsTicket::where('id', '=', $findUser->tickets_id)->first();
                 $data = [
