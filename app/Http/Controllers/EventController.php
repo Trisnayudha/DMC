@@ -53,17 +53,24 @@ class EventController extends Controller
     public function detail($slug)
     {
         $this->middleware('auth');
-        $list = DB::table('payment')
-            ->join('users', 'users.id', 'payment.member_id')
-            ->join('profiles', 'profiles.users_id', 'users.id')
-            ->join('company', 'company.users_id', 'users.id')
-            ->select('payment.*', 'users.*', 'profiles.*', 'company.*', 'payment.id as payment_id')
-            ->get();
+        $checkEvent = Events::where('slug', $slug)->first();
+        if (!empty($checkEvent)) {
 
-        $data = [
-            'payment' => $list
-        ];
-        return view('admin.events.event-detail', $data);
+            $list = DB::table('payment')
+                ->join('users', 'users.id', 'payment.member_id')
+                ->join('profiles', 'profiles.users_id', 'users.id')
+                ->join('company', 'company.users_id', 'users.id')
+                ->select('payment.*', 'users.*', 'profiles.*', 'company.*', 'payment.id as payment_id')
+                ->where('payment.events_id', $checkEvent->id)
+                ->get();
+
+            $data = [
+                'payment' => $list
+            ];
+            return view('admin.events.event-detail', $data);
+        } else {
+            return 'Event Not Found';
+        }
     }
     public function store(Request $request)
     {

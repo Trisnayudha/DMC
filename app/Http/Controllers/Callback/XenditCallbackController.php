@@ -164,6 +164,12 @@ Best Regards Bot DMC
                         $check->status_registration = "Expired";
                         $check->payment_method = $payment_method;
                         $check->link = null;
+                        $send = new WhatsappApi();
+                        $send->phone = '083829314436';
+                        $send->message = '
+Expired Date
+';
+                        $send->WhatsappMessage();
                         $res['api_status'] = 1;
                         $res['api_message'] = 'Expired';
                     }
