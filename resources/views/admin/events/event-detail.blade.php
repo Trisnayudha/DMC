@@ -40,12 +40,12 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
-                                <div class="float-right">
+                                {{-- <div class="float-right">
                                     <a href="javascript:;"
                                         class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3" id="modal-2">
                                         <i class="fas fa-plus-circle"></i>
                                         Import Data</a>
-                                </div>
+                                </div> --}}
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
                                         <thead>
@@ -59,6 +59,7 @@
                                                 <th>Phone Number</th>
                                                 <th>Office Number</th>
                                                 <th>Status Approval</th>
+                                                <th>Status Payment</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
@@ -78,6 +79,8 @@
                                                         <span
                                                             class="badge badge-pill {{ $post->status_registration == 'Approve' ? 'badge-primary' : 'badge-warning' }}">
                                                             {{ $post->status_registration }}</span>
+                                                    </td>
+                                                    <td>{{ $post->groupby_users_id ? 'Multiple Payment' : 'Single Payment' }}
                                                     </td>
                                                     <td>
                                                         <a href="#" data-toggle="dropdown"

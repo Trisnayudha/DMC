@@ -63,7 +63,7 @@ class EventController extends Controller
                 ->select('payment.*', 'users.*', 'profiles.*', 'company.*', 'payment.id as payment_id')
                 ->where('payment.events_id', $checkEvent->id)
                 ->get();
-
+            // dd($list);
             $data = [
                 'payment' => $list
             ];
