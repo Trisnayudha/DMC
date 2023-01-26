@@ -80,7 +80,8 @@
                                                     <td>
                                                         <a href="#" class="btn btn-primary" title="View Tickets">
                                                             <span>ticket</span></a>
-                                                        <a href="#" class="btn btn-primary" title="Lihat Peserta">
+                                                        <a href="{{ Route('events-details', $post->slug) }}"
+                                                            class="btn btn-primary" title="Lihat Peserta">
                                                             <span class="fa fa-user"></span></a>
                                                         <a href="#" class="btn btn-success" title="Edit Data">
                                                             <span class="fa fa-edit"></span>

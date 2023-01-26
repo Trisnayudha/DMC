@@ -50,6 +50,21 @@ class EventController extends Controller
         return view('admin.events.create', $data);
     }
 
+    public function detail($slug)
+    {
+        $this->middleware('auth');
+        $list = DB::table('payment')
+            ->join('users', 'users.id', 'payment.member_id')
+            ->join('profiles', 'profiles.users_id', 'users.id')
+            ->join('company', 'company.users_id', 'users.id')
+            ->select('payment.*', 'users.*', 'profiles.*', 'company.*', 'payment.id as payment_id')
+            ->get();
+
+        $data = [
+            'payment' => $list
+        ];
+        return view('admin.events.event-detail', $data);
+    }
     public function store(Request $request)
     {
         $save = new Events();
