@@ -17,6 +17,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Xendit\Invoice;
@@ -24,6 +25,7 @@ use Xendit\Xendit;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Symfony\Component\HttpKernel\Profiler\Profile;
 
 class EventController extends Controller
 {
@@ -296,6 +298,176 @@ class EventController extends Controller
             ]);
         }
         return redirect()->back()->with('alert', 'Successfully Registering as Sponsor');
+    }
+
+    public function register_multiple(Request $request)
+    {
+        // dd($request->all());
+        $startcount = 0;
+        $ticket = 0;
+        $count_ticket = 0;
+        $response = [];
+        $ticketfinal = 0;
+        $id = [];
+        foreach ($request->name as $key => $value) {
+            $uname = strtoupper(Str::random(7));
+            $checkUser = User::where('email', $request->email[$key])->first();
+            if (!empty($checkUser)) {
+                $count_ticket++;
+                $ticket = 900000;
+                $ticketfinal += 900000;
+                $status = 1;
+                $bool = 'Member';
+            } else {
+                $status = 2;
+                $ticket = 1000000;
+                $ticketfinal += 1000000;
+                $bool = 'Non-Member';
+            }
+            $response[] = [
+                'name' => $request->name[$key],
+                'email' => $request->email[$key],
+                'status' => $status,
+                'ticket' => $ticket,
+                'bool' => $bool,
+                'job_title' => $request->job_title[$key]
+            ];
+
+            $findUser = User::firstOrNew(array('email' => $request->email[$key]));
+            $findUser->name = $request->name[$key];
+            $findUser->email = $request->email[$key];
+            $findUser->password = Hash::make('DMC2023');
+            $findUser->uname = $uname;
+            $findUser->save();
+
+            $id[] = [
+                'id' => $findUser->id
+            ];
+            $id_final = $id[0]['id'];
+            $string_office = $request->office_number;
+            $office_number = preg_replace('/[^0-9]/', '', $string_office);
+            $firstTwoDigits_office = substr($string_office, 1, 3);
+            $phone_office = substr($office_number, 2);
+
+            $findCompany = CompanyModel::where('users_id', $findUser->id)->first();
+            if (empty($findCompany)) {
+                $findCompany = new CompanyModel();
+            }
+            $findCompany->prefix = $request->prefix;
+            $findCompany->company_name = $request->company_name;
+            $findCompany->office_number = $phone_office;
+            $findCompany->prefix_office_number = $firstTwoDigits_office;
+            $findCompany->full_office_number = $office_number;
+            if ($request->company_other == 'Other') {
+                $findCompany->company_other = $request->company_other;
+            }
+            $findCompany->company_category = $request->company_category;
+            $findCompany->address = $request->address;
+            $findCompany->city = $request->city;
+            $findCompany->country = $request->country;
+            $findCompany->portal_code = $request->portal_code;
+            $findCompany->users_id = $findUser->id;
+            $findCompany->save();
+
+
+            $string = $request->phone[$key];
+            $number = preg_replace('/[^0-9]/', '', $string);
+            $firstTwoDigits = substr($string, 1, 3);
+            $phone = substr($number, 2);
+
+            $findProfile = ProfileModel::where('users_id', $findUser->id)->first();
+            if (empty($findProfile)) {
+                $findProfile = new ProfileModel();
+            }
+            $findProfile->users_id = $findUser->id;
+            $findProfile->fullphone = $number;
+            $findProfile->job_title = $request->job_title[$key];
+            $findProfile->phone = $phone;
+            $findProfile->prefix_phone = $firstTwoDigits;
+            $findProfile->company_id = $findCompany->id;
+            $findProfile->save();
+            $code_payment = strtoupper(Str::random(7));
+            $findPayment = Payment::where('member_id', $findUser->id)->where('events_id', '1')->first();
+            if (empty($findPayment)) {
+                $findPayment = new Payment();
+            }
+
+
+            $findPayment->member_id = $findUser->id;
+            $findPayment->package = $bool;
+            $findPayment->code_payment = $code_payment;
+            $findPayment->payment_method = 'CREDIT_CARD';
+            $findPayment->link = null;
+            $findPayment->events_id = 1;
+            $findPayment->tickets_id = 1;
+            $findPayment->status_registration = 'Waiting';
+            $findPayment->groupby_users_id = $id_final;
+            $findPayment->save();
+
+            // code untuk company dan profile
+            $startcount++;
+        }
+        // init xendit
+        $isProd = env('XENDIT_ISPROD');
+        if ($isProd) {
+            $secretKey = env('XENDIT_SECRET_KEY_PROD');
+        } else {
+            $secretKey = env('XENDIT_SECRET_KEY_TEST');
+        }
+        // params invoice
+        Xendit::setApiKey($secretKey);
+
+        $item_details = [];
+        foreach ($response as $key => $data) {
+            $item_details[] = [
+                'id' => 'item' . ($key + 1),
+                'name' => $data['name'],
+                'price' => number_format($data['ticket'], 0, ',', '.'),
+                'quantity' => 1,
+                'job_title' => $data['job_title']
+            ];
+        }
+        $params = [
+            'external_id' => $code_payment,
+            'payer_email' => $findUser->email,
+            'description' => 'Invoice Event DMC',
+            'amount' => $ticketfinal,
+            'success_redirect_url' => 'https://djakarta-miningclub.com',
+            'failure_redirect_url' => url('/'),
+            'callback_url' => 'http://127.0.0.1:8000/balakutakdicabean',
+            'item_details' => $item_details
+        ];
+        $createInvoice = Invoice::create($params);
+        $linkPay = $createInvoice['invoice_url'];
+        $response['link'] = $linkPay;
+        $firstUsers = User::where('users.id', $id_final)
+            ->join('profiles', 'profiles.users_id', 'users.id')
+            ->join('company', 'company.users_id', 'users.id')
+            ->first();
+        $payload = [
+            'code_payment' => $code_payment,
+            'create_date' => date('d, M Y H:i'),
+            'users_name' => $findUser->name,
+            'users_email' => $findUser->email,
+            'phone' => $firstUsers->fullphone,
+            'company_name' => $firstUsers->company_name,
+            'company_address' => $firstUsers->company_address,
+            'status' => 'Waiting',
+            'item' => $item_details,
+            'price' => '3424242',
+            'voucher_price' => 0,
+            'total_price' => number_format($ticketfinal, 0, ',', '.'),
+            'link' => $linkPay
+        ];
+        // return view('email.invoice-new-multiple', $payload);
+        $send = new EmailSender();
+        $send->to = $firstUsers->email;
+        $send->from = env('EMAIL_SENDER');
+        $send->data = $payload;
+        $send->subject = 'Invoice - Waiting for Payment';
+        $send->template = 'email.invoice-new-multiple';
+        $send->sendEmail();
+        return redirect()->back()->with('alert', 'The invoice will be sent to the email address ' . $firstUsers->email);
     }
 
     public function request(Request $request)

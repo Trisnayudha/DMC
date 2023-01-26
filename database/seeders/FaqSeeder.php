@@ -22,7 +22,7 @@ class FaqSeeder extends Seeder
             // insert data ke table pegawai menggunakan Faker
             FaqModel::insert([
                 'question' => $faker->sentence($nbWords = 6, $variableNbWords = true),
-                'answer' => $faker->paragraph(),
+                'answer' => $faker->sentence(mt_rand(5, 19)),
                 // 'title' => $faker->sentence(mt_rand(2, 5)),
                 // 'highlight' => $faker->randomElement(['Yes', 'No']),
                 // 'desc' => $faker->paragraph(),

@@ -7,12 +7,12 @@
     <meta name="description" content="">
     <meta name="author" content="djakarta-miningclub.com">
     <meta name="generator" content="Hugo 0.98.0">
-    <title>DMC Register Event</title>
+    <title>DMC Register Event Multiple Users</title>
     <meta name="description" content="Register Event " />
     <meta property="og:title" content="Register Event " />
     <meta property="og:url" content="https://djakarta-miningclub.com" />
     <meta property="og:description" content="Register Event" />
-    <meta property="og:image" content="{{ asset('image/meta.jpeg') }}" />
+    <meta property="og:image" content="{{ asset('image/meta.png') }}" />
     <meta property="og:type" content="register" />
     <meta property="og:locale" content="en_GB" />
     <meta property="og:locale:alternate" content="fr_FR" />
@@ -94,14 +94,21 @@
     <div class="container">
         <main>
             <div class="py-2 text-center">
-                <img style="border-radius: 15px; margin-bottom: 19px " src="{{ asset('image/logo-dmc-cci.png') }}"
-                    class="img-fluid" alt="">
+                <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
+                    src="{{ asset('image/dmc.png') }}" class="img-fluid" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
-                {{-- <p class="lead"> Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS</p> --}}
+                {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
+                    by OPIS </p> --}}
             </div>
             <h6>Detail event</h6>
             <div class="row g-5">
+                <div class="col-3">
+                    <p>Title</p>
+                </div>
+                <div class="col-9">
+                    <p>: Mineral Trends 2023</p>
+                </div>
                 <div class="col-3">
                     <p>
                         Date
@@ -109,53 +116,32 @@
                     <p>
                         Time
                     </p>
+                    <p>Concept</p>
                     <p>
-                        Venue
+                        Location
                     </p>
                 </div>
 
                 <div class="col-9">
                     <p>
-                        : Wednesday – November 30, 2022
+                        : Wednesday - 8 February 2023
                     </p>
-                    <p>: 2.00 - 6.00pm </p>
-                    <p>: The Dharmawangsa Hotel Jakarta, Indonesia</p>
+                    <p>: 04.00 pm - 07.00 pm (Jakarta Time) </p>
+                    <p>: Live - Networking Dinner</p>
+                    <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
 
                 </div>
                 <br>
-                <div class="col-3">
-                    <p>Topic</p>
-                </div>
-                <div class="col-9">
-                    <p>: Energy Market Briefing 2022</p>
-                </div>
+
             </div>
             <br>
-            <h6>Health and Safety Protocols (COVID-19 Prevention) :</h6>
-            <div class="row g-5">
-                <div class="col-12">
-                    <p>
-                        1. Self-Assessment (If you are feeling unwell and/or experiencing symptoms of COVID-19, you
-                        should not attend).
-                    </p>
-                    <p>
-                        2. Wearing a Mask.
-                    </p>
-                    <p>
-                        3. Scan/ Check in at The Venue with PeduliLindungi App
-                    </p>
-                    <p>
-                        4. Show Proof of Vaccination (Min. 3 doses of vaccine)
-                    </p>
-                </div>
-            </div>
             <hr class="my-1">
 
             <div class="row g-5">
 
                 <div class="col-md-12 col-lg-12">
                     <h4 class="mb-3">* Required information</h4>
-                    <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation" novalidate>
+                    <form action="{{ url('/regis-multiple') }}" method="POST" class="needs-validation" novalidate>
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
@@ -196,63 +182,19 @@
                                     Valid company name is required.
                                 </div>
                             </div>
-
-                            <div class="col-sm-6">
-                                <label for="name" class="form-label">Full name *</label>
-                                <input type="text" class="form-control" name="name" placeholder=""
-                                    value="{{ old('name') }}" required>
-                                <div class="invalid-feedback">
-                                    Valid name is required.
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <label for="phone" class="form-label">Mobile number *</label>
-                                <input type="tel" class="form-control" name="phone"id="phone"
-                                    placeholder="" value="+62" required>
-                                <div class="invalid-feedback">
-                                    Please provide a Mobile Number
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <label for="job_title" class="form-label">Job Title *</label>
-                                <input type="text" class="form-control" name="job_title" placeholder="" required
-                                    value="{{ old('job_title') }}">
-                                <div class="invalid-feedback">
-                                    Please enter your Job Title.
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <label for="email" class="form-label">Email Address * <span
-                                        class="text-muted"></span></label>
-                                <input type="email" class="form-control" name="email"
-                                    placeholder="Your work email" required value="{{ old('email') }}">
-                                <div class="invalid-feedback">
-                                    Please enter a valid email address.
-                                </div>
-                            </div>
-
-                            <div class="col-sm-6">
-                                <label for="company_website" class="form-label">Company Webstie *<span
-                                        class="text-muted"></span></label>
-                                <input type="text" class="form-control" name="company_website"
-                                    value="{{ old('company_website') }}" placeholder="www.yourcompany.com" required>
-                                <div class="invalid-feedback">
-                                    Please enter a valid company website .
-                                </div>
-                            </div>
-
-
-                            <div class="col-sm-12">
-                                <label for="address" class="form-label">Address *</label>
-                                <input type="text" class="form-control" name="address" placeholder="" required>
-                                <div class="invalid-feedback" {{ old('address') }}>
-                                    Please provide a Mobile Number
-                                </div>
-                            </div>
                             <div class="col-sm-6">
                                 <label for="office_number" class="form-label">Office Number</label>
                                 <input type="tel" class="form-control" name="office_number"id="office_number"
-                                    placeholder="" value="+62" required>
+                                    placeholder="" value="{{ old('office_number') ? old('office_number') : '+62' }}"
+                                    required>
+                                <div class="invalid-feedback">
+                                    Please provide a Mobile Number
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <label for="address" class="form-label">Address *</label>
+                                <input type="text" class="form-control" name="address" placeholder="" required
+                                    value="{{ old('address') }}">
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
@@ -260,19 +202,19 @@
                             <div class="col-sm-3">
                                 <label for="portal_code" class="form-label">Postal Code</label>
                                 <input type="number" class="form-control" name="portal_code" placeholder=""
-                                    required>
+                                    required value="{{ old('portal_code') }}">
                                 <div class="invalid-feedback" {{ old('portal_code') }}>
                                     Please provide a Postal Code
                                 </div>
                             </div>
                             <div class="col-sm-3">
                                 <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" name="city" placeholder="" required>
+                                <input type="text" class="form-control" name="city" placeholder="" required
+                                    value="{{ old('city') }}">
                                 <div class="invalid-feedback" {{ old('city') }}>
                                     Please provide a City
                                 </div>
                             </div>
-
                             <div class="col-sm-6 mb-3">
                                 <label for="country" class="form-label">Country * </label>
                                 <select class="form-control js-example-basic-single" name="country" id="country"
@@ -283,7 +225,7 @@
                                     Please provide a valid Country
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <label for="company_category" class="form-label">Company Category *</label>
                                 <select class="form-control js-example-basic-single d-block w-100"
                                     name="company_category" id="company_category" required>
@@ -308,7 +250,6 @@
                                     Please enter your Company Other
                                 </div>
                             </div>
-
                             <div class="col-md-12 mb-6">
                                 <div class="myDiv">
                                     <label for="company_other" class="form-label">Company Other *</label>
@@ -318,31 +259,54 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-                        <hr class="my-4">
+                        <br>
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label for="name" class="form-label">Full name *</label>
+                                <input type="text" class="form-control" name="name[]" placeholder=""
+                                    value="{{ old('name') }}" required>
+                                <div class="invalid-feedback">
+                                    Valid name is required.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="phone" class="form-label">Mobile number *</label>
+                                <input type="tel" class="phone form-control" name="phone[]" placeholder=""
+                                    value="+62" required>
+                                <div class="invalid-feedback">
+                                    Please provide a Mobile Number
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="job_title" class="form-label">Job Title *</label>
+                                <input type="text" class="form-control" name="job_title[]" placeholder=""
+                                    required value="{{ old('job_title') }}">
+                                <div class="invalid-feedback">
+                                    Please enter your Job Title.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="email" class="form-label">Email Address * <span
+                                        class="text-muted"></span></label>
+                                <input type="email" class="form-control" name="email[]"
+                                    placeholder="Your work email" required value="{{ old('email') }}">
+                                <div class="invalid-feedback">
+                                    Please enter a valid email address.
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-2">
 
-                        <div class="my-3">
-                            <div class="form-check">
-                                <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
-                                    checked required value="member">
-                                <label class="form-check-label" for="credit">Member (IDR 900.000)</label>
-                            </div>
-                            <div class="form-check">
-                                <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-                                    required value="nonmember">
-                                <label class="form-check-label" for="debit">Non Member (IDR. 1.000.000)</label>
-                            </div>
-                            <div class="form-check">
-                                <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-                                    required value="onsite">
-                                <label class="form-check-label" for="debit">On site (IDR. 1.250.000)</label>
+                                <a href="javascript:void(0)" class="addData btn btn-primary float-right"> Add
+                                    Delegates</a>
                             </div>
                         </div>
 
+                        <div class="customer"></div>
                         <hr class="my-4">
+                        <input type="hidden" name="paymentMethod" id="paymentMethod" value="free">
 
-                        <button class="w-80 btn btn-primary btn-lg" type="submit">Checkout</button>
+                        <button class="w-80 btn btn-primary btn-lg" type="submit">Register Event</button>
                     </form>
                 </div>
             </div>
@@ -358,9 +322,7 @@
     </div>
 
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
-    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous">
     </script>
@@ -389,50 +351,14 @@
                 text: "{{ session('alert') }}",
                 icon: "success",
                 buttons: false,
-                timer: 15000,
+                timer: 250000,
             }).then(function() {
                 window.location = "https://djakarta-miningclub.com/";
             });
         @endif
-
-        const xhttp = new XMLHttpRequest();
-        const select = document.getElementById("country");
-        const flag = document.getElementById("flag");
-
-        let country;
-
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                country = JSON.parse(xhttp.responseText);
-                assignValues();
-                handleCountryChange();
-            }
-        };
-        xhttp.open("GET", "https://restcountries.com/v3.1/all", true);
-        xhttp.send();
-
-        function assignValues() {
-            country.forEach(country => {
-                const option = document.createElement("option");
-                option.value = country.cioc;
-                option.textContent = country.name.common;
-                select.appendChild(option);
-            });
-        }
-
-        function handleCountryChange() {
-            const countryData = country.find(
-                country => select.value === country.alpha2Code
-            );
-            flag.style.backgroundImage = `url(${countryData.flag})`;
-        }
-
-        select.addEventListener("change", handleCountryChange.bind(this));
     </script>
-
-
     <script>
-        var input = document.querySelector("#phone");
+        var input = document.querySelector(".phone");
         window.intlTelInput(input, {
             // separateDialCode: true,
             initialCountry: "id",
@@ -443,6 +369,63 @@
             // separateDialCode: true,
             initialCountry: "id",
 
+        });
+    </script>
+
+    <script type="text/javascript">
+        var i = 0;
+        $(".addData").click(function() {
+            ++i;
+            $(".customer").append(
+                `  <div class="row g-3 tambah">
+                            <div class="col-sm-6">
+                                <label for="name" class="form-label">Full name *</label>
+                                <input type="text" class="form-control" name="name[]" placeholder=""
+                                    value="{{ old('name') }}" required>
+                                <div class="invalid-feedback">
+                                    Valid name is required.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="phone" class="form-label">Mobile number *</label>
+                                <input type="tel" class="phone form-control" name="phone[]" id="phone" placeholder=""
+                                    value="+62" required>
+                                <div class="invalid-feedback">
+                                    Please provide a Mobile Number
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="job_title" class="form-label">Job Title *</label>
+                                <input type="text" class="form-control" name="job_title[]" placeholder="" required
+                                    value="{{ old('job_title') }}">
+                                <div class="invalid-feedback">
+                                    Please enter your Job Title.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="email" class="form-label">Email Address * <span
+                                        class="text-muted"></span></label>
+                                <input type="email" class="form-control" name="email[]"
+                                    placeholder="Your work email" required value="{{ old('email') }}">
+                                <div class="invalid-feedback">
+                                    Please enter a valid email address.
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-2">
+                                <a href="javascript:void(0)" class="remove btn btn-danger float-right">Delete
+                                    Delegates</a>
+                            </div>
+                        </div>`
+            );
+            var input = document.querySelector("#phone");
+            window.intlTelInput(input, {
+                // separateDialCode: true,
+                initialCountry: "id",
+
+            });
+        });
+        $(document).on('click', '.remove', function() {
+            $(this).parents('.tambah').remove();
         });
     </script>
 </body>

@@ -52,9 +52,10 @@ Route::get('/term', function () {
 });
 
 Route::get('/register-event', [EventController::class, 'view2']);
-// Route::get('/register-event/free', [EventController::class, 'view2']);
+Route::get('/register-event/multiple', [EventController::class, 'view']);
 Route::get('/register-event/sponsor', [EventController::class, 'sponsor']);
 Route::post('/regis-sponsor', [EventController::class, 'register_sponsor']);
+Route::post('/regis-multiple', [EventController::class, 'register_multiple']);
 Route::post('/payment-personal', [EventController::class, 'payment_personal']);
 Route::post('/register/email', [FormMemberController::class, 'check_email']);
 Auth::routes([
