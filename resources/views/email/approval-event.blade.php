@@ -171,7 +171,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (www.djakarta-miningclub.com/dmc/2022/energy-market-briefing-2022-2/)</p>
+                (https://djakarta-miningclub.com/dmc/2023/mineral-trends-2023/)</p>
 
             <br>
             <p>
@@ -186,18 +186,6 @@
                     collect their own badge and show a matching business card to gain entry.</li>
                 <li>If you are unable to attend, please contact our team for substitution of delegate information at the
                     latest by 1 day before the event.</li>
-            </ul>
-            </p>
-            <p>
-                <b>Health and Safety Protocols (COVID-19 Prevention)</b>
-            </p>
-            <p>
-            <ul>
-                <li>Self-Assessment (If you are feeling unwell and/or experiencing symptoms of COVID-19, you should not
-                    attend)</li>
-                <li>Wearing a Mask</li>
-                <li>Scan/ Check in at The Venue with PeduliLindungi App</li>
-                <li>Show Proof of Vaccination (Min. 3 doses of vaccine)</li>
             </ul>
             </p>
             <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
