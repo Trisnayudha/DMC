@@ -188,6 +188,16 @@
                     latest by 1 day before the event.</li>
             </ul>
             </p>
+            <p>
+                <b>Health and Safety Protocols (COVID-19 Prevention)</b>
+            </p>
+            <p>
+            <ul>
+                <li>Self-Assessment (If you are feeling unwell and/or experiencing symptoms of COVID-19, you should not
+                    attend)</li>
+                <li>Wearing a Mask</li>
+            </ul>
+            </p>
             <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
                 1937 300.</p>
             <p>
