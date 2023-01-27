@@ -95,8 +95,10 @@ class XenditCallbackController extends Controller
                     'price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
                     'total_price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
                     'voucher_price' => number_format(0, 0, ',', '.'),
+                    'image' => $db,
+                    'job_title' => $findUser->job_title,
+                    ''
                 ];
-
                 if ($payment_method == 'CREDIT_CARD') {
                     $check->status_registration = "Paid Off";
                     $check->payment_method = $payment_method;
@@ -117,6 +119,14 @@ class XenditCallbackController extends Controller
                         $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                     });
 
+                    $pdf = Pdf::loadView('email.ticket', $data);
+                    Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser) {
+                        $message->from(env('EMAIL_SENDER'));
+                        $message->to($findUser->email);
+                        $message->subject($findUser->code_payment . ' - Your registration is approved for Energy Market Briefing 2022');
+                        $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
+                    });
+
                     $send = new WhatsappApi();
                     $send->phone = '087802023308';
                     $send->message = '
@@ -133,11 +143,39 @@ Thank you
 Best Regards Bot DMC
 ';
                     $send->WhatsappMessage();
+                    $notif = new Notification();
+                    $notif->id = $check->member_id;
+                    $notif->message = 'Payment successfully Web';
+                    $notif->NotifApp();
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Payment status is updated';
                 } else {
 
                     if (in_array($status, ['PAID'])) {
+                        $findUser = Payment::where('code_payment', $external_id)
+                            ->join('users as a', 'a.id', 'payment.member_id')
+                            ->join('profiles as b', 'a.id', 'b.users_id')
+                            ->join('company as c', 'c.id', 'b.company_id')
+                            ->first();
+                        $findTicket = EventsTicket::where('id', '=', $findUser->tickets_id)->first();
+                        $data = [
+                            'users_name' => $findUser->name,
+                            'users_email' => $findUser->email,
+                            'phone' => $findUser->phone,
+                            'company_name' => $findUser->company_name,
+                            'company_address' => $findUser->address,
+                            'status' => 'Paid Off',
+                            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                            'code_payment' => $findUser->code_payment,
+                            'create_date' => date('d, M Y H:i'),
+                            'package_name' => $findUser->package,
+                            'price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                            'total_price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                            'voucher_price' => number_format(0, 0, ',', '.'),
+                            'image' => $db,
+                            'job_title' => $findUser->job_title,
+                            ''
+                        ];
                         $check->status_registration = "Paid Off";
                         $check->payment_method = $payment_method;
                         $check->link = null;
