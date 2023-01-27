@@ -387,7 +387,7 @@ class EventController extends Controller
             Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject($codePayment . ' - Your registration is approved for Energy Market Briefing 2022');
+                $message->subject($codePayment . ' - Your registration is approved for Mineral Trends 2023');
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
             });
         }
