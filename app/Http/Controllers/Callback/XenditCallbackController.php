@@ -122,7 +122,7 @@ class XenditCallbackController extends Controller
                     Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($findUser->email);
-                        $message->subject($findUser->code_payment . ' - Your registration is approved for Energy Market Briefing 2022');
+                        $message->subject($findUser->code_payment . ' - Your registration is approved for Mineral Trends 2023 ');
                         $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
                     });
 
