@@ -391,8 +391,7 @@ class EventController extends Controller
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
             });
         }
-        return 'sampai disini dlu';
-        return redirect()->back()->with('alert', 'Successfully Registering as Sponsor');
+        return redirect()->back()->with('alert', 'Successfully Registering Sponsor');
     }
 
     public function register_multiple(Request $request)
