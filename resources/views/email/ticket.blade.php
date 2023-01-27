@@ -175,7 +175,7 @@
                 1937 300.</p>
 
             <p>Your Sincerely,</p>
-            <span>The Djakarta Mining Club & Coal Club Indonesia Team</span>
+            <span>The Djakarta Mining Club Team</span>
         </div>
     </div>
 
