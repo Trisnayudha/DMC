@@ -17,8 +17,8 @@ class CreateProfilesTable extends Migration
             $table->id();
             $table->timestamps();
             $table->string('prefix_phone')->nullable();
-            $table->string('phone')->unique();
-            $table->string('fullphone')->unique();
+            $table->string('phone')->unique()->nullable();
+            $table->string('fullphone')->unique()->nullable();
             $table->string('job_title')->nullable();
             $table->string('image')->nullable();
             $table->integer('users_id')->unsigned();

@@ -336,7 +336,17 @@
 
                         </div>
                         <hr class="my-4">
-                        <div class="customer"></div>
+                        {{-- <div class="customer"></div> --}}
+                        <div class="form-check non-member">
+                            <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
+                                checked required value="nonmember">
+                            <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
+                        </div>
+                        <div class="form-check member">
+                            <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
+                                required value="member">
+                            <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
+                        </div>
 
                         <hr class="my-4">
 
@@ -461,58 +471,58 @@
             initialCountry: "id",
 
         });
-        $(document).ready(function() {
-            $('#email').change(function() {
-                var email = $("#email").val();
+        // $(document).ready(function() {
+        //     $('#email').change(function() {
+        //         var email = $("#email").val();
 
-                var listErrorPrefixs = $("#listStringPrefix").val();
-                console.log(email)
-                $.ajax({
-                    type: 'POST',
-                    url: '{{ url('/register/email') }}',
-                    headers: {
-                        'X-CSRF-Token': '{{ csrf_token() }}',
-                    },
-                    data: 'email=' + email,
-                    success: function(msg) {
-                        console.log(msg)
-                        if (msg.status == 1) {
+        //         var listErrorPrefixs = $("#listStringPrefix").val();
+        //         console.log(email)
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: '{{ url('/register/email') }}',
+        //             headers: {
+        //                 'X-CSRF-Token': '{{ csrf_token() }}',
+        //             },
+        //             data: 'email=' + email,
+        //             success: function(msg) {
+        //                 console.log(msg)
+        //                 if (msg.status == 1) {
 
-                            // Mendapatkan elemen yang akan dihapus
-                            $('.member').remove();
-                            $('.non-member').remove();
-                            $(".customer").append(
-                                `  <div class="form-check member">
-                                <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
-                                    checked required value="member">
-                                <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
-                            </div>`
-                            );
-                        } else {
-                            $('.member').remove();
-                            $('.non-member').remove();
-                            $(".customer").append(
-                                `  <div class="form-check non-member">
-                                <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-                                    checked required value="nonmember">
-                                <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
-                            </div>`
-                            );
-                        }
-                        // if (msg == 'found same') {
-                        //     swal("Warning", "Email (" + email +
-                        //         ") is Already Registered", "warning");
-                        //     $("#email").val("");
-                        // } else if (msg == 'error prefix') {
-                        //     swal("Warning",
-                        //         "Sorry you can't use email, which is affiliated " +
-                        //         listErrorPrefixs, "warning");
-                        //     $("#email").val("");
-                        // }
-                    }
-                });
-            });
-        });
+        //                     // Mendapatkan elemen yang akan dihapus
+        //                     $('.member').remove();
+        //                     $('.non-member').remove();
+        //                     $(".customer").append(
+        //                         `  <div class="form-check member">
+    //                         <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
+    //                             checked required value="member">
+    //                         <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
+    //                     </div>`
+        //                     );
+        //                 } else {
+        //                     $('.member').remove();
+        //                     $('.non-member').remove();
+        //                     $(".customer").append(
+        //                         `  <div class="form-check non-member">
+    //                         <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
+    //                             checked required value="nonmember">
+    //                         <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
+    //                     </div>`
+        //                     );
+        //                 }
+        //                 // if (msg == 'found same') {
+        //                 //     swal("Warning", "Email (" + email +
+        //                 //         ") is Already Registered", "warning");
+        //                 //     $("#email").val("");
+        //                 // } else if (msg == 'error prefix') {
+        //                 //     swal("Warning",
+        //                 //         "Sorry you can't use email, which is affiliated " +
+        //                 //         listErrorPrefixs, "warning");
+        //                 //     $("#email").val("");
+        //                 // }
+        //             }
+        //         });
+        //     });
+        // });
     </script>
 </body>
 
