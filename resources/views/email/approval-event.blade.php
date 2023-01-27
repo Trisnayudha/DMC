@@ -128,7 +128,7 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for Energy Market Briefing 2022 has now been approved. Your registration number is
+            <p>Your registration for Mineral Trends 2023 has now been approved. Your registration number is
                 <b
                     style="background-color: #F1B22C;
                 border: none;
@@ -150,17 +150,17 @@
                 <tr>
                     <th>Topic</th>
                     <th>:</th>
-                    <td>Energy Market Briefing 2022 </td>
+                    <td>Mineral Trends 2023 </td>
                 </tr>
                 <tr>
                     <th>Date</th>
                     <th>:</th>
-                    <td>Wednesday – November 30, 2022</td>
+                    <td>Wednesday - 8 February 2023</td>
                 </tr>
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>2.00 - 6.00pm</td>
+                    <td>04.00 pm - 07.00 pm (Jakarta Time)</td>
                 </tr>
                 <tr>
                     <th>Venue</th>
@@ -206,7 +206,7 @@
                 We look forward to meeting you in person. Thank you</p>
             <br>
             <p>Your Sincerely,</p>
-            <span>The Djakarta Mining Club & Coal Club Indonesia Team</span>
+            <span>The Djakarta Mining Club</span>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.
