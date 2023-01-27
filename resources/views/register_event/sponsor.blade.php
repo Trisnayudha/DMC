@@ -202,7 +202,7 @@
                             <div class="col-sm-12 mt-2">
 
                                 <a href="javascript:void(0)" class="addData btn btn-primary float-right"> Add
-                                    participant</a>
+                                    delegate</a>
                             </div>
                         </div>
 
@@ -317,7 +317,7 @@
                             </div>
                             <div class="col-sm-12 mt-2">
                                 <a href="javascript:void(0)" class="remove btn btn-danger float-right">Delete
-                                    participant</a>
+                                    delegate</a>
                             </div>
                         </div>`
             );

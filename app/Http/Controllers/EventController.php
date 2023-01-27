@@ -298,27 +298,100 @@ class EventController extends Controller
     {
         $findSponsor = Sponsor::find($request->company);
         foreach ($request->name as $key => $value) {
-            $create = MemberModel::create([
-                'sponsor_id' => $request->company,
-                'company_name' => $findSponsor->name,
-                'address' => $findSponsor->address,
-                'office_number' => $findSponsor->office_number,
-                'company_website' => $findSponsor->company_website,
-                'name' => $request->name[$key],
+            $uname = strtoupper(Str::random(7));
+            $codePayment = strtoupper(Str::random(7));
+
+            $findUser = User::firstOrNew(array('email' => $request->email[$key]));
+            $findUser->name = $request->name[$key];
+            $findUser->email = $request->email[$key];
+            $findUser->password = Hash::make('DMC2023');
+            $findUser->uname = $uname;
+            $findUser->save();
+
+            $id[] = [
+                'id' => $findUser->id,
+                'code_payment' => $codePayment
+            ];
+            $id_final = $id[0]['id'];
+            // $code_payment_final = $id[0]['code_payment'];
+            $string_office = $request->office_number;
+            $office_number = preg_replace('/[^0-9]/', '', $string_office);
+            $firstTwoDigits_office = substr($string_office, 1, 3);
+            $phone_office = substr($office_number, 2);
+
+            $findCompany = CompanyModel::where('users_id', $findUser->id)->first();
+            if (empty($findCompany)) {
+                $findCompany = new CompanyModel();
+            }
+            $findCompany->company_name = $findSponsor->name;
+            $findCompany->office_number = $findSponsor->office_number;
+            $findCompany->address = $findSponsor->address;
+            $findCompany->users_id = $findUser->id;
+            $findCompany->save();
+
+
+            $string = $request->phone[$key];
+            $number = preg_replace('/[^0-9]/', '', $string);
+            $firstTwoDigits = substr($string, 1, 3);
+            $phone = substr($number, 2);
+
+            $findProfile = ProfileModel::where('users_id', $findUser->id)->first();
+            if (empty($findProfile)) {
+                $findProfile = new ProfileModel();
+            }
+            $findProfile->users_id = $findUser->id;
+            $findProfile->fullphone = $number;
+            $findProfile->job_title = $request->job_title[$key];
+            $findProfile->phone = $phone;
+            $findProfile->prefix_phone = $firstTwoDigits;
+            $findProfile->company_id = $findCompany->id;
+            $findProfile->save();
+            $image = QrCode::format('png')
+                ->size(200)->errorCorrection('H')
+                ->generate($codePayment);
+            $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+            $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+            Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+            $findPayment = Payment::where('member_id', $findUser->id)->where('events_id', '1')->first();
+            if (empty($findPayment)) {
+                $findPayment = new Payment();
+            }
+
+
+            $findPayment->member_id = $findUser->id;
+            $findPayment->package = 'Sponsors';
+            $findPayment->code_payment = $codePayment;
+            $findPayment->payment_method = 'CREDIT_CARD';
+            $findPayment->link = null;
+            $findPayment->events_id = 1;
+            $findPayment->tickets_id = 1;
+            $findPayment->status_registration = 'Paid Off';
+            $findPayment->groupby_users_id = $id_final;
+            $findPayment->save();
+
+            $data = [
+                'code_payment' => $codePayment,
+                'create_date' => date('d, M Y H:i'),
+                'users_name' => $request->name[$key],
+                'users_email' => $request->email[$key],
                 'phone' => $request->phone[$key],
                 'job_title' => $request->job_title[$key],
-                'email' => $request->email[$key],
-                'register_as' => 'Event-Sponsor'
-            ]);
-            $codePayment = strtoupper(Str::random(7));
-            Payment::create([
-                'member_id' => $create->id,
-                'package' => 'free',
-                'price' => 0,
-                'code_payment' => $codePayment,
-                'status' => 'Waiting'
-            ]);
+                'company_name' => $findCompany->company_name,
+                'company_address' => $findCompany->address,
+                'events_name' => 'Mineral Trends 2023',
+                'image' => $db
+            ];
+            $email =  $request->email[$key];
+
+            $pdf = Pdf::loadView('email.ticket', $data);
+            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
+                $message->from(env('EMAIL_SENDER'));
+                $message->to($email);
+                $message->subject($codePayment . ' - Your registration is approved for Energy Market Briefing 2022');
+                $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
+            });
         }
+        return 'sampai disini dlu';
         return redirect()->back()->with('alert', 'Successfully Registering as Sponsor');
     }
 
