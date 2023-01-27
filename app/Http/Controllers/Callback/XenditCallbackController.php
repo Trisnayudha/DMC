@@ -96,8 +96,7 @@ class XenditCallbackController extends Controller
                     'total_price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
                     'voucher_price' => number_format(0, 0, ',', '.'),
                     'image' => $db,
-                    'job_title' => $findUser->job_title,
-                    ''
+                    'job_title' => $findUser->job_title
                 ];
                 if ($payment_method == 'CREDIT_CARD') {
                     $check->status_registration = "Paid Off";
@@ -174,7 +173,6 @@ Best Regards Bot DMC
                             'voucher_price' => number_format(0, 0, ',', '.'),
                             'image' => $db,
                             'job_title' => $findUser->job_title,
-                            ''
                         ];
                         $check->status_registration = "Paid Off";
                         $check->payment_method = $payment_method;
