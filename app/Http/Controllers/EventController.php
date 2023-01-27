@@ -333,6 +333,7 @@ class EventController extends Controller
         $id = [];
         foreach ($request->name as $key => $value) {
             $uname = strtoupper(Str::random(7));
+            $code_payment = strtoupper(Str::random(7));
             $checkUser = User::where('email', $request->email[$key])->first();
             if (!empty($checkUser)) {
                 $count_ticket++;
@@ -363,9 +364,11 @@ class EventController extends Controller
             $findUser->save();
 
             $id[] = [
-                'id' => $findUser->id
+                'id' => $findUser->id,
+                'code_payment' => $code_payment
             ];
             $id_final = $id[0]['id'];
+            $code_payment_final = $id[0]['code_payment'];
             $string_office = $request->office_number;
             $office_number = preg_replace('/[^0-9]/', '', $string_office);
             $firstTwoDigits_office = substr($string_office, 1, 3);
@@ -408,7 +411,7 @@ class EventController extends Controller
             $findProfile->prefix_phone = $firstTwoDigits;
             $findProfile->company_id = $findCompany->id;
             $findProfile->save();
-            $code_payment = strtoupper(Str::random(7));
+
             $findPayment = Payment::where('member_id', $findUser->id)->where('events_id', '1')->first();
             if (empty($findPayment)) {
                 $findPayment = new Payment();
@@ -450,7 +453,7 @@ class EventController extends Controller
             ];
         }
         $params = [
-            'external_id' => $code_payment,
+            'external_id' => $code_payment_final,
             'payer_email' => $findUser->email,
             'description' => 'Invoice Event DMC',
             'amount' => $ticketfinal,
@@ -467,7 +470,7 @@ class EventController extends Controller
             ->join('company', 'company.users_id', 'users.id')
             ->first();
         $payload = [
-            'code_payment' => $code_payment,
+            'code_payment' => $code_payment_final,
             'create_date' => date('d, M Y H:i'),
             'users_name' => $findUser->name,
             'users_email' => $findUser->email,
@@ -481,6 +484,10 @@ class EventController extends Controller
             'total_price' => number_format($ticketfinal, 0, ',', '.'),
             'link' => $linkPay
         ];
+
+        $saveLink = Payment::where('code_payment', $code_payment_final)->first();
+        $saveLink->link = $linkPay;
+        $saveLink->save();
         // return view('email.invoice-new-multiple', $payload);
         $send = new EmailSender();
         $send->to = $firstUsers->email;
