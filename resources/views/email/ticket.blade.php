@@ -122,11 +122,11 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://api.djakarta-miningclub.com/image/logo-dmc-cci.png" alt="Image" class="img-logo">
+            <img src="https://api.djakarta-miningclub.com/image/dmc.png" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>This is your E-Ticket to attend Energy Market Briefing 2022, Your E-Ticket Attached.</p>
+            <p>This is your E-Ticket to attend Mineral Trends 2023, Your E-Ticket Attached.</p>
 
             <table class="table">
                 <tr>
