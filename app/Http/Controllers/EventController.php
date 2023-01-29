@@ -50,6 +50,40 @@ class EventController extends Controller
         return view('admin.events.create', $data);
     }
 
+    public function edit($id)
+    {
+        $findEvent = Events::where('id', $id)->first();
+        $data = [
+            'data' => $findEvent
+        ];
+        return view('admin.events.edit', $data);
+    }
+
+    public function update(Request $request)
+    {
+        $findEvent = Events::where('id', $request->id)->first();
+        $findEvent->name = $request->name;
+        $findEvent->location = $request->location;
+        $findEvent->description = $request->description;
+        $findEvent->type = $request->type;
+        $findEvent->location = $request->location;
+        $findEvent->start_date = $request->start_date;
+        $findEvent->end_date = $request->end_date;
+        $findEvent->start_time = $request->start_time;
+        $findEvent->end_time = $request->end_time;
+        $findEvent->status = $request->status;
+        $findEvent->slug = Str::slug($request->name);
+        $file = $request->image;
+        if (!empty($file)) {
+            $imageName = time() . '.' . $request->image->extension();
+            $db = '/storage/events/' . $imageName;
+            $findEvent_folder = $request->image->storeAs('public/events', $imageName);
+            $findEvent->image = $db;
+        }
+        $findEvent->save();
+        return redirect()->route('events')->with('success', 'Successfully Update event');
+    }
+
     public function detail($slug)
     {
         $this->middleware('auth');

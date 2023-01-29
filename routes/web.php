@@ -74,6 +74,8 @@ Route::post('/request-event', [EventController::class, 'request']);
 
 Route::get('/events', [EventController::class, 'index'])->name('events');
 Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+Route::get('/events/edit/{id}', [EventController::class, 'edit'])->name('events.edit');
+Route::post('/events/update', [EventController::class, 'update'])->name('events.update');
 Route::post('events/store', [EventController::class, 'store'])->name('events.store');
 Route::get('/events/{slug}/detail', [EventController::class, 'detail'])->name('events-details');
 //Events Category

@@ -83,7 +83,8 @@
                                                         <a href="{{ Route('events-details', $post->slug) }}"
                                                             class="btn btn-primary" title="Lihat Peserta">
                                                             <span class="fa fa-user"></span></a>
-                                                        <a href="#" class="btn btn-success" title="Edit Data">
+                                                        <a href="{{ Route('events.edit', $post->id) }}"
+                                                            class="btn btn-success" title="Edit Data">
                                                             <span class="fa fa-edit"></span>
                                                         </a>
                                                         <button class="btn btn-danger" value="`+ row.id +`"
