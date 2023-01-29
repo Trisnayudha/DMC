@@ -71,6 +71,7 @@
                                         <thead>
                                             <tr>
                                                 <th width="10px">No</th>
+                                                <th>Event</th>
                                                 <th>Nama Ticket</th>
                                                 <th>Price Rupiah</th>
                                                 <th>Price USD</th>
@@ -84,6 +85,7 @@
                                             @foreach ($list as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
+                                                    <td>{{ $post->name }}</td>
                                                     <td>{{ $post->title }}</td>
                                                     <td>{{ $post->price_rupiah }}</td>
                                                     <td>{{ $post->price_dollar }}</td>
