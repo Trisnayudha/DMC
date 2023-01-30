@@ -116,7 +116,7 @@
                     <p>
                         Time
                     </p>
-                    <p>Concept</p>
+                    <p>Event Type</p>
                     <p>
                         Location
                     </p>
