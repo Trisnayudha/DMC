@@ -203,7 +203,7 @@ Your verification code (OTP) ' . $otp;
                 'fullphone' => $validate->errors()->first('fullphone')
             ];
             $response['status'] = 422;
-            $response['message'] = 'Something was wrong';
+            $response['message'] = 'Checking Email & Fullphone was wrong';
             $response['payload'] = $data;
         } else {
             $response['status'] = 200;
@@ -253,8 +253,8 @@ Your verification code (OTP) ' . $otp;
         $explore = $request->explore;
         if ($validate->fails()) {
             $response['status'] = 401;
-            $response['message'] = 'Something was wrong';
-            $response['payload'] = $validate->errors()->first();
+            $response['message'] = $validate->errors()->first();
+            $response['payload'] = null;
         } else {
             $findUsers = MemberModel::where('phone', $phone)->orWhere('email', $email)->first();
             if (!empty($findUsers)) {
