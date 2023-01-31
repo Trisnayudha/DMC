@@ -163,7 +163,7 @@ Your verification code (OTP) ' . $otp;
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $role[0]->name,
+                'role' => isset($role[0]->name) ? $role[0]->name : 'guest',
                 'token' => $user->createToken('token-name')->plainTextToken,
                 'verify_email' => $user->verify_email,
                 'verify_phone' => $user->verify_phone
