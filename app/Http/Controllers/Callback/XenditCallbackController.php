@@ -127,9 +127,9 @@ class XenditCallbackController extends Controller
                     });
 
                     $send = new WhatsappApi();
-                    $send->phone = '087802023308';
+                    $send->phone = '08111937300';
                     $send->message = '
-Hai Mba Fany
+Hai Team,
 
 Success payment dari ' . $findUser->name . '
 Detail Informasinya:
@@ -200,10 +200,22 @@ Best Regards Bot DMC
                         $check->status_registration = "Expired";
                         $check->payment_method = $payment_method;
                         $check->link = null;
+
                         $send = new WhatsappApi();
-                        $send->phone = '083829314436';
+                        $send->phone = '08111937300';
                         $send->message = '
-Expired Date
+
+EXPIRED ALERT ! ! !
+
+Nama : ' . $findUser->name . '
+Email: ' . $findUser->email . '
+Phone Number: ' . $findUser->phone . '
+Company : ' . $findUser->company_name . '
+
+Tolong di kontak kembali , takutnya ada kesulitan payment
+
+Thank you
+Best Regards Bot DMC
 ';
                         $send->WhatsappMessage();
                         $res['api_status'] = 1;
