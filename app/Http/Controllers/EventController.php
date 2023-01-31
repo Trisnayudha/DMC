@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Xendit\Invoice;
 use Xendit\Xendit;
 use Illuminate\Support\Str;
@@ -200,9 +201,10 @@ class EventController extends Controller
         $company->country = $country;
         $company->users_id = $user->id;
         $company->save();
-        $profile = ProfileModel::firstOrNew([
-            'users_id' => $user->id
-        ]);
+        $profile = ProfileModel::where('phone', $phone)->first();
+        if (empty($profile)) {
+            $profile = new ProfileModel();
+        }
         $profile->phone = $phone;
         $profile->job_title = $job_title;
         $profile->users_id = $user->id;
