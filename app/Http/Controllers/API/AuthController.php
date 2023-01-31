@@ -426,7 +426,8 @@ Your verification code (OTP) ' . $otp;
                         'full_office_number' => $findUser->full_office_number,
                         'country' => $findUser->country,
                         'cci' => $findUser->cci,
-                        'explore' => $findUser->explore
+                        'explore' => $findUser->explore,
+                        'users_id' => $user->id
                     ]);
                     $profile = ProfileModel::create([
                         'prefix_phone' => $findUser->prefix_phone,
@@ -493,7 +494,8 @@ Your verification code (OTP) ' . $otp;
                         'full_office_number' => $findUser->full_office_number,
                         'country' => $findUser->country,
                         'cci' => $findUser->cci,
-                        'explore' => $findUser->explore
+                        'explore' => $findUser->explore,
+                        'users_id' => $user->id
                     ]);
                     $profile = ProfileModel::create([
                         'prefix_phone' => $findUser->prefix_phone,

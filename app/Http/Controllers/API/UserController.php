@@ -495,4 +495,18 @@ Your verification code (OTP) ' . $otp;
 
         return response()->json($response);
     }
+
+    public function deleteAccount()
+    {
+        $id = auth('sanctum')->user()->id;
+
+        $deleteTableUsers = User::where('id', $id)->delete();
+        $deleteTableProfile = ProfileModel::where('users_id', $id)->delete();
+        $deleteTableCompany = CompanyModel::where('users_id', $id)->delete();
+        $response['status'] = 200;
+        $response['message'] = 'Success Delete Account';
+        $response['payload'] = null;
+
+        return response()->json($response);
+    }
 }
