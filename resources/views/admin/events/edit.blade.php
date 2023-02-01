@@ -134,6 +134,20 @@
                                         @endif
                                     </div>
                                     <div class="form-group{{ $errors->has('start_time') ? ' has-error' : '' }}">
+                                        {!! Form::label('Waktu Mulai *') !!}
+                                        <div class="input-group clockpicker" data-autoclose="true">
+                                            {!! Form::text('end_time', $data->start_time, ['class' => 'form-control ', 'placeholder' => 'Waktu Mulai']) !!}
+                                            <span class="input-group-addon">
+                                                <span class="fa fa-clock-o"></span>
+                                            </span>
+                                        </div>
+                                        @if ($errors->has('start_time'))
+                                            <span class="help-block">
+                                                <strong>{{ $errors->first('start_time') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="form-group{{ $errors->has('start_time') ? ' has-error' : '' }}">
                                         {!! Form::label('Waktu Selesai *') !!}
                                         <div class="input-group clockpicker" data-autoclose="true">
                                             {!! Form::text('end_time', $data->end_time, ['class' => 'form-control ', 'placeholder' => 'Waktu Selesai']) !!}

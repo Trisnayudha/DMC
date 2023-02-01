@@ -15,6 +15,7 @@ use App\Models\Sponsors\Sponsor;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Illuminate\Console\Scheduling\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -91,22 +92,24 @@ class EventController extends Controller
         $checkEvent = Events::where('slug', $slug)->first();
         if (!empty($checkEvent)) {
 
-            $list = DB::table('payment')
-                ->join('users', 'users.id', 'payment.member_id')
-                ->join('profiles', 'profiles.users_id', 'users.id')
+            $list = Payment::join('users', 'users.id', 'payment.member_id')
                 ->join('company', 'company.users_id', 'users.id')
-                ->select('payment.*', 'users.*', 'profiles.*', 'company.*', 'payment.id as payment_id')
+                ->join('profiles', 'profiles.users_id', 'users.id')
                 ->where('payment.events_id', $checkEvent->id)
                 ->get();
             // dd($list);
+            $users = User::orderBy('id', 'desc')->get();
             $data = [
-                'payment' => $list
+                'payment' => $list,
+                'users' => $users,
+                'slug' => $slug
             ];
             return view('admin.events.event-detail', $data);
         } else {
             return 'Event Not Found';
         }
     }
+
     public function store(Request $request)
     {
         $save = new Events();
@@ -722,6 +725,248 @@ class EventController extends Controller
         } catch (Exception $e) {
             $error_code = $e->errorInfo[1];
             return back()->withErrors('There was a problem uploading the data!');
+        }
+    }
+
+    public function dataCheck(Request $request)
+    {
+        $id = $request->nama;
+        $ticket = $request->ticket;
+        $pilihan = $request->pilihan;
+        $slug  = $request->event;
+        $code_payment = strtoupper(Str::random(7));
+        $findUsers = User::where('users.id', $id)
+            ->leftjoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftjoin('company', 'company.users_id', 'users.id')
+            ->select('users.id as users_id', 'users.*', 'company.*', 'profiles.*')
+            ->first();
+        $findEvent = Events::where('slug', $slug)->first();
+        $findPayment = Payment::where('member_id', $id)->where('events_id', $findEvent->id)->first();
+        if ($findUsers) {
+            if (empty($findPayment)) {
+
+                // $image = QrCode::format('png')
+                //     ->size(200)->errorCorrection('H')
+                //     ->generate($code_payment);
+                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                // Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                $save = new Payment();
+                $save->member_id = $id;
+                $save->package = $ticket;
+                $save->code_payment = $code_payment;
+                $save->events_id = $findEvent->id;
+                $save->tickets_id = 6; // perlu di dinamisin
+                $save->status_registration = 'Paid Off';
+                $save->qr_code = $db;
+                $save->save();
+
+                if (!empty($pilihan)) {
+
+                    $data = [
+                        'code_payment' => $code_payment,
+                        'create_date' => date('d, M Y H:i'),
+                        'users_name' => $findUsers->name,
+                        'users_email' => $findUsers->email,
+                        'phone' => $findUsers->phone,
+                        'job_title' => $findUsers->job_title,
+                        'company_name' => $findUsers->company_name,
+                        'company_address' => $findUsers->address,
+                        'events_name' => 'Mineral Trends 2023',
+                        'image' => $db
+                    ];
+                    $email = $findUsers->email;
+                    // dd("sukses");
+                    ini_set('max_execution_time', 300);
+
+                    $pdf = Pdf::loadView('email.ticket', $data);
+                    Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment) {
+                        $message->from(env('EMAIL_SENDER'));
+                        $message->to($email);
+                        $message->subject($code_payment . ' - Your registration is approved for Mineral Trends 2023');
+                        $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
+                    });
+                }
+                return back()->with('success', 'Success add peserta');
+            } else {
+                return back()->with('error', 'Peserta sudah ada mendaftarkan diri');
+            }
+        }
+    }
+
+    public function regisInvitation(Request $request)
+    {
+        // dd($request->all());
+        $prefix = $request->prefix;
+        $name = $request->name;
+        $company_website = $request->company_website;
+        $job_title = $request->job_title;
+        $company_category = $request->company_category;
+        $company_name = $request->company_name;
+        $email = $request->email;
+        $phone = $request->phone;
+        $country = $request->country;
+        $address = $request->address;
+        $office_number = $request->office_number;
+
+        $portal_code = $request->portal_code;
+        $city = $request->city;
+        $company_other = $request->company_other;
+        $paymentMethod = $request->ticket;
+
+        $user = User::firstOrNew(
+            ['email' =>  $email],
+        );
+        $user->name = $name;
+        $user->email = $email;
+        $user->save();
+
+        $company = CompanyModel::firstOrNew([
+            'users_id' => $user->id
+        ]);
+        $company->prefix = $prefix;
+        $company->company_name = $company_name;
+        $company->company_website = $company_website;
+        $company->company_category = $company_category;
+        $company->company_other = $company_other;
+        $company->address = $address;
+        $company->city = $city;
+        $company->portal_code = $portal_code;
+        $company->office_number = $office_number;
+        $company->country = $country;
+        $company->users_id = $user->id;
+        $company->save();
+        $profile = ProfileModel::where('users_id', $user->id)->first();
+        if (empty($profile)) {
+            $profile = new ProfileModel();
+        }
+        $profile->phone = $phone;
+        $profile->job_title = $job_title;
+        $profile->users_id = $user->id;
+        $profile->company_id = $company->id;
+        $profile->save();
+
+
+        if ($paymentMethod == 'member') {
+            $total_price = 900000;
+        } else if ($paymentMethod == 'nonmember') {
+            $total_price = 1000000;
+        } else if ($paymentMethod == 'onsite') {
+            $total_price = 1250000;
+        } else {
+            $total_price  = 0;
+        }
+        $codePayment = strtoupper(Str::random(7));
+        $date = date('d-m-Y H:i:s');
+        $linkPay = null;
+        if ($paymentMethod != 'free') {
+            // init xendit
+            $isProd = env('XENDIT_ISPROD');
+            if ($isProd) {
+                $secretKey = env('XENDIT_SECRET_KEY_PROD');
+            } else {
+                $secretKey = env('XENDIT_SECRET_KEY_TEST');
+            }
+            // params invoice
+            Xendit::setApiKey($secretKey);
+
+
+            $params = [
+                'external_id' => $codePayment,
+                'payer_email' => $email,
+                'description' => 'Invoice Event DMC',
+                'amount' => $total_price,
+                'success_redirect_url' => 'https://djakarta-miningclub.com',
+                'failure_redirect_url' => url('/'),
+            ];
+            $createInvoice = Invoice::create($params);
+            $linkPay = $createInvoice['invoice_url'];
+        }
+        $check = Payment::where('events_id', '=', '1')->where('member_id', '=', $user->id)->first();
+
+        $data = [
+            'code_payment' => $codePayment,
+            'create_date' => date('d, M Y H:i'),
+            'due_date' => date('d, M Y H:i', strtotime($date . ' +1 day')),
+            'users_name' => $name,
+            'users_email' => $email,
+            'phone' => $phone,
+            'company_name' => $company_name,
+            'company_address' => $address,
+            'status' => 'WAITING',
+            'events_name' => 'Mineral Trends 2023',
+            'price' => number_format($total_price, 0, ',', '.'),
+            'voucher_price' => 0,
+            'total_price' => number_format($total_price, 0, ',', '.'),
+            'link' => $linkPay
+        ];
+
+        if (empty($check)) {
+            $payment = Payment::firstOrNew(['member_id' => $user->id]);
+            if ($paymentMethod == 'free') {
+                $payment->package = $paymentMethod;
+                // $payment->price = $total_price;
+                $payment->status_registration = 'Paid Off';
+                $payment->code_payment = $codePayment;
+                $payment->events_id = 1;
+            } else {
+                $payment->package = $paymentMethod;
+                $payment->payment_method = 'Credit Card';
+                $payment->status_registration = 'Waiting';
+                $payment->link = $linkPay;
+                $payment->code_payment = $codePayment;
+                $payment->events_id = 1;
+                if ($paymentMethod == 'member') {
+                    $payment->tickets_id = 1;
+                } else if ($paymentMethod == 'nonmember') {
+                    $payment->tickets_id = 2;
+                } else {
+                    $payment->tickets_id = 6;
+                }
+            }
+            $payment->save();
+            if ($paymentMethod == 'free') {
+                // $image = QrCode::format('png')
+                //     ->size(200)->errorCorrection('H')
+                //     ->generate($code_payment);
+                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                // Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                $data = [
+                    'code_payment' => $codePayment,
+                    'create_date' => date('d, M Y H:i'),
+                    'users_name' => $name,
+                    'users_email' => $email,
+                    'phone' => $phone,
+                    'company_name' => $company_name,
+                    'company_address' => $address,
+                    'job_title' => $job_title,
+                    'events_name' => 'Mineral Trends 2023',
+                    'image' => $db
+                ];
+                // dd("sukses");
+                ini_set('max_execution_time', 300);
+
+                $pdf = Pdf::loadView('email.ticket', $data);
+                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
+                    $message->from(env('EMAIL_SENDER'));
+                    $message->to($email);
+                    $message->subject($codePayment . ' - Your registration is approved for Mineral Trends 2023');
+                    $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
+                });
+                return redirect()->back()->with('alert', 'Register Successfully');
+            } else {
+                // $pdf = Pdf::loadView('email.invoice-new', $data);
+                Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
+                    $message->from(env('EMAIL_SENDER'));
+                    $message->to($email);
+                    $message->subject('Invoice - Waiting for Payment');
+                    // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
+                });
+                return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
+            }
+        } else {
+            return redirect()->back()->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
         }
     }
 }
