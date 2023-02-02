@@ -114,29 +114,10 @@
                                     <h4>Publish</h4>
                                 </div>
                                 <div class="card-body">
-                                    <div class="form-group{{ $errors->has('start_date') ? ' has-error' : '' }}">
-                                        {!! Form::label('Tanggal Mulai *') !!}
-                                        <div class="input-group date">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fas fa-calendar"></i>
-                                                </div>
-                                            </div>
-                                            {!! Form::text('start_date', date('Y/m/d', strtotime($data->start_date)), [
-                                                'class' => 'form-control datepicker',
-                                                'placeholder' => 'Tanggal Mulai',
-                                            ]) !!}
-                                        </div>
-                                        @if ($errors->has('start_date'))
-                                            <span class="help-block">
-                                                <strong>{{ $errors->first('start_date') }}</strong>
-                                            </span>
-                                        @endif
-                                    </div>
                                     <div class="form-group{{ $errors->has('start_time') ? ' has-error' : '' }}">
                                         {!! Form::label('Waktu Mulai *') !!}
                                         <div class="input-group clockpicker" data-autoclose="true">
-                                            {!! Form::text('end_time', $data->start_time, ['class' => 'form-control ', 'placeholder' => 'Waktu Mulai']) !!}
+                                            {!! Form::text('start_time', $data->start_time, ['class' => 'form-control ', 'placeholder' => 'Waktu Mulai']) !!}
                                             <span class="input-group-addon">
                                                 <span class="fa fa-clock-o"></span>
                                             </span>
@@ -161,15 +142,15 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <div class="form-group{{ $errors->has('end_date') ? ' has-error' : '' }}">
-                                        {!! Form::label('Tanggal Selesai *') !!}
+                                    <div class="form-group{{ $errors->has('start_date') ? ' has-error' : '' }}">
+                                        {!! Form::label('Tanggal Mulai *') !!}
                                         <div class="input-group date">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
                                                     <i class="fas fa-calendar"></i>
                                                 </div>
                                             </div>
-                                            {!! Form::text('end_date', date('Y/m/d', strtotime($data->end_date)), [
+                                            {!! Form::text('start_date', date('Y/m/d', strtotime($data->start_date)), [
                                                 'class' => 'form-control datepicker',
                                                 'placeholder' => 'Tanggal Selesai',
                                             ]) !!}
