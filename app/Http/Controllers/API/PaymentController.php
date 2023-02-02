@@ -111,9 +111,9 @@ class PaymentController extends Controller
                     'bank_code' => $payment_method,
                     'name' => $findUsers->name,
                     'expected_amount' => $findTicket->price_rupiah,
-                    // 'is_closed' => true,
+                    'is_closed' => true,
                     "expiration_date" => Carbon::now()->addDays(1)->toISOString(),
-                    // 'is_single_use' => true,
+                    'is_single_use' => true,
                 ];
 
                 $createVA = VirtualAccounts::create($params);
