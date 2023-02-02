@@ -16,6 +16,7 @@ use App\Repositories\Company;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Ladumor\OneSignal\OneSignal;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class XenditCallbackController extends Controller
@@ -235,7 +236,7 @@ Best Regards Bot DMC
             return response()->json($res, 500);
         }
     }
-    public function fva(Request $request)
+    public function fva_paid(Request $request)
     {
         // "updated": "2017-02-15T11:01:52.896Z",
         // "created": "2017-02-15T11:01:52.896Z",
@@ -286,6 +287,33 @@ Best Regards Bot DMC
             $res['api_status'] = 0;
             $res['api_message'] = $msg->getMessage();
             return response()->json($res, 500);
+        }
+    }
+
+    public function fva_create()
+    { {
+            // "id": "63db6e78c5f24b5e0540db9d",
+            // "name": "Dandi",
+            // "status": "ACTIVE",
+            // "country": "ID",
+            // "created": "2023-02-02T08:04:08.767Z",
+            // "updated": "2023-02-02T08:04:08.806Z",
+            // "currency": "IDR",
+            // "owner_id": "627a17539917bb3ad4f7cf88",
+            // "bank_code": "BRI",
+            // "is_closed": true,
+            // "external_id": "HMECFEQ",
+            // "is_single_use": true,
+            // "merchant_code": "13282",
+            // "account_number": "13282472664527646",
+            // "expected_amount": 10000,
+            // "expiration_date": "2023-02-03T08:04:07.137Z"
+            $external_id = request('external_id');
+            $check = Payment::where('code_payment', $external_id)->first();
+            $fields['include_external_user_ids'] = ['external_user_id_' . $check->users_id];
+            $message = 'hey!! this is test push.!';
+
+            OneSignal::sendPush($fields, $message);
         }
     }
 }
