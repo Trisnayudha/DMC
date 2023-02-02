@@ -133,7 +133,7 @@ class PaymentController extends Controller
                 $save_va->save();
                 $notif = new Notification();
                 $notif->id = $id;
-                $notif->message = 'Invoice ' . $codePayment . ' created succesfully';
+                $notif->message = 'Your wait is over! Your Virtual Account is now up and running, ready for smooth transactions.';
                 $notif->NotifApp();
             }
             $response['status'] = 200;
