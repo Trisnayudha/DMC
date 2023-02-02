@@ -96,6 +96,7 @@ class EventController extends Controller
                 ->join('company', 'company.users_id', 'users.id')
                 ->join('profiles', 'profiles.users_id', 'users.id')
                 ->where('payment.events_id', $checkEvent->id)
+                ->select('users.*', 'payment.*', 'company.*', 'profiles.*', 'payment.id as payment_id')
                 ->get();
             // dd($list);
             $users = User::orderBy('id', 'desc')->get();
@@ -612,19 +613,20 @@ class EventController extends Controller
 
     public function request(Request $request)
     {
-        // dd($request->all());
         $id = $request->id;
         $val = $request->val;
         $db = null;
         $update = Payment::where('id', $id)->first();
         if (!empty($update)) {
             $check = DB::table('payment')
-                ->join('xtwp_users_dmc', 'xtwp_users_dmc.id', 'payment.member_id')
-                ->select('payment.*', 'xtwp_users_dmc.*', 'payment.id as payment_id')
+                ->join('users', 'users.id', 'payment.member_id')
+                ->join('company', 'company.users_id', 'users.id')
+                ->join('profiles', 'profiles.users_id', 'users.id')
+                ->select('payment.*', 'users.*', 'payment.id as payment_id', 'profiles.*', 'company.*')
                 ->where('payment.id', '=', $id)
                 ->first();
             if ($val == 'approve') {
-                $update->status = "Approve";
+                $update->status_registration = "Approve";
                 $image = QrCode::format('png')
                     ->size(200)->errorCorrection('H')
                     ->generate($check->code_payment);
@@ -633,7 +635,7 @@ class EventController extends Controller
                 Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                 $update->qr_code = $db;
             } else {
-                $update->status = "Reject";
+                $update->status_registration = "Reject";
             }
             $update->save();
 
