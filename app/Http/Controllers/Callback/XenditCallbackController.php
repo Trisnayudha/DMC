@@ -262,8 +262,10 @@ Best Regards Bot DMC
                 $findPayment->save();
                 $findUsersVA->status = 'Paid Off';
                 $findUsersVA->save();
-
-                $UserEvent = new UserRegister();
+                $UserEvent = UserRegister::where('payment_id', $findPayment->id)->first();
+                if (empty($UserEvent)) {
+                    $UserEvent = new UserRegister();
+                }
                 $UserEvent->users_id = $findPayment->member_id;
                 $UserEvent->events_id = $findPayment->events_id;
                 $UserEvent->payment_id = $findPayment->id;

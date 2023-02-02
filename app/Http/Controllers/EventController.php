@@ -401,7 +401,6 @@ class EventController extends Controller
             $findPayment->member_id = $findUser->id;
             $findPayment->package = 'Sponsors';
             $findPayment->code_payment = $codePayment;
-            $findPayment->payment_method = 'CREDIT_CARD';
             $findPayment->link = null;
             $findPayment->events_id = 1;
             $findPayment->tickets_id = 1;
