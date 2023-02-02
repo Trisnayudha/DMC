@@ -310,10 +310,12 @@ Best Regards Bot DMC
             // "expiration_date": "2023-02-03T08:04:07.137Z"
             $external_id = request('external_id');
             $check = Payment::where('code_payment', $external_id)->first();
-            $fields['include_external_user_ids'] = ['external_user_id_' . $check->users_id];
+            $fields['include_external_user_ids'] = ['external_user_id_' . $check->member_id];
             $message = 'hey!! this is test push.!';
 
-            OneSignal::sendPush($fields, $message);
+            $d = OneSignal::sendPush($fields, $message);
+
+            return response()->json($d);
         }
     }
 }
