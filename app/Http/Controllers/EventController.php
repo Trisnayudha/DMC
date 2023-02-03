@@ -648,7 +648,7 @@ class EventController extends Controller
                 'job_title' => $check->job_title,
                 'company_name' => $check->company_name,
                 'company_address' => $check->address,
-                'events_name' => 'Djakarta Mining Club and Coal Club Indonesia x McCloskey by OPIS',
+                'events_name' => 'Djakarta Mining Club Mineral Trends 2023',
                 'image' => $db
             ];
             $email = $check->email;
@@ -658,7 +658,7 @@ class EventController extends Controller
                 Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject($code_payment . ' - Your registration is approved for Energy Market Briefing 2022');
+                    $message->subject($code_payment . ' - Your registration is approved for Mineral Trends 2023');
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
                 return redirect()->back()->with('success', 'Successfully Approval');
@@ -667,7 +667,7 @@ class EventController extends Controller
                 $send->from = env('EMAIL_SENDER');
                 $send->to = $email;
                 $send->data = $data;
-                $send->subject = '[FULLY BOOKED] Energy Market Briefing 2022';
+                $send->subject = '[FULLY BOOKED] Mineral Trends 2023';
                 $send->name = $check->name;
                 $send->template = 'email.reject-event';
                 $send->sendEmail();
