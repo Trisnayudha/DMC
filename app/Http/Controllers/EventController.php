@@ -625,7 +625,7 @@ class EventController extends Controller
                 ->where('payment.id', '=', $id)
                 ->first();
             if ($val == 'approve') {
-                $update->status_registration = "Approve";
+                $update->status_registration = "Paid Off";
                 $image = QrCode::format('png')
                     ->size(200)->errorCorrection('H')
                     ->generate($check->code_payment);
