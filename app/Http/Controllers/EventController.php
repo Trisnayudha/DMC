@@ -205,7 +205,7 @@ class EventController extends Controller
         $company->country = $country;
         $company->users_id = $user->id;
         $company->save();
-        $profile = ProfileModel::where('phone', $phone)->first();
+        $profile = ProfileModel::where('users_id', $user->id)->first();
         if (empty($profile)) {
             $profile = new ProfileModel();
         }
