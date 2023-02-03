@@ -272,7 +272,7 @@ Best Regards Bot DMC
                 $UserEvent->save();
                 $send = new WhatsappApi();
                 $send->phone = '083829314436';
-                $send->message = 'Succes Fully Payment';
+                $send->message = 'Succes Fully Payment FVA';
                 $send->WhatsappMessage();
                 $notif = new Notification();
                 $notif->id = $findPayment->member_id;
