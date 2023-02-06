@@ -80,6 +80,7 @@ Route::get('/events/edit/{id}', [EventController::class, 'edit'])->name('events.
 Route::post('/events/update', [EventController::class, 'update'])->name('events.update');
 Route::post('events/store', [EventController::class, 'store'])->name('events.store');
 Route::get('/events/{slug}/detail', [EventController::class, 'detail'])->name('events-details');
+Route::get('/events/{slug}/detail-participant', [EventController::class, 'detail_participant'])->name('events-details-participant');
 Route::post('/events/addCheck', [EventController::class, 'dataCheck'])->name('events.add.check');
 Route::post('/events/addInvitation', [EventController::class, 'regisInvitation'])->name('events.add.invitation');
 //Events Category

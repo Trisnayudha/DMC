@@ -992,4 +992,36 @@ class EventController extends Controller
             return redirect()->back()->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
         }
     }
+
+    public function detail_participant($slug)
+    {
+        $findEvent = Events::where('slug', $slug)->first();
+        $findParticipant = Payment::where('payment.events_id', $findEvent->id)
+            ->where('payment.status_registration', 'Paid Off')
+            ->join('events', 'events.id', 'payment.events_id')
+            ->join('users', 'users.id', 'payment.member_id')
+            ->join('profiles', 'profiles.users_id', 'users.id')
+            ->join('company', 'company.users_id', 'users.id')
+            ->leftJoin('users_event', 'users_event.events_id', 'events.id')
+            ->select(
+                'users.id as users_id',
+                'users.name',
+                'users.email',
+                'payment.code_payment',
+                'payment.package',
+                'profiles.job_title',
+                'profiles.phone',
+                'company.company_name',
+                'users_event.present',
+                'users_event.created_at as create',
+                'users_event.updated_at as update',
+            )
+            ->get();
+        // dd($findParticipant);
+
+        $data = [
+            'list' => $findParticipant
+        ];
+        return view('admin.events.event-detail-participant', $data);
+    }
 }

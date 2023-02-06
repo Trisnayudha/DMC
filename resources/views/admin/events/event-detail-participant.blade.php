@@ -4,20 +4,20 @@
     <div class="content-wrapper">
         <section class="section">
             <div class="section-header">
-                <h1>Event Detail Management</h1>
+                <h1>Event Detail Participant Management</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active"><a href="">Event Detail Management</a>
+                    <div class="breadcrumb-item active"><a href="">Event Detail Participant Management</a>
                     </div>
                 </div>
             </div>
             <div class="section-body">
-                <h2 class="section-title">Event Detail </h2>
+                <h2 class="section-title">Event Detail Participant</h2>
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Event Detail Management</h4>
+                                <h4>Event Detail Participant Management</h4>
                             </div>
                             <div class="card-body">
                                 @if ($errors->any())
@@ -40,100 +40,37 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
-                                <div class="float-right ml-3">
-                                    <a href="javascript:;"
-                                        class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3" id="modal-2">
-                                        <i class="fas fa-plus-circle"></i>
-                                        Tambah Peserta
-                                    </a>
-                                </div>
-                                <div class="float-right">
-                                    <a href="{{ Route('events-details-participant', $slug) }}"
-                                        class="btn btn-block btn-icon icon-left btn-info btn-filter mb-3">
-                                        <i class="fa fa-users"></i>
-                                        View Participant Approve
-                                    </a>
-                                </div>
+
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
                                                 <th width="10px">No</th>
-                                                <th>Date Register</th>
                                                 <th>Code Access</th>
                                                 <th>Package</th>
                                                 <th>Nama</th>
-                                                <th>Job Title</th>
-                                                <th>Company</th>
                                                 <th>Email</th>
+                                                <th>Job Title</th>
+                                                <th>Company Name</th>
                                                 <th>Phone Number</th>
-                                                <th>Office Number</th>
-                                                <th>Status Approval</th>
-                                                <th>Status Payment</th>
-                                                <th width="15%">Aksi</th>
+                                                <th>Date Send Confirmation</th>
+                                                <th>Date Present </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php $no = 1; ?>
-                                            @foreach ($payment as $post)
+                                            @foreach ($list as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ date('d,F H:i', strtotime($post->created_at)) }}</td>
                                                     <td>{{ $post->code_payment }}</td>
                                                     <td>{{ $post->package }}</td>
                                                     <td>{{ $post->name }}</td>
+                                                    <td>{{ $post->email }}</td>
                                                     <td>{{ $post->job_title }}</td>
                                                     <td>{{ $post->company_name }}</td>
-                                                    <td>{{ $post->email }}</td>
                                                     <td>{{ $post->phone }}</td>
-                                                    <td>{{ $post->office_number }}</td>
-                                                    <td>
-                                                        <span
-                                                            class="badge badge-pill {{ $post->status_registration == 'Paid Off' ? 'badge-primary' : 'badge-warning' }}">
-                                                            {{ $post->status_registration }}</span>
-                                                    </td>
-                                                    <td>{{ $post->groupby_users_id ? 'Multiple Payment' : 'Single Payment' }}
-                                                    </td>
-                                                    <td>
-                                                        <a href="#" data-toggle="dropdown"
-                                                            class="btn btn-info dropdown-toggle">Action</a>
-                                                        <ul class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
-                                                            <form action="{{ url('request-event') }}" method="post">
-                                                                <li>
-                                                                    @csrf
-                                                                    <input type="hidden" name="id" id="id"
-                                                                        value="{{ $post->payment_id }}">
-                                                                    <input type="hidden" name="val" value="approve">
-                                                                    <button type="submit"
-                                                                        class="dropdown-item">Approve</button>
-                                                                </li>
-                                                            </form>
-                                                            <form action="{{ url('request-event') }}" method="post">
-                                                                <li>
-                                                                    @csrf
-                                                                    <input type="hidden" name="id" id="id"
-                                                                        value="{{ $post->payment_id }}">
-                                                                    <input type="hidden" name="val" value="reject">
-                                                                    <button type="submit"
-                                                                        class="dropdown-item">Reject</button>
-                                                                </li>
-                                                            </form>
-                                                            @if ($post->status_registration == 'Expired')
-                                                                <form action="{{ url('renewal-payment') }}" method="post">
-                                                                    <li>
-                                                                        @csrf
-                                                                        <input type="hidden" name="id" id="id"
-                                                                            value="{{ $post->payment_id }}">
-                                                                        <button type="submit"
-                                                                            class="dropdown-item">Renewal</button>
-                                                                    </li>
-                                                                </form>
-                                                            @endif
-                                                        </ul>
-                                                        <a href="#" data-id="{{ $post->id }}"
-                                                            class="btn btn-success"><span class=" fa fa-eye"></a>
-                                                    </td>
-
+                                                    <td>{{ date('d,F H:i', strtotime($post->create)) }}</td>
+                                                    <td>{{ date('d,F H:i', strtotime($post->update)) }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -146,7 +83,7 @@
             </div>
         </section>
     </div>
-    <div class="modal fade" tabindex="-1" role="dialog" id="example">
+    {{-- <div class="modal fade" tabindex="-1" role="dialog" id="example">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -298,7 +235,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 @endsection
 
 @push('bottom')
