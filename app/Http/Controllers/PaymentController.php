@@ -72,6 +72,7 @@ class PaymentController extends Controller
         $email = $findUsers->email;
 
         $check->status_registration = 'Waiting';
+        $check->link = $linkPay;
         $check->save();
         // $pdf = Pdf::loadView('email.invoice-new', $data);
         Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
