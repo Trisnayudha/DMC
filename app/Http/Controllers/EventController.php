@@ -42,6 +42,11 @@ class EventController extends Controller
         return view('admin.events.event', $data);
     }
 
+    public function free()
+    {
+        return view('register_event.free');
+    }
+
     public function create()
     {
         $categories = EventsCategory::orderBy('id', 'desc')->get();
@@ -278,6 +283,7 @@ class EventController extends Controller
                 $payment->status_registration = 'Waiting';
                 $payment->code_payment = $codePayment;
                 // $payment->link = null;
+                $payment->events_id = 1;
             } else {
                 $payment->package = $paymentMethod;
                 $payment->payment_method = 'Credit Card';
@@ -297,10 +303,11 @@ class EventController extends Controller
                 $send->to = $email;
                 $send->from = env('EMAIL_SENDER');
                 $send->data = $data;
-                $send->subject = 'Thank you for registering Energy Market Briefing 2022 ';
+                $send->subject = 'Thank you for registering Mineral Trends 2023 ';
                 $send->template = 'email.waiting-approval';
                 $send->sendEmail();
-                return redirect()->back()->with('alert', 'Register Successfully');
+                return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has
+                been approved');
             } else {
                 // $pdf = Pdf::loadView('email.invoice-new', $data);
                 Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
@@ -312,17 +319,32 @@ class EventController extends Controller
                 return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
             }
         } else {
+            if ($paymentMethod == 'free') {
+                $payment = Payment::firstOrNew([
+                    'member_id' => $user->id,
+                    'events_id' => '1'
+                ]);
+                if ($paymentMethod == 'free') {
+                    if ($check->status_registration == 'Paid Off') {
+                        return redirect()->back()->with('error', 'Sorry, you have already registered for this event and cannot register again. Please check your email for arrival ticket information.')->withInput();
+                    }
+                    $payment->package = $paymentMethod;
+                    $payment->status_registration = 'Waiting';
+                    $payment->code_payment = $codePayment;
+                    $payment->events_id = 1;
+                    $payment->save();
+                    $send = new EmailSender();
+                    $send->to = $email;
+                    $send->from = env('EMAIL_SENDER');
+                    $send->data = $data;
+                    $send->subject = 'Thank you for registering Mineral Trends 2023 ';
+                    $send->template = 'email.waiting-approval';
+                    $send->sendEmail();
+                    return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved');
+                }
+            }
             return redirect()->back()->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
         }
-
-
-        // if ($paymentMethod == 'free') {
-        //     $user_event = UserRegister::firstOrNew(
-        //         ['users_id' =>  $user->id],
-        //         ['payment_id' => $payment->id]
-        //     );
-        //     $user_event->save();
-        // }
     }
 
     public function sponsor()
