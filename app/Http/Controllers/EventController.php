@@ -1002,7 +1002,7 @@ class EventController extends Controller
             ->join('users', 'users.id', 'payment.member_id')
             ->join('profiles', 'profiles.users_id', 'users.id')
             ->join('company', 'company.users_id', 'users.id')
-            ->leftJoin('users_event', 'users_event.events_id', 'events.id')
+            ->leftJoin('users_event', 'users_event.users_id', 'users.id')
             ->select(
                 'users.id as users_id',
                 'users.name',
@@ -1015,13 +1015,84 @@ class EventController extends Controller
                 'users_event.present',
                 'users_event.created_at as create',
                 'users_event.updated_at as update',
+                'events.id as events_id',
+                'payment.updated_at as payment_update',
+                'payment.id as payment_id'
             )
             ->get();
         // dd($findParticipant);
 
         $data = [
-            'list' => $findParticipant
+            'list' => $findParticipant,
         ];
         return view('admin.events.event-detail-participant', $data);
+    }
+
+    public function sendParticipant(Request $request)
+    {
+        // dd($request->all());
+        $users_id = $request->users_id;
+        $events_id = $request->events_id;
+        $method = $request->method;
+        $payment_id = $request->payment_id;
+        $check = Payment::where('id', $payment_id)->first();
+        $findUsers = User::where('id', $check->member_id)->first();
+        $findProfile = ProfileModel::where('users_id', $check->member_id)->first();
+        $findCompany = CompanyModel::where('users_id', $check->member_id)->first();
+        $email = $findUsers->email;
+        $codePayment = $check->code_payment;
+        if ($method == 'confirmation') {
+            $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
+            if ($save == null) {
+                $save = new UserRegister();
+            }
+            $save->users_id = $users_id;
+            $save->events_id = $events_id;
+            $save->payment_id = $payment_id;
+            $save->updated_at = null;
+            $save->save();
+
+            // $image = QrCode::format('png')
+            //     ->size(200)->errorCorrection('H')
+            //     ->generate($check->code_payment);
+            $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+            $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+            // Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+            $data = [
+                'code_payment' => $check->code_payment,
+                'create_date' => date('d, M Y H:i'),
+                'users_name' => $findUsers->name,
+                'users_email' => $findUsers->email,
+                'phone' => $findProfile->phone,
+                'company_name' => $findCompany->company_name,
+                'company_address' => $findCompany->address,
+                'job_title' => $findProfile->job_title,
+                'events_name' => 'Mineral Trends 2023',
+                'image' => $db
+            ];
+            // dd("sukses");
+            ini_set('max_execution_time', 120);
+
+            $pdf = Pdf::loadView('email.ticket', $data);
+            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
+                $message->from(env('EMAIL_SENDER'));
+                $message->to($email);
+                $message->subject($codePayment . ' - Confirmation Reminder for Mineral Trends 2023');
+                $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
+            });
+            return redirect()->back()->with('success', 'Successfully Send Confirmation');
+        } else {
+            $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
+            if ($save == null) {
+                $save = new UserRegister();
+            }
+            $save->users_id = $users_id;
+            $save->events_id = $events_id;
+            $save->payment_id = $payment_id;
+            $save->present = 1;
+            $save->save();
+
+            return redirect()->back()->with('success', 'Successfully Present');
+        }
     }
 }

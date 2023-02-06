@@ -83,6 +83,7 @@ Route::get('/events/{slug}/detail', [EventController::class, 'detail'])->name('e
 Route::get('/events/{slug}/detail-participant', [EventController::class, 'detail_participant'])->name('events-details-participant');
 Route::post('/events/addCheck', [EventController::class, 'dataCheck'])->name('events.add.check');
 Route::post('/events/addInvitation', [EventController::class, 'regisInvitation'])->name('events.add.invitation');
+Route::post('/events/confirmation', [EventController::class, 'sendParticipant'])->name('events-send-participant');
 //Events Category
 Route::get('/events/category', [EventCategoryController::class, 'index'])->name('events.category');
 Route::post('/events/addcategory', [EventCategoryController::class, 'store']);

@@ -46,6 +46,7 @@
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <!-- Summernote -->
     @yield('portal_style')
+    @stack('top')
     <style>
         .btn-filter {
             padding: .500rem .75rem;

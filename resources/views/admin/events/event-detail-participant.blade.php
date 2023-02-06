@@ -46,6 +46,7 @@
                                         <thead>
                                             <tr>
                                                 <th width="10px">No</th>
+                                                <th>Date Register </th>
                                                 <th>Code Access</th>
                                                 <th>Package</th>
                                                 <th>Nama</th>
@@ -62,6 +63,7 @@
                                             @foreach ($list as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
+                                                    <td>{{ date('d,F H:i', strtotime($post->payment_update)) }}</td>
                                                     <td>{{ $post->code_payment }}</td>
                                                     <td>{{ $post->package }}</td>
                                                     <td>{{ $post->name }}</td>
@@ -69,8 +71,46 @@
                                                     <td>{{ $post->job_title }}</td>
                                                     <td>{{ $post->company_name }}</td>
                                                     <td>{{ $post->phone }}</td>
-                                                    <td>{{ date('d,F H:i', strtotime($post->create)) }}</td>
-                                                    <td>{{ date('d,F H:i', strtotime($post->update)) }}</td>
+                                                    <td>
+                                                        @if ($post->create == null)
+                                                            <form action="{{ Route('events-send-participant') }}"
+                                                                method="post">
+                                                                @csrf
+                                                                <input type="hidden" name="users_id"
+                                                                    value="{{ $post->users_id }}">
+                                                                <input type="hidden" name="events_id"
+                                                                    value="{{ $post->events_id }}">
+                                                                <input type="hidden" name="payment_id"
+                                                                    value="{{ $post->payment_id }}">
+                                                                <input type="hidden" name="method" value="confirmation">
+                                                                <button href="#" class="btn btn-primary send"
+                                                                    title="Send Confirmation">
+                                                                    <span class="fa fa-paper-plane"></span></button>
+                                                            </form>
+                                                        @else
+                                                            {{ date('d,F H:i', strtotime($post->create)) }}
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($post->update == null)
+                                                            <form action="{{ Route('events-send-participant') }}"
+                                                                method="post">
+                                                                @csrf
+                                                                <input type="hidden" name="users_id"
+                                                                    value="{{ $post->users_id }}">
+                                                                <input type="hidden" name="events_id"
+                                                                    value="{{ $post->events_id }}">
+                                                                <input type="hidden" name="payment_id"
+                                                                    value="{{ $post->payment_id }}">
+                                                                <input type="hidden" name="method" value="present">
+                                                                <button href="#" class="btn btn-primary present"
+                                                                    title="Send Confirmation">
+                                                                    <span class="fa fa-paper-plane"></span></button>
+                                                            </form>
+                                                        @else
+                                                            {{ date('d,F H:i', strtotime($post->update)) }}
+                                                        @endif
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -83,160 +123,46 @@
             </div>
         </section>
     </div>
-    {{-- <div class="modal fade" tabindex="-1" role="dialog" id="example">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Tambah peserta</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-tab="mygroup-tab" href="#tab-home">Check Database</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-tab="mygroup-tab" href="#tab-profile">Tambah data</a>
-                        </li>
-                    </ul>
-                    <div id="tab-home" class="active" data-tab-group="mygroup-tab">
-                        <form action="{{ route('events.add.check') }}" method="post">
-                            @csrf
-                            <input type="hidden" name="event" value="{{ $slug }}">
-                            <div class="form-group">
-
-                                <label for="name">Nama</label>
-                                <select name="nama" id="" class="form-control select2">
-                                    <option value="">Default</option>
-                                    @foreach ($users as $value)
-                                        <option value="{{ $value->id }}">{{ $value->name }} - {{ $value->email }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="name">Ticket</label>
-                                <select name="ticket" id="" class="form-control">
-                                    <option value="free">Invitation ( Free No Cost )</option>
-                                    <option value="member">Membership ( Rp. 900.000 )</option>
-                                    <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" name="pilihan" class="custom-switch-input" checked>
-                                <span class="custom-switch-indicator"></span>
-                                <span class="custom-switch-description">Send Notification</span>
-                            </div>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button class="btn btn-primary">Add peserta</button>
-                        </form>
-                    </div>
-                    <div id="tab-profile" data-tab-group="mygroup-tab">
-                        <form action="{{ Route('events.add.invitation') }}" method="post">
-                            @csrf
-                            <div class="row">
-
-                                <div class="col-6">
-                                    <div class="form-group">
-
-                                        <label for="company_name" class="form-label">PT</label>
-                                        <select class="form-control" id="prefix" name="prefix" required>
-                                            <option value="PT">PT</option>
-                                            <option value="CV">CV</option>
-                                            <option value="Ltd">Ltd</option>
-                                            <option value="GmbH">GmbH</option>
-                                            <option value="Limited">Limited</option>
-                                            <option value="Llc">Llc</option>
-                                            <option value="Corp">Corp</option>
-                                            <option value="Pte Ltd">Pte Ltd</option>
-                                            <option value="Assosiation">Assosiation</option>
-                                            <option value="Government">Government</option>
-                                            <option value="Pty Ltd">Pty Ltd</option>
-                                            <option value="">Other</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="name"> Name</label>
-                                        <input type="text" class="form-control" name="name" id="name">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="company_website"> Company Website</label>
-                                        <input type="text" class="form-control" name="company_website"
-                                            id="company_website">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="job_title"> Job Title</label>
-                                        <input type="text" class="form-control" name="job_title" id="job_title">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="company_category" class="form-label">Company Category *</label>
-                                        <select class="form-control js-example-basic-single d-block w-100"
-                                            name="company_category" id="company_category" required>
-                                            <option value="">--Select--</option>
-                                            <option value="Coal Mining">Coal Mining</option>
-                                            <option value="Minerals Producer">Minerals Producer</option>
-                                            <option value="Supplier/Distributor/Manufacturer">
-                                                Supplier/Distributor/Manufacturer
-                                            </option>
-                                            <option value="Contrator">Contrator</option>
-                                            <option value="Association / Organization / Government">
-                                                Association / Organization / Government</option>
-                                            <option value="Financial Services">Financial Services</option>
-                                            <option value="Technology">Technology</option>
-                                            <option value="Investors">Investors</option>
-                                            <option value="Logistics and Shipping">Logistics and Shipping</option>
-                                            <option value="Media">Media</option>
-                                            <option value="Consultant">Consultant</option>
-                                            <option value="other">Other</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label for="company_name"> Company Name</label>
-                                        <input type="text" class="form-control" name="company_name"
-                                            id="company_name">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="email"> Email</label>
-                                        <input type="text" class="form-control" name="email" id="email">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="phone"> Phone number</label>
-                                        <input type="text" class="form-control" name="phone" id="phone">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="address">Address</label>
-                                        <input type="text" class="form-control" name="address" id="address">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="office_number">Office Number</label>
-                                        <input type="text" class="form-control" name="office_number"
-                                            id="office_number">
-                                    </div>
-
-                                </div>
-                                <div class="form-group">
-                                    <label for="name">Ticket</label>
-                                    <select name="ticket" id="" class="form-control">
-                                        <option value="free">Invitation ( Free No Cost )</option>
-                                        <option value="member">Membership ( Rp. 900.000 )</option>
-                                        <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button class="btn btn-primary">Add peserta</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> --}}
+    <div id="loader" style="display:none">
+        <div class="loader"></div>
+    </div>
 @endsection
+
+@push('top')
+    <style>
+        #loader {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #3498db;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+@endpush
 
 @push('bottom')
     <script>
@@ -244,7 +170,32 @@
             $('#example').modal('show');
         });
         $(document).ready(function() {
-            $('#laravel_crud').DataTable();
+            $('#laravel_crud').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ]
+            });
+        });
+
+        $(document).ready(function() {
+            $(".send").click(function() {
+                $("#loader").show();
+                setTimeout(() => {
+                    $("#loader").hide();
+                }, 120000);
+            });
+        });
+        $(document).ready(function() {
+            $(".present").click(function() {
+                $("#loader").show();
+                setTimeout(() => {
+                    $("#loader").hide();
+                }, 15000);
+            });
         });
     </script>
 @endpush
