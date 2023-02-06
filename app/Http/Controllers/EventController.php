@@ -1052,12 +1052,12 @@ class EventController extends Controller
             $save->updated_at = null;
             $save->save();
 
-            // $image = QrCode::format('png')
-            //     ->size(200)->errorCorrection('H')
-            //     ->generate($check->code_payment);
+            $image = QrCode::format('png')
+                ->size(200)->errorCorrection('H')
+                ->generate($check->code_payment);
             $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
             $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
-            // Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+            Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
             $data = [
                 'code_payment' => $check->code_payment,
                 'create_date' => date('d, M Y H:i'),
