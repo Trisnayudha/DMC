@@ -82,7 +82,7 @@
                                                     <td>{{ $post->office_number }}</td>
                                                     <td>
                                                         <span
-                                                            class="badge badge-pill {{ $post->status_registration == 'Approve' ? 'badge-primary' : 'badge-warning' }}">
+                                                            class="badge badge-pill {{ $post->status_registration == 'Paid Off' ? 'badge-primary' : 'badge-warning' }}">
                                                             {{ $post->status_registration }}</span>
                                                     </td>
                                                     <td>{{ $post->groupby_users_id ? 'Multiple Payment' : 'Single Payment' }}
@@ -111,6 +111,17 @@
                                                                         class="dropdown-item">Reject</button>
                                                                 </li>
                                                             </form>
+                                                            @if ($post->status_registration == 'Expired')
+                                                                <form action="{{ url('renewal-payment') }}" method="post">
+                                                                    <li>
+                                                                        @csrf
+                                                                        <input type="hidden" name="id" id="id"
+                                                                            value="{{ $post->payment_id }}">
+                                                                        <button type="submit"
+                                                                            class="dropdown-item">Renewal</button>
+                                                                    </li>
+                                                                </form>
+                                                            @endif
                                                         </ul>
                                                         <a href="#" data-id="{{ $post->id }}"
                                                             class="btn btn-success"><span class=" fa fa-eye"></a>
