@@ -6,10 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <link href="https://www.dafontfree.net/embed/bm93LWJvbGQmZGF0YS81MC9uLzMxNDMxL05vdy1Cb2xkLm90Zg" rel="stylesheet"
+        type="text/css" />
     <style>
         /* Styles for the screen */
+        @font-face {
+            font-family: 'Now Regular';
+            font-style: normal;
+            font-weight: normal;
+            src: url('font/Now-Regular.woff') format('truetype');
+        }
+
+
         body {
             margin: 0;
+            font-family: 'now-bold', sans-serif;
+            font-weight: normal;
+            /* font-size: 42px */
         }
 
         @page {
@@ -40,6 +53,7 @@
 
         .center {
             text-align: center;
+            text-transform: uppercase;
         }
     </style>
 
@@ -48,8 +62,8 @@
 <body>
     <div class="container">
         <div class="center">
-            {{ $name }} <br>
-            {{ $company }}
+            <span style="font-size: 19px"> {{ $name }} </span> <br>
+            <span style="font-size: 17px"> {{ $company }} </span>
         </div>
     </div>
 </body>
