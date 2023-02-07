@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Payments\Payment;
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class PrintController extends Controller
+{
+
+    public function request(Request $request)
+    {
+        $check = Payment::where('code_payment', $request->input_text)->first();
+        if (!empty($check)) {
+            $findUsers = User::where('users.id', $check->member_id)->join('company', 'company.users_id', 'users.id')->first();
+            $data = [
+                'name' => $findUsers->name,
+                'company_name' => $findUsers->company_name
+            ];
+            $response['status'] = 1;
+            $response['message'] = 'Success Scan QR Code';
+            $response['data'] = $data;
+        } else {
+            $response['status'] = 0;
+            $response['message'] = 'Qr Code tidak terdaftar di sistem';
+            $response['data'] = null;
+        }
+        return response()->json($response);
+    }
+    public function scan()
+    {
+        return view('scan.scan');
+    }
+
+    public function index(Request $request)
+    {
+        $data = [
+            'name' => $request->name,
+            'company' => $request->company,
+        ];
+        return view('print.print', $data);
+    }
+}

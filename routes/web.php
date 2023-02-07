@@ -8,6 +8,7 @@ use App\Http\Controllers\FormMemberController;
 use App\Http\Controllers\NewsCategoryController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PrintController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VideosController;
@@ -35,10 +36,10 @@ Route::get('ajax', function () {
     return view('ajax');
 });
 
-Route::get('/scan', function () {
-    return view('scan');
-});
 
+Route::get('/scan', [PrintController::class, 'scan']);
+Route::get('/scan/print', [PrintController::class, 'index']);
+Route::post('/scan/request', [PrintController::class, 'request']);
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
 Route::get('/test', [TestController::class, 'test']);
