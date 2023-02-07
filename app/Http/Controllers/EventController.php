@@ -98,8 +98,8 @@ class EventController extends Controller
         if (!empty($checkEvent)) {
 
             $list = Payment::join('users', 'users.id', 'payment.member_id')
-                ->join('company', 'company.users_id', 'users.id')
-                ->join('profiles', 'profiles.users_id', 'users.id')
+                ->leftjoin('company', 'company.users_id', 'users.id')
+                ->leftjoin('profiles', 'profiles.users_id', 'users.id')
                 ->where('payment.events_id', $checkEvent->id)
                 ->select('users.*', 'payment.*', 'company.*', 'profiles.*', 'payment.id as payment_id')
                 ->get();
