@@ -1000,8 +1000,8 @@ class EventController extends Controller
             ->where('payment.status_registration', 'Paid Off')
             ->join('events', 'events.id', 'payment.events_id')
             ->join('users', 'users.id', 'payment.member_id')
-            ->join('profiles', 'profiles.users_id', 'users.id')
-            ->join('company', 'company.users_id', 'users.id')
+            ->leftjoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftjoin('company', 'company.users_id', 'users.id')
             ->leftJoin('users_event', 'users_event.users_id', 'users.id')
             ->select(
                 'users.id as users_id',
