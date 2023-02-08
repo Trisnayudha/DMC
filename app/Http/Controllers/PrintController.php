@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -18,6 +19,16 @@ class PrintController extends Controller
                 'name' => $findUsers->name,
                 'company_name' => $findUsers->company_name
             ];
+
+            $save = UserRegister::where('payment_id', $check->id)->first();
+            if (empty($save)) {
+                $save = new UserRegister();
+            }
+            $save->users_id = $check->member_id;
+            $save->events_id = $check->events_id;
+            $save->payment_id = $check->id;
+            $save->present = 1;
+            $save->save();
             $response['status'] = 1;
             $response['message'] = 'Success Scan QR Code';
             $response['data'] = $data;
