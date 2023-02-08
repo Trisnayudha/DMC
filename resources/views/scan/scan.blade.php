@@ -75,7 +75,7 @@
             });
             setTimeout(function() {
                 $.ajax({
-                    url: "http://127.0.0.1:8000/scan/request",
+                    url: "{{ url('scan/request') }}",
                     type: "POST",
                     data: {
                         input_text: $("#text-input").val()
@@ -94,7 +94,7 @@
                                 showConfirmButton: false,
                                 timer: 3000
                             });
-                            window.open("http://127.0.0.1:8000/scan/print?name=" + response
+                            window.open("{{ url('scan/print?name=') }}" + response
                                 .data.name + "&company=" + response.data.company_name,
                                 "_blank");
 
