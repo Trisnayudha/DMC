@@ -54,7 +54,10 @@
                                                 <th>Job Title</th>
                                                 <th>Company Name</th>
                                                 <th>Phone Number</th>
-                                                <th>Date Send Confirmation</th>
+                                                <th>Company Address</th>
+                                                @if ($list[0]['end_date'] >= date('Y-m-d'))
+                                                    <th>Date Send Confirmation</th>
+                                                @endif
                                                 <th>Date Present </th>
                                             </tr>
                                         </thead>
@@ -71,26 +74,30 @@
                                                     <td>{{ $post->job_title }}</td>
                                                     <td>{{ $post->company_name }}</td>
                                                     <td>{{ $post->phone }}</td>
-                                                    <td>
-                                                        @if ($post->create == null)
-                                                            <form action="{{ Route('events-send-participant') }}"
-                                                                method="post">
-                                                                @csrf
-                                                                <input type="hidden" name="users_id"
-                                                                    value="{{ $post->users_id }}">
-                                                                <input type="hidden" name="events_id"
-                                                                    value="{{ $post->events_id }}">
-                                                                <input type="hidden" name="payment_id"
-                                                                    value="{{ $post->payment_id }}">
-                                                                <input type="hidden" name="method" value="confirmation">
-                                                                <button href="#" class="btn btn-primary send"
-                                                                    title="Send Confirmation">
-                                                                    <span class="fa fa-paper-plane"></span></button>
-                                                            </form>
-                                                        @else
-                                                            {{ date('d,F H:i', strtotime($post->create)) }}
-                                                        @endif
-                                                    </td>
+                                                    <td>{{ $post->address }}</td>
+                                                    @if ($post->end_date >= date('Y-m-d'))
+                                                        <td>
+                                                            @if ($post->create == null)
+                                                                <form action="{{ Route('events-send-participant') }}"
+                                                                    method="post">
+                                                                    @csrf
+                                                                    <input type="hidden" name="users_id"
+                                                                        value="{{ $post->users_id }}">
+                                                                    <input type="hidden" name="events_id"
+                                                                        value="{{ $post->events_id }}">
+                                                                    <input type="hidden" name="payment_id"
+                                                                        value="{{ $post->payment_id }}">
+                                                                    <input type="hidden" name="method"
+                                                                        value="confirmation">
+                                                                    <button href="#" class="btn btn-primary send"
+                                                                        title="Send Confirmation">
+                                                                        <span class="fa fa-paper-plane"></span></button>
+                                                                </form>
+                                                            @else
+                                                                {{ date('d,F H:i', strtotime($post->create)) }}
+                                                            @endif
+                                                        </td>
+                                                    @endif
                                                     <td>
                                                         @if ($post->update == null)
                                                             <form action="{{ Route('events-send-participant') }}"
