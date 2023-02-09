@@ -1019,7 +1019,9 @@ class EventController extends Controller
                 'events.id as events_id',
                 'payment.updated_at as payment_update',
                 'payment.id as payment_id',
-                'events.end_date'
+                'events.end_date',
+                'company.company_category',
+                'company.company_other'
             )->orderby('payment.updated_at', 'asc')
             ->get();
         // dd($findParticipant);
