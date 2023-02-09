@@ -55,7 +55,9 @@
                                                 <th>Company Name</th>
                                                 <th>Phone Number</th>
                                                 <th>Company Address</th>
-                                                <th>Company Category</th>
+                                                @if ($list[0]['end_date'] <= date('Y-m-d'))
+                                                    <th>Company Category</th>
+                                                @endif
                                                 @if ($list[0]['end_date'] >= date('Y-m-d'))
                                                     <th>Date Send Confirmation</th>
                                                 @endif
@@ -76,7 +78,9 @@
                                                     <td>{{ $post->company_name }}</td>
                                                     <td>{{ $post->phone }}</td>
                                                     <td>{{ $post->address }}</td>
-                                                    <td>{{ $post->company_category != null ? $post->company_category : $post->company_other }}
+                                                    @if ($post->end_date <= date('Y-m-d'))
+                                                        <td>{{ $post->company_category != null ? $post->company_category : $post->company_other }}
+                                                    @endif
                                                     </td>
                                                     @if ($post->end_date >= date('Y-m-d'))
                                                         <td>
