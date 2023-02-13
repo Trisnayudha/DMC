@@ -5,6 +5,7 @@ use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventsTicketController;
 use App\Http\Controllers\FormMemberController;
+use App\Http\Controllers\MarketingAdsController;
 use App\Http\Controllers\NewsCategoryController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PaymentController;
@@ -113,6 +114,14 @@ Route::get('videos', [VideosController::class, 'index'])->name('videos');
 Route::post('videos/addcategory', [VideosController::class, 'store']);
 Route::post('videos/editcategory', [VideosController::class, 'edit']);
 Route::post('videos/deletecategory', [VideosController::class, 'destroy']);
+
+//Marketing Adds
+Route::get('marketing-ads', [MarketingAdsController::class, 'index'])->name('marketing.ads');
+Route::post('marketing-ads/add', [MarketingAdsController::class, 'store']);
+Route::post('marketing-ads/edit', [MarketingAdsController::class, 'edit']);
+Route::post('marketing-ads/delete', [MarketingAdsController::class, 'destroy']);
+Route::get('marketing-ads/event', [MarketingAdsController::class, 'event']);
+Route::get('marketing-ads/news', [MarketingAdsController::class, 'news']);
 
 Route::get('/admin/users', [UsersController::class, 'index'])->name('users');
 Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');

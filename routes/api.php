@@ -13,6 +13,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VideosContorller;
 use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\API\ContactUsController;
+use App\Http\Controllers\API\MarketingAdsController;
 use App\Http\Controllers\API\ScanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -104,3 +105,5 @@ Route::post('/videos_highlight', [VideosContorller::class, 'index']);
 Route::post('/faq', [FaqController::class, 'index']);
 
 Route::post('/notif', [NotifController::class, 'index']);
+
+Route::post('/marketing-ads', [MarketingAdsController::class, 'index']);
