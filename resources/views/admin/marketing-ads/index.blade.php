@@ -145,7 +145,7 @@
                             <label>Type</label>
                             <select class="form-control" name="type" id="type">
                                 <option value="">Choose</option>
-                                <option value="event">Event</option>
+                                <option value="events">Event</option>
                                 <option value="news">News</option>
                             </select>
                         </div>
