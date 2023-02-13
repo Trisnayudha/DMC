@@ -177,7 +177,7 @@
         });
         $(document).ready(function() {
             $('#type').change(function() {
-                if ($(this).val() === 'event') {
+                if ($(this).val() === 'events') {
                     $('#target_id').empty();
                     $('#target_id').show();
                     $.ajax({
