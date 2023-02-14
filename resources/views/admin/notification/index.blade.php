@@ -153,6 +153,7 @@
                                 <option value="">Choose</option>
                                 <option value="events">Event</option>
                                 <option value="news">News</option>
+                                <option value="broadcast">Broadcast</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -233,6 +234,7 @@
                         }
                     });
                 } else {
+                    $('#target_id').empty();
                     $('#target_id').select2('destroy');
                     $('#target_id').hide();
                 }
