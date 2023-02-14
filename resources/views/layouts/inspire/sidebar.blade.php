@@ -37,6 +37,11 @@
                 <i class="fa fa-paper-plane" aria-hidden="true"></i>
                 <span>Marketing</span></a>
         </li>
+        <li class="">
+            <a class="nav-link" href="{{ Route('notification') }}">
+                <i class="fa fa-bell" aria-hidden="true"></i>
+                <span>Notifications</span></a>
+        </li>
         <li class="dropdown">
             <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa fa-calendar"
                     aria-hidden="true"></i>

@@ -8,6 +8,7 @@ use App\Http\Controllers\FormMemberController;
 use App\Http\Controllers\MarketingAdsController;
 use App\Http\Controllers\NewsCategoryController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\TestController;
@@ -122,6 +123,16 @@ Route::post('marketing-ads/edit', [MarketingAdsController::class, 'edit']);
 Route::post('marketing-ads/delete', [MarketingAdsController::class, 'destroy']);
 Route::get('marketing-ads/event', [MarketingAdsController::class, 'event']);
 Route::get('marketing-ads/news', [MarketingAdsController::class, 'news']);
+
+//Notification
+Route::prefix('admin')->group(function () {
+    Route::get('notification', [NotificationController::class, 'index'])->name('notification');
+    Route::post('notification/add', [NotificationController::class, 'store']);
+    Route::post('notification/edit', [NotificationController::class, 'edit']);
+    Route::post('notification/delete', [NotificationController::class, 'destroy']);
+    Route::get('notification/users', [NotificationController::class, 'users']);
+});
+
 
 Route::get('/admin/users', [UsersController::class, 'index'])->name('users');
 Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
