@@ -25,6 +25,7 @@
 
     <link rel="stylesheet" href="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/css/intlTelInput.css" />
     <script src="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -101,128 +102,26 @@
 
     <div class="container">
         <main>
-            <div class="py-2 text-center">
-                <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
-                    src="{{ asset('image/dmc.png') }}" class="img-fluid" alt="">
-                <h2 style="text-transform: uppercase">REGISTER EVENT
-                </h2>
-                {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
-                    by OPIS </p> --}}
-            </div>
-            <h6>Detail event</h6>
-            <div class="row g-5">
-                <div class="col-3">
-                    <p>Title</p>
-                </div>
-                <div class="col-9">
-                    <p>: Mineral Trends 2023</p>
-                </div>
-                <div class="col-3">
-                    <p>
-                        Date
-                    </p>
-                    <p>
-                        Time
-                    </p>
-                    <p>Event Type</p>
-                    <p>
-                        Location
-                    </p>
-                </div>
 
-                <div class="col-9">
-                    <p>
-                        : Wednesday - 8 February 2023
-                    </p>
-                    <p>: 04.00 pm - 07.00 pm (Jakarta Time) </p>
-                    <p>: Live - Networking Dinner</p>
-                    <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
-
-                </div>
-                <br>
-
-            </div>
-            <br>
-            {{-- <h6>Health and Safety Protocols (COVID-19 Prevention) :</h6>
-            <div class="row g-5">
-                <div class="col-12">
-                    <p>
-                        1. Self-Assessment (If you are feeling unwell and/or experiencing symptoms of COVID-19, you
-                        should not attend).
-                    </p>
-                    <p>
-                        2. Wearing a Mask.
-                    </p>
-                    <p>
-                        3. Scan/ Check in at The Venue with PeduliLindungi App
-                    </p>
-                    <p>
-                        4. Show Proof of Vaccination (Min. 3 doses of vaccine)
-                    </p>
-                </div>
-            </div> --}}
             <hr class="my-1">
-
-            <div class="row g-5">
-
-                <div class="col-md-12 col-lg-12">
-                    <h4 class="mb-3">* Required information</h4>
-                    <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation" novalidate>
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                        @csrf
-                        <!-- {{ csrf_field() }} -->
+            <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation" novalidate>
+                @csrf
+                <div class="row g-5">
+                    <div class="col-md-8 order-md-1">
+                        <h4 class="mb-3">* ATTENDEES</h4>
+                        <div class="alert alert-info" role="alert">
+                            Enter guest details here. Any special requirements can be noted in the additional
+                            information section below.
+                        </div>
                         <div class="row g-3">
-                            <div class="col-md-2 mb-1">
-                                <label for="company_name" class="form-label">Company name *</label>
-                                <select class="custom-select d-block w-100" id="prefix" name="prefix" required>
-                                    <option value="PT">PT</option>
-                                    <option value="CV">CV</option>
-                                    <option value="Ltd">Ltd</option>
-                                    <option value="GmbH">GmbH</option>
-                                    <option value="Limited">Limited</option>
-                                    <option value="Llc">Llc</option>
-                                    <option value="Corp">Corp</option>
-                                    <option value="Pte Ltd">Pte Ltd</option>
-                                    <option value="Assosiation">Assosiation</option>
-                                    <option value="Government">Government</option>
-                                    <option value="Pty Ltd">Pty Ltd</option>
-                                    <option value="">Other</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Please select a valid prefix company name.
-                                </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <label for="company_name" class="form-label" style="color: white">. </label>
-                                <input type="text" class="form-control" name="company_name"
-                                    placeholder="Your company name" value="{{ old('company_name') }}" required>
-                                <div class="invalid-feedback">
-                                    Valid company name is required.
-                                </div>
-                            </div>
-
                             <div class="col-sm-6">
-                                <label for="name" class="form-label">Full name *</label>
-                                <input type="text" class="form-control" name="name" placeholder=""
-                                    value="{{ old('name') }}" required>
-                                <div class="invalid-feedback">
-                                    Valid name is required.
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <label for="phone" class="form-label">Mobile number *</label>
-                                <input type="tel" class="form-control" name="phone"id="phone"
-                                    placeholder="" value="{{ old('phone') ? old('phone') : '+62' }}" required>
-                                <div class="invalid-feedback">
-                                    Please provide a Mobile Number
+                                <div class="form-group">
+                                    <label for="name" class="form-label">Full name *</label>
+                                    <input type="text" class="form-control name" name="name[]" placeholder=""
+                                        value="{{ old('name') }}" required>
+                                    <div class="invalid-feedback">
+                                        Valid name is required.
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
@@ -236,124 +135,47 @@
                             <div class="col-sm-6">
                                 <label for="email" class="form-label">Email Address * <span
                                         class="text-muted"></span></label>
-                                <input type="email" class="form-control" name="email" id="email"
+                                <input type="email" class="form-control email" name="email[]" id="email"
                                     placeholder="Your work email" required value="{{ old('email') }}">
                                 <div class="invalid-feedback">
                                     Please enter a valid email address.
                                 </div>
                             </div>
-
                             <div class="col-sm-6">
-                                <label for="company_website" class="form-label">Company Webstie *<span
-                                        class="text-muted"></span></label>
-                                <input type="text" class="form-control" name="company_website"
-                                    value="{{ old('company_website') }}" placeholder="www.yourcompany.com" required>
-                                <div class="invalid-feedback">
-                                    Please enter a valid company website .
-                                </div>
-                            </div>
-
-
-                            <div class="col-sm-12">
-                                <label for="address" class="form-label">Address *</label>
-                                <input type="text" class="form-control" name="address" placeholder="" required
-                                    value="{{ old('address') }}">
+                                <label for="phone" class="form-label">Mobile number *</label>
+                                <input type="tel" class="phone form-control" name="phone[]" placeholder=""
+                                    value="{{ old('phone') ? old('phone') : '+62' }}" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
                             </div>
-                            <div class="col-sm-6">
-                                <label for="office_number" class="form-label">Office Number</label>
-                                <input type="tel" class="form-control" name="office_number"id="office_number"
-                                    placeholder="" value="{{ old('office_number') ? old('office_number') : '+62' }}"
-                                    required>
-                                <div class="invalid-feedback">
-                                    Please provide a Mobile Number
-                                </div>
-                            </div>
-                            <div class="col-sm-3">
-                                <label for="portal_code" class="form-label">Postal Code</label>
-                                <input type="number" class="form-control" name="portal_code" placeholder=""
-                                    required value="{{ old('portal_code') }}">
-                                <div class="invalid-feedback" {{ old('portal_code') }}>
-                                    Please provide a Postal Code
-                                </div>
-                            </div>
-                            <div class="col-sm-3">
-                                <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" name="city" placeholder="" required
-                                    value="{{ old('city') }}">
-                                <div class="invalid-feedback" {{ old('city') }}>
-                                    Please provide a City
-                                </div>
-                            </div>
+                            <div class="col-sm-12 mt-2">
 
-                            <div class="col-sm-6 mb-3">
-                                <label for="country" class="form-label">Country * </label>
-                                <select class="form-control js-example-basic-single" name="country" id="country"
-                                    placeholder="" required>
-                                    <option value="Indonesia" selected>Indonesia</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Please provide a valid Country
-                                </div>
+                                <a href="javascript:void(0)" class="addData btn btn-primary float-right"> Add
+                                    Guest</a>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="company_category" class="form-label">Company Category *</label>
-                                <select class="form-control js-example-basic-single d-block w-100"
-                                    name="company_category" id="company_category" required>
-                                    <option value="">--Select--</option>
-                                    <option value="Coal Mining">Coal Mining</option>
-                                    <option value="Minerals Producer">Minerals Producer</option>
-                                    <option value="Supplier/Distributor/Manufacturer">
-                                        Supplier/Distributor/Manufacturer
-                                    </option>
-                                    <option value="Contrator">Contrator</option>
-                                    <option value="Association / Organization / Government">
-                                        Association / Organization / Government</option>
-                                    <option value="Financial Services">Financial Services</option>
-                                    <option value="Technology">Technology</option>
-                                    <option value="Investors">Investors</option>
-                                    <option value="Logistics and Shipping">Logistics and Shipping</option>
-                                    <option value="Media">Media</option>
-                                    <option value="Consultant">Consultant</option>
-                                    <option value="other">Other</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Please enter your Company Other
-                                </div>
-                            </div>
-
-                            <div class="col-md-12 mb-6">
-                                <div class="myDiv">
-                                    <label for="company_other" class="form-label">Company Other *</label>
-                                    <input type="text" class="form-control" name="company_other" placeholder="">
-                                    <div class="invalid-feedback">
-                                        Please enter your Company Other
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
-                        <hr class="my-4">
-                        {{-- <div class="customer"></div> --}}
-                        <div class="form-check non-member">
-                            <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-                                checked required value="nonmember">
-                            <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
-                        </div>
-                        <div class="form-check member">
-                            <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
-                                required value="member">
-                            <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
-                        </div>
+                        <div class="customer"></div>
+                    </div>
+                    <div class="col-md-4 order-md-2 mb-4">
+                        <h4 class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">No of Attendees</span>
+                            <span class="badge badge-secondary badge-pill attend">1</span>
+                        </h4>
+                        <ul class="list-group mb-3 test">
 
-                        <hr class="my-4">
 
-                        <button class="w-80 btn btn-primary btn-lg" type="submit">Register Event</button>
-                    </form>
-                </div>
-            </div>
+
+                        </ul>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Total (Rp)</span>
+                            <strong class="total_price">Rp. 1.000.000</strong>
+                        </li>
+                        <div class="card p-2">
+                            <button class="w-80 btn btn-primary btn-lg" type="submit">Register Event</button>
+                        </div>
+                    </div>
+            </form>
         </main>
 
         <footer class="my-5 pt-5 text-muted text-center text-small">
@@ -366,164 +188,108 @@
     </div>
 
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
-    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous">
     </script>
-
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"
-        integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.js"
-        integrity="sha512-nO7wgHUoWPYGCNriyGzcFwPSF+bPDOR+NvtOYy2wMcWkrnCNPKBcFEkU80XIN14UVja0Gdnff9EmydyLlOL7mQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.slim.js"
-        integrity="sha512-M3zrhxXOYQaeBJYLBv7DsKg2BWwSubf6htVyjSkjc9kPqx7Se98+q1oYyBJn2JZXzMaZvUkB8QzKAmeVfzj9ug=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.slim.min.js"
-        integrity="sha512-jxwTCbLJmXPnV277CvAjAcWAjURzpephk0f0nO2lwsvcoDMqBdy1rh1jEwWWTabX1+Grdmj9GFAgtN22zrV0KQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
-    <script>
-        $(document).ready(function() {
-            $('.js-example-basic-single').select2();
-        });
-        $(document).ready(function() {
-            $('#company_category').on('change', function() {
-                var demovalue = $(this).val();
-                if (demovalue == 'other') {
-                    $('.myDiv').css('display', 'grid');
-                } else {
-                    $('.myDiv').css('display', 'none');
-                }
-            });
-        });
-    </script>
-    <script src="{{ asset('new-zoom/form-validation.js') }}"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script>
-        @if (session('alert'))
-            swal({
-                text: "{{ session('alert') }}",
-                icon: "success",
-                buttons: false,
-                timer: 15000,
-            }).then(function() {
-                window.location = "https://djakarta-miningclub.com/";
-            });
-        @elseif (session('error'))
-            swal({
-                text: "{{ session('error') }}",
-                icon: "error",
-            });
-        @endif
 
-        const xhttp = new XMLHttpRequest();
-        const select = document.getElementById("country");
-        const flag = document.getElementById("flag");
-
-        let country;
-
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                country = JSON.parse(xhttp.responseText);
-                assignValues();
-                handleCountryChange();
-            }
-        };
-        xhttp.open("GET", "https://restcountries.com/v3.1/all", true);
-        xhttp.send();
-
-        function assignValues() {
-            country.forEach(country => {
-                const option = document.createElement("option");
-                option.value = country.cioc;
-                option.textContent = country.name.common;
-                select.appendChild(option);
-            });
-        }
-
-        function handleCountryChange() {
-            const countryData = country.find(
-                country => select.value === country.alpha2Code
+    <script type="text/javascript">
+        var i = 1;
+        $('.email').change(function() {
+            var email = $(this).val();
+            var name = $('.name').val();
+            $('.test').append(
+                `<li class="list-group-item d-flex justify-content-between lh-condensed list-test">
+            <div>
+            <h6 class="my-0 name_list">${name}</h6>
+            <small class="text-muted email_list">${email}</small>
+            </div>
+            <span class="text-muted">Rp.1.000.000</span>
+            </li>`
             );
-            flag.style.backgroundImage = `url(${countryData.flag})`;
-        }
 
-        select.addEventListener("change", handleCountryChange.bind(this));
-    </script>
+        });
+        $(".addData").click(function() {
+            ++i;
+            $(".customer").append(
+                `  <div class="row g-3 tambah">
+                            <div class="col-sm-6">
+                                <label for="name" class="form-label">Full name *</label>
+                                <input type="text" class="form-control" name="name[]" placeholder=""
+                                    value="{{ old('name') }}" required>
+                                <div class="invalid-feedback">
+                                    Valid name is required.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="job_title" class="form-label">Job Title *</label>
+                                <input type="text" class="form-control" name="job_title[]" placeholder="" required
+                                    value="{{ old('job_title') }}">
+                                <div class="invalid-feedback">
+                                    Please enter your Job Title.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="email" class="form-label">Email Address * <span
+                                        class="text-muted"></span></label>
+                                <input type="email" class="form-control email" name="email[]"
+                                    placeholder="Your work email" required value="{{ old('email') }}">
+                                <div class="invalid-feedback">
+                                    Please enter a valid email address.
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="phone" class="form-label">Mobile number *</label>
+                                <input type="tel" class="phone form-control" name="phone[]" id="phone" placeholder=""
+                                    value="+62" required>
+                                <div class="invalid-feedback">
+                                    Please provide a Mobile Number
+                                </div>
+                            </div>
+                            <div class="col-sm-12 mt-2">
+                                <a href="javascript:void(0)" class="remove btn btn-danger float-right">Delete
+                                    delegate</a>
+                            </div>
+                        </div>
+                        `
+            );
+            $('.email').change(function() {
+                var email = $(this).parent().find('input[name="email[]"]').val();
+                var name = $('.name').val();
+                $('.test').append(
+                    `<li class="list-group-item d-flex justify-content-between lh-condensed list-test">
+            <div>
+            <h6 class="my-0 name_list">${name}</h6>
+            <small class="text-muted email_list">${email}</small>
+            </div>
+            <span class="text-muted">Rp.1.000.000</span>
+            </li>`
+                );
+            });
 
 
-    <script>
-        var input = document.querySelector("#phone");
+            var count = $('.tambah').length + 1;
+            console.log(count);
+            $('.attend').html(count);
+        });
+        $(document).on('click', '.remove', function() {
+            $(this).parents('.tambah').remove();
+            $('.list-test').remove();
+            var count = $('.tambah').length + 1;
+            console.log(count);
+            $('.attend').html(count);
+        });
+        var input = document.querySelector(".phone");
         window.intlTelInput(input, {
             // separateDialCode: true,
             initialCountry: "id",
 
         });
-        var input2 = document.querySelector("#office_number");
-        window.intlTelInput(input2, {
-            // separateDialCode: true,
-            initialCountry: "id",
-
-        });
-        // $(document).ready(function() {
-        //     $('#email').change(function() {
-        //         var email = $("#email").val();
-
-        //         var listErrorPrefixs = $("#listStringPrefix").val();
-        //         console.log(email)
-        //         $.ajax({
-        //             type: 'POST',
-        //             url: '{{ url('/register/email') }}',
-        //             headers: {
-        //                 'X-CSRF-Token': '{{ csrf_token() }}',
-        //             },
-        //             data: 'email=' + email,
-        //             success: function(msg) {
-        //                 console.log(msg)
-        //                 if (msg.status == 1) {
-
-        //                     // Mendapatkan elemen yang akan dihapus
-        //                     $('.member').remove();
-        //                     $('.non-member').remove();
-        //                     $(".customer").append(
-        //                         `  <div class="form-check member">
-    //                         <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
-    //                             checked required value="member">
-    //                         <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
-    //                     </div>`
-        //                     );
-        //                 } else {
-        //                     $('.member').remove();
-        //                     $('.non-member').remove();
-        //                     $(".customer").append(
-        //                         `  <div class="form-check non-member">
-    //                         <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-    //                             checked required value="nonmember">
-    //                         <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
-    //                     </div>`
-        //                     );
-        //                 }
-        //                 // if (msg == 'found same') {
-        //                 //     swal("Warning", "Email (" + email +
-        //                 //         ") is Already Registered", "warning");
-        //                 //     $("#email").val("");
-        //                 // } else if (msg == 'error prefix') {
-        //                 //     swal("Warning",
-        //                 //         "Sorry you can't use email, which is affiliated " +
-        //                 //         listErrorPrefixs, "warning");
-        //                 //     $("#email").val("");
-        //                 // }
-        //             }
-        //         });
-        //     });
-        // });
     </script>
+
+
 </body>
 
 </html>

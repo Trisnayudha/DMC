@@ -55,6 +55,7 @@ Route::get('/term', function () {
 });
 
 // Route::get('/register-event', [EventController::class, 'view2']);
+Route::get('/{slug}/register-event', [EventController::class, 'view2']);
 // Route::get('/register-event/free', [EventController::class, 'free']);
 // Route::get('/register-event/multiple', [EventController::class, 'view']);
 // Route::get('/register-event/sponsor', [EventController::class, 'sponsor']);

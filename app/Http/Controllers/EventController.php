@@ -165,9 +165,10 @@ class EventController extends Controller
         return view('register_event.index');
     }
 
-    public function view2()
+    public function view2($slug)
     {
-        return view('register_event.index2');
+        $findEvent = Events::where('slug', $slug)->first();
+        return view('register_event.index2', $findEvent);
     }
 
     public function payment_personal(Request $request)
