@@ -36,9 +36,7 @@
     <script src="http://events.melbourneminingclub.com/js/app.js"></script>
 
     <!-- Google Analytics-->
-    <script type="text/javascript" src="http://events.melbourneminingclub.com/js/galinks.js">
-
-    </script>
+    <script type="text/javascript" src="http://events.melbourneminingclub.com/js/galinks.js"></script>
 
     <!--[if lt IE 9]>
         <script>
@@ -115,8 +113,9 @@
                                         </div>
                                         <div class="form_item lastname">
                                             <label for="name">
-                                                <input type="text" name="name" id="group_last_name" class="required"
-                                                    data-dependent="email" data-original-placeholder="Last name" />
+                                                <input type="text" name="name" id="group_last_name"
+                                                    class="required" data-dependent="email"
+                                                    data-original-placeholder="Last name" />
                                             </label>
                                         </div>
                                         <div class="form_item group_role">
@@ -179,12 +178,12 @@
         <div class="hide" id="blank_row">
             <div class="group_row form_row grid items5 vert-align">
                 <div class="form_item firstname">
-                    <input type="text" name="email" placeholder="First name" class="required" data-dependent="name"
-                        data-original-placeholder="First name" />
+                    <input type="text" name="email" placeholder="First name" class="required"
+                        data-dependent="name" data-original-placeholder="First name" />
                 </div>
                 <div class="form_item lastname">
-                    <input type="text" name="name" placeholder="Last name" class="required" data-dependent="email"
-                        data-original-placeholder="Last name" />
+                    <input type="text" name="name" placeholder="Last name" class="required"
+                        data-dependent="email" data-original-placeholder="Last name" />
                 </div>
                 <div class="form_item group_role">
                     <input type="text" name="group_role" placeholder="Company" />
@@ -194,12 +193,11 @@
         </div>
 
         <script type="text/javascript">
-
             var capacity = 76;
             var availableSeats = 224;
             var tableSeatLimit = 10;
 
-            $(function () {
+            $(function() {
                 /*----FORM-----*/
 
                 // Form meta details
@@ -220,7 +218,7 @@
                 // });
 
                 //PENTING
-                var lastRow = (function (table) {
+                var lastRow = (function(table) {
                     return $('.group_row', table).last()
                 })
 
@@ -257,7 +255,7 @@
                 // Fix seat limit
                 // Tables start with one member added by default,
                 // so take 1 from the max.
-                var initSeatLimit = function (seat_limit) {
+                var initSeatLimit = function(seat_limit) {
                     var original_seat_limit = seat_limit.data('seat-limit'),
                         rows = seat_limit.closest('.group_table').find('.group_row').length,
                         new_seat_limit = original_seat_limit - rows;
@@ -274,7 +272,7 @@
                 //     initSeatLimit($(seat_limit));
                 // });
 
-                var generateInputLabels = function () {
+                var generateInputLabels = function() {
                     // var inputs = $('input[type="checkbox"]');
 
                     // inputs.each(function (i, input) {
@@ -292,7 +290,7 @@
                 generateInputLabels();
 
                 // Calculates & refreshes price and No. of attendees.
-                var calculatePrice = function () {
+                var calculatePrice = function() {
                     // var el = $('#total_price'),
                     //     price_per_individual = el.data('individual-price'),
                     //     price_per_table = el.data('table-price'),
@@ -341,22 +339,23 @@
                 //     });
                 // };
 
-                var collectTableDatas = function () {
+                var collectTableDatas = function() {
                     var tables = [];
 
-                    $('#your_group > .group_table').each(function () {
+                    $('#your_group > .group_table').each(function() {
                         var members = [];
 
-                        $('.group_row', this).each(function () {
+                        $('.group_row', this).each(function() {
                             if ($('input[name="email"]', this).val() != '') {
-                                var member =
-                                {
+                                var member = {
                                     'id': $(this).find('input[name="group_id"]').val(),
                                     'role': $(this).find('input[name="group_role"]').val(),
                                     'email': $(this).find('input[name="email"]').val(),
                                     'name': $(this).find('input[name="name"]').val(),
-                                    'special_reqs': $(this).find('input[name="special_reqs"]').val(),
-                                    'seated_sep': $(this).find('input[name="separately"]').is(':checked')
+                                    'special_reqs': $(this).find('input[name="special_reqs"]')
+                                        .val(),
+                                    'seated_sep': $(this).find('input[name="separately"]').is(
+                                        ':checked')
                                 }
 
                                 if ($(this).hasClass('organiser')) {
@@ -385,19 +384,18 @@
 
 
                 // --------------------INI PENTING BROW-----------------------
-                var appendToContactPersonSelect = function () {
+                var appendToContactPersonSelect = function() {
                     var count = 0;
 
                     // var select_options = '<option value="">Select a Contact Person</option><option value="other">Other (Please fill out details below)</option>';
                     var attendees = '';
 
-                    $('#your_group > .group_table').each(function () {
-                        $('.group_row', this).each(function () {
+                    $('#your_group > .group_table').each(function() {
+                        $('.group_row', this).each(function() {
                             count++;
 
                             if ($('input[name="email"]', this).val() != '') {
-                                var member =
-                                {
+                                var member = {
                                     // 'role': $(this).find('input[name="group_role"]').val(),
                                     'email': $(this).find('input[name="email"]').val(),
                                     'name': $(this).find('input[name="name"]').val(),
@@ -433,7 +431,7 @@
                 // };
 
                 // Add row
-                var addRow = function (this_table, before_or_after, beforeAdd) {
+                var addRow = function(this_table, before_or_after, beforeAdd) {
                     var new_group_row = $(group_row),
                         group_rows = $('.group_rows', this_table),
                         button = $('.add_group_members', this_table),
@@ -480,8 +478,7 @@
 
                     if (number_left === 0) {
                         button.addClass('disabled');
-                    }
-                    ;
+                    };
 
                     if ($('.whole_table', this_table).is(':checked')) {
                         //$('.seated_sep', this_table).addClass('hide');
@@ -564,7 +561,7 @@
                 //     }
                 // }
 
-                var removeRow = function (row_to_remove, this_table) {
+                var removeRow = function(row_to_remove, this_table) {
                     var add_button = $('.add_group_members', this_table),
                         number_left = parseInt(add_button.data('seat-limit'));
 
@@ -656,7 +653,7 @@
                 // });
 
                 // Add group members
-                $(document).on('click', '.add_group_members', function () {
+                $(document).on('click', '.add_group_members', function() {
                     var currentSeats = $('.group_rows .group_row').length;
 
                     if (currentSeats >= availableSeats) {
@@ -672,7 +669,7 @@
                 });
 
                 // Remove group members
-                $(document).on("click", ".remove_row", function (e) {
+                $(document).on("click", ".remove_row", function(e) {
                     var this_table = $(this).closest('.group_table'),
                         row_to_remove = $(this).parents('.group_row');
 
@@ -743,17 +740,17 @@
                 //     onContactPersonChange($(this).val());
                 // })
 
-                $(document).on('blur', 'input[name="email"]', function () {
+                $(document).on('blur', 'input[name="email"]', function() {
                     appendToContactPersonSelect();
                 });
 
-                $(document).on('blur', 'input[name="name"]', function () {
+                $(document).on('blur', 'input[name="name"]', function() {
                     appendToContactPersonSelect();
                 });
 
                 // ------------------ Form Submission ----------------- //
 
-                $('#save').click(function (e) {
+                $('#save').click(function(e) {
                     e.preventDefault();
 
                     // var currentSeats = $('.group_rows .group_row').length;
@@ -1063,12 +1060,12 @@
 
     <script>
         /*(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    
-         ga('create', 'UA-11203218-4', 'metalicus.com');
-         ga('send', 'pageview');*/
+             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+             })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+             ga('create', 'UA-11203218-4', 'metalicus.com');
+             ga('send', 'pageview');*/
     </script>
 </body>
 
