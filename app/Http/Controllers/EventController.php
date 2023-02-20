@@ -173,6 +173,7 @@ class EventController extends Controller
 
     public function payment_personal(Request $request)
     {
+        dd($request->all());
         $prefix = $request->prefix;
         $company_name = $request->company_name;
         $phone = $request->phone;
