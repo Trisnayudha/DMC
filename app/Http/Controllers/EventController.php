@@ -1070,10 +1070,13 @@ class EventController extends Controller
                     $profile->save();
                 }
                 if ($table['price'] == 'member') {
+                    $ticket_id = 7;
                     $total_price = 900000;
                 } else if ($table['price'] == 'nonmember') {
+                    $ticket_id = 8;
                     $total_price = 1000000;
                 } else if ($table['price'] == 'onsite') {
+                    $ticket_id = 9;
                     $total_price = 1250000;
                 } else {
                     $total_price  = 0;
@@ -1091,6 +1094,7 @@ class EventController extends Controller
                     $checkPayment->code_payment = $codePayment;
                     $checkPayment->member_id = $checkUsers->id;
                     $checkPayment->events_id = 4;
+                    $checkPayment->tickets_id = $ticket_id;
                     $checkPayment->booking_contact_id = $saveBooking->id;
                     // $checkPayment->link = $linkPay;
                     $checkPayment->save();
@@ -1101,6 +1105,7 @@ class EventController extends Controller
                     $checkPayment->status_registration = 'Waiting';
                     $checkPayment->code_payment = $codePayment;
                     $checkPayment->member_id = $checkUsers->id;
+                    $checkPayment->tickets_id = $ticket_id;
                     $checkPayment->events_id = 4;
                     $checkPayment->booking_contact_id = $saveBooking->id;
                     // $checkPayment->link = $linkPay;
@@ -1165,7 +1170,9 @@ class EventController extends Controller
             $response['message'] = 'Thank you for registering. Your data has been successfully recorded.';
         } catch (Exception $e) {
             $response['status'] = 0;
-            $response['message'] = 'Please fill out all required fields before submitting the form.';
+            $response['message'] = $e->getMessage();
+
+            // $response['message'] = 'Please fill out all required fields before submitting the form.';
         }
         return response()->json($response);
     }
