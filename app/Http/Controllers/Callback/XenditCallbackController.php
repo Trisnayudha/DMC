@@ -369,6 +369,7 @@ Best Regards Bot DMC
                 $res['api_status'] = 0;
                 $res['api_message'] = 'Payment is not Found';
             }
+            return response()->json($res, 200);
         } catch (\Exception $msg) {
             $res['api_status'] = 0;
             $res['api_message'] = $msg->getMessage();
