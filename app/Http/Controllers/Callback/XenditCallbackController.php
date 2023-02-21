@@ -299,6 +299,42 @@ Best Regards Bot DMC
                         ->first();
                     if ($check->booking_contact_id != null) {
                         $findContact = BookingContact::where('id', $check->booking_contact_id)->first();
+
+                        $loopPayment = Payment::where('booking_contact_id', $findContact->id)
+                            ->join('users as a', 'a.id', 'payment.member_id')
+                            ->join('profiles as b', 'a.id', 'b.users_id')
+                            ->join('company as c', 'c.id', 'b.company_id')
+                            ->join('events_tickets as d', 'payment.tickets_id', 'd.id')
+                            ->get();
+                        $detailWa = [];
+                        $itemDetails = [];
+                        foreach ($loopPayment as $data) {
+                            $update = Payment::where('member_id', $data->member_id)->where('events_id', '4')->first();
+                            $item_details[] = [
+                                'name' => $data->name,
+                                'job_title' => $data->email,
+                                'price' => number_format($data->price_rupiah, 0, ',', '.'),
+                                'paidoff' => $data->status_registration == 'Paid Off' ? true : false
+                            ];
+                            $update->status_registration = "Paid Off";
+                            $update->payment_method = $payment_method;
+                            $update->save();
+                            $UserEvent = UserRegister::where('payment_id', $update->id)->first();
+                            if (empty($UserEvent)) {
+                                $UserEvent = new UserRegister();
+                            }
+                            $UserEvent->users_id = $update->member_id;
+                            $UserEvent->events_id = $update->events_id;
+                            $UserEvent->payment_id = $update->id;
+                            $UserEvent->save();
+                            $detailWa[] = '
+Nama : ' . $data->name . '
+Email: ' . $data->email . '
+Phone Number: ' . $data->phone . '
+Company : ' . $data->company_name . '
+';
+                        }
+                        $link = null;
                         $data = [
                             'users_name' => $findContact->name_contact,
                             'users_email' => $findContact->email_contact,
@@ -314,56 +350,35 @@ Best Regards Bot DMC
                             'total_price' => number_format($paid_amount, 0, ',', '.'),
                             'voucher_price' => number_format(0, 0, ',', '.'),
                             'image' => $db,
-                            'job_title' => $findContact->job_title_contact
+                            'item' => $item_details,
+                            'job_title' => $findContact->job_title_contact,
+                            'link' => $link
                         ];
-                        $loopPayment = Payment::where('booking_contact_id', $findContact->id)
-                            ->join('users as a', 'a.id', 'payment.member_id')
-                            ->join('profiles as b', 'a.id', 'b.users_id')
-                            ->join('company as c', 'c.id', 'b.company_id')
-                            ->get();
-                        $detailWa = [];
-                        foreach ($loopPayment as $data) {
-                            $detailWa = '
-Nama : ' . $data->name . '
-Email: ' . $data->email . '
-Phone Number: ' . $data->phone . '
-Company : ' . $data->company_name . '
-';
-                        }
+                        // return view('email.invoice-new-multiple', $data);
+                        $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
+                        Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
+                            $message->from(env('EMAIL_SENDER'));
+                            $message->to($findUser->email);
+                            $message->subject('Thank you for payment - Technological Advances Driving Innovation in Indonesia`s Mining
+                            Industry ');
+                            $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
+                        });
                         $send = new WhatsappApi();
                         $send->phone = '083829314436';
                         $send->message = '
 Hai Team,
 
-Success payment dari ' . $findUser->name . '
+Success payment dari ' . $findContact->name . '
 Detail Informasinya:
-' . $detailWa . '
+' . implode(" ", $detailWa) . '
 
 Thank you
 Best Regards Bot DMC
-                        ';
+                                                ';
                         $send->WhatsappMessage();
                         $res['api_status'] = 1;
                         $res['api_message'] = 'Payment status is updated';
                         $res['payload'] = $loopPayment;
-                    } else {
-                        $data = [
-                            'users_name' => $findUser->name,
-                            'users_email' => $findUser->email,
-                            'phone' => $findUser->phone,
-                            'company_name' => $findUser->company_name,
-                            'company_address' => $findUser->address,
-                            'status' => 'Paid Off',
-                            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
-                            'code_payment' => $findUser->code_payment,
-                            'create_date' => date('d, M Y H:i'),
-                            'package_name' => $findUser->package,
-                            'price' => number_format($paid_amount, 0, ',', '.'),
-                            'total_price' => number_format($paid_amount, 0, ',', '.'),
-                            'voucher_price' => number_format(0, 0, ',', '.'),
-                            'image' => $db,
-                            'job_title' => $findUser->job_title
-                        ];
                     }
                 }
             } else {

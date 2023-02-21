@@ -45,7 +45,7 @@ Route::get('/scan/print', [PrintController::class, 'index']);
 Route::post('/scan/request', [PrintController::class, 'request']);
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
-Route::post('/test', [TestController::class, 'payment']);
+Route::get('/test', [TestController::class, 'test']);
 Route::post('/test/upload', [TestController::class, 'upload']);
 Route::get('/privacy', function () {
     return view('privacy-policy');

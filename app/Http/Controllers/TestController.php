@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\WhatsappApi;
 use App\Models\BookingContact\BookingContact;
 use App\Models\Company\CompanyModel;
+use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
@@ -20,7 +22,120 @@ class TestController extends Controller
 {
     public function test()
     {
-        return view('test');
+        $status = 'PAID';
+        $payment_method = 'Credit_card';
+        $paid_amount  = 1000000;
+
+        try {
+            $check = Payment::where('code_payment', '=', 'HMGPZV7')->first();
+
+            if (!empty($check)) {
+                if ($status == 'PAID') {
+                    // $image = QrCode::format('png')
+                    //     ->size(200)->errorCorrection('H')
+                    //     ->generate('SOXVGUK');
+                    $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                    $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                    // Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                    $findUser = Payment::where('code_payment', 'HMGPZV7')
+                        ->join('users as a', 'a.id', 'payment.member_id')
+                        ->join('profiles as b', 'a.id', 'b.users_id')
+                        ->join('company as c', 'c.id', 'b.company_id')
+                        ->first();
+                    if ($check->booking_contact_id != null) {
+                        $findContact = BookingContact::where('id', $check->booking_contact_id)->first();
+
+                        $loopPayment = Payment::where('booking_contact_id', $findContact->id)
+                            ->join('users as a', 'a.id', 'payment.member_id')
+                            ->join('profiles as b', 'a.id', 'b.users_id')
+                            ->join('company as c', 'c.id', 'b.company_id')
+                            ->join('events_tickets as d', 'payment.tickets_id', 'd.id')
+                            ->get();
+                        $detailWa = [];
+                        $itemDetails = [];
+                        foreach ($loopPayment as $data) {
+                            $update = Payment::where('member_id', $data->member_id)->where('events_id', '4')->first();
+                            $item_details[] = [
+                                'name' => $data->name,
+                                'job_title' => $data->email,
+                                'price' => number_format($data->price_rupiah, 0, ',', '.'),
+                                'paidoff' => $data->status_registration == 'Paid Off' ? true : false
+                            ];
+                            $update->status_registration = "Paid Off";
+                            $update->payment_method = $payment_method;
+                            $update->save();
+                            $UserEvent = UserRegister::where('payment_id', $update->id)->first();
+                            if (empty($UserEvent)) {
+                                $UserEvent = new UserRegister();
+                            }
+                            $UserEvent->users_id = $update->member_id;
+                            $UserEvent->events_id = $update->events_id;
+                            $UserEvent->payment_id = $update->id;
+                            $UserEvent->save();
+                            $detailWa[] = '
+Nama : ' . $data->name . '
+Email: ' . $data->email . '
+Phone Number: ' . $data->phone . '
+Company : ' . $data->company_name . '
+';
+                        }
+                        $link = null;
+                        $data = [
+                            'users_name' => $findContact->name_contact,
+                            'users_email' => $findContact->email_contact,
+                            'phone' => $findContact->phone_contact,
+                            'company_name' => $findContact->company_name,
+                            'company_address' => $findContact->address,
+                            'status' => 'Paid Off',
+                            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                            'code_payment' => $findUser->code_payment,
+                            'create_date' => date('d, M Y H:i'),
+                            'package_name' => $findUser->package,
+                            'price' => number_format($paid_amount, 0, ',', '.'),
+                            'total_price' => number_format($paid_amount, 0, ',', '.'),
+                            'voucher_price' => number_format(0, 0, ',', '.'),
+                            'image' => $db,
+                            'item' => $item_details,
+                            'job_title' => $findContact->job_title_contact,
+                            'link' => $link
+                        ];
+                        // return view('email.invoice-new-multiple', $data);
+                        $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
+                        Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf) {
+                            $message->from(env('EMAIL_SENDER'));
+                            $message->to($findContact->email_contact);
+                            $message->subject('Thank you for payment - Technological Advances Driving Innovation in Indonesia`s Mining
+                            Industry ');
+                            $message->attachData($pdf->output(), 'E-Receipt.pdf');
+                        });
+                        $send = new WhatsappApi();
+                        $send->phone = '083829314436';
+                        $send->message = '
+Hai Team,
+
+Success payment dari ' . $findContact->name . '
+Detail Informasinya:
+' . implode(" ", $detailWa) . '
+
+Thank you
+Best Regards Bot DMC
+                                                ';
+                        $send->WhatsappMessage();
+                        $res['api_status'] = 1;
+                        $res['api_message'] = 'Payment status is updated';
+                        $res['payload'] = $loopPayment;
+                    }
+                }
+            } else {
+                $res['api_status'] = 0;
+                $res['api_message'] = 'Payment is not Found';
+            }
+            return response()->json($res, 200);
+        } catch (\Exception $msg) {
+            $res['api_status'] = 0;
+            $res['api_message'] = $msg->getMessage();
+            return response()->json($res, 500);
+        }
     }
 
     public function upload(Request $request)
@@ -41,201 +156,4 @@ class TestController extends Controller
         // storage/app/images/file.png
         dd($db);
     }
-
-    public function payment(Request $request)
-    {
-        // dd($request->all());
-        //buat ngambil data booking contact
-        $company_name = $request->booking_contact['company_name'];
-        $address = $request->booking_contact['address'];
-        $city = $request->booking_contact['city'];
-        $company_category = $request->booking_contact['company_category'];
-        $company_website = $request->booking_contact['company_website'];
-        $country = $request->booking_contact['country'];
-        $email_contact = $request->booking_contact['email_contact'];
-        $job_title_contact = $request->booking_contact['job_title_contact'];
-        $name_contact = $request->booking_contact['name_contact'];
-        $office_number = $request->booking_contact['office_number'];
-        $phone_contact = $request->booking_contact['phone_contact'];
-        $portal_code = $request->booking_contact['portal_code'];
-        $prefix = $request->booking_contact['prefix'];
-        $company_other = $request->booking_contact['company_other'];
-        // mengambil data array
-
-        $saveBooking = new BookingContact();
-        $saveBooking->name_contact = $name_contact;
-        $saveBooking->email_contact = $email_contact;
-        $saveBooking->phone_contact = $phone_contact;
-        $saveBooking->job_title_contact = $job_title_contact;
-        $saveBooking->prefix = $prefix;
-        $saveBooking->company_name = $company_name;
-        $saveBooking->address = $address;
-        $saveBooking->city = $city;
-        $saveBooking->company_website = $company_website;
-        $saveBooking->country = $country;
-        $saveBooking->portal_code = $portal_code;
-        $saveBooking->company_category = $company_category;
-        $saveBooking->company_other = $company_other;
-        $saveBooking->office_number = $office_number;
-        $saveBooking->save();
-
-        $tables = $request->tables;
-        $countPrice = 0;
-        $item_details = [];
-        foreach ($tables as $table) {
-            $checkUsers = User::where('email', $table['email'])->first();
-
-            if (empty($checkUsers)) {
-                $checkUsers = new User();
-                $checkUsers->email = $table['email'];
-                $checkUsers->name = $table['name'];
-                $checkUsers->save();
-                $company = CompanyModel::firstOrNew([
-                    'users_id' => $checkUsers->id
-                ]);
-                $company->prefix = $prefix;
-                $company->company_name = $company_name;
-                $company->company_website = $company_website;
-                $company->company_category = $company_category;
-                $company->company_other = $company_other;
-                $company->address = $address;
-                $company->city = $city;
-                $company->portal_code = $portal_code;
-                $company->office_number = $office_number;
-                $company->country = $country;
-                $company->users_id = $checkUsers->id;
-                $company->save();
-                $profile = ProfileModel::where('users_id', $checkUsers->id)->first();
-                if (empty($profile)) {
-                    $profile = new ProfileModel();
-                }
-                $profile->phone = $table['phone'];
-                $profile->job_title = $table['job_title'];
-                $profile->users_id = $checkUsers->id;
-                $profile->company_id = $company->id;
-                $profile->save();
-            }
-            if ($table['price'] == 'member') {
-                $total_price = 900000;
-            } else if ($table['price'] == 'nonmember') {
-                $total_price = 1000000;
-            } else if ($table['price'] == 'onsite') {
-                $total_price = 1250000;
-            } else {
-                $total_price  = 0;
-            }
-            $checkPayment = Payment::where('member_id', $checkUsers->id)->first();
-            $codePayment = strtoupper(Str::random(7));
-
-
-            //Conditional Payment
-            if (empty($checkPayment)) {
-                //Payment Kosong
-                $checkPayment = new Payment();
-                $checkPayment->package = $table['price'];
-                $checkPayment->status_registration = 'Waiting';
-                $checkPayment->code_payment = $codePayment;
-                $checkPayment->member_id = $checkUsers->id;
-                $checkPayment->events_id = 4;
-                $checkPayment->booking_contact_id = $saveBooking->id;
-                // $checkPayment->link = $linkPay;
-                $checkPayment->save();
-            } elseif ($checkPayment->status_registration == 'Waiting' || $checkPayment->status_registration == 'Expired') {
-                // Payment ada tapi waiting
-                $checkPayment = Payment::where('member_id', $checkUsers->id)->first();
-                $checkPayment->package =  $table['price'];
-                $checkPayment->status_registration = 'Waiting';
-                $checkPayment->code_payment = $codePayment;
-                $checkPayment->member_id = $checkUsers->id;
-                $checkPayment->events_id = 4;
-                $checkPayment->booking_contact_id = $saveBooking->id;
-                // $checkPayment->link = $linkPay;
-                $checkPayment->save();
-            } else {
-                //Paymentnya sudah Paid Off
-            }
-            $countPrice += $total_price;
-            $item_details[] = [
-                'name' => $table['name'],
-                'job_title' => $table['email'],
-                'price' => number_format($total_price, 0, ',', '.'),
-            ];
-        }
-        $date = date('d-m-Y H:i:s');
-        $linkPay = null;
-        // init xendit
-        $isProd = env('XENDIT_ISPROD');
-        if ($isProd) {
-            $secretKey = env('XENDIT_SECRET_KEY_PROD');
-        } else {
-            $secretKey = env('XENDIT_SECRET_KEY_TEST');
-        }
-        // params invoice
-        Xendit::setApiKey($secretKey);
-        $params = [
-            'external_id' => $checkPayment->code_payment,
-            'payer_email' => $email_contact,
-            'description' => 'Invoice Event DMC',
-            'amount' => $countPrice,
-            'success_redirect_url' => 'https://djakarta-miningclub.com',
-            'failure_redirect_url' => url('/'),
-        ];
-        $createInvoice = Invoice::create($params);
-        $linkPay = $createInvoice['invoice_url'];
-        $payload = [
-            'code_payment' => $checkPayment->code_payment,
-            'create_date' => date('d, M Y H:i'),
-            'users_name' => $saveBooking->name_contact,
-            'users_email' => $saveBooking->email_contact,
-            'phone' => $saveBooking->phone_contact,
-            'company_name' => $saveBooking->company_name,
-            'company_address' => $saveBooking->address,
-            'status' => 'Waiting',
-            'item' => $item_details,
-            'voucher_price' => 0,
-            'total_price' => number_format($countPrice, 0, ',', '.'),
-            'link' => $linkPay
-        ];
-        $email = $saveBooking->email_contact;
-        $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
-        Mail::send('email.invoice-new-multiple', $payload, function ($message) use ($email, $pdf) {
-            $message->from(env('EMAIL_SENDER'));
-            $message->to($email);
-            $message->subject('Invoice waiting Payment DMC');
-            $message->attachData($pdf->output(), 'Invoice-' . time() . '.pdf');
-        });
-        $data = [
-            'link' => $linkPay,
-            'tables' => $tables,
-            'count' => $countPrice
-        ];
-        $response['status'] = 200;
-        $response['message'] = 'Data has been saved';
-        $response['payload'] = $data;
-        return response()->json($response);
-    }
 }
-// $company = CompanyModel::firstOrNew([
-            //     'users_id' => $user->id
-            // ]);
-            // $company->prefix = $prefix;
-            // $company->company_name = $company_name;
-            // $company->company_website = $company_website;
-            // $company->company_category = $company_category;
-            // $company->company_other = $company_other;
-            // $company->address = $address;
-            // $company->city = $city;
-            // $company->portal_code = $portal_code;
-            // $company->office_number = $office_number;
-            // $company->country = $country;
-            // $company->users_id = $user->id;
-            // $company->save();
-            // $profile = ProfileModel::where('users_id', $user->id)->first();
-            // if (empty($profile)) {
-            //     $profile = new ProfileModel();
-            // }
-            // $profile->phone = $phone;
-            // $profile->job_title = $job_title;
-            // $profile->users_id = $user->id;
-            // $profile->company_id = $company->id;
-            // $profile->save();
