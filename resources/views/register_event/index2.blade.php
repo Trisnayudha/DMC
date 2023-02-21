@@ -186,6 +186,7 @@
                 <p>:
                     Non Member Rp.1.000.000
                 <p> Member Rp.900.000</p>
+                <p>On Site Rp.1.250.000</p>
 
                 </p>
             </div>
@@ -214,6 +215,11 @@
                     <input id="credit" name="paymentMethod" type="radio" class="form-check-input" required
                         value="member">
                     <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
+                </div>
+                <div class="form-check member">
+                    <input id="credit" name="paymentMethod" type="radio" class="form-check-input" required
+                        value="onsite">
+                    <label class="form-check-label" for="credit">On Site (Rp. 1.250.000)</label>
                 </div>
 
                 <hr class="my-4">
