@@ -127,6 +127,18 @@
             margin: 4px 2px;
             border-radius: 16px;
         }
+
+        .capsule-success {
+            background-color: #00ffff;
+            border: none;
+            color: black;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            margin: 4px 2px;
+            border-radius: 16px;
+        }
     </style>
 </head>
 
@@ -199,13 +211,22 @@
                 <td align="right">Price</td>
             </tr>
             <tr class="item">
-                <td colspan="2" align="center">Mineral Trends 2023 - Wednesday, 8th of February 2023</td>
+                <td colspan="2" align="center">Technological Advances Driving Innovation in Indonesia's Mining
+                    Industry</td>
             </tr>
             @foreach ($item as $value)
                 <tr class="item">
                     <td>{{ $value['name'] }} - {{ $value['job_title'] }}</td>
 
-                    <td align="right">IDR {{ $value['price'] }}</td>
+                    <td align="right">
+                        @if ($value['paidoff'] == false)
+                            IDR {{ $value['price'] }}
+                        @else
+                            <span class="capsule-success">
+                                Paid Off
+                            </span>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
 

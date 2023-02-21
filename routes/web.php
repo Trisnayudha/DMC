@@ -62,6 +62,7 @@ Route::get('/{slug}/register-event', [EventController::class, 'view2']);
 Route::post('/regis-sponsor', [EventController::class, 'register_sponsor']);
 Route::post('/regis-multiple', [EventController::class, 'register_multiple']);
 Route::post('/payment-personal', [EventController::class, 'payment_personal']);
+Route::post('/payment-multiple', [EventController::class, 'NewPaymentMultiple']);
 Route::post('/register/email', [FormMemberController::class, 'check_email']);
 Route::post('renewal-payment', [PaymentController::class, 'renewal']);
 Auth::routes([
