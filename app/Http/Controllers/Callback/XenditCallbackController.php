@@ -365,6 +365,9 @@ Best Regards Bot DMC
                         ];
                     }
                 }
+            } else {
+                $res['api_status'] = 0;
+                $res['api_message'] = 'Payment is not Found';
             }
         } catch (\Exception $msg) {
             $res['api_status'] = 0;
