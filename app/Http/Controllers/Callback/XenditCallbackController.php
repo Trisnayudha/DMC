@@ -8,6 +8,7 @@ use App\Helpers\WhatsappApi;
 use App\Helpers\XenditInvoice;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\BookingContact\BookingContact;
 use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
@@ -230,6 +231,141 @@ Best Regards Bot DMC
             }
 
             return response()->json($res, 200);
+        } catch (\Exception $msg) {
+            $res['api_status'] = 0;
+            $res['api_message'] = $msg->getMessage();
+            return response()->json($res, 500);
+        }
+    }
+    public function invoice_v2()
+    {
+        try {
+            //        contoh respon callback invoice
+            //        "id": "579c8d61f23fa4ca35e52da4",
+            //        "external_id": "invoice_123124123",
+            //        "user_id": "5781d19b2e2385880609791c",
+            //        "is_high": true,
+            //        "payment_method": "BANK_TRANSFER",
+            //        "status": "PAID",
+            //        "merchant_name": "Xendit",
+            //        "amount": 50000,
+            //        "paid_amount": 50000,
+            //        "bank_code": "PERMATA",
+            //        "paid_at": "2016-10-12T08:15:03.404Z",
+            //        "payer_email": "wildan@xendit.co",
+            //        "description": "This is a description",
+            //        "adjusted_received_amount": 47500,
+            //        "fees_paid_amount": 0,
+            //        "updated": "2016-10-10T08:15:03.404Z",
+            //        "created": "2016-10-10T08:15:03.404Z",
+            //        "currency": "IDR",
+            //        "payment_channel": "PERMATA",
+            //        "payment_destination": "888888888888"
+
+            $id = request('id');
+            $external_id = request('external_id');
+            $user_id = request('user_id');
+            $is_high = request('is_high');
+            $payment_method = request('payment_method');
+            $status = request('status');
+            $merchant_name = request('merchant_name');
+            $amount = request('amount');
+            $paid_amount = request('paid_amount');
+            $bank_code = request('bank_code');
+            $paid_at = request('paid_at');
+            $payer_email = request('payer_email');
+            $description = request('description');
+            $adjusted_received_amount = request('adjusted_received_amount');
+            $fees_paid_amount = request('fees_paid_amount');
+            $updated = request('updated');
+            $created = request('created');
+            $currency = request('currency');
+            $payment_channel = request('payment_channel');
+            $payment_destination = request('payment_destination');
+            $check = Payment::where('code_payment', '=', $external_id)->first();
+
+            if (!empty($check)) {
+                if ($status == 'PAID') {
+                    $image = QrCode::format('png')
+                        ->size(200)->errorCorrection('H')
+                        ->generate($external_id);
+                    $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                    $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                    Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                    $findUser = Payment::where('code_payment', $external_id)
+                        ->join('users as a', 'a.id', 'payment.member_id')
+                        ->join('profiles as b', 'a.id', 'b.users_id')
+                        ->join('company as c', 'c.id', 'b.company_id')
+                        ->first();
+                    if ($check->booking_contact_id != null) {
+                        $findContact = BookingContact::where('id', $check->booking_contact_id)->first();
+                        $data = [
+                            'users_name' => $findContact->name_contact,
+                            'users_email' => $findContact->email_contact,
+                            'phone' => $findContact->phone_contact,
+                            'company_name' => $findContact->company_name,
+                            'company_address' => $findContact->address,
+                            'status' => 'Paid Off',
+                            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                            'code_payment' => $findUser->code_payment,
+                            'create_date' => date('d, M Y H:i'),
+                            'package_name' => $findUser->package,
+                            'price' => number_format($paid_amount, 0, ',', '.'),
+                            'total_price' => number_format($paid_amount, 0, ',', '.'),
+                            'voucher_price' => number_format(0, 0, ',', '.'),
+                            'image' => $db,
+                            'job_title' => $findContact->job_title_contact
+                        ];
+                        $loopPayment = Payment::where('booking_contact_id', $findContact->id)
+                            ->join('users as a', 'a.id', 'payment.member_id')
+                            ->join('profiles as b', 'a.id', 'b.users_id')
+                            ->join('company as c', 'c.id', 'b.company_id')
+                            ->get();
+                        $detailWa = null;
+                        foreach ($loopPayment as $data) {
+                            $detailWa = '
+Nama : ' . $data->name . '
+Email: ' . $data->email . '
+Phone Number: ' . $data->phone . '
+Company : ' . $data->company_name . '
+';
+                        }
+                        $send = new WhatsappApi();
+                        $send->phone = '083829314436';
+                        $send->message = '
+Hai Team,
+
+Success payment dari ' . $findUser->name . '
+Detail Informasinya:
+' . $detailWa . '
+
+Thank you
+Best Regards Bot DMC
+                        ';
+                        $send->WhatsappMessage();
+                        $res['api_status'] = 1;
+                        $res['api_message'] = 'Payment status is updated';
+                    } else {
+                        $data = [
+                            'users_name' => $findUser->name,
+                            'users_email' => $findUser->email,
+                            'phone' => $findUser->phone,
+                            'company_name' => $findUser->company_name,
+                            'company_address' => $findUser->address,
+                            'status' => 'Paid Off',
+                            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                            'code_payment' => $findUser->code_payment,
+                            'create_date' => date('d, M Y H:i'),
+                            'package_name' => $findUser->package,
+                            'price' => number_format($paid_amount, 0, ',', '.'),
+                            'total_price' => number_format($paid_amount, 0, ',', '.'),
+                            'voucher_price' => number_format(0, 0, ',', '.'),
+                            'image' => $db,
+                            'job_title' => $findUser->job_title
+                        ];
+                    }
+                }
+            }
         } catch (\Exception $msg) {
             $res['api_status'] = 0;
             $res['api_message'] = $msg->getMessage();
