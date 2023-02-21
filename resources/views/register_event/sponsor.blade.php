@@ -164,8 +164,12 @@
                                 </select>
                             </div>
                         </div>
+                        <div id="detail-container">
+
+                        </div>
                         <br>
                         <div class="row g-3">
+
                             <div class="col-sm-6">
                                 <label for="name" class="form-label">Full name *</label>
                                 <input type="text" class="form-control" name="name[]" placeholder=""
@@ -330,6 +334,51 @@
         });
         $(document).on('click', '.remove', function() {
             $(this).parents('.tambah').remove();
+        });
+        $(document).ready(function() {
+            $('#company').on('change', function() {
+                const id = $(this).val();
+                $.ajax({
+                    url: '/sponsor/' + id,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#detail-container').html(`
+                        <div class="row g-3">
+                        <div class="col-sm-12">
+                        <label for="address" class="form-label">Address *</label>
+                        <input type="text" class="form-control" name="address" placeholder="" required
+                            value="${data.address}">
+                        <div class="invalid-feedback">
+                            Please provide a Mobile Number
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="office_number" class="form-label">Office Number</label>
+                        <input type="tel" class="form-control" name="office_number"id="office_number"
+                            placeholder="" value="${data.office_number}"
+                            required>
+                        <div class="invalid-feedback">
+                            Please provide a Mobile Number
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                                <label for="company_website" class="form-label">Company Webstie *<span
+                                        class="text-muted"></span></label>
+                                <input type="text" class="form-control" name="company_website"
+                                    value="${data.company_website}" placeholder="www.yourcompany.com" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid company website .
+                                </div>
+                            </div>
+                    </div>
+                    `);
+                    },
+                    error: function() {
+                        console.log('Error fetching data');
+                    }
+                });
+            });
         });
     </script>
 </body>
