@@ -227,7 +227,7 @@
                                         <div class="form-group">
                                             <label for="name" class="form-label">Full name *</label>
                                             <input type="text" class="form-control name" name="name"
-                                                placeholder="" value="" required>
+                                                id="name" placeholder="" value="" required>
                                             <div class="invalid-feedback">
                                                 Valid name is required.
                                             </div>
@@ -236,8 +236,8 @@
                                     <div class="col-sm-6">
                                         <label for="email" class="form-label">Email Address * <span
                                                 class="text-muted"></span></label>
-                                        <input type="email" class="form-control email" name="email" id="email"
-                                            placeholder="Your work email" required value="">
+                                        <input type="email" class="form-control email" name="email"
+                                            id="email" placeholder="Your work email" required value="">
                                         <div class="invalid-feedback">
                                             Please enter a valid email address.
                                         </div>
@@ -245,15 +245,16 @@
                                     <div class="col-sm-6">
                                         <label for="phone" class="form-label">Mobile number *</label>
                                         <input type="tel" class="phone form-control" name="phone"
-                                            placeholder="" value="{{ old('phone') ? old('phone') : '+62' }}" required>
+                                            id="phone" placeholder=""
+                                            value="{{ old('phone') ? old('phone') : '+62' }}" required>
                                         <div class="invalid-feedback">
                                             Please provide a Mobile Number
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <label for="job_title" class="form-label">Job Title *</label>
-                                        <input type="text" class="form-control" name="job_title" placeholder=""
-                                            required value="">
+                                        <input type="text" class="form-control" name="job_title" id="job_title"
+                                            placeholder="" required value="">
                                         <div class="invalid-feedback">
                                             Please enter your Job Title.
                                         </div>
@@ -279,6 +280,14 @@
                     Enter the best person we can contact for this booking in the event of unplanned changes.
                 </div>
                 <div class="row g-3">
+                    <div class="col-md-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="checkbox_data">
+                            <label class="form-check-label" for="checkbox_data">
+                                Use my detail
+                            </label>
+                        </div>
+                    </div>
                     <div class="col-md-2">
                         <label for="company_name" class="form-label" style="color:white">.</label>
                         <select class="custom-select d-block w-100" id="prefix" name="prefix" required>
@@ -310,15 +319,15 @@
 
                     <div class="col-sm-6">
                         <label for="name" class="form-label">Full name *</label>
-                        <input type="text" class="form-control" name="name_contact" placeholder=""
-                            value="{{ old('name') }}" required>
+                        <input type="text" class="form-control" name="name_contact" id="name_contact"
+                            placeholder="" value="{{ old('name') }}" required>
                         <div class="invalid-feedback">
                             Valid name is required.
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <label for="phone" class="form-label">Mobile number *</label>
-                        <input type="tel" class="form-control" name="phone_contact"id="phone"
+                        <input type="tel" class="form-control" name="phone_contact" id="phone_contact"
                             placeholder="" value="{{ old('phone') ? old('phone') : '+62' }}" required>
                         <div class="invalid-feedback">
                             Please provide a Mobile Number
@@ -326,8 +335,8 @@
                     </div>
                     <div class="col-sm-6">
                         <label for="job_title" class="form-label">Job Title *</label>
-                        <input type="text" class="form-control" name="job_title_contact" placeholder="" required
-                            value="{{ old('job_title') }}">
+                        <input type="text" class="form-control" name="job_title_contact" id="job_title_contact"
+                            placeholder="" required value="{{ old('job_title') }}">
                         <div class="invalid-feedback">
                             Please enter your Job Title.
                         </div>
@@ -335,7 +344,7 @@
                     <div class="col-sm-6">
                         <label for="email" class="form-label">Email Address * <span
                                 class="text-muted"></span></label>
-                        <input type="email" class="form-control" name="email_contact" id="email"
+                        <input type="email" class="form-control" name="email_contact" id="email_contact"
                             placeholder="Your work email" required value="{{ old('email') }}">
                         <div class="invalid-feedback">
                             Please enter a valid email address.
@@ -518,6 +527,25 @@
     </div>
     <script type="text/javascript">
         var availableSeats = 224;
+        $(document).ready(function() {
+            // atur event listener untuk checkbox
+            $('#checkbox_data').change(function() {
+                if ($(this).is(':checked')) {
+                    console.log('check')
+                    // isi data ke dalam elemen lain
+                    $('#name_contact').val($('#name').val());
+                    $('#email_contact').val($('#email').val());
+                    $('#phone_contact').val($('#phone').val());
+                    $('#job_title_contact').val($('#job_title').val());
+                } else {
+                    // kosongkan elemen lain jika checkbox tidak di ceklis
+                    $('#name_contact').val('');
+                    $('#email_contact').val('');
+                    $('#phone_contact').val('');
+                    $('#job_title_contact').val('');
+                }
+            });
+        });
         $(function() {
             /*----FORM-----*/
 
