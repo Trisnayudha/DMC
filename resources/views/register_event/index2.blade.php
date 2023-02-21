@@ -203,8 +203,7 @@
             <div class="col-md-8 order-md-1">
                 <h4 class="mb-3">* ATTENDEES</h4>
                 <div class="alert alert-info" role="alert">
-                    Enter guest details here. Any special requirements can be noted in the additional
-                    information section below.
+                    Enter Attendees Details Here
                 </div>
                 <div class="form-check non-member">
                     <input id="debit" name="paymentMethod" type="radio" class="form-check-input" checked required
@@ -217,9 +216,9 @@
                     <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
                 </div>
                 <div class="form-check member">
-                    <input id="credit" name="paymentMethod" type="radio" class="form-check-input" required
+                    <input id="onsite" name="paymentMethod" type="radio" class="form-check-input" required
                         value="onsite">
-                    <label class="form-check-label" for="credit">On Site (Rp. 1.250.000)</label>
+                    <label class="form-check-label" for="onsite">On Site (Rp. 1.250.000)</label>
                 </div>
 
                 <hr class="my-4">
@@ -290,7 +289,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="checkbox_data">
                             <label class="form-check-label" for="checkbox_data">
-                                Use my detail
+                                Same as contact person
                             </label>
                         </div>
                     </div>
