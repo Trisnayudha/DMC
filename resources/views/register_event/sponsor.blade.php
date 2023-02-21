@@ -107,7 +107,7 @@
                     <p>Title</p>
                 </div>
                 <div class="col-9">
-                    <p>: Mineral Trends 2023</p>
+                    <p>: Technological Advances Driving Innovation in Indonesia's Mining Industry 2023</p>
                 </div>
                 <div class="col-3">
                     <p>
@@ -124,9 +124,9 @@
 
                 <div class="col-9">
                     <p>
-                        : Wednesday - 8 February 2023
+                        : Thursday - 9 March 2023
                     </p>
-                    <p>: 04.00 pm - 07.00 pm (Jakarta Time) </p>
+                    <p>: 03.30 pm - 07.00 pm (Jakarta Time) </p>
                     <p>: Live - Networking Dinner</p>
                     <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
 

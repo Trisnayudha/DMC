@@ -102,8 +102,8 @@ class SponsorController extends Controller
             $findPayment->package = 'Sponsors';
             $findPayment->code_payment = $codePayment;
             $findPayment->link = null;
-            $findPayment->events_id = 1;
-            $findPayment->tickets_id = 1;
+            $findPayment->events_id = 4;
+            $findPayment->tickets_id = 3;
             $findPayment->status_registration = 'Paid Off';
             $findPayment->groupby_users_id = $id_final;
             $findPayment->save();
@@ -117,7 +117,7 @@ class SponsorController extends Controller
                 'job_title' => $request->job_title[$key],
                 'company_name' => $findCompany->company_name,
                 'company_address' => $findCompany->address,
-                'events_name' => 'Mineral Trends 2023',
+                'events_name' => 'Technological Advances Driving Innovation in Indonesia`s Mining Industry',
                 'image' => $db
             ];
             $email =  $request->email[$key];
@@ -126,7 +126,7 @@ class SponsorController extends Controller
             Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject($codePayment . ' - Your registration is approved for Mineral Trends 2023');
+                $message->subject($codePayment . ' - Your registration is approved for Technological Advances Driving Innovation in Indonesia`s Mining Industry 2023');
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
             });
         }
