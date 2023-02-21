@@ -323,18 +323,12 @@ Best Regards Bot DMC
                             ->get();
                         $detailWa = [];
                         foreach ($loopPayment as $data) {
-                            //                             $detailWa = '
-                            // Nama : ' . $data->name . '
-                            // Email: ' . $data->email . '
-                            // Phone Number: ' . $data->phone . '
-                            // Company : ' . $data->company_name . '
-                            // ';
-                            $detailWa[] = [
-                                'name' => $data->name,
-                                'email' => $data->email,
-                                'phone' => $data->phone,
-                                'company' => $data->company_name
-                            ];
+                            $detailWa = '
+Nama : ' . $data->name . '
+Email: ' . $data->email . '
+Phone Number: ' . $data->phone . '
+Company : ' . $data->company_name . '
+';
                         }
                         $send = new WhatsappApi();
                         $send->phone = '083829314436';
