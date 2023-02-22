@@ -154,7 +154,7 @@ Company : ' . $data->company_name . '
                         $send->message = '
 Hai Team,
 
-Success payment dari ' . $findContact->name . '
+Success payment dari ' . $findContact->name_contact . '
 Detail Informasinya:
 ' . implode(" ", $detailWa) . '
 
