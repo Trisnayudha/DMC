@@ -301,10 +301,10 @@ Best Regards Bot DMC
                         $findContact = BookingContact::where('id', $check->booking_contact_id)->first();
 
                         $loopPayment = Payment::where('booking_contact_id', $findContact->id)
-                            ->join('users as a', 'a.id', 'payment.member_id')
-                            ->join('profiles as b', 'a.id', 'b.users_id')
-                            ->join('company as c', 'c.id', 'b.company_id')
-                            ->join('events_tickets as d', 'payment.tickets_id', 'd.id')
+                            ->leftjoin('users as a', 'a.id', 'payment.member_id')
+                            ->leftjoin('profiles as b', 'a.id', 'b.users_id')
+                            ->leftjoin('company as c', 'c.id', 'b.company_id')
+                            ->leftjoin('events_tickets as d', 'payment.tickets_id', 'd.id')
                             ->get();
                         $detailWa = [];
                         $item_details = [];
