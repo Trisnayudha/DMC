@@ -106,6 +106,7 @@ class SponsorController extends Controller
             $findPayment->tickets_id = 3;
             $findPayment->status_registration = 'Paid Off';
             $findPayment->groupby_users_id = $id_final;
+            $findPayment->qr_code = $db;
             $findPayment->save();
 
             $data = [
