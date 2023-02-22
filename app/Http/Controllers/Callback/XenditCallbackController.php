@@ -354,7 +354,7 @@ Company : ' . $data->company_name . '
                             'job_title' => $findContact->job_title_contact,
                             'link' => $link
                         ];
-                        return view('email.invoice-new-multiple', $data);
+                        // return view('email.invoice-new-multiple', $data);
                         $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
                         Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf) {
                             $message->from(env('EMAIL_SENDER'));
