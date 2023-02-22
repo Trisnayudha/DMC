@@ -286,13 +286,13 @@ Best Regards Bot DMC
 
             if (!empty($check)) {
                 if ($status == 'PAID') {
-                    $image = QrCode::format('png')
-                        ->size(200)->errorCorrection('H')
-                        ->generate($external_id);
+                    // $image = QrCode::format('png')
+                    //     ->size(200)->errorCorrection('H')
+                    //     ->generate('SOXVGUK');
                     $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
                     $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
-                    Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
-                    $findUser = Payment::where('code_payment', $external_id)
+                    // Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                    $findUser = Payment::where('code_payment', 'HMGPZV7')
                         ->join('users as a', 'a.id', 'payment.member_id')
                         ->join('profiles as b', 'a.id', 'b.users_id')
                         ->join('company as c', 'c.id', 'b.company_id')
@@ -354,14 +354,14 @@ Company : ' . $data->company_name . '
                             'job_title' => $findContact->job_title_contact,
                             'link' => $link
                         ];
-                        // return view('email.invoice-new-multiple', $data);
+                        return view('email.invoice-new-multiple', $data);
                         $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
-                        Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
+                        Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf) {
                             $message->from(env('EMAIL_SENDER'));
-                            $message->to($findUser->email);
+                            $message->to($findContact->email_contact);
                             $message->subject('Thank you for payment - Technological Advances Driving Innovation in Indonesia`s Mining
                             Industry ');
-                            $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
+                            $message->attachData($pdf->output(), 'E-Receipt.pdf');
                         });
                         $send = new WhatsappApi();
                         $send->phone = '083829314436';
