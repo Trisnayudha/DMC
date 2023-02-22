@@ -292,7 +292,7 @@ Best Regards Bot DMC
                     $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
                     $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
                     // Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
-                    $findUser = Payment::where('code_payment', 'HMGPZV7')
+                    $findUser = Payment::where('code_payment', $external_id)
                         ->join('users as a', 'a.id', 'payment.member_id')
                         ->join('profiles as b', 'a.id', 'b.users_id')
                         ->join('company as c', 'c.id', 'b.company_id')
