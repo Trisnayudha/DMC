@@ -128,7 +128,8 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for Mineral Trends 2023 has now been approved. Your registration number is
+            <p>Your registration for Technological Advances Driving Innovation in Indonesia's Mining
+                Industry 2023 has now been approved. Your registration number is
                 <b
                     style="background-color: #F1B22C;
                 border: none;
@@ -150,17 +151,18 @@
                 <tr>
                     <th>Topic</th>
                     <th>:</th>
-                    <td>Mineral Trends 2023 </td>
+                    <td>Technological Advances Driving Innovation in Indonesia's Mining
+                        Industry 2023 </td>
                 </tr>
                 <tr>
                     <th>Date</th>
                     <th>:</th>
-                    <td>Wednesday - 8 February 2023</td>
+                    <td>Thursday - 9 March 2023</td>
                 </tr>
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>04.00 pm - 07.00 pm (Jakarta Time)</td>
+                    <td>03.30 pm - 07.00 pm (Jakarta Time)</td>
                 </tr>
                 <tr>
                     <th>Venue</th>

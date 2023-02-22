@@ -59,7 +59,7 @@ class TestController extends Controller
                                 'name' => $data->name,
                                 'job_title' => $data->email,
                                 'price' => number_format($data->price_rupiah, 0, ',', '.'),
-                                'paidoff' => $data->status_registration == 'Paid Off' ? true : false
+                                'paidoff' => false
                             ];
                             $update->status_registration = "Paid Off";
                             $update->payment_method = $payment_method;
