@@ -92,7 +92,7 @@ class SponsorController extends Controller
             $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
             $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
             Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
-            $findPayment = Payment::where('member_id', $findUser->id)->where('events_id', '1')->first();
+            $findPayment = Payment::where('member_id', $findUser->id)->where('events_id', '4')->first();
             if (empty($findPayment)) {
                 $findPayment = new Payment();
             }
