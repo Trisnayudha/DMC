@@ -90,7 +90,7 @@ class XenditCallbackController extends Controller
                             ->join('users as a', 'a.id', 'payment.member_id')
                             ->join('profiles as b', 'a.id', 'b.users_id')
                             ->join('company as c', 'c.id', 'b.company_id')
-                            ->join('events_tickets as d', 'payment.tickets_id', 'd.id')
+                            ->leftjoin('events_tickets as d', 'payment.tickets_id', 'd.id')
                             ->get();
                         $detailWa = [];
                         $item_details = [];
@@ -115,10 +115,10 @@ class XenditCallbackController extends Controller
                             $UserEvent->payment_id = $update->id;
                             $UserEvent->save();
                             $detailWa[] = '
-                            Nama : ' . $data->name . '
-                            Email: ' . $data->email . '
-                            Phone Number: ' . $data->phone . '
-                            Company : ' . $data->company_name . '
+Nama : ' . $data->name . '
+Email: ' . $data->email . '
+Phone Number: ' . $data->phone . '
+Company : ' . $data->company_name . '
                             ';
                         }
                         $link = null;
