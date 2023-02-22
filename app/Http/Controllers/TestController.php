@@ -52,7 +52,7 @@ class TestController extends Controller
                             ->join('events_tickets as d', 'payment.tickets_id', 'd.id')
                             ->get();
                         $detailWa = [];
-                        $itemDetails = [];
+                        $item_details = [];
                         foreach ($loopPayment as $data) {
                             $update = Payment::where('member_id', $data->member_id)->where('events_id', '4')->first();
                             $item_details[] = [
@@ -99,7 +99,7 @@ Company : ' . $data->company_name . '
                             'job_title' => $findContact->job_title_contact,
                             'link' => $link
                         ];
-                        // return view('email.invoice-new-multiple', $data);
+                        return view('email.invoice-new-multiple', $data);
                         $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
                         Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf) {
                             $message->from(env('EMAIL_SENDER'));

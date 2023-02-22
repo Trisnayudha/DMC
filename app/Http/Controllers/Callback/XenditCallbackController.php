@@ -307,7 +307,7 @@ Best Regards Bot DMC
                             ->join('events_tickets as d', 'payment.tickets_id', 'd.id')
                             ->get();
                         $detailWa = [];
-                        $itemDetails = [];
+                        $item_details = [];
                         foreach ($loopPayment as $data) {
                             $update = Payment::where('member_id', $data->member_id)->where('events_id', '4')->first();
                             $item_details[] = [
