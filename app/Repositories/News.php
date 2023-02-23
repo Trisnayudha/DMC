@@ -140,7 +140,7 @@ class News extends NewsModel
             ->leftJoin('news_events', function ($join) {
                 $join->on('news_events.news_id', '=', 'news.id');
             })
-            ->where(function ($q) use ($search, $tags, $category, $company, $is_directory) {
+            ->where(function ($q) use ($search, $tags, $category, $company) {
                 if (!empty($search)) {
                     $q->where('news.title', 'LIKE', '%' . $search . '%')
                         ->orWhere('news.desc', 'LIKE', '%' . $search . '%');
@@ -184,6 +184,7 @@ class News extends NewsModel
             'news.desc',
             'news.views'
         )
+            ->distinct()
             ->leftJoin('news_category_list', function ($join) {
                 $join->on('news.id', '=', 'news_category_list.news_id');
             })

@@ -35,6 +35,7 @@ class NewsController extends Controller
         $limit = $request->limit;
         $search = $request->search;
         $category = $request->category;
+        // dd("asu");
         $bannersPluck = RepositoriesNews::listAllToArray();
         $news = RepositoriesNews::listAllNewsOnlySearch($search, $bannersPluck, $limit, $category);
         foreach ($news as $value) {
