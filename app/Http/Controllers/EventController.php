@@ -1048,7 +1048,7 @@ class EventController extends Controller
                         'users_id' => $checkUsers->id
                     ]);
                     $company->prefix = $prefix;
-                    $company->company_name = $company_name;
+                    $company->company_name = $table['company'];
                     $company->company_website = $company_website;
                     $company->company_category = $company_category;
                     $company->company_other = $company_other;

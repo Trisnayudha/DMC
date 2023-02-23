@@ -256,9 +256,17 @@
                                             Please provide a Mobile Number
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-3">
                                         <label for="job_title" class="form-label">Job Title *</label>
                                         <input type="text" class="form-control" name="job_title" id="job_title"
+                                            placeholder="" required value="">
+                                        <div class="invalid-feedback">
+                                            Please enter your Job Title.
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label for="company" class="form-label">Company *</label>
+                                        <input type="text" class="form-control" name="company" id="company"
                                             placeholder="" required value="">
                                         <div class="invalid-feedback">
                                             Please enter your Job Title.
@@ -503,9 +511,17 @@
                         Please provide a Mobile Number
                     </div>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-3">
                     <label for="job_title" class="form-label">Job Title *</label>
                     <input type="text" class="form-control" name="job_title" placeholder="" required
+                        value="">
+                    <div class="invalid-feedback">
+                        Please enter your Job Title.
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <label for="company" class="form-label">Company *</label>
+                    <input type="text" class="form-control" name="company" placeholder="" required
                         value="">
                     <div class="invalid-feedback">
                         Please enter your Job Title.
@@ -542,12 +558,14 @@
                     $('#email_contact').val($('#email').val());
                     $('#phone_contact').val($('#phone').val());
                     $('#job_title_contact').val($('#job_title').val());
+                    $('#company_name').val($('#company').val());
                 } else {
                     // kosongkan elemen lain jika checkbox tidak di ceklis
                     $('#name_contact').val('');
                     $('#email_contact').val('');
                     $('#phone_contact').val('');
                     $('#job_title_contact').val('');
+                    $('#company_name').val('');
                 }
             });
         });
@@ -615,7 +633,8 @@
                                 'phone': $(this).find('input[name="phone"]').val(),
                                 'job_title': $(this).find('input[name="job_title"]').val(),
                                 'name': $(this).find('input[name="name"]').val(),
-                                'price': $('input[name="paymentMethod"]:checked').val()
+                                'price': $('input[name="paymentMethod"]:checked').val(),
+                                'company': $(this).find('input[name="company"]').val()
                             }
                             if ($(this).hasClass('organiser')) {
                                 member.organiser = true;
