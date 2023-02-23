@@ -75,6 +75,7 @@ class EventController extends Controller
             foreach ($findTicket as $val => $key) {
                 $key->price_rupiah = $key->type == 'free' ? 0 : $key->price_rupiah;
                 $key->price_dollar = $key->type == 'free' ? 0 : $key->price_dollar;
+                $key->description = $key->description == null ? '' : $key->description;
             }
             $data = [
                 'detail' => $findEvent,
