@@ -1158,6 +1158,9 @@ class EventController extends Controller
                 'total_price' => number_format($countPrice, 0, ',', '.'),
                 'link' => $linkPay
             ];
+
+            $saveBooking->link = $linkPay;
+            $saveBooking->save();
             $email = $saveBooking->email_contact;
             $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
             Mail::send('email.invoice-new-multiple', $payload, function ($message) use ($email, $pdf) {
