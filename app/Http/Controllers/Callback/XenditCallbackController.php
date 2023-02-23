@@ -307,8 +307,16 @@ Best Regards Bot DMC
             $findPayment = Payment::where('code_payment', '=', $external_id)->first();
 
             if (!empty($findPayment)) {
+                $image = QrCode::format('png')
+                    ->size(200)->errorCorrection('H')
+                    ->generate($external_id);
+                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                $findPayment->qr_code = $db;
                 $findUsersVA = PaymentUsersVA::where('payment_id', '=', $findPayment->id)->first();
                 $findPayment->status_registration = 'Paid Off';
+
                 $findPayment->save();
                 $findUsersVA->status = 'Paid Off';
                 $findUsersVA->save();
