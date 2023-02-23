@@ -200,7 +200,8 @@
             </tr>
 
             <tr class="item">
-                <td>Mineral Trends 2023 - Wednesday, 8th of February 2023</td>
+                <td>Technological Advances Driving Innovation in Indonesia's Mining
+                    Industry</td>
 
                 <td align="right">IDR {{ $price }}</td>
             </tr>

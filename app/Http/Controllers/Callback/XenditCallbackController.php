@@ -303,6 +303,7 @@ Best Regards Bot DMC
         try {
             //     $owner_id = $request->owner_id;
             $external_id = request('external_id');
+            $amount = request('amount');
 
             $findPayment = Payment::where('code_payment', '=', $external_id)->first();
 
@@ -328,9 +329,64 @@ Best Regards Bot DMC
                 $UserEvent->events_id = $findPayment->events_id;
                 $UserEvent->payment_id = $findPayment->id;
                 $UserEvent->save();
+
+                $findUser = Payment::where('code_payment', $external_id)
+                    ->leftjoin('users as a', 'a.id', 'payment.member_id')
+                    ->leftjoin('profiles as b', 'a.id', 'b.users_id')
+                    ->leftjoin('company as c', 'c.id', 'b.company_id')
+                    ->first();
+
+                $data = [
+                    'users_name' => $findUser->name,
+                    'users_email' => $findUser->email,
+                    'phone' => $findUser->phone,
+                    'company_name' => $findUser->company_name,
+                    'company_address' => $findUser->address,
+                    'status' => 'Paid Off',
+                    'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                    'code_payment' => $findUser->code_payment,
+                    'create_date' => date('d, M Y H:i'),
+                    'package_name' => $findUser->package,
+                    'price' => number_format($amount, 0, ',', '.'),
+                    'total_price' => number_format($amount, 0, ',', '.'),
+                    'voucher_price' => number_format(0, 0, ',', '.'),
+                    'image' => $db,
+                    'job_title' => $findUser->job_title
+                ];
+
+                $pdf = Pdf::loadView('email.invoice-new', $data);
+                Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
+                    $message->from(env('EMAIL_SENDER'));
+                    $message->to($findUser->email);
+                    $message->subject('Thank you for payment - Technological Advances Driving Innovation in Indonesia`s Mining
+                    Industry');
+                    $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
+                });
+
+                $pdf = Pdf::loadView('email.ticket', $data);
+                Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser) {
+                    $message->from(env('EMAIL_SENDER'));
+                    $message->to($findUser->email);
+                    $message->subject($findUser->code_payment . ' - Your registration is approved for Technological Advances Driving Innovation in Indonesia`s Mining
+                    Industry ');
+                    $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
+                });
+
                 $send = new WhatsappApi();
-                $send->phone = '083829314436';
-                $send->message = 'Succes Fully Payment FVA';
+                $send->phone = '08111937300';
+                $send->message = '
+Hai Team,
+
+Success payment dari ' . $findUser->name . '
+Detail Informasinya:
+Nama : ' . $findUser->name . '
+Email: ' . $findUser->email . '
+Phone Number: ' . $findUser->phone . '
+Company : ' . $findUser->company_name . '
+
+Thank you
+Best Regards Bot DMC
+';
                 $send->WhatsappMessage();
                 $notif = new Notification();
                 $notif->id = $findPayment->member_id;
