@@ -109,7 +109,7 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Thank you for register {{ $events_name }}.</p>
+            <p>Thank you for registering for {{ $events_name }}.</p>
             <p>Your registration is now in process for approval. You'll be notified by email when your registration has
                 been approved.</p>
             <p>

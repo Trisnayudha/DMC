@@ -128,11 +128,11 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Thank you for your registration. We regret to inform you that our event The Future Of Sustainable Mining
-                In Indonesia 2023 is fully booked.</p>
+            <p>Thank you for your registration. We regret to inform you that our event Leadership Luncheon - The Future
+                of Sustainable Mining In Indonesia is fully booked.</p>
             <p>We are able to add your details to a waiting list and notify you should a place become available. If you
                 would like to be added to the waiting list for this event, please email
-                Secretariat@djakartaminingclub.com or call +628111937300</p>
+                secretariat@djakartaminingclub.com or call +628111937300</p>
             <br>
             <p>Your Sincerely,</p>
             <span>The Djakarta Mining Club & Coal Club Indonesia Team</span>

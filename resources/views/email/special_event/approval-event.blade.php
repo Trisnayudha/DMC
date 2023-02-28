@@ -128,8 +128,8 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for The Future Of Sustainable Mining In Indonesia 2023 has now been approved. Your
-                registration number is
+            <p>Your registration for Leadership Luncheon - The Future of Sustainable Mining In Indonesia has now been
+                approved. Your registration number is
                 <b
                     style="background-color: #F1B22C;
                 border: none;
@@ -161,7 +161,7 @@
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>10.00 am - 12.00 pm (Jakarta Time) </td>
+                    <td>10.00 am - 1.00 pm (Jakarta Time) </td>
                 </tr>
                 <tr>
                     <th>Venue</th>

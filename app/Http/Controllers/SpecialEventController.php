@@ -56,7 +56,7 @@ class SpecialEventController extends Controller
             $send->to = $email;
             $send->from = env('EMAIL_SENDER');
             $send->data = $data;
-            $send->subject = $codePayment . '_Thank you for register The Future Of Sustainable Mining In Indonesia 2023';
+            $send->subject = 'Thank you for registering Leadership Luncheon - The Future of Sustainable Mining In Indonesia ';
             $send->template = 'email.special_event.waiting-approval';
             $send->sendEmail();
             return redirect()->back()->with('success', 'Successfully register event');
@@ -87,7 +87,7 @@ class SpecialEventController extends Controller
                 $send->from = env('EMAIL_SENDER');
                 $send->to = $email;
                 $send->data = $data;
-                $send->subject = $code_booking . '_ Your registration is approved for The Future Of Sustainable Mining In Indonesia 2023';
+                $send->subject = 'Your registration is approved for Leadership Luncheon - The Future of Sustainable Mining in Indonesia';
                 $send->name = $name;
                 $send->template = 'email.special_event.approval-event';
                 $send->sendEmail();
@@ -99,7 +99,7 @@ class SpecialEventController extends Controller
                 $send->from = env('EMAIL_SENDER');
                 $send->to = $email;
                 $send->data = $data;
-                $send->subject = $code_booking . '_[FULLY BOOKED] The Future Of Sustainable Mining In Indonesia 2023';
+                $send->subject = '[FULLY BOOKED] Leadership Luncheon - The Future of Sustainable Mining In Indonesia';
                 $send->name = $name;
                 $send->template = 'email.special_event.reject-event';
                 $send->sendEmail();
