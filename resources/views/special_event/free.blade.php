@@ -109,13 +109,13 @@
                 {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
                     by OPIS </p> --}}
             </div>
-            <h6>Detail event</h6>
+            <h6>Event Details</h6>
             <div class="row g-5">
                 <div class="col-3">
                     <p>Title</p>
                 </div>
                 <div class="col-9">
-                    <p>: The Future Of Sustainable Mining In Indonesia</p>
+                    <p>: Leadership Luncheon - The Future of Sustainable Mining in Indonesia</p>
                 </div>
                 <div class="col-3">
                     <p>
