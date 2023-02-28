@@ -18,9 +18,9 @@
                 <span>Dashboard</span></a>
         </li>
         <li class="">
-            <a class="nav-link" href="{{ Route('events-sementara') }}">
+            <a class="nav-link" href="{{ Route('special-event') }}">
                 <i class="fa fa-university" aria-hidden="true"></i>
-                <span>Events sementara</span></a>
+                <span>Events Special</span></a>
         </li>
         <li class="">
             <a class="nav-link" href="{{ Route('members') }}">

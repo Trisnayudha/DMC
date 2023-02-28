@@ -12,11 +12,11 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PrintController;
+use App\Http\Controllers\SpecialEventController;
 use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VideosController;
-use App\Models\Payments\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -60,6 +60,8 @@ Route::get('/term', function () {
 Route::get('/{slug}/register-event', [EventController::class, 'view2']);
 // Route::get('/register-event/free', [EventController::class, 'free']);
 // Route::get('/register-event/multiple', [EventController::class, 'view']);
+Route::get('/special-event/free', [SpecialEventController::class, 'free']);
+Route::post('regis-special-event', [SpecialEventController::class, 'store']);
 Route::get('/register-event/sponsor', [SponsorController::class, 'sponsor']);
 Route::get('/sponsor/{id}', [SponsorController::class, 'show_sponsor']);
 Route::post('/regis-sponsor', [SponsorController::class, 'register_sponsor']);
@@ -144,6 +146,9 @@ Route::prefix('admin')->group(function () {
     Route::post('notification/edit', [NotificationController::class, 'edit']);
     Route::post('notification/delete', [NotificationController::class, 'destroy']);
     Route::get('notification/users', [NotificationController::class, 'users']);
+
+    Route::get('/special-event', [SpecialEventController::class, 'index'])->name('special-event');
+    Route::post('/special-event', [SpecialEventController::class, 'request']);
 });
 
 
