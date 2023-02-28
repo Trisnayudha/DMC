@@ -128,7 +128,7 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for Leadership Luncheon - The Future of Sustainable Mining In Indonesia has now been
+            <p>Your registration for Leadership Luncheon - The Future of Sustainable Mining in Indonesia has now been
                 approved. Your registration number is
                 <b
                     style="background-color: #F1B22C;
