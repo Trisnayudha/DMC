@@ -9,15 +9,6 @@ use Illuminate\Support\Str;
 
 class SpecialEventController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     public function free()
     {
@@ -26,6 +17,7 @@ class SpecialEventController extends Controller
 
     public function index()
     {
+        $this->middleware('auth');
         $list = SpecialEvent::orderby('id', 'desc')->get();
         $data = [
             'list' => $list
@@ -35,7 +27,6 @@ class SpecialEventController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $name = $request->name;
         $email = $request->email;
         $company_name = $request->company;
