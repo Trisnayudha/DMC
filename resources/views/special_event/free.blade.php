@@ -134,8 +134,8 @@
                     <p>
                         : Thursday - 9 March 2023
                     </p>
-                    <p>: 10.00 am - 12.00 am (Jakarta Time) </p>
-                    <p>: Live - Networking Dinner</p>
+                    <p>: 10.00 am - 12.00 pm (Jakarta Time) </p>
+                    <p>: Live - Luncheon</p>
                     <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
 
                 </div>

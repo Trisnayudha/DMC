@@ -161,7 +161,7 @@
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>10.00 am - 12.00 am (Jakarta Time) </td>
+                    <td>10.00 am - 12.00 pm (Jakarta Time) </td>
                 </tr>
                 <tr>
                     <th>Venue</th>
