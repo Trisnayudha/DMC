@@ -50,13 +50,13 @@ class SpecialEventController extends Controller
             $date = date('d-m-Y H:i:s');
             $data = [
                 'users_name' => $name,
-                'events_name' => 'The Future Of Sustainable Mining In Indonesia',
+                'events_name' => 'the Leadership Luncheon - The Future of Sustainable Mining in Indonesia',
             ];
             $send = new EmailSender();
             $send->to = $email;
             $send->from = env('EMAIL_SENDER');
             $send->data = $data;
-            $send->subject = 'Thank you for registering Leadership Luncheon - The Future of Sustainable Mining In Indonesia ';
+            $send->subject = 'Thank you for registering Leadership Luncheon - The Future of Sustainable Mining in Indonesia ';
             $send->template = 'email.special_event.waiting-approval';
             $send->sendEmail();
             return redirect()->back()->with('success', 'Successfully register event');
