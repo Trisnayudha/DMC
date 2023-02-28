@@ -3,6 +3,7 @@
 use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventsConferenceController;
 use App\Http\Controllers\EventsTicketController;
 use App\Http\Controllers\FormMemberController;
 use App\Http\Controllers\MarketingAdsController;
@@ -97,10 +98,18 @@ Route::post('/events/addcategory', [EventCategoryController::class, 'store']);
 Route::post('/events/editcategory', [EventCategoryController::class, 'edit']);
 Route::post('/events/deletecategory', [EventCategoryController::class, 'destroy']);
 
+//Events tickets
 Route::get('/events/tickets', [EventsTicketController::class, 'index'])->name('events.tickets');
 Route::post('/events-tickets/addcategory', [EventsTicketController::class, 'store']);
 Route::post('/events-tickets/editcategory', [EventsTicketController::class, 'edit']);
 Route::post('/events-tickets/deletecategory', [EventsTicketController::class, 'destroy']);
+
+//Events Conference
+Route::get('/events/conference', [EventsConferenceController::class, 'index'])->name('events.conference');
+Route::get('/events/conference/create', [EventsConferenceController::class, 'create'])->name('events.conference.create');
+Route::post('/events-conference/addcategory', [EventsConferenceController::class, 'store']);
+Route::post('/events-conference/editcategory', [EventsConferenceController::class, 'edit']);
+Route::post('/events-conference/deletecategory', [EventsConferenceController::class, 'destroy']);
 
 Route::post('/events-import', [EventController::class, 'import'])->name('events.import');
 
