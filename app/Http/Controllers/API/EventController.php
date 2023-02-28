@@ -4,6 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
+use App\Models\Events\EventsConference;
+use App\Models\Events\EventsConferenceFile;
+use App\Models\Events\EventsHighlight;
 use App\Models\Events\EventsPresent;
 use App\Models\Events\EventsSpeakers;
 use App\Models\Events\EventsTicket;
@@ -83,6 +86,73 @@ class EventController extends Controller
                 'users' => $listUser,
                 'speakers' => $findSpeakers,
                 'participants' => $findParticipant
+            ];
+
+            $response['status'] = 200;
+            $response['message'] = 'Success';
+            $response['payload'] = $data;
+        } else {
+            $response['status'] = 404;
+            $response['message'] = 'Event Not Found';
+            $response['payload'] = null;
+        }
+        return response()->json($response);
+    }
+
+    public function detailDone($slug)
+    {
+        $id =  auth('sanctum')->user()->id;
+        $findEvent = RepositoriesEvents::findEvent($slug);
+
+        if (!empty($findEvent)) {
+            $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
+            // $data = [
+            //     'detail' => $findEvent,
+            // ];
+
+            $response['status'] = 200;
+            $response['message'] = 'Success';
+            $response['payload'] = $findEvent;
+        } else {
+            $response['status'] = 404;
+            $response['message'] = 'Event Not Found';
+            $response['payload'] = null;
+        }
+        return response()->json($response);
+    }
+
+    public function highlight($slug, Request $request)
+    {
+
+        $limit = $request->limit;
+        $id =  auth('sanctum')->user()->id;
+        $findEvent = RepositoriesEvents::findEvent($slug);
+
+        if (!empty($findEvent)) {
+            $findHighlight = EventsHighlight::where('events_id', $findEvent->id)->orderby('id', 'desc')->paginate($limit);
+
+            $response['status'] = 200;
+            $response['message'] = 'Success';
+            $response['payload'] = $findHighlight;
+        } else {
+            $response['status'] = 404;
+            $response['message'] = 'Event Not Found';
+            $response['payload'] = null;
+        }
+        return response()->json($response);
+    }
+
+    public function conference($slug, Request $request)
+    {
+        $limit = $request->limit;
+        $id =  auth('sanctum')->user()->id;
+        $findEvent = RepositoriesEvents::findEvent($slug);
+
+        if (!empty($findEvent)) {
+            $findConference = EventsConference::where('events_id', $findEvent->id)->orderby('sort', 'asc')->get();
+            $findConferenceFile = EventsConferenceFile::where('events_id', $findEvent->id)->get();
+            $data = [
+                'conference' => $findConference
             ];
 
             $response['status'] = 200;

@@ -5,15 +5,13 @@ namespace App\Models\Events;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EventsConferenceFile extends Model
+class EventsHighlight extends Model
 {
     use HasFactory;
-    protected $table = 'events_conferen_file';
+    protected $table = 'events_highlight';
     protected $casts = ['id' => 'int'];
     protected $fillable = [
-        'file',
-        'events_conference_id',
         'events_id',
-        'name_file'
+        'image'
     ];
 }

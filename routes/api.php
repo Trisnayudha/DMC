@@ -98,6 +98,11 @@ Route::post('/events/category', [EventsCategoryController::class, 'index']);
 Route::post('/events', [EventController::class, 'index']);
 Route::post('/events/{slug}/detail', [EventController::class, 'detail']);
 
+//Events Done
+Route::post('/events/{slug}/detail/done', [EventController::class, 'detailDone']);
+Route::post('/events/{slug}/highlight', [EventController::class, 'highlight']);
+Route::post('/events/{slug}/conference', [EventController::class, 'conference']);
+
 Route::post('/list-payment', [PaymentController::class, 'listbank']);
 
 Route::post('/carosel', [HomeController::class, 'index']);
