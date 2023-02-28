@@ -151,7 +151,7 @@
                 <tr>
                     <th>Topic</th>
                     <th>:</th>
-                    <td>The Future Of Sustainable Mining In Indonesia 2023 </td>
+                    <td>The Future of Sustainable Mining in Indonesia 2023 </td>
                 </tr>
                 <tr>
                     <th>Date</th>
@@ -183,8 +183,6 @@
             <p>
             <ul>
                 <li>Bring your business card to change with a badge at our registration table.</li>
-                <li>Please note that picking up a badge for someone else is not permitted, all attendees will need to
-                    collect their own badge and show a matching business card to gain entry.</li>
                 <li>If you are unable to attend, please contact our team for substitution of delegate information at the
                     latest by 1 day before the event.</li>
             </ul>
@@ -205,7 +203,7 @@
                 We look forward to meeting you in person. Thank you</p>
             <br>
             <p>Your Sincerely,</p>
-            <span>The Djakarta Mining Club</span>
+            <span>The Djakarta Mining Club Team</span>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.

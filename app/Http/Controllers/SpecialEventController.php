@@ -87,7 +87,7 @@ class SpecialEventController extends Controller
                 $send->from = env('EMAIL_SENDER');
                 $send->to = $email;
                 $send->data = $data;
-                $send->subject = 'Your registration is approved for Leadership Luncheon - The Future of Sustainable Mining in Indonesia';
+                $send->subject = 'Your registration for Leadership Luncheon - The Future of Sustainable Mining in Indonesia has now been approved';
                 $send->name = $name;
                 $send->template = 'email.special_event.approval-event';
                 $send->sendEmail();
@@ -99,7 +99,7 @@ class SpecialEventController extends Controller
                 $send->from = env('EMAIL_SENDER');
                 $send->to = $email;
                 $send->data = $data;
-                $send->subject = '[FULLY BOOKED] Leadership Luncheon - The Future of Sustainable Mining In Indonesia';
+                $send->subject = '[FULLY BOOKED] Leadership Luncheon - The Future of Sustainable Mining in Indonesia';
                 $send->name = $name;
                 $send->template = 'email.special_event.reject-event';
                 $send->sendEmail();
