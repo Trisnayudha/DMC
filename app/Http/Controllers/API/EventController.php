@@ -204,7 +204,8 @@ class EventController extends Controller
                     'payment.qr_code',
                     'payment.status_registration',
                     'payment.package as present',
-                    'users_event.present'
+                    'users_event.present',
+                    'events.slug'
                 )
                 ->orderBy('payment.id', 'desc')
                 ->paginate($limit);
