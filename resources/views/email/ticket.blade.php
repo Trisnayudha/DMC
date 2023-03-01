@@ -126,8 +126,7 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>This is your E-Ticket to attend Technological Advances Driving Innovation in Indonesia's Mining
-                Industry 2023, Your E-Ticket Attached.</p>
+            <p>This is your E-Ticket to attend {{ $events_name }}, Your E-Ticket Attached.</p>
 
             <table class="table">
                 <tr>

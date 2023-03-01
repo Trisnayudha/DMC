@@ -115,7 +115,7 @@
                     <p>Title</p>
                 </div>
                 <div class="col-9">
-                    <p>: Mineral Trends 2023</p>
+                    <p>: {{ $name }}</p>
                 </div>
                 <div class="col-3">
                     <p>
@@ -132,12 +132,14 @@
 
                 <div class="col-9">
                     <p>
-                        : Wednesday - 8 February 2023
+                        : {{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }}
                     </p>
-                    <p>: 04.00 pm - 07.00 pm (Jakarta Time) </p>
+                    <p>: {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        (Jakarta Time) </p>
                     <p>: Live - Networking Dinner</p>
-                    <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
+                    <p>: {{ $location }}</p>
 
+                    </p>
                 </div>
                 <br>
 
@@ -168,6 +170,7 @@
                 <div class="col-md-12 col-lg-12">
                     <h4 class="mb-3">* Required information</h4>
                     <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation" novalidate>
+                        <input type="hidden" name="slug" value="{{ $slug }}">
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
@@ -233,7 +236,7 @@
                                     Please enter your Job Title.
                                 </div>
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-sm-12">
                                 <label for="email" class="form-label">Email Address * <span
                                         class="text-muted"></span></label>
                                 <input type="email" class="form-control" name="email" id="email"
@@ -242,98 +245,6 @@
                                     Please enter a valid email address.
                                 </div>
                             </div>
-
-                            <div class="col-sm-6">
-                                <label for="company_website" class="form-label">Company Webstie *<span
-                                        class="text-muted"></span></label>
-                                <input type="text" class="form-control" name="company_website"
-                                    value="{{ old('company_website') }}" placeholder="www.yourcompany.com" required>
-                                <div class="invalid-feedback">
-                                    Please enter a valid company website .
-                                </div>
-                            </div>
-
-
-                            <div class="col-sm-12">
-                                <label for="address" class="form-label">Address *</label>
-                                <input type="text" class="form-control" name="address" placeholder="" required
-                                    value="{{ old('address') }}">
-                                <div class="invalid-feedback">
-                                    Please provide a Mobile Number
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <label for="office_number" class="form-label">Office Number</label>
-                                <input type="tel" class="form-control" name="office_number"id="office_number"
-                                    placeholder="" value="{{ old('office_number') ? old('office_number') : '+62' }}"
-                                    required>
-                                <div class="invalid-feedback">
-                                    Please provide a Mobile Number
-                                </div>
-                            </div>
-                            <div class="col-sm-3">
-                                <label for="portal_code" class="form-label">Postal Code</label>
-                                <input type="number" class="form-control" name="portal_code" placeholder=""
-                                    required value="{{ old('portal_code') }}">
-                                <div class="invalid-feedback" {{ old('portal_code') }}>
-                                    Please provide a Postal Code
-                                </div>
-                            </div>
-                            <div class="col-sm-3">
-                                <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" name="city" placeholder="" required
-                                    value="{{ old('city') }}">
-                                <div class="invalid-feedback" {{ old('city') }}>
-                                    Please provide a City
-                                </div>
-                            </div>
-
-                            <div class="col-sm-6 mb-3">
-                                <label for="country" class="form-label">Country * </label>
-                                <select class="form-control js-example-basic-single" name="country" id="country"
-                                    placeholder="" required>
-                                    <option value="Indonesia" selected>Indonesia</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Please provide a valid Country
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="company_category" class="form-label">Company Category *</label>
-                                <select class="form-control js-example-basic-single d-block w-100"
-                                    name="company_category" id="company_category" required>
-                                    <option value="">--Select--</option>
-                                    <option value="Coal Mining">Coal Mining</option>
-                                    <option value="Minerals Producer">Minerals Producer</option>
-                                    <option value="Supplier/Distributor/Manufacturer">
-                                        Supplier/Distributor/Manufacturer
-                                    </option>
-                                    <option value="Contrator">Contrator</option>
-                                    <option value="Association / Organization / Government">
-                                        Association / Organization / Government</option>
-                                    <option value="Financial Services">Financial Services</option>
-                                    <option value="Technology">Technology</option>
-                                    <option value="Investors">Investors</option>
-                                    <option value="Logistics and Shipping">Logistics and Shipping</option>
-                                    <option value="Media">Media</option>
-                                    <option value="Consultant">Consultant</option>
-                                    <option value="other">Other</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Please enter your Company Other
-                                </div>
-                            </div>
-
-                            <div class="col-md-12 mb-6">
-                                <div class="myDiv">
-                                    <label for="company_other" class="form-label">Company Other *</label>
-                                    <input type="text" class="form-control" name="company_other" placeholder="">
-                                    <div class="invalid-feedback">
-                                        Please enter your Company Other
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
                         <hr class="my-4">
                         <input type="hidden" name="paymentMethod" value="free">

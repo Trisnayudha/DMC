@@ -43,9 +43,10 @@ class EventController extends Controller
         return view('admin.events.event', $data);
     }
 
-    public function free()
+    public function free($slug)
     {
-        return view('register_event.free');
+        $findEvent = Events::where('slug', $slug)->first();
+        return view('register_event.free', $findEvent);
     }
 
     public function create()
@@ -189,7 +190,7 @@ class EventController extends Controller
         $company_category = $request->company_category;
         $company_other = $request->company_other;
         $paymentMethod = $request->paymentMethod;
-
+        $slug = $request->slug;
         $user = User::firstOrNew(
             ['email' =>  $email],
         );
@@ -221,7 +222,7 @@ class EventController extends Controller
         $profile->users_id = $user->id;
         $profile->company_id = $company->id;
         $profile->save();
-
+        $findEvent = Events::where('slug', $slug)->first();
         if ($paymentMethod == 'member') {
             $total_price = 900000;
         } else if ($paymentMethod == 'nonmember') {
@@ -270,7 +271,7 @@ class EventController extends Controller
             'company_name' => $company_name,
             'company_address' => $address,
             'status' => 'WAITING',
-            'events_name' => 'Mineral Trends 2023',
+            'events_name' => $findEvent->name . ' 2023',
             'price' => number_format($total_price, 0, ',', '.'),
             'voucher_price' => 0,
             'total_price' => number_format($total_price, 0, ',', '.'),
@@ -285,14 +286,14 @@ class EventController extends Controller
                 $payment->status_registration = 'Waiting';
                 $payment->code_payment = $codePayment;
                 // $payment->link = null;
-                $payment->events_id = 1;
+                $payment->events_id = $findEvent->id;
             } else {
                 $payment->package = $paymentMethod;
                 $payment->payment_method = 'Credit Card';
                 $payment->status_registration = 'Waiting';
                 $payment->link = $linkPay;
                 $payment->code_payment = $codePayment;
-                $payment->events_id = 1;
+                $payment->events_id = $findEvent->id;
                 if ($paymentMethod == 'member') {
                     $payment->tickets_id = 1;
                 } else if ($paymentMethod == 'nonmember') {
@@ -305,7 +306,7 @@ class EventController extends Controller
                 $send->to = $email;
                 $send->from = env('EMAIL_SENDER');
                 $send->data = $data;
-                $send->subject = 'Thank you for registering Mineral Trends 2023 ';
+                $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
                 $send->template = 'email.waiting-approval';
                 $send->sendEmail();
                 return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has
@@ -324,7 +325,7 @@ class EventController extends Controller
             if ($paymentMethod == 'free') {
                 $payment = Payment::firstOrNew([
                     'member_id' => $user->id,
-                    'events_id' => '1'
+                    'events_id' => $findEvent->id
                 ]);
                 if ($paymentMethod == 'free') {
                     if ($check->status_registration == 'Paid Off') {
@@ -333,13 +334,13 @@ class EventController extends Controller
                     $payment->package = $paymentMethod;
                     $payment->status_registration = 'Waiting';
                     $payment->code_payment = $codePayment;
-                    $payment->events_id = 1;
+                    $payment->events_id = $findEvent->id;
                     $payment->save();
                     $send = new EmailSender();
                     $send->to = $email;
                     $send->from = env('EMAIL_SENDER');
                     $send->data = $data;
-                    $send->subject = 'Thank you for registering Mineral Trends 2023 ';
+                    $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
                     $send->template = 'email.waiting-approval';
                     $send->sendEmail();
                     return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved');
@@ -532,6 +533,8 @@ class EventController extends Controller
         $val = $request->val;
         $db = null;
         $update = Payment::where('id', $id)->first();
+        $findEvent = Events::where('id', $update->events_id)->first();
+        // dd($findEvent);
         if (!empty($update)) {
             $check = DB::table('payment')
                 ->join('users', 'users.id', 'payment.member_id')
@@ -564,17 +567,21 @@ class EventController extends Controller
                 'job_title' => $check->job_title,
                 'company_name' => $check->company_name,
                 'company_address' => $check->address,
-                'events_name' => 'Djakarta Mining Club Mineral Trends 2023',
+                'events_name' => $findEvent->name . ' 2023',
+                'start_date' => $findEvent->start_date,
+                'end_date' => $findEvent->end_date,
+                'start_time' => $findEvent->start_time,
+                'end_time' => $findEvent->end_time,
                 'image' => $db
             ];
             $email = $check->email;
             $code_payment = $check->code_payment;
             if ($val == 'approve') {
                 $pdf = Pdf::loadView('email.ticket', $data);
-                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment) {
+                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject($code_payment . ' - Your registration is approved for Mineral Trends 2023');
+                    $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name . ' 2023');
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
                 return redirect()->back()->with('success', 'Successfully Approval');
@@ -583,7 +590,7 @@ class EventController extends Controller
                 $send->from = env('EMAIL_SENDER');
                 $send->to = $email;
                 $send->data = $data;
-                $send->subject = '[FULLY BOOKED] Mineral Trends 2023';
+                $send->subject = '[FULLY BOOKED] ' . $findEvent->name . ' 2023';
                 $send->name = $check->name;
                 $send->template = 'email.reject-event';
                 $send->sendEmail();
@@ -1014,6 +1021,7 @@ class EventController extends Controller
             $portal_code = $request->booking_contact['portal_code'];
             $prefix = $request->booking_contact['prefix'];
             $company_other = $request->booking_contact['company_other'];
+            $slug = $request->booking_contact['slug'];
             // mengambil data array
 
             $saveBooking = new BookingContact();
@@ -1036,6 +1044,7 @@ class EventController extends Controller
             $tables = $request->tables;
             $countPrice = 0;
             $item_details = [];
+            $findEvent = Events::where('slug', $slug)->first();
             foreach ($tables as $table) {
                 $checkUsers = User::where('email', $table['email'])->first();
 
@@ -1093,7 +1102,7 @@ class EventController extends Controller
                     $checkPayment->status_registration = 'Waiting';
                     $checkPayment->code_payment = $codePayment;
                     $checkPayment->member_id = $checkUsers->id;
-                    $checkPayment->events_id = 4;
+                    $checkPayment->events_id = $findEvent->id;
                     $checkPayment->tickets_id = $ticket_id;
                     $checkPayment->booking_contact_id = $saveBooking->id;
                     // $checkPayment->link = $linkPay;
@@ -1106,7 +1115,7 @@ class EventController extends Controller
                     $checkPayment->code_payment = $codePayment;
                     $checkPayment->member_id = $checkUsers->id;
                     $checkPayment->tickets_id = $ticket_id;
-                    $checkPayment->events_id = 4;
+                    $checkPayment->events_id = $findEvent->id;
                     $checkPayment->booking_contact_id = $saveBooking->id;
                     // $checkPayment->link = $linkPay;
                     $checkPayment->save();

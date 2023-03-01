@@ -288,6 +288,7 @@
                         </div>
                     </div>
                 </div>
+                <input type="hidden" name="slug" id="slug" value="{{ $slug }}">
                 <h4 class="mb-3">* Booking Contact</h4>
                 <div class="alert alert-warning" role="alert">
                     Enter the best person we can contact for this booking in the event of unplanned changes.
@@ -812,6 +813,7 @@
                     'country': $('select[name="country"]').val(),
                     'company_category': $('input[name="company_name"]').val(),
                     'company_other': $('input[name="company_other"]').val(),
+                    'slug': $('input[name="slug"]').val()
                 }
                 var booking_obj = {
                     // 'name': your_details.find('input[name="name"]').val(),

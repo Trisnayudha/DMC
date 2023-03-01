@@ -105,11 +105,11 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://api.djakarta-miningclub.com/image/logo-dmc-cci.png" alt="Image" class="img-logo">
+            <img src="https://api.djakarta-miningclub.com/image/dmc.png" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Thank you for registering Mineral Trends 2023.</p>
+            <p>Thank you for registering for {{ $events_name }}.</p>
             <p>Your registration is now in process for approval. You'll be notified by email when your registration has
                 been approved.</p>
             <p>
