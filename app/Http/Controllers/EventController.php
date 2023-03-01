@@ -271,7 +271,7 @@ class EventController extends Controller
             'company_name' => $company_name,
             'company_address' => $address,
             'status' => 'WAITING',
-            'events_name' => $findEvent->name . ' 2023',
+            'events_name' => $findEvent->name,
             'price' => number_format($total_price, 0, ',', '.'),
             'voucher_price' => 0,
             'total_price' => number_format($total_price, 0, ',', '.'),
@@ -567,7 +567,7 @@ class EventController extends Controller
                 'job_title' => $check->job_title,
                 'company_name' => $check->company_name,
                 'company_address' => $check->address,
-                'events_name' => $findEvent->name . ' 2023',
+                'events_name' => $findEvent->name,
                 'start_date' => $findEvent->start_date,
                 'end_date' => $findEvent->end_date,
                 'start_time' => $findEvent->start_time,
@@ -581,7 +581,7 @@ class EventController extends Controller
                 Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name . ' 2023');
+                    $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
                 return redirect()->back()->with('success', 'Successfully Approval');
@@ -590,7 +590,7 @@ class EventController extends Controller
                 $send->from = env('EMAIL_SENDER');
                 $send->to = $email;
                 $send->data = $data;
-                $send->subject = '[FULLY BOOKED] ' . $findEvent->name . ' 2023';
+                $send->subject = '[FULLY BOOKED] ' . $findEvent->name;
                 $send->name = $check->name;
                 $send->template = 'email.reject-event';
                 $send->sendEmail();
@@ -711,7 +711,7 @@ class EventController extends Controller
                     Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($email);
-                        $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name . ' 2023');
+                        $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
                         $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                     });
                 }

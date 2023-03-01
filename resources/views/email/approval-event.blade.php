@@ -204,7 +204,7 @@
                 We look forward to meeting you in person. Thank you</p>
             <br>
             <p>Your Sincerely,</p>
-            <span>The Djakarta Mining Club</span>
+            <span>The Djakarta Mining Club Team</span>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.

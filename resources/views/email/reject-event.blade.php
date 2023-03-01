@@ -124,7 +124,7 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://api.djakarta-miningclub.com/image/logo-dmc-cci.png" alt="Image" class="img-logo">
+            <img src="https://api.djakarta-miningclub.com/image/dmc.png" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
@@ -135,7 +135,7 @@
                 Secretariat@djakartaminingclub.com or call +628111937300</p>
             <br>
             <p>Your Sincerely,</p>
-            <span>The Djakarta Mining Club & Coal Club Indonesia Team</span>
+            <span>The Djakarta Mining Club Team</span>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.

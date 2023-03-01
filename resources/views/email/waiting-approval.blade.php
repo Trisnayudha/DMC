@@ -116,7 +116,7 @@
                 If you do not receive any confirmation email after 72 hours, please contact us via email at
                 secretariat@djakarta-miningclub.com or WhatsApp +62 811 1937 300.</p>
             <p>Your Sincerely,</p>
-            <span>The Djakarta Mining Club & Coal Club Indonesia Team</span>
+            <span>The Djakarta Mining Club Team</span>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.
