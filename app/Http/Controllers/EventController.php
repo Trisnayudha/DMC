@@ -306,7 +306,7 @@ class EventController extends Controller
                 $send->to = $email;
                 $send->from = env('EMAIL_SENDER');
                 $send->data = $data;
-                $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
+                $send->subject = 'Thank you for registering ' . $findEvent->name;
                 $send->template = 'email.waiting-approval';
                 $send->sendEmail();
                 return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has
