@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\EmailSender;
+use App\Helpers\WhatsappApi;
 use App\Models\SpecialEvent\SpecialEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -59,6 +60,23 @@ class SpecialEventController extends Controller
             $send->subject = 'Thank you for registering Leadership Luncheon - The Future of Sustainable Mining in Indonesia ';
             $send->template = 'email.special_event.waiting-approval';
             $send->sendEmail();
+
+            $wa = new WhatsappApi();
+            $wa->phone = '081387739341';
+            $wa->message = '
+Hai Mas Damun,
+
+Ada pendaftar DS baru nih..
+
+Detail
+Name :' . $name . '
+Job Title :' . $job_title . '
+Email :' . $email . '
+Company :' . $company_name . '
+
+Cemiwiw
+';
+            $wa->WhatsappMessage();
             return redirect()->back()->with('success', 'Successfully register event');
         } else {
             return redirect()->back()->with('error', 'Email already register, please check your inbox email. Thank you');
