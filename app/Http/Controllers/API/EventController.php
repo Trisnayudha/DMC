@@ -149,11 +149,20 @@ class EventController extends Controller
         $findEvent = RepositoriesEvents::findEvent($slug);
 
         if (!empty($findEvent)) {
-            $findConference = EventsConference::where('events_id', $findEvent->id)->orderby('sort', 'asc')->get();
-            $findConferenceFile = EventsConferenceFile::where('events_id', $findEvent->id)->get();
-            $data = [
-                'conference' => $findConference
-            ];
+            $findConference = EventsConference::where('events_id', $findEvent->id)
+                ->orderBy('sort', 'asc')
+                ->get()
+                ->toArray();
+
+            $data = [];
+
+            foreach ($findConference as $conference) {
+                $findConferenceFile = EventsConferenceFile::where('events_conference_id', $conference['id'])
+                    ->get();
+
+                $conference['file'] = $findConferenceFile;
+                $data[] = $conference;
+            }
 
             $response['status'] = 200;
             $response['message'] = 'Success';

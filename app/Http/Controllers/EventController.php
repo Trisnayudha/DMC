@@ -696,7 +696,11 @@ class EventController extends Controller
                         'job_title' => $findUsers->job_title,
                         'company_name' => $findUsers->company_name,
                         'company_address' => $findUsers->address,
-                        'events_name' => 'Mineral Trends 2023',
+                        'events_name' => $findEvent->name,
+                        'start_date' => $findEvent->start_date,
+                        'end_date' => $findEvent->end_date,
+                        'start_time' => $findEvent->start_time,
+                        'end_time' => $findEvent->end_time,
                         'image' => $db
                     ];
                     $email = $findUsers->email;
@@ -704,10 +708,10 @@ class EventController extends Controller
                     ini_set('max_execution_time', 300);
 
                     $pdf = Pdf::loadView('email.ticket', $data);
-                    Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment) {
+                    Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($email);
-                        $message->subject($code_payment . ' - Your registration is approved for Mineral Trends 2023');
+                        $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name . ' 2023');
                         $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                     });
                 }
