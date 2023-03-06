@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company\CompanyModel;
+use App\Models\Events\Events;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
@@ -108,7 +109,7 @@ class SponsorController extends Controller
             $findPayment->groupby_users_id = $id_final;
             $findPayment->qr_code = $db;
             $findPayment->save();
-
+            $findEvent = Events::where('id', '4')->first();
             $data = [
                 'code_payment' => $codePayment,
                 'create_date' => date('d, M Y H:i'),
@@ -118,7 +119,11 @@ class SponsorController extends Controller
                 'job_title' => $request->job_title[$key],
                 'company_name' => $findCompany->company_name,
                 'company_address' => $findCompany->address,
-                'events_name' => 'Technological Advances Driving Innovation in Indonesia`s Mining Industry',
+                'events_name' => $findEvent->name,
+                'start_date' => $findEvent->start_date,
+                'end_date' => $findEvent->end_date,
+                'start_time' => $findEvent->start_time,
+                'end_time' => $findEvent->end_time,
                 'image' => $db
             ];
             $email =  $request->email[$key];
