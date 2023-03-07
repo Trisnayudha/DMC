@@ -70,6 +70,8 @@ Route::post('/payment-personal', [EventController::class, 'payment_personal']);
 Route::post('/payment-multiple', [EventController::class, 'NewPaymentMultiple']);
 Route::post('/register/email', [FormMemberController::class, 'check_email']);
 Route::post('renewal-payment', [PaymentController::class, 'renewal']);
+Route::post('remove-participant', [PaymentController::class, 'removeParticipant']);
+
 Auth::routes([
     'register' => false, // Registration Routes...
     'reset' => false, // Password Reset Routes...

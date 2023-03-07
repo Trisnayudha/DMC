@@ -129,6 +129,15 @@
                                                                     </li>
                                                                 </form>
                                                             @endif
+                                                            <form action="{{ url('remove-participant') }}" method="post">
+                                                                <li>
+                                                                    @csrf
+                                                                    <input type="hidden" name="id" id="id"
+                                                                        value="{{ $post->payment_id }}">
+                                                                    <button type="submit" class="dropdown-item ">Remove
+                                                                        Delegate</button>
+                                                                </li>
+                                                            </form>
                                                         </ul>
                                                         <a href="#" data-id="{{ $post->id }}"
                                                             class="btn btn-success"><span class=" fa fa-eye"></a>

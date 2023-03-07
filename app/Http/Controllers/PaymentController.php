@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company\CompanyModel;
 use App\Models\Events\EventsTicket;
+use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
@@ -82,5 +83,14 @@ class PaymentController extends Controller
             // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
         });
         return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
+    }
+
+    public function removeParticipant(Request $request)
+    {
+        $id = $request->id;
+        Payment::where('id', $id)->delete();
+        UserRegister::where('payment_id', $id)->delete();
+
+        return redirect()->back()->with('success', 'Successfully Remove Participant');
     }
 }
