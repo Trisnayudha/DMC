@@ -925,7 +925,7 @@ class EventController extends Controller
                 'users_event.created_at as created',
                 'users_event.updated_at as updated',
                 'events.id as events_id',
-                'payment.updated_at as payment_updated',
+                'payment.created_at as payment_updated',
                 'payment.id as payment_id',
                 'events.start_date',
                 'events.end_date',
