@@ -901,14 +901,15 @@ class EventController extends Controller
     public function detail_participant($slug)
     {
         $findEvent = Events::where('slug', $slug)->first();
-        $findParticipant = Payment::where('payment.events_id', $findEvent->id)
-            ->where('payment.status_registration', 'Paid Off')
-            ->where('users_event.events_id', $findEvent->id)
-            ->join('events', 'events.id', 'payment.events_id')
+        $findParticipant = Payment::join('events', 'events.id', 'payment.events_id')
             ->join('users', 'users.id', 'payment.member_id')
             ->leftjoin('profiles', 'profiles.users_id', 'users.id')
-            ->leftjoin('company', 'company.users_id', 'users.id')
-            ->leftJoin('users_event', 'users_event.users_id', 'users.id')
+            ->leftjoin('company', 'company.users_id', 'users.id')->leftJoin('users_event', function ($join, $findEvent) {
+                $join->on('users_event.users_id', '=', 'payment.member_id')
+                    ->where('users_event.events_id', '=', $findEvent->id);
+            })
+            ->where('payment.events_id', $findEvent->id)
+            ->where('payment.status_registration', 'Paid Off')
             ->select(
                 'users.id as users_id',
                 'users.name',
