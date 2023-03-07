@@ -904,7 +904,8 @@ class EventController extends Controller
         $findParticipant = Payment::join('events', 'events.id', 'payment.events_id')
             ->join('users', 'users.id', 'payment.member_id')
             ->leftjoin('profiles', 'profiles.users_id', 'users.id')
-            ->leftjoin('company', 'company.users_id', 'users.id')->leftJoin('users_event', function ($join, $findEvent) {
+            ->leftjoin('company', 'company.users_id', 'users.id')
+            ->leftJoin('users_event', function ($join, $findEvent) {
                 $join->on('users_event.users_id', '=', 'payment.member_id')
                     ->where('users_event.events_id', '=', $findEvent->id);
             })
