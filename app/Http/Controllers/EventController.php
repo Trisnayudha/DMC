@@ -905,7 +905,7 @@ class EventController extends Controller
             ->join('users', 'users.id', 'payment.member_id')
             ->leftjoin('profiles', 'profiles.users_id', 'users.id')
             ->leftjoin('company', 'company.users_id', 'users.id')
-            ->leftJoin('users_event', function ($join, $findEvent) {
+            ->leftJoin('users_event', function ($join) use ($findEvent) {
                 $join->on('users_event.users_id', '=', 'payment.member_id')
                     ->where('users_event.events_id', '=', $findEvent->id);
             })
@@ -922,17 +922,19 @@ class EventController extends Controller
                 'company.address',
                 'company.company_name',
                 'users_event.present',
-                'users_event.created_at as create',
-                'users_event.updated_at as update',
+                'users_event.created_at as created',
+                'users_event.updated_at as updated',
                 'events.id as events_id',
-                'payment.updated_at as payment_update',
+                'payment.updated_at as payment_updated',
                 'payment.id as payment_id',
+                'events.start_date',
                 'events.end_date',
                 'company.company_category',
                 'company.company_other'
-            )->orderby('payment.updated_at', 'asc')
+            )
+            ->orderBy('payment.updated_at', 'asc')
             ->get();
-        // dd($findParticipant);
+
 
         $data = [
             'list' => $findParticipant,
