@@ -972,6 +972,7 @@ class EventController extends Controller
             $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
             $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
             Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+            $findEvent = Events::where('id', $events_id)->first();
             $data = [
                 'code_payment' => $check->code_payment,
                 'create_date' => date('d, M Y H:i'),
@@ -981,17 +982,21 @@ class EventController extends Controller
                 'company_name' => $findCompany->company_name,
                 'company_address' => $findCompany->address,
                 'job_title' => $findProfile->job_title,
-                'events_name' => 'Mineral Trends 2023',
+                'events_name' => $findEvent->name,
+                'start_date' => $findEvent->start_date,
+                'end_date' => $findEvent->end_date,
+                'start_time' => $findEvent->start_time,
+                'end_time' => $findEvent->end_time,
                 'image' => $db
             ];
             // dd("sukses");
             ini_set('max_execution_time', 120);
 
             $pdf = Pdf::loadView('email.ticket', $data);
-            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
+            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject($codePayment . ' - Confirmation Reminder for Mineral Trends 2023');
+                $message->subject($codePayment . ' - Confirmation Reminder for ' . $findEvent->name);
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
             });
             return redirect()->back()->with('success', 'Successfully Send Confirmation');
