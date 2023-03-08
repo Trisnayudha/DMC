@@ -990,7 +990,7 @@ class EventController extends Controller
                 'image' => $db
             ];
             // dd("sukses");
-            ini_set('max_execution_time', 120);
+            // ini_set('max_execution_time', 120);
 
             $pdf = Pdf::loadView('email.ticket', $data);
             Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
