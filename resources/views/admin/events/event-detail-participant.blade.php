@@ -84,7 +84,7 @@
                                                     </td>
                                                     @if ($post->end_date >= date('Y-m-d'))
                                                         <td>
-                                                            @if ($post->create == null)
+                                                            @if ($post->created == null)
                                                                 <form action="{{ Route('events-send-participant') }}"
                                                                     method="post">
                                                                     @csrf
@@ -101,12 +101,12 @@
                                                                         <span class="fa fa-paper-plane"></span></button>
                                                                 </form>
                                                             @else
-                                                                {{ date('d,F H:i', strtotime($post->create)) }}
+                                                                {{ date('d,F H:i', strtotime($post->created)) }}
                                                             @endif
                                                         </td>
                                                     @endif
                                                     <td>
-                                                        @if ($post->update == null)
+                                                        @if ($post->updated == null)
                                                             <form action="{{ Route('events-send-participant') }}"
                                                                 method="post">
                                                                 @csrf
@@ -122,7 +122,7 @@
                                                                     <span class="fa fa-paper-plane"></span></button>
                                                             </form>
                                                         @else
-                                                            {{ date('d,F H:i', strtotime($post->update)) }}
+                                                            {{ date('d,F H:i', strtotime($post->updated)) }}
                                                         @endif
                                                     </td>
                                                 </tr>
