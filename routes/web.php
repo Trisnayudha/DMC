@@ -4,6 +4,7 @@ use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventsConferenceController;
+use App\Http\Controllers\EventsHighlightController;
 use App\Http\Controllers\EventsTicketController;
 use App\Http\Controllers\FormMemberController;
 use App\Http\Controllers\MarketingAdsController;
@@ -114,6 +115,13 @@ Route::get('/events/conference/create', [EventsConferenceController::class, 'cre
 Route::post('/events-conference/addcategory', [EventsConferenceController::class, 'store']);
 Route::post('/events-conference/editcategory', [EventsConferenceController::class, 'edit']);
 Route::post('/events-conference/deletecategory', [EventsConferenceController::class, 'destroy']);
+
+
+//Events Highlight
+Route::get('/events/highlight', [EventsHighlightController::class, 'index'])->name('events.highlight');
+Route::post('/events-highlight/addcategory', [EventsHighlightController::class, 'store']);
+Route::post('/events-highlight/editcategory', [EventsHighlightController::class, 'edit']);
+Route::post('/events-highlight/deletecategory', [EventsHighlightController::class, 'destroy']);
 
 Route::post('/events-import', [EventController::class, 'import'])->name('events.import');
 
