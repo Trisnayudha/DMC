@@ -51,6 +51,7 @@
                 <li><a class="nav-link" href="{{ Route('events.category') }}">Events Category</a></li>
                 <li><a class="nav-link" href="{{ Route('events.tickets') }}">Events Tickets</a></li>
                 <li><a class="nav-link" href="{{ Route('events.conference') }}">Events Conference</a></li>
+                <li><a class="nav-link" href="{{ Route('events.highlight') }}">Events Highlight</a></li>
 
             </ul>
         </li>

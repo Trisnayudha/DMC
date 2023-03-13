@@ -12,8 +12,9 @@ class EventsHighlightController extends Controller
 {
     public function index()
     {
-        $list = EventsHighlight::join('events', 'events.id', 'events_highlight.events_id')->orderBy('events_highlight.id', 'desc')->get();
-        $events = Events::get();
+        $list = EventsHighlight::join('events', 'events.id', 'events_highlight.events_id')->orderBy('events_highlight.id', 'desc')
+            ->select('events_highlight.id as id', 'events_highlight.image', 'events.name')->get();
+        $events = Events::orderBy('id', 'desc')->get();
         $data = [
             'list' => $list,
             'events' => $events,
@@ -54,6 +55,9 @@ class EventsHighlightController extends Controller
     {
         $data = EventsHighlight::where('id', $request->id)->delete();
         // activity()->log('Menghapus Data Kategori');
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'id' => $request->id
+        ]);
     }
 }

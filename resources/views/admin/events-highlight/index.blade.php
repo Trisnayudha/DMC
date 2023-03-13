@@ -81,7 +81,7 @@
                                             @foreach ($list as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ $post->events_name }}</td>
+                                                    <td>{{ $post->name }}</td>
                                                     <td>{{ asset($post->image) }}</td>
                                                     <td>
                                                         <a href="javascript:void(0)" data-id="{{ $post->id }}"
@@ -218,7 +218,8 @@
                                         position: 'center',
                                         timer: 1500
                                     }),
-                                    window.location.reload();
+                                    console.log(res)
+                                // window.location.reload();
                             }
                         });
                     }
@@ -250,7 +251,8 @@
                                 position: 'center',
                                 timer: 1500
                             }),
-                            window.location.reload();
+                            // window.location.reload();
+                            console.log(res)
                         $("#btn-save").html('Submit');
                         $("#btn-save").attr("disabled", false);
                     }
