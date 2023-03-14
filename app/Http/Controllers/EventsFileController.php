@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Events\EventsConferenceFile;
+use Illuminate\Http\Request;
+
+class EventsFileController extends Controller
+{
+    public function index()
+    {
+        $list = EventsConferenceFile::join('events', 'events.id', 'events_highlight.events_id')->orderBy('events_highlight.id', 'desc')
+            ->select('events_highlight.id as id', 'events_highlight.image', 'events.name')->get();
+        $events = Events::orderBy('id', 'desc')->get();
+        $data = [
+            'list' => $list,
+            'events' => $events,
+        ];
+        return view('admin.events-highlight.index', $data);
+    }
+
+    public function store(Request $request)
+    {
+        // Proses upload gambar dan kompresi
+        if ($request->hasFile('image')) {
+            $images = $request->file('image');
+            $event_id = $request->events_id;
+            foreach ($images as $image) {
+                $imageName = time() . '_' . $image->getClientOriginalName();
+                $image->storeAs('public/events-highlight', $imageName);
+                // Kompresi gambar dengan library Intervention
+                $compressedImage = Image::make($image);
+                $compressedImage->resize(800, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                $compressedImage->save(storage_path('app/public/events-highlight/' . $imageName));
+
+                // Simpan data ke database
+                $data = EventsHighlight::create(
+                    [
+                        'events_id' => $event_id,
+                        'image' => '/storage/events-highlight/' . $imageName,
+                    ]
+                );
+            }
+            return redirect()->back();
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        $data = EventsHighlight::where('id', $request->id)->delete();
+        // activity()->log('Menghapus Data Kategori');
+        return response()->json([
+            'success' => true,
+            'id' => $request->id
+        ]);
+    }
+}
