@@ -58,8 +58,8 @@
                                                 <th>Email</th>
                                                 <th>Phone Number</th>
                                                 <th>Office Number</th>
-                                                <th>Status Approval</th>
-                                                <th width="15%">Aksi</th>
+                                                <th>Category Company</th>
+                                                <th width="15%">Explore Marketing</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -78,7 +78,8 @@
                                                         {{ $post->company_category }}
                                                     </td>
                                                     <td>
-
+                                                        {{ $post->cci ? 'cci' : '' }} -
+                                                        {{ $post->explore ? 'explore' : '' }}
                                                     </td>
 
                                                 </tr>
