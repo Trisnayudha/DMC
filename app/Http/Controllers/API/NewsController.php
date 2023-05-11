@@ -39,7 +39,7 @@ class NewsController extends Controller
         $bannersPluck = RepositoriesNews::listAllToArray();
         $news = RepositoriesNews::listAllNewsOnlySearch($search, $bannersPluck, $limit, $category);
         foreach ($news as $value) {
-            $value->date_news = date('d, M Y H:i', strtotime($value->date_news));
+            $value->date_news = date('d, M Y', strtotime($value->date_news));
         }
         $response['status'] = 200;
         $response['message'] = 'Success';
