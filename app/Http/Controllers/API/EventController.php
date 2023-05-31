@@ -49,7 +49,7 @@ class EventController extends Controller
 
         if (!empty($findEvent)) {
             $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
-            $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->get();
+            $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->orderby('price_rupiah', 'asc')->get();
             $findUser = UserRegister::where('users_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
             $checkMember = UserRegister::join('payment', 'users_event.payment_id', 'payment.id')
                 ->where('users_event.users_id', '=', $id)
