@@ -107,7 +107,7 @@
                     <p>Title</p>
                 </div>
                 <div class="col-9">
-                    <p>: Technological Advances Driving Innovation in Indonesia's Mining Industry 2023</p>
+                    <p>: A DECADE OF BUILDING STRONGER CONNECTIONS</p>
                 </div>
                 <div class="col-3">
                     <p>
@@ -124,9 +124,9 @@
 
                 <div class="col-9">
                     <p>
-                        : Thursday - 9 March 2023
+                        : Wednesday - 21 June 2023
                     </p>
-                    <p>: 03.30 pm - 07.00 pm (Jakarta Time) </p>
+                    <p>: 04.00 pm - 07.00 pm (Jakarta Time) </p>
                     <p>: Live - Networking Dinner</p>
                     <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
 

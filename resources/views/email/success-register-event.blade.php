@@ -124,8 +124,7 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for Technological Advances Driving Innovation in Indonesia`s Mining
-                Industry Event has been successfully confirmed.
+            <p>Your registration for A DECADE OF BUILDING STRONGER CONNECTIONS Event has been successfully confirmed.
             </p>
 
             <table class="table">
