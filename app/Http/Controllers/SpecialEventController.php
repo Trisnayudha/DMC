@@ -62,7 +62,7 @@ class SpecialEventController extends Controller
             $send->sendEmail();
 
             $wa = new WhatsappApi();
-            $wa->phone = '08111798791';
+            $wa->phone = '081288761410';
             $wa->message = '
 Hai Mas Damun,
 

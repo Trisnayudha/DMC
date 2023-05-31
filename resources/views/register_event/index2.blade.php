@@ -173,6 +173,8 @@
                 <p>
                     Ticket Price
                 </p>
+                <p></p>
+                <p></p>
             </div>
 
             <div class="col-9">
@@ -183,12 +185,10 @@
                     (Jakarta Time) </p>
                 <p>: Live - Networking Dinner</p>
                 <p>: {{ $location }}</p>
-                <p>:
-                    Non Member Rp.1.000.000
-                <p> Member Rp.900.000</p>
+                <p>Member Rp.900.000</p>
+                <p>Non Member Rp.1.000.000
                 <p>On Site Rp.1.250.000</p>
 
-                </p>
             </div>
             <br>
 
