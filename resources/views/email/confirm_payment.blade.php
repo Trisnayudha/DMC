@@ -200,7 +200,7 @@
             </tr>
 
             <tr class="item">
-                <td>Mineral Trends 2023 - Wednesday, 8th of February 2023</td>
+                <td>A DECADE OF BUILDING STRONGER CONNECTIONS</td>
 
                 <td align="right">IDR {{ $price }}</td>
             </tr>

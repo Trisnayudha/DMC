@@ -200,8 +200,7 @@
             </tr>
 
             <tr class="item">
-                <td>Technological Advances Driving Innovation in Indonesia's Mining
-                    Industry</td>
+                <td>A DECADE OF BUILDING STRONGER CONNECTIONS</td>
 
                 <td align="right">IDR {{ $price }}</td>
             </tr>

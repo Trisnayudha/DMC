@@ -211,8 +211,7 @@
                 <td align="right">Price</td>
             </tr>
             <tr class="item">
-                <td colspan="2" align="center">Technological Advances Driving Innovation in Indonesia's Mining
-                    Industry</td>
+                <td colspan="2" align="center">A DECADE OF BUILDING STRONGER CONNECTIONS</td>
             </tr>
             @foreach ($item as $value)
                 <tr class="item">

@@ -137,18 +137,17 @@
                 <tr>
                     <th>Title</th>
                     <th>:</th>
-                    <td>Technological Advances Driving Innovation in Indonesia`s Mining
-                        Industry 2023 </td>
+                    <td>A DECADE OF BUILDING STRONGER CONNECTIONS </td>
                 </tr>
                 <tr>
                     <th>Date</th>
                     <th>:</th>
-                    <td>Thursday - 9 March 2023</td>
+                    <td>Wednesday - 21 June 2023</td>
                 </tr>
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>03.30 pm - 07.00 pm (Jakarta Time)</td>
+                    <td>04.00 pm - 07.00 pm (Jakarta Time)</td>
                 </tr>
                 <tr>
                     <th>Concept</th>
