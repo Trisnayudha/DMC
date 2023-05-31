@@ -107,7 +107,7 @@
                     <p>Title</p>
                 </div>
                 <div class="col-9">
-                    <p>: A DECADE OF BUILDING STRONGER CONNECTIONS</p>
+                    <p>: The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia</p>
                 </div>
                 <div class="col-3">
                     <p>

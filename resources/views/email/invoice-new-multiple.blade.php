@@ -211,7 +211,7 @@
                 <td align="right">Price</td>
             </tr>
             <tr class="item">
-                <td colspan="2" align="center">A DECADE OF BUILDING STRONGER CONNECTIONS</td>
+                <td colspan="2" align="center">The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia</td>
             </tr>
             @foreach ($item as $value)
                 <tr class="item">

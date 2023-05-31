@@ -145,7 +145,7 @@ Company : ' . $data->company_name . '
                         Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($findContact->email_contact);
-                            $message->subject('Thank you for payment - A DECADE OF BUILDING STRONGER CONNECTIONS ');
+                            $message->subject('Thank you for payment - The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia ');
                             $message->attachData($pdf->output(), 'E-Receipt.pdf');
                         });
                         $send = new WhatsappApi();
@@ -207,7 +207,7 @@ Best Regards Bot DMC
                         Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($findUser->email);
-                            $message->subject('Thank you for payment - A DECADE OF BUILDING STRONGER CONNECTIONS');
+                            $message->subject('Thank you for payment - The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
                             $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                         });
 
@@ -215,7 +215,7 @@ Best Regards Bot DMC
                         Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($findUser->email);
-                            $message->subject($findUser->code_payment . ' - Your registration is approved for A DECADE OF BUILDING STRONGER CONNECTIONS');
+                            $message->subject($findUser->code_payment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
                             $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
                         });
                         $send = new WhatsappApi();
@@ -355,7 +355,7 @@ Best Regards Bot DMC
                 Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($findUser->email);
-                    $message->subject('Thank you for payment -A DECADE OF BUILDING STRONGER CONNECTIONS');
+                    $message->subject('Thank you for payment -The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
                     $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                 });
 
@@ -363,7 +363,7 @@ Best Regards Bot DMC
                 Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($findUser->email);
-                    $message->subject($findUser->code_payment . ' - Your registration is approved for A DECADE OF BUILDING STRONGER CONNECTIONS');
+                    $message->subject($findUser->code_payment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
                     $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
                 });
 

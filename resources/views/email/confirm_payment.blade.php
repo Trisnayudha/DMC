@@ -200,7 +200,7 @@
             </tr>
 
             <tr class="item">
-                <td>A DECADE OF BUILDING STRONGER CONNECTIONS</td>
+                <td>The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia</td>
 
                 <td align="right">IDR {{ $price }}</td>
             </tr>

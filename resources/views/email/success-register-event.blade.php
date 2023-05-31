@@ -124,7 +124,8 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for A DECADE OF BUILDING STRONGER CONNECTIONS Event has been successfully confirmed.
+            <p>Your registration for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia Event has been
+                successfully confirmed.
             </p>
 
             <table class="table">
@@ -136,7 +137,7 @@
                 <tr>
                     <th>Title</th>
                     <th>:</th>
-                    <td>A DECADE OF BUILDING STRONGER CONNECTIONS </td>
+                    <td>The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia </td>
                 </tr>
                 <tr>
                     <th>Date</th>

@@ -144,8 +144,8 @@
 <body>
     <div class="container">
         <div class="py-2 text-center">
-            <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; " src="{{ asset('image/dmc.png') }}"
-                class="img-fluid" alt="">
+            <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
+                src="{{ asset('image/logo-dmc-cci3.png') }}" class="img-fluid" alt="">
             <h2 style="text-transform: uppercase">REGISTER EVENT
             </h2>
             {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
@@ -170,11 +170,7 @@
                 <p>
                     Location
                 </p>
-                <p>
-                    Ticket Price
-                </p>
-                <p></p>
-                <p></p>
+
             </div>
 
             <div class="col-9">
@@ -185,9 +181,6 @@
                     (Jakarta Time) </p>
                 <p>: Live - Networking Dinner</p>
                 <p>: {{ $location }}</p>
-                <p>Member Rp.900.000</p>
-                <p>Non Member Rp.1.000.000
-                <p>On Site Rp.1.250.000</p>
 
             </div>
             <br>
