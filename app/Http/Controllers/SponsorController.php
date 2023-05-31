@@ -132,7 +132,7 @@ class SponsorController extends Controller
             Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject($codePayment . ' - Your registration is approved for Technological Advances Driving Innovation in Indonesia`s Mining Industry');
+                $message->subject($codePayment . ' - Your registration is approved for A DECADE OF BUILDING STRONGER CONNECTIONS');
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
             });
         }
