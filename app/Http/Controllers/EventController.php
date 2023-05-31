@@ -1093,15 +1093,19 @@ class EventController extends Controller
                     $profile->save();
                 }
                 if ($table['price'] == 'member') {
-                    $ticket_id = 7;
+                    $ticket_id = 12;
                     $total_price = 900000;
                 } else if ($table['price'] == 'nonmember') {
-                    $ticket_id = 8;
+                    $ticket_id = 11;
                     $total_price = 1000000;
                 } else if ($table['price'] == 'onsite') {
                     $ticket_id = 9;
                     $total_price = 1250000;
+                } else if ($table['price'] == 'table') {
+                    $ticket_id = 13;
+                    $total_price = 4000000;
                 } else {
+
                     $total_price  = 0;
                 }
                 $checkPayment = Payment::where('member_id', $checkUsers->id)->where('events_id', '4')->first();

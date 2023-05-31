@@ -213,6 +213,11 @@
                         value="onsite">
                     <label class="form-check-label" for="onsite">On Site (Rp. 1.250.000)</label>
                 </div>
+                <div class="form-check member">
+                    <input id="table" name="paymentMethod" type="radio" class="form-check-input" required
+                        value="table">
+                    <label class="form-check-label" for="table">Table of 5 Person (Rp. 4.000.000)</label>
+                </div>
 
                 <hr class="my-4">
                 <!--dynamic table limit will be needed here for foundation members-->
@@ -664,12 +669,17 @@
 
                             }
                             var package = $('input[name="paymentMethod"]:checked').val();
+                            console.log(package);
                             var number = 0;
                             if (package == 'nonmember') {
 
                                 number = 1000000;
+                            } else if (package == 'onsite') {
+                                number = 1250000;
+                            } else if (package == 'table') {
+                                number = 4000000;
                             } else {
-                                number = 900000
+                                number = 900000;
                             }
                             const fix = number.toLocaleString('id-ID', {
                                 style: 'currency',
@@ -835,7 +845,8 @@
                                 buttons: false,
                                 timer: 250000,
                             }).then(function() {
-                                window.location = "https://djakarta-miningclub.com/";
+                                window.location =
+                                    "https://djakarta-miningclub.com/";
                             });
                         } else {
                             swal({
