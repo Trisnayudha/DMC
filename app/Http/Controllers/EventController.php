@@ -589,7 +589,7 @@ class EventController extends Controller
                     $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
-                return redirect()->back()->with('success', 'Successfully Approval');
+                return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Approval');
             } else {
                 $send = new EmailSender();
                 $send->from = env('EMAIL_SENDER');
@@ -599,7 +599,7 @@ class EventController extends Controller
                 $send->name = $check->name;
                 $send->template = 'email.reject-event';
                 $send->sendEmail();
-                return redirect()->back()->with('success', 'Successfully Reject Register');
+                return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Reject Register');
             }
             // $pdf = Pdf::loadView('email.ticket', $data);
             // return $pdf->stream();
