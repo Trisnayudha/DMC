@@ -175,178 +175,183 @@ class EventController extends Controller
 
     public function payment_personal(Request $request)
     {
-        $prefix = $request->prefix;
-        $company_name = $request->company_name;
-        $phone = $request->phone;
-        $email = $request->email;
-        $name = $request->name;
-        $job_title = $request->job_title;
-        $company_website = $request->company_website;
-        $country = $request->country;
-        $address = $request->address;
-        $city = $request->city;
-        $office_number = $request->office_number;
-        $portal_code = $request->portal_code;
-        $company_category = $request->company_category;
-        $company_other = $request->company_other;
-        $paymentMethod = $request->paymentMethod;
-        $slug = $request->slug;
-        $user = User::firstOrNew(
-            ['email' =>  $email],
-        );
-        $user->name = $name;
-        $user->email = $email;
-        $user->save();
+        try {
 
-        $company = CompanyModel::firstOrNew([
-            'users_id' => $user->id
-        ]);
-        $company->prefix = $prefix;
-        $company->company_name = $company_name;
-        $company->company_website = $company_website;
-        $company->company_category = $company_category;
-        $company->company_other = $company_other;
-        $company->address = $address;
-        $company->city = $city;
-        $company->portal_code = $portal_code;
-        $company->office_number = $office_number;
-        $company->country = $country;
-        $company->users_id = $user->id;
-        $company->save();
-        $profile = ProfileModel::where('users_id', $user->id)->first();
-        if (empty($profile)) {
-            $profile = new ProfileModel();
-        }
-        $profile->phone = $phone;
-        $profile->job_title = $job_title;
-        $profile->users_id = $user->id;
-        $profile->company_id = $company->id;
-        $profile->save();
-        $findEvent = Events::where('slug', $slug)->first();
-        if ($paymentMethod == 'member') {
-            $total_price = 900000;
-        } else if ($paymentMethod == 'nonmember') {
-            $total_price = 1000000;
-        } else if ($paymentMethod == 'onsite') {
-            $total_price = 1250000;
-        } else {
-            $total_price  = 0;
-        }
-        $codePayment = strtoupper(Str::random(7));
-        $date = date('d-m-Y H:i:s');
-        $linkPay = null;
-        if ($paymentMethod != 'free') {
+            $prefix = $request->prefix;
+            $company_name = $request->company_name;
+            $phone = $request->phone;
+            $email = $request->email;
+            $name = $request->name;
+            $job_title = $request->job_title;
+            $company_website = $request->company_website;
+            $country = $request->country;
+            $address = $request->address;
+            $city = $request->city;
+            $office_number = $request->office_number;
+            $portal_code = $request->portal_code;
+            $company_category = $request->company_category;
+            $company_other = $request->company_other;
+            $paymentMethod = $request->paymentMethod;
+            $slug = $request->slug;
+            $user = User::firstOrNew(
+                ['email' =>  $email],
+            );
+            $user->name = $name;
+            $user->email = $email;
+            $user->save();
 
-            // init xendit
-            $isProd = env('XENDIT_ISPROD');
-            if ($isProd) {
-                $secretKey = env('XENDIT_SECRET_KEY_PROD');
-            } else {
-                $secretKey = env('XENDIT_SECRET_KEY_TEST');
+            $company = CompanyModel::firstOrNew([
+                'users_id' => $user->id
+            ]);
+            $company->prefix = $prefix;
+            $company->company_name = $company_name;
+            $company->company_website = $company_website;
+            $company->company_category = $company_category;
+            $company->company_other = $company_other;
+            $company->address = $address;
+            $company->city = $city;
+            $company->portal_code = $portal_code;
+            $company->office_number = $office_number;
+            $company->country = $country;
+            $company->users_id = $user->id;
+            $company->save();
+            $profile = ProfileModel::where('users_id', $user->id)->first();
+            if (empty($profile)) {
+                $profile = new ProfileModel();
             }
-            // params invoice
-            Xendit::setApiKey($secretKey);
-
-
-            $params = [
-                'external_id' => $codePayment,
-                'payer_email' => $email,
-                'description' => 'Invoice Event DMC',
-                'amount' => $total_price,
-                'success_redirect_url' => 'https://djakarta-miningclub.com',
-                'failure_redirect_url' => url('/'),
-            ];
-            $createInvoice = Invoice::create($params);
-            $linkPay = $createInvoice['invoice_url'];
-        }
-        $check = Payment::where('events_id', '=', '1')->where('member_id', '=', $user->id)->first();
-
-        $data = [
-            'code_payment' => $codePayment,
-            'create_date' => date('d, M Y H:i'),
-            'due_date' => date('d, M Y H:i', strtotime($date . ' +1 day')),
-            'users_name' => $name,
-            'users_email' => $email,
-            'phone' => $phone,
-            'company_name' => $company_name,
-            'company_address' => $address,
-            'status' => 'WAITING',
-            'events_name' => $findEvent->name,
-            'price' => number_format($total_price, 0, ',', '.'),
-            'voucher_price' => 0,
-            'total_price' => number_format($total_price, 0, ',', '.'),
-            'link' => $linkPay
-        ];
-
-        if (empty($check)) {
-            $payment = Payment::firstOrNew(['member_id' => $user->id]);
-            if ($paymentMethod == 'free') {
-                $payment->package = $paymentMethod;
-                // $payment->price = $total_price;
-                $payment->status_registration = 'Waiting';
-                $payment->code_payment = $codePayment;
-                // $payment->link = null;
-                $payment->events_id = $findEvent->id;
+            $profile->phone = $phone;
+            $profile->job_title = $job_title;
+            $profile->users_id = $user->id;
+            $profile->company_id = $company->id;
+            $profile->save();
+            $findEvent = Events::where('slug', $slug)->first();
+            if ($paymentMethod == 'member') {
+                $total_price = 900000;
+            } else if ($paymentMethod == 'nonmember') {
+                $total_price = 1000000;
+            } else if ($paymentMethod == 'onsite') {
+                $total_price = 1250000;
             } else {
-                $payment->package = $paymentMethod;
-                $payment->payment_method = 'Credit Card';
-                $payment->status_registration = 'Waiting';
-                $payment->link = $linkPay;
-                $payment->code_payment = $codePayment;
-                $payment->events_id = $findEvent->id;
-                if ($paymentMethod == 'member') {
-                    $payment->tickets_id = 1;
-                } else if ($paymentMethod == 'nonmember') {
-                    $payment->tickets_id = 2;
+                $total_price  = 0;
+            }
+            $codePayment = strtoupper(Str::random(7));
+            $date = date('d-m-Y H:i:s');
+            $linkPay = null;
+            if ($paymentMethod != 'free') {
+
+                // init xendit
+                $isProd = env('XENDIT_ISPROD');
+                if ($isProd) {
+                    $secretKey = env('XENDIT_SECRET_KEY_PROD');
+                } else {
+                    $secretKey = env('XENDIT_SECRET_KEY_TEST');
                 }
+                // params invoice
+                Xendit::setApiKey($secretKey);
+
+
+                $params = [
+                    'external_id' => $codePayment,
+                    'payer_email' => $email,
+                    'description' => 'Invoice Event DMC',
+                    'amount' => $total_price,
+                    'success_redirect_url' => 'https://djakarta-miningclub.com',
+                    'failure_redirect_url' => url('/'),
+                ];
+                $createInvoice = Invoice::create($params);
+                $linkPay = $createInvoice['invoice_url'];
             }
-            $payment->save();
-            if ($paymentMethod == 'free') {
-                $send = new EmailSender();
-                $send->to = $email;
-                $send->from = env('EMAIL_SENDER');
-                $send->data = $data;
-                $send->subject = 'Thank you for registering ' . $findEvent->name;
-                $send->template = 'email.waiting-approval';
-                $send->sendEmail();
-                return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has
-                been approved');
-            } else {
-                // $pdf = Pdf::loadView('email.invoice-new', $data);
-                Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
-                    $message->from(env('EMAIL_SENDER'));
-                    $message->to($email);
-                    $message->subject('Invoice - Waiting for Payment');
-                    // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
-                });
-                return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
-            }
-        } else {
-            if ($paymentMethod == 'free') {
-                $payment = Payment::firstOrNew([
-                    'member_id' => $user->id,
-                    'events_id' => $findEvent->id
-                ]);
+            $check = Payment::where('events_id', '=', '5')->where('member_id', '=', $user->id)->first();
+
+            $data = [
+                'code_payment' => $codePayment,
+                'create_date' => date('d, M Y H:i'),
+                'due_date' => date('d, M Y H:i', strtotime($date . ' +1 day')),
+                'users_name' => $name,
+                'users_email' => $email,
+                'phone' => $phone,
+                'company_name' => $company_name,
+                'company_address' => $address,
+                'status' => 'WAITING',
+                'events_name' => $findEvent->name,
+                'price' => number_format($total_price, 0, ',', '.'),
+                'voucher_price' => 0,
+                'total_price' => number_format($total_price, 0, ',', '.'),
+                'link' => $linkPay
+            ];
+            if (empty($check)) {
+                $payment = Payment::firstOrNew(['member_id' => $user->id]);
                 if ($paymentMethod == 'free') {
-                    if ($check->status_registration == 'Paid Off') {
-                        return redirect()->back()->with('error', 'Sorry, you have already registered for this event and cannot register again. Please check your email for arrival ticket information.')->withInput();
-                    }
                     $payment->package = $paymentMethod;
+                    // $payment->price = $total_price;
                     $payment->status_registration = 'Waiting';
                     $payment->code_payment = $codePayment;
+                    // $payment->link = null;
                     $payment->events_id = $findEvent->id;
-                    $payment->save();
+                } else {
+                    $payment->package = $paymentMethod;
+                    $payment->payment_method = 'Credit Card';
+                    $payment->status_registration = 'Waiting';
+                    $payment->link = $linkPay;
+                    $payment->code_payment = $codePayment;
+                    $payment->events_id = $findEvent->id;
+                    if ($paymentMethod == 'member') {
+                        $payment->tickets_id = 1;
+                    } else if ($paymentMethod == 'nonmember') {
+                        $payment->tickets_id = 2;
+                    }
+                }
+                $payment->save();
+                if ($paymentMethod == 'free') {
                     $send = new EmailSender();
                     $send->to = $email;
                     $send->from = env('EMAIL_SENDER');
                     $send->data = $data;
-                    $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
+                    $send->subject = 'Thank you for registering ' . $findEvent->name;
                     $send->template = 'email.waiting-approval';
                     $send->sendEmail();
-                    return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved');
+                    return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
+                } else {
+                    // $pdf = Pdf::loadView('email.invoice-new', $data);
+                    Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
+                        $message->from(env('EMAIL_SENDER'));
+                        $message->to($email);
+                        $message->subject('Invoice - Waiting for Payment');
+                        // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
+                    });
+                    return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
                 }
+            } else {
+                if ($paymentMethod == 'free') {
+
+                    $payment = Payment::firstOrNew([
+                        'member_id' => $user->id,
+                        'events_id' => $findEvent->id
+                    ]);
+                    if ($paymentMethod == 'free') {
+                        if ($check->status_registration == 'Paid Off') {
+                            return redirect()->back()->with('error', 'Sorry, you have already registered for this event and cannot register again. Please check your email for arrival ticket information.')->withInput();
+                        }
+                        $payment->package = $paymentMethod;
+                        $payment->status_registration = 'Waiting';
+                        $payment->code_payment = $codePayment;
+                        $payment->events_id = $findEvent->id;
+                        $payment->save();
+                        $send = new EmailSender();
+                        $send->to = $email;
+                        $send->from = env('EMAIL_SENDER');
+                        $send->data = $data;
+                        $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
+                        $send->template = 'email.waiting-approval';
+                        $send->sendEmail();
+                        return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
+                    }
+                }
+                return redirect()->back()->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
             }
-            return redirect()->back()->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
+        } catch (Exception $e) {
+            dd("error");
+            return redirect()->back()->with('error', $e->getMessage())->withInput();
         }
     }
 

@@ -83,7 +83,7 @@
                     aria-hidden="true"></i>
                 <span>Users Management</span></a>
             <ul class="dropdown-menu">
-                <li><a class="nav-link" href="#">Users</a></li>
+                <li><a class="nav-link" href="{{ Route('users') }}">Users</a></li>
                 <li><a class="nav-link" href="#">Role</a></li>
             </ul>
         </li>

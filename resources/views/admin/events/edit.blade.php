@@ -169,7 +169,7 @@
                                                     <i class="fas fa-calendar"></i>
                                                 </div>
                                             </div>
-                                            {!! Form::text('end_date', date('Y-m-d'), [
+                                            {!! Form::text('end_date', date('Y/m/d', strtotime($data->end_date)), [
                                                 'class' => 'form-control datepicker',
                                                 'placeholder' => 'Tanggal Selesai',
                                             ]) !!}
