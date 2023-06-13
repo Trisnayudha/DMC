@@ -21,6 +21,8 @@ return array(
     'convert_entities' => true,
 
     'options' => array(
+
+        'compress' => true,
         /**
          * The location of the DOMPDF font directory
          *
