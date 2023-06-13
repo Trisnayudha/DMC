@@ -1113,7 +1113,7 @@ class EventController extends Controller
 
                     $total_price  = 0;
                 }
-                $checkPayment = Payment::where('member_id', $checkUsers->id)->where('events_id', '4')->first();
+                $checkPayment = Payment::where('member_id', $checkUsers->id)->where('events_id', '5')->first();
                 $codePayment = strtoupper(Str::random(7));
 
                 $paidoff = false;

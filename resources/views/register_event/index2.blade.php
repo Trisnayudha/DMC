@@ -322,7 +322,7 @@
                     </div>
                     <div class="col-sm-4">
                         <label for="company_name" class="form-label" style="color: white">. </label>
-                        <input type="text" class="form-control" name="company_name"
+                        <input type="text" class="form-control" name="company_name" id="company_name"
                             placeholder="Your company name" value="{{ old('company_name') }}" required>
                         <div class="invalid-feedback">
                             Valid company name is required.
@@ -814,7 +814,7 @@
                     'portal_code': $('input[name="portal_code"]').val(),
                     'city': $('input[name="city"]').val(),
                     'country': $('select[name="country"]').val(),
-                    'company_category': $('input[name="company_name"]').val(),
+                    'company_category': $('input[name="company_category"]').val(),
                     'company_other': $('input[name="company_other"]').val(),
                     'slug': $('input[name="slug"]').val()
                 }
