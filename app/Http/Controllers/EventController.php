@@ -720,9 +720,9 @@ class EventController extends Controller
                         $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                     });
                 }
-                return redirect()->back()->with('success', 'Success add peserta');
+                return redirect()->route('events-details', ['slug' => $slug])->with('success', 'Success add peserta');
             } else {
-                return redirect()->back()->with('error', 'Peserta sudah ada mendaftarkan diri');
+                return redirect()->route('events-details', ['slug' => $slug])->with('error', 'Peserta sudah ada mendaftarkan diri');
             }
         }
     }
