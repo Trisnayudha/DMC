@@ -814,7 +814,7 @@
                     'portal_code': $('input[name="portal_code"]').val(),
                     'city': $('input[name="city"]').val(),
                     'country': $('select[name="country"]').val(),
-                    'company_category': $('input[name="company_category"]').val(),
+                    'company_category': $('select[name="company_category"]').val(),
                     'company_other': $('input[name="company_other"]').val(),
                     'slug': $('input[name="slug"]').val()
                 }
