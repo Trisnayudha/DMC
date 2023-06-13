@@ -165,6 +165,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
+
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link active" data-tab="mygroup-tab" href="#tab-home">Check Database</a>
@@ -179,9 +180,8 @@
                             <input type="hidden" name="event" value="{{ $slug }}">
                             <div class="form-group">
 
-                                <label for="name">Nama</label>
-                                <select name="nama" id="" class="form-control select2">
-                                    <option value="">Default</option>
+                                <label for="nama">Nama</label>
+                                <select name="nama" id="nama" class="form-control search-name">
                                     @foreach ($users as $value)
                                         <option value="{{ $value->id }}">{{ $value->name }} - {{ $value->email }}
                                         </option>
@@ -190,7 +190,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="name">Ticket</label>
-                                <select name="ticket" id="" class="form-control">
+                                <select name="ticket" id="" class="form-control select2">
                                     <option value="free">Invitation ( Free No Cost )</option>
                                     <option value="member">Membership ( Rp. 900.000 )</option>
                                     <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
@@ -317,6 +317,9 @@
         });
         $(document).ready(function() {
             $('#laravel_crud').DataTable();
+        });
+        $(document).ready(function() {
+            // $('.search-name').select2();
         });
     </script>
 @endpush
