@@ -144,12 +144,13 @@ Company : ' . $data->company_name . '
                                 'start_time' => $findEvent->start_time,
                                 'end_time' => $findEvent->end_time,
                             ];
-                            $pdf = Pdf::loadView('email.ticket', $payload);
-                            Mail::send('email.approval-event', $payload, function ($message) use ($pdf, $data) {
+                            //Seharusnya ngirim Eticket namun servernya ga kuat buat load selama 30 detik
+                            // $pdf = Pdf::loadView('email.ticket', $payload);
+                            Mail::send('email.approval-event', $payload, function ($message) use ($data) {
                                 $message->from(env('EMAIL_SENDER'));
                                 $message->to($data->email);
-                                $message->subject($data->code_payment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
-                                $message->attachData($pdf->output(), $data->code_payment . '-' . time() . '.pdf');
+                                $message->subject($data->code_payment . ' - Successful Registration for The 10th Anniversary of Djakarta Mining Club and Coal Club Indonesia');
+                                // $message->attachData($pdf->output(), $data->code_payment . '-' . time() . '.pdf');
                             });
                         }
                         $link = null;
