@@ -78,7 +78,7 @@
                                             @foreach ($payment as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ date('d,F H:i', strtotime($post->created_at)) }}</td>
+                                                    <td>{{ date('d,F H:i', strtotime($post->register)) }}</td>
                                                     <td>{{ $post->code_payment }}</td>
                                                     <td>{{ $post->package }}</td>
                                                     <td>{{ $post->name }}</td>
