@@ -71,7 +71,7 @@ class XenditCallbackController extends Controller
             $payment_destination = request('payment_destination');
 
             $check = Payment::where('code_payment', '=', $external_id)->first();
-            $findEvent = Events::where('id', $check->events_id)->fisrt();
+            $findEvent = Events::where('id', $check->events_id)->first();
             if (!empty($check)) {
                 $findUser = Payment::where('code_payment', $external_id)
                     ->leftjoin('users as a', 'a.id', 'payment.member_id')
