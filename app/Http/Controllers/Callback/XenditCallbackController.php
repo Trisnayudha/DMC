@@ -122,36 +122,36 @@ Nama : ' . $data->name . '
 Email: ' . $data->email . '
 Phone Number: ' . $data->phone . '
 Company : ' . $data->company_name . '
-                            ';
-                            $payload = [
-                                'users_name' => $data->name,
-                                'users_email' => $data->email,
-                                'phone' => $data->phone,
-                                'company_name' => $data->company_name,
-                                'company_address' => $data->address,
-                                'status' => 'Paid Off',
-                                'events_name' => $findEvent->name,
-                                'code_payment' => $data->code_payment,
-                                'create_date' => date('d, M Y H:i'),
-                                'package_name' => $data->package,
-                                'price' => number_format($paid_amount, 0, ',', '.'),
-                                'total_price' => number_format($paid_amount, 0, ',', '.'),
-                                'voucher_price' => number_format(0, 0, ',', '.'),
-                                'image' => $db,
-                                'job_title' => $data->job_title,
-                                'start_date' => $findEvent->start_date,
-                                'end_date' => $findEvent->end_date,
-                                'start_time' => $findEvent->start_time,
-                                'end_time' => $findEvent->end_time,
-                            ];
+';
                             //Seharusnya ngirim Eticket namun servernya ga kuat buat load selama 30 detik
+                            // $payload = [
+                            //     'users_name' => $data->name,
+                            //     'users_email' => $data->email,
+                            //     'phone' => $data->phone,
+                            //     'company_name' => $data->company_name,
+                            //     'company_address' => $data->address,
+                            //     'status' => 'Paid Off',
+                            //     'events_name' => $findEvent->name,
+                            //     'code_payment' => $data->code_payment,
+                            //     'create_date' => date('d, M Y H:i'),
+                            //     'package_name' => $data->package,
+                            //     'price' => number_format($paid_amount, 0, ',', '.'),
+                            //     'total_price' => number_format($paid_amount, 0, ',', '.'),
+                            //     'voucher_price' => number_format(0, 0, ',', '.'),
+                            //     'image' => $db,
+                            //     'job_title' => $data->job_title,
+                            //     'start_date' => $findEvent->start_date,
+                            //     'end_date' => $findEvent->end_date,
+                            //     'start_time' => $findEvent->start_time,
+                            //     'end_time' => $findEvent->end_time,
+                            // ];
                             // $pdf = Pdf::loadView('email.ticket', $payload);
-                            Mail::send('email.approval-event', $payload, function ($message) use ($data) {
-                                $message->from(env('EMAIL_SENDER'));
-                                $message->to($data->email);
-                                $message->subject($data->code_payment . ' - Successful Registration for The 10th Anniversary of Djakarta Mining Club and Coal Club Indonesia');
-                                // $message->attachData($pdf->output(), $data->code_payment . '-' . time() . '.pdf');
-                            });
+                            // Mail::send('email.approval-event', $payload, function ($message) use ($pdf, $data) {
+                            //     $message->from(env('EMAIL_SENDER'));
+                            //     $message->to($data->email);
+                            //     $message->subject($data->code_payment . ' - Successful Registration for The 10th Anniversary of Djakarta Mining Club and Coal Club Indonesia');
+                            //     $message->attachData($pdf->output(), $data->code_payment . '-' . time() . '.pdf');
+                            // });
                         }
                         $link = null;
                         $data = [
@@ -181,8 +181,8 @@ Company : ' . $data->company_name . '
                             $message->attachData($pdf->output(), 'E-Receipt.pdf');
                         });
                         $send = new WhatsappApi();
-                        // $send->phone = '081288761410';
-                        $send->phone = '083829314436';
+                        $send->phone = '081288761410';
+                        // $send->phone = '083829314436';
                         $send->message = '
 Hai Team,
 
@@ -262,8 +262,8 @@ Best Regards Bot DMC
                             $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
                         });
                         $send = new WhatsappApi();
-                        // $send->phone = '081288761410';
-                        $send->phone = '083829314436';
+                        $send->phone = '081288761410';
+                        // $send->phone = '083829314436';
                         $send->message = '
 Hai Team,
 
@@ -347,7 +347,7 @@ Best Regards Bot DMC
             $amount = request('amount');
 
             $findPayment = Payment::where('code_payment', '=', $external_id)->first();
-
+            $findEvent = Events::where('id', $findPayment->events_id)->first();
             if (!empty($findPayment)) {
                 $image = QrCode::format('png')
                     ->size(200)->errorCorrection('H')
@@ -392,7 +392,11 @@ Best Regards Bot DMC
                     'total_price' => number_format($amount, 0, ',', '.'),
                     'voucher_price' => number_format(0, 0, ',', '.'),
                     'image' => $db,
-                    'job_title' => $findUser->job_title
+                    'job_title' => $findUser->job_title,
+                    'start_date' => $findEvent->start_date,
+                    'end_date' => $findEvent->end_date,
+                    'start_time' => $findEvent->start_time,
+                    'end_time' => $findEvent->end_time,
                 ];
 
                 $pdf = Pdf::loadView('email.invoice-new', $data);
