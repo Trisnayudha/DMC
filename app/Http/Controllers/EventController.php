@@ -1194,6 +1194,7 @@ class EventController extends Controller
             $saveBooking->link = $linkPay;
             $saveBooking->save();
             $email = $saveBooking->email_contact;
+            ini_set('max_execution_time', 120);
             $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
             Mail::send('email.invoice-new-multiple', $payload, function ($message) use ($email, $pdf) {
                 $message->from(env('EMAIL_SENDER'));
@@ -1202,7 +1203,7 @@ class EventController extends Controller
                 $message->attachData($pdf->output(), 'Invoice-' . time() . '.pdf');
             });
             $response['status'] = 1;
-            $response['message'] = 'Thank you for registering. Your data has been successfully recorded.';
+            $response['message'] = 'Thank you for registering. The invoice has been successfully emailed to you.';
         } catch (Exception $e) {
             $response['status'] = 0;
             $response['message'] = $e->getMessage();
