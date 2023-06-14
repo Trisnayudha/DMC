@@ -312,12 +312,12 @@ class EventController extends Controller
                     $send->sendEmail();
                     return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
                 } else {
-                    // $pdf = Pdf::loadView('email.invoice-new', $data);
-                    Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
+                    $pdf = Pdf::loadView('email.invoice-new', $data);
+                    Mail::send('email.confirm_payment', $data, function ($message) use ($email, $pdf) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($email);
                         $message->subject('Invoice - Waiting for Payment');
-                        // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
+                        $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
                     });
                     return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
                 }
@@ -827,7 +827,7 @@ class EventController extends Controller
             'company_name' => $company_name,
             'company_address' => $address,
             'status' => 'WAITING',
-            'events_name' => 'Mineral Trends 2023',
+            'events_name' => 'The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia',
             'price' => number_format($total_price, 0, ',', '.'),
             'voucher_price' => 0,
             'total_price' => number_format($total_price, 0, ',', '.'),
@@ -874,7 +874,7 @@ class EventController extends Controller
                     'company_name' => $company_name,
                     'company_address' => $address,
                     'job_title' => $job_title,
-                    'events_name' => 'Mineral Trends 2023',
+                    'events_name' => 'The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia',
                     'image' => $db
                 ];
                 // dd("sukses");
@@ -884,7 +884,7 @@ class EventController extends Controller
                 Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject($codePayment . ' - Your registration is approved for Mineral Trends 2023');
+                    $message->subject($codePayment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
                     $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
                 });
                 return redirect()->back()->with('alert', 'Register Successfully');
