@@ -879,7 +879,7 @@ class EventController extends Controller
                 ];
                 // dd("sukses");
                 ini_set('max_execution_time', 300);
-
+                //TODO bakal ada bug
                 $pdf = Pdf::loadView('email.ticket', $data);
                 Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
                     $message->from(env('EMAIL_SENDER'));

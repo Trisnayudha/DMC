@@ -9,6 +9,7 @@ use App\Helpers\XenditInvoice;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\BookingContact\BookingContact;
+use App\Models\Events\Events;
 use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
@@ -70,6 +71,7 @@ class XenditCallbackController extends Controller
             $payment_destination = request('payment_destination');
 
             $check = Payment::where('code_payment', '=', $external_id)->first();
+            $findEvent = Events::where('id', $check->events_id)->fisrt();
             if (!empty($check)) {
                 $findUser = Payment::where('code_payment', $external_id)
                     ->leftjoin('users as a', 'a.id', 'payment.member_id')
@@ -128,7 +130,7 @@ Company : ' . $data->company_name . '
                                 'company_name' => $data->company_name,
                                 'company_address' => $data->address,
                                 'status' => 'Paid Off',
-                                'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                                'events_name' => $findEvent->name,
                                 'code_payment' => $data->code_payment,
                                 'create_date' => date('d, M Y H:i'),
                                 'package_name' => $data->package,
@@ -136,7 +138,11 @@ Company : ' . $data->company_name . '
                                 'total_price' => number_format($paid_amount, 0, ',', '.'),
                                 'voucher_price' => number_format(0, 0, ',', '.'),
                                 'image' => $db,
-                                'job_title' => $data->job_title
+                                'job_title' => $data->job_title,
+                                'start_date' => $findEvent->start_date,
+                                'end_date' => $findEvent->end_date,
+                                'start_time' => $findEvent->start_time,
+                                'end_time' => $findEvent->end_time,
                             ];
                             $pdf = Pdf::loadView('email.ticket', $payload);
                             Mail::send('email.approval-event', $payload, function ($message) use ($pdf, $data) {
@@ -154,7 +160,7 @@ Company : ' . $data->company_name . '
                             'company_name' => $findContact->company_name,
                             'company_address' => $findContact->address,
                             'status' => 'Paid Off',
-                            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                            'events_name' => $findEvent->name,
                             'code_payment' => $findUser->code_payment,
                             'create_date' => date('d, M Y H:i'),
                             'package_name' => $findUser->package,
@@ -221,7 +227,7 @@ Best Regards Bot DMC
                             'company_name' => $findUser->company_name,
                             'company_address' => $findUser->address,
                             'status' => 'Paid Off',
-                            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                            'events_name' => $findEvent->name,
                             'code_payment' => $findUser->code_payment,
                             'create_date' => date('d, M Y H:i'),
                             'package_name' => $findUser->package,
@@ -229,7 +235,11 @@ Best Regards Bot DMC
                             'total_price' => number_format($paid_amount, 0, ',', '.'),
                             'voucher_price' => number_format(0, 0, ',', '.'),
                             'image' => $db,
-                            'job_title' => $findUser->job_title
+                            'job_title' => $findUser->job_title,
+                            'start_date' => $findEvent->start_date,
+                            'end_date' => $findEvent->end_date,
+                            'start_time' => $findEvent->start_time,
+                            'end_time' => $findEvent->end_time,
                         ];
                         $notif = new Notification();
                         $notif->id = $check->member_id;
