@@ -71,12 +71,6 @@ class XenditCallbackController extends Controller
 
             $check = Payment::where('code_payment', '=', $external_id)->first();
             if (!empty($check)) {
-                $image = QrCode::format('png')
-                    ->size(200)->errorCorrection('H')
-                    ->generate($external_id);
-                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
-                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
-                Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                 $findUser = Payment::where('code_payment', $external_id)
                     ->leftjoin('users as a', 'a.id', 'payment.member_id')
                     ->leftjoin('profiles as b', 'a.id', 'b.users_id')
@@ -95,6 +89,12 @@ class XenditCallbackController extends Controller
                         $detailWa = [];
                         $item_details = [];
                         foreach ($loopPayment as $data) {
+                            $image = QrCode::format('png')
+                                ->size(200)->errorCorrection('H')
+                                ->generate($data->code_payment);
+                            $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                            $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                            Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                             $update = Payment::where('code_payment', $data->code_payment)->first();
                             $item_details[] = [
                                 'name' => $data->name,
@@ -104,6 +104,7 @@ class XenditCallbackController extends Controller
                             ];
                             $update->status_registration = "Paid Off";
                             $update->qr_code =  $db;
+                            $update->link = null;
                             $update->payment_method = $payment_method;
                             $update->save();
                             $UserEvent = UserRegister::where('payment_id', $update->id)->first();
@@ -120,6 +121,30 @@ Email: ' . $data->email . '
 Phone Number: ' . $data->phone . '
 Company : ' . $data->company_name . '
                             ';
+                            $payload = [
+                                'users_name' => $data->name,
+                                'users_email' => $data->email,
+                                'phone' => $data->phone,
+                                'company_name' => $data->company_name,
+                                'company_address' => $data->address,
+                                'status' => 'Paid Off',
+                                'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                                'code_payment' => $data->code_payment,
+                                'create_date' => date('d, M Y H:i'),
+                                'package_name' => $data->package,
+                                'price' => number_format($paid_amount, 0, ',', '.'),
+                                'total_price' => number_format($paid_amount, 0, ',', '.'),
+                                'voucher_price' => number_format(0, 0, ',', '.'),
+                                'image' => $db,
+                                'job_title' => $data->job_title
+                            ];
+                            $pdf = Pdf::loadView('email.ticket', $payload);
+                            Mail::send('email.approval-event', $payload, function ($message) use ($pdf, $data) {
+                                $message->from(env('EMAIL_SENDER'));
+                                $message->to($data->email);
+                                $message->subject($data->code_payment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
+                                $message->attachData($pdf->output(), $data->code_payment . '-' . time() . '.pdf');
+                            });
                         }
                         $link = null;
                         $data = [
@@ -154,7 +179,7 @@ Company : ' . $data->company_name . '
                         $send->message = '
 Hai Team,
 
-Success payment dari ' . $findContact->name_contact . '
+Success payment multiple dari ' . $findContact->name_contact . '
 Detail Informasinya:
 ' . implode(" ", $detailWa) . '
 
@@ -168,6 +193,12 @@ Best Regards Bot DMC
                         $notif->message = 'Payment successfully Web';
                         $notif->NotifApp();
                     } else {
+                        $image = QrCode::format('png')
+                            ->size(200)->errorCorrection('H')
+                            ->generate($external_id);
+                        $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                        $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                        Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                         // dd("masuk sini");
                         $check->status_registration = "Paid Off";
                         $check->payment_method = $payment_method;
