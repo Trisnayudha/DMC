@@ -95,7 +95,7 @@ class XenditCallbackController extends Controller
                         $detailWa = [];
                         $item_details = [];
                         foreach ($loopPayment as $data) {
-                            $update = Payment::where('member_id', $data->member_id)->where('events_id', '5')->first();
+                            $update = Payment::where('code_payment', $data->code_payment)->first();
                             $item_details[] = [
                                 'name' => $data->name,
                                 'job_title' => $data->email,
@@ -141,13 +141,13 @@ Company : ' . $data->company_name . '
                             'job_title' => $findContact->job_title_contact,
                             'link' => $link
                         ];
-                        // $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
-                        // Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf) {
-                        //     $message->from(env('EMAIL_SENDER'));
-                        //     $message->to($findContact->email_contact);
-                        //     $message->subject('Thank you for payment - The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia ');
-                        //     $message->attachData($pdf->output(), 'E-Receipt.pdf');
-                        // });
+                        $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
+                        Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf) {
+                            $message->from(env('EMAIL_SENDER'));
+                            $message->to($findContact->email_contact);
+                            $message->subject('Thank you for payment - The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia ');
+                            $message->attachData($pdf->output(), 'E-Receipt.pdf');
+                        });
                         $send = new WhatsappApi();
                         // $send->phone = '081288761410';
                         $send->phone = '083829314436';
