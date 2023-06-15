@@ -191,7 +191,8 @@
                             <div class="form-group">
                                 <label for="name">Ticket</label>
                                 <select name="ticket" id="" class="form-control select2">
-                                    <option value="free">Invitation ( Free No Cost )</option>
+                                    <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
+                                    <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
                                     <option value="member">Membership ( Rp. 900.000 )</option>
                                     <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
                                 </select>
@@ -294,7 +295,8 @@
                                 <div class="form-group">
                                     <label for="name">Ticket</label>
                                     <select name="ticket" id="" class="form-control">
-                                        <option value="free">Invitation ( Free No Cost )</option>
+                                        <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
+                                        <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
                                         <option value="member">Membership ( Rp. 900.000 )</option>
                                         <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
                                     </select>
