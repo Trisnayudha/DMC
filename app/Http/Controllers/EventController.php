@@ -816,6 +816,7 @@ class EventController extends Controller
             $createInvoice = Invoice::create($params);
             $linkPay = $createInvoice['invoice_url'];
         }
+        //TODO masih hardcode
         $check = Payment::where('events_id', '=', '5')->where('member_id', '=', $user->id)->first();
         $findEvent = Events::where('id', '5')->first();
         $data = [
@@ -892,7 +893,7 @@ class EventController extends Controller
                     $message->subject($codePayment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
                     $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
                 });
-                return redirect()->back()->with('alert', 'Register Successfully');
+                return redirect()->route('events-details', ['slug' => $check->slug])->with('alert', 'Register Successfully');
             } else {
                 // $pdf = Pdf::loadView('email.invoice-new', $data);
                 Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
