@@ -837,7 +837,7 @@ class EventController extends Controller
 
         if (empty($check)) {
             $payment = Payment::firstOrNew(['member_id' => $user->id]);
-            if ($paymentMethod == 'free' && $paymentMethod == 'sponsor') {
+            if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
                 $payment->package = $paymentMethod;
                 // $payment->price = $total_price;
                 $payment->status_registration = 'Paid Off';
@@ -859,7 +859,7 @@ class EventController extends Controller
                 }
             }
             $payment->save();
-            if ($paymentMethod == 'free' && $paymentMethod == 'sponsor') {
+            if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
                 $image = QrCode::format('png')
                     ->size(200)->errorCorrection('H')
                     ->generate($codePayment);
