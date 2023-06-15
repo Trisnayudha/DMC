@@ -793,7 +793,7 @@ class EventController extends Controller
         $codePayment = strtoupper(Str::random(7));
         $date = date('d-m-Y H:i:s');
         $linkPay = null;
-        if ($paymentMethod != 'free') {
+        if ($paymentMethod != 'free' || $paymentMethod != 'sponsor') {
             // init xendit
             $isProd = env('XENDIT_ISPROD');
             if ($isProd) {
@@ -837,7 +837,7 @@ class EventController extends Controller
 
         if (empty($check)) {
             $payment = Payment::firstOrNew(['member_id' => $user->id]);
-            if ($paymentMethod == 'free') {
+            if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
                 $payment->package = $paymentMethod;
                 // $payment->price = $total_price;
                 $payment->status_registration = 'Paid Off';
@@ -859,7 +859,7 @@ class EventController extends Controller
                 }
             }
             $payment->save();
-            if ($paymentMethod == 'free') {
+            if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
                 $image = QrCode::format('png')
                     ->size(200)->errorCorrection('H')
                     ->generate($codePayment);
