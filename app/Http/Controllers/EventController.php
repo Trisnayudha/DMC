@@ -901,10 +901,10 @@ class EventController extends Controller
                     $message->subject('Invoice - Waiting for Payment');
                     // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
                 });
-                return redirect()->back()->with('alert', 'Check your email for payment Invoice !!!');
+                return redirect()->route('events-details', ['slug' => $check->slug])->with('alert', 'Check your email for payment Invoice !!!');
             }
         } else {
-            return redirect()->back()->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
+            return redirect()->route('events-details', ['slug' => $check->slug])->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
         }
     }
 
