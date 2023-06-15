@@ -817,7 +817,7 @@ class EventController extends Controller
             $linkPay = $createInvoice['invoice_url'];
         }
         $check = Payment::where('events_id', '=', '5')->where('member_id', '=', $user->id)->first();
-
+        $findEvent = Events::where('id', $check->id)->first();
         $data = [
             'code_payment' => $codePayment,
             'create_date' => date('d, M Y H:i'),
@@ -876,7 +876,11 @@ class EventController extends Controller
                     'company_address' => $address,
                     'job_title' => $job_title,
                     'events_name' => 'The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia',
-                    'image' => $db
+                    'image' => $db,
+                    'start_date' => $findEvent->start_date,
+                    'end_date' => $findEvent->end_date,
+                    'start_time' => $findEvent->start_time,
+                    'end_time' => $findEvent->end_time,
                 ];
                 // dd("sukses");
                 ini_set('max_execution_time', 300);
