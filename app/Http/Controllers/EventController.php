@@ -842,14 +842,14 @@ class EventController extends Controller
                 // $payment->price = $total_price;
                 $payment->status_registration = 'Paid Off';
                 $payment->code_payment = $codePayment;
-                $payment->events_id = 1;
+                $payment->events_id = 5;
             } else {
                 $payment->package = $paymentMethod;
                 $payment->payment_method = 'Credit Card';
                 $payment->status_registration = 'Waiting';
                 $payment->link = $linkPay;
                 $payment->code_payment = $codePayment;
-                $payment->events_id = 1;
+                $payment->events_id = 5;
                 if ($paymentMethod == 'member') {
                     $payment->tickets_id = 1;
                 } else if ($paymentMethod == 'nonmember') {
