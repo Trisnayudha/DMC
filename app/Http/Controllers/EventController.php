@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\EmailSender;
+use App\Helpers\WhatsappApi;
 use App\Models\BookingContact\BookingContact;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
@@ -311,7 +312,25 @@ class EventController extends Controller
                     $send->subject = 'Thank you for registering ' . $findEvent->name;
                     $send->template = 'email.waiting-approval';
                     $send->sendEmail();
-                    return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
+                    $send = new WhatsappApi();
+                    $send->phone = '08111798961';
+                    $send->message = '
+Registration Notification,
+
+Hai ada pendaftaran GRATIS dari ' . $name . '
+Detail Informasinya:
+Nama: ' . $name . '
+Company: ' . $company_name . '
+Email: ' . $email . '
+Phone: ' . $phone . '
+Category Company: ' . ($company_category == 'other' ? $company_other : $company_category) . '
+
+Thank you
+Best Regards Bot DMC Website
+';
+                    $send->WhatsappMessage();
+
+                    return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved.');
                 } else {
                     $pdf = Pdf::loadView('email.invoice-new', $data);
                     Mail::send('email.confirm_payment', $data, function ($message) use ($email, $pdf) {
@@ -345,7 +364,7 @@ class EventController extends Controller
                         $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
                         $send->template = 'email.waiting-approval';
                         $send->sendEmail();
-                        return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
+                        return redirect()->back()->with('alert', ' Registration successful! You`ll be notified via email upon approval.');
                     }
                 }
                 return redirect()->back()->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
@@ -1070,6 +1089,7 @@ class EventController extends Controller
             $countPrice = 0;
             $item_details = [];
             $findEvent = Events::where('slug', $slug)->first();
+            $detailWa = [];
             foreach ($tables as $table) {
                 $checkUsers = User::where('email', $table['email'])->first();
 
@@ -1160,7 +1180,26 @@ class EventController extends Controller
                     'price' => number_format($total_price, 0, ',', '.'),
                     'paidoff' => $paidoff
                 ];
+                $detailWa[] = '
+Nama : ' . $table['name'] . '
+Email: ' . $table['email'] . '
+Phone Number: ' . $table['phone'] . '
+Company : ' . $table['company'] . '
+                ';
             }
+            $send = new WhatsappApi();
+            $send->phone = '08111798961';
+            $send->message = '
+Registration Notification,
+
+Hai ada pendaftaran multiple dari ' . $name_contact . '
+Detail Informasinya:
+' . implode(" ", $detailWa) . '
+
+Thank you
+Best Regards Bot DMC Website
+                                                ';
+            $send->WhatsappMessage();
             $date = date('d-m-Y H:i:s');
             $linkPay = null;
             // init xendit

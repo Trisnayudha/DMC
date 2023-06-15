@@ -245,7 +245,52 @@
                                     Please enter a valid email address.
                                 </div>
                             </div>
+                            <div class="col-sm-6 mb-3">
+                                <label for="country" class="form-label">Country * </label>
+                                <select class="form-control js-example-basic-single" name="country" id="country"
+                                    placeholder="" required>
+                                    <option value="Indonesia" selected>Indonesia</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please provide a valid Country
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="company_category" class="form-label">Company Category *</label>
+                                <select class="form-control js-example-basic-single d-block w-100"
+                                    name="company_category" id="company_category" required>
+                                    <option value="">--Select--</option>
+                                    <option value="Coal Mining">Coal Mining</option>
+                                    <option value="Minerals Producer">Minerals Producer</option>
+                                    <option value="Supplier/Distributor/Manufacturer">
+                                        Supplier/Distributor/Manufacturer
+                                    </option>
+                                    <option value="Contrator">Contrator</option>
+                                    <option value="Association / Organization / Government">
+                                        Association / Organization / Government</option>
+                                    <option value="Financial Services">Financial Services</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Investors">Investors</option>
+                                    <option value="Logistics and Shipping">Logistics and Shipping</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Consultant">Consultant</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please enter your Company Other
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-6">
+                                <div class="myDiv">
+                                    <label for="company_other" class="form-label">Company Other *</label>
+                                    <input type="text" class="form-control" name="company_other" placeholder="">
+                                    <div class="invalid-feedback">
+                                        Please enter your Company Other
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                         <hr class="my-4">
                         <input type="hidden" name="paymentMethod" value="free">
                         {{-- <div class="customer"></div> --}}
