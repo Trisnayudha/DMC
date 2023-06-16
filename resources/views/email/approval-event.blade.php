@@ -176,7 +176,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://djakarta-miningclub.com/dmc/2023/technological-advances-driving-innovation-in-indonesias-mining-industry-2023/)
+                (https://djakarta-miningclub.com/dmc/2023/the-10th-anniversary-of-djakarta-mining-club-and-coal-club-indonesia/)
             </p>
 
             <br>
