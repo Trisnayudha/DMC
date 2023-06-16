@@ -171,7 +171,7 @@
                 <tr>
                     <th>Dress Code</th>
                     <th>:</th>
-                    <th>Black Tie</th>
+                    <td>Black Tie</td>
                 </tr>
             </table>
 
