@@ -912,7 +912,7 @@ Best Regards Bot DMC Website
                     $message->subject($codePayment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
                     $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
                 });
-                return redirect()->route('events-details', ['slug' => $check->slug])->with('alert', 'Register Successfully');
+                return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('alert', 'Register Successfully');
             } else {
                 // $pdf = Pdf::loadView('email.invoice-new', $data);
                 Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
@@ -921,10 +921,10 @@ Best Regards Bot DMC Website
                     $message->subject('Invoice - Waiting for Payment');
                     // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
                 });
-                return redirect()->route('events-details', ['slug' => $check->slug])->with('alert', 'Check your email for payment Invoice !!!');
+                return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('alert', 'Check your email for payment Invoice !!!');
             }
         } else {
-            return redirect()->route('events-details', ['slug' => $check->slug])->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
+            return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
         }
     }
 

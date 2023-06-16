@@ -170,7 +170,7 @@
                 <p>
                     Location
                 </p>
-
+                <p>Dress Code</p>
             </div>
 
             <div class="col-9">
@@ -181,6 +181,7 @@
                     (Jakarta Time) </p>
                 <p>: Live - Networking Dinner</p>
                 <p>: {{ $location }}</p>
+                <p>: Black Tie</p>
 
             </div>
             <br>
@@ -216,7 +217,7 @@
                 <div class="form-check member">
                     <input id="table" name="paymentMethod" type="radio" class="form-check-input" required
                         value="table">
-                    <label class="form-check-label" for="table">Table of 5 Person (Rp. 4.000.000)</label>
+                    <label class="form-check-label" for="table">Table of 5 People (Rp. 4.000.000)</label>
                 </div>
 
                 <hr class="my-4">

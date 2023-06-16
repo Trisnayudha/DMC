@@ -124,7 +124,7 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://api.djakarta-miningclub.com/image/dmc.png" alt="Image" class="img-logo">
+            <img src="https://api.djakarta-miningclub.com/image/logo-dmc-cci3.png" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
@@ -147,11 +147,11 @@
                         EVENT DETAILS :
                     </th>
                 </tr>
-                <tr>
+                {{-- <tr>
                     <th>Topic</th>
                     <th>:</th>
                     <td>{{ $events_name }}</td>
-                </tr>
+                </tr> --}}
                 <tr>
                     <th>Date</th>
                     <th>:</th>
@@ -167,6 +167,11 @@
                     <th>:</th>
                     <td>Nusantara Ballroom, The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
                         Kebayoran Baru, 12160, Indonesia)</td>
+                </tr>
+                <tr>
+                    <th>Dress Code</th>
+                    <th>:</th>
+                    <th>Black Tie</th>
                 </tr>
             </table>
 

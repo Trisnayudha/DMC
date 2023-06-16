@@ -150,7 +150,7 @@
                     <table>
                         <tr>
                             <td class="title">
-                                <img src="{{ asset('image/dmc.png') }}" alt="Company logo"
+                                <img src="{{ asset('image/logo-dmc-cci3.png') }}" alt="Company logo"
                                     style="width: 100%; max-width: 250px" />
                             </td>
 
