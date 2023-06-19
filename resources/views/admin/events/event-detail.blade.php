@@ -318,7 +318,15 @@
             $('#example').modal('show');
         });
         $(document).ready(function() {
-            $('#laravel_crud').DataTable();
+            $('#laravel_crud').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ]
+            });
         });
         $(document).ready(function() {
             // $('.search-name').select2();
