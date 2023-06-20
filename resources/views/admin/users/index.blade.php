@@ -384,7 +384,7 @@
                         console.log(response.payload);
 
                         // Populate the form fields with the response payload
-                        $('#prefix_edit').val(response.payload.package || '');
+                        $('#prefix_edit').val(response.payload.prefix || '');
                         $('#name_edit').val(response.payload.name || '');
                         $('#job_title_edit').val(response.payload.job_title || '');
                         $('#company_name_edit').val(response.payload.company_name || '');
