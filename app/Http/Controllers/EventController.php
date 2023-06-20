@@ -104,7 +104,7 @@ class EventController extends Controller
                 ->leftjoin('company', 'company.users_id', 'users.id')
                 ->leftjoin('profiles', 'profiles.users_id', 'users.id')
                 ->where('payment.events_id', $checkEvent->id)
-                ->select('users.*', 'payment.*', 'company.*', 'profiles.*', 'payment.id as payment_id', 'payment.created_at as register')
+                ->select('users.*', 'payment.*', 'company.*', 'profiles.*', 'payment.id as payment_id', 'payment.created_at as register', 'users.id as id')
                 ->orderby('payment.created_at', 'desc')
                 ->get();
             // dd($list);

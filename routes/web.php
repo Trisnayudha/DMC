@@ -97,6 +97,7 @@ Route::get('/events/{slug}/detail-participant', [EventController::class, 'detail
 Route::post('/events/addCheck', [EventController::class, 'dataCheck'])->name('events.add.check');
 Route::post('/events/addInvitation', [EventController::class, 'regisInvitation'])->name('events.add.invitation');
 Route::post('/events/confirmation', [EventController::class, 'sendParticipant'])->name('events-send-participant');
+Route::get('/edit/user/{id}', [UsersController::class, 'editUserEvent']); //Edit user yg di dalam event
 //Events Category
 Route::get('/events/category', [EventCategoryController::class, 'index'])->name('events.category');
 Route::post('/events/addcategory', [EventCategoryController::class, 'store']);

@@ -102,4 +102,24 @@ class UsersController extends Controller
         ];
         return view('admin.member.index', $data);
     }
+
+    public function editUserEvent($id)
+    {
+        $data = User::join('payment', 'payment.member_id', 'users.id')
+            ->join('profiles', 'profiles.id', 'users.id')
+            ->join('company', 'company.id', 'profiles.company_id')
+            ->where('users.id', $id)
+            ->first();
+        if (!empty($data)) {
+
+            return response()->json([
+                'status' => 1,
+                'payload' => $data
+            ]);
+        }
+        return response()->json([
+            'status' => 0,
+            'payload' => null
+        ]);
+    }
 }

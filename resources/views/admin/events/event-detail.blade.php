@@ -141,6 +141,9 @@
                                                         </ul>
                                                         <a href="#" data-id="{{ $post->id }}"
                                                             class="btn btn-success"><span class=" fa fa-eye"></a>
+                                                        <a href="#" data-id="{{ $post->id }}"
+                                                            class="btn btn-warning edit-button"> <span
+                                                                class="fa fa-edit "></span></a>
                                                     </td>
 
                                                 </tr>
@@ -310,12 +313,62 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="edit">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit peserta</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="package">Package:</label>
+                            <select class="form-control" id="package_edit">
+                                <option value="free">Free</option>
+                                <option value="member">Member</option>
+                                <option value="sponsor">Sponsor</option>
+                                <option value="nonmember">Non Member</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" class="form-control" id="name_edit">
+                        </div>
+                        <div class="form-group">
+                            <label for="job_title">Job Title:</label>
+                            <input type="text" class="form-control" id="job_title_edit">
+                        </div>
+                        <div class="form-group">
+                            <label for="company_name">Company:</label>
+                            <input type="text" class="form-control" id="company_name_edit">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control" id="email_edit">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number:</label>
+                            <input type="tel" class="form-control" id="phone_edit">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('bottom')
     <script>
         $('#modal-2').click(function() {
             $('#example').modal('show');
+        });
+        $('#edit-button').click(function() {
+            $('#edit').modal('show');
         });
         $(document).ready(function() {
             $('#laravel_crud').DataTable({
@@ -330,6 +383,36 @@
         });
         $(document).ready(function() {
             // $('.search-name').select2();
+        });
+        // Menggunakan jQuery
+        $(document).ready(function() {
+            // Event handler ketika tombol edit di klik
+            $(document).on('click', '.edit-button', function() {
+                var postId = $(this).data('id'); // Mendapatkan ID pos
+
+                // Mengirim permintaan AJAX ke endpoint yang memuat data pos
+                $.ajax({
+                    url: '/edit/user/' + postId, // Ganti dengan URL endpoint yang sesuai
+                    type: 'GET',
+                    success: function(response) {
+                        console.log(response.payload.name);
+                        // Mengisi nilai form dengan data yang diterima dari server
+                        $('#package_edit').val(response.payload.package);
+                        $('#name_edit').val(response.payload.name);
+                        $('#job_title_edit').val(response.payload.job_title);
+                        $('#company_name_edit').val(response.payload.company_name);
+                        $('#email_edit').val(response.payload.email);
+                        $('#phone_edit').val(response.payload.phone);
+
+                        // Menampilkan modal
+                        $('#edit').modal('show');
+                    },
+                    error: function(xhr) {
+                        // Menangani kesalahan jika permintaan gagal
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
         });
     </script>
 @endpush
