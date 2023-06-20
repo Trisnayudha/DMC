@@ -32,26 +32,27 @@ class UsersController extends Controller
         $this->validate($request, [
             'uploaded_file' => 'required|file|mimes:xls,xlsx'
         ]);
+
         $the_file = $request->file('uploaded_file');
+
         try {
             $spreadsheet = IOFactory::load($the_file->getRealPath());
-            $sheet        = $spreadsheet->getActiveSheet();
-            $row_limit    = $sheet->getHighestDataRow();
+            $sheet = $spreadsheet->getActiveSheet();
+            $row_limit = $sheet->getHighestDataRow();
             $column_limit = $sheet->getHighestDataColumn();
-            $row_range    = range(2, $row_limit);
+            $row_range = range(2, $row_limit);
             $column_range = range('M', $column_limit);
-            $startcount = 1;
-            $data = array();
+
+            $startcount = 0;
+
             foreach ($row_range as $row) {
-                $user = User::firstOrNew(array('email' => $sheet->getCell('E' . $row)->getValue()));
+                $email = $sheet->getCell('E' . $row)->getValue();
+                $user = User::firstOrNew(['email' => $email]);
                 $user->name = $sheet->getCell('B' . $row)->getValue();
-                $user->email = $sheet->getCell('E' . $row)->getValue();
-                // $user->verify_phone = 'verified';
-                // $user->password = Hash::make('DMCAPPS');
+                $user->email = $email;
                 $user->save();
-                $company = CompanyModel::firstOrNew([
-                    'users_id' => $user->id
-                ]);
+
+                $company = CompanyModel::firstOrNew(['users_id' => $user->id]);
                 $company->company_name = $sheet->getCell('A' . $row)->getValue();
                 $company->company_website = $sheet->getCell('F' . $row)->getValue();
                 $company->company_category = $sheet->getCell('G' . $row)->getValue();
@@ -62,32 +63,20 @@ class UsersController extends Controller
                 $company->full_office_number = $sheet->getCell('L' . $row)->getValue();
                 $company->save();
 
-                $profile = ProfileModel::firstOrNew([
-                    'users_id' => $user->id
-                ]);
+                $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
                 $profile->fullphone = $sheet->getCell('D' . $row)->getValue();
                 $profile->job_title = $sheet->getCell('C' . $row)->getValue();
                 $profile->users_id = $user->id;
                 $profile->company_id = $company->id;
                 $profile->save();
-                // $user->register_as = $sheet->getCell('M' . $row)->getValue();
-                // $codePayment = strtoupper(Str::random(7));
-                // $payment = Payment::firstOrNew(array('member_id' => $user->id));
-                // $payment->member_id = $user->id;
-                // $payment->package = 'free';
-                // $payment->code_payment = $codePayment;
-                // $payment->price = 0;
-                // $payment->status = 'Waiting';
-                // $payment->save();
-
 
                 $startcount++;
             }
-            return back()->with('success', 'Success Import ' . $startcount . ' data');
+
+            return back()->with('success', 'Successfully imported ' . $startcount . ' data');
         } catch (Exception $e) {
-            // dd($e);
             $error_code = $e->errorInfo[1];
-            return back()->withErrors('There was a problem uploading the data!');
+            return back()->withErrors('There was a problem uploading the data! Error Code: ' . $error_code);
         }
     }
 

@@ -45,6 +45,9 @@
                                         class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3" id="modal-2">
                                         <i class="fas fa-plus-circle"></i>
                                         Import Data</a>
+                                    <a href="javascript:;" class="btn btn-block btn-info btn-filter mb-3" id="modal-3">
+                                        <i class="fas fa-users"></i>
+                                        Tambah Data</a>
                                 </div>
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
