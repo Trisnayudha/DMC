@@ -23,7 +23,10 @@
     <link rel="stylesheet" href="{{ asset('stisla/plugins/owl.carousel/dist/assets/owl.theme.default.min.css') }}">
     <link rel="stylesheet" href="{{ asset('stisla/plugins/bootstrap-daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ asset('stisla/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('stisla/plugins/select2/dist/css/select2.min.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+
+
     <!-- Template CSS -->
     <link rel="stylesheet" href="{{ asset('stisla/assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('stisla/assets/css/components.css') }}">
@@ -37,7 +40,7 @@
     <link rel="stylesheet" href="/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link rel="stylesheet" href="/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.1.0/css/buttons.dataTables.min.css">
-    <script src="/plugins/jquery/jquery.min.js"></script>
+
     <script src="/plugins/sweetalert2/sweetalert2.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
@@ -50,6 +53,15 @@
     <style>
         .btn-filter {
             padding: .500rem .75rem;
+        }
+
+        .select2-container {
+            z-index: 9999;
+        }
+
+        .select2-container .select2-search__field {
+            z-index: 10000;
+            /* Atur nilai z-index yang lebih tinggi daripada modal */
         }
     </style>
 </head>
@@ -72,21 +84,9 @@
 
     <!-- General JS Scripts -->
     @include('sweetalert::alert')
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
-    </script>
+
 
     <script src="{{ asset('stisla/assets/js/stisla.js') }}"></script>
-
-    <!-- JS Libraies -->
-    <script src="{{ asset('stisla/plugins/jquery-sparkline/jquery.sparkline.min.js') }}"></script>
-    <script src="{{ asset('stisla/plugins/chart.js/dist/Chart.min.js') }}"></script>
-    <script src="{{ asset('stisla/plugins/owl.carousel/dist/owl.carousel.min.js') }}"></script>
-    <script src="{{ asset('stisla/plugins/summernote/dist/summernote-bs4.js') }}"></script>
-    <script src="{{ asset('stisla/plugins/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
-    <script src="{{ asset('stisla/plugins/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ asset('stisla/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
-    <script src="{{ asset('stisla/plugins/select2/dist/js/select2.min.js') }}"></script>
 
     <!-- DataTables  & plugins -->
     <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -105,13 +105,23 @@
     <!-- Template JS File -->
     <script src="{{ asset('stisla/assets/js/scripts.js') }}"></script>
     <script src="{{ asset('stisla/assets/js/custom.js') }}"></script>
+    <!-- JS Libraies -->
+    <script src="{{ asset('stisla/plugins/jquery-sparkline/jquery.sparkline.min.js') }}"></script>
+    <script src="{{ asset('stisla/plugins/chart.js/dist/Chart.min.js') }}"></script>
+    <script src="{{ asset('stisla/plugins/owl.carousel/dist/owl.carousel.min.js') }}"></script>
+    <script src="{{ asset('stisla/plugins/summernote/dist/summernote-bs4.js') }}"></script>
+    <script src="{{ asset('stisla/plugins/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
+    <script src="{{ asset('stisla/plugins/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ asset('stisla/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+
+
     <script>
         $(document).ready(function() {
             $('.select2').select2();
-            $(".select2-tags").select2({
-                tags: true
-            });
-
         });
     </script>
 

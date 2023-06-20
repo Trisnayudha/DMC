@@ -182,9 +182,8 @@
                             @csrf
                             <input type="hidden" name="event" value="{{ $slug }}">
                             <div class="form-group">
-
                                 <label for="nama">Nama</label>
-                                <select name="nama" id="nama" class="form-control search-name">
+                                <select name="nama" id="nama" class="form-control select2">
                                     @foreach ($users as $value)
                                         <option value="{{ $value->id }}">{{ $value->name }} - {{ $value->email }}
                                         </option>
@@ -327,7 +326,7 @@
                     <form>
                         <div class="form-group">
                             <label for="package">Package:</label>
-                            <select class="form-control" id="package_edit">
+                            <select class="form-control select2" id="package_edit">
                                 <option value="free">Free</option>
                                 <option value="member">Member</option>
                                 <option value="sponsor">Sponsor</option>
@@ -381,9 +380,7 @@
                 ]
             });
         });
-        $(document).ready(function() {
-            // $('.search-name').select2();
-        });
+
         // Menggunakan jQuery
         $(document).ready(function() {
             // Event handler ketika tombol edit di klik
