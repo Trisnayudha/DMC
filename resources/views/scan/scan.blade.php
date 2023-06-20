@@ -62,6 +62,16 @@
 </body>
 <script>
     $('#text-input').focus();
+    $(document).on('click', function(event) {
+        var input = $('#text-input');
+        var targetElement = event.target;
+
+        // Cek apakah targetElemen yang diklik bukanlah input
+        if (!$(targetElement).is(input)) {
+            input.focus();
+        }
+    });
+    $('#text-input').focus();
     $("#text-input").on("input", function() {
         if ($(this).val().length >= 7) {
             Swal.fire({

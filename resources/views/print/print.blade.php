@@ -62,18 +62,18 @@
 <body>
     <div class="container">
         <div class="center">
-            <span style="font-size: 19px"> {{ $name }} </span> <br>
-            <span style="font-size: 17px"> {{ $company }} </span>
+            <span style="font-size: 19px" contenteditable="true"> {{ $name }} </span> <br>
+            <span style="font-size: 17px" contenteditable="true"> {{ $company }} </span>
         </div>
     </div>
 </body>
 
 <script>
     window.focus();
-    window.print();
-    window.onafterprint = function() {
-        window.close();
-    };
+    // window.print();
+    // window.onafterprint = function() {
+    //     window.close();
+    // };
 </script>
 
 </html>
