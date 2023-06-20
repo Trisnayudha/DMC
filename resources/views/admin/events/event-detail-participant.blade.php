@@ -204,7 +204,7 @@
             });
         });
         $(document).ready(function() {
-            $(".present").click(function() {
+            $(document).on("click", ".present", function() {
                 $("#loader").show();
                 setTimeout(() => {
                     $("#loader").hide();
