@@ -139,7 +139,7 @@
                         (Jakarta Time) </p>
                     <p>: Live - Networking Dinner</p>
                     <p>: {{ $location }}</p>
-                    <p>: Black Tie & Batik</p>
+                    <p>: Black Tie or Batik</p>
                     </p>
                 </div>
                 <br>
