@@ -983,6 +983,7 @@ Best Regards Bot DMC Website
         $findUsers = User::where('id', $check->member_id)->first();
         $findProfile = ProfileModel::where('users_id', $check->member_id)->first();
         $findCompany = CompanyModel::where('users_id', $check->member_id)->first();
+        $findEvent = Events::where('id', $events_id)->first();
         $email = $findUsers->email;
         $codePayment = $check->code_payment;
         if ($method == 'confirmation') {
@@ -1029,7 +1030,7 @@ Best Regards Bot DMC Website
                 $message->subject($codePayment . ' - Confirmation Reminder for ' . $findEvent->name);
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
             });
-            return redirect()->back()->with('success', 'Successfully Send Confirmation');
+            return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Successfully Send Confirmation');
         } else {
             $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
             if ($save == null) {
@@ -1041,7 +1042,7 @@ Best Regards Bot DMC Website
             $save->present = 1;
             $save->save();
 
-            return redirect()->back()->with('success', 'Successfully Present');
+            return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Successfully Present');
         }
     }
 
