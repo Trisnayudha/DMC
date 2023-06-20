@@ -20,12 +20,49 @@ class UsersController extends Controller
     public function index()
     {
         $list = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
-            ->leftjoin('company', 'company.id', 'profiles.company_id')->get();
+            ->leftjoin('company', 'company.id', 'profiles.company_id')->orderBy('users.id', 'desc')->select('*', 'users.id as id')->get();
         $data = [
             'list' => $list
         ];
         return view('admin.users.index', $data);
     }
+
+    public function store(Request $request)
+    {
+        try {
+            $user = User::firstOrNew(['email' => $request->email]);
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->save();
+
+            $company = CompanyModel::firstOrNew(['users_id' => $user->id]);
+            $company->prefix = $request->prefix;
+            $company->company_name = $request->company_name;
+            $company->company_website = $request->company_website;
+            $company->company_category = $request->company_category;
+            $company->company_other = $request->company_other;
+            $company->address = $request->address;
+            $company->city = $request->city;
+            $company->portal_code = $request->portal_code;
+            $company->office_number = $request->office_number;
+            $company->country = $request->country;
+            $company->users_id = $user->id;
+            $company->save();
+
+            $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
+            $profile->phone = $request->phone;
+            $profile->job_title = $request->job_title;
+            $profile->users_id = $user->id;
+            $profile->company_id = $company->id;
+            $profile->save();
+
+            return redirect()->route('users')->with('success', 'Successfully added user');
+        } catch (\Exception $e) {
+            // Handle the exception
+            return back()->withErrors('Failed to add user. Error: ' . $e->getMessage());
+        }
+    }
+
 
     public function import(Request $request)
     {
@@ -105,10 +142,15 @@ class UsersController extends Controller
                 'status' => 1,
                 'payload' => $data
             ]);
+        } else {
+            $data = User::join('profiles', 'profiles.id', 'users.id')
+                ->join('company', 'company.id', 'profiles.company_id')
+                ->where('users.id', $id)
+                ->first();
+            return response()->json([
+                'status' => 1,
+                'payload' => $data
+            ]);
         }
-        return response()->json([
-            'status' => 0,
-            'payload' => null
-        ]);
     }
 }

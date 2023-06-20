@@ -164,6 +164,7 @@ Route::prefix('admin')->group(function () {
 
 
 Route::get('/admin/users', [UsersController::class, 'index'])->name('users');
+Route::post('/admin/users', [UsersController::class, 'store'])->name('users.store');
 Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
 
 Route::get('/admin/member', [UsersController::class, 'member'])->name('members');

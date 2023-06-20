@@ -63,6 +63,10 @@
             z-index: 10000;
             /* Atur nilai z-index yang lebih tinggi daripada modal */
         }
+
+        .myDiv {
+            display: none;
+        }
     </style>
 </head>
 
