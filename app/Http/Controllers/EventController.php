@@ -16,6 +16,7 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Http\Request;
@@ -994,6 +995,7 @@ Best Regards Bot DMC Website
             $save->users_id = $users_id;
             $save->events_id = $events_id;
             $save->payment_id = $payment_id;
+            $save->created_at = Carbon::now();
             $save->updated_at = null;
             $save->save();
 
