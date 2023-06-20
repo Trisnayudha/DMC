@@ -962,7 +962,7 @@ Best Regards Bot DMC Website
                 'company.company_category',
                 'company.company_other'
             )
-            ->orderBy('payment.updated_at', 'asc')
+            ->orderBy('payment.id', 'desc')
             ->get();
 
 
