@@ -563,9 +563,9 @@ Best Regards Bot DMC Website
         // dd($findEvent);
         if (!empty($update)) {
             $check = DB::table('payment')
-                ->join('users', 'users.id', 'payment.member_id')
-                ->join('company', 'company.users_id', 'users.id')
-                ->join('profiles', 'profiles.users_id', 'users.id')
+                ->leftJoin('users', 'users.id', 'payment.member_id')
+                ->leftJoin('company', 'company.users_id', 'users.id')
+                ->leftJoin('profiles', 'profiles.users_id', 'users.id')
                 ->select('payment.*', 'users.*', 'payment.id as payment_id', 'profiles.*', 'company.*')
                 ->where('payment.id', '=', $id)
                 ->first();

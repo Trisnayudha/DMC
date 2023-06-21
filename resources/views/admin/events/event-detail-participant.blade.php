@@ -75,7 +75,8 @@
                                                     <td>{{ $post->name }}</td>
                                                     <td>{{ $post->email }}</td>
                                                     <td>{{ $post->job_title }}</td>
-                                                    <td>{{ $post->company_name }}</td>
+                                                    <td>{{ $post->company_name . ($post->prefix ? ',' . $post->prefix : '') }}
+                                                    </td>
                                                     <td>{{ $post->phone }}</td>
                                                     <td>{{ $post->address }}</td>
                                                     @if ($post->end_date <= date('Y-m-d'))
