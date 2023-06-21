@@ -90,6 +90,12 @@ class XenditCallbackController extends Controller
                             ->get();
                         $detailWa = [];
                         $item_details = [];
+                        $image = QrCode::format('png')
+                            ->size(200)->errorCorrection('H')
+                            ->generate($external_id);
+                        $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                        $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                        Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                         foreach ($loopPayment as $data) {
                             $image = QrCode::format('png')
                                 ->size(200)->errorCorrection('H')
