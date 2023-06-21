@@ -952,6 +952,7 @@ Best Regards Bot DMC Website
                 'profiles.phone',
                 'company.address',
                 'company.company_name',
+                'company.prefix',
                 'users_event.present',
                 'users_event.created_at as created',
                 'users_event.updated_at as updated',
