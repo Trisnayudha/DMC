@@ -547,6 +547,49 @@
         <div class="loader"></div>
     </div>
     <script type="text/javascript">
+        $(document).ready(function() {
+            $('#company_category').on('change', function() {
+                var demovalue = $(this).val();
+                if (demovalue == 'other') {
+                    $('.myDiv').css('display', 'grid');
+                } else {
+                    $('.myDiv').css('display', 'none');
+                }
+            });
+        });
+        const xhttp = new XMLHttpRequest();
+        const select = document.getElementById("country");
+        const flag = document.getElementById("flag");
+
+        let country;
+
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                country = JSON.parse(xhttp.responseText);
+                assignValues();
+                handleCountryChange();
+            }
+        };
+        xhttp.open("GET", "https://restcountries.com/v3.1/all", true);
+        xhttp.send();
+
+        function assignValues() {
+            country.forEach(country => {
+                const option = document.createElement("option");
+                option.value = country.name.common; // Menggunakan nama negara sebagai nilai opsi
+                option.textContent = country.name.common; // Menggunakan nama negara sebagai teks opsi
+                select.appendChild(option);
+            });
+        }
+
+        function handleCountryChange() {
+            const countryData = country.find(
+                country => select.value === country.name.common // Membandingkan dengan nama negara
+            );
+            flag.style.backgroundImage = `url(${countryData.flags.svg})`; // Menggunakan URL bendera negara
+        }
+
+        select.addEventListener("change", handleCountryChange.bind(this));
         var availableSeats = 224;
         $(document).ready(function() {
             // atur event listener untuk checkbox

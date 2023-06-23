@@ -237,13 +237,22 @@
                                     Please enter your Job Title.
                                 </div>
                             </div>
-                            <div class="col-sm-12">
+                            <div class="col-sm-6">
                                 <label for="email" class="form-label">Email Address * <span
                                         class="text-muted"></span></label>
                                 <input type="email" class="form-control" name="email" id="email"
                                     placeholder="Your work email" required value="{{ old('email') }}">
                                 <div class="invalid-feedback">
                                     Please enter a valid email address.
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="address" class="form-label">Address * <span
+                                        class="text-muted"></span></label>
+                                <input type="text" class="form-control" name="address" id="address"
+                                    placeholder="" required value="{{ old('address') }}">
+                                <div class="invalid-feedback">
+
                                 </div>
                             </div>
                             <div class="col-sm-6 mb-3">
