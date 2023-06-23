@@ -57,6 +57,7 @@
                                                 <th>Company Address</th>
                                                 @if ($list[0]['end_date'] <= date('Y-m-d'))
                                                     <th>Company Category</th>
+                                                    <th>Country</th>
                                                 @endif
                                                 @if ($list[0]['end_date'] >= date('Y-m-d'))
                                                     <th>Date Send Confirmation</th>
@@ -75,14 +76,15 @@
                                                     <td>{{ $post->name }}</td>
                                                     <td>{{ $post->email }}</td>
                                                     <td>{{ $post->job_title }}</td>
-                                                    <td>{{ $post->company_name . ($post->prefix ? ',' . $post->prefix : '') }}
+                                                    <td>{{ $post->company_name . ($post->prefix ? ', ' . $post->prefix : '') }}
                                                     </td>
                                                     <td>{{ $post->phone }}</td>
                                                     <td>{{ $post->address }}</td>
                                                     @if ($post->end_date <= date('Y-m-d'))
-                                                        <td>{{ $post->company_category != null ? $post->company_category : $post->company_other }}
+                                                        <td>{{ $post->company_category != 'other' ? $post->company_category : $post->company_other }}
+                                                        </td>
+                                                        <td>{{ $post->country }}</td>
                                                     @endif
-                                                    </td>
                                                     @if ($post->end_date >= date('Y-m-d'))
                                                         <td>
                                                             @if ($post->created == null)

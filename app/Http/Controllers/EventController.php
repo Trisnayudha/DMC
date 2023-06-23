@@ -762,7 +762,6 @@ Best Regards Bot DMC Website
         $country = $request->country;
         $address = $request->address;
         $office_number = $request->office_number;
-
         $portal_code = $request->portal_code;
         $city = $request->city;
         $company_other = $request->company_other;
@@ -950,6 +949,7 @@ Best Regards Bot DMC Website
                 'payment.package',
                 'profiles.job_title',
                 'profiles.phone',
+                'company.country',
                 'company.address',
                 'company.company_name',
                 'company.prefix',

@@ -395,17 +395,17 @@
         function assignValues() {
             country.forEach(country => {
                 const option = document.createElement("option");
-                option.value = country.cioc;
-                option.textContent = country.name.common;
+                option.value = country.name.common; // Menggunakan nama negara sebagai nilai opsi
+                option.textContent = country.name.common; // Menggunakan nama negara sebagai teks opsi
                 select.appendChild(option);
             });
         }
 
         function handleCountryChange() {
             const countryData = country.find(
-                country => select.value === country.alpha2Code
+                country => select.value === country.name.common // Membandingkan dengan nama negara
             );
-            flag.style.backgroundImage = `url(${countryData.flag})`;
+            flag.style.backgroundImage = `url(${countryData.flags.svg})`; // Menggunakan URL bendera negara
         }
 
         select.addEventListener("change", handleCountryChange.bind(this));
