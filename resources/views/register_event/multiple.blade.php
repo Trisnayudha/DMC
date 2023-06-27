@@ -677,7 +677,8 @@
                                 'job_title': $(this).find('input[name="job_title"]').val(),
                                 'name': $(this).find('input[name="name"]').val(),
                                 'price': $('input[name="paymentMethod"]:checked').val(),
-                                'company': $(this).find('input[name="company"]').val()
+                                'company': $(this).find('input[name="company"]').val(),
+                                'events_id': '{{ $id }}'
                             }
                             if ($(this).hasClass('organiser')) {
                                 member.organiser = true;

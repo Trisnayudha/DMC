@@ -38,106 +38,94 @@ class SponsorController extends Controller
 
     public function register_sponsor(Request $request)
     {
-        $findSponsor = Sponsor::find($request->company);
-        foreach ($request->name as $key => $value) {
-            $uname = strtoupper(Str::random(7));
-            $codePayment = strtoupper(Str::random(7));
+        try {
+            $findSponsor = Sponsor::find($request->company);
+            $findEvent = Events::where('id', $request->events_id)->first();
+            foreach ($request->name as $key => $value) {
+                $uname = strtoupper(Str::random(7));
+                $codePayment = strtoupper(Str::random(7));
 
-            $findUser = User::firstOrNew(array('email' => $request->email[$key]));
-            $findUser->name = $request->name[$key];
-            $findUser->email = $request->email[$key];
-            $findUser->password = Hash::make('DMC2023');
-            $findUser->uname = $uname;
-            $findUser->save();
+                $findUser = User::firstOrNew(['email' => $request->email[$key]]);
+                $findUser->name = $request->name[$key];
+                $findUser->email = $request->email[$key];
+                $findUser->password = Hash::make('DMC2023');
+                $findUser->uname = $uname;
+                $findUser->save();
 
-            $id[] = [
-                'id' => $findUser->id,
-                'code_payment' => $codePayment
-            ];
-            $id_final = $id[0]['id'];
-            // $code_payment_final = $id[0]['code_payment'];
-            $string_office = $request->office_number;
-            $office_number = preg_replace('/[^0-9]/', '', $string_office);
-            $firstTwoDigits_office = substr($string_office, 1, 3);
-            $phone_office = substr($office_number, 2);
+                $findCompany = CompanyModel::where('users_id', $findUser->id)->first();
+                if (empty($findCompany)) {
+                    $findCompany = new CompanyModel();
+                }
+                $findCompany->company_name = $findSponsor->name;
+                $findCompany->office_number = $request->office_number;
+                $findCompany->address = $request->address;
+                $findCompany->company_website = $request->company_website;
+                $findCompany->users_id = $findUser->id;
+                $findCompany->save();
 
-            $findCompany = CompanyModel::where('users_id', $findUser->id)->first();
-            if (empty($findCompany)) {
-                $findCompany = new CompanyModel();
+                $findProfile = ProfileModel::where('users_id', $findUser->id)->first();
+                if (empty($findProfile)) {
+                    $findProfile = new ProfileModel();
+                }
+                $findProfile->users_id = $findUser->id;
+                $findProfile->fullphone = preg_replace('/[^0-9]/', '', $request->phone[$key]);
+                $findProfile->job_title = $request->job_title[$key];
+                $findProfile->phone = substr($findProfile->fullphone, 2);
+                $findProfile->prefix_phone = substr($findProfile->fullphone, 1, 3);
+                $findProfile->company_id = $findCompany->id;
+                $findProfile->save();
+
+                $image = QrCode::format('png')
+                    ->size(200)->errorCorrection('H')
+                    ->generate($codePayment);
+                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                Storage::disk('local')->put($output_file, $image);
+
+                $paymentData = [
+                    'member_id' => $findUser->id,
+                    'package' => 'Sponsors',
+                    'code_payment' => $codePayment,
+                    'link' => null,
+                    'events_id' => $findEvent->id,
+                    'tickets_id' => 3,
+                    'status_registration' => 'Paid Off',
+                    'groupby_users_id' => $findUser->id,
+                    'qr_code' => $db
+                ];
+
+                Payment::updateOrCreate(['member_id' => $findUser->id, 'events_id' => $findEvent->id], $paymentData);
+
+                $data = [
+                    'code_payment' => $codePayment,
+                    'create_date' => date('d, M Y H:i'),
+                    'users_name' => $request->name[$key],
+                    'users_email' => $request->email[$key],
+                    'phone' => $request->phone[$key],
+                    'job_title' => $request->job_title[$key],
+                    'company_name' => $findCompany->company_name,
+                    'company_address' => $findCompany->address,
+                    'events_name' => $findEvent->name,
+                    'start_date' => $findEvent->start_date,
+                    'end_date' => $findEvent->end_date,
+                    'start_time' => $findEvent->start_time,
+                    'end_time' => $findEvent->end_time,
+                    'image' => $db
+                ];
+                $email = $request->email[$key];
+
+                $pdf = Pdf::loadView('email.ticket', $data);
+                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
+                    $message->from(env('EMAIL_SENDER'));
+                    $message->to($email);
+                    $message->subject($codePayment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
+                    $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
+                });
             }
-            $findCompany->company_name = $findSponsor->name;
-            $findCompany->office_number = $request->office_number;
-            $findCompany->address = $request->address;
-            $findCompany->company_website = $request->company_website;
-            $findCompany->users_id = $findUser->id;
-            $findCompany->save();
 
-
-            $string = $request->phone[$key];
-            $number = preg_replace('/[^0-9]/', '', $string);
-            $firstTwoDigits = substr($string, 1, 3);
-            $phone = substr($number, 2);
-
-            $findProfile = ProfileModel::where('users_id', $findUser->id)->first();
-            if (empty($findProfile)) {
-                $findProfile = new ProfileModel();
-            }
-            $findProfile->users_id = $findUser->id;
-            $findProfile->fullphone = $number;
-            $findProfile->job_title = $request->job_title[$key];
-            $findProfile->phone = $phone;
-            $findProfile->prefix_phone = $firstTwoDigits;
-            $findProfile->company_id = $findCompany->id;
-            $findProfile->save();
-            $image = QrCode::format('png')
-                ->size(200)->errorCorrection('H')
-                ->generate($codePayment);
-            $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
-            $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
-            Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
-            $findPayment = Payment::where('member_id', $findUser->id)->where('events_id', '4')->first();
-            if (empty($findPayment)) {
-                $findPayment = new Payment();
-            }
-
-
-            $findPayment->member_id = $findUser->id;
-            $findPayment->package = 'Sponsors';
-            $findPayment->code_payment = $codePayment;
-            $findPayment->link = null;
-            $findPayment->events_id = 5;
-            $findPayment->tickets_id = 3;
-            $findPayment->status_registration = 'Paid Off';
-            $findPayment->groupby_users_id = $id_final;
-            $findPayment->qr_code = $db;
-            $findPayment->save();
-            $findEvent = Events::where('id', '5')->first();
-            $data = [
-                'code_payment' => $codePayment,
-                'create_date' => date('d, M Y H:i'),
-                'users_name' => $request->name[$key],
-                'users_email' => $request->email[$key],
-                'phone' => $request->phone[$key],
-                'job_title' => $request->job_title[$key],
-                'company_name' => $findCompany->company_name,
-                'company_address' => $findCompany->address,
-                'events_name' => $findEvent->name,
-                'start_date' => $findEvent->start_date,
-                'end_date' => $findEvent->end_date,
-                'start_time' => $findEvent->start_time,
-                'end_time' => $findEvent->end_time,
-                'image' => $db
-            ];
-            $email =  $request->email[$key];
-
-            $pdf = Pdf::loadView('email.ticket', $data);
-            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
-                $message->from(env('EMAIL_SENDER'));
-                $message->to($email);
-                $message->subject($codePayment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
-                $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
-            });
+            return redirect()->back()->with('alert', 'Successfully Registering Sponsor');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
-        return redirect()->back()->with('alert', 'Successfully Registering Sponsor');
     }
 }

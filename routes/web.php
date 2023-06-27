@@ -5,6 +5,8 @@ use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventsConferenceController;
 use App\Http\Controllers\EventsHighlightController;
+use App\Http\Controllers\EventsPaymentController;
+use App\Http\Controllers\EventsRegisterController;
 use App\Http\Controllers\EventsTicketController;
 use App\Http\Controllers\FormMemberController;
 use App\Http\Controllers\MarketingAdsController;
@@ -62,11 +64,12 @@ Route::get('/term', function () {
 // Route::get('/special-event/free', [SpecialEventController::class, 'free']);
 // Route::post('regis-special-event', [SpecialEventController::class, 'store']);
 
-Route::get('/{slug}/register-event', [EventController::class, 'view2']);
-Route::post('/payment-multiple', [EventController::class, 'NewPaymentMultiple']);
 
-Route::get('/{slug}/register-event/exclusive-invitation', [EventController::class, 'free']);
-Route::post('/payment-personal', [EventController::class, 'payment_personal']);
+Route::get('/{slug}/register-event/exclusive-invitation', [EventsRegisterController::class, 'single']);
+Route::post('/payment-personal', [EventsPaymentController::class, 'payment_personal']);
+
+Route::get('/{slug}/register-event', [EventsRegisterController::class, 'multiple']);
+Route::post('/payment-multiple', [EventsPaymentController::class, 'payment_multiple']);
 
 Route::get('/{slug}/register-event/sponsor', [SponsorController::class, 'sponsor']);
 Route::post('/regis-sponsor', [SponsorController::class, 'register_sponsor']);

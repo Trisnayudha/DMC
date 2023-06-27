@@ -155,6 +155,8 @@
                         @endif
                         @csrf
                         <!-- {{ csrf_field() }} -->
+                        <input type="hidden" name="events_id" id="events_id" value="{{ $events->id }}">
+
                         <div class="row g-3">
                             <div class="col-sm-12">
                                 <label for="">Choose your Company</label>
@@ -171,7 +173,6 @@
                         </div>
                         <br>
                         <div class="row g-3">
-
                             <div class="col-sm-6">
                                 <label for="name" class="form-label">Full name *</label>
                                 <input type="text" class="form-control" name="name[]" placeholder=""
