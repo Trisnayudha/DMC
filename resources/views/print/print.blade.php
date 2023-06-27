@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <link href="https://www.dafontfree.net/embed/bm93LWJvbGQmZGF0YS81MC9uLzMxNDMxL05vdy1Cb2xkLm90Zg" rel="stylesheet"
-        type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast/dist/css/iziToast.min.css">
     <style>
         /* Styles for the screen */
         @font-face {
@@ -16,7 +15,6 @@
             font-weight: normal;
             src: url('font/Now-Regular.woff') format('truetype');
         }
-
 
         body {
             margin: 0;
@@ -37,7 +35,8 @@
             nav,
             aside,
             time,
-            address {
+            address,
+            .toast-container {
                 display: none !important;
             }
         }
@@ -66,14 +65,22 @@
             <span style="font-size: 17px" contenteditable="true"> {{ $company }} </span>
         </div>
     </div>
-</body>
 
-<script>
-    window.focus();
-    // window.print();
-    // window.onafterprint = function() {
-    //     window.close();
-    // };
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
+    <script>
+        window.focus();
+
+        iziToast.show({
+            title: '{{ $package }}'.toUpperCase(),
+            position: 'topRight',
+            backgroundColor: '#28a745',
+            onClosed: function() {
+                setTimeout(function() {
+                    window.print();
+                }, 10);
+            }
+        });
+    </script>
+</body>
 
 </html>

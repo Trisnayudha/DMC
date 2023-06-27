@@ -11,13 +11,203 @@
                     </div>
                 </div>
             </div>
+
             <div class="section-body">
                 <h2 class="section-title">Event Detail </h2>
                 <div class="row">
                     <div class="col-lg-12">
+
                         <div class="card">
                             <div class="card-header">
-                                <h4>Event Detail Management</h4>
+                                <h4>Detail Registration</h4>
+                                <div class="card-header-action">
+                                    <a data-collapse="#detail-registration" class="btn btn-icon btn-info" href="#"><i
+                                            class="fas fa-plus"></i></a>
+                                </div>
+                            </div>
+                            <div class="collapse" id="detail-registration">
+                                <div class="card-body" style="background: #f8f9fa">
+                                    <div class="row">
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <div class="card card-statistic-1">
+                                                <div class="card-icon bg-primary">
+                                                    <i class="far fa-user"></i>
+                                                </div>
+                                                <div class="card-wrap">
+                                                    <div class="card-header">
+                                                        <h4>Total All Pendaftar</h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        10
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <div class="card card-statistic-1">
+                                                <div class="card-icon bg-info">
+                                                    <i class="far fa-user"></i>
+                                                </div>
+                                                <div class="card-wrap">
+                                                    <div class="card-header">
+                                                        <h4>Total Pendaftar <b> Sponsor</b></h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        10
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <div class="card card-statistic-1">
+                                                <div class="card-icon bg-danger">
+                                                    <i class="far fa-user"></i>
+                                                </div>
+                                                <div class="card-wrap">
+                                                    <div class="card-header">
+                                                        <h4>Total Pendaftar <b> Berbayar</b></h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        10
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                                            <div class="card card-statistic-1">
+                                                <div class="card-icon bg-warning">
+                                                    <i class="far fa-user"></i>
+                                                </div>
+                                                <div class="card-wrap">
+                                                    <div class="card-header">
+                                                        <h4>Total Pendaftar <b> Gratis</b></h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        10
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 col-md-6 col-lg-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h4>Pie Chart</h4>
+                                                </div>
+                                                <div class="card-body">
+                                                    <canvas id="myChart4"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Tambah Peserta</h4>
+                                <div class="card-header-action">
+                                    <a data-collapse="#tambah-peserta" class="btn btn-icon btn-info" href="#"><i
+                                            class="fas fa-plus"></i></a>
+                                </div>
+                            </div>
+                            <div class="collapse" id="tambah-peserta">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <form action="{{ route('events.add.check') }}" method="post">
+                                                @csrf
+                                                <input type="hidden" name="event" value="{{ $slug }}">
+                                                <div class="form-group">
+                                                    <label for="nama">Nama</label>
+                                                    <select name="nama" id="nama" class="form-control select2"
+                                                        required>
+                                                        <option value="">Default</option>
+                                                        @foreach ($users as $value)
+                                                            <option value="{{ $value->id }}">{{ $value->name }} -
+                                                                {{ $value->email }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="name">Ticket</label>
+                                                    <select name="ticket" id="" class="form-control select2">
+                                                        <option value="free">Invitation ( Free No Cost Non Sponsor )
+                                                        </option>
+                                                        <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
+                                                        <option value="member">Membership ( Rp. 900.000 )</option>
+                                                        <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <input type="checkbox" name="pilihan" class="custom-switch-input"
+                                                        checked>
+                                                    <span class="custom-switch-indicator"></span>
+                                                    <span class="custom-switch-description">Send Notification</span>
+                                                </div>
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary add-user">Add
+                                                    peserta</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Print Badges ( Without Record Present )</h4>
+                                <div class="card-header-action">
+                                    <a data-collapse="#print-badges" class="btn btn-icon btn-info" href="#"><i
+                                            class="fas fa-plus"></i></a>
+                                </div>
+                            </div>
+                            <div class="collapse" id="print-badges">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="text-input"> Code Access</label>
+                                                <input type="text" class="form-control" name="text-input"
+                                                    id="text-input">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Table of Registration</h4>
+                                <div class="card-header-action">
+                                    <div class="dropdown d-inline mr-2">
+                                        <button class="btn btn-primary dropdown-toggle" type="button"
+                                            id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="false">
+                                            Filter Table
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="#">Paid</a>
+                                            <a class="dropdown-item" href="#">Sponsor</a>
+                                            <a class="dropdown-item" href="#">Free</a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body">
                                 @if ($errors->any())
@@ -42,7 +232,8 @@
 
                                 <div class="float-right ml-3">
                                     <a href="javascript:;"
-                                        class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3" id="modal-2">
+                                        class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
+                                        id="modal-2">
                                         <i class="fas fa-plus-circle"></i>
                                         Tambah Peserta
                                     </a>
@@ -52,6 +243,12 @@
                                         class="btn btn-block btn-icon icon-left btn-info btn-filter mb-3">
                                         <i class="fa fa-users"></i>
                                         View Participant Approve
+                                    </a>
+                                </div>
+                                <div class="float-right ml-3">
+                                    <a href="{{ url('scan') }}"
+                                        class="btn btn-block btn-icon icon-left btn-light btn-filter mb-3">
+                                        Scan Present Page
                                     </a>
                                 </div>
 
@@ -132,17 +329,20 @@
                                                                 </li>
                                                             </form>
                                                             @if ($post->status_registration == 'Expired')
-                                                                <form action="{{ url('renewal-payment') }}" method="post">
+                                                                <form action="{{ url('renewal-payment') }}"
+                                                                    method="post">
                                                                     <li>
                                                                         @csrf
-                                                                        <input type="hidden" name="id" id="id"
+                                                                        <input type="hidden" name="id"
+                                                                            id="id"
                                                                             value="{{ $post->payment_id }}">
                                                                         <button type="submit"
                                                                             class="dropdown-item">Renewal</button>
                                                                     </li>
                                                                 </form>
                                                             @endif
-                                                            <form action="{{ url('remove-participant') }}" method="post">
+                                                            <form action="{{ url('remove-participant') }}"
+                                                                method="post">
                                                                 <li>
                                                                     @csrf
                                                                     <input type="hidden" name="id" id="id"
@@ -182,166 +382,123 @@
                 </div>
                 <div class="modal-body">
 
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-tab="mygroup-tab" href="#tab-home">Check Database</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-tab="mygroup-tab" href="#tab-profile">Tambah data</a>
-                        </li>
-                    </ul>
-                    <div id="tab-home" class="active" data-tab-group="mygroup-tab">
-                        <form action="{{ route('events.add.check') }}" method="post">
-                            @csrf
-                            <input type="hidden" name="event" value="{{ $slug }}">
-                            <div class="form-group">
-                                <label for="nama">Nama</label>
-                                <select name="nama" id="nama" class="form-control select2">
-                                    @foreach ($users as $value)
-                                        <option value="{{ $value->id }}">{{ $value->name }} - {{ $value->email }}
+                    <form action="{{ Route('events.add.invitation') }}" method="post">
+                        @csrf
+                        <div class="row">
+
+                            <div class="col-6">
+                                <div class="form-group">
+
+                                    <label for="company_name" class="form-label">PT</label>
+                                    <select class="form-control" id="prefix" name="prefix" required>
+                                        <option value="PT">PT</option>
+                                        <option value="CV">CV</option>
+                                        <option value="Ltd">Ltd</option>
+                                        <option value="GmbH">GmbH</option>
+                                        <option value="Limited">Limited</option>
+                                        <option value="Llc">Llc</option>
+                                        <option value="Corp">Corp</option>
+                                        <option value="Pte Ltd">Pte Ltd</option>
+                                        <option value="Assosiation">Assosiation</option>
+                                        <option value="Government">Government</option>
+                                        <option value="Pty Ltd">Pty Ltd</option>
+                                        <option value="">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name"> Name</label>
+                                    <input type="text" class="form-control" name="name" id="name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="company_website"> Company Website</label>
+                                    <input type="text" class="form-control" name="company_website"
+                                        id="company_website">
+                                </div>
+                                <div class="form-group">
+                                    <label for="job_title"> Job Title</label>
+                                    <input type="text" class="form-control" name="job_title" id="job_title">
+                                </div>
+                                <div class="form-group">
+                                    <label for="country" class="form-label">Country * </label>
+                                    <select class="form-control js-example-basic-single" name="country" id="country"
+                                        placeholder="" required>
+                                        <option value="Indonesia" selected>Indonesia</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please provide a valid Country
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="company_name"> Company Name</label>
+                                    <input type="text" class="form-control" name="company_name" id="company_name">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email"> Email</label>
+                                    <input type="text" class="form-control" name="email" id="email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone"> Phone number</label>
+                                    <input type="text" class="form-control" name="phone" id="phone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="address">Address</label>
+                                    <input type="text" class="form-control" name="address" id="address">
+                                </div>
+                                <div class="form-group">
+                                    <label for="office_number">Office Number</label>
+                                    <input type="text" class="form-control" name="office_number" id="office_number">
+                                </div>
+
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="company_category" class="form-label">Company Category *</label>
+                                    <select class="form-control js-example-basic-single d-block w-100"
+                                        name="company_category" id="company_category" required>
+                                        <option value="">--Select--</option>
+                                        <option value="Coal Mining">Coal Mining</option>
+                                        <option value="Minerals Producer">Minerals Producer</option>
+                                        <option value="Supplier/Distributor/Manufacturer">
+                                            Supplier/Distributor/Manufacturer
                                         </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="name">Ticket</label>
-                                <select name="ticket" id="" class="form-control select2">
-                                    <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
-                                    <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
-                                    <option value="member">Membership ( Rp. 900.000 )</option>
-                                    <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <input type="checkbox" name="pilihan" class="custom-switch-input" checked>
-                                <span class="custom-switch-indicator"></span>
-                                <span class="custom-switch-description">Send Notification</span>
-                            </div>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button class="btn btn-primary">Add peserta</button>
-                        </form>
-                    </div>
-                    <div id="tab-profile" data-tab-group="mygroup-tab">
-                        <form action="{{ Route('events.add.invitation') }}" method="post">
-                            @csrf
-                            <div class="row">
-
-                                <div class="col-6">
-                                    <div class="form-group">
-
-                                        <label for="company_name" class="form-label">PT</label>
-                                        <select class="form-control" id="prefix" name="prefix" required>
-                                            <option value="PT">PT</option>
-                                            <option value="CV">CV</option>
-                                            <option value="Ltd">Ltd</option>
-                                            <option value="GmbH">GmbH</option>
-                                            <option value="Limited">Limited</option>
-                                            <option value="Llc">Llc</option>
-                                            <option value="Corp">Corp</option>
-                                            <option value="Pte Ltd">Pte Ltd</option>
-                                            <option value="Assosiation">Assosiation</option>
-                                            <option value="Government">Government</option>
-                                            <option value="Pty Ltd">Pty Ltd</option>
-                                            <option value="">Other</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="name"> Name</label>
-                                        <input type="text" class="form-control" name="name" id="name">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="company_website"> Company Website</label>
-                                        <input type="text" class="form-control" name="company_website"
-                                            id="company_website">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="job_title"> Job Title</label>
-                                        <input type="text" class="form-control" name="job_title" id="job_title">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="country" class="form-label">Country * </label>
-                                        <select class="form-control js-example-basic-single" name="country"
-                                            id="country" placeholder="" required>
-                                            <option value="Indonesia" selected>Indonesia</option>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Please provide a valid Country
-                                        </div>
-                                    </div>
-
+                                        <option value="Contrator">Contrator</option>
+                                        <option value="Association / Organization / Government">
+                                            Association / Organization / Government</option>
+                                        <option value="Financial Services">Financial Services</option>
+                                        <option value="Technology">Technology</option>
+                                        <option value="Investors">Investors</option>
+                                        <option value="Logistics and Shipping">Logistics and Shipping</option>
+                                        <option value="Media">Media</option>
+                                        <option value="Consultant">Consultant</option>
+                                        <option value="other">Other</option>
+                                    </select>
                                 </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label for="company_name"> Company Name</label>
-                                        <input type="text" class="form-control" name="company_name"
-                                            id="company_name">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="email"> Email</label>
-                                        <input type="text" class="form-control" name="email" id="email">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="phone"> Phone number</label>
-                                        <input type="text" class="form-control" name="phone" id="phone">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="address">Address</label>
-                                        <input type="text" class="form-control" name="address" id="address">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="office_number">Office Number</label>
-                                        <input type="text" class="form-control" name="office_number"
-                                            id="office_number">
-                                    </div>
-
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-group">
-                                        <label for="company_category" class="form-label">Company Category *</label>
-                                        <select class="form-control js-example-basic-single d-block w-100"
-                                            name="company_category" id="company_category" required>
-                                            <option value="">--Select--</option>
-                                            <option value="Coal Mining">Coal Mining</option>
-                                            <option value="Minerals Producer">Minerals Producer</option>
-                                            <option value="Supplier/Distributor/Manufacturer">
-                                                Supplier/Distributor/Manufacturer
-                                            </option>
-                                            <option value="Contrator">Contrator</option>
-                                            <option value="Association / Organization / Government">
-                                                Association / Organization / Government</option>
-                                            <option value="Financial Services">Financial Services</option>
-                                            <option value="Technology">Technology</option>
-                                            <option value="Investors">Investors</option>
-                                            <option value="Logistics and Shipping">Logistics and Shipping</option>
-                                            <option value="Media">Media</option>
-                                            <option value="Consultant">Consultant</option>
-                                            <option value="other">Other</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group myDiv">
-                                        <label for="company_other" class="form-label">Company Other *</label>
-                                        <input type="text" class="form-control" name="company_other" placeholder="">
-                                        <div class="invalid-feedback">
-                                            Please enter your Company Other
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="name">Ticket</label>
-                                        <select name="ticket" id="" class="form-control">
-                                            <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
-                                            <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
-                                            <option value="member">Membership ( Rp. 900.000 )</option>
-                                            <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
-                                        </select>
+                                <div class="form-group myDiv">
+                                    <label for="company_other" class="form-label">Company Other *</label>
+                                    <input type="text" class="form-control" name="company_other" placeholder="">
+                                    <div class="invalid-feedback">
+                                        Please enter your Company Other
                                     </div>
                                 </div>
-
+                                <div class="form-group">
+                                    <label for="name">Ticket</label>
+                                    <select name="ticket" id="" class="form-control">
+                                        <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
+                                        <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
+                                        <option value="member">Membership ( Rp. 900.000 )</option>
+                                        <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
+                                    </select>
+                                </div>
                             </div>
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button class="btn btn-primary">Add peserta</button>
-                        </form>
-                    </div>
+
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary">Add peserta</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -392,41 +549,119 @@
             </div>
         </div>
     </div>
-
+    <div id="loader" style="display:none">
+        <div class="loader"></div>
+    </div>
 @endsection
+@push('top')
+    <style>
+        #loader {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #3498db;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+@endpush
 @push('bottom')
     <script>
+        //Untuk Scan
+        $("#text-input").on("input", function() {
+            if ($(this).val().length >= 7) {
+                Swal.fire({
+                    title: "Loading",
+                    text: "Please wait...",
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    onBeforeOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                setTimeout(function() {
+                    $.ajax({
+                        url: "{{ url('scan/request') }}",
+                        type: "POST",
+                        data: {
+                            input_text: $("#text-input").val()
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            console.log(response)
+                            Swal.close();
+                            if (response.status == 1) {
+
+                                Swal.fire({
+                                    title: "Success Scan",
+                                    text: response.message,
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                                window.open("{{ url('scan/print?name=') }}" + response
+                                    .data.name + "&company=" + response.data.company_name +
+                                    "&package=" + response.data.package,
+                                    "_blank");
+
+                            } else {
+                                Swal.fire({
+                                    title: "Error Scan",
+                                    text: response.message,
+                                    type: "error",
+                                    confirmButtonText: "OK"
+                                });
+                            }
+                            $("#text-input").val("");
+                            // window.location.href = "http://127.0.0.1:8000/scan/success";
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.close();
+                            Swal.fire({
+                                title: "Error Scan",
+                                text: "Error scanning input text!",
+                                type: "error",
+                                confirmButtonText: "OK"
+                            });
+                        }
+                    });
+
+                }, 1000);
+            }
+        });
+
+
         $('#modal-2').click(function() {
             $('#example').modal('show');
         });
         $('#edit-button').click(function() {
             $('#edit').modal('show');
         });
-        $(document).ready(function() {
-            $('#laravel_crud').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5',
-                    'pdfHtml5'
-                ]
-            });
-
-        });
-        $(document).ready(function() {
-            $('#company_category').on('change', function() {
-                var demovalue = $(this).val();
-                if (demovalue == 'other') {
-                    $('.myDiv').css('display', 'grid');
-                } else {
-                    $('.myDiv').css('display', 'none');
-                }
-            });
-            $('.js-example-basic-single').select2();
-        });
-        // Menggunakan jQuery
+        //show data edit
         $(document).ready(function() {
             // Event handler ketika tombol edit di klik
             $(document).on('click', '.edit-button', function() {
@@ -456,12 +691,57 @@
                 });
             });
         });
+
+        $(document).ready(function() {
+            //table
+            $('#laravel_crud').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ]
+            });
+
+            //validasi
+            $(".add-user").click(function(e) {
+                // Validasi formulir
+                var isValid = true;
+                $("form").find(":required").each(function() {
+                    if ($(this).is("select")) { // Periksa apakah elemen adalah <select>
+                        if ($(this).val() === '' || $(this).val() === null) {
+                            isValid = false;
+                            return false; // Menghentikan iterasi jika ada input yang kosong
+                        }
+                    } else {
+                        if ($(this).val().trim() === '') {
+                            isValid = false;
+                            return false; // Menghentikan iterasi jika ada input yang kosong
+                        }
+                    }
+                });
+            });
+        });
+        //Category Other Show
+        $(document).ready(function() {
+            $('#company_category').on('change', function() {
+                var demovalue = $(this).val();
+                if (demovalue == 'other') {
+                    $('.myDiv').css('display', 'grid');
+                } else {
+                    $('.myDiv').css('display', 'none');
+                }
+            });
+            $('.js-example-basic-single').select2();
+        });
+
+
+        // Menggunakan jQuery
         const xhttp = new XMLHttpRequest();
         const select = document.getElementById("country");
         const flag = document.getElementById("flag");
-
         let country;
-
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 country = JSON.parse(xhttp.responseText);
@@ -485,9 +765,8 @@
             const countryData = country.find(
                 country => select.value === country.name.common // Membandingkan dengan nama negara
             );
-            flag.style.backgroundImage = `url(${countryData.flags.svg})`; // Menggunakan URL bendera negara
+            // flag.style.backgroundImage = `url(${countryData.flags.svg})`; // Menggunakan URL bendera negara
         }
-
         select.addEventListener("change", handleCountryChange.bind(this));
     </script>
 @endpush

@@ -17,18 +17,21 @@ class PrintController extends Controller
             $findUsers = User::where('users.id', $check->member_id)->join('company', 'company.users_id', 'users.id')->first();
             $data = [
                 'name' => $findUsers->name,
-                'company_name' => $findUsers->company_name
+                'company_name' => $findUsers->company_name,
+                'package' => $check->package,
             ];
-
-            $save = UserRegister::where('payment_id', $check->id)->first();
-            if (empty($save)) {
-                $save = new UserRegister();
+            if (empty($nosave)) {
+                $save = UserRegister::where('payment_id', $check->id)->first();
+                if (empty($save)) {
+                    $save = new UserRegister();
+                }
+                $save->users_id = $check->member_id;
+                $save->events_id = $check->events_id;
+                $save->payment_id = $check->id;
+                $save->present = 1;
+                $save->save();
             }
-            $save->users_id = $check->member_id;
-            $save->events_id = $check->events_id;
-            $save->payment_id = $check->id;
-            $save->present = 1;
-            $save->save();
+
             $response['status'] = 1;
             $response['message'] = 'Success Scan QR Code';
             $response['data'] = $data;
@@ -49,6 +52,7 @@ class PrintController extends Controller
         $data = [
             'name' => $request->name,
             'company' => $request->company,
+            'package' => $request->package,
         ];
         return view('print.print', $data);
     }
