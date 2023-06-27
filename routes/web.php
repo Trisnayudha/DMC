@@ -4,6 +4,8 @@ use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventsConferenceController;
+use App\Http\Controllers\EventsDetailController;
+use App\Http\Controllers\EventsDetailParticipantController;
 use App\Http\Controllers\EventsHighlightController;
 use App\Http\Controllers\EventsPaymentController;
 use App\Http\Controllers\EventsRegisterController;
@@ -94,19 +96,23 @@ Route::get('payment', [PaymentController::class, 'index'])->name('payment');
 
 Route::get('/events-sementara', [EventController::class, 'sementara'])->name('events-sementara');
 
-Route::post('/request-event', [EventController::class, 'request']);
-
+// Events List
 Route::get('/events', [EventController::class, 'index'])->name('events');
 Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
 Route::get('/events/edit/{id}', [EventController::class, 'edit'])->name('events.edit');
 Route::post('/events/update', [EventController::class, 'update'])->name('events.update');
 Route::post('events/store', [EventController::class, 'store'])->name('events.store');
-Route::get('/events/{slug}/detail', [EventController::class, 'detail'])->name('events-details');
-Route::get('/events/{slug}/detail-participant', [EventController::class, 'detail_participant'])->name('events-details-participant');
-Route::post('/events/addCheck', [EventController::class, 'dataCheck'])->name('events.add.check');
-Route::post('/events/addInvitation', [EventController::class, 'regisInvitation'])->name('events.add.invitation');
-Route::post('/events/confirmation', [EventController::class, 'sendParticipant'])->name('events-send-participant');
+
+// Events Detail
+Route::get('/events/{slug}/detail', [EventsDetailController::class, 'detail'])->name('events-details');
+Route::post('/events/addUser', [EventsDetailController::class, 'add_user'])->name('events.add.user');
+Route::post('/events/addInvitation', [EventsDetailController::class, 'add_invitation'])->name('events.add.invitation');
+Route::post('/request-event', [EventsDetailController::class, 'request']);
 Route::get('/edit/user/{id}', [UsersController::class, 'editUserEvent']); //Edit user yg di dalam event
+
+// Events Detail participant
+Route::get('/events/{slug}/detail-participant', [EventsDetailParticipantController::class, 'detail_participant'])->name('events-details-participant');
+Route::post('/events/confirmation', [EventsDetailParticipantController::class, 'sendParticipant'])->name('events-send-participant');
 //Events Category
 Route::get('/events/category', [EventCategoryController::class, 'index'])->name('events.category');
 Route::post('/events/addcategory', [EventCategoryController::class, 'store']);

@@ -121,7 +121,7 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-12">
-                                            <form action="{{ route('events.add.check') }}" method="post">
+                                            <form action="{{ route('events.add.user') }}" method="post">
                                                 @csrf
                                                 <input type="hidden" name="event" value="{{ $slug }}">
                                                 <div class="form-group">
