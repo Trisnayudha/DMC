@@ -58,18 +58,24 @@ Route::get('/term', function () {
 });
 
 // Route::get('/register-event', [EventController::class, 'view2']);
-Route::get('/{slug}/register-event', [EventController::class, 'view2']);
-Route::get('/{slug}/register-event/exclusive-invitation', [EventController::class, 'free']);
 // Route::get('/register-event/multiple', [EventController::class, 'view']);
-Route::get('/special-event/free', [SpecialEventController::class, 'free']);
-Route::post('regis-special-event', [SpecialEventController::class, 'store']);
-Route::get('/register-event/sponsor', [SponsorController::class, 'sponsor']);
-Route::get('/sponsor/{id}', [SponsorController::class, 'show_sponsor']);
-Route::post('/regis-sponsor', [SponsorController::class, 'register_sponsor']);
-Route::post('/regis-multiple', [EventController::class, 'register_multiple']);
-Route::post('/payment-personal', [EventController::class, 'payment_personal']);
+// Route::get('/special-event/free', [SpecialEventController::class, 'free']);
+// Route::post('regis-special-event', [SpecialEventController::class, 'store']);
+
+Route::get('/{slug}/register-event', [EventController::class, 'view2']);
 Route::post('/payment-multiple', [EventController::class, 'NewPaymentMultiple']);
-Route::post('/register/email', [FormMemberController::class, 'check_email']);
+
+Route::get('/{slug}/register-event/exclusive-invitation', [EventController::class, 'free']);
+Route::post('/payment-personal', [EventController::class, 'payment_personal']);
+
+Route::get('/{slug}/register-event/sponsor', [SponsorController::class, 'sponsor']);
+Route::post('/regis-sponsor', [SponsorController::class, 'register_sponsor']);
+Route::get('/sponsor/{id}', [SponsorController::class, 'show_sponsor']);
+
+// Route::post('/regis-multiple', [EventController::class, 'register_multiple']);
+// Route::post('/register/email', [FormMemberController::class, 'check_email']);
+
+
 Route::post('renewal-payment', [PaymentController::class, 'renewal']);
 Route::post('remove-participant', [PaymentController::class, 'removeParticipant']);
 

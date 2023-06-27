@@ -17,11 +17,11 @@
                 <i class="fas fa-desktop"></i>
                 <span>Dashboard</span></a>
         </li>
-        <li class="">
+        {{-- <li class="">
             <a class="nav-link" href="{{ Route('special-event') }}">
                 <i class="fa fa-university" aria-hidden="true"></i>
                 <span>Events Special</span></a>
-        </li>
+        </li> --}}
         <li class="">
             <a class="nav-link" href="{{ Route('members') }}">
                 <i class="fa fa-user" aria-hidden="true"></i>

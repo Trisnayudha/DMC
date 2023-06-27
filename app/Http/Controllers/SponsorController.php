@@ -18,10 +18,12 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class SponsorController extends Controller
 {
-    public function sponsor()
+    public function sponsor($slug)
     {
+        $event = Events::where('slug', $slug)->first();
         $company = Sponsor::get();
         $data = [
+            'events' => $event,
             'company' => $company
         ];
         return view('register_event.sponsor', $data);

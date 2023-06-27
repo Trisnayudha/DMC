@@ -47,13 +47,26 @@
                                         Tambah Peserta
                                     </a>
                                 </div>
-                                <div class="float-right">
+                                <div class="float-right ml-3">
                                     <a href="{{ Route('events-details-participant', $slug) }}"
                                         class="btn btn-block btn-icon icon-left btn-info btn-filter mb-3">
                                         <i class="fa fa-users"></i>
                                         View Participant Approve
                                     </a>
                                 </div>
+
+                                <div class="float-right ml-3 dropdown">
+                                    <a href="#" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">Link
+                                        Pendaftaran</a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a href="{{ url($slug . '/register-event') }}" class="dropdown-item">Berbayar</a>
+                                        <a href="{{ url($slug . '/register-event/exclusive-invitation') }}"
+                                            class="dropdown-item">Exclusive Gratis</a>
+                                        <a href="{{ url($slug . '/register-event/sponsor') }}"
+                                            class="dropdown-item">Sponsors</a>
+                                    </div>
+                                </div>
+
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
                                         <thead>

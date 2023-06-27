@@ -107,7 +107,7 @@
                     <p>Title</p>
                 </div>
                 <div class="col-9">
-                    <p>: The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia</p>
+                    <p>: {{ $events->name }}</p>
                 </div>
                 <div class="col-3">
                     <p>
@@ -124,9 +124,11 @@
 
                 <div class="col-9">
                     <p>
-                        : Wednesday - 21 June 2023
+                        :
+                        {{ date('l', strtotime($events->start_date)) . ' - ' . date(' j F Y', strtotime($events->end_date)) }}
                     </p>
-                    <p>: 04.00 pm - 07.00 pm (Jakarta Time) </p>
+                    <p>: {{ date('h.i a', strtotime($events->start_time)) . ' - ' . date('h.i a', strtotime($events->end_time)) }}
+                        (Jakarta Time) </p>
                     <p>: Live - Networking Dinner</p>
                     <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
 
