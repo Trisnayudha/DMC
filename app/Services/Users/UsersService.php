@@ -75,6 +75,15 @@ class UsersService extends User
 
         $users = $query->get();
 
+        $jobTitles = $users->pluck('job_title')->toArray();
+
+        // Filter out invalid entries (non-string and non-integer values)
+        $filteredJobTitles = array_filter($jobTitles, function ($value) {
+            return is_string($value) || is_int($value);
+        });
+
+        $jobTitleCounts = array_count_values($filteredJobTitles);
+
         $jobTitleData = [
             'labels' => [],
             'datasets' => [
@@ -85,9 +94,6 @@ class UsersService extends User
             ],
         ];
 
-        $jobTitles = $users->pluck('job_title')->toArray();
-        $jobTitleCounts = array_count_values($jobTitles);
-
         foreach ($jobTitleCounts as $jobTitle => $count) {
             $jobTitleData['labels'][] = $jobTitle;
             $jobTitleData['datasets'][0]['data'][] = $count;
@@ -96,6 +102,7 @@ class UsersService extends User
 
         return $jobTitleData;
     }
+
 
 
     private static function generateColorPalette($count, $colorPalette)
