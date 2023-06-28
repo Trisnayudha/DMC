@@ -34,7 +34,10 @@ use Symfony\Component\HttpKernel\Profiler\Profile;
 
 class EventController extends Controller
 {
-
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function index()
     {
         $list = Events::orderBy('id', 'desc')->get();

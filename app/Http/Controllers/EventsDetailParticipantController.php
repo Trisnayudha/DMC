@@ -17,6 +17,11 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class EventsDetailParticipantController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function detail_participant($slug)
     {
         $findEvent = Events::where('slug', $slug)->first();

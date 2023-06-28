@@ -81,8 +81,6 @@ Route::get('/sponsor/{id}', [SponsorController::class, 'show_sponsor']);
 // Route::post('/register/email', [FormMemberController::class, 'check_email']);
 
 
-Route::post('renewal-payment', [PaymentController::class, 'renewal']);
-Route::post('remove-participant', [PaymentController::class, 'removeParticipant']);
 
 Auth::routes([
     'register' => false, // Registration Routes...
@@ -107,8 +105,11 @@ Route::post('events/store', [EventController::class, 'store'])->name('events.sto
 Route::get('/events/{slug}/detail', [EventsDetailController::class, 'detail'])->name('events-details');
 Route::post('/events/addUser', [EventsDetailController::class, 'add_user'])->name('events.add.user');
 Route::post('/events/addInvitation', [EventsDetailController::class, 'add_invitation'])->name('events.add.invitation');
-Route::post('/request-event', [EventsDetailController::class, 'request']);
+Route::post('/events/action', [EventsDetailController::class, 'action']);
 Route::get('/edit/user/{id}', [UsersController::class, 'editUserEvent']); //Edit user yg di dalam event
+Route::post('remove-participant', [EventsDetailController::class, 'removeParticipant']);
+Route::post('renewal-payment', [PaymentController::class, 'renewal']);
+
 
 // Events Detail participant
 Route::get('/events/{slug}/detail-participant', [EventsDetailParticipantController::class, 'detail_participant'])->name('events-details-participant');

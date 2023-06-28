@@ -23,11 +23,13 @@ use Xendit\Xendit;
 
 class EventsDetailController extends Controller
 {
-
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function detail($slug)
     {
         try {
-            $this->middleware('auth');
 
             $event = Events::where('slug', $slug)->first();
 
@@ -326,7 +328,7 @@ class EventsDetailController extends Controller
         }
     }
 
-    public function request(Request $request)
+    public function action(Request $request)
     {
         $id = $request->id;
         $val = $request->val;
@@ -401,5 +403,13 @@ class EventsDetailController extends Controller
         } else {
             dd("Payment not found");
         }
+    }
+    public function removeParticipant(Request $request)
+    {
+        $id = $request->id;
+        Payment::where('id', $id)->delete();
+        UserRegister::where('payment_id', $id)->delete();
+
+        return redirect()->back()->with('success', 'Successfully Remove Participant');
     }
 }

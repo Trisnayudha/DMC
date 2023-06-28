@@ -308,7 +308,7 @@
                                                         <a href="#" data-toggle="dropdown"
                                                             class="btn btn-info dropdown-toggle">Action</a>
                                                         <ul class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
-                                                            <form action="{{ url('request-event') }}" method="post">
+                                                            <form action="{{ url('events/action') }}" method="post">
                                                                 <li>
                                                                     @csrf
                                                                     <input type="hidden" name="id" id="id"
@@ -318,7 +318,7 @@
                                                                         class="dropdown-item">Approve</button>
                                                                 </li>
                                                             </form>
-                                                            <form action="{{ url('request-event') }}" method="post">
+                                                            <form action="{{ url('events/action') }}" method="post">
                                                                 <li>
                                                                     @csrf
                                                                     <input type="hidden" name="id" id="id"
