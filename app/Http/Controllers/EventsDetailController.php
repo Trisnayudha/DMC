@@ -36,7 +36,7 @@ class EventsDetailController extends Controller
             if ($event) {
                 $list = PaymentService::listPaymentRegister($event->id);
                 $countAll = PaymentService::countRegister(null, $event->id);
-                $countSponsor = PaymentService::countRegister('sponsors', $event->id);
+                $countSponsor = PaymentService::countRegister('sponsor', $event->id);
                 $countPaid = PaymentService::countRegister(['nonmember', 'member', 'onsite', 'table'], $event->id);
                 $countFree = PaymentService::countRegister('free', $event->id);
                 $users = User::orderBy('id', 'desc')->get();
