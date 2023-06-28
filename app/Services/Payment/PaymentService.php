@@ -25,7 +25,7 @@ class PaymentService extends Payment
             ->when(!is_null($params), function ($query) use ($params, $packages) {
                 if (is_array($params)) {
                     return $query->whereIn('package', $params);
-                } elseif ($params === 'free' || $params === 'sponsors' || $params === 'table') {
+                } elseif ($params === 'free' || $params === 'sponsor') {
                     return $query->where('package', $params);
                 }
             })
