@@ -19,7 +19,7 @@ class PaymentService extends Payment
 
     public static function countRegister($params, $events_id)
     {
-        $packages = ['nonmember', 'member', 'onsite', 'table', 'free', 'sponsors'];
+        $packages = ['nonmember', 'member', 'onsite', 'table', 'free', 'sponsor'];
 
         return Payment::where('events_id', $events_id)
             ->when(!is_null($params), function ($query) use ($params, $packages) {
