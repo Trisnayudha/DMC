@@ -95,10 +95,20 @@
                                         <div class="col-12 col-md-6 col-lg-6">
                                             <div class="card">
                                                 <div class="card-header">
-                                                    <h4>Pie Chart</h4>
+                                                    <h4>Category Company</h4>
                                                 </div>
                                                 <div class="card-body">
-                                                    <canvas id="myChart4"></canvas>
+                                                    <canvas id="chartCategory" width="400" height="400"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6 col-lg-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h4>Job Title</h4>
+                                                </div>
+                                                <div class="card-body">
+                                                    <canvas id="chartJobTitle" width="400" height="400"></canvas>
                                                 </div>
                                             </div>
                                         </div>
@@ -778,5 +788,34 @@
             // flag.style.backgroundImage = `url(${countryData.flags.svg})`; // Menggunakan URL bendera negara
         }
         select.addEventListener("change", handleCountryChange.bind(this));
+
+        // Pie Chart Code
+        $(document).ready(function() {
+            // Dummy data for chartCategory
+            var chartCategoryData = {!! json_encode($chartCategoryData) !!};
+
+            var chartCategoryCtx = document.getElementById('chartCategory').getContext('2d');
+            var chartCategory = new Chart(chartCategoryCtx, {
+                type: 'doughnut',
+                data: chartCategoryData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+
+            // Dummy data for chartJobTitle
+            var chartJobTitleData = {!! json_encode($chartJobTitle) !!};
+
+            var chartJobTitleCtx = document.getElementById('chartJobTitle').getContext('2d');
+            var chartJobTitle = new Chart(chartJobTitleCtx, {
+                type: 'doughnut',
+                data: chartJobTitleData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        });
     </script>
 @endpush
