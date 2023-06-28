@@ -9,6 +9,7 @@ use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
+use App\Services\Payment\PaymentService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
@@ -32,24 +33,24 @@ class EventsDetailController extends Controller
         try {
 
             $event = Events::where('slug', $slug)->first();
-
             if ($event) {
-                $list = Payment::join('users', 'users.id', '=', 'payment.member_id')
-                    ->leftJoin('company', 'company.users_id', '=', 'users.id')
-                    ->leftJoin('profiles', 'profiles.users_id', '=', 'users.id')
-                    ->where('payment.events_id', $event->id)
-                    ->select('users.*', 'payment.*', 'company.*', 'profiles.*', 'payment.id as payment_id', 'payment.created_at as register')
-                    ->orderBy('payment.created_at', 'desc')
-                    ->get();
-
+                $list = PaymentService::listPaymentRegister($event->id);
+                $countAll = PaymentService::countRegister(null, $event->id);
+                $countSponsor = PaymentService::countRegister('sponsors', $event->id);
+                $countPaid = PaymentService::countRegister(['nonmember', 'member', 'onsite', 'table'], $event->id);
+                $countFree = PaymentService::countRegister('free', $event->id);
                 $users = User::orderBy('id', 'desc')->get();
-
+                // dd($event->end_date);
                 $data = [
                     'payment' => $list,
                     'users' => $users,
-                    'slug' => $slug
+                    'slug' => $slug,
+                    'all' => $countAll,
+                    'sponsor' => $countSponsor,
+                    'free' => $countFree,
+                    'paid' => $countPaid,
+                    'date' => $event->end_date
                 ];
-
                 return view('admin.events.event-detail', $data);
             } else {
                 return 'Event Not Found';

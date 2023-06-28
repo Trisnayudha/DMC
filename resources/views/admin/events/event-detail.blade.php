@@ -22,10 +22,10 @@
                                 <h4>Detail Registration</h4>
                                 <div class="card-header-action">
                                     <a data-collapse="#detail-registration" class="btn btn-icon btn-info" href="#"><i
-                                            class="fas fa-plus"></i></a>
+                                            class="fas fa-{{ $date < date('Y-m-d') ? 'minus' : 'plus' }}"></i></a>
                                 </div>
                             </div>
-                            <div class="collapse" id="detail-registration">
+                            <div class="collapse {{ $date < date('Y-m-d') ? ' show' : '' }}" id="detail-registration">
                                 <div class="card-body" style="background: #f8f9fa">
                                     <div class="row">
                                         <div class="col-lg-3 col-md-6 col-sm-6 col-12">
@@ -38,7 +38,7 @@
                                                         <h4>Total All Pendaftar</h4>
                                                     </div>
                                                     <div class="card-body">
-                                                        10
+                                                        {{ $all }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -53,7 +53,7 @@
                                                         <h4>Total Pendaftar <b> Sponsor</b></h4>
                                                     </div>
                                                     <div class="card-body">
-                                                        10
+                                                        {{ $sponsor }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -68,7 +68,7 @@
                                                         <h4>Total Pendaftar <b> Berbayar</b></h4>
                                                     </div>
                                                     <div class="card-body">
-                                                        10
+                                                        {{ $paid }}
                                                     </div>
                                                 </div>
                                             </div>
@@ -83,7 +83,7 @@
                                                         <h4>Total Pendaftar <b> Gratis</b></h4>
                                                     </div>
                                                     <div class="card-body">
-                                                        10
+                                                        {{ $free }}
                                                     </div>
                                                 </div>
                                             </div>

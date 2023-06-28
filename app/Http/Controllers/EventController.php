@@ -15,6 +15,7 @@ use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
 use App\Models\User;
+use App\Services\Events\EventsService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
@@ -40,7 +41,7 @@ class EventController extends Controller
     }
     public function index()
     {
-        $list = Events::orderBy('id', 'desc')->get();
+        $list = EventsService::showAll();
 
         $data = [
             'list' => $list
@@ -60,7 +61,7 @@ class EventController extends Controller
 
     public function edit($id)
     {
-        $findEvent = Events::where('id', $id)->first();
+        $findEvent = EventsService::showDetail($id);
         $data = [
             'data' => $findEvent
         ];
@@ -69,7 +70,7 @@ class EventController extends Controller
 
     public function update(Request $request)
     {
-        $findEvent = Events::where('id', $request->id)->first();
+        $findEvent = EventsService::showDetail($request->id);
         $findEvent->name = $request->name;
         $findEvent->location = $request->location;
         $findEvent->description = $request->description;
