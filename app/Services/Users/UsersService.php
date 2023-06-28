@@ -77,17 +77,29 @@ class UsersService extends User
 
         $jobTitles = $users->pluck('job_title')->toArray();
 
-        // Normalize job titles by removing special characters and converting to lowercase
-        $normalizedJobTitles = array_map(function ($jobTitle) {
-            return strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $jobTitle));
-        }, $jobTitles);
+        $processedJobTitles = [];
 
-        // Remove duplicates and sort the job titles
-        $categories = array_values(array_unique($normalizedJobTitles));
-        sort($categories);
+        foreach ($jobTitles as $jobTitle) {
+            if (is_string($jobTitle)) {
+                $jobTitle = strtolower($jobTitle);
+
+                // Remove common prefixes and suffixes from job titles
+                $jobTitle = str_replace(['manager', 'supervisor', 'director', 'direktur', 'consultant'], '', $jobTitle);
+
+                // Remove leading/trailing whitespaces
+                $jobTitle = trim($jobTitle);
+
+                // If the processed job title is not empty, add it to the list
+                if ($jobTitle !== '') {
+                    $processedJobTitles[] = $jobTitle;
+                }
+            }
+        }
+
+        $jobTitleCounts = array_count_values($processedJobTitles);
 
         $jobTitleData = [
-            'labels' => $categories,
+            'labels' => [],
             'datasets' => [
                 [
                     'data' => [],
@@ -96,14 +108,9 @@ class UsersService extends User
             ],
         ];
 
-        foreach ($categories as $category) {
-            // Count the occurrences of job titles in each category
-            $count = array_count_values($normalizedJobTitles)[$category] ?? 0;
-
-            // Add the count to the dataset
+        foreach ($jobTitleCounts as $jobTitle => $count) {
+            $jobTitleData['labels'][] = ucfirst($jobTitle); // Capitalize the job title
             $jobTitleData['datasets'][0]['data'][] = $count;
-
-            // Generate random background color for each category
             $jobTitleData['datasets'][0]['backgroundColor'][] = '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         }
 
