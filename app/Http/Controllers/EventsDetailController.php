@@ -28,13 +28,13 @@ class EventsDetailController extends Controller
     {
         $this->middleware('auth');
     }
-    public function detail($slug)
+    public function detail($slug, Request $request)
     {
         try {
-
+            $params = $request->params;
             $event = Events::where('slug', $slug)->first();
             if ($event) {
-                $list = PaymentService::listPaymentRegister($event->id);
+                $list = PaymentService::listPaymentRegister($event->id, $params);
                 $countAll = PaymentService::countRegister(null, $event->id);
                 $countSponsor = PaymentService::countRegister('sponsor', $event->id);
                 $countPaid = PaymentService::countRegister(['nonmember', 'member', 'onsite', 'table'], $event->id);

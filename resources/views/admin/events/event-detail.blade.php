@@ -195,6 +195,12 @@
                             <div class="card-header">
                                 <h4>Table of Registration</h4>
                                 <div class="card-header-action">
+                                    <div class="float-right ml-3">
+                                        <a href="{{ route('events-details', ['slug' => $slug]) }}"
+                                            class="btn btn-outline-primary">
+                                            Clear Filter
+                                        </a>
+                                    </div>
                                     <div class="dropdown d-inline mr-2">
                                         <button class="btn btn-primary dropdown-toggle" type="button"
                                             id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
@@ -202,9 +208,13 @@
                                             Filter Table
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="#">Paid</a>
-                                            <a class="dropdown-item" href="#">Sponsor</a>
-                                            <a class="dropdown-item" href="#">Free</a>
+                                            <a class="dropdown-item"
+                                                href="{{ route('events-details', ['slug' => $slug, 'params' => 'paid']) }}">Paid</a>
+                                            <a class="dropdown-item"
+                                                href="{{ route('events-details', ['slug' => $slug, 'params' => 'sponsor']) }}">Sponsor</a>
+                                            <a class="dropdown-item"
+                                                href="{{ route('events-details', ['slug' => $slug, 'params' => 'free']) }}">Free</a>
+
                                         </div>
                                     </div>
                                 </div>

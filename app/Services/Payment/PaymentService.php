@@ -6,15 +6,26 @@ use App\Models\Payments\Payment;
 
 class PaymentService extends Payment
 {
-    public static function listPaymentRegister($events_id)
+    public static function listPaymentRegister($events_id, $params)
     {
-        return Payment::join('users', 'users.id', '=', 'payment.member_id')
+        $packages = ['nonmember', 'member', 'onsite', 'table', 'free', 'sponsor'];
+        $query = Payment::join('users', 'users.id', '=', 'payment.member_id')
             ->leftJoin('company', 'company.users_id', '=', 'users.id')
             ->leftJoin('profiles', 'profiles.users_id', '=', 'users.id')
             ->where('payment.events_id', $events_id)
             ->select('users.*', 'payment.*', 'company.*', 'profiles.*', 'payment.id as payment_id', 'payment.created_at as register')
-            ->orderBy('payment.created_at', 'desc')
-            ->get();
+            ->orderBy('payment.created_at', 'desc');
+
+        if ($params === 'paid') {
+            $query->whereIn('payment.package', ['onsite', 'nonmember', 'member', 'table']);
+        } elseif ($params === 'sponsor') {
+            $query->whereIn('payment.package', ['sponsor']);
+        } elseif ($params === 'free') {
+            $query->whereIn('payment.package', ['free']);
+        }
+
+        $payments = $query->get();
+        return $payments;
     }
 
     public static function countRegister($params, $events_id)
