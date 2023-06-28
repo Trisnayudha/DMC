@@ -77,12 +77,26 @@ class UsersService extends User
 
         $jobTitles = $users->pluck('job_title')->toArray();
 
-        // Filter out invalid entries (non-string and non-integer values)
-        $filteredJobTitles = array_filter($jobTitles, function ($value) {
-            return is_string($value) || is_int($value);
-        });
+        $processedJobTitles = [];
 
-        $jobTitleCounts = array_count_values($filteredJobTitles);
+        foreach ($jobTitles as $jobTitle) {
+            if (is_string($jobTitle)) {
+                $jobTitle = strtolower($jobTitle);
+
+                // Remove common prefixes and suffixes from job titles
+                $jobTitle = str_replace(['manager', 'supervisor'], '', $jobTitle);
+
+                // Remove leading/trailing whitespaces
+                $jobTitle = trim($jobTitle);
+
+                // If the processed job title is not empty, add it to the list
+                if ($jobTitle !== '') {
+                    $processedJobTitles[] = $jobTitle;
+                }
+            }
+        }
+
+        $jobTitleCounts = array_count_values($processedJobTitles);
 
         $jobTitleData = [
             'labels' => [],
@@ -95,13 +109,14 @@ class UsersService extends User
         ];
 
         foreach ($jobTitleCounts as $jobTitle => $count) {
-            $jobTitleData['labels'][] = $jobTitle;
+            $jobTitleData['labels'][] = ucfirst($jobTitle); // Capitalize the job title
             $jobTitleData['datasets'][0]['data'][] = $count;
             $jobTitleData['datasets'][0]['backgroundColor'][] = '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
         }
 
         return $jobTitleData;
     }
+
 
 
 
