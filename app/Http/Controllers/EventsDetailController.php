@@ -54,7 +54,7 @@ class EventsDetailController extends Controller
                     'paid' => $countPaid,
                     'date' => $event->end_date,
                     'chartCategoryData' => $usersCategory,
-                    'chartJobTitle' => $usersJobTitle
+                    // 'chartJobTitle' => $usersJobTitle
                 ];
                 return view('admin.events.event-detail', $data);
             } else {
