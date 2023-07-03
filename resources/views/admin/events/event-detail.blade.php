@@ -299,7 +299,7 @@
                                                 <th>Phone Number</th>
                                                 <th>Office Number</th>
                                                 <th>Status Approval</th>
-                                                <th>Status Payment</th>
+                                                <th>Status PIC</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
@@ -322,7 +322,8 @@
                                                             class="badge badge-pill {{ $post->status_registration == 'Paid Off' ? 'badge-primary' : 'badge-warning' }}">
                                                             {{ $post->status_registration }}</span>
                                                     </td>
-                                                    <td>{{ $post->groupby_users_id ? 'Multiple Payment' : 'Single Payment' }}
+                                                    <td>
+                                                        {{ $post->pic_name ? $post->pic_name : 'System' }}
                                                     </td>
                                                     <td>
                                                         <a href="#" data-toggle="dropdown"

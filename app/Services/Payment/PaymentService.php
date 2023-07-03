@@ -9,11 +9,12 @@ class PaymentService extends Payment
     public static function listPaymentRegister($events_id, $params)
     {
         $packages = ['nonmember', 'member', 'onsite', 'table', 'free', 'sponsor'];
-        $query = Payment::join('users', 'users.id', '=', 'payment.member_id')
-            ->leftJoin('company', 'company.users_id', '=', 'users.id')
-            ->leftJoin('profiles', 'profiles.users_id', '=', 'users.id')
+        $query = Payment::join('users as member_users', 'member_users.id', '=', 'payment.member_id')
+            ->leftJoin('company', 'company.users_id', '=', 'member_users.id')
+            ->leftJoin('profiles', 'profiles.users_id', '=', 'member_users.id')
+            ->leftJoin('users as pic_users', 'pic_users.id', '=', 'payment.pic_id')
             ->where('payment.events_id', $events_id)
-            ->select('users.*', 'payment.*', 'company.*', 'profiles.*', 'payment.id as payment_id', 'payment.created_at as register')
+            ->select('member_users.*', 'payment.*', 'company.*', 'profiles.*', 'payment.id as payment_id', 'payment.created_at as register', 'pic_users.name as pic_name')
             ->orderBy('payment.created_at', 'desc');
 
         if ($params === 'paid') {

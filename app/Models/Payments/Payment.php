@@ -25,7 +25,8 @@ class Payment extends Model
         'status_registration',
         'link',
         'code_payment',
-        'qr_code'
+        'qr_code',
+        'pic_id'
     ];
 
     public static function arrayCode()

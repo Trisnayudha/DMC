@@ -15,6 +15,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -75,6 +76,7 @@ class EventsDetailController extends Controller
             $pilihan = $request->pilihan;
             $slug = $request->event;
             $code_payment = strtoupper(Str::random(7));
+            $pic = Auth::id();
 
             $findUsers = User::where('users.id', $id)
                 ->leftJoin('profiles', 'profiles.users_id', 'users.id')
@@ -109,6 +111,7 @@ class EventsDetailController extends Controller
             $save->tickets_id = 6; // perlu di dinamisin
             $save->status_registration = 'Paid Off';
             $save->qr_code = $db;
+            $save->pic_id = $pic;
             $save->save();
 
             if (!empty($pilihan)) {
@@ -150,7 +153,7 @@ class EventsDetailController extends Controller
     public function add_invitation(Request $request)
     {
         try {
-            // dd($request->all());
+            $pic = Auth::id();
             $prefix = $request->prefix;
             $name = $request->name;
             $company_website = $request->company_website;
@@ -273,6 +276,7 @@ class EventsDetailController extends Controller
                         $payment->tickets_id = 6;
                     }
                 }
+                $payment->pic_id = $pic;
                 $payment->save();
                 if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
                     $image = QrCode::format('png')
@@ -341,7 +345,7 @@ class EventsDetailController extends Controller
         $db = null;
         $update = Payment::where('id', $id)->first();
         $findEvent = Events::where('id', $update->events_id)->first();
-        // dd($findEvent);
+        $pic = Auth::id();
         if (!empty($update)) {
             $check = DB::table('payment')
                 ->leftJoin('users', 'users.id', 'payment.member_id')
@@ -362,6 +366,7 @@ class EventsDetailController extends Controller
             } else {
                 $update->status_registration = "Reject";
             }
+            $update->pic_id = $pic;
             $update->save();
 
             // dd($check);
