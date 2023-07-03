@@ -128,7 +128,7 @@
                     <p>
                         Location
                     </p>
-                    <p>Dress Code</p>
+
                 </div>
 
                 <div class="col-9">
@@ -139,7 +139,7 @@
                         (Jakarta Time) </p>
                     <p>: Live - Networking Dinner</p>
                     <p>: {{ $location }}</p>
-                    <p>: Black Tie or Batik</p>
+
                     </p>
                 </div>
                 <br>
