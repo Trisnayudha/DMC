@@ -11,6 +11,7 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -27,14 +28,18 @@ class EventsDetailParticipantController extends Controller
         $findEvent = Events::where('slug', $slug)->first();
         $findParticipant = Payment::join('events', 'events.id', 'payment.events_id')
             ->join('users', 'users.id', 'payment.member_id')
-            ->leftjoin('profiles', 'profiles.users_id', 'users.id')
-            ->leftjoin('company', 'company.users_id', 'users.id')
+            ->leftJoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftJoin('company', 'company.users_id', 'users.id')
             ->leftJoin('users_event', function ($join) use ($findEvent) {
                 $join->on('users_event.users_id', '=', 'payment.member_id')
                     ->where('users_event.events_id', '=', $findEvent->id);
             })
-            ->where('payment.events_id', $findEvent->id)
-            ->where('payment.status_registration', 'Paid Off')
+            ->leftJoin('users as users_present', 'users_present.id', '=', 'users_event.pic_id_present')
+            ->leftJoin('users as users_reminder', 'users_reminder.id', '=', 'users_event.pic_id_reminder')
+            ->where([
+                ['payment.events_id', $findEvent->id],
+                ['payment.status_registration', 'Paid Off']
+            ])
             ->select(
                 'users.id as users_id',
                 'users.name',
@@ -48,6 +53,11 @@ class EventsDetailParticipantController extends Controller
                 'company.company_name',
                 'company.prefix',
                 'users_event.present',
+                'users_present.name as name_present',
+                'users_event.pic_id_present',
+                'users_event.reminder',
+                'users_reminder.name as name_reminder',
+                'users_event.pic_id_reminder',
                 'users_event.created_at as created',
                 'users_event.updated_at as updated',
                 'events.id as events_id',
@@ -61,12 +71,12 @@ class EventsDetailParticipantController extends Controller
             ->orderBy('payment.id', 'desc')
             ->get();
 
-
         $data = [
             'list' => $findParticipant,
         ];
         return view('admin.events.event-detail-participant', $data);
     }
+
     public function sendParticipant(Request $request)
     {
         // dd($request->all());
@@ -81,6 +91,7 @@ class EventsDetailParticipantController extends Controller
         $findEvent = Events::where('id', $events_id)->first();
         $email = $findUsers->email;
         $codePayment = $check->code_payment;
+        $pic = Auth::id();
         if ($method == 'confirmation') {
             $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
             if ($save == null) {
@@ -91,6 +102,8 @@ class EventsDetailParticipantController extends Controller
             $save->payment_id = $payment_id;
             $save->created_at = Carbon::now();
             $save->updated_at = null;
+            $save->pic_id_reminder = $pic;
+            $save->reminder = Carbon::now();
             $save->save();
 
             $image = QrCode::format('png')
@@ -135,7 +148,8 @@ class EventsDetailParticipantController extends Controller
             $save->users_id = $users_id;
             $save->events_id = $events_id;
             $save->payment_id = $payment_id;
-            $save->present = 1;
+            $save->pic_id_present = $pic;
+            $save->present = Carbon::now();
             $save->save();
 
             return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Successfully Present');
