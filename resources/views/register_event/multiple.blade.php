@@ -214,11 +214,11 @@
                         value="onsite">
                     <label class="form-check-label" for="onsite">On Site (Rp. 1.250.000)</label>
                 </div>
-                <div class="form-check member">
+                {{-- <div class="form-check member">
                     <input id="table" name="paymentMethod" type="radio" class="form-check-input" required
                         value="table">
                     <label class="form-check-label" for="table">Table of 5 People (Rp. 4.000.000)</label>
-                </div>
+                </div> --}}
 
                 <hr class="my-4">
                 <!--dynamic table limit will be needed here for foundation members-->
