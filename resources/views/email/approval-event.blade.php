@@ -168,11 +168,6 @@
                     <td>Nusantara Ballroom, The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
                         Kebayoran Baru, 12160, Indonesia)</td>
                 </tr>
-                <tr>
-                    <th>Dress Code</th>
-                    <th>:</th>
-                    <td>Black Tie or Batik</td>
-                </tr>
             </table>
 
             <p>View the latest of the event program by clicking here
