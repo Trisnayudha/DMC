@@ -104,7 +104,7 @@
                                                                         <span class="fa fa-paper-plane"></span></button>
                                                                 </form>
                                                             @else
-                                                                {{ date('d,F H:i', strtotime($post->reminder)) . '' . $post->name_reminder }}
+                                                                {{ date('d,F H:i', strtotime($post->reminder)) . ' ' . $post->name_reminder }}
                                                             @endif
                                                         </td>
                                                     @endif
