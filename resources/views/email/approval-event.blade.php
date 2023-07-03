@@ -171,7 +171,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://djakarta-miningclub.com/dmc/2023/the-10th-anniversary-of-djakarta-mining-club-and-coal-club-indonesia/)
+                (https://djakarta-miningclub.com/dmc/2023/the-57th-djakarta-mining-club-networking-event/)
             </p>
 
             <br>
