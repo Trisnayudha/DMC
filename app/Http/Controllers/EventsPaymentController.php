@@ -219,7 +219,7 @@ Best Regards Bot DMC Website
             $office_number = $bookingContact['office_number'];
             $phone_contact = $bookingContact['phone_contact'];
             $portal_code = $bookingContact['portal_code'];
-            $prefix = $bookingContact['prefix'];
+            $prefix = $bookingContact['prefix_contact'];
             $company_other = $bookingContact['company_other'];
             $slug = $bookingContact['slug'];
 
@@ -249,7 +249,7 @@ Best Regards Bot DMC Website
                 // Save company data
                 $company = CompanyModel::firstOrNew(['users_id' => $checkUsers->id]);
                 $company->fill([
-                    'prefix' => $prefix,
+                    'prefix' => $table['prefix'],
                     'company_name' => $table['company'],
                     'company_website' => $company_website,
                     'company_category' => $company_category,

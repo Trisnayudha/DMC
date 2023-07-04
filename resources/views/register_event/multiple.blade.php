@@ -253,7 +253,7 @@
                                             Please provide a Mobile Number
                                         </div>
                                     </div>
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-6">
                                         <label for="job_title" class="form-label">Job Title *</label>
                                         <input type="text" class="form-control" name="job_title" id="job_title"
                                             placeholder="" required value="">
@@ -262,9 +262,30 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
-                                        <label for="company" class="form-label">Company *</label>
+                                        <label for="company_name" class="form-label" style="color:white">.</label>
+                                        <select class="custom-select d-block w-100" id="prefix" name="prefix"
+                                            required>
+                                            <option value="PT">PT</option>
+                                            <option value="CV">CV</option>
+                                            <option value="Ltd">Ltd</option>
+                                            <option value="GmbH">GmbH</option>
+                                            <option value="Limited">Limited</option>
+                                            <option value="Llc">Llc</option>
+                                            <option value="Corp">Corp</option>
+                                            <option value="Pte Ltd">Pte Ltd</option>
+                                            <option value="Assosiation">Assosiation</option>
+                                            <option value="Government">Government</option>
+                                            <option value="Pty Ltd">Pty Ltd</option>
+                                            <option value="">Other</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select a valid prefix company name.
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <label for="company" class="form-label" style="color:white">.</label>
                                         <input type="text" class="form-control" name="company" id="company"
-                                            placeholder="" required value="">
+                                            placeholder="Company Name" required value="">
                                         <div class="invalid-feedback">
                                             Please enter your Job Title.
                                         </div>
@@ -301,7 +322,8 @@
                     </div>
                     <div class="col-md-2">
                         <label for="company_name" class="form-label" style="color:white">.</label>
-                        <select class="custom-select d-block w-100" id="prefix" name="prefix" required>
+                        <select class="custom-select d-block w-100" id="prefix_contact" name="prefix_contact"
+                            required>
                             <option value="PT">PT</option>
                             <option value="CV">CV</option>
                             <option value="Ltd">Ltd</option>
@@ -509,18 +531,38 @@
                         Please provide a Mobile Number
                     </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-6">
                     <label for="job_title" class="form-label">Job Title *</label>
-                    <input type="text" class="form-control" name="job_title" placeholder="" required
-                        value="">
+                    <input type="text" class="form-control" name="job_title" id="job_title" placeholder=""
+                        required value="">
                     <div class="invalid-feedback">
                         Please enter your Job Title.
                     </div>
                 </div>
                 <div class="col-sm-3">
-                    <label for="company" class="form-label">Company *</label>
-                    <input type="text" class="form-control" name="company" placeholder="" required
-                        value="">
+                    <label for="company_name" class="form-label" style="color:white">.</label>
+                    <select class="custom-select d-block w-100" id="prefix" name="prefix" required>
+                        <option value="PT">PT</option>
+                        <option value="CV">CV</option>
+                        <option value="Ltd">Ltd</option>
+                        <option value="GmbH">GmbH</option>
+                        <option value="Limited">Limited</option>
+                        <option value="Llc">Llc</option>
+                        <option value="Corp">Corp</option>
+                        <option value="Pte Ltd">Pte Ltd</option>
+                        <option value="Assosiation">Assosiation</option>
+                        <option value="Government">Government</option>
+                        <option value="Pty Ltd">Pty Ltd</option>
+                        <option value="">Other</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select a valid prefix company name.
+                    </div>
+                </div>
+                <div class="col-sm-9">
+                    <label for="company" class="form-label" style="color:white">.</label>
+                    <input type="text" class="form-control" name="company" id="company"
+                        placeholder="Company Name" required value="">
                     <div class="invalid-feedback">
                         Please enter your Job Title.
                     </div>
@@ -600,6 +642,7 @@
                     $('#phone_contact').val($('#phone').val());
                     $('#job_title_contact').val($('#job_title').val());
                     $('#company_name').val($('#company').val());
+                    $('#prefix').val($('#prefix').val());
                 } else {
                     // kosongkan elemen lain jika checkbox tidak di ceklis
                     $('#name_contact').val('');
@@ -676,6 +719,7 @@
                                 'name': $(this).find('input[name="name"]').val(),
                                 'price': $('input[name="paymentMethod"]:checked').val(),
                                 'company': $(this).find('input[name="company"]').val(),
+                                'prefix': $('#prefix').val(),
                                 'events_id': '{{ $id }}'
                             }
                             if ($(this).hasClass('organiser')) {
@@ -845,7 +889,7 @@
 
                 var booking_contact = [];
                 booking_contact = {
-                    'prefix': $('select[name="prefix"]').val(),
+                    'prefix_contact': $('select[name="prefix_contact"]').val(),
                     'company_name': $('input[name="company_name"]').val(),
                     'name_contact': $('input[name="name_contact"]').val(),
                     'phone_contact': $('input[name="phone_contact"]').val(),
