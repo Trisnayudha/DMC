@@ -314,7 +314,7 @@
                                                     <td>{{ $post->package }}</td>
                                                     <td>{{ $post->name }}</td>
                                                     <td>{{ $post->job_title }}</td>
-                                                    <td>{{ $post->company_name }}</td>
+                                                    <td>{{ $post->company_name . ($post->prefix ? ', ' . $post->prefix : '') }}
                                                     <td>{{ $post->email }}</td>
                                                     <td>{{ $post->phone }}</td>
                                                     <td>{{ $post->office_number }}</td>
