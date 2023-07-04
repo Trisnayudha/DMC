@@ -169,7 +169,7 @@ class EventsDetailController extends Controller
             $city = $request->city;
             $company_other = $request->company_other;
             $paymentMethod = $request->ticket;
-
+            $slug = $request->event;
             $user = User::firstOrNew(['email' => $email]);
             $user->name = $name;
             $user->email = $email;
@@ -234,8 +234,8 @@ class EventsDetailController extends Controller
                 $linkPay = $createInvoice['invoice_url'];
             }
             // TODO masih hardcode
-            $check = Payment::where('events_id', '=', '5')->where('member_id', '=', $user->id)->first();
-            $findEvent = Events::where('id', '5')->first();
+            $findEvent = Events::where('slug', $slug)->first();
+            $check = Payment::where('events_id', '=', $findEvent->id)->where('member_id', '=', $user->id)->first();
             $data = [
                 'code_payment' => $codePayment,
                 'create_date' => date('d, M Y H:i'),
@@ -260,14 +260,14 @@ class EventsDetailController extends Controller
                     // $payment->price = $total_price;
                     $payment->status_registration = 'Paid Off';
                     $payment->code_payment = $codePayment;
-                    $payment->events_id = 5;
+                    $payment->events_id = $findEvent->id;
                 } else {
                     $payment->package = $paymentMethod;
                     $payment->payment_method = 'Credit Card';
                     $payment->status_registration = 'Waiting';
                     $payment->link = $linkPay;
                     $payment->code_payment = $codePayment;
-                    $payment->events_id = 5;
+                    $payment->events_id = $findEvent->id;
                     if ($paymentMethod == 'member') {
                         $payment->tickets_id = 1;
                     } else if ($paymentMethod == 'nonmember') {

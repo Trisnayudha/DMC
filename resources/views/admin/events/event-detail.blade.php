@@ -409,7 +409,7 @@
 
                             <div class="col-6">
                                 <div class="form-group">
-
+                                    <input type="hidden" name="event" value="{{ $slug }}">
                                     <label for="company_name" class="form-label">PT</label>
                                     <select class="form-control" id="prefix" name="prefix" required>
                                         <option value="PT">PT</option>

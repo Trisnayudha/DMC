@@ -82,7 +82,7 @@ class EventsPaymentController extends Controller
                 $linkPay = $createInvoice['invoice_url'];
             }
 
-            $check = Payment::where('events_id', '=', '5')->where('member_id', '=', $user->id)->first();
+            $check = Payment::where('events_id', '=', $findEvent->id)->where('member_id', '=', $user->id)->first();
 
             $data = [
                 'code_payment' => $codePayment,
