@@ -351,7 +351,7 @@ Best Regards Bot DMC
             //     $owner_id = $request->owner_id;
             $external_id = request('external_id');
             $amount = request('amount');
-
+            $payment_method = request('bank_code');
             $findPayment = Payment::where('code_payment', '=', $external_id)->first();
             $findEvent = Events::where('id', $findPayment->events_id)->first();
             if (!empty($findPayment)) {
@@ -364,7 +364,7 @@ Best Regards Bot DMC
                 $findPayment->qr_code = $db;
                 $findUsersVA = PaymentUsersVA::where('payment_id', '=', $findPayment->id)->first();
                 $findPayment->status_registration = 'Paid Off';
-
+                $findPayment->payment_method = $payment_method;
                 $findPayment->save();
                 $findUsersVA->status = 'Paid Off';
                 $findUsersVA->save();

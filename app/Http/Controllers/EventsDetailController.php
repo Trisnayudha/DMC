@@ -356,6 +356,7 @@ class EventsDetailController extends Controller
                 ->first();
             if ($val == 'approve') {
                 $update->status_registration = "Paid Off";
+                $update->payment_method = 'Approve Manual';
                 $image = QrCode::format('png')
                     ->size(200)->errorCorrection('H')
                     ->generate($check->code_payment);
