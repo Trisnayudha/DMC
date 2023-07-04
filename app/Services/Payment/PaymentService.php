@@ -43,4 +43,22 @@ class PaymentService extends Payment
             })
             ->count();
     }
+
+    public static function countRegisterApprove($params, $events_id)
+    {
+        $packages = ['nonmember', 'member', 'onsite', 'table', 'free', 'sponsor'];
+
+        return Payment::where('events_id', $events_id)
+            ->when(!is_null($params), function ($query) use ($params, $packages) {
+                if (is_array($params)) {
+                    return $query->whereIn('package', $params);
+                } elseif ($params === 'free' || $params === 'sponsor') {
+                    return $query->where('package', $params);
+                } else {
+                    return $query;
+                }
+            })
+            ->where('status_registration', 'Paid Off')
+            ->count();
+    }
 }

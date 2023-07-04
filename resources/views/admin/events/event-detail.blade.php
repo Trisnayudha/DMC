@@ -38,7 +38,8 @@
                                                         <h4>Total All Pendaftar</h4>
                                                     </div>
                                                     <div class="card-body">
-                                                        {{ $all }}
+                                                        {{ $allApprove }}
+                                                        <small> ({{ $all }})</small>
                                                     </div>
                                                 </div>
                                             </div>

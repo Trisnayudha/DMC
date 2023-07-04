@@ -16,6 +16,7 @@ class UsersService extends User
 
         if ($events_id) {
             $query->where('payment.events_id', $events_id);
+            $query->where('payment.status_registration', 'Paid Off');
         }
 
         $users = $query->get();
@@ -71,8 +72,6 @@ class UsersService extends User
         } elseif ($category === 'other' && !empty($otherCategory)) {
             return 'Other';
         }
-
-        return '';
     }
 
     private static function generateColorPalette($count, $colorPalette)

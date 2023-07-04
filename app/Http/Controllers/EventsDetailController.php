@@ -38,6 +38,7 @@ class EventsDetailController extends Controller
             if ($event) {
                 $list = PaymentService::listPaymentRegister($event->id, $params);
                 $countAll = PaymentService::countRegister(null, $event->id);
+                $countAllApprove = PaymentService::countRegisterApprove(null, $event->id);
                 $countSponsor = PaymentService::countRegister('sponsor', $event->id);
                 $countPaid = PaymentService::countRegister(['nonmember', 'member', 'onsite', 'table'], $event->id);
                 $countFree = PaymentService::countRegister('free', $event->id);
@@ -50,6 +51,7 @@ class EventsDetailController extends Controller
                     'users' => $users,
                     'slug' => $slug,
                     'all' => $countAll,
+                    'allApprove' => $countAllApprove,
                     'sponsor' => $countSponsor,
                     'free' => $countFree,
                     'paid' => $countPaid,
