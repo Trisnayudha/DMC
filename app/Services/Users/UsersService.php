@@ -9,7 +9,6 @@ class UsersService extends User
 
     public static function showChartCategory($events_id = null)
     {
-        // dd($events_id);
         $query = User::leftJoin('company', 'company.users_id', 'users.id')
             ->leftJoin('profiles', 'profiles.users_id', 'users.id')
             ->leftJoin('payment', 'payment.member_id', 'users.id')
@@ -25,16 +24,7 @@ class UsersService extends User
         $colorPalette = ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff']; // Add more colors if needed
 
         foreach ($users as $user) {
-            if ($user->company_category === 'other') {
-                $category = !empty($user->company_other) ? $user->company_other : 'Other';
-                $otherCount++;
-            } elseif (!empty($user->company_category)) {
-                $category = $user->company_category;
-            } else {
-                $category = !empty($user->company_other) ? $user->company_other : 'Other';
-                $otherCount++;
-            }
-
+            $category = self::mapCategory($user->company_category, $user->company_other);
             if (isset($categoryData[$category])) {
                 $categoryData[$category]++;
             } else {
@@ -42,7 +32,6 @@ class UsersService extends User
             }
         }
 
-        // Prepare data for Chart.js
         $chartData = [
             'labels' => array_keys($categoryData),
             'datasets' => [
@@ -53,7 +42,6 @@ class UsersService extends User
             ],
         ];
 
-        // Add 'Other' category count if applicable
         if ($otherCount > 0) {
             $chartData['labels'][] = 'Other';
             $chartData['datasets'][0]['data'][] = $otherCount;
@@ -61,6 +49,45 @@ class UsersService extends User
 
         return $chartData;
     }
+
+    private static function mapCategory($category, $otherCategory)
+    {
+        $categoryMap = [
+            'Coal Mining' => 'Coal Mining/Minerals producer/Contractor',
+            'Minerals Producer' => 'Coal Mining/Minerals producer/Contractor',
+            'Contractor' => 'Coal Mining/Minerals producer/Contractor',
+            'Supplier/Distributor/Manufacturer' => 'Supplier/Distributor/Manufaturer/Technology',
+            'Consultant' => 'Consultan/Association/Organization/Goverment',
+            'Logistics and Shipping' => 'Service/Logistic/Shipping',
+            'Association / Organization / Government' => 'Consultan/Association/Organization/Goverment',
+            'Financial Services' => 'Service/Logistic/Shipping',
+            'Investors' => 'Service/Logistic/Shipping',
+            'Media' => 'Service/Logistic/Shipping',
+            'other' => 'Other',
+        ];
+
+        if (isset($categoryMap[$category])) {
+            return $categoryMap[$category];
+        } elseif ($category === 'other' && !empty($otherCategory)) {
+            return 'Other';
+        }
+
+        return '';
+    }
+
+    private static function generateColorPalette($count, $colorPalette)
+    {
+        $paletteCount = count($colorPalette);
+
+        if ($count <= $paletteCount) {
+            return array_slice($colorPalette, 0, $count);
+        } else {
+            $additionalColors = $count - $paletteCount;
+            $colors = array_merge($colorPalette, array_fill(0, $additionalColors, '#000000'));
+            return $colors;
+        }
+    }
+
 
     public static function showChartJobTitle($events_id)
     {
@@ -120,15 +147,15 @@ class UsersService extends User
 
 
 
-    private static function generateColorPalette($count, $colorPalette)
-    {
-        $backgroundColor = [];
+    // private static function generateColorPalette($count, $colorPalette)
+    // {
+    //     $backgroundColor = [];
 
-        for ($i = 0; $i < $count; $i++) {
-            $colorIndex = $i % count($colorPalette);
-            $backgroundColor[] = $colorPalette[$colorIndex];
-        }
+    //     for ($i = 0; $i < $count; $i++) {
+    //         $colorIndex = $i % count($colorPalette);
+    //         $backgroundColor[] = $colorPalette[$colorIndex];
+    //     }
 
-        return $backgroundColor;
-    }
+    //     return $backgroundColor;
+    // }
 }
