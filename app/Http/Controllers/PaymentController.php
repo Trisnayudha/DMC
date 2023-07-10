@@ -44,7 +44,7 @@ class PaymentController extends Controller
                 'description' => 'Invoice Event DMC',
                 'amount' => $findTicket->price_rupiah,
                 'success_redirect_url' => 'https://djakarta-miningclub.com',
-                'failure_redirect_url' => url(),
+                'failure_redirect_url' => url(''),
             ];
             $createInvoice = Invoice::create($params);
             $linkPay = $createInvoice['invoice_url'];
