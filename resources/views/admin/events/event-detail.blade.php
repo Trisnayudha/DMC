@@ -795,7 +795,7 @@
         $(document).ready(function() {
             // Dummy data for chartCategory
             var chartCategoryData = {!! json_encode($chartCategoryData) !!};
-
+            console.log(chartCategoryData)
             var chartCategoryCtx = document.getElementById('chartCategory').getContext('2d');
             var chartCategory = new Chart(chartCategoryCtx, {
                 type: 'doughnut',
@@ -808,7 +808,7 @@
 
             // Dummy data for chartJobTitle
             var chartJobTitleData = {!! json_encode($chartJobTitle) !!};
-
+            console.log(chartJobTitleData)
             var chartJobTitleCtx = document.getElementById('chartJobTitle').getContext('2d');
             var chartJobTitle = new Chart(chartJobTitleCtx, {
                 type: 'doughnut',

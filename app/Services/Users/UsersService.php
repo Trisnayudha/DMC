@@ -97,6 +97,7 @@ class UsersService extends User
 
         if ($events_id) {
             $query->where('payment.events_id', $events_id);
+            $query->where('payment.status_registration', 'Paid Off');
         }
 
         $users = $query->get();
