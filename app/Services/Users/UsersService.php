@@ -69,7 +69,7 @@ class UsersService extends User
 
         if (isset($categoryMap[$category])) {
             return $categoryMap[$category];
-        } elseif ($category === 'other' && !empty($otherCategory)) {
+        } elseif ($category === 'Other' || empty($otherCategory)) {
             return 'Other';
         }
     }
