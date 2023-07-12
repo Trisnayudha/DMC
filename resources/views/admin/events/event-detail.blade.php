@@ -278,7 +278,7 @@
                                         Pendaftaran</a>
                                     <div class="dropdown-menu dropdown-menu-right">
                                         <a href="{{ url($slug . '/register-event') }}" class="dropdown-item">Berbayar</a>
-                                        <a href="{{ url($slug . '/register-event/exclusive-invitation') }}"
+                                        <a href="{{ url($slug . '/exclusive-invitation') }}"
                                             class="dropdown-item">Exclusive Gratis</a>
                                         <a href="{{ url($slug . '/register-event/sponsor') }}"
                                             class="dropdown-item">Sponsors</a>

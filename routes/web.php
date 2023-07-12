@@ -67,7 +67,7 @@ Route::get('/term', function () {
 // Route::post('regis-special-event', [SpecialEventController::class, 'store']);
 
 
-Route::get('/{slug}/register-event/exclusive-invitation', [EventsRegisterController::class, 'single']);
+Route::get('/{slug}/exclusive-invitation', [EventsRegisterController::class, 'single']);
 Route::post('/payment-personal', [EventsPaymentController::class, 'payment_personal']);
 
 Route::get('/{slug}/register-event', [EventsRegisterController::class, 'multiple']);
