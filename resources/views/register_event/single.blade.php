@@ -317,7 +317,7 @@
 
                         <hr class="my-4"> --}}
 
-                        <button class="w-80 btn btn-primary btn-lg" type="submit">Register Event</button>
+                        <button class="w-80 btn btn-primary btn-lg" type="submit">Claim My Free Invitation</button>
                     </form>
                 </div>
             </div>
