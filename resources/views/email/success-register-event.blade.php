@@ -137,7 +137,7 @@
                 <tr>
                     <th>Title</th>
                     <th>:</th>
-                    <td>{{ $events->name }} </td>
+                    <td>{{ $events_name }} </td>
                 </tr>
                 <tr>
                     <th>Date</th>
