@@ -142,12 +142,13 @@
                 <tr>
                     <th>Date</th>
                     <th>:</th>
-                    <td>Wednesday - 21 June 2023</td>
+                    <td>{{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }}</td>
                 </tr>
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>04.00 pm - 07.00 pm (Jakarta Time)</td>
+                    <td>{{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        (Jakarta Time)</td>
                 </tr>
                 <tr>
                     <th>Concept</th>
