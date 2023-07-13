@@ -137,7 +137,7 @@
                 <tr>
                     <th>Title</th>
                     <th>:</th>
-                    <td>The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia </td>
+                    <td>{{ $events->name }} </td>
                 </tr>
                 <tr>
                     <th>Date</th>
