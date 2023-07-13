@@ -200,7 +200,7 @@
             </tr>
 
             <tr class="item">
-                <td>The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia</td>
+                <td>{{ $events_name }}</td>
 
                 <td align="right">IDR {{ $price }}</td>
             </tr>

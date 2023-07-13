@@ -115,10 +115,10 @@ class SponsorController extends Controller
                 $email = $request->email[$key];
 
                 $pdf = Pdf::loadView('email.ticket', $data);
-                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
+                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject($codePayment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
+                    $message->subject($codePayment . ' - Your registration is approved for ' . $findEvent->name);
                     $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
                 });
             }

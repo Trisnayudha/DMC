@@ -124,7 +124,7 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia Event has been
+            <p>Your registration for {{ $events_name }} Event has been
                 successfully confirmed.
             </p>
 

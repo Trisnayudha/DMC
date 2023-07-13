@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company\CompanyModel;
+use App\Models\Events\Events;
 use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
@@ -33,7 +34,7 @@ class PaymentController extends Controller
             $findTicket = EventsTicket::findOrFail($check->tickets_id);
             $findProfile = ProfileModel::where('users_id', $check->member_id)->first();
             $findCompany = CompanyModel::where('users_id', $check->member_id)->first();
-
+            $findEvent = Events::where('id', $check->events_id)->first();
             $isProd = env('XENDIT_ISPROD');
             $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
             Xendit::setApiKey($secretKey);
@@ -62,7 +63,7 @@ class PaymentController extends Controller
                 'company_name' => $findCompany->company_name,
                 'company_address' => $findCompany->address,
                 'status' => 'WAITING',
-                'events_name' => 'Mineral Trends 2023',
+                'events_name' => $findEvent->name,
                 'price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
                 'voucher_price' => 0,
                 'total_price' => number_format($findTicket->price_rupiah, 0, ',', '.'),

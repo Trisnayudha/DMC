@@ -248,7 +248,7 @@ class EventsDetailController extends Controller
                 'company_name' => $company_name,
                 'company_address' => $address,
                 'status' => 'WAITING',
-                'events_name' => 'The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia',
+                'events_name' => $findEvent->name,
                 'price' => number_format($total_price, 0, ',', '.'),
                 'voucher_price' => 0,
                 'total_price' => number_format($total_price, 0, ',', '.'),
@@ -296,7 +296,7 @@ class EventsDetailController extends Controller
                         'company_name' => $company_name,
                         'company_address' => $address,
                         'job_title' => $job_title,
-                        'events_name' => 'The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia',
+                        'events_name' => $findEvent->name,
                         'image' => $db,
                         'start_date' => $findEvent->start_date,
                         'end_date' => $findEvent->end_date,
@@ -308,10 +308,10 @@ class EventsDetailController extends Controller
                     // TODO bakal ada bug
                     $pdf = Pdf::loadView('email.ticket', $data);
                     try {
-                        Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment) {
+                        Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($email);
-                            $message->subject($codePayment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
+                            $message->subject($codePayment . ' - Your registration is approved for ' . $findEvent->name);
                             $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
                         });
                     } catch (\Exception $e) {

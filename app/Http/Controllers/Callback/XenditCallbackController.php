@@ -180,10 +180,10 @@ Company : ' . $data->company_name . '
                             'link' => $link
                         ];
                         $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
-                        Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf) {
+                        Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($findContact->email_contact);
-                            $message->subject('Thank you for payment - The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia ');
+                            $message->subject('Thank you for payment - ' . $findEvent->name);
                             $message->attachData($pdf->output(), 'E-Receipt.pdf');
                         });
                         $send = new WhatsappApi();
@@ -253,18 +253,18 @@ Best Regards Bot DMC
                         $notif->message = 'Payment ' . $external_id . ' Successfully';
                         $notif->NotifApp();
                         $pdf = Pdf::loadView('email.invoice-new', $data);
-                        Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
+                        Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($findUser->email);
-                            $message->subject('Thank you for payment - The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
+                            $message->subject('Thank you for payment - ' . $findEvent->name);
                             $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                         });
 
                         $pdf = Pdf::loadView('email.ticket', $data);
-                        Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser) {
+                        Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($findUser->email);
-                            $message->subject($findUser->code_payment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
+                            $message->subject($findUser->code_payment . ' - Your registration is approved for ' . $findEvent->name);
                             $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
                         });
                         $send = new WhatsappApi();
@@ -390,7 +390,7 @@ Best Regards Bot DMC
                     'company_name' => $findUser->company_name,
                     'company_address' => $findUser->address,
                     'status' => 'Paid Off',
-                    'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+                    'events_name' => $findEvent->name,
                     'code_payment' => $findUser->code_payment,
                     'create_date' => date('d, M Y H:i'),
                     'package_name' => $findUser->package,
@@ -406,18 +406,18 @@ Best Regards Bot DMC
                 ];
 
                 $pdf = Pdf::loadView('email.invoice-new', $data);
-                Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf) {
+                Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($findUser->email);
-                    $message->subject('Thank you for payment -The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
+                    $message->subject('Thank you for payment - ' . $findEvent->name);
                     $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                 });
 
                 $pdf = Pdf::loadView('email.ticket', $data);
-                Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser) {
+                Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($findUser->email);
-                    $message->subject($findUser->code_payment . ' - Your registration is approved for The 10th Anniversary Djakarta Mining Club and Coal Club Indonesia');
+                    $message->subject($findUser->code_payment . ' - Your registration is approved for ' . $findEvent->name);
                     $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
                 });
 
