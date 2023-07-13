@@ -177,7 +177,11 @@ Company : ' . $data->company_name . '
                             'image' => $db,
                             'item' => $item_details,
                             'job_title' => $findContact->job_title_contact,
-                            'link' => $link
+                            'link' => $link,
+                            'start_date' => $findEvent->start_date,
+                            'end_date' => $findEvent->end_date,
+                            'start_time' => $findEvent->start_time,
+                            'end_time' => $findEvent->end_time,
                         ];
                         $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
                         Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf, $findEvent) {
