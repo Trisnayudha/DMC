@@ -391,7 +391,8 @@ Best Regards Bot DMC Website
                 'item' => $item_details,
                 'voucher_price' => 0,
                 'total_price' => number_format($countPrice, 0, ',', '.'),
-                'link' => $linkPay
+                'link' => $linkPay,
+                'events_name' => $findEvent->name,
             ];
 
             $saveBooking->link = $linkPay;
