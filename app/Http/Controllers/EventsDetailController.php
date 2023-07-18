@@ -467,7 +467,10 @@ class EventsDetailController extends Controller
         $findUsers->email = $request->email_edit;
         $findUsers->save();
 
-        $company = CompanyModel::firstOrNew(['users_id' => $findPayment->users_id]);
+        $company = CompanyModel::where('users_id', $findUsers->id)->first();
+        if (empty($company)) {
+            $company = new CompanyModel();
+        }
         $company->prefix = $request->prefix_edit;
         $company->company_name = $request->company_name_edit;
         $company->company_website = $request->company_website_edit;
