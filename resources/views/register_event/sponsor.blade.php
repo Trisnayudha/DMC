@@ -130,7 +130,7 @@
                     <p>: {{ date('h.i a', strtotime($events->start_time)) . ' - ' . date('h.i a', strtotime($events->end_time)) }}
                         (Jakarta Time) </p>
                     <p>: Live - Networking Dinner</p>
-                    <p>: Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</p>
+                    <p>: {{ $events->location }}</p>
 
                 </div>
                 <br>

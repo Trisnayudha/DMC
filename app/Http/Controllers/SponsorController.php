@@ -84,7 +84,7 @@ class SponsorController extends Controller
 
                 $paymentData = [
                     'member_id' => $findUser->id,
-                    'package' => 'Sponsors',
+                    'package' => 'sponsor',
                     'code_payment' => $codePayment,
                     'link' => null,
                     'events_id' => $findEvent->id,

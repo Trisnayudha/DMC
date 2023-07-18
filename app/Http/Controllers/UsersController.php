@@ -132,9 +132,9 @@ class UsersController extends Controller
     public function editUserEvent($id)
     {
         $data = User::join('payment', 'payment.member_id', 'users.id')
-            ->join('profiles', 'profiles.id', 'users.id')
-            ->join('company', 'company.id', 'profiles.company_id')
-            ->where('users.id', $id)
+            ->leftjoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftjoin('company', 'company.id', 'profiles.company_id')
+            ->where('payment.id', $id)
             ->first();
         if (!empty($data)) {
 
@@ -143,9 +143,9 @@ class UsersController extends Controller
                 'payload' => $data
             ]);
         } else {
-            $data = User::join('profiles', 'profiles.id', 'users.id')
+            $data = User::join('profiles', 'profiles.users_id', 'users.id')
                 ->join('company', 'company.id', 'profiles.company_id')
-                ->where('users.id', $id)
+                ->where('payment.id', $id)
                 ->first();
             return response()->json([
                 'status' => 1,

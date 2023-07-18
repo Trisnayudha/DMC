@@ -374,9 +374,9 @@
                                                                 </li>
                                                             </form>
                                                         </ul>
-                                                        <a href="#" data-id="{{ $post->id }}"
+                                                        <a href="#" data-id="{{ $post->payment_id }}"
                                                             class="btn btn-success"><span class=" fa fa-eye"></a>
-                                                        <a href="#" data-id="{{ $post->id }}"
+                                                        <a href="#" data-id="{{ $post->payment_id }}"
                                                             class="btn btn-warning edit-button"> <span
                                                                 class="fa fa-edit "></span></a>
                                                     </td>
@@ -513,6 +513,7 @@
                                         <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
                                         <option value="member">Membership ( Rp. 900.000 )</option>
                                         <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
+                                        <option value="onsite">On Site ( Rp. 1.250.000 )</option>
                                     </select>
                                 </div>
                             </div>
@@ -535,39 +536,131 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="package">Package:</label>
-                            <select class="form-control select2" id="package_edit">
-                                <option value="free">Free</option>
-                                <option value="member">Member</option>
-                                <option value="sponsor">Sponsor</option>
-                                <option value="nonmember">Non Member</option>
-                            </select>
+                <form action="{{ url('/events/update/user') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <input type="hidden" name="event" value="{{ $slug }}">
+                                    <label for="company_name" class="form-label">PT</label>
+                                    <select class="form-control" id="prefix_edit" name="prefix_edit" required>
+                                        <option value="PT">PT</option>
+                                        <option value="CV">CV</option>
+                                        <option value="Ltd">Ltd</option>
+                                        <option value="GmbH">GmbH</option>
+                                        <option value="Limited">Limited</option>
+                                        <option value="Llc">Llc</option>
+                                        <option value="Corp">Corp</option>
+                                        <option value="Pte Ltd">Pte Ltd</option>
+                                        <option value="Assosiation">Assosiation</option>
+                                        <option value="Government">Government</option>
+                                        <option value="Pty Ltd">Pty Ltd</option>
+                                        <option value="">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name"> Name</label>
+                                    <input type="text" class="form-control" name="name_edit" id="name_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="company_website"> Company Website</label>
+                                    <input type="text" class="form-control" name="company_website_edit"
+                                        id="company_website_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="job_title"> Job Title</label>
+                                    <input type="text" class="form-control" name="job_title_edit"
+                                        id="job_title_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="country" class="form-label">Country * </label>
+                                    <select class="form-control country_edit" name="country_edit" id="country_edit"
+                                        placeholder="" required>
+                                        <option value="Indonesia" selected>Indonesia</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please provide a valid Country
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label for="company_name"> Company Name</label>
+                                    <input type="text" class="form-control" name="company_name_edit"
+                                        id="company_name_edit">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email"> Email</label>
+                                    <input type="text" class="form-control" name="email_edit" id="email_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone"> Phone number</label>
+                                    <input type="text" class="form-control" name="phone_edit" id="phone_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="address">Address</label>
+                                    <input type="text" class="form-control" name="address_edit" id="address_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label for="office_number">Office Number</label>
+                                    <input type="text" class="form-control" name="office_number_edit"
+                                        id="office_number_edit">
+                                </div>
+
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="company_category" class="form-label">Company Category *</label>
+                                    <select class="form-control  d-block w-100 company_category_edit"
+                                        name="company_category_edit" id="company_category_edit" required>
+                                        <option value="">--Select--</option>
+                                        <option value="Coal Mining">Coal Mining</option>
+                                        <option value="Minerals Producer">Minerals Producer</option>
+                                        <option value="Supplier/Distributor/Manufacturer">
+                                            Supplier/Distributor/Manufacturer
+                                        </option>
+                                        <option value="Contrator">Contrator</option>
+                                        <option value="Association / Organization / Government">
+                                            Association / Organization / Government</option>
+                                        <option value="Financial Services">Financial Services</option>
+                                        <option value="Technology">Technology</option>
+                                        <option value="Investors">Investors</option>
+                                        <option value="Logistics and Shipping">Logistics and Shipping</option>
+                                        <option value="Media">Media</option>
+                                        <option value="Consultant">Consultant</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group company_other_edit">
+                                    <label for="company_other" class="form-label">Company Other *</label>
+                                    <input type="text" class="form-control" name="company_other_edit"
+                                        id="company_other_edit" placeholder="">
+                                    <div class="invalid-feedback">
+                                        Please enter your Company Other
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="name">Ticket</label>
+                                    <select name="package_edit" id="package_edit" class="form-control">
+                                        <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
+                                        <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
+                                        <option value="member">Membership ( Rp. 900.000 )</option>
+                                        <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
+                                        <option value="onsite">On Site ( Rp. 1.250.000 )</option>
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
-                        <div class="form-group">
-                            <label for="name">Name:</label>
-                            <input type="text" class="form-control" id="name_edit">
-                        </div>
-                        <div class="form-group">
-                            <label for="job_title">Job Title:</label>
-                            <input type="text" class="form-control" id="job_title_edit">
-                        </div>
-                        <div class="form-group">
-                            <label for="company_name">Company:</label>
-                            <input type="text" class="form-control" id="company_name_edit">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <input type="email" class="form-control" id="email_edit">
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Phone Number:</label>
-                            <input type="tel" class="form-control" id="phone_edit">
-                        </div>
-                    </form>
-                </div>
+                        <input type="hidden" name="code_payment_edit" id="code_payment_edit">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-warning">Update peserta</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -607,6 +700,10 @@
             100% {
                 transform: rotate(360deg);
             }
+        }
+
+        .company_other_edit {
+            display: none;
         }
     </style>
 @endpush
@@ -688,20 +785,26 @@
             // Event handler ketika tombol edit di klik
             $(document).on('click', '.edit-button', function() {
                 var postId = $(this).data('id'); // Mendapatkan ID pos
-
                 // Mengirim permintaan AJAX ke endpoint yang memuat data pos
                 $.ajax({
                     url: '/edit/user/' + postId, // Ganti dengan URL endpoint yang sesuai
                     type: 'GET',
                     success: function(response) {
-                        console.log(response.payload.name);
+                        console.log(response.payload.package);
                         // Mengisi nilai form dengan data yang diterima dari server
                         $('#package_edit').val(response.payload.package);
+                        $('#prefix_edit').val(response.payload.prefix);
+                        $('#company_website_edit').val(response.payload.company_website);
+                        $('#address_edit').val(response.payload.address);
+                        $('.country_edit').val(response.payload.country);
+                        $('#office_number_edit').val(response.payload.office_number);
+                        $('#company_category_edit').val(response.payload.company_category);
                         $('#name_edit').val(response.payload.name);
                         $('#job_title_edit').val(response.payload.job_title);
                         $('#company_name_edit').val(response.payload.company_name);
                         $('#email_edit').val(response.payload.email);
                         $('#phone_edit').val(response.payload.phone);
+                        $('#code_payment_edit').val(response.payload.code_payment);
 
                         // Menampilkan modal
                         $('#edit').modal('show');
@@ -755,41 +858,55 @@
                     $('.myDiv').css('display', 'none');
                 }
             });
+            $('.company_category_edit').on('change', function() {
+                var demovalue = $(this).val();
+                if (demovalue == 'other') {
+                    $('.company_other_edit').css('display', 'grid');
+                } else {
+                    $('.company_other_edit').css('display', 'none');
+                }
+            });
             $('.js-example-basic-single').select2();
         });
 
 
         // Menggunakan jQuery
         const xhttp = new XMLHttpRequest();
-        const select = document.getElementById("country");
+        const selectCountry = document.getElementById("country");
+        const selectCountryEdit = document.getElementById("country_edit");
         const flag = document.getElementById("flag");
-        let country;
+        let countries;
+
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                country = JSON.parse(xhttp.responseText);
+                countries = JSON.parse(xhttp.responseText);
                 assignValues();
                 handleCountryChange();
             }
         };
+
         xhttp.open("GET", "https://restcountries.com/v3.1/all", true);
         xhttp.send();
 
         function assignValues() {
-            country.forEach(country => {
+            countries.forEach(country => {
                 const option = document.createElement("option");
-                option.value = country.name.common; // Menggunakan nama negara sebagai nilai opsi
-                option.textContent = country.name.common; // Menggunakan nama negara sebagai teks opsi
-                select.appendChild(option);
+                option.value = country.name.common;
+                option.textContent = country.name.common;
+                selectCountry.appendChild(option);
+                selectCountryEdit.appendChild(option.cloneNode(true)); // Menambahkan opsi ke elemen country_edit
             });
         }
 
         function handleCountryChange() {
-            const countryData = country.find(
-                country => select.value === country.name.common // Membandingkan dengan nama negara
-            );
-            // flag.style.backgroundImage = `url(${countryData.flags.svg})`; // Menggunakan URL bendera negara
+            const selectedCountryName = selectCountry.value;
+            const countryData = countries.find(country => selectedCountryName === country.name.common);
+            if (countryData) {
+                // flag.style.backgroundImage = `url(${countryData.flags.svg})`;
+            }
         }
-        select.addEventListener("change", handleCountryChange.bind(this));
+
+        selectCountry.addEventListener("change", handleCountryChange.bind(this));
 
         // Pie Chart Code
         $(document).ready(function() {

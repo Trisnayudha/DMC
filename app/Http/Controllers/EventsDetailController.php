@@ -110,7 +110,17 @@ class EventsDetailController extends Controller
             $save->package = $ticket;
             $save->code_payment = $code_payment;
             $save->events_id = $findEvent->id;
-            $save->tickets_id = 6; // perlu di dinamisin
+            if ($ticket == 'member') {
+                $save->tickets_id = 1;
+            } else if ($ticket == 'nonmember') {
+                $save->tickets_id = 2;
+            } else if ($ticket == 'free') {
+                $save->tickets_id = 3;
+            } else if ($ticket == 'onsite') {
+                $save->tickets_id = 9;
+            } else {
+                $save->tickets_id = 6;
+            }
             $save->status_registration = 'Paid Off';
             $save->qr_code = $db;
             $save->pic_id = $pic;
@@ -274,6 +284,10 @@ class EventsDetailController extends Controller
                         $payment->tickets_id = 1;
                     } else if ($paymentMethod == 'nonmember') {
                         $payment->tickets_id = 2;
+                    } else if ($paymentMethod == 'free') {
+                        $payment->tickets_id = 3;
+                    } else if ($paymentMethod == 'onsite') {
+                        $payment->tickets_id = 9;
                     } else {
                         $payment->tickets_id = 6;
                     }
@@ -425,5 +439,57 @@ class EventsDetailController extends Controller
         UserRegister::where('payment_id', $id)->delete();
 
         return redirect()->back()->with('success', 'Successfully Remove Participant');
+    }
+
+    public function editPeserta(Request $request)
+    {
+
+        $findPayment = Payment::where('code_payment', $request->code_payment_edit)->first();
+
+        $findPayment->package = $request->package_edit ?? null;
+        if ($request->package_edit == 'member') {
+            $findPayment->tickets_id = 1;
+        } else if ($request->package_edit == 'nonmember') {
+            $findPayment->tickets_id = 2;
+        } else if ($request->package_edit == 'free') {
+            $findPayment->tickets_id = 3;
+        } else if ($request->package_edit == 'onsite') {
+            $findPayment->tickets_id = 9;
+        } else {
+            $findPayment->tickets_id = 6;
+        }
+        // dd($findPayment->tickets_id);
+        $findPayment->save();
+        // dd($request->email_edit);
+
+        $findUsers = User::where('id', $findPayment->member_id)->first();
+        $findUsers->name = $request->name_edit;
+        $findUsers->email = $request->email_edit;
+        $findUsers->save();
+
+        $company = CompanyModel::firstOrNew(['users_id' => $findPayment->users_id]);
+        $company->prefix = $request->prefix_edit;
+        $company->company_name = $request->company_name_edit;
+        $company->company_website = $request->company_website_edit;
+        $company->company_category = $request->company_category_edit;
+        $company->company_other = $request->company_other_edit;
+        $company->address = $request->address_edit;
+        $company->city = $request->city_edit;
+        $company->portal_code = $request->portal_code_edit;
+        $company->office_number = $request->office_number_edit;
+        $company->country = $request->country_edit;
+        $company->users_id = $findUsers->id;
+        $company->save();
+
+        $profile = ProfileModel::where('users_id', $findUsers->id)->first();
+        if (empty($profile)) {
+            $profile = new ProfileModel();
+        }
+        $profile->phone = $request->phone_edit;
+        $profile->job_title = $request->job_title_edit;
+        $profile->users_id = $findUsers->id;
+        $profile->company_id = $company->id;
+        $profile->save();
+        return redirect()->back()->with('success', 'Successfully Update data');
     }
 }

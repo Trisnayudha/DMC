@@ -109,6 +109,7 @@ Route::post('/events/action', [EventsDetailController::class, 'action']);
 Route::get('/edit/user/{id}', [UsersController::class, 'editUserEvent']); //Edit user yg di dalam event
 Route::post('remove-participant', [EventsDetailController::class, 'removeParticipant']);
 Route::post('renewal-payment', [PaymentController::class, 'renewal']);
+Route::post('/events/update/user', [EventsDetailController::class, 'editPeserta']);
 
 
 // Events Detail participant
