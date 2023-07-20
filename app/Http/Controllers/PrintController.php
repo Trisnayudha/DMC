@@ -14,6 +14,7 @@ class PrintController extends Controller
     public function request(Request $request)
     {
         $check = Payment::where('code_payment', $request->input_text)->first();
+        $nosave = $request->noscan;
         if (!empty($check)) {
             $findUsers = User::where('users.id', $check->member_id)->join('company', 'company.users_id', 'users.id')->first();
             $data = [

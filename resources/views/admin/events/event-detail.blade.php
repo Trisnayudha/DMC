@@ -726,7 +726,8 @@
                         url: "{{ url('scan/request') }}",
                         type: "POST",
                         data: {
-                            input_text: $("#text-input").val()
+                            input_text: $("#text-input").val(),
+                            noscan: true
                         },
                         headers: {
                             'X-CSRF-TOKEN': "{{ csrf_token() }}"
