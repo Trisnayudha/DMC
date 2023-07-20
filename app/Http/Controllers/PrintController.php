@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class PrintController extends Controller
@@ -28,7 +29,7 @@ class PrintController extends Controller
                 $save->users_id = $check->member_id;
                 $save->events_id = $check->events_id;
                 $save->payment_id = $check->id;
-                $save->present = 1;
+                $save->present = Carbon::now();
                 $save->save();
             }
 
