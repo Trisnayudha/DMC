@@ -100,8 +100,6 @@ class EventsDetailParticipantController extends Controller
             $save->users_id = $users_id;
             $save->events_id = $events_id;
             $save->payment_id = $payment_id;
-            $save->created_at = Carbon::now();
-            $save->updated_at = null;
             $save->pic_id_reminder = $pic;
             $save->reminder = Carbon::now();
             $save->save();

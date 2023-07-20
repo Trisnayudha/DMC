@@ -87,7 +87,7 @@
                                                     @endif
                                                     @if ($post->end_date >= date('Y-m-d'))
                                                         <td>
-                                                            @if ($post->created == null)
+                                                            @if ($post->reminder == null)
                                                                 <form action="{{ Route('events-send-participant') }}"
                                                                     method="post">
                                                                     @csrf
@@ -109,7 +109,7 @@
                                                         </td>
                                                     @endif
                                                     <td>
-                                                        @if ($post->updated == null)
+                                                        @if ($post->present == null)
                                                             <form action="{{ Route('events-send-participant') }}"
                                                                 method="post">
                                                                 @csrf
