@@ -343,6 +343,7 @@ Nama : {$table['name']}
 Email: {$table['email']}
 Phone Number: {$table['phone']}
 Company: {$table['company']}
+Job Title: {$table['job_title']}
 ";
             }
 
