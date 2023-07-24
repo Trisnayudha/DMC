@@ -105,7 +105,8 @@
                                 timer: 3000
                             });
                             window.open("{{ url('scan/print?name=') }}" + response
-                                .data.name + "&company=" + response.data.company_name,
+                                .data.name + "&company=" + response.data.company_name +
+                                "&package=" + response.data.package,
                                 "_blank");
 
                         } else {
