@@ -70,9 +70,14 @@ class EventsDetailParticipantController extends Controller
             )
             ->orderBy('payment.id', 'desc')
             ->get();
+        $checkin = UserRegister::where('events_id', $findEvent->id)->whereNotNull('present')->count();
+        $absent = UserRegister::where('events_id', $findEvent->id)->whereNull('present')->count();
 
         $data = [
             'list' => $findParticipant,
+            'date' => $findEvent->start_date,
+            'checkin' => $checkin,
+            'absent' => $absent,
         ];
         return view('admin.events.event-detail-participant', $data);
     }

@@ -16,6 +16,54 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Detail Registration</h4>
+                                    <div class="card-header-action">
+                                        <a data-collapse="#detail-registration" class="btn btn-icon btn-info"
+                                            href="#"><i
+                                                class="fas fa-{{ $date <= date('Y-m-d') ? 'minus' : 'plus' }}"></i></a>
+                                    </div>
+                                </div>
+                                <div class="collapse {{ $date <= date('Y-m-d') ? ' show' : '' }}" id="detail-registration">
+                                    <div class="card-body" style="background: #f8f9fa">
+                                        <div class="row">
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="card card-statistic-1">
+                                                    <div class="card-icon bg-primary">
+                                                        <i class="far fa-user"></i>
+                                                    </div>
+                                                    <div class="card-wrap">
+                                                        <div class="card-header">
+                                                            <h4>Total Check-in</h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            {{ $checkin }}
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                                                <div class="card card-statistic-1">
+                                                    <div class="card-icon bg-info">
+                                                        <i class="far fa-user"></i>
+                                                    </div>
+                                                    <div class="card-wrap">
+                                                        <div class="card-header">
+                                                            <h4>Total Belum Hadir</h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            {{ $absent }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
                             <div class="card-header">
                                 <h4>Event Detail Participant Management</h4>
                             </div>
