@@ -22,10 +22,10 @@
                                 <h4>Detail Registration</h4>
                                 <div class="card-header-action">
                                     <a data-collapse="#detail-registration" class="btn btn-icon btn-info" href="#"><i
-                                            class="fas fa-{{ $date < date('Y-m-d') ? 'minus' : 'plus' }}"></i></a>
+                                            class="fas fa-{{ $date <= date('Y-m-d') ? 'minus' : 'plus' }}"></i></a>
                                 </div>
                             </div>
-                            <div class="collapse {{ $date < date('Y-m-d') ? ' show' : '' }}" id="detail-registration">
+                            <div class="collapse {{ $date <= date('Y-m-d') ? ' show' : '' }}" id="detail-registration">
                                 <div class="card-body" style="background: #f8f9fa">
                                     <div class="row">
                                         <div class="col-lg-3 col-md-6 col-sm-6 col-12">
