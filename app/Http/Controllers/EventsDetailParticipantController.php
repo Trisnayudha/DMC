@@ -73,6 +73,7 @@ class EventsDetailParticipantController extends Controller
         $checkin = UserRegister::where('events_id', $findEvent->id)->whereNotNull('present')->count();
         $absent = Payment::leftJoin('users_event', 'users_event.payment_id', '=', 'payment.id')
             ->where('payment.events_id', $findEvent->id)
+            ->where('payment.status_registration', 'Paid Off')
             ->whereNull('users_event.present')
             ->count();
 
