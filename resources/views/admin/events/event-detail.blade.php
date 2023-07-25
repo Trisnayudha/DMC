@@ -128,7 +128,7 @@
                                             class="fas fa-plus"></i></a>
                                 </div>
                             </div>
-                            <div class="collapse" id="tambah-peserta">
+                            <div class="collapse {{ $date <= date('Y-m-d') ? ' show' : '' }}" id="tambah-peserta">
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-12">
@@ -184,7 +184,7 @@
                                             class="fas fa-plus"></i></a>
                                 </div>
                             </div>
-                            <div class="collapse" id="print-badges">
+                            <div class="collapse {{ $date <= date('Y-m-d') ? ' show' : '' }}" id="print-badges">
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-12">
