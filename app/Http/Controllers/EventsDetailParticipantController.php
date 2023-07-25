@@ -71,7 +71,10 @@ class EventsDetailParticipantController extends Controller
             ->orderBy('payment.id', 'desc')
             ->get();
         $checkin = UserRegister::where('events_id', $findEvent->id)->whereNotNull('present')->count();
-        $absent = Payment::leftjoin('users_event', 'payment.id', 'users_event.payment_id')->where('payment.events_id', $findEvent->id)->whereNull('present')->count();
+        $absent = Payment::leftJoin('users_event', 'users_event.payment_id', '=', 'payment.id')
+            ->where('payment.events_id', $findEvent->id)
+            ->whereNull('users_event.present')
+            ->count();
 
         $data = [
             'list' => $findParticipant,
