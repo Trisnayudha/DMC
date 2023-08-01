@@ -97,18 +97,34 @@
                         console.log(response)
                         Swal.close();
                         if (response.status == 1) {
-
                             Swal.fire({
-                                title: "Success Scan",
-                                text: response.message,
-                                showConfirmButton: false,
-                                timer: 3000
-                            });
-                            window.open("{{ url('scan/print?name=') }}" + response
-                                .data.name + "&company=" + response.data.company_name +
-                                "&package=" + response.data.package,
-                                "_blank");
-
+                                title: response.data.package,
+                                text: response.data.name + " " + response.data
+                                    .company_name,
+                                icon: 'success',
+                                showCancelButton: true,
+                                cancelButtonText: 'Print',
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Checkin'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    Swal.fire({
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: 'Success Checkin',
+                                        showConfirmButton: false,
+                                        timer: 1000
+                                    })
+                                } else {
+                                    window.open("{{ url('scan/print?name=') }}" +
+                                        response
+                                        .data.name + "&company=" + response.data
+                                        .company_name +
+                                        "&package=" + response.data.package,
+                                        "_blank");
+                                }
+                            })
                         } else {
                             Swal.fire({
                                 title: "Error Scan",

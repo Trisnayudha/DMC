@@ -69,17 +69,7 @@
     <script src="https://cdn.jsdelivr.net/npm/izitoast/dist/js/iziToast.min.js"></script>
     <script>
         window.focus();
-
-        iziToast.show({
-            title: '{{ $package }}'.toUpperCase(),
-            position: 'topRight',
-            backgroundColor: '#28a745',
-            onClosed: function() {
-                setTimeout(function() {
-                    window.print();
-                }, 10);
-            }
-        });
+        window.print();
     </script>
 </body>
 
