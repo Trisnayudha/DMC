@@ -311,7 +311,7 @@ Best Regards Bot DMC Website
                         'member_id' => $checkUsers->id,
                         'events_id' => $findEvent->id,
                         'tickets_id' => $ticket_id,
-                        'booking_contact_id' => $saveBooking->id
+                        'booking_contact_id' => (count($tables) > 1) ? $saveBooking->id : null // Jika count($table) > 1, set $saveBooking->id, jika tidak, set null.
                     ]);
                     $checkPayment->save();
                 } elseif ($checkPayment->status_registration == 'Waiting' || $checkPayment->status_registration == 'Expired') {
@@ -321,7 +321,7 @@ Best Regards Bot DMC Website
                     $checkPayment->member_id = $checkUsers->id;
                     $checkPayment->tickets_id = $ticket_id;
                     $checkPayment->events_id = $findEvent->id;
-                    $checkPayment->booking_contact_id = $saveBooking->id;
+                    $checkPayment->booking_contact_id = (count($tables) > 1) ? $saveBooking->id : null; // Jika count($table) > 1, set $saveBooking->id, jika tidak, set null.
                     $checkPayment->save();
                 } else {
                     // Payment has already been paid off
@@ -348,8 +348,8 @@ Job Title: {$table['job_title']}
             }
 
             $send = new WhatsappApi();
-            // $send->phone = '083829314436';
-            $send->phone = '081332178421';
+            $send->phone = '083829314436';
+            // $send->phone = '081332178421';
             $send->message = "
 Registration Notification,
 
@@ -361,7 +361,6 @@ Thank you
 Best Regards Bot DMC Website
 ";
             $send->WhatsappMessage();
-
             $linkPay = null;
             $isProd = env('XENDIT_ISPROD');
             $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');

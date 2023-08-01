@@ -106,6 +106,7 @@ Route::get('/events/{slug}/detail', [EventsDetailController::class, 'detail'])->
 Route::post('/events/addUser', [EventsDetailController::class, 'add_user'])->name('events.add.user');
 Route::post('/events/addInvitation', [EventsDetailController::class, 'add_invitation'])->name('events.add.invitation');
 Route::post('/events/action', [EventsDetailController::class, 'action']);
+Route::post('/events/invoice', [EventsDetailController::class, 'invoice']);
 Route::get('/edit/user/{id}', [UsersController::class, 'editUserEvent']); //Edit user yg di dalam event
 Route::post('remove-participant', [EventsDetailController::class, 'removeParticipant']);
 Route::post('renewal-payment', [PaymentController::class, 'renewal']);

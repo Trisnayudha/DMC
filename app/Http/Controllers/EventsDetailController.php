@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\EmailSender;
+use App\Models\BookingContact\BookingContact;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
+use App\Services\Events\EventsService;
 use App\Services\Payment\PaymentService;
 use App\Services\Users\UsersService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -23,6 +25,7 @@ use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Xendit\Invoice;
 use Xendit\Xendit;
+use Illuminate\Support\Facades\Response;
 
 class EventsDetailController extends Controller
 {
@@ -494,5 +497,69 @@ class EventsDetailController extends Controller
         $profile->company_id = $company->id;
         $profile->save();
         return redirect()->back()->with('success', 'Successfully Update data');
+    }
+
+    public function invoice(Request $request)
+    {
+        $payment_id = $request->id;
+        $findPayment = PaymentService::findPaymmentUser($payment_id);
+        //check booking_contact_id
+        $findEvent = EventsService::showDetail($findPayment->events_id);
+
+        if ($findPayment->booking_contact_id != null) {
+            $findPayments = PaymentService::findPaymmentUsers($findPayment->booking_contact_id);
+            $countPrice = null;
+            foreach ($findPayments as $table) {
+                $item_details[] = [
+                    'name' => $table['name'],
+                    'job_title' => $table['email'],
+                    'price' => number_format($table['price_rupiah'], 0, ',', '.'),
+                    'paidoff' => false
+                ];
+                $countPrice += $table['price_rupiah'];
+            }
+            $findBooking = BookingContact::where('id', $table['booking_contact_id'])->first();
+            $payload = [
+                'code_payment' => $findPayment->code_payment,
+                'create_date' => date('d, M Y H:i'),
+                'users_name' => $findBooking->name_contact,
+                'users_email' => $findBooking->email_contact,
+                'phone' => $findBooking->phone_contact,
+                'company_name' => $findBooking->company_name,
+                'company_address' => $findBooking->address,
+                'status' => 'Paid Off',
+                'voucher_price' => 0,
+                'item' => $item_details,
+                'price' => number_format($table['price_rupiah'], 0, ',', '.'),
+                'total_price' => number_format($countPrice, 0, ',', '.'),
+                'events_name' => $findEvent->name,
+                'link' => null
+            ];
+            ini_set('max_execution_time', 120);
+            $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
+            $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
+            // Download the PDF with the specified filename
+            return $pdf->download($filename);
+        }
+        $payload = [
+            'code_payment' => $findPayment->code_payment,
+            'create_date' => date('d, M Y H:i'),
+            'users_name' => $findPayment->name,
+            'users_email' => $findPayment->email,
+            'phone' => $findPayment->phone,
+            'company_name' => $findPayment->company_name,
+            'company_address' => $findPayment->address,
+            'status' => 'Paid Off',
+            'voucher_price' => 0,
+            'price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
+            'total_price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
+            'events_name' => $findEvent->name,
+        ];
+        ini_set('max_execution_time', 120); // Set the maximum execution time to 120 seconds
+        $pdf = PDF::loadView('email.invoice-new', $payload);
+        // Set the desired filename for the downloaded PDF
+        $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
+        // Download the PDF with the specified filename
+        return $pdf->download($filename);
     }
 }

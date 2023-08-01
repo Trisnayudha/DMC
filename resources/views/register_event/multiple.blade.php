@@ -307,6 +307,7 @@
                     </div>
                 </div>
                 <input type="hidden" name="slug" id="slug" value="{{ $slug }}">
+                <hr class="my-4">
                 <h4 class="mb-3">* Booking Contact</h4>
                 <div class="alert alert-warning" role="alert">
                     Enter the best person we can contact for this booking in the event of unplanned changes.

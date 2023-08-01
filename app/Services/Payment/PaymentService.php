@@ -61,4 +61,25 @@ class PaymentService extends Payment
             ->where('status_registration', 'Paid Off')
             ->count();
     }
+
+    public static function findPaymmentUsers($id)
+    {
+        return Payment::where('payment.booking_contact_id', $id)
+            ->leftjoin('users', 'users.id', 'payment.member_id')
+            ->leftjoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftjoin('company', 'company.users_id', 'users.id')
+            ->leftjoin('events_tickets', 'payment.tickets_id', 'events_tickets.id')
+            ->select('*', 'payment.events_id as events_id')
+            ->get();
+    }
+    public static function findPaymmentUser($id)
+    {
+        return Payment::where('payment.id', $id)
+            ->leftjoin('users', 'users.id', 'payment.member_id')
+            ->leftjoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftjoin('company', 'company.users_id', 'users.id')
+            ->leftjoin('events_tickets', 'payment.tickets_id', 'events_tickets.id')
+            ->select('*', 'payment.events_id as events_id')
+            ->first();
+    }
 }

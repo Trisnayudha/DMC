@@ -350,6 +350,19 @@
                                                                         class="dropdown-item">Reject</button>
                                                                 </li>
                                                             </form>
+                                                            @if ($post->status_registration == 'Paid Off')
+                                                                <form action="{{ url('events/invoice') }}" method="post"
+                                                                    target="_blank">
+                                                                    <li>
+                                                                        @csrf
+                                                                        <input type="hidden" name="id"
+                                                                            id="id"
+                                                                            value="{{ $post->payment_id }}">
+                                                                        <button type="submit"
+                                                                            class="dropdown-item">Download Invoice</button>
+                                                                    </li>
+                                                                </form>
+                                                            @endif
                                                             @if ($post->status_registration == 'Expired')
                                                                 <form action="{{ url('renewal-payment') }}"
                                                                     method="post">
