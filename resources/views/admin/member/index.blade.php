@@ -58,6 +58,8 @@
                                                 <th>Email</th>
                                                 <th>Phone Number</th>
                                                 <th>Office Number</th>
+                                                <th>Address</th>
+                                                <th>Website</th>
                                                 <th>Category Company</th>
                                                 <th width="15%">Explore Marketing</th>
                                             </tr>
@@ -74,6 +76,8 @@
                                                     <td>{{ $post->email }}</td>
                                                     <td>{{ $post->phone }}</td>
                                                     <td>{{ $post->office_number }}</td>
+                                                    <td>{{ $post->address }}</td>
+                                                    <td>{{ $post->company_website }}</td>
                                                     <td>
                                                         {{ $post->company_category }}
                                                     </td>
