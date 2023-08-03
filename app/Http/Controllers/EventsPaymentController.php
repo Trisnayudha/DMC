@@ -136,7 +136,7 @@ class EventsPaymentController extends Controller
                     $send->sendEmail();
 
                     $send = new WhatsappApi();
-                    $send->phone = '08111798961';
+                    $send->phone = '081332178421';
                     $send->message = '
 Registration Notification,
 
@@ -348,8 +348,8 @@ Job Title: {$table['job_title']}
             }
 
             $send = new WhatsappApi();
-            $send->phone = '083829314436';
-            // $send->phone = '081332178421';
+            // $send->phone = '083829314436';
+            $send->phone = '081332178421';
             $send->message = "
 Registration Notification,
 
