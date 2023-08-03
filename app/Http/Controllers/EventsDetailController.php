@@ -383,8 +383,20 @@ class EventsDetailController extends Controller
                 $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
                 Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                 $update->qr_code = $db;
+                $saveUser = UserRegister::where('users_id', $check->users_id)->first();
+                if (empty($saveUser)) {
+                    $saveUser = new UserRegister();
+                }
+                $saveUser->events_id = $update->events_id;
+                $saveUser->users_id = $check->users_id;
+                $saveUser->payment_id = $check->payment_id;
+                $saveUser->save();
             } else {
                 $update->status_registration = "Reject";
+                $saveUser = UserRegister::where('users_id', $check->users_id)->first();
+                if (!empty($saveUser)) {
+                    $saveUser->delete();
+                }
             }
             $update->pic_id = $pic;
             $update->save();
