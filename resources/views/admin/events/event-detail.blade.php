@@ -350,7 +350,7 @@
                                                                         class="dropdown-item">Reject</button>
                                                                 </li>
                                                             </form>
-                                                            @if ($post->status_registration == 'Paid Off')
+                                                            @if ($post->status_registration == 'Paid Off' && ($post->package != 'free' && $post->package != 'sponsor'))
                                                                 <form action="{{ url('events/invoice') }}" method="post"
                                                                     target="_blank">
                                                                     <li>
