@@ -56,8 +56,8 @@ class PaymentController extends Controller
         $payment_method = $request->payment_method;
         $createVA = null;
         $codePayment = strtoupper(Str::random(7));
-        $package = $type == 'paid' ? 'Premium' : 'Silver';
-        $payment_method = $payment_method == 'other' ? 'Free-pass' : $payment_method;
+        $package = $type == 'paid' ? 'Premium' : 'free';
+        $payment_method = $payment_method == 'other' ? 'Free-pass Apps' : $payment_method;
         // $payment_method = $payment ? $payment : 'free pas';
         $Serv = env('APP_NAME');
 
@@ -82,7 +82,7 @@ class PaymentController extends Controller
             $save->payment_method = $payment_method;
             $save->tickets_id = $tickets_id;
             $save->events_id = $events_id;
-            $save->status_registration = ($type == 'free' ? 'Free' : 'Waiting');
+            $save->status_registration = ($type == 'free' ? 'Waiting' : 'Waiting');
             $save->qr_code = $db;
             $save->save();
             if ($type == 'free') {
@@ -156,8 +156,8 @@ class PaymentController extends Controller
         $payment_method = $request->payment_method;
         $createVA = null;
         $codePayment = strtoupper(Str::random(7));
-        $package = $type == 'paid' ? 'Premium' : 'Silver';
-        $payment_method = $payment_method == 'other' ? 'Free-pass' : $payment_method;
+        $package = $type == 'paid' ? 'Premium' : 'free';
+        $payment_method = $payment_method == 'other' ? 'Free-pass Apps' : $payment_method;
 
         $date = date('d-m-Y H:i:s');
         $linkPay = null;
@@ -185,7 +185,7 @@ class PaymentController extends Controller
                 $save->payment_method = $payment_method;
                 $save->tickets_id = $tickets_id;
                 $save->events_id = $events_id;
-                $save->status_registration = ($type == 'free' ? 'Free' : 'Waiting');
+                $save->status_registration = ($type == 'free' ? 'Waiting' : 'Waiting');
                 $save->qr_code = $db;
 
                 // init xendit
