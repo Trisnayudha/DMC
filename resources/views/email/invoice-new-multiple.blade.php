@@ -222,7 +222,7 @@
                             IDR {{ $value['price'] }}
                         @else
                             <span class="capsule-success">
-                                Paid Off
+                                Paid
                             </span>
                         @endif
                     </td>
