@@ -90,10 +90,10 @@ class PaymentController extends Controller
                 $saveUser->events_id = $events_id;
                 $saveUser->users_id = $id;
                 $saveUser->payment_id = $save->id;
-                $saveUser->save();
+                // $saveUser->save();
                 $notif = new Notification();
                 $notif->id = $id;
-                $notif->message = 'Register events successfully';
+                $notif->message = 'Register Success, please waiting approval';
                 $notif->NotifApp();
             } else {
                 // init xendit
