@@ -173,10 +173,7 @@
             <p>View the latest of the event program by clicking here
                 (https://djakarta-miningclub.com/dmc/2023/the-57th-djakarta-mining-club-networking-event/)
             </p>
-            <p>If you are unable to attend, please contact our team for substitution of delegate information at the
-                latest by 1 day before the event. diganti menjadi
-                If you are unable to attend, please contact our team for substitution of attendee information at the
-                latest by 1 day before the event.</p>
+
             <br>
             <p>
                 <b>
@@ -188,7 +185,7 @@
                 <li>Bring your business card to change with a badge at our registration table.</li>
                 <li>Please note that picking up a badge for someone else is not permitted, all attendees will need to
                     collect their own badge and show a matching business card to gain entry.</li>
-                <li>If you are unable to attend, please contact our team for substitution of delegate information at the
+                <li>If you are unable to attend, please contact our team for substitution of attendee information at the
                     latest by 1 day before the event.</li>
             </ul>
             </p>
