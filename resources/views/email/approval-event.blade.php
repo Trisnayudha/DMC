@@ -171,7 +171,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://djakarta-miningclub.com/dmc/2023/the-57th-djakarta-mining-club-networking-event/)
+                (https://djakarta-miningclub.com/dmc/2023/metals-magnified-analyzing-key-markets-and-indonesias-prospects/)
             </p>
 
             <br>
