@@ -137,7 +137,7 @@
                     </p>
                     <p>: {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
                         (Jakarta Time) </p>
-                    <p>: Live - Networking Dinner</p>
+                    <p>: Live Event</p>
                     <p>: {{ $location }}</p>
 
                     </p>
