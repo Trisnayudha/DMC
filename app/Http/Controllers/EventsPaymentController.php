@@ -102,7 +102,7 @@ class EventsPaymentController extends Controller
             ];
 
             if (empty($check)) {
-                $payment = Payment::firstOrNew(['member_id' => $user->id]);
+                $payment = Payment::firstOrNew(['member_id' => $user->id, 'events_id' => $findEvent->id]);
 
                 if ($inputData['paymentMethod'] == 'free') {
                     $payment->package = $inputData['paymentMethod'];

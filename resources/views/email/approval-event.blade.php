@@ -173,7 +173,10 @@
             <p>View the latest of the event program by clicking here
                 (https://djakarta-miningclub.com/dmc/2023/the-57th-djakarta-mining-club-networking-event/)
             </p>
-
+            <p>If you are unable to attend, please contact our team for substitution of delegate information at the
+                latest by 1 day before the event. diganti menjadi
+                If you are unable to attend, please contact our team for substitution of attendee information at the
+                latest by 1 day before the event.</p>
             <br>
             <p>
                 <b>
@@ -189,16 +192,7 @@
                     latest by 1 day before the event.</li>
             </ul>
             </p>
-            <p>
-                <b>Health and Safety Protocols (COVID-19 Prevention)</b>
-            </p>
-            <p>
-            <ul>
-                <li>Self-Assessment (If you are feeling unwell and/or experiencing symptoms of COVID-19, you should not
-                    attend)</li>
-                <li>Wearing a Mask</li>
-            </ul>
-            </p>
+
             <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
                 1937 300.</p>
             <p>
