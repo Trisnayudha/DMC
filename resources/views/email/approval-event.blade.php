@@ -165,7 +165,7 @@
                 <tr>
                     <th>Venue</th>
                     <th>:</th>
-                    <td>Nusantara Ballroom, The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
+                    <td>The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
                         Kebayoran Baru, 12160, Indonesia)</td>
                 </tr>
             </table>
