@@ -463,9 +463,9 @@ class EventsDetailController extends Controller
 
         $findPayment->package = $request->package_edit ?? null;
         if ($request->package_edit == 'member') {
-            $findPayment->tickets_id = 1;
-        } else if ($request->package_edit == 'nonmember') {
             $findPayment->tickets_id = 2;
+        } else if ($request->package_edit == 'nonmember') {
+            $findPayment->tickets_id = 1;
         } else if ($request->package_edit == 'free') {
             $findPayment->tickets_id = 3;
         } else if ($request->package_edit == 'onsite') {

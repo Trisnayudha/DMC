@@ -27,7 +27,8 @@ class Payment extends Model
         'code_payment',
         'qr_code',
         'pic_id',
-        'booking_contact_id'
+        'booking_contact_id',
+        'groupby_users_id'
     ];
 
     public static function arrayCode()

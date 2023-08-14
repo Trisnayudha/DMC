@@ -24,5 +24,7 @@ class BookingContact extends Model
         'company_category',
         'company_other',
         'office_number',
+        'status',
+        'invoice'
     ];
 }
