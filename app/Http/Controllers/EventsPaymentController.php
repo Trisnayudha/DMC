@@ -14,6 +14,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Xendit\Invoice;
 use Xendit\Xendit;
@@ -202,6 +203,10 @@ Best Regards Bot DMC Website
         }
     }
 
+
+
+
+
     public function payment_multiple(Request $request)
     {
         try {
@@ -266,7 +271,7 @@ Best Regards Bot DMC Website
                 // Save profile data
                 $profile = ProfileModel::firstOrNew(['users_id' => $checkUsers->id]);
                 $profile->fill([
-                    'phone' => $table['phone'],
+                    // 'phone' => $table['phone'],
                     'job_title' => $table['job_title'],
                     'users_id' => $checkUsers->id,
                     'company_id' => $company->id
@@ -311,7 +316,8 @@ Best Regards Bot DMC Website
                         'member_id' => $checkUsers->id,
                         'events_id' => $findEvent->id,
                         'tickets_id' => $ticket_id,
-                        'booking_contact_id' => (count($tables) > 1) ? $saveBooking->id : null // Jika count($table) > 1, set $saveBooking->id, jika tidak, set null.
+                        'booking_contact_id' => $saveBooking->id,
+                        'groupby_users_id' => (count($tables) > 1) ? $saveBooking->id : null // Jika count($table) > 1, set $saveBooking->id, jika tidak, set null.
                     ]);
                     $checkPayment->save();
                 } elseif ($checkPayment->status_registration == 'Waiting' || $checkPayment->status_registration == 'Expired') {
@@ -396,12 +402,23 @@ Best Regards Bot DMC Website
             ];
 
             $saveBooking->link = $linkPay;
-            $saveBooking->save();
+            $saveBooking->status = 'Waiting';
+            // $saveBooking->save();
 
             $email = $saveBooking->email_contact;
 
-            ini_set('max_execution_time', 120);
+            ini_set('max_execution_time', 300);
             $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
+            // $saveBooking = new BookingContact();
+            // Generate a unique filename for the PDF
+            $filename = 'invoice_' . time() . '.pdf';
+
+            // Store the PDF in the desired directory within the storage folder
+            $pdfPath = 'public/invoice/' . $filename;
+            $db = '/storage/uploads/invoice/' . $filename;
+            Storage::put($pdfPath, $pdf->output());
+            $saveBooking->invoice = $db;
+            $saveBooking->save();
 
             Mail::send('email.invoice-new-multiple', $payload, function ($message) use ($email, $pdf) {
                 $message->from(env('EMAIL_SENDER'));
