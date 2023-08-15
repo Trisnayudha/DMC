@@ -45,6 +45,7 @@ Route::get('ajax', function () {
     return view('ajax');
 });
 
+Route::get('/save-invoice', [TestController::class, 'saveInvoice']);
 
 Route::get('/scan', [PrintController::class, 'scan']);
 Route::get('/scan/print', [PrintController::class, 'index']);

@@ -302,4 +302,35 @@ Best Regards Bot DMC
         // storage/app/images/file.png
         dd($db);
     }
+
+    public function saveInvoice(Request $request)
+    {
+        $db = null;
+        $data = [
+            'users_name' => 'Yudha',
+            'users_email' => 'yudha@indonesiaminer.com',
+            'phone' => '083829314436',
+            'company_name' => 'Indonesia Miner',
+            'company_address' => 'Gg Samsi',
+            'status' => 'Paid Off',
+            'events_name' => 'Djakarta Mining Club and Coal Club Indonesia',
+            'code_payment' => 'QZKdS8',
+            'create_date' => date('d, M Y H:i'),
+            'package_name' => 'Premium',
+            'price' => number_format('1000000', 0, ',', '.'),
+            'total_price' => number_format('1000000', 0, ',', '.'),
+            'voucher_price' => number_format(0, 0, ',', '.'),
+            'image' => $db,
+            'job_title' => 'IT OFFICER'
+        ];
+        ini_set('max_execution_time', 300);
+        $pdf = Pdf::loadView('email.invoice-new', $data);
+        // Generate a unique filename for the PDF
+        $filename = 'invoice_' . time() . '.pdf';
+
+        // Store the PDF in the desired directory within the storage folder
+        $pdfPath = 'public/invoice/' . $filename;
+        $db = '/storage/uploads/invoice' . $filename;
+        Storage::put($pdfPath, $pdf->output());
+    }
 }
