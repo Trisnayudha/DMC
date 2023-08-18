@@ -6,6 +6,8 @@ use App\Helpers\EmailSender;
 use App\Models\MemberModel;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Newsletter;
 
 class FormMemberController extends Controller
 {
@@ -33,6 +35,7 @@ class FormMemberController extends Controller
     }
     public function store(Request $request)
     {
+
         $prefix = $request->prefix;
         $company_name = $request->company_name . ", " . $prefix;
         $phone = $request->phone;
@@ -53,6 +56,13 @@ class FormMemberController extends Controller
         }
         $explore = $request->explore;
         $cci = $request->cci;
+        $test = Newsletter::subscribeOrUpdate($email, [
+            'FNAME' => $name, 'MERGE3' => $address,
+            'PHONE' => $phone, 'MMERGE5' => $company_name,
+            'MMERGE6' => $company_category, 'MMERGE8' => $job_title,
+            'MMERGE10' => Carbon::now(), 'MMERGE11' => $office_number,
+            'MMERGE12' => $explore
+        ]);
         $findUsers = MemberModel::where('phone', $phone)->orWhere('email', $email)->first();
         if (!empty($findUsers)) {
             $findUsers->company_name = $company_name;
