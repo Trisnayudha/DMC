@@ -44,7 +44,7 @@ class EventsPaymentController extends Controller
             $company->users_id = $user->id;
             $company->save();
 
-            $profileData = ['phone', 'job_title'];
+            $profileData = ['job_title'];
             $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
             $profile->fill(array_intersect_key($inputData, array_flip($profileData)));
             $profile->company_id = $company->id;
