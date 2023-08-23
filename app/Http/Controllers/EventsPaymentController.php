@@ -44,11 +44,20 @@ class EventsPaymentController extends Controller
             $company->users_id = $user->id;
             $company->save();
 
-            $profileData = ['job_title'];
+            $profileData = ['phone', 'job_title'];
             $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
-            $profile->fill(array_intersect_key($inputData, array_flip($profileData)));
+
+            // Memeriksa apakah data yang diinputkan berbeda dengan data di database
+            if ($profile->phone !== $inputData['phone']) {
+                $profile->phone = $inputData['phone'];
+            }
+
+            // Mengisi data job_title dari input
+            $profile->job_title = $inputData['job_title'];
+
             $profile->company_id = $company->id;
             $profile->save();
+
 
             $findEvent = Events::where('slug', $inputData['slug'])->first();
 
