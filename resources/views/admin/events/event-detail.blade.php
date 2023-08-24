@@ -350,6 +350,16 @@
                                                                         class="dropdown-item">Reject</button>
                                                                 </li>
                                                             </form>
+                                                            <form action="{{ url('events/ticket') }}" method="post"
+                                                                target="_blank">
+                                                                <li>
+                                                                    @csrf
+                                                                    <input type="hidden" name="id" id="id"
+                                                                        value="{{ $post->payment_id }}">
+                                                                    <button type="submit" class="dropdown-item">Download
+                                                                        Ticket</button>
+                                                                </li>
+                                                            </form>
                                                             @if ($post->status_registration == 'Paid Off' && ($post->package != 'free' && $post->package != 'sponsor'))
                                                                 <form action="{{ url('events/invoice') }}" method="post"
                                                                     target="_blank">

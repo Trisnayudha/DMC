@@ -574,4 +574,35 @@ class EventsDetailController extends Controller
         // Download the PDF with the specified filename
         return $pdf->download($filename);
     }
+
+    public function ticket(Request $request)
+    {
+        $payment_id = $request->id;
+        $findUsers = PaymentService::findPaymmentUser($payment_id);
+        $findEvent = EventsService::showDetail($findUsers->events_id);
+
+        $data = [
+            'code_payment' => $findUsers->code_payment,
+            'create_date' => date('d, M Y H:i'),
+            'users_name' => $findUsers->name,
+            'users_email' => $findUsers->email,
+            'phone' => $findUsers->phone,
+            'job_title' => $findUsers->job_title,
+            'company_name' => $findUsers->company_name,
+            'company_address' => $findUsers->address,
+            'events_name' => $findEvent->name,
+            'start_date' => $findEvent->start_date,
+            'end_date' => $findEvent->end_date,
+            'start_time' => $findEvent->start_time,
+            'end_time' => $findEvent->end_time,
+            'image' => $findUsers->qr_code
+        ];
+        $email = $findUsers->email;
+
+        ini_set('max_execution_time', 300);
+        $pdf = Pdf::loadView('email.ticket', $data);
+        $filename = 'e_ticket-' . $findUsers->code_payment . '.pdf';
+        // Download the PDF with the specified filename
+        return $pdf->download($filename);
+    }
 }

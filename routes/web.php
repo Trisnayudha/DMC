@@ -46,7 +46,9 @@ Route::get('ajax', function () {
 });
 
 Route::get('/save-invoice', [TestController::class, 'saveInvoice']);
-
+Route::get('/register', function () {
+    return view('register_event.register');
+});
 Route::get('/scan', [PrintController::class, 'scan']);
 Route::get('/scan/print', [PrintController::class, 'index']);
 Route::post('/scan/request', [PrintController::class, 'request']);
@@ -108,6 +110,7 @@ Route::post('/events/addUser', [EventsDetailController::class, 'add_user'])->nam
 Route::post('/events/addInvitation', [EventsDetailController::class, 'add_invitation'])->name('events.add.invitation');
 Route::post('/events/action', [EventsDetailController::class, 'action']);
 Route::post('/events/invoice', [EventsDetailController::class, 'invoice']);
+Route::post('/events/ticket', [EventsDetailController::class, 'ticket']);
 Route::get('/edit/user/{id}', [UsersController::class, 'editUserEvent']); //Edit user yg di dalam event
 Route::post('remove-participant', [EventsDetailController::class, 'removeParticipant']);
 Route::post('renewal-payment', [PaymentController::class, 'renewal']);
