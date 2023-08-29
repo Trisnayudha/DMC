@@ -48,7 +48,6 @@ class EventsDetailController extends Controller
                 $usersCategory = UsersService::showChartCategory($event->id);
                 $usersJobTitle = UsersService::showChartJobTitle($event->id);
                 $users = User::orderBy('id', 'desc')->get();
-                // dd($event->end_date);
                 $data = [
                     'payment' => $list,
                     'users' => $users,
