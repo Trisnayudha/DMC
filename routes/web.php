@@ -49,6 +49,10 @@ Route::get('/save-invoice', [TestController::class, 'saveInvoice']);
 Route::get('/register', function () {
     return view('register_event.register');
 });
+Route::get('/register/step', function () {
+    return view('register_event.step');
+});
+
 Route::get('/scan', [PrintController::class, 'scan']);
 Route::get('/scan/print', [PrintController::class, 'index']);
 Route::post('/scan/request', [PrintController::class, 'request']);
@@ -83,7 +87,7 @@ Route::get('/sponsor/{id}', [SponsorController::class, 'show_sponsor']);
 // Route::post('/regis-multiple', [EventController::class, 'register_multiple']);
 // Route::post('/register/email', [FormMemberController::class, 'check_email']);
 
-
+Route::post('checkMember/{email}', [UsersController::class, 'checkMember'])->withoutMiddleware('auth');
 
 Auth::routes([
     'register' => false, // Registration Routes...

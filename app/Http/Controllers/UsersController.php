@@ -153,4 +153,20 @@ class UsersController extends Controller
             ]);
         }
     }
+
+    public function checkMember($email)
+    {
+        $check = MemberModel::where('email', $email)->first();
+        if (!empty($check)) {
+            return response()->json([
+                'status' => 1,
+                'message' => 'Members'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 0,
+                'message' => 'Non-Members'
+            ]);
+        }
+    }
 }
