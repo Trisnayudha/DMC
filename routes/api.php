@@ -118,3 +118,8 @@ Route::post('/marketing-ads', [MarketingAdsController::class, 'index']);
 Route::post('/notification/list', [NotificationController::class, 'notification']);
 
 Route::post('/highlight/list', [NotificationController::class, 'highlight']);
+
+
+Route::prefix('web')->group(function () {
+    Route::get('sponsors', [HomeController::class, 'sponsor']);
+});

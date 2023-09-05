@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
 use App\Models\News\News;
+use App\Services\Sponsors\SponsorService;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -28,6 +29,36 @@ class HomeController extends Controller
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = $result;
+        return response()->json($response);
+    }
+
+    public function sponsor()
+    {
+
+        $platinum = SponsorService::getSponsorType('platinum');
+        $gold = SponsorService::getSponsorType('gold');
+        $silver = SponsorService::getSponsorType('silver');
+
+        $data = [
+            [
+                'name' => 'PLATINUM SPONSORS',
+                'type' => 'platinum',
+                'data' => $platinum,
+            ],
+            [
+                'name' => 'GOLD SPONSORS',
+                'type' => 'gold',
+                'data' => $gold,
+            ],
+            [
+                'name' => 'SILVER SPONSORS',
+                'type' => 'silver',
+                'data' => $silver,
+            ],
+        ];
+        $response['status'] = 200;
+        $response['message'] = 'Successfully show list sponsors';
+        $response['payload'] = $data;
         return response()->json($response);
     }
 }
