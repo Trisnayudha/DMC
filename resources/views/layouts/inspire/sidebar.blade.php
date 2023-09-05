@@ -32,10 +32,14 @@
                 <i class="fa fa-university" aria-hidden="true"></i>
                 <span>Videos Highlight</span></a>
         </li>
-        <li class="">
-            <a class="nav-link" href="{{ Route('marketing.ads') }}">
-                <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                <span>Marketing</span></a>
+        <li class="dropdown">
+            <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fa fa-paper-plane"
+                    aria-hidden="true"></i>
+                <span>Advertisement</span></a>
+            <ul class="dropdown-menu">
+                <li><a class="nav-link" href="{{ url('admin/advertisement') }}"> Side Banner</a></li>
+                <li><a class="nav-link" href="{{ Route('marketing.ads') }}"> Pop Up</a></li>
+            </ul>
         </li>
         <li class="">
             <a class="nav-link" href="{{ Route('notification') }}">

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdvertisementController;
 use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\EventCategoryController;
 use App\Http\Controllers\EventController;
@@ -188,6 +189,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/special-event', [SpecialEventController::class, 'request']);
 
     Route::resource('sponsors', SponsorController::class);
+    Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
 });
 
