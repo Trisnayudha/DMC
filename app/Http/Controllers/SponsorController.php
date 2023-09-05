@@ -18,6 +18,162 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class SponsorController extends Controller
 {
+    public function index()
+    {
+        $data = Sponsor::orderBy('id', 'desc')->get();
+        return view('admin.sponsor.sponsor', ['data' => $data]);
+        // Show a list of tasks
+    }
+
+    public function create()
+    {
+        return view('admin.sponsor.create');
+        // Show the create task form
+    }
+
+    public function store(Request $request)
+    {
+        // Validasi data yang dikirim dari formulir
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:sponsors,email',
+            'website' => 'required|url',
+            'address' => 'required|string',
+            'description' => 'required|string',
+            'package' => 'required|string',
+            'status' => 'required|string',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Contoh validasi untuk upload gambar
+        ]);
+
+        // Proses upload gambar jika ada
+        if ($request->hasFile('image')) {
+            $timestamp = now()->timestamp; // Mengambil timestamp saat ini
+            $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension(); // Nama gambar menjadi timestamp.extensi
+            $imagePath = $request->file('image')->storeAs('public/sponsor', $imageName); // Simpan gambar ke dalam direktori penyimpanan sponsor dengan nama timestamp
+            $imageUrl = asset('storage/sponsor/' . $imageName); // Buat URL penyimpanan gambar
+        } else {
+            $imageName = null; // Atur menjadi null jika tidak ada gambar yang diunggah
+            $imageUrl = null; // Atur menjadi null jika tidak ada gambar yang diunggah
+        }
+
+        // Simpan data ke dalam model Sponsors dengan create()
+        Sponsor::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'company_website' => $request->input('website'),
+            'address' => $request->input('address'),
+            'description' => $request->input('description'),
+            'package' => $request->input('package'),
+            'status' => $request->input('status'),
+            'image' => $imageUrl, // Simpan URL gambar ke dalam kolom "image" dalam database
+        ]);
+
+        // Redirect ke halaman lain atau tampilkan pesan sukses
+        return redirect()->route('sponsors.index')->with('success', 'Sponsor berhasil disimpan');
+    }
+
+
+
+
+    public function show($id)
+    {
+        // Show a specific task
+    }
+
+    public function edit($id)
+    {
+        $sponsor = Sponsor::find($id);
+
+        if (!$sponsor) {
+            return redirect()->route('sponsors.index')->with('error', 'Sponsor tidak ditemukan');
+        }
+
+        return view('admin.sponsor.edit', compact('sponsor'));
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        // Validasi data yang dikirim dari formulir
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:sponsors,email,' . $id, // Tambahkan $id untuk mengabaikan email saat ini
+            'website' => 'nullable|url',
+            'address' => 'nullable|string',
+            'description' => 'nullable|string',
+            'package' => 'required|string',
+            'status' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        // Ambil data sponsor yang akan diupdate
+        $sponsor = Sponsor::findOrFail($id);
+
+        // Update data sponsor sesuai dengan data yang dikirim dari formulir
+        $sponsor->name = $request->input('name');
+        $sponsor->email = $request->input('email');
+        $sponsor->company_website = $request->input('website');
+        $sponsor->address = $request->input('address');
+        $sponsor->description = $request->input('description');
+        $sponsor->package = $request->input('package');
+        $sponsor->status = $request->input('status');
+
+        // Proses update gambar jika ada
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada
+            if ($sponsor->image) {
+                Storage::delete('public/sponsor/' . $sponsor->image);
+            }
+
+            $timestamp = now()->timestamp; // Mengambil timestamp saat ini
+            $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension(); // Nama gambar menjadi timestamp.extensi
+            $imagePath = $request->file('image')->storeAs('public/sponsor', $imageName); // Simpan gambar ke dalam direktori penyimpanan sponsor dengan nama timestamp
+            $imageUrl = asset('storage/sponsor/' . $imageName); // Buat URL penyimpanan gambar
+            $sponsor->image = $imageUrl;
+        }
+
+        $sponsor->save();
+
+        // Redirect ke halaman lain atau tampilkan pesan sukses
+        return redirect()->route('sponsors.index')->with('success', 'Sponsor berhasil diperbarui');
+    }
+
+
+    public function destroy($id)
+    {
+        $sponsor = Sponsor::find($id);
+
+        if (!$sponsor) {
+            return response()->json(['success' => false, 'message' => 'Sponsor tidak ditemukan']);
+        }
+
+        // Hapus gambar terkait jika ada (jika Anda menyimpan gambar dalam storage)
+        if ($sponsor->image) {
+            // Hapus gambar dari penyimpanan (storage)
+            Storage::delete('public/sponsor/' . $sponsor->image);
+        }
+
+        $sponsor->delete();
+
+        return response()->json(['success' => true, 'message' => 'Sponsor berhasil dihapus']);
+    }
+
+
+
+    public function updateStatus(Request $request, $id)
+    {
+        $sponsor = Sponsor::find($id);
+        if (!$sponsor) {
+            return response()->json(['success' => false, 'message' => 'Sponsor tidak ditemukan']);
+        }
+
+        $status = $request->input('status');
+        $sponsor->status = $status;
+        $sponsor->save();
+
+        return response()->json(['success' => true, 'message' => 'Status berhasil diperbarui']);
+    }
+
     public function sponsor($slug)
     {
         $event = Events::where('slug', $slug)->first();

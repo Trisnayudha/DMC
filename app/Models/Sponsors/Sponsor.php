@@ -14,6 +14,10 @@ class Sponsor extends Model
         'description',
         'address',
         'office_number',
-        'company_website'
+        'company_website',
+        'email',
+        'package',
+        'status',
+
     ];
 }

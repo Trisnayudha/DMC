@@ -65,7 +65,7 @@
             </ul>
         </li>
         <li class="">
-            <a class="nav-link" href="">
+            <a class="nav-link" href="{{ url('admin/sponsors') }}">
                 <i class="fa fa-university" aria-hidden="true"></i>
                 <span>Sponsors</span></a>
         </li>

@@ -67,6 +67,10 @@
         .myDiv {
             display: none;
         }
+
+        #image-preview {
+            max-height: 100px;
+        }
     </style>
 </head>
 

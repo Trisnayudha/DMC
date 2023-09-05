@@ -186,6 +186,9 @@ Route::prefix('admin')->group(function () {
 
     Route::get('/special-event', [SpecialEventController::class, 'index'])->name('special-event');
     Route::post('/special-event', [SpecialEventController::class, 'request']);
+
+    Route::resource('sponsors', SponsorController::class);
+    Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
 });
 
 
