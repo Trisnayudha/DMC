@@ -16,6 +16,7 @@ use App\Http\Controllers\API\ContactUsController;
 use App\Http\Controllers\API\MarketingAdsController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ScanController;
+use App\Http\Controllers\API\SponsorsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -121,5 +122,6 @@ Route::post('/highlight/list', [NotificationController::class, 'highlight']);
 
 
 Route::prefix('web')->group(function () {
-    Route::get('sponsors', [HomeController::class, 'sponsor']);
+    Route::get('sponsors', [SponsorsController::class, 'sponsor']);
+    Route::get('sponsors/{slug}/detail', [SponsorsController::class, 'detail']);
 });

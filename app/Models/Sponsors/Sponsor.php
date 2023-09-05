@@ -17,6 +17,7 @@ class Sponsor extends Model
         'company_website',
         'email',
         'package',
+        'slug',
         'status',
 
     ];

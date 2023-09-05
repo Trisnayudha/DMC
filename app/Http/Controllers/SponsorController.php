@@ -56,6 +56,8 @@ class SponsorController extends Controller
             $imageUrl = null; // Atur menjadi null jika tidak ada gambar yang diunggah
         }
 
+        // Membuat slug dari nama sponsor
+        $slug = Str::slug($request->input('name'));
         // Simpan data ke dalam model Sponsors dengan create()
         Sponsor::create([
             'name' => $request->input('name'),
@@ -66,6 +68,7 @@ class SponsorController extends Controller
             'package' => $request->input('package'),
             'status' => $request->input('status'),
             'image' => $imageUrl, // Simpan URL gambar ke dalam kolom "image" dalam database
+            'slug' => $slug, // Simpan slug ke dalam kolom "slug" dalam database
         ]);
 
         // Redirect ke halaman lain atau tampilkan pesan sukses
@@ -117,6 +120,15 @@ class SponsorController extends Controller
         $sponsor->description = $request->input('description');
         $sponsor->package = $request->input('package');
         $sponsor->status = $request->input('status');
+        // Proses pembuatan slug
+        $slug = Str::slug($request->input('name')); // Membuat slug dari nama sponsor
+
+        // Periksa apakah slug sudah digunakan oleh sponsor lain
+        if (Sponsor::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+            $slug = $slug . '-' . time(); // Tambahkan timestamp jika slug sudah digunakan
+        }
+
+        $sponsor->slug = $slug; // Set slug ke dalam model Sponsor
 
         // Proses update gambar jika ada
         if ($request->hasFile('image')) {
