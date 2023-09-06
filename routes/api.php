@@ -14,6 +14,7 @@ use App\Http\Controllers\API\VideosContorller;
 use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\API\ContactUsController;
 use App\Http\Controllers\API\MarketingAdsController;
+use App\Http\Controllers\API\MikrotikController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ScanController;
 use App\Http\Controllers\API\SponsorsController;
@@ -127,3 +128,5 @@ Route::prefix('web')->group(function () {
 
     Route::get('advertisement', [MarketingAdsController::class, 'advertisementSide']);
 });
+
+Route::post('/mikrotik',[MikrotikController::class,'process']);
