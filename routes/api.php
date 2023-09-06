@@ -124,4 +124,6 @@ Route::post('/highlight/list', [NotificationController::class, 'highlight']);
 Route::prefix('web')->group(function () {
     Route::get('sponsors', [SponsorsController::class, 'sponsor']);
     Route::get('sponsors/{slug}/detail', [SponsorsController::class, 'detail']);
+
+    Route::get('advertisement', [MarketingAdsController::class, 'advertisementSide']);
 });
