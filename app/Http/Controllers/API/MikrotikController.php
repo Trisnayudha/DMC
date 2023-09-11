@@ -15,7 +15,7 @@ class MikrotikController extends Controller
         $client = new Client([
             'host' => '192.168.2.1',
             'user' => 'admin',
-            'pass' => 'admin',
+            'pass' => '',
             'port' => 8728,
         ]);
 
