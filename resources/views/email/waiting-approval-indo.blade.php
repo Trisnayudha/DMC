@@ -100,7 +100,7 @@
             <img src="https://api.djakarta-miningclub.com/image/dmc.png" alt="Gambar" class="img-logo">
         </div>
         <div class="body-email">
-            <p>Kepada {{ $users_name }},</p>
+            <p>Dear {{ $users_name }},</p>
             <p>Terima kasih atas registrasi Anda untuk acara {{ $events_name }}.</p>
             <p>Saat ini registrasi Anda sedang diproses dan menunggu konfirmasi. Kami akan mengirimkan konfirmasi maksimal 72 jam setelah Anda mendapatkan email ini. </p>
             <p>Jika ada pertanyaan lebih lanjut, silahkan menghubungi kami melalui email secretariat@djakarta-miningclub.com atau Whatsapp +62 811 1937 300. </p>
