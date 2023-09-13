@@ -141,8 +141,8 @@ class EventsPaymentController extends Controller
                     $send->to = $inputData['email'];
                     $send->from = env('EMAIL_SENDER');
                     $send->data = $data;
-                    // $send->subject = 'Thank you for registering ' . $findEvent->name;
-                    $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
+                    $send->subject = 'Thank you for registering ' . $findEvent->name;
+                    // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
                     $send->template = 'email.waiting-approval-indo';
                     $send->sendEmail();
 
@@ -199,8 +199,9 @@ Best Regards Bot DMC Website
                         $send->to = $inputData['email'];
                         $send->from = env('EMAIL_SENDER');
                         $send->data = $data;
-                        $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
-                        $send->template = 'email.waiting-approval';
+                        // $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
+                        $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
+                        $send->template = 'email.waiting-approval-indo';
                         $send->sendEmail();
 
                         return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
