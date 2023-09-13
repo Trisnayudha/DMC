@@ -112,7 +112,7 @@
             <h6>Rincian acara</h6>
             <div class="row g-5">
                 <div class="col-3">
-                    <p>Judul/Acara</p>
+                    <p>Judul acara</p>
                 </div>
                 <div class="col-9">
                     <p>: {{ $name }}</p>
@@ -133,10 +133,12 @@
 
                 <div class="col-9">
                     <p>
-                        : {{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }}
+                        : Selasa / {{ date('j F Y', strtotime($end_date)) }}
+
+
                     </p>
-                    <p>: {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
-                        (Jakarta Time) </p>
+                    <p>: {{ date('h.i ', strtotime($start_time)) }} WIB - Selesai
+                    </p>
                     {{-- <p>: Live Event</p> --}}
                     <p>: {{ $location }}</p>
 
