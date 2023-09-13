@@ -164,7 +164,8 @@ Best Regards Bot DMC Website
 ';
                     $send->WhatsappMessage();
 
-                    return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved.');
+                    // return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved.');
+                    return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
                 } else {
                     $pdf = Pdf::loadView('email.invoice-new', $data);
                     Mail::send('email.confirm_payment', $data, function ($message) use ($inputData, $pdf) {
