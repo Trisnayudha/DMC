@@ -204,7 +204,8 @@ Best Regards Bot DMC Website
                         $send->template = 'email.waiting-approval-indo';
                         $send->sendEmail();
 
-                        return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
+                        // return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
+                        return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
                     }
                 }
 
