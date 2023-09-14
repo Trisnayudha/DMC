@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\EmailSender;
 use App\Models\MemberModel;
 use App\Models\User;
+use App\Models\VisitModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Newsletter;
@@ -141,5 +142,29 @@ class FormMemberController extends Controller
             $res['status'] = 0;
         }
         return response()->json($res);
+    }
+
+    public function visit()
+    {
+        return view('FormMember.visit');
+    }
+
+    public function visitStore(Request $request)
+    {
+        $name = $request->name;
+        $company_name = $request->company_name;
+        $phone = $request->phone;
+        $job_title = $request->job_title;
+        $email = $request->email;
+
+        $save = new VisitModel();
+        $save->name = $name;
+        $save->company_name = $company_name;
+        $save->phone = $phone;
+        $save->job_title = $job_title;
+        $save->email = $email;
+        $save->save();
+
+        return redirect()->back()->with('alert', 'Success Visit Booth');
     }
 }
