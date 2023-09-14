@@ -232,7 +232,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <label for="address" class="form-label">Alamat Perusahaan/Instansi * <span
+                                <label for="address" class="form-label">Alamat Perusahaan * <span
                                         class="text-muted"></span></label>
                                 <input type="text" class="form-control" name="address" id="address"
                                     placeholder="" required value="{{ old('address') }}">
