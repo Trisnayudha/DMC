@@ -119,7 +119,7 @@
             <img src="https://api.djakarta-miningclub.com/image/dmc.png" alt="Gambar" class="img-logo">
         </div>
         <div class="body-email">
-            <p>Kepada {{ $users_name }},</p>
+            <p>Dear {{ $users_name }},</p>
             <p>Pendaftaran Anda untuk {{ $events_name }} telah disetujui. Nomor registrasi Anda adalah sebagai berikut
                 <b
                     style="background-color: #F1B22C;

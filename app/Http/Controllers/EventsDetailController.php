@@ -425,7 +425,7 @@ class EventsDetailController extends Controller
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
                     // $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
-                    $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui ' . $findEvent->name);
+                    $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Approval');
