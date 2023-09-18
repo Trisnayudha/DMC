@@ -420,11 +420,12 @@ class EventsDetailController extends Controller
             $email = $check->email;
             $code_payment = $check->code_payment;
             if ($val == 'approve') {
-                $pdf = Pdf::loadView('email.ticket', $data);
-                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
+                $pdf = Pdf::loadView('email.ticket-indo', $data);
+                Mail::send('email.approval-event-indo', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
+                    // $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
+                    $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui ' . $findEvent->name);
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Approval');
