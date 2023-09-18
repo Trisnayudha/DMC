@@ -435,7 +435,7 @@ class EventsDetailController extends Controller
                 $send->data = $data;
                 $send->subject = '[FULLY BOOKED] ' . $findEvent->name;
                 $send->name = $check->name;
-                $send->template = 'email.reject-event';
+                $send->template = 'email.reject-event-indo';
                 $send->sendEmail();
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Reject Register');
             }
