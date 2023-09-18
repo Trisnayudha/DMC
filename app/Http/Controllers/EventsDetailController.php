@@ -437,8 +437,7 @@ class EventsDetailController extends Controller
                 $send->from = env('EMAIL_SENDER');
                 $send->to = $email;
                 $send->data = $data;
-                // $send->subject = '[FULLY BOOKED] ' . $findEvent->name;
-                $send->subject = '[BOOKINGAN PENUH] ' . $findEvent->name;
+                $send->subject = '[FULLY BOOKED] ' . $findEvent->name;
                 $send->name = $check->name;
                 $send->template = 'email.reject-event-indo';
                 $send->sendEmail();

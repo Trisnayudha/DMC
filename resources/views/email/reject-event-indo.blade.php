@@ -129,7 +129,7 @@
                 atau Whatsapp +628111937300.</p>
             <br>
             <p>Hormat kami,</p>
-            <span>Tim Djakarta Mining Club</span>
+            <span>Sekretariat Djakarta Mining Club</span>
         </div>
         <div class="footer-email">
             Jangan balas email ke alamat email ini. Email ini dikirim secara otomatis oleh sistem kami.
