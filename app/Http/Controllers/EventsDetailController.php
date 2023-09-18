@@ -208,7 +208,7 @@ class EventsDetailController extends Controller
             if (empty($profile)) {
                 $profile = new ProfileModel();
             }
-            $profile->phone = $phone;
+            // $profile->phone = $phone;
             $profile->job_title = $job_title;
             $profile->users_id = $user->id;
             $profile->company_id = $company->id;
