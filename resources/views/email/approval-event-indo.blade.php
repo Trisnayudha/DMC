@@ -157,7 +157,7 @@
             </table>
 
             <p>Berikut link untuk agenda acara
-                (https://djakarta-miningclub.com/dmc/2023/metals-magnified-analyzing-key-markets-and-indonesias-prospects/)
+                (https://djakarta-miningclub.com/dmc/2023/round-table-discussion-peraturan-pemerintah-pp-nomor-36-tahun-2023/)
             </p>
 
             <br>
