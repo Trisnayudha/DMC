@@ -354,7 +354,8 @@ class EventsDetailController extends Controller
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
             }
         } catch (Exception $e) {
-            return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', $e->getMessage());
+            // return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', $e->getMessage());
+            return $e->getMessage();
         }
     }
 
