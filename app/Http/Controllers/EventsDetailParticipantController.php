@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\WhatsappApi;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
 use App\Models\Events\UserRegister;
@@ -147,6 +148,46 @@ class EventsDetailParticipantController extends Controller
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
             });
             return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Successfully Send Confirmation');
+        } elseif ($method == 'confirmation_wa') {
+            // dd($method);
+            $send = new WhatsappApi();
+            $send->phone = $findProfile->phone;
+            $send->message = '📌"REMINDER Round Table Discussion - PERATURAN PEMERINTAH (PP) NOMOR 36 TAHUN 2023"
+
+Selamat Siang Bapak/Ibu,
+
+Terima Kasih atas pendaftaran Bapak/Ibu untuk Round Table Discussion - PERATURAN PEMERINTAH (PP) NOMOR 36 TAHUN 2023 yang akan dilakukan pada:
+
+Hari/Tgl : Selasa, 19 September 2023
+Jam      : 11.00-Selesai WIB
+Tempat   : The Dharmawangsa Hotel Jakarta
+
+
+NOTE:
+- Acara akan dilaksanakan dalam Bahasa Indonesia
+
+Mohon REPLY YES jika sudah menerima dan membaca WhatsApp ini.
+
+Terima Kasih atas pengertian dan kerjasamanya 😊🙏🏻
+
+Regards,
+*Sekretariat Djakarta Mining Club
+';
+            $send->WhatsappMessage();
+            if ($send->res == 'invalid') {
+                return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('error', 'Whatsapp tidak ditemukan');
+            }
+            $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
+            if ($save == null) {
+                $save = new UserRegister();
+            }
+            $save->users_id = $users_id;
+            $save->events_id = $events_id;
+            $save->payment_id = $payment_id;
+            $save->pic_id_reminder_wa = $pic;
+            $save->reminder_wa = Carbon::now();
+            $save->save();
+            return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Success send wa');
         } else {
             $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
             if ($save == null) {

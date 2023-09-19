@@ -11,6 +11,7 @@ class WhatsappApi
     public $image;
     public $caption;
 
+
     public function WhatsappMessage()
     {
         try {
@@ -18,23 +19,33 @@ class WhatsappApi
             $message = $this->message;
             $token = "FinMZc6DItk1r5EdYhUdlLcM3dmDWvBqFWldZbV7YQGoCTSQKh";
 
-            $url = 'http://nusagateway.com/api/send-message.php';
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_HEADER, 0);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-                'token'    => $token,
-                'phone'     => $phone,
-                'message'   => $message,
-            ));
-            $status = curl_exec($curl);
-            curl_close($curl);
-            return $this->res = $status;
+            // Melakukan pengecekan nomor telepon menggunakan endpoint check-number
+            $checkUrl = 'https://nusagateway.com/api/check-number.php';
+            $checkData = [
+                'phone' => $phone,
+                'token' => $token
+            ];
+
+            $checkResponse = $this->makeCurlRequest($checkUrl, 'POST', $checkData);
+
+            if ($checkResponse['status'] === 'valid') {
+                // Nomor telepon valid, lanjutkan proses pengiriman pesan WhatsApp
+
+                $sendMessageUrl = 'https://nusagateway.com/api/send-message.php';
+                $sendMessageData = [
+                    'token' => $token,
+                    'phone' => $phone,
+                    'message' => $message
+                ];
+
+                $sendMessageResponse = $this->makeCurlRequest($sendMessageUrl, 'POST', $sendMessageData);
+
+
+                return $this->res = 'valid';
+            } else {
+                // Nomor telepon tidak valid, kembalikan pesan error
+                return $this->res = 'invalid';
+            }
         } catch (\Exception $th) {
             return $this->res = $th->getMessage();
         }
@@ -97,5 +108,36 @@ class WhatsappApi
         } catch (\Exception $th) {
             return $this->res = $th->getMessage();
         }
+    }
+
+    private function makeCurlRequest($url, $method, $data)
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+        if ($method === 'POST') {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        }
+
+        $response = curl_exec($ch);
+
+        if ($response === false) {
+            throw new \Exception(curl_error($ch));
+        }
+
+        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        if ($statusCode !== 200) {
+            throw new \Exception('Request failed with status code ' . $statusCode);
+        }
+
+        return json_decode($response, true);
     }
 }

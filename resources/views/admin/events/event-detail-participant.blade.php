@@ -108,7 +108,8 @@
                                                     <th>Country</th>
                                                 @endif
                                                 @if ($list[0]['end_date'] >= date('Y-m-d'))
-                                                    <th>Date Send Confirmation</th>
+                                                    <th>Confirmation Email</th>
+                                                    <th>Confirmation Whatsapp</th>
                                                 @endif
                                                 <th>Date Present </th>
                                             </tr>
@@ -153,6 +154,27 @@
                                                                 </form>
                                                             @else
                                                                 {{ date('d,F H:i', strtotime($post->reminder)) . ' ' . $post->name_reminder }}
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if ($post->reminder_wa == null)
+                                                                <form action="{{ Route('events-send-participant') }}"
+                                                                    method="post">
+                                                                    @csrf
+                                                                    <input type="hidden" name="users_id"
+                                                                        value="{{ $post->users_id }}">
+                                                                    <input type="hidden" name="events_id"
+                                                                        value="{{ $post->events_id }}">
+                                                                    <input type="hidden" name="payment_id"
+                                                                        value="{{ $post->payment_id }}">
+                                                                    <input type="hidden" name="method"
+                                                                        value="confirmation_wa">
+                                                                    <button href="#" class="btn btn-primary send"
+                                                                        title="Send Confirmation">
+                                                                        <span class="fa fa-paper-plane"></span></button>
+                                                                </form>
+                                                            @else
+                                                                {{ date('d,F H:i', strtotime($post->reminder_wa)) . ' ' . $post->name_reminder_wa }}
                                                             @endif
                                                         </td>
                                                     @endif
