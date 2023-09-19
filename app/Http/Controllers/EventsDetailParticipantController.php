@@ -37,6 +37,7 @@ class EventsDetailParticipantController extends Controller
             })
             ->leftJoin('users as users_present', 'users_present.id', '=', 'users_event.pic_id_present')
             ->leftJoin('users as users_reminder', 'users_reminder.id', '=', 'users_event.pic_id_reminder')
+            ->leftJoin('users as users_reminder_wa', 'users_reminder_wa.id', '=', 'users_event.pic_id_reminder_wa')
             ->where([
                 ['payment.events_id', $findEvent->id],
                 ['payment.status_registration', 'Paid Off']
@@ -57,7 +58,9 @@ class EventsDetailParticipantController extends Controller
                 'users_present.name as name_present',
                 'users_event.pic_id_present',
                 'users_event.reminder',
+                'users_event.reminder_wa',
                 'users_reminder.name as name_reminder',
+                'users_reminder.name as name_reminder_wa',
                 'users_event.pic_id_reminder',
                 'users_event.created_at as created',
                 'users_event.updated_at as updated',
