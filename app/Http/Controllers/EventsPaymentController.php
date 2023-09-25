@@ -141,9 +141,9 @@ class EventsPaymentController extends Controller
                     $send->to = $inputData['email'];
                     $send->from = env('EMAIL_SENDER');
                     $send->data = $data;
-                    // $send->subject = 'Thank you for registering ' . $findEvent->name;
-                    $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
-                    $send->template = 'email.waiting-approval-indo';
+                    $send->subject = 'Thank you for registering ' . $findEvent->name;
+                    // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
+                    $send->template = 'email.waiting-approval';
                     $send->sendEmail();
 
                     $send = new WhatsappApi();
@@ -164,8 +164,8 @@ Best Regards Bot DMC Website
 ';
                     $send->WhatsappMessage();
 
-                    // return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved.');
-                    return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
+                    return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved.');
+                    // return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
                 } else {
                     $pdf = Pdf::loadView('email.invoice-new', $data);
                     Mail::send('email.confirm_payment', $data, function ($message) use ($inputData, $pdf) {
@@ -199,13 +199,13 @@ Best Regards Bot DMC Website
                         $send->to = $inputData['email'];
                         $send->from = env('EMAIL_SENDER');
                         $send->data = $data;
-                        // $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
-                        $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
-                        $send->template = 'email.waiting-approval-indo';
+                        $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2023 ';
+                        // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
+                        $send->template = 'email.waiting-approval';
                         $send->sendEmail();
 
-                        // return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
-                        return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
+                        return redirect()->back()->with('alert', 'Registration successful! You`ll be notified via email upon approval.');
+                        // return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
                     }
                 }
 

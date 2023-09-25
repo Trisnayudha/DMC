@@ -11,7 +11,7 @@ class EventsRegisterController extends Controller
     public function single($slug)
     {
         $findEvent = Events::where('slug', $slug)->first();
-        return view('register_event.single-indo', $findEvent);
+        return view('register_event.single', $findEvent);
     }
 
     public function multiple($slug)
