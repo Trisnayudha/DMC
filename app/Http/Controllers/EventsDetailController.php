@@ -148,13 +148,13 @@ class EventsDetailController extends Controller
                 $email = $findUsers->email;
 
                 ini_set('max_execution_time', 300);
-                $pdf = Pdf::loadView('email.ticket-indo', $data);
+                $pdf = Pdf::loadView('email.ticket', $data);
 
-                Mail::send('email.approval-event-indo', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
+                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    // $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
-                    $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
+                    $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
+                    // $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
             }
@@ -323,13 +323,13 @@ class EventsDetailController extends Controller
                     // dd("sukses");
                     ini_set('max_execution_time', 300);
                     // TODO bakal ada bug
-                    $pdf = Pdf::loadView('email.ticket-indo', $data);
+                    $pdf = Pdf::loadView('email.ticket', $data);
                     try {
-                        Mail::send('email.approval-event-indo', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
+                        Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($email);
-                            // $message->subject($codePayment . ' - Your registration is approved for ' . $findEvent->name);
-                            $message->subject($codePayment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
+                            $message->subject($codePayment . ' - Your registration is approved for ' . $findEvent->name);
+                            // $message->subject($codePayment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
                             $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
                         });
                     } catch (\Exception $e) {
@@ -423,12 +423,12 @@ class EventsDetailController extends Controller
             $email = $check->email;
             $code_payment = $check->code_payment;
             if ($val == 'approve') {
-                $pdf = Pdf::loadView('email.ticket-indo', $data);
-                Mail::send('email.approval-event-indo', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
+                $pdf = Pdf::loadView('email.ticket', $data);
+                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    // $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
-                    $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
+                    $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
+                    // $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Approval');
@@ -439,7 +439,7 @@ class EventsDetailController extends Controller
                 $send->data = $data;
                 $send->subject = '[FULLY BOOKED] ' . $findEvent->name;
                 $send->name = $check->name;
-                $send->template = 'email.reject-event-indo';
+                $send->template = 'email.reject-event';
                 $send->sendEmail();
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Reject Register');
             }
