@@ -331,7 +331,7 @@
                                                         {{ $post->pic_name ? $post->pic_name : 'System' }}
                                                     </td>
                                                     <td>
-                                                        {{-- {{ $post->pic_name ? $post->pic_name : 'System' }} --}}
+                                                        {{ $post->sponsor_name ? $post->sponsor_name : '' }}
                                                     </td>
                                                     <td>
                                                         <a href="#" data-toggle="dropdown"
