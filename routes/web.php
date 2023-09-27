@@ -143,6 +143,8 @@ Route::post('/events-tickets/deletecategory', [EventsTicketController::class, 'd
 
 Route::get('/events/sponsor', [EventsRegisterSponsorController::class, 'index'])->name('events.sponsor');
 Route::post('/events-sponsor/addeventsponsor', [EventsRegisterSponsorController::class, 'store']);
+Route::post('/events-sponsor/editeventsponsor', [EventsRegisterSponsorController::class, 'edit']);
+Route::post('/events-sponsor/deleteeventsponsor', [EventsRegisterSponsorController::class, 'destroy']);
 
 //Events Conference
 Route::get('/events/conference', [EventsConferenceController::class, 'index'])->name('events.conference');

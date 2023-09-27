@@ -19,6 +19,7 @@ class EventsRegisterSponsorController extends Controller
             ->leftjoin('events', 'events.id', 'event_sponsors.events_id')->orderby('event_sponsors.id', 'desc')
             ->select(
                 'event_sponsors.id',
+                'events.slug',
                 'sponsors.name as sponsor_name',
                 'events.name as events_name',
                 'event_sponsors.code_access',
@@ -43,8 +44,25 @@ class EventsRegisterSponsorController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function update(Request $request)
+    public function edit(Request $request)
     {
-        //
+        $where = array('id' => $request->id);
+        $data  = EventSponsors::where($where)->first();
+        // activity()->log('Edit Data Kategori');
+        return response()->json($data);
+    }
+
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Product  $product
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request)
+    {
+        $data = EventSponsors::where('id', $request->id)->delete();
+        // activity()->log('Menghapus Data Kategori');
+        return response()->json(['success' => true]);
     }
 }

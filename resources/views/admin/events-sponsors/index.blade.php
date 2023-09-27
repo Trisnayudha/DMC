@@ -67,20 +67,27 @@
                                                     <td>{{ $no++ }}</td>
                                                     <td>{{ $post->sponsor_name }}</td>
                                                     <td>{{ $post->events_name }}</td>
-                                                    <td>{{ $post->code_access }}</td>
-                                                    <td>{{ $post->count }}</td>
                                                     <td>
-                                                        <a href="{{ Route('events.edit', $post->id) }}"
-                                                            class="btn btn-success" title="Edit Data">
+                                                        <a href="{{ url("$post->slug/invitation/$post->code_access") }}"
+                                                            target="_blank">
+                                                            {{ $post->code_access }}
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ $post->count == null ? 0 : $post->count }}</td>
+                                                    <td>
+                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
+                                                            class="btn btn-success edit">
                                                             <span class="fa fa-edit"></span>
                                                         </a>
-                                                        <button class="btn btn-danger" value="`+ row.id +`"
-                                                            id="deleteProgram" type="submit" title="Hapus Data">
-                                                            <span class="fa fa-trash"></span></button>
+                                                        {{-- @dd($post-id); --}}
+                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
+                                                            class="btn btn-danger delete">
+                                                            <span class="fa fa-trash"></span>
+                                                        </a>
                                                     </td>
-
                                                 </tr>
                                             @endforeach
+
                                         </tbody>
                                     </table>
                                 </div>
@@ -160,7 +167,7 @@
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('events-sponsor/edit') }}",
+                    url: "{{ url('events-sponsor/editeventsponsor') }}",
                     data: {
                         id: id
                     },
@@ -168,8 +175,12 @@
                     success: function(res) {
                         $('#ajaxCategoryModel').html("Edit Category");
                         $('#category-model').modal('show');
-                        $('#id').val(res.id);
-                        $('#link').val(res.link);
+
+                        // Isi nilai untuk elemen <select> events_id
+                        $('#events_id').val(res.events_id);
+
+                        // Isi nilai untuk elemen <select> sponsor_id
+                        $('#sponsor_id').val(res.sponsor_id);
                     }
                 });
             });
@@ -188,7 +199,7 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "POST",
-                            url: "{{ url('events-sponsor/delete') }}",
+                            url: "{{ url('events-sponsor/deleteeventsponsor') }}",
                             data: {
                                 id: id
                             },
