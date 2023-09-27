@@ -52,6 +52,7 @@
                 <span>Events</span></a>
             <ul class="dropdown-menu">
                 <li><a class="nav-link" href="{{ Route('events') }}">Events List</a></li>
+                <li><a class="nav-link" href="{{ Route('events.sponsor') }}">Events Sponsor Invitation</a></li>
                 <li><a class="nav-link" href="{{ Route('events.category') }}">Events Category</a></li>
                 <li><a class="nav-link" href="{{ Route('events.tickets') }}">Events Tickets</a></li>
                 <li><a class="nav-link" href="{{ Route('events.conference') }}">Events Conference</a></li>

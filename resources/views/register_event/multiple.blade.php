@@ -13,6 +13,7 @@
     <meta property="og:url" content="https://djakarta-miningclub.com" />
     <meta property="og:description" content="Register Event" />
     <meta property="og:image" content="{{ asset($image) }}" />
+    <link rel="icon" type="image/png" href="{{ asset('image/logo-crop.png') }}">
     <meta property="og:type" content="register" />
     <meta property="og:locale" content="en_GB" />
     <meta property="og:locale:alternate" content="fr_FR" />

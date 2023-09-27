@@ -302,6 +302,7 @@
                                                 <th>Company Category</th>
                                                 <th>Status Approval</th>
                                                 <th>Status PIC</th>
+                                                <th>Status Daftar</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
@@ -328,6 +329,9 @@
                                                     </td>
                                                     <td>
                                                         {{ $post->pic_name ? $post->pic_name : 'System' }}
+                                                    </td>
+                                                    <td>
+                                                        {{-- {{ $post->pic_name ? $post->pic_name : 'System' }} --}}
                                                     </td>
                                                     <td>
                                                         <a href="#" data-toggle="dropdown"

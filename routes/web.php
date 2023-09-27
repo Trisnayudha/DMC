@@ -10,6 +10,7 @@ use App\Http\Controllers\EventsDetailParticipantController;
 use App\Http\Controllers\EventsHighlightController;
 use App\Http\Controllers\EventsPaymentController;
 use App\Http\Controllers\EventsRegisterController;
+use App\Http\Controllers\EventsRegisterSponsorController;
 use App\Http\Controllers\EventsTicketController;
 use App\Http\Controllers\FormMemberController;
 use App\Http\Controllers\MarketingAdsController;
@@ -78,6 +79,7 @@ Route::post('/visit', [FormMemberController::class, 'visitStore']);
 
 
 Route::get('/{slug}/exclusive-invitation', [EventsRegisterController::class, 'single']);
+Route::get('/{slug}/invitation/{type}', [EventsRegisterController::class, 'sponsor']);
 Route::post('/payment-personal', [EventsPaymentController::class, 'payment_personal']);
 
 Route::get('/{slug}/register-event', [EventsRegisterController::class, 'multiple']);
@@ -138,6 +140,9 @@ Route::get('/events/tickets', [EventsTicketController::class, 'index'])->name('e
 Route::post('/events-tickets/addcategory', [EventsTicketController::class, 'store']);
 Route::post('/events-tickets/editcategory', [EventsTicketController::class, 'edit']);
 Route::post('/events-tickets/deletecategory', [EventsTicketController::class, 'destroy']);
+
+Route::get('/events/sponsor', [EventsRegisterSponsorController::class, 'index'])->name('events.sponsor');
+Route::post('/events-sponsor/addeventsponsor', [EventsRegisterSponsorController::class, 'store']);
 
 //Events Conference
 Route::get('/events/conference', [EventsConferenceController::class, 'index'])->name('events.conference');

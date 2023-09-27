@@ -9,6 +9,7 @@
     <meta name="generator" content="Hugo 0.98.0">
     <title>DMC Register Event</title>
     <meta name="description" content="Register Event " />
+    <link rel="icon" type="image/png" href="{{ asset('image/logo-crop.png') }}">
     <meta property="og:title" content="Register Event " />
     <meta property="og:url" content="https://djakarta-miningclub.com" />
     <meta property="og:description" content="Register Event" />

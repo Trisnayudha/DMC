@@ -9,13 +9,13 @@
     <meta name="generator" content="Hugo 0.98.0">
     <title>DMC Register Event</title>
     <meta name="description" content="Register Event " />
+    <link rel="icon" type="image/png" href="{{ asset('image/logo-crop.png') }}">
     <meta property="og:title" content="Register Event " />
     <meta property="og:url" content="https://djakarta-miningclub.com" />
     <meta property="og:description" content="Register Event" />
     <meta property="og:image" content="{{ asset($image) }}" />
     <meta property="og:type" content="register" />
     <meta property="og:locale" content="en_GB" />
-    <link rel="icon" type="image/png" href="{{ asset('image/logo-crop.png') }}">
     <meta property="og:locale:alternate" content="fr_FR" />
     <meta property="og:locale:alternate" content="es_ES" />
     <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/checkout/">
@@ -105,57 +105,72 @@
             <div class="py-2 text-center">
                 <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
                     src="{{ asset('image/dmc.png') }}" class="img-fluid" alt="">
-                <h2 style="text-transform: uppercase">PENDAFTARAN ACARA
+                <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
                 {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
                     by OPIS </p> --}}
             </div>
-            <h6>Rincian acara</h6>
+            <h6>Detail event</h6>
             <div class="row g-5">
                 <div class="col-3">
-                    <p>Judul acara</p>
+                    <p>Title</p>
                 </div>
                 <div class="col-9">
                     <p>: {{ $name }}</p>
                 </div>
                 <div class="col-3">
                     <p>
-                        Hari/Tanggal
+                        Date
                     </p>
                     <p>
-                        Waktu
+                        Time
                     </p>
-                    {{-- <p>Event Type</p> --}}
+                    <p>Event Type</p>
                     <p>
-                        Tempat
+                        Location
                     </p>
 
                 </div>
 
                 <div class="col-9">
                     <p>
-                        : Selasa / {{ date('j F Y', strtotime($end_date)) }}
-
-
+                        : {{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }}
                     </p>
-                    <p>: {{ date('h.i ', strtotime($start_time)) }} WIB - Selesai
-                    </p>
-                    {{-- <p>: Live Event</p> --}}
+                    <p>: {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        (Jakarta Time) </p>
+                    <p>: Live Event</p>
                     <p>: {{ $location }}</p>
 
                     </p>
                 </div>
-                <p>*) Acara akan dilaksanakan dalam Bahasa Indonesia </p>
                 <br>
 
             </div>
             <br>
+            {{-- <h6>Health and Safety Protocols (COVID-19 Prevention) :</h6>
+            <div class="row g-5">
+                <div class="col-12">
+                    <p>
+                        1. Self-Assessment (If you are feeling unwell and/or experiencing symptoms of COVID-19, you
+                        should not attend).
+                    </p>
+                    <p>
+                        2. Wearing a Mask.
+                    </p>
+                    <p>
+                        3. Scan/ Check in at The Venue with PeduliLindungi App
+                    </p>
+                    <p>
+                        4. Show Proof of Vaccination (Min. 3 doses of vaccine)
+                    </p>
+                </div>
+            </div> --}}
             <hr class="my-1">
 
             <div class="row g-5">
 
                 <div class="col-md-12 col-lg-12">
-                    <h4 class="mb-3">* Wajib Diisi</h4>
+                    <h4 class="mb-3">* Required information</h4>
                     <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation" novalidate>
                         <input type="hidden" name="slug" value="{{ $slug }}">
                         @if ($errors->any())
@@ -170,8 +185,8 @@
                         @csrf
                         <!-- {{ csrf_field() }} -->
                         <div class="row g-3">
-                            <div class="col-md-3 mb-1">
-                                <label for="company_name" class="form-label">Nama Perusahaan*</label>
+                            <div class="col-md-2 mb-1">
+                                <label for="company_name" class="form-label">Company name *</label>
                                 <select class="custom-select d-block w-100" id="prefix" name="prefix" required>
                                     <option value="PT">PT</option>
                                     <option value="CV">CV</option>
@@ -190,17 +205,17 @@
                                     Please select a valid prefix company name.
                                 </div>
                             </div>
-                            <div class="col-sm-3">
+                            <div class="col-sm-4">
                                 <label for="company_name" class="form-label" style="color: white">. </label>
                                 <input type="text" class="form-control" name="company_name"
-                                    placeholder="Nama Perusahan " value="{{ old('company_name') }}" required>
+                                    placeholder="Your company name" value="{{ old('company_name') }}" required>
                                 <div class="invalid-feedback">
                                     Valid company name is required.
                                 </div>
                             </div>
 
                             <div class="col-sm-6">
-                                <label for="name" class="form-label">Nama lengkap *</label>
+                                <label for="name" class="form-label">Full name *</label>
                                 <input type="text" class="form-control" name="name" placeholder=""
                                     value="{{ old('name') }}" required>
                                 <div class="invalid-feedback">
@@ -208,7 +223,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <label for="phone" class="form-label">No Telp *</label>
+                                <label for="phone" class="form-label">Mobile number *</label>
                                 <input type="tel" class="form-control" name="phone"id="phone"
                                     placeholder="" value="{{ old('phone') ? old('phone') : '+62' }}" required>
                                 <div class="invalid-feedback">
@@ -216,7 +231,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <label for="job_title" class="form-label">Jabatan *</label>
+                                <label for="job_title" class="form-label">Job Title *</label>
                                 <input type="text" class="form-control" name="job_title" placeholder="" required
                                     value="{{ old('job_title') }}">
                                 <div class="invalid-feedback">
@@ -224,16 +239,16 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <label for="email" class="form-label">Alamat Email * <span
+                                <label for="email" class="form-label">Email Address * <span
                                         class="text-muted"></span></label>
                                 <input type="email" class="form-control" name="email" id="email"
-                                    placeholder="email@xxx.com" required value="{{ old('email') }}">
+                                    placeholder="Your work email" required value="{{ old('email') }}">
                                 <div class="invalid-feedback">
                                     Please enter a valid email address.
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <label for="address" class="form-label">Alamat Perusahaan * <span
+                                <label for="address" class="form-label">Address * <span
                                         class="text-muted"></span></label>
                                 <input type="text" class="form-control" name="address" id="address"
                                     placeholder="" required value="{{ old('address') }}">
@@ -242,7 +257,7 @@
                                 </div>
                             </div>
                             <div class="col-sm-6 mb-3">
-                                <label for="country" class="form-label">Negara * </label>
+                                <label for="country" class="form-label">Country * </label>
                                 <select class="form-control js-example-basic-single" name="country" id="country"
                                     placeholder="" required>
                                     <option value="Indonesia" selected>Indonesia</option>
@@ -252,10 +267,10 @@
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="company_category" class="form-label">Kategori Perusahaan *</label>
+                                <label for="company_category" class="form-label">Company Category *</label>
                                 <select class="form-control js-example-basic-single d-block w-100"
                                     name="company_category" id="company_category" required>
-                                    <option value="">--Pilih--</option>
+                                    <option value="">--Select--</option>
                                     <option value="Coal Mining">Coal Mining</option>
                                     <option value="Minerals Producer">Minerals Producer</option>
                                     <option value="Supplier/Distributor/Manufacturer">
@@ -289,8 +304,11 @@
 
                         <hr class="my-4">
                         <input type="hidden" name="paymentMethod" value="free">
-
-                        <button class="w-80 btn btn-primary btn-lg" type="submit">Registrasi</button>
+                        <input type="hidden" name="typeSponsor" value="{{ $typeSponsor }}">
+                        <p>
+                            <small> This is an Exclusive Invitation for Sponsor - Subject by Approval</small>
+                        </p>
+                        <button class="w-80 btn btn-primary btn-lg" type="submit">Claim My Free Registration</button>
                     </form>
                 </div>
             </div>
@@ -316,6 +334,18 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"
+        integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.js"
+        integrity="sha512-nO7wgHUoWPYGCNriyGzcFwPSF+bPDOR+NvtOYy2wMcWkrnCNPKBcFEkU80XIN14UVja0Gdnff9EmydyLlOL7mQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.slim.js"
+        integrity="sha512-M3zrhxXOYQaeBJYLBv7DsKg2BWwSubf6htVyjSkjc9kPqx7Se98+q1oYyBJn2JZXzMaZvUkB8QzKAmeVfzj9ug=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.slim.min.js"
+        integrity="sha512-jxwTCbLJmXPnV277CvAjAcWAjURzpephk0f0nO2lwsvcoDMqBdy1rh1jEwWWTabX1+Grdmj9GFAgtN22zrV0KQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script> --}}
     <script>
         $(document).ready(function() {
             $('.js-example-basic-single').select2();
@@ -331,6 +361,18 @@
             });
         });
     </script>
+    <script>
+        // Simpan URL asli dengan parameter dari Blade
+        var originalURL = "http://127.0.0.1:8000/balikpapan-event/invitation/{{ $typeSponsor }}";
+
+        // Periksa panjang URL saat halaman dimuat
+        if (window.location.href.length < originalURL.length) {
+            // Jika panjang URL yang dimodifikasi lebih pendek, tambahkan kembali teks yang hilang
+            window.location.href = originalURL;
+        }
+    </script>
+
+
     <script src="{{ asset('new-zoom/form-validation.js') }}"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
@@ -395,6 +437,58 @@
             initialCountry: "id",
 
         });
+        // $(document).ready(function() {
+        //     $('#email').change(function() {
+        //         var email = $("#email").val();
+
+        //         var listErrorPrefixs = $("#listStringPrefix").val();
+        //         console.log(email)
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: '{{ url('/register/email') }}',
+        //             headers: {
+        //                 'X-CSRF-Token': '{{ csrf_token() }}',
+        //             },
+        //             data: 'email=' + email,
+        //             success: function(msg) {
+        //                 console.log(msg)
+        //                 if (msg.status == 1) {
+
+        //                     // Mendapatkan elemen yang akan dihapus
+        //                     $('.member').remove();
+        //                     $('.non-member').remove();
+        //                     $(".customer").append(
+        //                         `  <div class="form-check member">
+    //                         <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
+    //                             checked required value="member">
+    //                         <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
+    //                     </div>`
+        //                     );
+        //                 } else {
+        //                     $('.member').remove();
+        //                     $('.non-member').remove();
+        //                     $(".customer").append(
+        //                         `  <div class="form-check non-member">
+    //                         <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
+    //                             checked required value="nonmember">
+    //                         <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
+    //                     </div>`
+        //                     );
+        //                 }
+        //                 // if (msg == 'found same') {
+        //                 //     swal("Warning", "Email (" + email +
+        //                 //         ") is Already Registered", "warning");
+        //                 //     $("#email").val("");
+        //                 // } else if (msg == 'error prefix') {
+        //                 //     swal("Warning",
+        //                 //         "Sorry you can't use email, which is affiliated " +
+        //                 //         listErrorPrefixs, "warning");
+        //                 //     $("#email").val("");
+        //                 // }
+        //             }
+        //         });
+        //     });
+        // });
     </script>
 </body>
 

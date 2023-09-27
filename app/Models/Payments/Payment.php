@@ -28,7 +28,8 @@ class Payment extends Model
         'qr_code',
         'pic_id',
         'booking_contact_id',
-        'groupby_users_id'
+        'groupby_users_id',
+        'sponsor_code'
     ];
 
     public static function arrayCode()

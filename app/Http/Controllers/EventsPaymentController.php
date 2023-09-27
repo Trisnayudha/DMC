@@ -28,7 +28,7 @@ class EventsPaymentController extends Controller
             $inputData = $request->only([
                 'prefix', 'company_name', 'phone', 'email', 'name', 'job_title',
                 'company_website', 'country', 'address', 'city', 'office_number',
-                'portal_code', 'company_category', 'company_other', 'paymentMethod', 'slug'
+                'portal_code', 'company_category', 'company_other', 'paymentMethod', 'slug', 'typeSponsor'
             ]);
 
             $user = User::firstOrNew(['email' => $inputData['email']]);
@@ -57,8 +57,10 @@ class EventsPaymentController extends Controller
 
             $profile->company_id = $company->id;
             $profile->save();
-
-
+            $typeSponsor = null;
+            if (!empty($inputData['typeSponsor'])) {
+                $typeSponsor = $inputData['typeSponsor'];
+            }
             $findEvent = Events::where('slug', $inputData['slug'])->first();
 
             $total_price = 0;
@@ -119,6 +121,7 @@ class EventsPaymentController extends Controller
                     $payment->status_registration = 'Waiting';
                     $payment->code_payment = $codePayment;
                     $payment->events_id = $findEvent->id;
+                    $payment->sponsor_code = $typeSponsor;
                 } else {
                     $payment->package = $inputData['paymentMethod'];
                     $payment->payment_method = 'Credit Card';
@@ -126,6 +129,7 @@ class EventsPaymentController extends Controller
                     $payment->link = $linkPay;
                     $payment->code_payment = $codePayment;
                     $payment->events_id = $findEvent->id;
+                    $payment->sponsor_code = $typeSponsor;
 
                     if ($inputData['paymentMethod'] == 'member') {
                         $payment->tickets_id = 1;
@@ -193,6 +197,7 @@ Best Regards Bot DMC Website
                         $payment->status_registration = 'Waiting';
                         $payment->code_payment = $codePayment;
                         $payment->events_id = $findEvent->id;
+                        $payment->sponsor_code = $typeSponsor;
                         $payment->save();
 
                         $send = new EmailSender();
