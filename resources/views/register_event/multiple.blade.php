@@ -765,13 +765,16 @@
                             var number = 0;
                             if (package == 'nonmember') {
 
-                                number = 1000000;
+                                // number = 1000000;
+                                number = 600000;
                             } else if (package == 'onsite') {
-                                number = 1250000;
+                                // number = 1250000;
+                                number = 750000;
                             } else if (package == 'table') {
                                 number = 4000000;
                             } else {
-                                number = 900000;
+                                // number = 900000;
+                                number = 500000;
                             }
                             const fix = number.toLocaleString('id-ID', {
                                 style: 'currency',
