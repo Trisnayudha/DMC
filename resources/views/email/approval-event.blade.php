@@ -165,8 +165,9 @@
                 <tr>
                     <th>Venue</th>
                     <th>:</th>
-                    <td>The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
-                        Kebayoran Baru, 12160, Indonesia)</td>
+                    {{-- <td>The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
+                        Kebayoran Baru, 12160, Indonesia)</td> --}}
+                    <td>Grand Jatra Hotel Balikpapan</td>
                 </tr>
             </table>
 
