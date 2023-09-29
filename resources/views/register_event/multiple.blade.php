@@ -201,17 +201,20 @@
                 <div class="form-check member">
                     <input id="credit" name="paymentMethod" type="radio" class="form-check-input" required
                         value="member">
-                    <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
+                    {{-- <label class="form-check-label" for="credit">Member (Rp. 900.000)</label> --}}
+                    <label class="form-check-label" for="credit">Member (Rp. 500.000)</label>
                 </div>
                 <div class="form-check non-member">
                     <input id="debit" name="paymentMethod" type="radio" class="form-check-input" checked required
                         value="nonmember">
-                    <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
+                    {{-- <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label> --}}
+                    <label class="form-check-label" for="debit">Non Member (Rp. 600.000)</label>
                 </div>
                 <div class="form-check member">
                     <input id="onsite" name="paymentMethod" type="radio" class="form-check-input" required
                         value="onsite">
-                    <label class="form-check-label" for="onsite">On Site (Rp. 1.250.000)</label>
+                    {{-- <label class="form-check-label" for="onsite">On Site (Rp. 1.250.000)</label> --}}
+                    <label class="form-check-label" for="onsite">On Site (Rp. 750.000)</label>
                 </div>
                 {{-- <div class="form-check member">
                     <input id="table" name="paymentMethod" type="radio" class="form-check-input" required

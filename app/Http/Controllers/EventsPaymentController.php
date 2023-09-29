@@ -302,16 +302,22 @@ Best Regards Bot DMC Website
 
                 switch ($table['price']) {
                     case 'member':
-                        $ticket_id = 12;
-                        $total_price = 900000;
+                        // $ticket_id = 12;
+                        // $total_price = 900000;
+                        $ticket_id = 18;
+                        $total_price = 500000;
                         break;
                     case 'nonmember':
-                        $ticket_id = 11;
-                        $total_price = 1000000;
+                        // $ticket_id = 11;
+                        // $total_price = 1000000;
+                        $ticket_id = 19;
+                        $total_price = 600000;
                         break;
                     case 'onsite':
-                        $ticket_id = 9;
-                        $total_price = 1250000;
+                        // $ticket_id = 9;
+                        // $total_price = 1250000;
+                        $ticket_id = 20;
+                        $total_price = 750000;
                         break;
                     case 'table':
                         $ticket_id = 13;
