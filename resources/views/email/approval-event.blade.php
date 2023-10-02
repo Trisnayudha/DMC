@@ -160,7 +160,10 @@
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>{{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}</td>
+                    <td>
+                        {{-- {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }} --}}
+                        08.00 – 14.00 WITA & 17.00 – 21.00 WITA
+                    </td>
                 </tr>
                 <tr>
                     <th>Venue</th>

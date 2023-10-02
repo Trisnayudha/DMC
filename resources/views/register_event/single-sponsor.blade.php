@@ -136,8 +136,11 @@
                     <p>
                         : {{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }}
                     </p>
-                    <p>: {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
-                        (Jakarta Time) </p>
+                    <p>:
+                        {{-- {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        (Jakarta Time) --}}
+                        08.00 – 14.00 WITA & 17.00 – 21.00 WITA
+                    </p>
                     <p>: Live Event</p>
                     <p>: {{ $location }}</p>
 
