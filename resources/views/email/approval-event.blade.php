@@ -172,7 +172,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://djakarta-miningclub.com/dmc/2023/metals-magnified-analyzing-key-markets-and-indonesias-prospects/)
+                (https://djakarta-miningclub.com/dmc/2023/balikpapan-mining-industry-meeting/)
             </p>
 
             <br>
