@@ -182,7 +182,7 @@
                     (Jakarta Time) --}}
                     08.00 – 14.00 WITA & 17.00 – 21.00 WITA
                 </p>
-                <p>: Live - Networking Dinner</p>
+                <p>: Live Event</p>
                 <p>: {{ $location }}</p>
 
             </div>
