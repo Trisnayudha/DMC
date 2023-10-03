@@ -147,18 +147,21 @@
                 <tr>
                     <th>Time</th>
                     <th>:</th>
-                    <td>{{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
-                        (Jakarta Time)</td>
+                    <td>
+                        {{-- {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        (Jakarta Time) --}}
+                        08.00 – 14.00 WITA & 17.00 – 21.00 WITA
+                    </td>
                 </tr>
                 <tr>
                     <th>Concept</th>
                     <th>:</th>
-                    <td>Live – Networking Dinner</td>
+                    <td>Live Event</td>
                 </tr>
                 <tr>
                     <th>Location</th>
                     <th>:</th>
-                    <td>Nusantara Ballroom, The Dharmawangsa Hotel Jakarta</td>
+                    <td>Grand Jatra Hotel Balikpapan</td>
                 </tr>
             </table>
             <br>
