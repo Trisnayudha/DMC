@@ -289,7 +289,7 @@ Best Regards Bot DMC Website
                 // Save profile data
                 $profile = ProfileModel::firstOrNew(['users_id' => $checkUsers->id]);
                 $profile->fill([
-                    // 'phone' => $table['phone'],
+                    'phone' => $table['phone'],
                     'job_title' => $table['job_title'],
                     'users_id' => $checkUsers->id,
                     'company_id' => $company->id
