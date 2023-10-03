@@ -153,8 +153,8 @@
                                                         <option value="free">Invitation ( Free No Cost Non Sponsor )
                                                         </option>
                                                         <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
-                                                        <option value="member">Membership ( Rp. 900.000 )</option>
-                                                        <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
+                                                        <option value="member">Membership ( Rp. 500.000 )</option>
+                                                        <option value="nonmember">Non Member ( Rp. 600.000 )</option>
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
@@ -678,9 +678,9 @@
                                     <select name="package_edit" id="package_edit" class="form-control">
                                         <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
                                         <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
-                                        <option value="member">Membership ( Rp. 900.000 )</option>
-                                        <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
-                                        <option value="onsite">On Site ( Rp. 1.250.000 )</option>
+                                        <option value="member">Membership ( Rp. 500.000 )</option>
+                                        <option value="nonmember">Non Member ( Rp. 600.000 )</option>
+                                        <option value="onsite">On Site ( Rp. 750.000 )</option>
                                     </select>
                                 </div>
                             </div>
