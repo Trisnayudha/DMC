@@ -211,7 +211,7 @@ class EventsDetailController extends Controller
             if (empty($profile)) {
                 $profile = new ProfileModel();
             }
-            // $profile->phone = $phone;
+            $profile->phone = $phone;
             $profile->job_title = $job_title;
             $profile->users_id = $user->id;
             $profile->company_id = $company->id;
@@ -338,7 +338,7 @@ class EventsDetailController extends Controller
                     } catch (\Exception $e) {
                         return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', 'An error occurred while sending email. Please try again later.')->withInput();
                     }
-                    return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('alert', 'Register Successfully');
+                    return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Register Successfully');
                 } else {
                     // $pdf = Pdf::loadView('email.invoice-new', $data);
                     try {
@@ -351,7 +351,7 @@ class EventsDetailController extends Controller
                     } catch (\Exception $e) {
                         return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', 'An error occurred while sending email. Please try again later.')->withInput();
                     }
-                    return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('alert', 'Check your email for payment Invoice !!!');
+                    return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Check your email for payment Invoice !!!');
                 }
             } else {
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', 'Email Already Register, please check your inbox for information event or create new email for registering')->withInput();
