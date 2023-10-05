@@ -71,14 +71,14 @@ class XenditCallbackController extends Controller
             $payment_destination = request('payment_destination');
 
             $check = Payment::where('code_payment', '=', $external_id)->first();
-            $findEvent = Events::where('id', $check->events_id)->first();
+            $findUser = Payment::where('code_payment', $external_id)
+                ->leftjoin('users as a', 'a.id', 'payment.member_id')
+                ->leftjoin('profiles as b', 'a.id', 'b.users_id')
+                ->leftjoin('company as c', 'c.id', 'b.company_id')
+                ->first();
             if (!empty($check)) {
-                $findUser = Payment::where('code_payment', $external_id)
-                    ->leftjoin('users as a', 'a.id', 'payment.member_id')
-                    ->leftjoin('profiles as b', 'a.id', 'b.users_id')
-                    ->leftjoin('company as c', 'c.id', 'b.company_id')
-                    ->first();
                 if ($status == 'PAID') {
+                    $findEvent = Events::where('id', $check->events_id)->first();
                     if ($check->booking_contact_id != null) {
                         $findContact = BookingContact::where('id', $check->booking_contact_id)->first();
 
