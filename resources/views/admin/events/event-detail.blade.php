@@ -964,8 +964,12 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    legend: {
+                        display: false // Hide the legends
+                    }
                 }
             });
+
         });
     </script>
 @endpush
