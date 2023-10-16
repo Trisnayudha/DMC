@@ -155,26 +155,22 @@ class EventsDetailParticipantController extends Controller
             // dd($method);
             $send = new WhatsappApi();
             $send->phone = $findProfile->phone;
-            $send->message = '📌"REMINDER Round Table Discussion - PERATURAN PEMERINTAH (PP) NOMOR 36 TAHUN 2023"
+            $send->message = '📌"REMINDER "' . $findEvent->name . '
 
-Selamat Siang Bapak/Ibu,
+Good Afternoon,
 
-Terima Kasih atas pendaftaran Bapak/Ibu untuk Round Table Discussion - PERATURAN PEMERINTAH (PP) NOMOR 36 TAHUN 2023 yang akan dilakukan pada:
+Thank you for your registration to ' . $findEvent->name . ' that will be held on:
 
-Hari/Tgl : Selasa, 19 September 2023
-Jam      : 11.00-Selesai WIB
-Tempat   : The Dharmawangsa Hotel Jakarta
+Date : ' . date('l', strtotime($findEvent->start_date)) . ' - ' . date(' j F Y', strtotime($findEvent->end_date)) . '
+Jam      : ' . date('h.i a', strtotime($findEvent->start_time)) . ' - ' . date('h.i a', strtotime($findEvent->end_time)) . ' (WITA)
+Tempat   : ' . $findEvent->location . '
 
+Please REPLY YES if you have received and read this WhatsApp.
 
-NOTE:
-- Acara akan dilaksanakan dalam Bahasa Indonesia
-
-Mohon REPLY YES jika sudah menerima dan membaca WhatsApp ini.
-
-Terima Kasih atas pengertian dan kerjasamanya 😊🙏🏻
+Thank you for your understanding and cooperation 😊🙏🏻
 
 Regards,
-*Sekretariat Djakarta Mining Club
+*Secretariat Djakarta Mining Club
 ';
             $send->WhatsappMessage();
             if ($send->res == 'invalid') {
