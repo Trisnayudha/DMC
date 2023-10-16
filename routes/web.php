@@ -70,8 +70,8 @@ Route::get('/term', function () {
     return view('term-condition');
 });
 
-Route::get('/visit', [FormMemberController::class, 'visit']);
-Route::post('/visit', [FormMemberController::class, 'visitStore']);
+// Route::get('/visit', [FormMemberController::class, 'visit']);
+// Route::post('/visit', [FormMemberController::class, 'visitStore']);
 // Route::get('/register-event', [EventController::class, 'view2']);
 // Route::get('/register-event/multiple', [EventController::class, 'view']);
 // Route::get('/special-event/free', [SpecialEventController::class, 'free']);
