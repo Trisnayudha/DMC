@@ -155,7 +155,7 @@ class EventsDetailParticipantController extends Controller
             // dd($method);
             $send = new WhatsappApi();
             $send->phone = $findProfile->phone;
-            $send->message = '📌"REMINDER "' . $findEvent->name . '
+            $send->message = '📌"REMINDER ' . $findEvent->name . '"
 
 Good Afternoon,
 
