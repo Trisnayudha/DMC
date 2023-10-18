@@ -170,7 +170,7 @@
                     <th>:</th>
                     {{-- <td>The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
                         Kebayoran Baru, 12160, Indonesia)</td> --}}
-                    <td>Grand Jatra Hotel Balikpapan</td>
+                    <td>Le Grande Ballroom, Grand Jatra Hotel Balikpapan</td>
                 </tr>
             </table>
 

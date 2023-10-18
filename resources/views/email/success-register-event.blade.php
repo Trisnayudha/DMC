@@ -161,7 +161,7 @@
                 <tr>
                     <th>Location</th>
                     <th>:</th>
-                    <td>Grand Jatra Hotel Balikpapan</td>
+                    <td>Le Grande Ballroom, Grand Jatra Hotel Balikpapan</td>
                 </tr>
             </table>
             <br>
