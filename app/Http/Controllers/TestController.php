@@ -330,7 +330,13 @@ Best Regards Bot DMC
 
         // Store the PDF in the desired directory within the storage folder
         $pdfPath = 'public/invoice/' . $filename;
-        $db = '/storage/uploads/invoice' . $filename;
+        $db = '/storage/invoice/' . $filename;
         Storage::put($pdfPath, $pdf->output());
+
+        $send = new WhatsappApi();
+        $send->phone = '083829314436';
+        $send->document = asset($db);
+        $send->WhatsappMessageWithDocument();
+        dd($send);
     }
 }

@@ -58,24 +58,33 @@ class WhatsappApi
             $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
             $image = "https://indonesiaminer.com" . $this->image;
 
-            $url = 'https://nusagateway.com/api/send-image.php';
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_HEADER, 0);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-                'token'    => $token,
-                'phone'     => $phone,
-                'caption'   => $caption,
-                'image'     => $image,
-            ));
-            $status = curl_exec($curl);
-            curl_close($curl);
-            return $this->res = $status;
+            // Melakukan pengecekan nomor telepon menggunakan endpoint check-number
+            $checkUrl = 'https://nusagateway.com/api/check-number.php';
+            $checkData = [
+                'phone' => $phone,
+                'token' => $token
+            ];
+
+            $checkResponse = $this->makeCurlRequest($checkUrl, 'POST', $checkData);
+
+            if ($checkResponse['status'] === 'valid') {
+                // Nomor telepon valid, lanjutkan proses pengiriman pesan WhatsApp dengan gambar
+
+                $sendMessageUrl = 'https://nusagateway.com/api/send-image.php';
+                $sendMessageData = [
+                    'token' => $token,
+                    'phone' => $phone,
+                    'caption' => $caption,
+                    'image' => $image,
+                ];
+
+                $sendMessageResponse = $this->makeCurlRequest($sendMessageUrl, 'POST', $sendMessageData);
+
+                return $this->res = $sendMessageResponse;
+            } else {
+                // Nomor telepon tidak valid, kembalikan pesan error
+                return $this->res = 'invalid';
+            }
         } catch (\Exception $th) {
             return $this->res = $th->getMessage();
         }
@@ -88,27 +97,37 @@ class WhatsappApi
             $document = $this->document;
             $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
 
-            $url = 'https://nusagateway.com/api/send-document.php';
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_HEADER, 0);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, array(
-                'token'    => $token,
-                'phone'     => $phone,
-                'document'   => $document,
-            ));
-            $status = curl_exec($curl);
-            curl_close($curl);
-            return $this->res = $status;
+            // Melakukan pengecekan nomor telepon menggunakan endpoint check-number
+            $checkUrl = 'https://nusagateway.com/api/check-number.php';
+            $checkData = [
+                'phone' => $phone,
+                'token' => $token
+            ];
+
+            $checkResponse = $this->makeCurlRequest($checkUrl, 'POST', $checkData);
+
+            if ($checkResponse['status'] === 'valid') {
+                // Nomor telepon valid, lanjutkan proses pengiriman pesan WhatsApp dengan dokumen
+
+                $sendMessageUrl = 'https://nusagateway.com/api/send-document.php';
+                $sendMessageData = [
+                    'token' => $token,
+                    'phone' => $phone,
+                    'document' => $document,
+                ];
+
+                $sendMessageResponse = $this->makeCurlRequest($sendMessageUrl, 'POST', $sendMessageData);
+
+                return $this->res = $sendMessageResponse;
+            } else {
+                // Nomor telepon tidak valid, kembalikan pesan error
+                return $this->res = 'invalid';
+            }
         } catch (\Exception $th) {
             return $this->res = $th->getMessage();
         }
     }
+
 
     private function makeCurlRequest($url, $method, $data)
     {

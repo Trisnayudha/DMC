@@ -153,6 +153,39 @@ class EventsDetailParticipantController extends Controller
             return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Successfully Send Confirmation');
         } elseif ($method == 'confirmation_wa') {
             // dd($method);
+            $image = QrCode::format('png')
+                ->size(200)->errorCorrection('H')
+                ->generate($check->code_payment);
+            $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+            $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+            Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+            $findEvent = Events::where('id', $events_id)->first();
+            $data = [
+                'code_payment' => $check->code_payment,
+                'create_date' => date('d, M Y H:i'),
+                'users_name' => $findUsers->name,
+                'users_email' => $findUsers->email,
+                'phone' => $findProfile->phone,
+                'company_name' => $findCompany->company_name,
+                'company_address' => $findCompany->address,
+                'job_title' => $findProfile->job_title,
+                'events_name' => $findEvent->name,
+                'start_date' => $findEvent->start_date,
+                'end_date' => $findEvent->end_date,
+                'start_time' => $findEvent->start_time,
+                'end_time' => $findEvent->end_time,
+                'image' => $db
+            ];
+            // dd("sukses");
+            // ini_set('max_execution_time', 120);
+
+            $pdf = Pdf::loadView('email.ticket', $data);
+            $filename = 'invoice_' . time() . '.pdf';
+
+            // Store the PDF in the desired directory within the storage folder
+            $pdfPath = 'public/invoice/' . $filename;
+            $db = '/storage/invoice/' . $filename;
+            Storage::put($pdfPath, $pdf->output());
             $send = new WhatsappApi();
             $send->phone = $findProfile->phone;
             $send->message = '📌"REMINDER ' . $findEvent->name . '"
@@ -172,6 +205,8 @@ Thank you for your understanding and cooperation 😊🙏🏻
 Regards,
 *Secretariat Djakarta Mining Club
 ';
+            $send->document = asset($db);
+            $send->WhatsappMessageWithDocument();
             $send->WhatsappMessage();
             if ($send->res == 'invalid') {
                 return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('error', 'Whatsapp tidak ditemukan');
