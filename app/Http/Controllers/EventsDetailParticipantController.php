@@ -180,11 +180,11 @@ class EventsDetailParticipantController extends Controller
             // ini_set('max_execution_time', 120);
 
             $pdf = Pdf::loadView('email.ticket', $data);
-            $filename = 'invoice_' . time() . '.pdf';
+            $filename = 'ticket_' . $findUsers->name . '_' . time() . '.pdf';
 
             // Store the PDF in the desired directory within the storage folder
-            $pdfPath = 'public/invoice/' . $filename;
-            $db = '/storage/invoice/' . $filename;
+            $pdfPath = 'public/ticket/' . $filename;
+            $db = '/storage/ticket/' . $filename;
             Storage::put($pdfPath, $pdf->output());
             $send = new WhatsappApi();
             $send->phone = $findProfile->phone;
