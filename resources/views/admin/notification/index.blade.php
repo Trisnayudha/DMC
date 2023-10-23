@@ -202,7 +202,7 @@
                     $('#target_id').show();
                     $('#target_id').select2();
                     $.ajax({
-                        url: "{{ url('marketing-ads/event') }}",
+                        url: "{{ url('admin/marketing-ads/event') }}",
                         method: "GET",
                         success: function(data) {
                             console.log(data)
@@ -220,7 +220,7 @@
                     $('#target_id').show();
                     $('#target_id').select2();
                     $.ajax({
-                        url: "{{ url('marketing-ads/news') }}",
+                        url: "{{ url('admin/marketing-ads/news') }}",
                         method: "GET",
                         success: function(data) {
                             console.log(data)
@@ -293,7 +293,7 @@
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('marketing-ads/edit') }}",
+                    url: "{{ url('admin/marketing-ads/edit') }}",
                     data: {
                         id: id
                     },
