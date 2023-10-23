@@ -156,7 +156,7 @@
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('videos/editcategory') }}",
+                    url: "{{ url('admin/videos/editcategory') }}",
                     data: {
                         id: id
                     },
@@ -184,7 +184,7 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "POST",
-                            url: "{{ url('videos/deletecategory') }}",
+                            url: "{{ url('admin/videos/deletecategory') }}",
                             data: {
                                 id: id
                             },
@@ -213,7 +213,7 @@
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('videos/addcategory') }}",
+                    url: "{{ url('admin/videos/addcategory') }}",
                     data: {
                         id: id,
                         link: link,
