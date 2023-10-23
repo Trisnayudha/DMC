@@ -132,7 +132,7 @@
                 let status = this.checked ? 'publish' : 'draft';
 
                 $.ajax({
-                    url: 'sponsors/update-status/' + sponsorId,
+                    url: '/admin/sponsors/update-status/' + sponsorId,
                     method: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
@@ -178,7 +178,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: 'sponsors/' + sponsorId,
+                            url: 'admin/sponsors/' + sponsorId,
                             type: 'DELETE',
                             data: {
                                 _token: '{{ csrf_token() }}'
