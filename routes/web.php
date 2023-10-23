@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\EventCategoryController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\EventsConferenceController;
 use App\Http\Controllers\Admin\EventsDetailController;
-use App\Http\Controllers\Admin\EventsDetailParticipantController;
 use App\Http\Controllers\Admin\EventsHighlightController;
 use App\Http\Controllers\Admin\EventsTicketController;
 use App\Http\Controllers\Admin\MarketingAdsController;
@@ -100,8 +99,8 @@ Auth::routes([
 ]);
 
 
-//Notification
 Route::prefix('admin')->group(function () {
+    //Notification
     Route::get('notification', [NotificationController::class, 'index'])->name('notification');
     Route::post('notification/add', [NotificationController::class, 'store']);
     Route::post('notification/edit', [NotificationController::class, 'edit']);
@@ -130,7 +129,7 @@ Route::prefix('admin')->group(function () {
     Route::post('events/store', [EventController::class, 'store'])->name('events.store');
 
     // Events Detail
-    Route::get('/events/{slug}/detail', [EventsDetailParticipantController::class, 'detail'])->name('events-details');
+    Route::get('/events/{slug}/detail', [EventsDetailController::class, 'detail'])->name('events-details');
     Route::post('/events/addUser', [EventsDetailController::class, 'add_user'])->name('events.add.user');
     Route::post('/events/addInvitation', [EventsDetailController::class, 'add_invitation'])->name('events.add.invitation');
     Route::post('/events/action', [EventsDetailController::class, 'action']);
@@ -201,11 +200,11 @@ Route::prefix('admin')->group(function () {
     Route::post('marketing-ads/delete', [MarketingAdsController::class, 'destroy']);
     Route::get('marketing-ads/event', [MarketingAdsController::class, 'event']);
     Route::get('marketing-ads/news', [MarketingAdsController::class, 'news']);
+
+
+    Route::get('users', [UsersController::class, 'index'])->name('users');
+    Route::post('users', [UsersController::class, 'store'])->name('users.store');
+    Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
+
+    Route::get('member', [UsersController::class, 'member'])->name('members');
 });
-
-
-Route::get('/admin/users', [UsersController::class, 'index'])->name('users');
-Route::post('/admin/users', [UsersController::class, 'store'])->name('users.store');
-Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
-
-Route::get('/admin/member', [UsersController::class, 'member'])->name('members');

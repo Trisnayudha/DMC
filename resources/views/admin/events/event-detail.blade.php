@@ -337,7 +337,8 @@
                                                         <a href="#" data-toggle="dropdown"
                                                             class="btn btn-info dropdown-toggle">Action</a>
                                                         <ul class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
-                                                            <form action="{{ url('events/action') }}" method="post">
+                                                            <form action="{{ url('admin/events/action') }}"
+                                                                method="post">
                                                                 <li>
                                                                     @csrf
                                                                     <input type="hidden" name="id" id="id"
@@ -347,7 +348,8 @@
                                                                         class="dropdown-item">Approve</button>
                                                                 </li>
                                                             </form>
-                                                            <form action="{{ url('events/action') }}" method="post">
+                                                            <form action="{{ url('admin/events/action') }}"
+                                                                method="post">
                                                                 <li>
                                                                     @csrf
                                                                     <input type="hidden" name="id" id="id"
@@ -357,8 +359,8 @@
                                                                         class="dropdown-item">Reject</button>
                                                                 </li>
                                                             </form>
-                                                            <form action="{{ url('events/ticket') }}" method="post"
-                                                                target="_blank">
+                                                            <form action="{{ url('admin/events/ticket') }}"
+                                                                method="post" target="_blank">
                                                                 <li>
                                                                     @csrf
                                                                     <input type="hidden" name="id" id="id"
@@ -368,8 +370,8 @@
                                                                 </li>
                                                             </form>
                                                             @if ($post->status_registration == 'Paid Off' && ($post->package != 'free' && $post->package != 'sponsor'))
-                                                                <form action="{{ url('events/invoice') }}" method="post"
-                                                                    target="_blank">
+                                                                <form action="{{ url('admin/events/invoice') }}"
+                                                                    method="post" target="_blank">
                                                                     <li>
                                                                         @csrf
                                                                         <input type="hidden" name="id"
@@ -381,7 +383,7 @@
                                                                 </form>
                                                             @endif
                                                             @if ($post->status_registration == 'Expired')
-                                                                <form action="{{ url('renewal-payment') }}"
+                                                                <form action="{{ url('admin/renewal-payment') }}"
                                                                     method="post">
                                                                     <li>
                                                                         @csrf
@@ -393,7 +395,7 @@
                                                                     </li>
                                                                 </form>
                                                             @endif
-                                                            <form action="{{ url('remove-participant') }}"
+                                                            <form action="{{ url('admin/remove-participant') }}"
                                                                 method="post">
                                                                 <li>
                                                                     @csrf
@@ -566,7 +568,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ url('/events/update/user') }}" method="POST">
+                <form action="{{ url('/admin/events/update/user') }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="row">
@@ -818,7 +820,7 @@
                 var postId = $(this).data('id'); // Mendapatkan ID pos
                 // Mengirim permintaan AJAX ke endpoint yang memuat data pos
                 $.ajax({
-                    url: '/edit/user/' + postId, // Ganti dengan URL endpoint yang sesuai
+                    url: '/admin/edit/user/' + postId, // Ganti dengan URL endpoint yang sesuai
                     type: 'GET',
                     success: function(response) {
                         console.log(response.payload.package);
