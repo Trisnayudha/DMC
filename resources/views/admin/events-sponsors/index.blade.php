@@ -167,7 +167,7 @@
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('events-sponsor/editeventsponsor') }}",
+                    url: "{{ url('admin/events-sponsor/editeventsponsor') }}",
                     data: {
                         id: id
                     },
@@ -199,7 +199,7 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "POST",
-                            url: "{{ url('events-sponsor/deleteeventsponsor') }}",
+                            url: "{{ url('admin/events-sponsor/deleteeventsponsor') }}",
                             data: {
                                 id: id
                             },
@@ -229,7 +229,7 @@
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('events-sponsor/addeventsponsor') }}",
+                    url: "{{ url('admin/events-sponsor/addeventsponsor') }}",
                     data: {
                         id: id,
                         events_id: events_id,
