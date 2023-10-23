@@ -158,7 +158,7 @@
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('events/editcategory') }}",
+                    url: "{{ url('admin/events/editcategory') }}",
                     data: {
                         id: id
                     },
@@ -186,7 +186,7 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "POST",
-                            url: "{{ url('events/deletecategory') }}",
+                            url: "{{ url('admin/events/deletecategory') }}",
                             data: {
                                 id: id
                             },
@@ -216,7 +216,7 @@
                 // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('events/addcategory') }}",
+                    url: "{{ url('admin/events/addcategory') }}",
                     data: {
                         id: id,
                         category_name: category_name,
