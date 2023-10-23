@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Helpers\EmailSender;
+use App\Http\Controllers\Controller;
 use App\Models\BookingContact\BookingContact;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;

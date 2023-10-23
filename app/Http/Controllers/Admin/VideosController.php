@@ -1,26 +1,26 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\Events\EventsCategory;
+use App\Http\Controllers\Controller;
+use App\Models\Videos\Videos;
 use Illuminate\Http\Request;
 
-class EventCategoryController extends Controller
+class VideosController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function index()
     {
-        $data = EventsCategory::orderBy('id', 'desc')->paginate(10);
-        return view(
-            'admin.events-category.index',
-            ['category' => $data]
-        );
+        $list = Videos::orderBy('id', 'desc')->get();
+        // dd($list);
+        $data = [
+            'list' => $list
+        ];
+        return view('admin.videos.index', $data);
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -29,12 +29,12 @@ class EventCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $data   =   EventsCategory::updateOrCreate(
+        $data   =   Videos::updateOrCreate(
             [
                 'id' => $request->id
             ],
             [
-                'category_name' => $request->category_name,
+                'link' => $request->link,
             ]
         );
         // activity()->log('Menambahkan Data Kategori');
@@ -51,7 +51,7 @@ class EventCategoryController extends Controller
     public function edit(Request $request)
     {
         $where = array('id' => $request->id);
-        $data  = EventsCategory::where($where)->first();
+        $data  = Videos::where($where)->first();
         // activity()->log('Edit Data Kategori');
         return response()->json($data);
     }
@@ -65,7 +65,7 @@ class EventCategoryController extends Controller
      */
     public function destroy(Request $request)
     {
-        $data = EventsCategory::where('id', $request->id)->delete();
+        $data = Videos::where('id', $request->id)->delete();
         // activity()->log('Menghapus Data Kategori');
         return response()->json(['success' => true]);
     }

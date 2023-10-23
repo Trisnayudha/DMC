@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\News\News;
 use App\Models\News\NewsCategory;
 use App\Models\News\NewsCategoryList;

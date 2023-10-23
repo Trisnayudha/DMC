@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Helpers\Notification;
+use App\Http\Controllers\Controller;
 use App\Models\Notification\NotificationModel;
 use App\Models\User;
 use Illuminate\Http\Request;

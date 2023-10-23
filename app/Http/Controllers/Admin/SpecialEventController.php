@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Helpers\EmailSender;
 use App\Helpers\WhatsappApi;
+use App\Http\Controllers\Controller;
 use App\Models\SpecialEvent\SpecialEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;

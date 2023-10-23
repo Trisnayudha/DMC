@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Frontend;
 
 use App\Helpers\EmailSender;
+use App\Http\Controllers\Controller;
 use App\Models\MemberModel;
 use App\Models\User;
 use App\Models\VisitModel;

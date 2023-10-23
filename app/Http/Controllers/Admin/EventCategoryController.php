@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\News\NewsCategory;
+use App\Http\Controllers\Controller;
+use App\Models\Events\EventsCategory;
 use Illuminate\Http\Request;
 
-class NewsCategoryController extends Controller
+class EventCategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,9 +15,9 @@ class NewsCategoryController extends Controller
      */
     public function index()
     {
-        $data = NewsCategory::orderBy('id', 'desc')->paginate(10);
+        $data = EventsCategory::orderBy('id', 'desc')->paginate(10);
         return view(
-            'admin.news-category.index',
+            'admin.events-category.index',
             ['category' => $data]
         );
     }
@@ -29,12 +30,12 @@ class NewsCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $data   =   NewsCategory::updateOrCreate(
+        $data   =   EventsCategory::updateOrCreate(
             [
                 'id' => $request->id
             ],
             [
-                'name_category' => $request->category_name,
+                'category_name' => $request->category_name,
             ]
         );
         // activity()->log('Menambahkan Data Kategori');
@@ -51,7 +52,7 @@ class NewsCategoryController extends Controller
     public function edit(Request $request)
     {
         $where = array('id' => $request->id);
-        $data  = NewsCategory::where($where)->first();
+        $data  = EventsCategory::where($where)->first();
         // activity()->log('Edit Data Kategori');
         return response()->json($data);
     }
@@ -65,7 +66,7 @@ class NewsCategoryController extends Controller
      */
     public function destroy(Request $request)
     {
-        $data = NewsCategory::where('id', $request->id)->delete();
+        $data = EventsCategory::where('id', $request->id)->delete();
         // activity()->log('Menghapus Data Kategori');
         return response()->json(['success' => true]);
     }

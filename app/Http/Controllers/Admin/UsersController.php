@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\MemberModel;
 use App\Models\Profiles\ProfileModel;

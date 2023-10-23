@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
+use App\Models\Events\EventsConferenceFile;
 use App\Models\Events\EventsHighlight;
-use Intervention\Image\Facades\Image;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
-class EventsHighlightController extends Controller
+class EventsFileController extends Controller
 {
     public function index()
     {
-        $list = EventsHighlight::join('events', 'events.id', 'events_highlight.events_id')->orderBy('events_highlight.id', 'desc')
+        $list = EventsConferenceFile::join('events', 'events.id', 'events_highlight.events_id')->orderBy('events_highlight.id', 'desc')
             ->select('events_highlight.id as id', 'events_highlight.image', 'events.name')->get();
         $events = Events::orderBy('id', 'desc')->get();
         $data = [

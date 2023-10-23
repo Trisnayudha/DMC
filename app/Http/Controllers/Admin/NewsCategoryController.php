@@ -1,25 +1,27 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\Videos\Videos;
+use App\Http\Controllers\Controller;
+use App\Models\News\NewsCategory;
 use Illuminate\Http\Request;
 
-class VideosController extends Controller
+class NewsCategoryController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
-        $list = Videos::orderBy('id', 'desc')->get();
-        // dd($list);
-        $data = [
-            'list' => $list
-        ];
-        return view('admin.videos.index', $data);
+        $data = NewsCategory::orderBy('id', 'desc')->paginate(10);
+        return view(
+            'admin.news-category.index',
+            ['category' => $data]
+        );
     }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -28,12 +30,12 @@ class VideosController extends Controller
      */
     public function store(Request $request)
     {
-        $data   =   Videos::updateOrCreate(
+        $data   =   NewsCategory::updateOrCreate(
             [
                 'id' => $request->id
             ],
             [
-                'link' => $request->link,
+                'name_category' => $request->category_name,
             ]
         );
         // activity()->log('Menambahkan Data Kategori');
@@ -50,7 +52,7 @@ class VideosController extends Controller
     public function edit(Request $request)
     {
         $where = array('id' => $request->id);
-        $data  = Videos::where($where)->first();
+        $data  = NewsCategory::where($where)->first();
         // activity()->log('Edit Data Kategori');
         return response()->json($data);
     }
@@ -64,7 +66,7 @@ class VideosController extends Controller
      */
     public function destroy(Request $request)
     {
-        $data = Videos::where('id', $request->id)->delete();
+        $data = NewsCategory::where('id', $request->id)->delete();
         // activity()->log('Menghapus Data Kategori');
         return response()->json(['success' => true]);
     }

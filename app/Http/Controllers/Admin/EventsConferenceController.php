@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
-use App\Models\Events\EventsTicket;
+use App\Models\Events\EventsConference;
 use Illuminate\Http\Request;
 
-class EventsTicketController extends Controller
+class EventsConferenceController extends Controller
 {
     public function __construct()
     {
@@ -14,14 +15,25 @@ class EventsTicketController extends Controller
     }
     public function index()
     {
-        $list = EventsTicket::join('events', 'events.id', 'events_tickets.events_id')->orderBy('events_tickets.id', 'desc')->get();
-        $events = Events::orderBy('id', 'desc')->get();
+        $list = EventsConference::join('events', 'events.id', 'events_conferen.events_id')->select('events.*', 'events.name as event_name', 'events_conferen.*', 'events_conferen.name as events_conference_name')->orderBy('events_conferen.id', 'desc')->get();
+        // dd($list);
+
         // dd($list);
         $data = [
             'list' => $list,
+
+        ];
+        return view('admin.events-conference.index', $data);
+    }
+
+
+    public function create()
+    {
+        $events = Events::orderBy('id', 'desc')->get();
+        $data = [
             'events' => $events,
         ];
-        return view('admin.events-ticket.index', $data);
+        return view('admin.events-conference.create', $data);
     }
     /**
      * Store a newly created resource in storage.
@@ -31,7 +43,7 @@ class EventsTicketController extends Controller
      */
     public function store(Request $request)
     {
-        $data   =   EventsTicket::updateOrCreate(
+        $data   =   EventsConference::updateOrCreate(
             [
                 'id' => $request->id
             ],
@@ -60,7 +72,7 @@ class EventsTicketController extends Controller
     public function edit(Request $request)
     {
         $where = array('id' => $request->id);
-        $data  = EventsTicket::where($where)->first();
+        $data  = EventsConference::where($where)->first();
         // activity()->log('Edit Data Kategori');
         return response()->json($data);
     }
@@ -74,7 +86,7 @@ class EventsTicketController extends Controller
      */
     public function destroy(Request $request)
     {
-        $data = EventsTicket::where('id', $request->id)->delete();
+        $data = EventsConference::where('id', $request->id)->delete();
         // activity()->log('Menghapus Data Kategori');
         return response()->json(['success' => true]);
     }

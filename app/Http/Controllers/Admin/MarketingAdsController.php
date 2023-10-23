@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
 use App\Models\Marketing\MarketingAds;
 use App\Models\News\News;
