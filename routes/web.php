@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\EventCategoryController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\EventsConferenceController;
 use App\Http\Controllers\Admin\EventsDetailController;
+use App\Http\Controllers\Admin\EventsDetailParticipantController;
 use App\Http\Controllers\Admin\EventsHighlightController;
 use App\Http\Controllers\Admin\EventsTicketController;
 use App\Http\Controllers\Admin\MarketingAdsController;
