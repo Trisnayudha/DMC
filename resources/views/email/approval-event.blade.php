@@ -161,16 +161,16 @@
                     <th>Time</th>
                     <th>:</th>
                     <td>
-                        {{-- {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }} --}}
-                        08.00 – 14.00 WITA & 17.00 – 21.00 WITA
+                        {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        {{-- 08.00 – 14.00 WITA & 17.00 – 21.00 WITA --}}
                     </td>
                 </tr>
                 <tr>
                     <th>Venue</th>
                     <th>:</th>
-                    {{-- <td>The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
-                        Kebayoran Baru, 12160, Indonesia)</td> --}}
-                    <td>Le Grande Ballroom 10th Floor, Grand Jatra Hotel Balikpapan</td>
+                    <td>The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
+                        Kebayoran Baru, 12160, Indonesia)</td>
+                    {{-- <td>Le Grande Ballroom 10th Floor, Grand Jatra Hotel Balikpapan</td> --}}
                 </tr>
             </table>
 

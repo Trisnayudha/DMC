@@ -148,9 +148,8 @@
                     <th>Time</th>
                     <th>:</th>
                     <td>
-                        {{-- {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
-                        (Jakarta Time) --}}
-                        08.00 – 14.00 WITA & 17.00 – 21.00 WITA
+                        {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        (Jakarta Time)
                     </td>
                 </tr>
                 <tr>
@@ -161,7 +160,7 @@
                 <tr>
                     <th>Location</th>
                     <th>:</th>
-                    <td>Le Grande Ballroom 10th Floor, Grand Jatra Hotel Balikpapan</td>
+                    <td>The Dharmawangsa Hotel , Jakarta</td>
                 </tr>
             </table>
             <br>
