@@ -318,7 +318,8 @@
 
                         <hr class="my-4"> --}}
                         <p>
-                            <small> This is an Exclusive FREE Invitation for DMC CCI Members and McCloskey
+                            <small> This is an Exclusive FREE Invitation for DMC CCI Members and McCloskey, a part of
+                                OPIS by Dow Jones
                                 Partners - Subject by Approval</small>
                         </p>
                         <button class="w-80 btn btn-primary btn-lg" type="submit">Claim My Free Registration</button>
