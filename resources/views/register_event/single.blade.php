@@ -224,8 +224,8 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="phone" class="form-label">Mobile number *</label>
-                                <input type="tel" class="form-control" name="phone"id="phone"
-                                    placeholder="" value="{{ old('phone') ? old('phone') : '+62' }}" required>
+                                <input type="tel" class="form-control" name="phone"id="phone" placeholder=""
+                                    value="{{ old('phone') ? old('phone') : '+62' }}" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
@@ -276,7 +276,7 @@
                                     <option value="Supplier/Distributor/Manufacturer">
                                         Supplier/Distributor/Manufacturer
                                     </option>
-                                    <option value="Contrator">Contrator</option>
+                                    <option value="Contractor">Contractor</option>
                                     <option value="Association / Organization / Government">
                                         Association / Organization / Government</option>
                                     <option value="Financial Services">Financial Services</option>
@@ -318,8 +318,7 @@
 
                         <hr class="my-4"> --}}
                         <p>
-                            <small> This is an Exclusive FREE Invitation for DMC CCI Members and S&P Global Market
-                                Intelligence
+                            <small> This is an Exclusive FREE Invitation for DMC CCI Members and McCloskey
                                 Partners - Subject by Approval</small>
                         </p>
                         <button class="w-80 btn btn-primary btn-lg" type="submit">Claim My Free Registration</button>
