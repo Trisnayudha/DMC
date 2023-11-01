@@ -175,7 +175,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://djakarta-miningclub.com/dmc/2023/balikpapan-mining-industry-meeting/)
+                (https://djakarta-miningclub.com/dmc/2023/indonesian-energy-market-briefing/)
             </p>
 
             <br>
