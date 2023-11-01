@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EventsDetailController;
 use App\Http\Controllers\Admin\EventsDetailParticipantController;
 use App\Http\Controllers\Admin\EventsHighlightController;
 use App\Http\Controllers\Admin\EventsTicketController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\MarketingAdsController;
 use App\Http\Controllers\Admin\NewsCategoryController;
 use App\Http\Controllers\Admin\NewsController;
@@ -116,7 +117,7 @@ Route::prefix('admin')->group(function () {
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
 
 
-    Route::get('home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    Route::get('home', [App\Http\Controllers\Admin\HomeController::class, 'index'])->name('home');
 
     Route::get('payment', [PaymentController::class, 'index'])->name('payment');
 
@@ -208,4 +209,8 @@ Route::prefix('admin')->group(function () {
     Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
 
     Route::get('member', [UsersController::class, 'member'])->name('members');
+
+    //Invoice
+    Route::get('invoice', [InvoiceController::class, 'index']);
+    Route::get('invoice-detail', [InvoiceController::class, 'detail']);
 });
