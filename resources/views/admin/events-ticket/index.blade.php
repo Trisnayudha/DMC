@@ -266,7 +266,13 @@
                         $('#ajaxCategoryModel').html("Edit Category");
                         $('#category-model').modal('show');
                         $('#id').val(res.id);
-                        $('#link').val(res.link);
+                        $('#events_id').val(res.events_id);
+                        $('#title').val(res.title);
+                        $('#price_rupiah').val(res.price_rupiah);
+                        $('#price_dollar').val(res.price_dollar);
+                        $('#status_ticket').val(res.status_ticket);
+                        $('#type').val(res.type);
+                        $('#description').val(res.description);
                     }
                 });
             });
