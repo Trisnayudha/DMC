@@ -125,6 +125,13 @@ class EventController extends Controller
         return redirect()->route('events')->with('success', 'Successfully create new event');
     }
 
+    public function destroy(Request $request)
+    {
+        $data = Events::where('id', $request->id)->delete();
+        // activity()->log('Menghapus Data Kategori');
+        return response()->json(['success' => true]);
+    }
+
     public function import(Request $request)
     {
         $this->validate($request, [

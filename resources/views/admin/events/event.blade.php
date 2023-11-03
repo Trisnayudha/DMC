@@ -87,9 +87,8 @@
                                                             class="btn btn-success" title="Edit Data">
                                                             <span class="fa fa-edit"></span>
                                                         </a>
-                                                        <button class="btn btn-danger" value="`+ row.id +`"
-                                                            id="deleteProgram" type="submit" title="Hapus Data">
-                                                            <span class="fa fa-trash"></span></button>
+                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
+                                                            class="btn btn-danger delete"><span class=" fa fa-trash"></a>
                                                     </td>
 
                                                 </tr>
@@ -107,8 +106,49 @@
 @endsection
 @push('bottom')
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
         $(document).ready(function() {
             $('#laravel_crud').DataTable();
+        });
+        $(document).on('click', '.delete', function() {
+
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Anda Yakin ?",
+                text: "Ingin Menghapus Data ini.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ url('admin/events/delete') }}",
+                        data: {
+                            id: id
+                        },
+                        dataType: 'json',
+                        success: function(res) {
+                            Swal.fire({
+                                    title: "Success",
+                                    icon: "success",
+                                    showConfirmButton: false,
+                                    position: 'center',
+                                    timer: 1500
+                                }),
+                                window.location.reload();
+                        }
+                    });
+                }
+            });
+
+
         });
     </script>
 @endpush

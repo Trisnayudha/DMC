@@ -129,7 +129,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/events/edit/{id}', [EventController::class, 'edit'])->name('events.edit');
     Route::post('/events/update', [EventController::class, 'update'])->name('events.update');
     Route::post('events/store', [EventController::class, 'store'])->name('events.store');
-
+    Route::post('/events/delete', [EventController::class, 'destroy']);
     // Events Detail
     Route::get('/events/{slug}/detail', [EventsDetailController::class, 'detail'])->name('events-details');
     Route::post('/events/addUser', [EventsDetailController::class, 'add_user'])->name('events.add.user');
