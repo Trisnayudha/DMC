@@ -64,7 +64,7 @@
                                                 <tr>
                                                     <td>{{ $no++ }}</td>
                                                     <td>{{ $post->events_conference_name }}</td>
-                                                    <td>{{ $post->events_name }}</td>
+                                                    <td>{{ $post->event_name }}</td>
                                                     <td>
                                                         <a href="{{ Route('events.edit', $post->id) }}"
                                                             class="btn btn-success" title="Edit Data">

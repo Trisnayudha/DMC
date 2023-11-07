@@ -20,5 +20,17 @@ class EventsConference extends Model
         'time_end',
         'youtube_link',
         'status',
+        'image'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($eventConference) {
+            // Mendapatkan nilai 'sort' terbesar + 1
+            $maxSort = static::max('sort');
+            $eventConference->sort = $maxSort + 1;
+        });
+    }
 }

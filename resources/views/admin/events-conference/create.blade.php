@@ -29,7 +29,7 @@
                         <div class="card-body">
                             {!! Form::open([
                                 'method' => 'POST',
-                                'route' => 'events.store',
+                                'url' => '/admin/events-conference/addcategory',
                                 'enctype' => 'multipart/form-data',
                             ]) !!}
                             <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
@@ -41,73 +41,31 @@
                                     </span>
                                 @endif
                             </div>
-                            <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
-                                {!! Form::label('Location *') !!}
-                                {!! Form::text('location', old('title'), ['class' => 'form-control', 'placeholder' => 'Tempat Kegiatan']) !!}
-                                @if ($errors->has('location'))
+                            <div class="form-group{{ $errors->has('events_id') ? ' has-error' : '' }}">
+                                {!! Form::label('Events') !!}
+                                {!! Form::select('events_id', $events->pluck('name', 'id'), null, ['class' => 'form-control']) !!}
+                                @if ($errors->has('events_id'))
                                     <span class="help-block">
-                                        <strong style="color:red">{{ $errors->first('location') }}</strong>
+                                        <strong>{{ $errors->first('events_id') }}</strong>
                                     </span>
                                 @endif
+
                             </div>
-                            <div class="form-group{{ $errors->has('description') ? ' has-error' : '' }}">
-                                {!! Form::label('Deskripsi *') !!}
-                                {!! Form::textarea('description', old('description'), [
-                                    'id' => 'my-editor',
-                                    'class' => 'form-control my-editor',
-                                    'placeholder' => 'Berita',
-                                ]) !!}
-                                @if ($errors->has('description'))
-                                    <span class="help-block">
-                                        <strong style="color:red">{{ $errors->first('description') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="form-group{{ $errors->has('type') ? ' has-error' : '' }}">
-                                {!! Form::label('Tipe event') !!}
-                                {!! Form::select(
-                                    'type',
-                                    [null => 'Type Select', 'live' => 'Live Event', 'virtual' => 'Virtual/Online', 'hybrid' => 'Hybrid'],
-                                    null,
-                                    ['class' => 'form-control'],
-                                ) !!}
-                                @if ($errors->has('type'))
-                                    <span class="help-block">
-                                        <strong style="color:red">{{ $errors->first('type') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                            {{-- <div class="form-group{{ $errors->has('link') ? ' has-error' : '' }}">
-                                {!! Form::label('Link Private Zoom/Meet (Isi Form ini jika dirasa program dilaksanakan
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            secara online)') !!}
+                            <div class="form-group{{ $errors->has('link') ? ' has-error' : '' }}">
+                                {!! Form::label('Link Youtube') !!}
                                 {!! Form::text('link', old('link'), ['class' => 'form-control', 'placeholder' => 'LINK']) !!}
                                 @if ($errors->has('link'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('link') }}</strong>
                                     </span>
                                 @endif
-                            </div> --}}
-                            @can('admin-dashboard')
-                                <div class="form-group{{ $errors->has('skpd_id') ? ' has-error' : '' }}">
-                                    {{-- {!! Form::label('SKPD *') !!}
-                                    {!! Form::select('skpd_id', $skpd_values->pluck('value', 'id'), null, ['class' => 'form-control']) !!}
-                                    @if ($errors->has('skpd_id'))
-                                        <span class="help-block">
-                                            <strong style="color:red">{{ $errors->first('skpd_id') }}</strong>
-                                        </span>
-                                    @endif --}}
-                                </div>
-                            @endcan
-                            @can('admin-dashboard-byself')
-                                <input type="hidden" name="skpd_id" id="skpd_id" value="{{ $skpd }}">
-                            @endcan
-
+                            </div>
                         </div>
 
                     </div>
                     <div class="card">
                         <div class="card-header">
-                            <h4>Featured Image</h4>
+                            <h4>Featured Upload</h4>
                         </div>
                         <div class="card-body">
                             <div class="form-group{{ $errors->has('image') ? ' has-error' : '' }}">
@@ -119,9 +77,31 @@
                                             file</label>
                                     </div>
                                 </div>
+                                <small>
+                                    <i>Recommend Image MAX 1MB</i>
+                                </small>
                                 @if ($errors->has('image'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('image') }}</strong>
+                                    </span>
+                                @endif
+                                <img id="holder" style="margin-top:15px;max-height:100px;">
+                            </div>
+                            <div class="form-group{{ $errors->has('file') ? ' has-error' : '' }}">
+                                {!! Form::label('File Presentation *') !!}
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="file" name="file">
+                                        <label class="custom-file-label" for="exampleInputFile">Choose
+                                            file</label>
+                                    </div>
+                                </div>
+                                <small>
+                                    <i>Recommend file MAX 2MB</i>
+                                </small>
+                                @if ($errors->has('file'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('file') }}</strong>
                                     </span>
                                 @endif
                                 <img id="holder" style="margin-top:15px;max-height:100px;">
@@ -147,7 +127,7 @@
                                             </div>
                                             {!! Form::text('start_date', date('Y-m-d'), [
                                                 'class' => 'form-control
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                datepicker',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    datepicker',
                                                 'placeholder' => 'Tanggal Mulai',
                                             ]) !!}
                                         </div>
@@ -187,7 +167,7 @@
                                             {!! Form::text('end_time', date('H:i'), [
                                                 'class' => 'form-control ',
                                                 'placeholder' => 'Waktu
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Selesai',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Selesai',
                                             ]) !!}
                                             <span class="input-group-addon">
                                                 <span class="fa fa-clock-o"></span>
@@ -199,28 +179,9 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <div class="form-group{{ $errors->has('end_date') ? ' has-error' : '' }}">
-                                        {!! Form::label('Tanggal Selesai *') !!}
-                                        <div class="input-group date">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <i class="fas fa-calendar"></i>
-                                                </div>
-                                            </div>
-                                            {!! Form::text('end_date', date('Y-m-d'), [
-                                                'class' => 'form-control datepicker',
-                                                'placeholder' => 'Tanggal Selesai',
-                                            ]) !!}
-                                        </div>
-                                        @if ($errors->has('end_date'))
-                                            <span class="help-block">
-                                                <strong style="color:red">{{ $errors->first('end_date') }}</strong>
-                                            </span>
-                                        @endif
-                                    </div>
                                     <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
                                         {!! Form::label('Status') !!}
-                                        {!! Form::select('status', ['draft' => 'Draft', 'publish' => 'Publish'], null, ['class' => 'form-control']) !!}
+                                        {!! Form::select('status', ['draft' => 'Draft', 'record' => 'Record'], null, ['class' => 'form-control']) !!}
                                         @if ($errors->has('status'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('status') }}</strong>
@@ -231,36 +192,12 @@
                                 <div class="card-footer text-right">
                                     <div class="pull-right">
                                         <a href="{{ route('events') }}" class="btn btn-warning">Close</a>
-                                        <!-- <button type="button" id="previewProgram" class="btn btn-success">preview</button> -->
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    {{-- <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4>Categories</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div class="form-group{{ $errors->has('category_id') ? ' has-error' : '' }}">
-                                        {!! Form::label('Kategori *') !!}
-                                        {!! Form::select('category_id[]', $categories->pluck('category_name', 'id'), null, [
-                                            'multiple' => 'multiple',
-                                            'class' => 'form-control select2',
-                                        ]) !!}
-                                        @if ($errors->has('category_id'))
-                                            <span class="help-block">
-                                                <strong style="color:red">{{ $errors->first('category_id') }}</strong>
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
                     {!! Form::close() !!}
                 </div>
             </div>
@@ -291,5 +228,91 @@
             })
         });
     </script>
+    <script>
+        // Fungsi untuk memvalidasi input file Thumbnail
+        document.getElementById("thumbnail").addEventListener("change", function() {
+            var fileInput = this;
+            var selectedFile = fileInput.files[0];
+            if (selectedFile) {
+                if (!isImageFile(selectedFile)) {
+                    alert("Please select an image file (e.g., JPG, PNG).");
+                    fileInput.value = ""; // Mengosongkan input jika file tidak sesuai
+                } else if (selectedFile.size > 1048576) { // Ukuran maksimum 1MB (1MB = 1048576 bytes)
+                    alert("Image size should be less than 1MB.");
+                    fileInput.value = ""; // Mengosongkan input jika ukuran melebihi batas
+                }
+            }
+        });
+
+        // Fungsi untuk memvalidasi input file File Presentation
+        document.getElementById("file").addEventListener("change", function() {
+            var fileInput = this;
+            var selectedFile = fileInput.files[0];
+            if (selectedFile) {
+                if (!isPresentationFile(selectedFile)) {
+                    alert("Please select a PDF or PPT file.");
+                    fileInput.value = ""; // Mengosongkan input jika file tidak sesuai
+                } else if (selectedFile.size > 2097152) { // Ukuran maksimum 2MB (2MB = 2097152 bytes)
+                    alert("File size should be less than 2MB.");
+                    fileInput.value = ""; // Mengosongkan input jika ukuran melebihi batas
+                }
+            }
+        });
+
+        // Fungsi untuk memeriksa apakah file adalah gambar
+        function isImageFile(file) {
+            return file.type.startsWith("image/");
+        }
+
+        // Fungsi untuk memeriksa apakah file adalah PDF atau PPT
+        function isPresentationFile(file) {
+            return file.type === "application/pdf" || file.type === "application/vnd.ms-powerpoint" || file.type ===
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        }
+    </script>
+    <script>
+        // Fungsi untuk memvalidasi input file Thumbnail
+        document.getElementById("thumbnail").addEventListener("change", function() {
+            var fileInput = this;
+            var selectedFile = fileInput.files[0];
+            if (selectedFile) {
+                if (!isImageFile(selectedFile)) {
+                    alert("Please select an image file (e.g., JPG, PNG).");
+                    fileInput.value = ""; // Mengosongkan input jika file tidak sesuai
+                } else if (selectedFile.size > 1048576) { // Ukuran maksimum 1MB (1MB = 1048576 bytes)
+                    alert("Image size should be less than 1MB.");
+                    fileInput.value = ""; // Mengosongkan input jika ukuran melebihi batas
+                }
+            }
+        });
+
+        // Fungsi untuk memvalidasi input file File Presentation
+        document.getElementById("file").addEventListener("change", function() {
+            var fileInput = this;
+            var selectedFile = fileInput.files[0];
+            if (selectedFile) {
+                if (!isPresentationFile(selectedFile)) {
+                    alert("Please select a PDF or PPT file.");
+                    fileInput.value = ""; // Mengosongkan input jika file tidak sesuai
+                } else if (selectedFile.size > 2097152) { // Ukuran maksimum 2MB (2MB = 2097152 bytes)
+                    alert("File size should be less than 2MB.");
+                    fileInput.value = ""; // Mengosongkan input jika ukuran melebihi batas
+                }
+            }
+        });
+
+        // Fungsi untuk memeriksa apakah file adalah gambar
+        function isImageFile(file) {
+            return file.type.startsWith("image/");
+        }
+
+        // Fungsi untuk memeriksa apakah file adalah PDF atau PPT
+        function isPresentationFile(file) {
+            return file.type === "application/pdf" || file.type === "application/vnd.ms-powerpoint" || file.type ===
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        }
+    </script>
+
+
 
 @endsection

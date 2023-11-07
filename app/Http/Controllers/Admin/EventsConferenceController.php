@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
 use App\Models\Events\EventsConference;
+use App\Models\Events\EventsConferenceFile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class EventsConferenceController extends Controller
 {
@@ -18,7 +20,6 @@ class EventsConferenceController extends Controller
         $list = EventsConference::join('events', 'events.id', 'events_conferen.events_id')->select('events.*', 'events.name as event_name', 'events_conferen.*', 'events_conferen.name as events_conference_name')->orderBy('events_conferen.id', 'desc')->get();
         // dd($list);
 
-        // dd($list);
         $data = [
             'list' => $list,
 
@@ -43,23 +44,60 @@ class EventsConferenceController extends Controller
      */
     public function store(Request $request)
     {
-        $data   =   EventsConference::updateOrCreate(
+        // Simpan data utama dalam model EventsConference
+        $data = EventsConference::updateOrCreate(
             [
                 'id' => $request->id
             ],
             [
                 'events_id' => $request->events_id,
-                'title' => $request->title,
-                'price_rupiah' => $request->price_rupiah,
-                'price_dollar' => $request->price_dollar,
-                'status_ticket' => $request->status_ticket,
-                'description' => $request->description,
-                'status_sold' => $request->status_sold,
-                'type' => $request->type,
+                'name' => $request->name,
+                'slug' => Str::slug($request->name),
+                'date' => $request->start_date,
+                'time_start' => $request->start_time,
+                'time_end' => $request->end_time,
+                'youtube_link' => $request->link,
+                'status' => $request->status,
             ]
         );
+
+        // Cek apakah ada file gambar yang diunggah
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+
+            // Tentukan direktori penyimpanan gambar
+            $imagePath = 'public/conference_images';
+
+            // Simpan gambar ke direktori penyimpanan dengan nama yang unik
+            $imagePath = $image->store($imagePath);
+
+            // Update kolom 'image' pada model 'EventsConference'
+            $data->update(['image' => $imagePath]);
+        }
+
+        // Simpan data file konferensi dalam model EventsConferenceFile
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+
+            // Tentukan direktori penyimpanan file konferensi
+            $storagePath = 'public/conference_files';
+
+            // Simpan file ke direktori penyimpanan dengan nama yang unik
+            $filePath = $file->store($storagePath);
+
+            // Simpan data file konferensi dalam tabel EventsConferenceFile
+            $saveConferenceFile = EventsConferenceFile::updateOrCreate(
+                ['id' => $request->id],
+                [
+                    'events_id' => $request->events_id,
+                    'events_conference_id' => $data->id,
+                    'file' => $filePath, // Simpan path file yang unik
+                    'name_file' => $file->getClientOriginalName(), // Simpan nama file asli
+                ]
+            );
+        }
         // activity()->log('Menambahkan Data Kategori');
-        return response()->json(['success' => true]);
+        return redirect()->route('events.conference')->with('success', 'Successfully create new event conference');
     }
 
 
