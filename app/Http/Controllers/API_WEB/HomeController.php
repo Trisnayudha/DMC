@@ -17,7 +17,7 @@ class HomeController extends Controller
 
     public function getCarousel()
     {
-        $events = Events::select('id', 'name', 'description', 'slug', 'start_date')->orderBy('id', 'desc')->limit(5)->get();
+        $events = Events::select('id', 'name', 'description', 'slug', 'start_date')->orderBy('id', 'desc')->limit(6)->get();
 
         $result = [];
 
