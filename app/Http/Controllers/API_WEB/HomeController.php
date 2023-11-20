@@ -32,7 +32,7 @@ class HomeController extends Controller
                 'heading1' => $heading1,
                 'heading2' => $heading2,
                 'date' => Carbon::parse($event->start_date)->format('d F Y'),
-                'listImage' => $eventHighlight->pluck('image')->toArray(),
+                'listImage' => asset($eventHighlight->pluck('image')->toArray()),
             ];
         }
 
