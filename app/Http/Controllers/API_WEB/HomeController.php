@@ -11,6 +11,7 @@ use App\Models\Sponsors\Sponsor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Repositories\Events as RepositoriesEvents;
+use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
 {
@@ -27,12 +28,14 @@ class HomeController extends Controller
             $nameWords = explode(' ', $event->name);
             $heading1 = implode(' ', array_slice($nameWords, 0, 4));
             $heading2 = count($nameWords) > 4 ? implode(' ', array_slice($nameWords, 4)) : '';
-
+            $listImage = $eventHighlight->pluck('image')->map(function ($image) {
+                return Storage::url($image); // Assuming 'image' is the column name storing file paths
+            })->toArray();
             $result[] = [
                 'heading1' => $heading1,
                 'heading2' => $heading2,
                 'date' => Carbon::parse($event->start_date)->format('d F Y'),
-                'listImage' => asset($eventHighlight->pluck('image')->toArray()),
+                'listImage' => $listImage
             ];
         }
 
