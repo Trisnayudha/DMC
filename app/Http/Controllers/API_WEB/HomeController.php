@@ -22,7 +22,7 @@ class HomeController extends Controller
         $result = [];
 
         foreach ($events as $event) {
-            $eventHighlight = EventsHighlight::where('events_id', $event->id)->get();
+            $eventHighlight = EventsHighlight::where('events_id', $event->id)->limit(5)->get();
 
             $nameWords = explode(' ', $event->name);
             $heading1 = implode(' ', array_slice($nameWords, 0, 4));
