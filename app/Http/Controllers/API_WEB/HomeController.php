@@ -108,7 +108,7 @@ class HomeController extends Controller
     public function getScheduleEvent()
     {
 
-        $data = EventsSchedule::orderby('sort', 'asc')->get();
+        $data = EventsSchedule::where('date', '>=', Carbon::now())->orderby('sort', 'asc')->get();
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = $data;

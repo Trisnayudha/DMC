@@ -17,5 +17,6 @@ class EventsSchedule extends Model
         'location',
         'date',
         'type',
+        'sort'
     ];
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\EventsConferenceController;
 use App\Http\Controllers\Admin\EventsDetailController;
 use App\Http\Controllers\Admin\EventsDetailParticipantController;
 use App\Http\Controllers\Admin\EventsHighlightController;
+use App\Http\Controllers\Admin\EventsScheduleController;
 use App\Http\Controllers\Admin\EventsTicketController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\MarketingAdsController;
@@ -178,6 +179,14 @@ Route::prefix('admin')->group(function () {
     Route::post('/events-highlight/addcategory', [EventsHighlightController::class, 'store']);
     Route::post('/events-highlight/editcategory', [EventsHighlightController::class, 'edit']);
     Route::post('/events-highlight/deletecategory', [EventsHighlightController::class, 'destroy']);
+
+    //Events Schedule
+    Route::get('/events/schedule', [EventsScheduleController::class, 'index'])->name('events.schedule');
+    Route::post('/events-schedule/addcategory', [EventsScheduleController::class, 'store']);
+    Route::post('/events-schedule/editcategory', [EventsScheduleController::class, 'edit']);
+    Route::post('/events-schedule/deletecategory', [EventsScheduleController::class, 'destroy']);
+    Route::post('/events/schedule/movesort', [EventsScheduleController::class, 'moveSort'])->name('events.moveSort');
+
 
     Route::post('/events-import', [EventController::class, 'import'])->name('events.import');
 
