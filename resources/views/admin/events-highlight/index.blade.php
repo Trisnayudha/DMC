@@ -111,7 +111,7 @@
                     <h4 class="modal-title" id="ajaxCategoryModel"></h4>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ url('/events-highlight/addcategory') }}" id="addEditCategoryForm"
+                    <form action="{{ url('admin/events-highlight/addcategory') }}" id="addEditCategoryForm"
                         name="addEditCategoryForm" class="form-horizontal" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="id" id="id">

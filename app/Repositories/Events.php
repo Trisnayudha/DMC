@@ -19,7 +19,8 @@ class Events extends EventsEvents
             'events.end_date',
             'events.start_time',
             'events.image',
-            'events.slug'
+            'events.slug',
+            'events.event_type'
         )
             ->leftJoin('event_category_list', function ($join) {
                 $join->on('events.id', '=', 'event_category_list.events_id');
@@ -40,7 +41,7 @@ class Events extends EventsEvents
                 if (!empty($category)) {
                     $q->where('event_category_list.events_category_id', '=', $category);
                 }
-                $q->where('status','=','publish');
+                $q->where('status', '=', 'publish');
             })
             ->orderby($column_filter, $type_filter)
             ->paginate($limit);

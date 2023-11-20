@@ -18,6 +18,7 @@ use App\Http\Controllers\API\MikrotikController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ScanController;
 use App\Http\Controllers\API\SponsorsController;
+use App\Http\Controllers\API_WEB\HomeController as API_WEBHomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -123,10 +124,17 @@ Route::post('/highlight/list', [NotificationController::class, 'highlight']);
 
 
 Route::prefix('web')->group(function () {
-    Route::get('sponsors', [SponsorsController::class, 'sponsor']);
-    Route::get('sponsors/{slug}/detail', [SponsorsController::class, 'detail']);
+    Route::post('sponsors', [SponsorsController::class, 'sponsor']);
+    Route::post('sponsors/{slug}/detail', [SponsorsController::class, 'detail']);
 
-    Route::get('advertisement', [MarketingAdsController::class, 'advertisementSide']);
+    Route::post('advertisement', [MarketingAdsController::class, 'advertisementSide']);
+
+
+    Route::post('home/carousel', [API_WEBHomeController::class, 'getCarousel']);
+    Route::post('home/comingSoon', [API_WEBHomeController::class, 'getComingSoon']);
+    Route::post('home/upComing', [API_WEBHomeController::class, 'postUpComing']);
+    Route::post('home/pastGalleryEvent', [API_WEBHomeController::class, 'getPastGalleryEvent']);
+    Route::post('home/scheduleEvent', [API_WEBHomeController::class, 'getScheduleEvent']);
 });
 
-Route::post('/mikrotik',[MikrotikController::class,'process']);
+Route::post('/mikrotik', [MikrotikController::class, 'process']);
