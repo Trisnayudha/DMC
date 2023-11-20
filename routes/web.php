@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\VideosController;
+use App\Http\Controllers\Admin\WhatsappBlastingController;
 use App\Http\Controllers\Frontend\EventsPaymentController;
 use App\Http\Controllers\Frontend\EventsRegisterController;
 use App\Http\Controllers\Frontend\EventsRegisterSponsorController;
@@ -39,6 +40,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('blast', [WhatsappBlastingController::class, 'sendWhatsAppMessagesAsync']);
 Route::get('/payment-success', function () {
     return view('success');
 });
