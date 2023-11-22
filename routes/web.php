@@ -20,6 +20,10 @@ use App\Http\Controllers\Admin\SponsorController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\VideosController;
 use App\Http\Controllers\Admin\WhatsappBlastingController;
+use App\Http\Controllers\Admin\WhatsappCampaignController;
+use App\Http\Controllers\Admin\WhatsappDBController;
+use App\Http\Controllers\Admin\WhatsappSenderController;
+use App\Http\Controllers\Admin\WhatsappTemplateController;
 use App\Http\Controllers\Frontend\EventsPaymentController;
 use App\Http\Controllers\Frontend\EventsRegisterController;
 use App\Http\Controllers\Frontend\EventsRegisterSponsorController;
@@ -41,7 +45,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('blast', [WhatsappBlastingController::class, 'sendWhatsAppMessagesAsync']);
+
 Route::get('/payment-success', function () {
     return view('success');
 });
@@ -224,4 +228,14 @@ Route::prefix('admin')->group(function () {
     //Invoice
     Route::get('invoice', [InvoiceController::class, 'index']);
     Route::get('invoice-detail', [InvoiceController::class, 'detail']);
+
+    //Whatsapp Group
+    Route::prefix('whatsapp')->group(function () {
+        Route::resource('blasting', WhatsappBlastingController::class);
+        Route::resource('campaign', WhatsappCampaignController::class);
+        Route::resource('db', WhatsappDBController::class);
+        Route::resource('sender', WhatsappSenderController::class);
+        Route::resource('template', WhatsappTemplateController::class);
+    });
 });
+Route::get('blast', [WhatsappBlastingController::class, 'sendWhatsAppMessagesAsync']);

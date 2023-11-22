@@ -33,7 +33,7 @@ class SendWhatsAppMessage implements ShouldQueue
 
         if ($this->document) {
             $send->document = $this->document;
-            $send->WhatsappMessageWithDocument();
+            $send->WhatsappMessageWithImage();
         } else {
             $send->WhatsappMessage();
         }
