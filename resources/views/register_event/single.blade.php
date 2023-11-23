@@ -96,6 +96,7 @@
     </style>
     <!-- Custom styles for this template -->
     <link href="{{ asset('new-zoom/form-validation.css') }}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-light">
@@ -105,7 +106,7 @@
             <div class="py-2 text-center">
                 <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
                     src="{{ asset('image/dmc.png') }}" class="img-fluid" alt="">
-                <h2 style="text-transform: uppercase">REGISTER EVENT
+                <h2 style="text-transform: uppercase">WAITING LIST
                 </h2>
                 {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
                     by OPIS </p> --}}
@@ -318,11 +319,9 @@
 
                         <hr class="my-4"> --}}
                         <p>
-                            <small> This is an Exclusive FREE Invitation for DMC CCI Members and McCloskey, a part of
-                                OPIS by Dow Jones
-                                Partners - Subject by Approval</small>
+                            <small> We will notify you if there are seats available.</small>
                         </p>
-                        <button class="w-80 btn btn-primary btn-lg" type="submit">Claim My Free Registration</button>
+                        <button class="w-80 btn btn-primary btn-lg" type="submit">Put Me on Waiting List</button>
                     </form>
                 </div>
             </div>
@@ -439,59 +438,23 @@
             initialCountry: "id",
 
         });
-        // $(document).ready(function() {
-        //     $('#email').change(function() {
-        //         var email = $("#email").val();
-
-        //         var listErrorPrefixs = $("#listStringPrefix").val();
-        //         console.log(email)
-        //         $.ajax({
-        //             type: 'POST',
-        //             url: '{{ url('/register/email') }}',
-        //             headers: {
-        //                 'X-CSRF-Token': '{{ csrf_token() }}',
-        //             },
-        //             data: 'email=' + email,
-        //             success: function(msg) {
-        //                 console.log(msg)
-        //                 if (msg.status == 1) {
-
-        //                     // Mendapatkan elemen yang akan dihapus
-        //                     $('.member').remove();
-        //                     $('.non-member').remove();
-        //                     $(".customer").append(
-        //                         `  <div class="form-check member">
-    //                         <input id="credit" name="paymentMethod" type="radio" class="form-check-input"
-    //                             checked required value="member">
-    //                         <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
-    //                     </div>`
-        //                     );
-        //                 } else {
-        //                     $('.member').remove();
-        //                     $('.non-member').remove();
-        //                     $(".customer").append(
-        //                         `  <div class="form-check non-member">
-    //                         <input id="debit" name="paymentMethod" type="radio" class="form-check-input"
-    //                             checked required value="nonmember">
-    //                         <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
-    //                     </div>`
-        //                     );
-        //                 }
-        //                 // if (msg == 'found same') {
-        //                 //     swal("Warning", "Email (" + email +
-        //                 //         ") is Already Registered", "warning");
-        //                 //     $("#email").val("");
-        //                 // } else if (msg == 'error prefix') {
-        //                 //     swal("Warning",
-        //                 //         "Sorry you can't use email, which is affiliated " +
-        //                 //         listErrorPrefixs, "warning");
-        //                 //     $("#email").val("");
-        //                 // }
-        //             }
-        //         });
-        //     });
-        // });
     </script>
+    <script>
+        $(document).ready(function() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Due to high demand from the registrants, we inform you that you are now on the queue of waiting list. If you want to continue the registration, please fill in the form. We will notify you if there are seats available",
+                icon: "warning",
+                confirmButtonColor: "#3085d6",
+                confirmButtonText: "Continue"
+            }).then(() => {
+                // Code to execute when the user clicks "Continue"
+                window.close(); // Close the current window
+            });
+        });
+    </script>
+
+
 </body>
 
 </html>
