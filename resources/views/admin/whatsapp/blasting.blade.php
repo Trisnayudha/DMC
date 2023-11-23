@@ -72,6 +72,7 @@
                                             <tr>
                                                 <th width="10px">No</th>
                                                 <th>Camp name</th>
+                                                <th>Receive Name</th>
                                                 <th>No Hp</th>
                                                 <th>Status</th>
                                                 <th width="15%">Aksi</th>
@@ -82,8 +83,9 @@
                                             @foreach ($list as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ $post->camp_id }}</td>
-                                                    <td>{{ $post->wa_temp_id }}</td>
+                                                    <td>{{ $post->name }}</td>
+                                                    <td>{{ $post->db_name }}</td>
+                                                    <td>{{ $post->phone }}</td>
                                                     <td>{{ $post->status }}</td>
                                                     <td>
 

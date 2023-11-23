@@ -29,7 +29,7 @@ class HomeController extends Controller
             $heading1 = implode(' ', array_slice($nameWords, 0, 4));
             $heading2 = count($nameWords) > 4 ? implode(' ', array_slice($nameWords, 4)) : '';
             $listImage = $eventHighlight->pluck('image')->map(function ($image) {
-                return Storage::url($image); // Assuming 'image' is the column name storing file paths
+                return $image; // Assuming 'image' is the column name storing file paths
             })->toArray();
             $result[] = [
                 'heading1' => $heading1,

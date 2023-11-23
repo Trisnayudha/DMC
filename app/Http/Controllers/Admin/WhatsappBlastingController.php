@@ -18,7 +18,11 @@ class WhatsappBlastingController extends Controller
 
     public function index()
     {
-        $list = WhatsappBlast::orderby('id', 'desc')->get();
+        $list = WhatsappBlast::leftJoin('wa_db', 'wa_db.id', 'wa_blast.wa_db_id')
+            ->leftjoin('wa_campaign', 'wa_campaign.id', 'wa_db.wa_camp_id')
+            ->leftjoin('wa_sender', 'wa_sender.id', 'wa_blast.wa_sender_id')
+            ->select('wa_db.phone', 'wa_db.name as db_name', 'wa_campaign.name', 'wa_blast.status')
+            ->orderby('wa_blast.id', 'desc')->get();
         $camp = WhatsappCampaign::orderby('id', 'desc')->get();
         $temp = WhatsappTemplate::orderby('id', 'desc')->get();
         $send = WhatsappSender::orderby('id', 'desc')->get();
