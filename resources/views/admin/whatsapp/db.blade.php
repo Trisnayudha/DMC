@@ -41,7 +41,7 @@
                                 @endif
 
                                 <div class="form-row">
-                                    <div class="form-group col-md-10">
+                                    <div class="form-group col-md-8">
                                         <form action="{{ route('db.index') }}" method="GET" id="filterForm">
                                             <select name="filter" id="filter" class="form-control">
                                                 <option value="">-- Select Filter Database --</option>
@@ -51,7 +51,13 @@
                                             </select>
                                         </form>
                                     </div>
-
+                                    <div class="form-group col-md-2">
+                                        <a href="{{ asset('excel/import-template-wa.xlsx') }}"
+                                            class="btn btn-block btn-icon icon-left btn-info btn-filter" download>
+                                            <i class="fa fa-download" aria-hidden="true"></i>
+                                            Template
+                                        </a>
+                                    </div>
                                     <div class="form-group col-md-2">
 
                                         <a href="javascript:void(0)"
