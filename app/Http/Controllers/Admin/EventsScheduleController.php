@@ -48,6 +48,7 @@ class EventsScheduleController extends Controller
                 'date' => $request->input('date'),
                 'type' => $request->input('type'),
                 'sort' => $lastSort + 1, // Atur sort menjadi nilai terbesar + 1
+                'events_id' => $request->input('events_id')
                 // Tambahkan field lainnya sesuai kebutuhan
             ]
         );

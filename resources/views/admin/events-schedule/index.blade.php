@@ -241,6 +241,7 @@
                         $('#id').val(res.id);
                         $('#name').val(res.name);
                         $('#location').val(res.location);
+                        $('#events_id').val(res.events_id);
 
                         // Ubah format tanggal di sisi klien
                         var formattedDate = new Date(res.date);
