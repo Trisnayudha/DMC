@@ -18,12 +18,20 @@ class HomeController extends Controller
 
     public function getCarousel()
     {
-        $events = Events::select('id', 'name', 'description', 'slug', 'start_date')->orderBy('id', 'desc')->limit(6)->get();
+        $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
+            ->orderBy('id', 'desc')
+            ->get();
 
         $result = [];
 
         foreach ($events as $event) {
+            // Cek apakah ada event highlight untuk event saat ini
             $eventHighlight = EventsHighlight::where('events_id', $event->id)->limit(5)->get();
+
+            // Jika tidak ada event highlight, skip event ini
+            if ($eventHighlight->isEmpty()) {
+                continue;
+            }
 
             $nameWords = explode(' ', $event->name);
             $heading1 = implode(' ', array_slice($nameWords, 0, 4));
@@ -45,6 +53,7 @@ class HomeController extends Controller
 
         return response()->json($response);
     }
+
 
     public function getComingSoon()
     {
