@@ -33,8 +33,14 @@ class EventsScheduleController extends Controller
             // Tambahkan validasi lainnya sesuai kebutuhan
         ]);
 
-        // Ambil nilai sort terbesar dari tabel EventsSchedule
-        $lastSort = EventsSchedule::max('sort');
+        // Jika ini adalah pembaruan, hitung ulang sort
+        if ($request->has('id')) {
+            // Ambil nilai sort terbesar dari tabel EventsSchedule
+            $lastSort = EventsSchedule::max('sort');
+        } else {
+            // Ini adalah penyimpanan baru, atur sort menjadi nilai terbesar + 1
+            $lastSort = EventsSchedule::max('sort') + 1;
+        }
 
         $eventsSchedule = EventsSchedule::updateOrCreate(
             [
@@ -47,7 +53,7 @@ class EventsScheduleController extends Controller
                 'location' => $request->input('location'),
                 'date' => $request->input('date'),
                 'type' => $request->input('type'),
-                'sort' => $lastSort + 1, // Atur sort menjadi nilai terbesar + 1
+                'sort' => $lastSort, // Atur sort menjadi nilai terbesar + 1
                 'events_id' => $request->input('events_id')
                 // Tambahkan field lainnya sesuai kebutuhan
             ]
@@ -56,6 +62,7 @@ class EventsScheduleController extends Controller
         // Redirect atau berikan respon sesuai kebutuhan
         return redirect()->route('events.schedule')->with('success', 'Event schedule has been saved successfully.');
     }
+
 
     public function edit(Request $request)
     {
