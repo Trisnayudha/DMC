@@ -442,7 +442,7 @@
     <script>
         $(document).ready(function() {
             Swal.fire({
-                title: "Are you sure?",
+                title: "Our Event is Fully booked",
                 text: "Due to high demand from the registrants, we inform you that you are now on the queue of waiting list. If you want to continue the registration, please fill in the form. We will notify you if there are seats available",
                 icon: "warning",
                 confirmButtonColor: "#3085d6",
