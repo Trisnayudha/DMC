@@ -108,7 +108,7 @@ class HomeController extends Controller
     public function getScheduleEvent()
     {
 
-        $data = EventsSchedule::leftjoin('events', 'events.id', 'events_schedule.events_id')->where('event_schedule.date', '>=', Carbon::now())->orderby('events_schedule.sort', 'asc')->get();
+        $data = EventsSchedule::leftjoin('events', 'events.id', 'events_schedule.events_id')->where('events_schedule.date', '>=', Carbon::now())->orderby('events_schedule.sort', 'asc')->get();
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = $data;
