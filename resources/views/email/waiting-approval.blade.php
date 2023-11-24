@@ -110,11 +110,16 @@
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
             <p>Thank you for registering for {{ $events_name }}.</p>
-            <p>Your registration is now in process for approval. Please note that your registration is subject to
-                approval.</p>
-            <p>
+            {{-- <p>Your registration is now in process for approval. Please note that your registration is subject to
+                approval.</p> --}}
+            <p>Your registration is now on the waiting list. We will notify you immediately if there are seats
+                available.</p>
+            {{-- <p>
                 We will send approval confirmation within 72 hours, please contact us via email at
-                secretariat@djakarta-miningclub.com or WhatsApp +62 811 1937 300</p>
+                secretariat@djakarta-miningclub.com or WhatsApp +62 811 1937 300</p> --}}
+            <p>If you have any question or information, don’t hesitate to contact us via email
+                secretariat@djakarta-miningclub.com or WhatsApp +628111937300
+            </p>
             <p>Your Sincerely,</p>
             <span>The Djakarta Mining Club Team</span>
         </div>
