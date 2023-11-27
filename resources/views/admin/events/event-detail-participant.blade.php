@@ -259,6 +259,7 @@
         $(document).ready(function() {
             $('#laravel_crud').DataTable({
                 dom: 'Bfrtip',
+                pageLength: 20, // Set the number of rows to be displayed on each page
                 buttons: [
                     'copyHtml5',
                     'excelHtml5',
@@ -267,6 +268,7 @@
                 ]
             });
         });
+
 
         $(document).ready(function() {
             $(".send").click(function() {
