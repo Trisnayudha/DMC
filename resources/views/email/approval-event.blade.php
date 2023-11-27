@@ -189,8 +189,10 @@
                 <li>Bring your business card to change with a badge at our registration table.</li>
                 <li>Please note that picking up a badge for someone else is not permitted, all attendees will need to
                     collect their own badge and show a matching business card to gain entry.</li>
-                <li>If you are unable to attend, please contact our team for substitution of attendee information at the
-                    latest by 1 day before the event.</li>
+                {{-- <li>If you are unable to attend, please contact our team for substitution of attendee information at the
+                    latest by 1 day before the event.</li> --}}
+                <li>If you are unable to attend, please contact our team for substitution or if no replacament, we can
+                    your offer your space to the next registrant on the waitlist.</li>
             </ul>
             </p>
 
