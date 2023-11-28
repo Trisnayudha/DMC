@@ -189,19 +189,17 @@ class EventsDetailParticipantController extends Controller
             Storage::put($pdfPath, $pdf->output());
             $send = new WhatsappApi();
             $send->phone = $findProfile->phone;
-            $send->message = '📌"REMINDER ' . $findEvent->name . '"
+            $send->message = '📌"REMINDER to attend ' . $findEvent->name . '"
 
-Good Afternoon,
+Hi there,
 
-Thank you for your registration to ' . $findEvent->name . ' that will be held on:
+This is a confirmation that you are registered to attend our event ' . $findEvent->name . ' tomorrow on Wednesday at ' . $findEvent->location . ', starting at ' . date('h.i a', strtotime($findEvent->start_time)) . ' - ' . date('h.i a', strtotime($findEvent->end_time)) . ' (WIB)
 
-Date : ' . date('l', strtotime($findEvent->start_date)) . ' - ' . date(' j F Y', strtotime($findEvent->end_date)) . '
-Jam      : ' . date('h.i a', strtotime($findEvent->start_time)) . ' - ' . date('h.i a', strtotime($findEvent->end_time)) . ' (WITA)
-Tempat   : ' . $findEvent->location . '
+If you are confirmed to attend this event, please REPLY YES to this message.
 
-Please REPLY YES if you have received and read this WhatsApp.
+We`re looking forward to seeing you there, share insightful sessions and network!
 
-Thank you for your understanding and cooperation 😊🙏🏻
+Your presence will be greatly appreciated. Thank you 😊🙏🏻
 
 Regards,
 *Secretariat Djakarta Mining Club
