@@ -93,103 +93,104 @@ class EventsDetailParticipantController extends Controller
 
     public function sendParticipant(Request $request)
     {
-        // dd($request->all());
-        $users_id = $request->users_id;
-        $events_id = $request->events_id;
-        $method = $request->method;
-        $payment_id = $request->payment_id;
-        $check = Payment::where('id', $payment_id)->first();
-        $findUsers = User::where('id', $check->member_id)->first();
-        $findProfile = ProfileModel::where('users_id', $check->member_id)->first();
-        $findCompany = CompanyModel::where('users_id', $check->member_id)->first();
-        $findEvent = Events::where('id', $events_id)->first();
-        $email = $findUsers->email;
-        $codePayment = $check->code_payment;
-        $pic = Auth::id();
-        if ($method == 'confirmation') {
-            $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
-            if ($save == null) {
-                $save = new UserRegister();
-            }
-            $save->users_id = $users_id;
-            $save->events_id = $events_id;
-            $save->payment_id = $payment_id;
-            $save->pic_id_reminder = $pic;
-            $save->reminder = Carbon::now();
-            $save->save();
-
-            $image = QrCode::format('png')
-                ->size(200)->errorCorrection('H')
-                ->generate($check->code_payment);
-            $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
-            $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
-            Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+        try {
+            // dd($request->all());
+            $users_id = $request->users_id;
+            $events_id = $request->events_id;
+            $method = $request->method;
+            $payment_id = $request->payment_id;
+            $check = Payment::where('id', $payment_id)->first();
+            $findUsers = User::where('id', $check->member_id)->first();
+            $findProfile = ProfileModel::where('users_id', $check->member_id)->first();
+            $findCompany = CompanyModel::where('users_id', $check->member_id)->first();
             $findEvent = Events::where('id', $events_id)->first();
-            $data = [
-                'code_payment' => $check->code_payment,
-                'create_date' => date('d, M Y H:i'),
-                'users_name' => $findUsers->name,
-                'users_email' => $findUsers->email,
-                'phone' => $findProfile->phone,
-                'company_name' => $findCompany->company_name,
-                'company_address' => $findCompany->address,
-                'job_title' => $findProfile->job_title,
-                'events_name' => $findEvent->name,
-                'start_date' => $findEvent->start_date,
-                'end_date' => $findEvent->end_date,
-                'start_time' => $findEvent->start_time,
-                'end_time' => $findEvent->end_time,
-                'image' => $db
-            ];
-            // dd("sukses");
-            // ini_set('max_execution_time', 120);
+            $email = $findUsers->email;
+            $codePayment = $check->code_payment;
+            $pic = Auth::id();
+            if ($method == 'confirmation') {
+                $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
+                if ($save == null) {
+                    $save = new UserRegister();
+                }
+                $save->users_id = $users_id;
+                $save->events_id = $events_id;
+                $save->payment_id = $payment_id;
+                $save->pic_id_reminder = $pic;
+                $save->reminder = Carbon::now();
+                $save->save();
 
-            $pdf = Pdf::loadView('email.ticket', $data);
-            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
-                $message->from(env('EMAIL_SENDER'));
-                $message->to($email);
-                $message->subject($codePayment . ' - Confirmation Reminder for ' . $findEvent->name);
-                $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
-            });
-            return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Successfully Send Confirmation');
-        } elseif ($method == 'confirmation_wa') {
-            // dd($method);
-            $image = QrCode::format('png')
-                ->size(200)->errorCorrection('H')
-                ->generate($check->code_payment);
-            $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
-            $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
-            Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
-            $findEvent = Events::where('id', $events_id)->first();
-            $data = [
-                'code_payment' => $check->code_payment,
-                'create_date' => date('d, M Y H:i'),
-                'users_name' => $findUsers->name,
-                'users_email' => $findUsers->email,
-                'phone' => $findProfile->phone,
-                'company_name' => $findCompany->company_name,
-                'company_address' => $findCompany->address,
-                'job_title' => $findProfile->job_title,
-                'events_name' => $findEvent->name,
-                'start_date' => $findEvent->start_date,
-                'end_date' => $findEvent->end_date,
-                'start_time' => $findEvent->start_time,
-                'end_time' => $findEvent->end_time,
-                'image' => $db
-            ];
-            // dd("sukses");
-            // ini_set('max_execution_time', 120);
+                $image = QrCode::format('png')
+                    ->size(200)->errorCorrection('H')
+                    ->generate($check->code_payment);
+                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                $findEvent = Events::where('id', $events_id)->first();
+                $data = [
+                    'code_payment' => $check->code_payment,
+                    'create_date' => date('d, M Y H:i'),
+                    'users_name' => $findUsers->name,
+                    'users_email' => $findUsers->email,
+                    'phone' => $findProfile->phone,
+                    'company_name' => $findCompany->company_name,
+                    'company_address' => $findCompany->address,
+                    'job_title' => $findProfile->job_title,
+                    'events_name' => $findEvent->name,
+                    'start_date' => $findEvent->start_date,
+                    'end_date' => $findEvent->end_date,
+                    'start_time' => $findEvent->start_time,
+                    'end_time' => $findEvent->end_time,
+                    'image' => $db
+                ];
+                // dd("sukses");
+                // ini_set('max_execution_time', 120);
 
-            $pdf = Pdf::loadView('email.ticket', $data);
-            $filename = 'ticket_' . $findUsers->name . '_' . time() . '.pdf';
+                $pdf = Pdf::loadView('email.ticket', $data);
+                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
+                    $message->from(env('EMAIL_SENDER'));
+                    $message->to($email);
+                    $message->subject($codePayment . ' - Confirmation Reminder for ' . $findEvent->name);
+                    $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
+                });
+                return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Successfully Send Confirmation');
+            } elseif ($method == 'confirmation_wa') {
+                // dd($method);
+                $image = QrCode::format('png')
+                    ->size(200)->errorCorrection('H')
+                    ->generate($check->code_payment);
+                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                $findEvent = Events::where('id', $events_id)->first();
+                $data = [
+                    'code_payment' => $check->code_payment,
+                    'create_date' => date('d, M Y H:i'),
+                    'users_name' => $findUsers->name,
+                    'users_email' => $findUsers->email,
+                    'phone' => $findProfile->phone,
+                    'company_name' => $findCompany->company_name,
+                    'company_address' => $findCompany->address,
+                    'job_title' => $findProfile->job_title,
+                    'events_name' => $findEvent->name,
+                    'start_date' => $findEvent->start_date,
+                    'end_date' => $findEvent->end_date,
+                    'start_time' => $findEvent->start_time,
+                    'end_time' => $findEvent->end_time,
+                    'image' => $db
+                ];
+                // dd("sukses");
+                // ini_set('max_execution_time', 120);
 
-            // Store the PDF in the desired directory within the storage folder
-            $pdfPath = 'public/ticket/' . $filename;
-            $db = '/storage/ticket/' . $filename;
-            Storage::put($pdfPath, $pdf->output());
-            $send = new WhatsappApi();
-            $send->phone = $findProfile->phone;
-            $send->message = '📌"REMINDER to attend ' . $findEvent->name . '"
+                $pdf = Pdf::loadView('email.ticket', $data);
+                $filename = 'ticket_' . $findUsers->name . '_' . time() . '.pdf';
+
+                // Store the PDF in the desired directory within the storage folder
+                $pdfPath = 'public/ticket/' . $filename;
+                $db = '/storage/ticket/' . $filename;
+                Storage::put($pdfPath, $pdf->output());
+                $send = new WhatsappApi();
+                $send->phone = $findProfile->phone;
+                $send->message = '📌"REMINDER to attend ' . $findEvent->name . '"
 
 Hi there,
 
@@ -204,36 +205,40 @@ Your presence will be greatly appreciated. Thank you 😊🙏🏻
 Regards,
 *Secretariat Djakarta Mining Club
 ';
-            $send->document = asset($db);
-            // $send->WhatsappMessageWithDocument();
-            $send->WhatsappMessage();
-            if ($send->res == 'invalid') {
-                return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('error', 'Whatsapp tidak ditemukan');
-            }
-            $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
-            if ($save == null) {
-                $save = new UserRegister();
-            }
-            $save->users_id = $users_id;
-            $save->events_id = $events_id;
-            $save->payment_id = $payment_id;
-            $save->pic_id_reminder_wa = $pic;
-            $save->reminder_wa = Carbon::now();
-            $save->save();
-            return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Success send wa');
-        } else {
-            $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
-            if ($save == null) {
-                $save = new UserRegister();
-            }
-            $save->users_id = $users_id;
-            $save->events_id = $events_id;
-            $save->payment_id = $payment_id;
-            $save->pic_id_present = $pic;
-            $save->present = Carbon::now();
-            $save->save();
+                $send->document = asset($db);
+                // $send->WhatsappMessageWithDocument();
+                $send->WhatsappMessage();
+                if ($send->res == 'invalid') {
+                    return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('error', 'Whatsapp tidak ditemukan');
+                }
+                $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
+                if ($save == null) {
+                    $save = new UserRegister();
+                }
+                $save->users_id = $users_id;
+                $save->events_id = $events_id;
+                $save->payment_id = $payment_id;
+                $save->pic_id_reminder_wa = $pic;
+                $save->reminder_wa = Carbon::now();
+                $save->save();
+                return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Success send wa');
+            } else {
+                $save = UserRegister::where('users_id', $users_id)->where('events_id', $events_id)->first();
+                if ($save == null) {
+                    $save = new UserRegister();
+                }
+                $save->users_id = $users_id;
+                $save->events_id = $events_id;
+                $save->payment_id = $payment_id;
+                $save->pic_id_present = $pic;
+                $save->present = Carbon::now();
+                $save->save();
 
-            return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Successfully Present');
+                return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('success', 'Successfully Present');
+            }
+        } catch (\Exception $e) {
+            // Handle the exception
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
         }
     }
 }
