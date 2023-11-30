@@ -57,12 +57,7 @@ class EventController extends Controller
                 ->where('payment.package', '=', 'Platinum++')
                 ->first();
             $findPayment = Payment::where('member_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
-            $findSpeakers = EventsSpeakers::where('events_id', $findEvent->id)
-                ->join('users', 'users.id', 'events_speakers.users_id')
-                ->join('profiles', 'profiles.users_id', 'users.id')
-                ->join('company', 'company.id', 'profiles.company_id')
-                ->select('users.id', 'users.name', 'profiles.image', 'company.company_name', 'profiles.job_title')
-                ->get();
+            $findSpeakers = null;
 
             $findParticipant = UserRegister::where('events_id', $findEvent->id)
                 ->join('users', 'users.id', 'users_event.users_id')
