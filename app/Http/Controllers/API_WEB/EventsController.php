@@ -39,7 +39,7 @@ class EventsController extends Controller
                 'start_time' => $findEvent->start_time,
                 'end_time' => $findEvent->end_time,
                 'location' => $findEvent->location,
-                'image' => $findEvent->image,
+                'image' => $findEvent->image_banner,
             ];
             $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->orderby('price_rupiah', 'asc')->get();
             $findUser = UserRegister::where('users_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
