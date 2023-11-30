@@ -68,13 +68,38 @@
                                 {!! Form::label('Tipe event') !!}
                                 {!! Form::select(
                                     'type',
-                                    [null => 'Type Select', 'live' => 'Live Event', 'virtual' => 'Virtual/Online', 'hybrid' => 'Hybrid'],
+                                    [
+                                        null => 'Type Select',
+                                        'Live' => 'Live Event',
+                                        'Virtual' => 'Virtual/Online',
+                                        'Hybrid' => 'Hybrid',
+                                        'Networking Dinner' => 'Networking Dinner',
+                                    ],
                                     $data->type,
                                     ['class' => 'form-control'],
                                 ) !!}
                                 @if ($errors->has('type'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('type') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="form-group{{ $errors->has('event_type') ? ' has-error' : '' }}">
+                                {!! Form::label('Tipe event') !!}
+                                {!! Form::select(
+                                    'event_type',
+                                    [
+                                        null => 'Type Select',
+                                        'DMC Event' => 'DMC Event',
+                                        'DMC Partnership Event' => 'DMC Partnership Event',
+                                        'Partnership Event' => 'Partnership Event',
+                                    ],
+                                    $data->event_type,
+                                    ['class' => 'form-control'],
+                                ) !!}
+                                @if ($errors->has('event_type'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('event_type') }}</strong>
                                     </span>
                                 @endif
                             </div>
@@ -102,6 +127,24 @@
                                     </span>
                                 @endif
                                 <img id="holder" style="margin-top:15px;max-height:100px;">
+                            </div>
+                            <div class="form-group{{ $errors->has('image') ? ' has-error' : '' }}">
+                                {!! Form::label('Image Banner *') !!}
+                                <img src="{{ asset($data->image_banner) }}"
+                                    class="img-preview img-fluid mb-3 col-sm-5 d-block">
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="" name="image_banner">
+                                        <label class="custom-file-label"
+                                            for="exampleInputFile">{{ $data->image_banner }}</label>
+                                    </div>
+                                </div>
+                                @if ($errors->has('image_banner'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('image_banner') }}</strong>
+                                    </span>
+                                @endif
+                                <img id="holder_2" style="margin-top:15px;max-height:100px;">
                             </div>
                         </div>
                     </div>

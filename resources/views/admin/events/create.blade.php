@@ -64,10 +64,16 @@
                                 @endif
                             </div>
                             <div class="form-group{{ $errors->has('type') ? ' has-error' : '' }}">
-                                {!! Form::label('Tipe event') !!}
+                                {!! Form::label('Tipe') !!}
                                 {!! Form::select(
                                     'type',
-                                    [null => 'Type Select', 'live' => 'Live Event', 'virtual' => 'Virtual/Online', 'hybrid' => 'Hybrid'],
+                                    [
+                                        null => 'Type Select',
+                                        'Live' => 'Live Event',
+                                        'Virtual' => 'Virtual/Online',
+                                        'Hybrid' => 'Hybrid',
+                                        'Networking Dinner' => 'Networking Dinner',
+                                    ],
                                     null,
                                     ['class' => 'form-control'],
                                 ) !!}
@@ -77,31 +83,25 @@
                                     </span>
                                 @endif
                             </div>
-                            {{-- <div class="form-group{{ $errors->has('link') ? ' has-error' : '' }}">
-                                {!! Form::label('Link Private Zoom/Meet (Isi Form ini jika dirasa program dilaksanakan
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            secara online)') !!}
-                                {!! Form::text('link', old('link'), ['class' => 'form-control', 'placeholder' => 'LINK']) !!}
-                                @if ($errors->has('link'))
+                            <div class="form-group{{ $errors->has('event_type') ? ' has-error' : '' }}">
+                                {!! Form::label('Tipe event') !!}
+                                {!! Form::select(
+                                    'event_type',
+                                    [
+                                        null => 'Type Select',
+                                        'DMC Event' => 'DMC Event',
+                                        'DMC Partnership Event' => 'DMC Partnership Event',
+                                        'Partnership Event' => 'Partnership Event',
+                                    ],
+                                    null,
+                                    ['class' => 'form-control'],
+                                ) !!}
+                                @if ($errors->has('event_type'))
                                     <span class="help-block">
-                                        <strong style="color:red">{{ $errors->first('link') }}</strong>
+                                        <strong style="color:red">{{ $errors->first('event_type') }}</strong>
                                     </span>
                                 @endif
-                            </div> --}}
-                            @can('admin-dashboard')
-                                <div class="form-group{{ $errors->has('skpd_id') ? ' has-error' : '' }}">
-                                    {{-- {!! Form::label('SKPD *') !!}
-                                    {!! Form::select('skpd_id', $skpd_values->pluck('value', 'id'), null, ['class' => 'form-control']) !!}
-                                    @if ($errors->has('skpd_id'))
-                                        <span class="help-block">
-                                            <strong style="color:red">{{ $errors->first('skpd_id') }}</strong>
-                                        </span>
-                                    @endif --}}
-                                </div>
-                            @endcan
-                            @can('admin-dashboard-byself')
-                                <input type="hidden" name="skpd_id" id="skpd_id" value="{{ $skpd }}">
-                            @endcan
-
+                            </div>
                         </div>
 
                     </div>
@@ -111,7 +111,7 @@
                         </div>
                         <div class="card-body">
                             <div class="form-group{{ $errors->has('image') ? ' has-error' : '' }}">
-                                {!! Form::label('Thumbnails *') !!}
+                                {!! Form::label('Image Kotak *') !!}
                                 <div class="input-group">
                                     <div class="custom-file">
                                         <input type="file" class="custom-file-input" id="thumbnail" name="image">
@@ -122,6 +122,22 @@
                                 @if ($errors->has('image'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('image') }}</strong>
+                                    </span>
+                                @endif
+                                <img id="holder" style="margin-top:15px;max-height:100px;">
+                            </div>
+                            <div class="form-group{{ $errors->has('image') ? ' has-error' : '' }}">
+                                {!! Form::label('Image Banner *') !!}
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="" name="image_banner">
+                                        <label class="custom-file-label" for="exampleInputFile">Choose
+                                            file</label>
+                                    </div>
+                                </div>
+                                @if ($errors->has('image_banner'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('image_banner') }}</strong>
                                     </span>
                                 @endif
                                 <img id="holder" style="margin-top:15px;max-height:100px;">
@@ -147,7 +163,7 @@
                                             </div>
                                             {!! Form::text('start_date', date('Y-m-d'), [
                                                 'class' => 'form-control
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                datepicker',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            datepicker',
                                                 'placeholder' => 'Tanggal Mulai',
                                             ]) !!}
                                         </div>
@@ -187,7 +203,7 @@
                                             {!! Form::text('end_time', date('H:i'), [
                                                 'class' => 'form-control ',
                                                 'placeholder' => 'Waktu
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Selesai',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Selesai',
                                             ]) !!}
                                             <span class="input-group-addon">
                                                 <span class="fa fa-clock-o"></span>

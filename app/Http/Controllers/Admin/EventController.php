@@ -71,11 +71,13 @@ class EventController extends Controller
 
     public function update(Request $request)
     {
+        // dd($request->all());
         $findEvent = EventsService::showDetail($request->id);
         $findEvent->name = $request->name;
         $findEvent->location = $request->location;
         $findEvent->description = $request->description;
         $findEvent->type = $request->type;
+        $findEvent->event_type = $request->event_type;
         $findEvent->location = $request->location;
         $findEvent->start_date = $request->start_date;
         $findEvent->end_date = $request->end_date;
@@ -89,6 +91,13 @@ class EventController extends Controller
             $db = '/storage/events/' . $imageName;
             $findEvent_folder = $request->image->storeAs('public/events', $imageName);
             $findEvent->image = $db;
+        }
+        $image_banner = $request->image_banner;
+        if (!empty($image_banner)) {
+            $imageName2 = time() . '.' . $request->image_banner->extension();
+            $db2 = '/storage/events-banner/' . $imageName2;
+            $save_folder = $request->image_banner->storeAs('public/events-banner', $imageName2);
+            $findEvent->image_banner = $db2;
         }
         $findEvent->save();
         return redirect()->route('events')->with('success', 'Successfully Update event');
@@ -106,6 +115,7 @@ class EventController extends Controller
         $save->start_time = $request->start_time;
         $save->end_time = $request->end_time;
         $save->status = $request->status;
+        $save->event_type = $request->event_type;
         $save->slug = Str::slug($request->name);
         $file = $request->image;
         if (!empty($file)) {
@@ -114,13 +124,21 @@ class EventController extends Controller
             $save_folder = $request->image->storeAs('public/events', $imageName);
             $save->image = $db;
         }
+        $image_banner = $request->image_banner;
+        if (!empty($image_banner)) {
+            $imageName2 = time() . '.' . $request->image_banner->extension();
+            $db2 = '/storage/events-banner/' . $imageName2;
+            $save_folder = $request->image->storeAs('public/events-banner', $imageName2);
+            $save->image_banner = $db2;
+        }
         $save->save();
-
-        foreach ($request->category_id as $key => $value) {
-            $category = EventsCategoryList::create([
-                'events_id' => $save->id,
-                'events_category_id' => $request->category_id[$key]
-            ]);
+        if (!empty($request->category)) {
+            foreach ($request->category_id as $key => $value) {
+                $category = EventsCategoryList::create([
+                    'events_id' => $save->id,
+                    'events_category_id' => $request->category_id[$key]
+                ]);
+            }
         }
         return redirect()->route('events')->with('success', 'Successfully create new event');
     }

@@ -22,6 +22,7 @@ class Events extends Model
         'slug',
         'status',
         'type',
-        'maps'
+        'maps',
+        'image_banner'
     ];
 }
