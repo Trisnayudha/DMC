@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\EventsDetailController;
 use App\Http\Controllers\Admin\EventsDetailParticipantController;
 use App\Http\Controllers\Admin\EventsHighlightController;
 use App\Http\Controllers\Admin\EventsScheduleController;
+use App\Http\Controllers\Admin\EventsSpeakersController;
 use App\Http\Controllers\Admin\EventsTicketController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\MarketingAdsController;
@@ -191,6 +192,8 @@ Route::prefix('admin')->group(function () {
     Route::post('/events-schedule/deletecategory', [EventsScheduleController::class, 'destroy']);
     Route::post('/events/schedule/movesort', [EventsScheduleController::class, 'moveSort'])->name('events.moveSort');
 
+    //EventsSpeakers
+    Route::resource('events/speakers', EventsSpeakersController::class);
 
     Route::post('/events-import', [EventController::class, 'import'])->name('events.import');
 
