@@ -58,6 +58,8 @@
                 <li><a class="nav-link" href="{{ Route('events.conference') }}">Events Conference</a></li>
                 <li><a class="nav-link" href="{{ Route('events.highlight') }}">Events Highlight</a></li>
                 <li><a class="nav-link" href="{{ Route('events.schedule') }}">Events Schedule</a></li>
+                <li><a class="nav-link" href="{{ Route('speakers.index') }}">Events Speakers</a></li>
+                <li><a class="nav-link" href="{{ Route('rundown.index') }}">Events Rundown</a></li>
 
             </ul>
         </li>
