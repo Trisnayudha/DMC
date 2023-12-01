@@ -71,4 +71,9 @@ class EventsController extends Controller
         }
         return response()->json($response);
     }
+
+    public function rundown($slug)
+    {
+        //
+    }
 }
