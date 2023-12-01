@@ -138,6 +138,7 @@ Route::prefix('web')->group(function () {
     Route::post('home/scheduleEvent', [API_WEBHomeController::class, 'getScheduleEvent']);
 
     Route::post('events/{slug}/detail', [API_WEBEventsController::class, 'detail']);
+    Route::post('events/{slug}/rundown', [API_WEBEventsController::class, 'rundown']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);

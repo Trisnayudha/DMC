@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API_WEB;
 
 use App\Http\Controllers\Controller;
+use App\Models\Events\EventsRundown;
+use App\Models\Events\EventsSpeakersRundown;
 use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
@@ -74,6 +76,41 @@ class EventsController extends Controller
 
     public function rundown($slug)
     {
-        //
+        $findEvent = RepositoriesEvents::findEvent($slug);
+        $dataRundown = EventsRundown::where('events_id', $findEvent->id)->get();
+
+        $response['status'] = 200;
+        $response['message'] = 'Success';
+        $response['payload'] = [];
+
+        foreach ($dataRundown as $rundown) {
+            $time = Carbon::parse($rundown->date)->format('H:i') . ' WIB';
+
+            $item['id'] = $rundown->id;
+            $item['name'] = $rundown->name;
+            $item['time'] = $time;
+            $item['speakers'] = [];
+
+            $dataSpeakers = EventsSpeakersRundown::leftJoin('events_rundown', 'events_rundown.id', 'events_speakers_rundown.events_rundown_id')
+                ->leftJoin('events_speakers', 'events_speakers.id', 'events_speakers_rundown.events_speakers_id')
+                ->where('events_rundown.id', $rundown->id)
+                ->get();
+
+            foreach ($dataSpeakers as $speaker) {
+                $speakerItem['name'] = $speaker->name;
+                $speakerItem['job_title'] = $speaker->job_title;
+                $speakerItem['image'] = $speaker->image;
+                $item['speakers'][] = $speakerItem;
+            }
+
+            $response['payload'][] = $item;
+        }
+
+        // Sort the payload based on the time/date
+        usort($response['payload'], function ($a, $b) {
+            return strtotime($a['time']) - strtotime($b['time']);
+        });
+
+        return response()->json($response);
     }
 }
