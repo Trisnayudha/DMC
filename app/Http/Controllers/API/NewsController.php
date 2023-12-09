@@ -39,6 +39,14 @@ class NewsController extends Controller
         $bannersPluck = RepositoriesNews::listAllToArray();
         $news = RepositoriesNews::listAllNewsOnlySearch($search, $bannersPluck, $limit, $category);
         foreach ($news as $value) {
+            $value->description = strip_tags($value->desc);
+            $wordCount = str_word_count($value->description);
+            $limitWords = 25;
+
+            if ($wordCount > $limitWords) {
+                $words = explode(' ', $value->description, $limitWords);
+                $value->description = implode(' ', array_slice($words, 0, $limitWords)) . '...';
+            }
             $value->date_news = date('d, M Y', strtotime($value->date_news));
         }
         $response['status'] = 200;
