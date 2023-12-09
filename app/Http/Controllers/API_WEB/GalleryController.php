@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API_WEB;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events\EventsHighlight;
+use App\Models\Videos\Videos;
 use Illuminate\Http\Request;
 
 class GalleryController extends Controller
@@ -49,6 +50,16 @@ class GalleryController extends Controller
             'payload' => $imageData,
         ];
 
+        return response()->json($response);
+    }
+
+    public function feature()
+    {
+        $list = Videos::orderBy('id', 'desc')->get();
+
+        $response['status'] = 200;
+        $response['message'] = 'Success';
+        $response['payload'] = $list;
         return response()->json($response);
     }
 }
