@@ -41,7 +41,7 @@ class NewsController extends Controller
         foreach ($news as $value) {
             $value->description = strip_tags($value->desc);
             $wordCount = str_word_count($value->description);
-            $limitWords = 25;
+            $limitWords = 10;
 
             if ($wordCount > $limitWords) {
                 $words = explode(' ', $value->description, $limitWords);
