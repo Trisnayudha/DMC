@@ -145,7 +145,9 @@ Route::prefix('web')->group(function () {
     Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
 
     Route::post('gallery/home', [GalleryController::class, 'home']);
+    Route::post('gallery/event', [GalleryController::class, 'eventList']);
     Route::post('gallery/feature', [GalleryController::class, 'feature']);
+    Route::post('gallery/navigate', [GalleryController::class, 'navigate']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);

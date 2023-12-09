@@ -14,4 +14,9 @@ class EventsHighlight extends Model
         'events_id',
         'image'
     ];
+
+    public function event()
+    {
+        return $this->belongsTo(Events::class, 'events_id');
+    }
 }
