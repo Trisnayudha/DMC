@@ -82,6 +82,7 @@ class GalleryController extends Controller
     public function navigate(Request $request)
     {
         $slug = $request->slug;
+        $limit = $request->limit ?? 10;
 
         $query = EventsHighlight::query();
 
@@ -92,7 +93,7 @@ class GalleryController extends Controller
             });
         }
 
-        $data = $query->orderby('id', 'desc')->get();
+        $data = $query->orderby('id', 'desc')->paginate($limit);
 
         $response['status'] = 200;
         $response['message'] = 'Success';
