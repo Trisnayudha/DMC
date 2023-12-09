@@ -20,6 +20,7 @@ use App\Http\Controllers\API\ScanController;
 use App\Http\Controllers\API\SponsorsController;
 use App\Http\Controllers\API_WEB\HomeController as API_WEBHomeController;
 use App\Http\Controllers\API_WEB\EventsController as API_WEBEventsController;
+use App\Http\Controllers\API_WEB\GalleryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -142,6 +143,8 @@ Route::prefix('web')->group(function () {
 
     Route::post('/news', [NewsController::class, 'ListAll']);
     Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
+
+    Route::post('gallery/home', [GalleryController::class, 'home']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
