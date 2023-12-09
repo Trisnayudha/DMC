@@ -141,7 +141,7 @@ Route::prefix('web')->group(function () {
     Route::post('events/{slug}/rundown', [API_WEBEventsController::class, 'rundown']);
 
     Route::post('/news', [NewsController::class, 'ListAll']);
-    Route::post('news/{slug}', [NewsController::class, 'detail']);
+    Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
