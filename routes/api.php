@@ -78,7 +78,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
 
     Route::post('/contact_us', [ContactUsController::class, 'index']);
 
-    Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
     Route::post('/news/bookmark', [NewsController::class, 'bookmark']);
     Route::post('/news/like', [NewsController::class, 'like']);
     Route::post('/news/comment', [NewsController::class, 'comment']);
@@ -97,6 +96,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
 });
 Route::post('/news/category', [NewsCategoryController::class, 'index']);
 Route::post('/news', [NewsController::class, 'ListAll']);
+Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
+
 
 Route::post('/events/category', [EventsCategoryController::class, 'index']);
 Route::post('/events', [EventController::class, 'index']);

@@ -50,7 +50,7 @@ class NewsController extends Controller
 
     public function detail($slug, $limit = 10)
     {
-        $id =  auth('sanctum')->user()->id;
+        $id =  auth('sanctum')->user()->id ?? 0;
         $detail = News::where('slug', '=', $slug)->first();
         $findLike = NewsLike::where('users_id', '=', $id)->where('news_id', '=', $detail->id)->first();
         $findBookmark = NewsBookmark::where('users_id', '=', $id)->where('news_id', '=', $detail->id)->first();
