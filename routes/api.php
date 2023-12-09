@@ -18,6 +18,7 @@ use App\Http\Controllers\API\MikrotikController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ScanController;
 use App\Http\Controllers\API\SponsorsController;
+use App\Http\Controllers\API_WEB\AboutController;
 use App\Http\Controllers\API_WEB\HomeController as API_WEBHomeController;
 use App\Http\Controllers\API_WEB\EventsController as API_WEBEventsController;
 use App\Http\Controllers\API_WEB\GalleryController;
@@ -148,6 +149,8 @@ Route::prefix('web')->group(function () {
     Route::post('gallery/event', [GalleryController::class, 'eventList']);
     Route::post('gallery/feature', [GalleryController::class, 'feature']);
     Route::post('gallery/navigate', [GalleryController::class, 'navigate']);
+
+    Route::post('about/image', [AboutController::class, 'sectionImage']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
