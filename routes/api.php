@@ -19,6 +19,7 @@ use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\ScanController;
 use App\Http\Controllers\API\SponsorsController;
 use App\Http\Controllers\API_WEB\AboutController;
+use App\Http\Controllers\API_WEB\AuthController as API_WEBAuthController;
 use App\Http\Controllers\API_WEB\HomeController as API_WEBHomeController;
 use App\Http\Controllers\API_WEB\EventsController as API_WEBEventsController;
 use App\Http\Controllers\API_WEB\GalleryController;
@@ -127,6 +128,10 @@ Route::post('/highlight/list', [NotificationController::class, 'highlight']);
 
 
 Route::prefix('web')->group(function () {
+
+    Route::post('/signin-phone', [API_WEBAuthController::class, 'signin_phone']);
+    Route::any('request_otp', [API_WEBAuthController::class, 'requestOtp']);
+
     Route::post('sponsors', [SponsorsController::class, 'sponsor']);
     Route::post('sponsors/{slug}/detail', [SponsorsController::class, 'detail']);
 

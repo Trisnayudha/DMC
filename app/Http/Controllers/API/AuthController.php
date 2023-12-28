@@ -314,6 +314,7 @@ Your verification code (OTP) ' . $otp;
         }
         return response()->json($response);
     }
+
     public function requestOtp(Request $request)
     {
         $otp = rand(1000, 9999);
