@@ -181,9 +181,9 @@ class EventController extends Controller
             $findDetail = UserRegister::join('events', 'events.id', 'users_event.events_id')
                 ->join('payment', 'payment.id', 'users_event.payment_id')
                 ->where(function ($q) use ($filter, $date) {
-                    if ($filter == 'active') {
+                    if ($filter == 'active' || $filter == 'upcoming') {
                         $q->where('events.end_date', '>=', $date);
-                    } else {
+                    } elseif ($filter == 'history' || $filter == 'finish') {
                         $q->where('events.end_date', '<', $date);
                     }
                 })
