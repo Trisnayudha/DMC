@@ -147,6 +147,7 @@ Route::prefix('web')->group(function () {
     Route::post('events/{slug}/detail', [API_WEBEventsController::class, 'detail']);
     Route::post('events/{slug}/rundown', [API_WEBEventsController::class, 'rundown']);
 
+    Route::post('/latestNews', [NewsController::class, 'index']);
     Route::post('/news', [NewsController::class, 'ListAll']);
     Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
 

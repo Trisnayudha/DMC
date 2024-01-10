@@ -214,7 +214,7 @@ class News extends NewsModel
 
     public static function listAllToArray()
     {
-        $data = News::select('id', 'title', 'title', 'date_news', 'slug')->where('highlight', '=', 'Yes')->take(3)->orderBy('id', 'desc')
+        $data = News::select('id', 'title', 'title', 'date_news', 'slug')->where('highlight', '=', 'Yes')->take(4)->orderBy('id', 'desc')
             ->pluck('news.id')
             ->toArray();
 

@@ -52,6 +52,8 @@ class NewsController extends Controller
     {
         $id =  auth('sanctum')->user()->id ?? 0;
         $detail = News::where('slug', '=', $slug)->first();
+        $detail->views = $detail->views + 1;
+        $detail->save();
         $findLike = NewsLike::where('users_id', '=', $id)->where('news_id', '=', $detail->id)->first();
         $findBookmark = NewsBookmark::where('users_id', '=', $id)->where('news_id', '=', $detail->id)->first();
         $findComment = NewsComment::where('news_id', '=', $detail->id)
