@@ -159,7 +159,7 @@ Route::prefix('web')->group(function () {
 
     Route::post('about/image', [AboutController::class, 'sectionImage']);
 
-    Route::post('payment/history', [API_WEBPaymentController::class, 'payment']);
+    Route::post('payment/history', [API_WEBPaymentController::class, 'historyPayment']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
