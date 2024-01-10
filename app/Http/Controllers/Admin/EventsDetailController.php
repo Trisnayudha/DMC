@@ -135,7 +135,7 @@ class EventsDetailController extends Controller
             $saveUser = new UserRegister();
             $saveUser->users_id = $id;
             $saveUser->events_id = $findEvent->id;
-            $saveUser->save->id;
+            $saveUser->payment_id = $save->id;
             $saveUser->save();
 
             if (!empty($pilihan)) {
