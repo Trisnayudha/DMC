@@ -205,7 +205,7 @@ class EventController extends Controller
                 ->orderBy('payment.id', 'desc')
                 ->paginate($limit);
             foreach ($findDetail as $val => $key) {
-                $key->present = $key->present == 1 ? true : false;
+                $key->present = $key->present != null ? true : false;
             }
             $response['status'] = 200;
             $response['message'] = 'Success';
