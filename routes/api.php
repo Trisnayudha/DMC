@@ -23,6 +23,7 @@ use App\Http\Controllers\API_WEB\AuthController as API_WEBAuthController;
 use App\Http\Controllers\API_WEB\HomeController as API_WEBHomeController;
 use App\Http\Controllers\API_WEB\EventsController as API_WEBEventsController;
 use App\Http\Controllers\API_WEB\GalleryController;
+use App\Http\Controllers\API_WEB\PaymentController as API_WEBPaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -157,6 +158,8 @@ Route::prefix('web')->group(function () {
     Route::post('gallery/navigate', [GalleryController::class, 'navigate']);
 
     Route::post('about/image', [AboutController::class, 'sectionImage']);
+
+    Route::post('payment/history', [API_WEBPaymentController::class, 'payment']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
