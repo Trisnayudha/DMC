@@ -132,6 +132,12 @@ class EventsDetailController extends Controller
             $save->pic_id = $pic;
             $save->save();
 
+            $saveUser = new UserRegister();
+            $saveUser->users_id = $id;
+            $saveUser->events_id = $findEvent->id;
+            $saveUser->save->id;
+            $saveUser->save();
+
             if (!empty($pilihan)) {
                 $data = [
                     'code_payment' => $code_payment,
