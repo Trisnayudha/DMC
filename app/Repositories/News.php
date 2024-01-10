@@ -207,7 +207,7 @@ class News extends NewsModel
 
     public static function listAll()
     {
-        $data = News::select('id', 'title', 'title', 'date_news', 'slug', 'image')->take(6)->orderBy('id', 'desc')->get();
+        $data = News::select('id', 'title', 'title', 'date_news', 'slug', 'image', 'desc')->take(6)->orderBy('id', 'desc')->get();
 
         return $data;
     }
