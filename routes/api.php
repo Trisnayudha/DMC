@@ -102,6 +102,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
 });
 Route::post('/news/category', [NewsCategoryController::class, 'index']);
 Route::post('/news', [NewsController::class, 'ListAll']);
+Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
 
 Route::post('/events/category', [EventsCategoryController::class, 'index']);
 Route::post('/events', [EventController::class, 'index']);
