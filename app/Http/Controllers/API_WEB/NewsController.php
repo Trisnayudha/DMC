@@ -85,7 +85,13 @@ class NewsController extends Controller
             $newsItem->date_news = date('d, M Y H:i', strtotime($newsItem->date_news));
         }
 
-        return $relatedNews;
+        $response = [
+            'status' => 200,
+            'message' => 'Success',
+            'payload' => $relatedNews
+        ];
+
+        return response()->json($response);
     }
 
     public function detail($slug, $limit = 10)
