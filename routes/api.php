@@ -23,6 +23,7 @@ use App\Http\Controllers\API_WEB\AuthController as API_WEBAuthController;
 use App\Http\Controllers\API_WEB\HomeController as API_WEBHomeController;
 use App\Http\Controllers\API_WEB\EventsController as API_WEBEventsController;
 use App\Http\Controllers\API_WEB\GalleryController;
+use App\Http\Controllers\API_WEB\NewsController as API_WEBNewsController;
 use App\Http\Controllers\API_WEB\PaymentController as API_WEBPaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -148,9 +149,9 @@ Route::prefix('web')->group(function () {
     Route::post('events/{slug}/detail', [API_WEBEventsController::class, 'detail']);
     Route::post('events/{slug}/rundown', [API_WEBEventsController::class, 'rundown']);
 
-    Route::post('/latestNews', [NewsController::class, 'index']);
-    Route::post('/news', [NewsController::class, 'ListAll']);
-    Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
+    Route::post('/latestNews', [API_WEBNewsController::class, 'index']);
+    Route::post('/news', [API_WEBNewsController::class, 'ListAll']);
+    Route::post('/detail/news/{slug}', [API_WEBNewsController::class, 'detail']);
 
     Route::post('gallery/home', [GalleryController::class, 'home']);
     Route::post('gallery/event', [GalleryController::class, 'eventList']);
