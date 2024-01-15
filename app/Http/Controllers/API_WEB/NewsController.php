@@ -48,6 +48,46 @@ class NewsController extends Controller
         return response()->json($response);
     }
 
+    public function moreNews(Request $request)
+    {
+        $limit = $request->input('limit', 5); // Default to 5 more news items if no limit is provided
+        $excludeIds = $request->input('exclude', []); // IDs of news to exclude, typically the ones already displayed
+
+        // Get the latest news excluding the ones already displayed
+        $moreNews = News::whereNotIn('id', $excludeIds)
+            ->orderBy('date_news', 'desc')
+            ->limit($limit)
+            ->get();
+
+        foreach ($moreNews as $newsItem) {
+            $newsItem->description = strip_tags($newsItem->desc);
+            $newsItem->date_news = date('d, M Y H:i', strtotime($newsItem->date_news));
+        }
+
+        $response = [
+            'status' => 200,
+            'message' => 'Success',
+            'payload' => $moreNews
+        ];
+
+        return response()->json($response);
+    }
+
+    public function relatedNews($current_news_id, $limit = 5)
+    {
+        $relatedNews = News::where('id', '<>', $current_news_id)
+            ->orderBy('date_news', 'desc')
+            ->limit($limit)
+            ->get();
+
+        foreach ($relatedNews as $newsItem) {
+            $newsItem->description = strip_tags($newsItem->desc);
+            $newsItem->date_news = date('d, M Y H:i', strtotime($newsItem->date_news));
+        }
+
+        return $relatedNews;
+    }
+
     public function detail($slug, $limit = 10)
     {
         $id =  auth('sanctum')->user()->id ?? 0;

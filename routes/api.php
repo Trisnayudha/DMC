@@ -152,6 +152,8 @@ Route::prefix('web')->group(function () {
     Route::post('/latestNews', [API_WEBNewsController::class, 'index']);
     Route::post('/news', [API_WEBNewsController::class, 'ListAll']);
     Route::post('/detail/news/{slug}', [API_WEBNewsController::class, 'detail']);
+    Route::post('/news/releated', [API_WEBNewsController::class, 'relatedNews']);
+    Route::post('/news/more', [API_WEBNewsController::class, 'moreNews']);
 
     Route::post('gallery/home', [GalleryController::class, 'home']);
     Route::post('gallery/event', [GalleryController::class, 'eventList']);
