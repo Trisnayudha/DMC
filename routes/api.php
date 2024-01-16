@@ -25,6 +25,7 @@ use App\Http\Controllers\API_WEB\EventsController as API_WEBEventsController;
 use App\Http\Controllers\API_WEB\GalleryController;
 use App\Http\Controllers\API_WEB\NewsController as API_WEBNewsController;
 use App\Http\Controllers\API_WEB\PaymentController as API_WEBPaymentController;
+use App\Http\Controllers\API_WEB\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -163,6 +164,7 @@ Route::prefix('web')->group(function () {
     Route::post('about/image', [AboutController::class, 'sectionImage']);
 
     Route::post('payment/history', [API_WEBPaymentController::class, 'historyPayment']);
+    Route::post('/profile/request_otp', [ProfileController::class, 'requestOtp']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
