@@ -162,4 +162,53 @@ class EventsController extends Controller
         }
         return response()->json($response);
     }
+    public function myEvent(Request $request)
+    {
+        $id =  auth('sanctum')->user()->id;
+        $filter = $request->filter;
+        $limit = $request->limit;
+        $date = date('Y-m-d');
+        $findMyEvent = UserRegister::where('users_id', $id)->first();
+        if (!empty($findMyEvent)) {
+            $findDetail = UserRegister::join('events', 'events.id', 'users_event.events_id')
+                ->join('payment', 'payment.id', 'users_event.payment_id')
+                ->where(function ($q) use ($filter, $date) {
+                    if ($filter == 'active' || $filter == 'upcoming') {
+                        $q->where('events.end_date', '>=', $date);
+                    } elseif ($filter == 'history' || $filter == 'finish') {
+                        $q->where('events.end_date', '<', $date);
+                    }
+                })
+                ->where('users_event.users_id', '=', $id)
+                ->select(
+                    'events.id',
+                    'events.name as event_name',
+                    'events.start_date',
+                    'events.location',
+                    'events.start_time',
+                    'events.image',
+                    'payment.code_payment',
+                    'payment.qr_code',
+                    'payment.status_registration',
+                    'payment.package as present',
+                    'users_event.present',
+                    'events.slug'
+                )
+                ->orderBy('payment.id', 'desc')
+                ->paginate($limit);
+            foreach ($findDetail as $val => $key) {
+                $key->present = $key->present != null ? true : false;
+                $key->status = isset($key->end_date) && $key->end_date >= $date ? 'Upcoming Event' : 'Completed Event';
+            }
+
+            $response['status'] = 200;
+            $response['message'] = 'Success';
+            $response['payload'] = $findDetail;
+        } else {
+            $response['status'] = 200;
+            $response['message'] = 'Event Not Found';
+            $response['payload'] = [];
+        }
+        return response()->json($response);
+    }
 }
