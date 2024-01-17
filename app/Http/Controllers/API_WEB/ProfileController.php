@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API_WEB;
 use App\Helpers\EmailSender;
 use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
+use App\Models\Company\CompanyModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -100,5 +101,41 @@ Your verification code (OTP) ' . $otp;
             }
         }
         return response()->json($response);
+    }
+
+    public function update_profile(Request $request)
+    {
+        $id = auth('sanctum')->user()->id;
+
+        $check = User::where('id', $id)->first();
+        $profile = ProfileModel::where('users_id', $check->id)->first();
+        $company = CompanyModel::where('users_id', $check->id)->first();
+        if (!empty($check)) {
+
+            $file = $request->image;
+            if (!empty($file)) {
+                $imageName = time() . '.' . $request->image->extension();
+                $db = '/storage/profile/' . $imageName;
+                $save_folder = $request->image->storeAs('public/profile', $imageName);
+                $profile->image = $db;
+                $profile->save();
+            }
+            $company->company_name = $request->company_name;
+            $company->address = $request->address;
+            $company->office_number = $request->office_number;
+            $company->company_web = $request->company_web;
+            $check->name = $request->name;
+            $company->save();
+            $check->save();
+
+            $response['status'] = 200;
+            $response['message'] = 'Successfully update data';
+            $response['payload'] = null;
+        } else {
+            $response['status'] = 401;
+            $response['message'] = 'User Not Found';
+            $response['payload'] = null;
+        }
+        return response()->json($response, 200);
     }
 }
