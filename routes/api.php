@@ -165,6 +165,8 @@ Route::prefix('web')->group(function () {
 
     Route::post('payment/history', [API_WEBPaymentController::class, 'historyPayment']);
     Route::post('/profile/request_otp', [ProfileController::class, 'requestOtp']);
+
+    Route::post('/events/myEvent', [API_WEBEventsController::class, 'myEvent']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
