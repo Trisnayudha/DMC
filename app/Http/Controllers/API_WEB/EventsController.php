@@ -150,7 +150,7 @@ class EventsController extends Controller
                 ->paginate($limit);
             foreach ($findDetail as $val => $key) {
                 $key->present = $key->present != null ? true : false;
-                $key->status = $key->end_date <= $date ? 'Upcoming Event' : 'Completed Event';
+                $key->status = $key->end_date >= $date ? 'Upcoming Event' : 'Completed Event';
             }
             $response['status'] = 200;
             $response['message'] = 'Success';
