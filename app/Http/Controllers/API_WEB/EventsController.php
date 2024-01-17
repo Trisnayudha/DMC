@@ -144,7 +144,8 @@ class EventsController extends Controller
                     'payment.status_registration',
                     'payment.package as present',
                     'users_event.present',
-                    'events.slug'
+                    'events.slug',
+                    'events.end_date' // Tambahkan kolom 'end_date' ke dalam hasil kueri
                 )
                 ->orderBy('payment.id', 'desc')
                 ->paginate($limit);
