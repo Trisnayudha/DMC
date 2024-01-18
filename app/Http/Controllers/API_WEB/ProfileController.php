@@ -123,7 +123,7 @@ Your verification code (OTP) ' . $otp;
             $company->company_name = $request->company_name;
             $company->address = $request->address;
             $company->office_number = $request->office_number;
-            $company->company_web = $request->company_web;
+            $company->company_website = $request->company_web;
             $check->name = $request->name;
             $company->save();
             $check->save();
