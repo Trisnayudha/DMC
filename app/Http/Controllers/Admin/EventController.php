@@ -85,6 +85,9 @@ class EventController extends Controller
         $findEvent->end_time = $request->end_time;
         $findEvent->status = $request->status;
         $findEvent->slug = Str::slug($request->name);
+        $findEvent->link = $request->link;
+        $findEvent->status_event = $request->status_event;
+        $findEvent->maps = $request->maps;
         $file = $request->image;
         if (!empty($file)) {
             $imageName = time() . '.' . $request->image->extension();
