@@ -117,6 +117,9 @@ class EventController extends Controller
         $save->status = $request->status;
         $save->event_type = $request->event_type;
         $save->slug = Str::slug($request->name);
+        $save->link = $request->link;
+        $save->status_event = $request->status_event;
+        $save->maps = $request->maps;
         $file = $request->image;
         if (!empty($file)) {
             $imageName = time() . '.' . $request->image->extension();

@@ -51,6 +51,15 @@
                                     </span>
                                 @endif
                             </div>
+                            <div class="form-group{{ $errors->has('maps') ? ' has-error' : '' }}">
+                                {!! Form::label('Google Maps (Link) *') !!}
+                                {!! Form::text('maps', $data->maps, ['class' => 'form-control', 'placeholder' => 'Tempat Kegiatan']) !!}
+                                @if ($errors->has('maps'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('maps') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
                             <div class="form-group{{ $errors->has('description') ? ' has-error' : '' }}">
                                 {!! Form::label('Deskripsi *') !!}
                                 {!! Form::textarea('description', $data->location, [
@@ -100,6 +109,33 @@
                                 @if ($errors->has('event_type'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('event_type') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="form-group{{ $errors->has('link') ? ' has-error' : '' }}">
+                                {!! Form::label('link diinput kalau tipe event (partnership event)') !!}
+                                {!! Form::text('link', $data->link, ['class' => 'form-control', 'placeholder' => 'Link Registration']) !!}
+                                @if ($errors->has('link'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('link') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="form-group{{ $errors->has('status_event') ? ' has-error' : '' }}">
+                                {!! Form::label('Status Event') !!}
+                                {!! Form::select(
+                                    'status_event',
+                                    [
+                                        null => 'Status Select',
+                                        'Free' => 'Free',
+                                        'Paid' => 'Paid',
+                                    ],
+                                    $data->status_event,
+                                    ['class' => 'form-control'],
+                                ) !!}
+                                @if ($errors->has('status_event'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('status_event') }}</strong>
                                     </span>
                                 @endif
                             </div>
