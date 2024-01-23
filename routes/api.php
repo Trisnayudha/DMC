@@ -166,6 +166,7 @@ Route::prefix('web')->group(function () {
 
     Route::post('payment/history', [API_WEBPaymentController::class, 'historyPayment']);
     Route::post('payment/cancel', [API_WEBPaymentController::class, 'cancel']);
+    Route::post('payment/refresh', [API_WEBPaymentController::class, 'refresh']);
     Route::post('/profile/request_otp', [ProfileController::class, 'requestOtp']);
 
     Route::post('/events/myEvent', [API_WEBEventsController::class, 'myEvent']);
