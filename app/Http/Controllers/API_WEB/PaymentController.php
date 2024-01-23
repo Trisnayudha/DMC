@@ -22,4 +22,27 @@ class PaymentController extends Controller
         $response['payload'] = $findPayment;
         return response()->json($response);
     }
+
+    public function cancel(Request $request)
+    {
+        $code_payment = $request->code_payment;
+
+        $findPayment = Payment::where('code_payment', $code_payment)->where('status_registration', 'Waiting')->first();
+        if ($findPayment) {
+            $findPayment->status_registration = 'Cancel';
+            $response['status'] = 200;
+            $response['message'] = 'Success Cancel payment';
+            $response['payload'] = null;
+        } else {
+            $response['status'] = 200;
+            $response['message'] = 'Payment Not Found';
+            $response['payload'] = null;
+        }
+        return response()->json($response);
+    }
+
+    public function refresh()
+    {
+        //
+    }
 }
