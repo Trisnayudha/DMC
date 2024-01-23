@@ -75,7 +75,7 @@ class PaymentController extends Controller
         $findUsers = User::where('id', '=', $id)->first();
         $findTicket = EventsTicket::where('id', '=', $tickets_id)->first();
         $save = new Payment();
-        if ($findPayment == null) {
+        if ($findPayment == null || $findPayment->status_registration == 'Cancel') {
             $save->member_id = $id;
             $save->package = $package;
             $save->code_payment = $codePayment;
