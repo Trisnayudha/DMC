@@ -226,7 +226,7 @@ class EventController extends Controller
 
         if (!empty($findWaiting)) {
             $findDetail = Payment::where('member_id', $id)->where('status_registration', '=', 'Waiting')
-                ->join('payment_users_va', 'payment_users_va.payment_id', 'payment.id')
+                ->leftjoin('payment_users_va', 'payment_users_va.payment_id', 'payment.id')
                 ->join('events', 'events.id', 'payment.events_id')
                 ->orderBy('payment.id', 'desc')
                 ->get();
