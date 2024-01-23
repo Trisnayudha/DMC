@@ -30,6 +30,8 @@ class PaymentController extends Controller
         $findPayment = Payment::where('code_payment', $code_payment)->where('status_registration', 'Waiting')->first();
         if ($findPayment) {
             $findPayment->status_registration = 'Cancel';
+            $findPayment->link = null;
+            $findPayment->save();
             $response['status'] = 200;
             $response['message'] = 'Success Cancel payment';
             $response['payload'] = null;
