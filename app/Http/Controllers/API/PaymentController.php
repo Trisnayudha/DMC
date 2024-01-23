@@ -75,7 +75,7 @@ class PaymentController extends Controller
         $findUsers = User::where('id', '=', $id)->first();
         $findTicket = EventsTicket::where('id', '=', $tickets_id)->first();
         $save = new Payment();
-        if ($findPayment == null && $findPayment->status_registration == 'Cancel') {
+        if ($findPayment == null || $findPayment->status_registration == 'Cancel') {
             $save->member_id = $id;
             $save->package = $package;
             $save->code_payment = $codePayment;
@@ -172,7 +172,7 @@ class PaymentController extends Controller
                 ->generate($codePayment);
         }
         $save = new Payment();
-        if (empty($findPayment)) {
+        if (empty($findPayment) || $findPayment->status_registration == 'Cancel') {
             if ($payment_method == 'CREDIT_CARD') {
                 $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
                 $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
