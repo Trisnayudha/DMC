@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\SpecialEventController;
+use App\Http\Controllers\Admin\SponsorAddressController;
 use App\Http\Controllers\Admin\SponsorController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\VideosController;
@@ -124,6 +125,8 @@ Route::prefix('admin')->group(function () {
     Route::resource('sponsors', SponsorController::class);
     Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
+
+    Route::resource('sponsors-address', SponsorAddressController::class);
 
 
     Route::get('home', [App\Http\Controllers\Admin\HomeController::class, 'index'])->name('home');

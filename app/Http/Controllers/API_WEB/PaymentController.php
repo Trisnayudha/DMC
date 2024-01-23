@@ -44,7 +44,7 @@ class PaymentController extends Controller
     public function refresh(Request $request)
     {
         $code_payment = $request->code_payment;
-        $findPayment = Payment::join('events', 'events.id', 'payment.events_id')->join('events_ticket', 'events_ticket.id', 'payment.tickets_id')->where('code_payment', $code_payment)->first();
+        $findPayment = Payment::join('events', 'events.id', 'payment.events_id')->join('events_tickets', 'events_tickets.id', 'payment.tickets_id')->where('code_payment', $code_payment)->first();
         $response['status'] = 200;
         $response['message'] = 'Success Refresh payment';
         $response['payload'] = $findPayment;
