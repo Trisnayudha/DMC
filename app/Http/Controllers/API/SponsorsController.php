@@ -4,6 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Sponsors\Sponsor;
+use App\Models\Sponsors\SponsorAddress;
+use App\Models\Sponsors\SponsorAdvertising;
+use App\Models\Sponsors\SponsorRepresentative;
 use App\Services\Sponsors\SponsorService;
 
 class SponsorsController extends Controller
@@ -42,17 +45,25 @@ class SponsorsController extends Controller
     public function detail($slug)
     {
         $sponsor = Sponsor::where('slug', $slug)->first();
-
+        $location = SponsorAddress::where('sponsor_id', $sponsor->id)->get();
+        $representative = SponsorRepresentative::where('sponsor_id', $sponsor->id)->get();
+        $advertising = SponsorAdvertising::where('sponsor_id', $sponsor->id)->get();
         if (!$sponsor) {
             $response['status'] = 404; // Atur status 404 Not Found
             $response['message'] = 'Sponsor not found';
             $response['payload'] = null;
             return response()->json($response);
         }
+        $data = [
+            'detail' => $sponsor,
+            'location' => $location,
+            'representative' => $representative,
+            'advertising' => $advertising,
 
+        ];
         $response['status'] = 200;
         $response['message'] = 'Successfully show sponsor detail';
-        $response['payload'] = $sponsor;
+        $response['payload'] = $data;
         return response()->json($response);
     }
 }
