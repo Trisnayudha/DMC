@@ -17,8 +17,40 @@ class SponsorAddressController extends Controller
 
 
         $data['country'] = $countryData;
+        $data['sponsor_id'] = $id;
         $data['data'] = SponsorAddress::where('sponsor_id', $id)->orderBy('id', 'desc')->get();
         return view('admin.sponsor-address.sponsor', $data);
+    }
+
+    public function store(Request $request)
+    {
+
+        $save = new SponsorAddress();
+        $save->link_gmaps = $request->link_gmaps;
+        $save->address = $request->address;
+        $save->country = $request->country;
+        $save->sponsor_id = $request->sponsor_id;
+        $searchFlagWithCountry = $this->getCountry();
+        $countryData = json_decode($searchFlagWithCountry->getContent(), true);
+
+        // Cari nilai 'flag' berdasarkan 'country'
+        $flag = null;
+        foreach ($countryData as $item) {
+            if ($item['country'] === $request->country) {
+                $flag = $item['flag'];
+                break; // Keluar dari loop setelah menemukan yang cocok
+            }
+        }
+
+        if ($flag) {
+            // Lakukan sesuatu dengan nilai 'flag', misalnya, simpan ke database
+            $save->image_country = $flag;
+            $save->save();
+            return redirect()->back()->with('success', 'success add address');
+        } else {
+            // Handle jika 'country' tidak ditemukan dalam data JSON
+            return response()->json(['error' => 'Country tidak ditemukan'], 404);
+        }
     }
 
     private function getCountry()

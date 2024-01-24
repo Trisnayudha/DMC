@@ -45,7 +45,7 @@
                                     <a href="javascript:void(0)"
                                         class="btn btn-block btn-icon icon-left btn-success btn-filter" id="addNewCategory">
                                         <i class="fas fa-plus-circle"></i>
-                                        Add Sponsor Address</a>
+                                        Add Sponsor Representative</a>
                                 </div>
 
                                 <div class="table-responsive">
@@ -53,8 +53,8 @@
                                         <thead>
                                             <tr>
                                                 <th width="10px">No</th>
-                                                <th>Address</th>
-                                                <th>Country</th>
+                                                <th>Name</th>
+                                                <th>Job Title</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
@@ -63,8 +63,8 @@
                                             @foreach ($data as $post)
                                                 <tr>
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ $post->address }}</td>
-                                                    <td>{{ $post->country }}</td>
+                                                    <td>{{ $post->name }}</td>
+                                                    <td>{{ $post->job_title }}</td>
 
                                                     <td>
                                                         <a href="{{ route('sponsors.edit', $post->id) }}"
@@ -97,27 +97,29 @@
                     <h4 class="modal-title" id="ajaxCategoryModel"></h4>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('sponsors-address.store') }}" id="addEditCategoryForm" name="addEditCategoryForm"
-                        class="form-horizontal" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('sponsors-representative.store') }}" id="addEditCategoryForm"
+                        name="addEditCategoryForm" class="form-horizontal" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="sponsor_id" id="sponsor_id" value="{{ $sponsor_id }}">
                         <div class="form-group">
-                            <label for=""> Link Gmaps </label>
-                            <input type="text" name="link_gmaps" id="link_gmaps" class="form-control">
+                            <label for="">Name</label>
+                            <input type="text" name="name" id="name" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for=""> Address </label>
-                            <input type="text" name="address" id="address" class="form-control">
+                            <label for="">Job Title</label>
+                            <input type="text" name="job_title" id="job_title" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="code">Country</label>
-                            <select name="country" id="country" class="form-control select2">
-                                <option value="">Select</option>
-                                @foreach ($country as $item)
-                                    <option value="{{ $item['country'] }}">
-                                        {{ $item['country'] }}</option>
-                                @endforeach
-                            </select>
+                            <label for="">Instagram Link</label>
+                            <input type="text" name="instagram" id="instagram" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="">LinkedIn Link</label>
+                            <input type="text" name="linkedin" id="linkedin" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="">Image Profile</label>
+                            <input type="file" name="image" id="image" class="form-control">
                         </div>
 
                         <div class="form-group">

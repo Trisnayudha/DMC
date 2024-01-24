@@ -53,8 +53,7 @@
                                         <thead>
                                             <tr>
                                                 <th width="10px">No</th>
-                                                <th>Address</th>
-                                                <th>Country</th>
+                                                <th>Name File</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
@@ -63,8 +62,7 @@
                                             @foreach ($data as $post)
                                                 <tr>
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ $post->address }}</td>
-                                                    <td>{{ $post->country }}</td>
+                                                    <td>{{ $post->name }}</td>
 
                                                     <td>
                                                         <a href="{{ route('sponsors.edit', $post->id) }}"
@@ -97,27 +95,17 @@
                     <h4 class="modal-title" id="ajaxCategoryModel"></h4>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('sponsors-address.store') }}" id="addEditCategoryForm" name="addEditCategoryForm"
-                        class="form-horizontal" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('sponsors-advertising.store') }}" id="addEditCategoryForm"
+                        name="addEditCategoryForm" class="form-horizontal" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="sponsor_id" id="sponsor_id" value="{{ $sponsor_id }}">
                         <div class="form-group">
-                            <label for=""> Link Gmaps </label>
-                            <input type="text" name="link_gmaps" id="link_gmaps" class="form-control">
+                            <label for="">Name</label>
+                            <input type="text" name="name" id="name" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for=""> Address </label>
-                            <input type="text" name="address" id="address" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="code">Country</label>
-                            <select name="country" id="country" class="form-control select2">
-                                <option value="">Select</option>
-                                @foreach ($country as $item)
-                                    <option value="{{ $item['country'] }}">
-                                        {{ $item['country'] }}</option>
-                                @endforeach
-                            </select>
+                            <label for="">File</label>
+                            <input type="file" name="file" id="file" class="form-control">
                         </div>
 
                         <div class="form-group">

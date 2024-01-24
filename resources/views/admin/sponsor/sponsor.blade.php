@@ -90,11 +90,18 @@
                                                     </td>
 
                                                     <td>
+                                                        <a href="{{ route('sponsors-advertising.show', $post->id) }}"
+                                                            class="btn btn-primary m-1"><span class="fa fa-book"></span></a>
+                                                        <a href="{{ route('sponsors-representative.show', $post->id) }}"
+                                                            class="btn btn-warning m-1"><span class="fa fa-user"></span></a>
+                                                        <a href="{{ route('sponsors-address.show', $post->id) }}"
+                                                            class="btn btn-info m-1"><span
+                                                                class="fa fa-address-card"></span></a>
                                                         <a href="{{ route('sponsors.edit', $post->id) }}"
-                                                            class="btn btn-success" title="Edit Data">
+                                                            class="btn btn-success m-1" title="Edit Data">
                                                             <span class="fa fa-edit"></span>
                                                         </a>
-                                                        <button class="btn btn-danger delete-sponsor"
+                                                        <button class="btn btn-danger delete-sponsor m-1"
                                                             data-id="{{ $post->id }}" title="Hapus Data">
                                                             <span class="fa fa-trash"></span>
                                                         </button>

@@ -19,7 +19,9 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorAddressController;
+use App\Http\Controllers\Admin\SponsorAdvertisingController;
 use App\Http\Controllers\Admin\SponsorController;
+use App\Http\Controllers\Admin\SponsorRepresentativeController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\VideosController;
 use App\Http\Controllers\Admin\WhatsappBlastingController;
@@ -127,6 +129,8 @@ Route::prefix('admin')->group(function () {
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
 
     Route::resource('sponsors-address', SponsorAddressController::class);
+    Route::resource('sponsors-representative', SponsorRepresentativeController::class);
+    Route::resource('sponsors-advertising', SponsorAdvertisingController::class);
 
 
     Route::get('home', [App\Http\Controllers\Admin\HomeController::class, 'index'])->name('home');
