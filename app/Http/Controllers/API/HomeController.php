@@ -12,7 +12,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $event = Events::select('id', 'name as title', 'description as desc', 'slug', 'image', 'image_banner')->orderBy('id', 'desc')->limit(3)->get();
+        $event = Events::where('stauts', 'publish')->select('id', 'name as title', 'description as desc', 'slug', 'image', 'image_banner')->orderBy('id', 'desc')->limit(3)->get();
         foreach ($event as $key) {
             $key->type = 'events';
             $key->desc = (strlen($key->desc) > 50 ? substr($key->desc, 0,  50) . '...' : $key->desc);
