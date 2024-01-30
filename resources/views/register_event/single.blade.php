@@ -106,7 +106,7 @@
             <div class="py-2 text-center">
                 <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
                     src="{{ asset('image/dmc.png') }}" class="img-fluid" alt="">
-                <h2 style="text-transform: uppercase">WAITING LIST
+                <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
                 {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
                     by OPIS </p> --}}
@@ -439,7 +439,7 @@
 
         });
     </script>
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             Swal.fire({
                 title: "Registration is closed",
@@ -452,7 +452,7 @@
                 window.close(); // Close the current window
             });
         });
-    </script>
+    </script> --}}
 
 
 </body>
