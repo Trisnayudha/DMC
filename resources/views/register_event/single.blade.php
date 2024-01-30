@@ -319,9 +319,9 @@
 
                         <hr class="my-4"> --}}
                         <p>
-                            <small> We will notify you if there are seats available.</small>
+                            <small> This is an Exclusive FREE Registration - Subject by Approval</small>
                         </p>
-                        <button class="w-80 btn btn-primary btn-lg" type="submit">Put Me on Waiting List</button>
+                        <button class="w-80 btn btn-primary btn-lg" type="submit">Claim My Free Registration</button>
                     </form>
                 </div>
             </div>
