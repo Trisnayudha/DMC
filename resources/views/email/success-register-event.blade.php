@@ -120,7 +120,7 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/dmc.png') }}" alt="Image" class="img-logo">
+            <img src="{{ asset('image/logo-dmc-dss.png') }}" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
