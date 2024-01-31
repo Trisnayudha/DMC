@@ -117,9 +117,9 @@
             <p>
                 We will send approval confirmation within 72 hours, please contact us via email at
                 secretariat@djakarta-miningclub.com or WhatsApp +62 811 1937 300</p>
-            <p>If you have any question or information, don’t hesitate to contact us via email
+            {{-- <p>If you have any question or information, don’t hesitate to contact us via email
                 secretariat@djakarta-miningclub.com or WhatsApp +628111937300
-            </p>
+            </p> --}}
             <p>Your Sincerely,</p>
             <span>The Djakarta Mining Club Team</span>
         </div>
