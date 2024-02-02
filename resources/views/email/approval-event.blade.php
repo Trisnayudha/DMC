@@ -124,11 +124,11 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://api.djakarta-miningclub.com/image/dmc.png" alt="Image" class="img-logo">
+            <img src="https://api.djakarta-miningclub.com/image/logo-dmc-dss.png" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for {{ $events_name }} has now been approved. Your registration number is
+            <p>Your registration for {{ $events_name }} has been approved. Your registration number is
                 <b
                     style="background-color: #F1B22C;
                 border: none;
