@@ -175,7 +175,8 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://djakarta-miningclub.com/dmc/2023/indonesian-energy-market-briefing/)
+                (https://djakarta-miningclub.com/dmc/2024/towards-safe-productive-and-sustainable-smelting-operations-in-indonesia/
+                )
             </p>
 
             <br>
