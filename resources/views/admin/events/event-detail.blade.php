@@ -300,6 +300,7 @@
                                                 <th>Phone Number</th>
                                                 <th>Office Number</th>
                                                 <th>Company Category</th>
+                                                <th>Company Address</th>
                                                 <th>Status Approval</th>
                                                 <th>Status PIC</th>
                                                 <th>Status Daftar</th>
@@ -322,6 +323,7 @@
                                                     <td>{{ $post->office_number }}</td>
                                                     <td>{{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
                                                     </td>
+                                                    <td>{{ $post->company_address }}</td>
                                                     <td>
                                                         <span
                                                             class="badge badge-pill {{ $post->status_registration == 'Paid Off' ? 'badge-primary' : 'badge-warning' }}">

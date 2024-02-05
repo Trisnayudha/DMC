@@ -260,7 +260,7 @@ class EventsDetailController extends Controller
             }
             // TODO masih hardcode
             $findEvent = Events::where('slug', $slug)->first();
-            $check = Payment::where('events_id', '=', $findEvent->id)->where('member_id', '=', $user->id)->first();
+            $payment = Payment::where('events_id', '=', $findEvent->id)->where('member_id', '=', $user->id)->first();
             $data = [
                 'code_payment' => $codePayment,
                 'create_date' => date('d, M Y H:i'),
@@ -278,8 +278,8 @@ class EventsDetailController extends Controller
                 'link' => $linkPay
             ];
 
-            if (empty($check)) {
-                $payment = Payment::firstOrNew(['member_id' => $user->id]);
+            if (empty($payment)) {
+                // $payment = Payment::firstOrNew(['member_id' => $user->id]);
                 if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
                     $payment->package = $paymentMethod;
                     // $payment->price = $total_price;
