@@ -280,6 +280,7 @@ class EventsDetailController extends Controller
 
             if (empty($payment)) {
                 // $payment = Payment::firstOrNew(['member_id' => $user->id]);
+                $payment = Payment::where('member_id', $user->id)->where('events_id', $findEvent->id)->first();
                 if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
                     $payment->package = $paymentMethod;
                     // $payment->price = $total_price;
