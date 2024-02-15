@@ -62,10 +62,12 @@ class HomeController extends Controller
         if ($event) {
             $result = [
                 'date' => Carbon::parse($event->start_date)->format('d F Y'),
+                'name' => $event->name,
             ];
         } else {
             $result = [
                 'date' => null, // Atau nilai default lainnya jika tidak ada event yang akan datang
+                'name' => null,
             ];
         }
 
