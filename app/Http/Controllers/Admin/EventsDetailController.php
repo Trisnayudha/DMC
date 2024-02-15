@@ -279,21 +279,24 @@ class EventsDetailController extends Controller
             ];
 
             if (empty($payment)) {
-                // $payment = Payment::firstOrNew(['member_id' => $user->id]);
                 $payment = Payment::where('member_id', $user->id)->where('events_id', $findEvent->id)->first();
+
+                if (!$payment) {
+                    // Membuat objek baru jika tidak ada pembayaran yang sesuai
+                    $payment = new Payment();
+                    $payment->member_id = $user->id;
+                    $payment->events_id = $findEvent->id;
+                }
+
+                $payment->package = $paymentMethod;
                 if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
-                    $payment->package = $paymentMethod;
-                    // $payment->price = $total_price;
                     $payment->status_registration = 'Paid Off';
                     $payment->code_payment = $codePayment;
-                    $payment->events_id = $findEvent->id;
                 } else {
-                    $payment->package = $paymentMethod;
                     $payment->payment_method = 'Credit Card';
                     $payment->status_registration = 'Waiting';
                     $payment->link = $linkPay;
                     $payment->code_payment = $codePayment;
-                    $payment->events_id = $findEvent->id;
                     if ($paymentMethod == 'member') {
                         $payment->tickets_id = 1;
                     } else if ($paymentMethod == 'nonmember') {
