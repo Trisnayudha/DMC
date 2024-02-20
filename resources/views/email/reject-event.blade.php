@@ -128,7 +128,8 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Thank you for your registration. We regret to inform you that our event {{ $events_name }} is fully
+            <p>Thank you for your registration. We regret to inform you that our event <b>{{ $events_name }} </b> is
+                fully
                 booked.</p>
             {{-- <p>We are able to add your details to a waiting list and notify you should a place become available. If you
                 would like to be added to the waiting list for this event, please email
@@ -136,7 +137,7 @@
             <p>We are able to add your details to a waiting list and notify you should a place become available.
             </p>
             <p>If you have any question or information, please contact us at email Secretariat@djakartaminingclub.com or
-                WhatsApp +628111937300
+                WhatsApp +628111937300.
             </p>
             <br>
             <p>Your Sincerely,</p>
