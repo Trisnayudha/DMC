@@ -191,7 +191,7 @@ class EventsDetailParticipantController extends Controller
                 $db = '/storage/ticket/' . $filename;
                 Storage::put($pdfPath, $pdf->output());
                 $send = new WhatsappApi();
-                $send->phone = $findProfile->phone;
+                $send->phone = $findProfile->prefix_phone != null ? $findProfile->fullphone : $findProfile->phone;
                 $send->message = '📌"REMINDER to attend ' . $findEvent->name . '"
 
 Hi ' . $findUsers->name . ',
