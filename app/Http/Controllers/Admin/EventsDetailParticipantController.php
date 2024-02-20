@@ -192,9 +192,9 @@ class EventsDetailParticipantController extends Controller
                 $send->phone = $findProfile->phone;
                 $send->message = '📌"REMINDER to attend ' . $findEvent->name . '"
 
-Hi there,
+Hi ' . $findUsers->name . ',
 
-This is a confirmation that you are registered to attend our event ' . $findEvent->name . ' tomorrow on Wednesday at ' . $findEvent->location . ', starting at ' . date('h.i a', strtotime($findEvent->start_time)) . ' - ' . date('h.i a', strtotime($findEvent->end_time)) . ' (WIB)
+This is a confirmation that you are registered to attend our event ' . $findEvent->name . ' with dss+ on Thursday February 22, 2024 at ' . $findEvent->location . ', starting at ' . date('h.i a', strtotime($findEvent->start_time)) . ' - ' . date('h.i a', strtotime($findEvent->end_time)) . ' (WIB)
 
 If you are confirmed to attend this event, please REPLY YES to this message.
 
