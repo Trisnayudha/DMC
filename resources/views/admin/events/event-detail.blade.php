@@ -158,9 +158,9 @@
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
-                                                    <input type="checkbox" name="pilihan" class="custom-switch-input"
-                                                        checked>
-                                                    <span class="custom-switch-indicator"></span>
+                                                    <input type="checkbox" id="pilihan" name="pilihan"
+                                                        class="custom-switch-input" checked>
+                                                    <span class="custom-switch-indicator" id="sendNotification"></span>
                                                     <span class="custom-switch-description">Send Notification</span>
                                                 </div>
                                                 <button type="button" class="btn btn-secondary"
@@ -974,6 +974,23 @@
                 }
             });
 
+        });
+
+        $(document).ready(function() {
+            // Menangani klik pada custom-switch-indicator
+            $('.custom-switch-indicator').click(function() {
+                // Mengambil status checked saat ini dari checkbox
+                var isChecked = $('#pilihan').is(':checked');
+                // Mengganti status checked
+                $('#pilihan').prop('checked', !isChecked);
+
+                // Memeriksa status baru dan menampilkan pesan yang sesuai
+                if ($('#pilihan').is(':checked')) {
+                    console.log('Checkbox dicentang');
+                } else {
+                    console.log('Checkbox tidak dicentang');
+                }
+            });
         });
     </script>
 @endpush
