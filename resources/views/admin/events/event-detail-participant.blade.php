@@ -127,7 +127,8 @@
                                                     <td>{{ $post->job_title }}</td>
                                                     <td>{{ $post->company_name . ($post->prefix ? ', ' . $post->prefix : '') }}
                                                     </td>
-                                                    <td>{{ $post->phone }}</td>
+                                                    <td>{{ $post->prefix_phone != null ? $post->fullphone : $post->phone }}
+                                                    </td>
                                                     <td>{{ $post->address }}</td>
                                                     @if ($post->end_date <= date('Y-m-d'))
                                                         <td>{{ $post->company_category != 'other' ? $post->company_category : $post->company_other }}

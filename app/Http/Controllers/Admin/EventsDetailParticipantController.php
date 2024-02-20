@@ -51,6 +51,8 @@ class EventsDetailParticipantController extends Controller
                 'payment.package',
                 'profiles.job_title',
                 'profiles.phone',
+                'profiles.prefix_phone',
+                'profiles.fullphone',
                 'company.country',
                 'company.address',
                 'company.company_name',
