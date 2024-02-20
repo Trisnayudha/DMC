@@ -439,11 +439,11 @@
 
         });
     </script>
-    {{-- <script>
+    <script>
         $(document).ready(function() {
             Swal.fire({
                 title: "Registration is closed",
-                text: "Thank you for your interest to the Indonesian Energy Market Briefing, we would like to inform you that our capacity is already full and we look forward to welcoming you to our next event.",
+                text: "Thank you for your interest to the Towards Safe, Productive, and Sustainable Smelting Operations in Indonesia, we would like to inform you that our capacity is already full and we look forward to welcoming you to our next event.",
                 icon: "warning",
                 confirmButtonColor: "#3085d6",
                 confirmButtonText: "Continue"
@@ -452,7 +452,7 @@
                 window.close(); // Close the current window
             });
         });
-    </script> --}}
+    </script>
 
 
 </body>
