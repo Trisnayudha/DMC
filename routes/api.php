@@ -63,6 +63,7 @@ Route::post('verify_otp', [AuthController::class, 'verifyOtp']);
 Route::post('/forgot-password', [AuthController::class, 'forgot']);
 Route::post('/verify_forgot', [AuthController::class, 'verify_forgot']);
 Route::post('/reset-password', [AuthController::class, 'resetpassword']);
+Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Route Menggunakan Token API
     Route::post('profile', [UserController::class, 'index']);
@@ -84,7 +85,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
 
     Route::post('/contact_us', [ContactUsController::class, 'index']);
 
-    Route::post('/detail/news/{slug}', [NewsController::class, 'detail']);
     Route::post('/news/bookmark', [NewsController::class, 'bookmark']);
     Route::post('/news/like', [NewsController::class, 'like']);
     Route::post('/news/comment', [NewsController::class, 'comment']);
