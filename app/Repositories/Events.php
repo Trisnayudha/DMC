@@ -57,6 +57,7 @@ class Events extends EventsEvents
             'events.start_date',
             'events.end_date',
             'events.start_time',
+            'events.end_time',
             'events.image',
             'events.slug',
             'events.event_type',
