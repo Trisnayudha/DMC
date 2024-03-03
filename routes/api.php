@@ -170,7 +170,7 @@ Route::prefix('web')->group(function () {
     Route::post('/profile/request_otp', [ProfileController::class, 'requestOtp']);
 
     Route::post('/events/myEvent', [API_WEBEventsController::class, 'myEvent']);
-
+    Route::get('/events/download', [API_WEBEventsController::class, 'downloadTicket']);
     Route::post('profile/update_profile', [ProfileController::class, 'update_profile']);
 });
 
