@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\API_WEB;
 
 use App\Http\Controllers\Controller;
-use App\Models\Events\Events;
 use App\Models\Events\EventsRundown;
 use App\Models\Events\EventsSpeakersRundown;
 use App\Models\Events\EventsTicket;
@@ -202,7 +201,7 @@ class EventsController extends Controller
     public function downloadTicket(Request $request)
     {
         $code_payment = $request->code_payment;
-        $payment_id = Events::where('code_payment', $code_payment)->first();
+        $payment_id = Payment::where('code_payment', $code_payment)->first();
         $findUsers = PaymentService::findPaymmentUser($payment_id);
         $findEvent = EventsService::showDetail($findUsers->events_id);
 
