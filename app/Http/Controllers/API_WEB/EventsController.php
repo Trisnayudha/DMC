@@ -202,7 +202,7 @@ class EventsController extends Controller
     {
         $code_payment = $request->code_payment;
         $payment_id = Payment::where('code_payment', $code_payment)->first();
-        $findUsers = PaymentService::findPaymmentUser($payment_id);
+        $findUsers = PaymentService::findPaymmentUser($payment_id->id);
         $findEvent = EventsService::showDetail($findUsers->events_id);
 
         $data = [
