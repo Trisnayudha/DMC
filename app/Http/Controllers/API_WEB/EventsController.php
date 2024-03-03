@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API_WEB;
 
 use App\Http\Controllers\Controller;
+use App\Models\BookingContact\BookingContact;
 use App\Models\Events\EventsRundown;
 use App\Models\Events\EventsSpeakersRundown;
 use App\Models\Events\EventsTicket;
@@ -226,6 +227,71 @@ class EventsController extends Controller
         ini_set('max_execution_time', 300);
         $pdf = Pdf::loadView('email.ticket', $data);
         $filename = 'e_ticket-' . $findUsers->code_payment . '.pdf';
+        // Download the PDF with the specified filename
+        return $pdf->download($filename);
+    }
+
+    public function downloadInvoice(Request $request)
+    {
+        $code_payment = $request->code_payment;
+        $payment_id = Payment::where('code_payment', $code_payment)->first();
+        $findPayment = PaymentService::findPaymmentUser($payment_id->id);
+        //check booking_contact_id
+        $findEvent = EventsService::showDetail($findPayment->events_id);
+
+        if ($findPayment->booking_contact_id != null) {
+            $findPayments = PaymentService::findPaymmentUsers($findPayment->booking_contact_id);
+            $countPrice = null;
+            foreach ($findPayments as $table) {
+                $item_details[] = [
+                    'name' => $table['name'],
+                    'job_title' => $table['email'],
+                    'price' => number_format($table['price_rupiah'], 0, ',', '.'),
+                    'paidoff' => false
+                ];
+                $countPrice += $table['price_rupiah'];
+            }
+            $findBooking = BookingContact::where('id', $table['booking_contact_id'])->first();
+            $payload = [
+                'code_payment' => $findPayment->code_payment,
+                'create_date' => date('d, M Y H:i'),
+                'users_name' => $findBooking->name_contact,
+                'users_email' => $findBooking->email_contact,
+                'phone' => $findBooking->phone_contact,
+                'company_name' => $findBooking->company_name,
+                'company_address' => $findBooking->address,
+                'status' => 'Paid Off',
+                'voucher_price' => 0,
+                'item' => $item_details,
+                'price' => number_format($table['price_rupiah'], 0, ',', '.'),
+                'total_price' => number_format($countPrice, 0, ',', '.'),
+                'events_name' => $findEvent->name,
+                'link' => null
+            ];
+            ini_set('max_execution_time', 120);
+            $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
+            $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
+            // Download the PDF with the specified filename
+            return $pdf->download($filename);
+        }
+        $payload = [
+            'code_payment' => $findPayment->code_payment,
+            'create_date' => date('d, M Y H:i'),
+            'users_name' => $findPayment->name,
+            'users_email' => $findPayment->email,
+            'phone' => $findPayment->phone,
+            'company_name' => $findPayment->company_name,
+            'company_address' => $findPayment->address,
+            'status' => 'Paid Off',
+            'voucher_price' => 0,
+            'price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
+            'total_price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
+            'events_name' => $findEvent->name,
+        ];
+        ini_set('max_execution_time', 120); // Set the maximum execution time to 120 seconds
+        $pdf = PDF::loadView('email.invoice-new', $payload);
+        // Set the desired filename for the downloaded PDF
+        $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
         // Download the PDF with the specified filename
         return $pdf->download($filename);
     }
