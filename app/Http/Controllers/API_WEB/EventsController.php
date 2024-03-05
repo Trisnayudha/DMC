@@ -27,7 +27,7 @@ class EventsController extends Controller
         $type = $request->type;
         //Upcoming, Past Event, All
         $category = $request->category;
-        $data = RepositoriesEvents::listAllEventsOnlySearchTest($search, $limit, $type, $category);
+        $data = RepositoriesEvents::listAllEventsOnlySearch($search, $limit, $type, $category);
         foreach ($data as $val => $key) {
             $date_end = date('Y-m-d', strtotime($key->end_date));
             $key->isUpcoming = (new \DateTime($date_end) >= new \DateTime(date('Y-m-d')) ? true : false);
