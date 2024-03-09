@@ -43,11 +43,12 @@ class Events extends EventsEvents
                     $q->where('event_category_list.events_category_id', '=', $category);
                 }
                 $q->where('status', '=', 'publish');
+                $q->whereNot('event_type', '=', 'Partnership Event');
             })
             ->orderby($column_filter, $type_filter)
             ->paginate($limit);
     }
-    public static function listAllEventsOnlySearchTest($search, $limit, $type, $category)
+    public static function listAllEventsOnlySearchPartnership($search, $limit, $type, $category)
     {
         $column_filter = "events.start_date";
         $type_filter = "desc";
@@ -83,6 +84,8 @@ class Events extends EventsEvents
                 if (!empty($category)) {
                     $q->where('event_category_list.events_category_id', '=', $category);
                 }
+                $q->where('status', '=', 'publish');
+                $q->where('event_type', '=', 'Partnership Event');
             })
             ->orderby($column_filter, $type_filter)
             ->paginate($limit);

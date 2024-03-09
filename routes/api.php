@@ -146,6 +146,7 @@ Route::prefix('web')->group(function () {
     Route::post('home/upComing', [API_WEBHomeController::class, 'postUpComing']);
     Route::post('home/pastGalleryEvent', [API_WEBHomeController::class, 'getPastGalleryEvent']);
     Route::post('home/scheduleEvent', [API_WEBHomeController::class, 'getScheduleEvent']);
+    Route::post('home/partnership', [API_WEBHomeController::class, 'getPartnership']);
 
     Route::post('/events', [API_WEBEventsController::class, 'index']);
     Route::post('events/{slug}/detail', [API_WEBEventsController::class, 'detail']);

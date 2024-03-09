@@ -129,4 +129,28 @@ class HomeController extends Controller
         $response['payload'] = $data;
         return response()->json($response);
     }
+
+    public function getPartnership(Request $request)
+    {
+        $limit = $request->limit;
+        $search = $request->search;
+
+        $type = $request->type;
+        //Upcoming, Past Event, All
+        $category = $request->category;
+        $data = RepositoriesEvents::listAllEventsOnlySearchPartnership($search, $limit, $type, $category);
+
+        foreach ($data as $val => $key) {
+            $date_end = date('Y-m-d', strtotime($key->end_date));
+            $key->isUpcoming = (new \DateTime($date_end) >= new \DateTime(date('Y-m-d')) ? true : false);
+            $key->title = (strlen($key->title) > 100 ? substr($key->title, 0,  100) . '...' : $key->title);
+            $key->image = (!empty($key->image) ? asset($key->image) : '');
+            $key->date = (!empty($key->start_date) ? date('d ', strtotime($key->start_date)) . ' - ' . date('d M Y', strtotime($key->end_date)) : '');
+            $key->eventType = ($key->event_type ? $key->event_type : '');
+        }
+        $response['status'] = 200;
+        $response['message'] = 'Success';
+        $response['payload'] = $data;
+        return response()->json($response);
+    }
 }
