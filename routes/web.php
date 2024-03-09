@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdvertisementController;
+use App\Http\Controllers\Admin\DigitalEditionController;
 use App\Http\Controllers\Admin\EventCategoryController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\EventsConferenceController;
@@ -132,6 +133,7 @@ Route::prefix('admin')->group(function () {
     Route::resource('sponsors-representative', SponsorRepresentativeController::class);
     Route::resource('sponsors-advertising', SponsorAdvertisingController::class);
 
+    Route::resource('digital-edition', DigitalEditionController::class);
 
     Route::get('home', [App\Http\Controllers\Admin\HomeController::class, 'index'])->name('home');
 

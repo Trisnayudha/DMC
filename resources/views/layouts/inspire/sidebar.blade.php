@@ -28,6 +28,11 @@
                 <span>Members DMC</span></a>
         </li>
         <li class="">
+            <a class="nav-link" href="{{ Route('digital-edition.index') }}">
+                <i class="fa fa-book" aria-hidden="true"></i>
+                <span>Digital Edition</span></a>
+        </li>
+        <li class="">
             <a class="nav-link" href="{{ Route('videos') }}">
                 <i class="fa fa-university" aria-hidden="true"></i>
                 <span>Videos Highlight</span></a>
