@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API_WEB;
 
 use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
+use App\Models\DigitalEdition\DigitalModel;
 use App\Models\Events\Events;
 use App\Models\Events\EventsHighlight;
 use App\Models\Events\EventsSchedule;
@@ -148,6 +149,16 @@ class HomeController extends Controller
             $key->date = (!empty($key->start_date) ? date('d ', strtotime($key->start_date)) . ' - ' . date('d M Y', strtotime($key->end_date)) : '');
             $key->eventType = ($key->event_type ? $key->event_type : '');
         }
+        $response['status'] = 200;
+        $response['message'] = 'Success';
+        $response['payload'] = $data;
+        return response()->json($response);
+    }
+
+    public function getDigitalEdition()
+    {
+        $data = DigitalModel::orderby('sort', 'asc')->get();
+
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = $data;
