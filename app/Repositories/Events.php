@@ -43,7 +43,7 @@ class Events extends EventsEvents
                     $q->where('event_category_list.events_category_id', '=', $category);
                 }
                 $q->where('status', '=', 'publish');
-                $q->whereNot('event_type', '=', 'Partnership Event');
+                $q->whereNot('event.event_type', '=', 'Partnership Event');
             })
             ->orderby($column_filter, $type_filter)
             ->paginate($limit);
