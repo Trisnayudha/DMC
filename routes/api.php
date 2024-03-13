@@ -175,6 +175,8 @@ Route::prefix('web')->group(function () {
     Route::get('/events/download-ticket', [API_WEBEventsController::class, 'downloadTicket']);
     Route::get('/events/download-invoice', [API_WEBEventsController::class, 'downloadInvoice']);
     Route::post('profile/update_profile', [ProfileController::class, 'update_profile']);
+
+    Route::post('/contact_us', [ContactUsController::class, 'indexV2']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
