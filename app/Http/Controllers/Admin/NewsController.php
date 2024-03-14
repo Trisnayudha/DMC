@@ -80,7 +80,7 @@ class NewsController extends Controller
     {
         $news = News::findOrFail($id);
         $news->title = $request->title;
-        $news->desc = $request->description;
+        $news->desc = $request->desc;
         $news->reference_link = $request->reference_link;
         $news->date_news = $request->date_news;
         $news->slug = Str::slug($request->title);
