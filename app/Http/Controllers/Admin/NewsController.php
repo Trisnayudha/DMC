@@ -66,4 +66,54 @@ class NewsController extends Controller
         }
         return redirect()->route('news')->with('success', 'Successfully create news');
     }
+
+    public function edit($id)
+    {
+        $news = News::findOrFail($id);
+        // $categories = NewsCategory::orderBy('id', 'desc')->get();
+        // $selectedCategories = $news->categories->pluck('id')->toArray(); // Assuming a Many-to-Many relationship
+
+        return view('admin.news.edit', compact('news'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $news = News::findOrFail($id);
+        $news->title = $request->title;
+        $news->desc = $request->description;
+        $news->reference_link = $request->reference_link;
+        $news->date_news = $request->date_news;
+        $news->slug = Str::slug($request->title);
+
+        if ($request->hasFile('image')) {
+            $imageName = time() . '.' . $request->image->extension();
+            $db = '/storage/news/' . $imageName;
+            $save_folder = $request->image->storeAs('public/news', $imageName);
+            $news->image = $db;
+        }
+
+        $news->save();
+
+        // Update categories
+        if (!empty($request->category_id)) {
+            NewsCategoryList::where('news_id', $news->id)->delete();
+            foreach ($request->category_id as $key => $value) {
+                NewsCategoryList::create([
+                    'news_id' => $news->id,
+                    'news_category_id' => $value
+                ]);
+            }
+        }
+
+        return redirect()->route('news')->with('success', 'News updated successfully');
+    }
+
+
+    public function destroy($id)
+    {
+        $news = News::findOrFail($id);
+        $news->delete();
+
+        return redirect()->route('news')->with('success', 'News deleted successfully');
+    }
 }

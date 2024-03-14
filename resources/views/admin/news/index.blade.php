@@ -77,12 +77,18 @@
                                                     <td>
                                                         <a href="#" class="btn btn-primary" title="Lihat Peserta">
                                                             <span class="fa fa-user"></span></a>
-                                                        <a href="#" class="btn btn-success" title="Edit Data">
+                                                        <a href="{{ route('news.edit', ['id' => $post->id]) }}"
+                                                            class="btn btn-success" title="Edit Data">
                                                             <span class="fa fa-edit"></span>
                                                         </a>
-                                                        <button class="btn btn-danger" value="`+ row.id +`"
-                                                            id="deleteProgram" type="submit" title="Hapus Data">
-                                                            <span class="fa fa-trash"></span></button>
+                                                        <form method="POST"
+                                                            action="{{ route('news.destroy', $post->id) }}">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button class="btn btn-danger" value="`+ row.id +`"
+                                                                id="deleteProgram" type="submit" title="Hapus Data">
+                                                                <span class="fa fa-trash"></span></button>
+                                                        </form>
                                                     </td>
 
                                                 </tr>
