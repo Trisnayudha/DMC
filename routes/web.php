@@ -107,6 +107,7 @@ Route::get('/sponsor/{id}', [SponsorController::class, 'show_sponsor']);
 // Route::post('/register/email', [FormMemberController::class, 'check_email']);
 
 Route::get('imc-scholarship-form', [ScholarshipController::class, 'index']);
+Route::post('imc-scholarship-form', [ScholarshipController::class, 'store'])->name('scholarship.store');
 
 Route::post('checkMember/{email}', [UsersController::class, 'checkMember'])->withoutMiddleware('auth');
 

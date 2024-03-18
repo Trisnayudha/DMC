@@ -103,16 +103,28 @@
             <div class="row g-1">
                 <div class="col-md-6 col-lg-12">
 
-                    <span style="font-size: 14px; margin-bottom: 0;"> Indonesia Mining Clubs (IMC) Academia Scholarship
-                        merupakan bantuan pendidikan dari Djakarta Mining Club dan Coal Club Indonesia kepada mahasiswa
-                        yang berprestasi dibidang akademik tetapi memiliki keterbatasan biaya untuk meneruskan
-                        pendidikan.
+                    <span style="font-size: 14px; margin-bottom: 0;">
+                        <p>
+                            Indonesia Mining Clubs (IMC) Academia Scholarship
+                            merupakan bantuan pendidikan dari Djakarta Mining Club dan Coal Club Indonesia kepada
+                            mahasiswa
+                            yang berprestasi dibidang akademik tetapi memiliki keterbatasan biaya untuk meneruskan
+                            pendidikan.
 
-                        Beasiswa ini merupakan komitmen DMC dan CCI dalam rangka mendukung putra putri generasi bangsa
-                        dengan memberikan kesempatan untuk mereka dalam mengembangkan pengetahuan dan prestasi mereka
-                        yang kelak akan akan berguna dalam membantu perkembangan industri pertambangan di Indonesia.
+                            Beasiswa ini merupakan komitmen DMC dan CCI dalam rangka mendukung putra putri generasi
+                            bangsa
+                            dengan memberikan kesempatan untuk mereka dalam mengembangkan pengetahuan dan prestasi
+                            mereka
+                            yang kelak akan akan berguna dalam membantu perkembangan industri pertambangan di Indonesia.
+                        </p>
 
-                        Adapun persyaratan dan prosedur pengajuan beasiswa sebagai berikut:
+                        <p>Adapun persyaratan dan prosedur pengajuan beasiswa sebagai berikut: </p>
+                        <p>
+                            Indonesia Mining Clubs (IMC) Academia Scholarship menawarkan beasiswa kepada mahasiswa tahun
+                            kedua / ketiga / keempat program studi metalurgi dan program studi teknik pertambangan dari
+                            Universitas Indonesia dan Institut Teknologi Bandung. Aplikasi beasiswa harus mencakup
+                            sebagai berikut:
+                        </p>
                         <p>
                             <b>Kriteria dan Persyaratan: </b>
                         </p>
@@ -153,7 +165,7 @@
                             </li>
                         </ul>
 
-                        <p>Prosedur Pengajuan </p>
+                        <p> <b>Prosedur Pengajuan </b></p>
                         <p>
                             1. Peserta mengajukan surat permohonan kepada Sekretariat Djakarta Mining Club dan Coal Club
                             Indonesia dengan mengisi formulir online yang telah disediakan beserta mengunduh persyaratan
@@ -178,7 +190,9 @@
                         </p>
 
                         <p>
-                            Email :secretariat@djakarta-miningclub.com atau secretariat@coalclubindonesia.com
+                            Email : <a href="mailto:secretariat@djakarta-miningclub.com">
+                                secretariat@djakarta-miningclub.com</a> atau <a
+                                href="mailto:secretariat@coalclubindonesia.com">secretariat@coalclubindonesia.com</a>
                         </p>
                         <p>
                             Telephone : 0811 1937 300
@@ -196,13 +210,13 @@
 
                 <div class="col-md-12 col-lg-12">
                     <h4 class="mb-3">* Required information</h4>
-                    <form action="#" method="POST" class="needs-validation" novalidate
+                    <form action="{{ route('scholarship.store') }}" method="POST" class="needs-validation" novalidate
                         enctype="multipart/form-data">
                         @csrf
                         <div class="row g-3">
                             <div class="col-sm-6">
                                 <div class="form-group">
-                                    <label for="name" class="form-label">Nama *</label>
+                                    <label for="nama" class="form-label">Nama *</label>
                                     <input type="text" class="form-control" name="nama" placeholder=""
                                         value="{{ old('nama') }}" required>
                                     <div class="invalid-feedback">
@@ -234,7 +248,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="alamat" class="form-label">Alamat RT/RW</label>
+                                    <label for="alamat" class="form-label">Alamat</label>
                                     <input type="text" class="form-control" name="alamat" placeholder=""
                                         value="{{ old('alamat') }}" required>
                                     <div class="invalid-feedback">
@@ -246,16 +260,16 @@
                                 <div class="form-group">
                                     <div class="row">
                                         <div class="col-sm-6">
-                                            <label for="ttl" class="form-label">Tempat Lahir *</label>
-                                            <input type="text" class="form-control" name="ttl" placeholder=""
-                                                value="{{ old('ttl') }}" required>
+                                            <label for="lahir" class="form-label">Tempat Lahir *</label>
+                                            <input type="text" class="form-control" name="lahir" placeholder=""
+                                                value="{{ old('lahir') }}" required>
                                             <div class="invalid-feedback">
                                                 Wajib isi data nama
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <label for="ttl" class="form-label">Tanggal lahir *</label>
-                                            <input type="text" class="form-control" name="ttl" placeholder=""
+                                            <input type="date" class="form-control" name="ttl" placeholder=""
                                                 value="{{ old('ttl') }}" required>
                                             <div class="invalid-feedback">
                                                 Wajib isi data nama
@@ -307,7 +321,7 @@
                                                 <label for="">Milik Sendiri</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="radio" name="rumah"value="Kontrakan"
+                                                <input type="radio" name="rumah" value="Kontrakan"
                                                     class="form-check-input">
                                                 <label for="">Kontrakan</label>
                                             </div>
@@ -317,8 +331,11 @@
                                                 <label for="">Lainnya</label>
                                             </div>
                                             <div class="form-group">
-                                                <input type="text" name="rumah_lainnya" value=""
-                                                    class="form-control hide" required>
+                                                <input type="text" name="rumah_lainnya" id="rumah_lainnya"
+                                                    value="" class="form-control hide">
+                                                <div class="invalid-feedback">
+                                                    Wajib isi data ini
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -341,8 +358,12 @@
                                                 <label for="">Lainnya</label>
                                             </div>
                                             <div class="form-group">
-                                                <input type="text" name="biaya_pendidikan_lainnya" value=""
-                                                    class="form-control hide" required>
+                                                <input type="text" name="biaya_pendidikan_lainnya"
+                                                    id="biaya_pendidikan_lainnya" value=""
+                                                    class="form-control hide">
+                                                <div class="invalid-feedback">
+                                                    Wajib isi data ini
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -351,25 +372,35 @@
                                             <label for="ukt">Apakah anda mendapatkan keringan biaya
                                                 pendidikan?</label>
                                             <div class="form-check">
-                                                <input type="radio" name="ukt" value="Orang Tua"
+                                                <input type="radio" name="ukt" value="Ya"
                                                     class="form-check-input">
                                                 <label for="">Ya</label>
                                             </div>
                                             <div class="form-check">
-                                                <input type="radio" name="ukt" value="Orang Tua Saudara"
+                                                <input type="radio" name="ukt" value="Tidak"
                                                     class="form-check-input">
                                                 <label for="">Tidak</label>
                                             </div>
-                                            <div class="form-group">
-                                                <input type="text" name="ukt_lainnya" value="Kelompok "
-                                                    class="form-control hide" required>
+                                            <div class="form-group ">
+                                                <select name="ukt_lainnya" id="ukt_lainnya"
+                                                    class="form-control hide">
+                                                    <option value="Kel I">Kel I</option>
+                                                    <option value="Kel II">Kel II</option>
+                                                    <option value="Kel III">Kel III</option>
+                                                    <option value="Kel IV">Kel IV</option>
+                                                    <option value="Kel V">Kel V</option>
+                                                </select>
+                                                <div class="invalid-feedback">
+                                                    Wajib isi data ini
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-3">
                                         <div class="form-group">
                                             <label for="beasiswa">Apakah Anda sedang menjalankan program beasiswa saat
-                                                ini?</label>
+                                                ini? Jika IYA, sebutkan program beasiswa tersebut.
+                                            </label>
                                             <div class="form-check">
                                                 <input type="radio" name="beasiswa" value="Ya"
                                                     class="form-check-input">
@@ -382,7 +413,10 @@
                                             </div>
                                             <div class="form-group">
                                                 <input type="text" name="beasiswa_lainnya" value=""
-                                                    class="form-control hide" required>
+                                                    class="form-control hide">
+                                                <div class="invalid-feedback">
+                                                    Wajib isi data ini
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -390,7 +424,10 @@
                                 <div class="form-group">
                                     <label for="">Isilah dengan singkat alasan Anda mengajukan Indonesia Mining
                                         Clubs Academia Scholarship</label>
-                                    <textarea name="alasan" id="alasan" cols="30" rows="10"></textarea>
+                                    <textarea name="alasan" id="alasan" cols="30" rows="10" required></textarea>
+                                    <div class="invalid-feedback">
+                                        Wajib isi data ini
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-6">
@@ -451,7 +488,10 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="">Prestasi</label>
-                                    <textarea name="prestasi" id="prestasi" cols="30" rows="10"></textarea>
+                                    <textarea name="prestasi" id="prestasi" cols="30" rows="10" required></textarea>
+                                    <div class="invalid-feedback">
+                                        Wajib isi data ini
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -461,7 +501,10 @@
                                 <div class="form-group">
                                     <label for="">Upload Kartu Tanda Mahasiswa(Aktif):*</label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf">
+                                        <input type="file" accept="application/pdf" name="kta" required>
+                                        <div class="invalid-feedback">
+                                            Wajib isi data ini
+                                        </div>
                                         {{-- <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button">Upload</button>
                                         </div> --}}
@@ -470,7 +513,10 @@
                                 <div class="form-group">
                                     <label for="">Upload Transkrip IPK:* </label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf">
+                                        <input type="file" accept="application/pdf" name="ipk" required>
+                                        <div class="invalid-feedback">
+                                            Wajib isi data ini
+                                        </div>
                                         {{-- <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button">Upload</button>
                                         </div> --}}
@@ -479,7 +525,10 @@
                                 <div class="form-group">
                                     <label for="">Upload Kartu Tanda Penduduk:* </label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf">
+                                        <input type="file" accept="application/pdf" name="ktp" required>
+                                        <div class="invalid-feedback">
+                                            Wajib isi data ini
+                                        </div>
                                         {{-- <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button">Upload</button>
                                         </div> --}}
@@ -488,7 +537,10 @@
                                 <div class="form-group">
                                     <label for="">Upload Foto kopi Kartu Keluarga:*</label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf">
+                                        <input type="file" accept="application/pdf" name="kk" required>
+                                        <div class="invalid-feedback">
+                                            Wajib isi data ini
+                                        </div>
                                         {{-- <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button">Upload</button>
                                         </div> --}}
@@ -499,7 +551,10 @@
                                 <div class="form-group">
                                     <label for="">Slip Gaji Orang Tua Terakhir:* </label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf">
+                                        <input type="file" accept="application/pdf" name="slip_gaji" required>
+                                        <div class="invalid-feedback">
+                                            Wajib isi data ini
+                                        </div>
                                         {{-- <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button">Upload</button>
                                         </div> --}}
@@ -508,7 +563,10 @@
                                 <div class="form-group">
                                     <label for="">Transkrip Pembayaran BOP:*</label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf">
+                                        <input type="file" accept="application/pdf" name="bop" required>
+                                        <div class="invalid-feedback">
+                                            Wajib isi data ini
+                                        </div>
                                         {{-- <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button">Upload</button>
                                         </div> --}}
@@ -517,7 +575,11 @@
                                 <div class="form-group">
                                     <label for="">Upload Foto kopi Sertifikat prestasi: </label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf">
+                                        <input type="file" accept="application/pdf" name="sertifikat_prestasi"
+                                            required>
+                                        <div class="invalid-feedback">
+                                            Wajib isi data ini
+                                        </div>
                                         {{-- <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button">Upload</button>
                                         </div> --}}
@@ -526,7 +588,10 @@
                                 <div class="form-group">
                                     <label for="">Upload Pas Foto berwarna(ukuran 4x6):*</label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf">
+                                        <input type="file" accept="application/pdf" name="pas_foto" required>
+                                        <div class="invalid-feedback">
+                                            Wajib isi data ini
+                                        </div>
                                         {{-- <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button">Upload</button>
                                         </div> --}}
@@ -615,8 +680,6 @@
 
         // select.addEventListener("change", handleCountryChange.bind(this));
     </script>
-
-
     <script>
         var input = document.querySelector("#phone");
         window.intlTelInput(input, {
@@ -631,6 +694,48 @@
 
         });
     </script>
+
+    <script>
+        $(document).ready(function() {
+            // Untuk Kepemilikan Rumah
+            $('input[type="radio"][name="rumah"]').change(function() {
+                if (this.value == 'Lainnya') {
+                    $('#rumah_lainnya').removeClass('hide').show();
+                } else {
+                    $('#rumah_lainnya').addClass('hide').hide();
+                }
+            });
+
+            // Untuk Biaya Pendidikan
+            $('input[type="radio"][name="biaya_pendidikan"]').change(function() {
+                if (this.value == 'Lainnya') {
+                    $('#biaya_pendidikan_lainnya').removeClass('hide').show();
+                } else {
+                    $('#biaya_pendidikan_lainnya').addClass('hide').hide();
+                }
+            });
+
+            $('input[type="radio"][name="ukt"]').change(function() {
+                if ($('input[name="ukt"]:checked').val() === "Ya") {
+                    // Jika "Ya" dipilih, tampilkan elemen select
+                    $('#ukt_lainnya').removeClass('hide').show();
+                } else {
+                    // Jika "Tidak" dipilih, sembunyikan elemen select
+                    $('#ukt_lainnya').addClass('hide').hide();
+                }
+            });
+
+            // Untuk program beasiswa
+            $('input[type="radio"][name="beasiswa"]').change(function() {
+                if ($('input[name="beasiswa"]:checked').val() === "Ya") {
+                    $('input[name="beasiswa_lainnya"]').removeClass('hide').show();
+                } else {
+                    $('input[name="beasiswa_lainnya"]').addClass('hide').hide();
+                }
+            });
+        });
+    </script>
+
 </body>
 
 </html>
