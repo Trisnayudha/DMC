@@ -35,6 +35,7 @@ use App\Http\Controllers\Frontend\EventsRegisterController;
 use App\Http\Controllers\Frontend\EventsRegisterSponsorController;
 use App\Http\Controllers\Frontend\FormMemberController;
 use App\Http\Controllers\Frontend\PrintController;
+use App\Http\Controllers\Frontend\ScholarshipController;
 use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -104,6 +105,8 @@ Route::get('/sponsor/{id}', [SponsorController::class, 'show_sponsor']);
 
 // Route::post('/regis-multiple', [EventController::class, 'register_multiple']);
 // Route::post('/register/email', [FormMemberController::class, 'check_email']);
+
+Route::get('imc-scholarship-form', [ScholarshipController::class, 'index']);
 
 Route::post('checkMember/{email}', [UsersController::class, 'checkMember'])->withoutMiddleware('auth');
 
