@@ -56,6 +56,42 @@
                                             </span>
                                         @endif
                                     </div>
+                                    <div class="form-group{{ $errors->has('founded') ? ' has-error' : '' }}">
+                                        {!! Form::label('Founded') !!}
+                                        <div class="input-group date">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <i class="fas fa-calendar"></i>
+                                                </div>
+                                            </div>
+                                            {!! Form::text('founded', null, [
+                                                'class' => 'form-control datepicker',
+                                                'placeholder' => 'Tanggal lahir company',
+                                            ]) !!}
+
+                                        </div>
+                                        @if ($errors->has('founded'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('founded') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="form-group{{ $errors->has('location_office') ? ' has-error' : '' }}">
+                                        {!! Form::label('Location Office') !!}
+                                        {!! Form::number('location_office', null, [
+                                            'class' => 'form-control',
+                                            'placeholder' => 'jumlah lokasi office (1/2/3/4/5 dst)',
+                                            'min' => 1,
+                                            'max' => 5,
+                                            'step' => 1,
+                                        ]) !!}
+
+                                        @if ($errors->has('location_office'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('location_office') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                                 <div class="col-6">
 
@@ -71,7 +107,73 @@
                                             </span>
                                         @endif
                                     </div>
-
+                                    <!-- founded -->
+                                    <div class="form-group{{ $errors->has('employees') ? ' has-error' : '' }}">
+                                        {!! Form::label('employees') !!}
+                                        {!! Form::number('employees', null, [
+                                            'class' => 'form-control',
+                                            'placeholder' => 'jumlah karyawan(100/5000/70000)',
+                                        ]) !!}
+                                        @if ($errors->has('employees'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('employees') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="form-group{{ $errors->has('Company Category') ? ' has-error' : '' }}">
+                                        {!! Form::label('company_category') !!}
+                                        {!! Form::text('company_category', null, [
+                                            'class' => 'form-control',
+                                            'placeholder' => 'Industri apa ?',
+                                        ]) !!}
+                                        @if ($errors->has('company_category'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('company_category') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group{{ $errors->has('Instagram') ? ' has-error' : '' }}">
+                                        {!! Form::label('instagram') !!}
+                                        {!! Form::text('instagram', null, [
+                                            'class' => 'form-control',
+                                            'placeholder' => 'instagram',
+                                        ]) !!}
+                                        @if ($errors->has('instagram'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('instagram') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group{{ $errors->has('facebook') ? ' has-error' : '' }}">
+                                        {!! Form::label('facebook') !!}
+                                        {!! Form::text('facebook', null, [
+                                            'class' => 'form-control',
+                                            'placeholder' => 'facebook',
+                                        ]) !!}
+                                        @if ($errors->has('facebook'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('facebook') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group{{ $errors->has('linkedin') ? ' has-error' : '' }}">
+                                        {!! Form::label('linkedin') !!}
+                                        {!! Form::text('linkedin', null, [
+                                            'class' => 'form-control',
+                                            'placeholder' => 'linkedin',
+                                        ]) !!}
+                                        @if ($errors->has('linkedin'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('linkedin') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group{{ $errors->has('address') ? ' has-error' : '' }}">

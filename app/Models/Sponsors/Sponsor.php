@@ -19,6 +19,13 @@ class Sponsor extends Model
         'package',
         'slug',
         'status',
+        'founded',
+        'location_office',
+        'employees',
+        'company_category',
+        'instagram',
+        'facebook',
+        'linkedin',
 
     ];
 }

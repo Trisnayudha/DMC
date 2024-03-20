@@ -45,7 +45,7 @@ class SponsorController extends Controller
             'status' => 'required|string',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Contoh validasi untuk upload gambar
         ]);
-
+        // dd($request->all());
         // Proses upload gambar jika ada
         if ($request->hasFile('image')) {
             $timestamp = now()->timestamp; // Mengambil timestamp saat ini
@@ -70,6 +70,14 @@ class SponsorController extends Controller
             'status' => $request->input('status'),
             'image' => $imageUrl, // Simpan URL gambar ke dalam kolom "image" dalam database
             'slug' => $slug, // Simpan slug ke dalam kolom "slug" dalam database
+            'founded' => $request->input('founded'),
+            'location_office' => $request->input('location_office'),
+            'employees' => $request->input('employees'),
+            'company_category' => $request->input('company_category'),
+            'instagram' => $request->input('instagram'),
+            'facebook' => $request->input('facebook'),
+            'linkedin' => $request->input('linkedin'),
+
         ]);
 
         // Redirect ke halaman lain atau tampilkan pesan sukses
@@ -109,7 +117,7 @@ class SponsorController extends Controller
             'status' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
+        // dd($request->all());
         // Ambil data sponsor yang akan diupdate
         $sponsor = Sponsor::findOrFail($id);
 
@@ -121,6 +129,13 @@ class SponsorController extends Controller
         $sponsor->description = $request->input('description');
         $sponsor->package = $request->input('package');
         $sponsor->status = $request->input('status');
+        $sponsor->founded = $request->input('founded');
+        $sponsor->location_office = $request->input('location_office');
+        $sponsor->employees = $request->input('employees');
+        $sponsor->company_category = $request->input('company_category');
+        $sponsor->instagram = $request->input('instagram');
+        $sponsor->facebook = $request->input('facebook');
+        $sponsor->linkedin = $request->input('linkedin');
         // Proses pembuatan slug
         $slug = Str::slug($request->input('name')); // Membuat slug dari nama sponsor
 

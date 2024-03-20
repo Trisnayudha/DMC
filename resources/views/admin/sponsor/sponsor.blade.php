@@ -185,7 +185,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: 'admin/sponsors/' + sponsorId,
+                            url: 'sponsors/' + sponsorId,
                             type: 'DELETE',
                             data: {
                                 _token: '{{ csrf_token() }}'
