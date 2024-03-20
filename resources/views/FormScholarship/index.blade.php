@@ -501,7 +501,8 @@
                                 <div class="form-group">
                                     <label for="">Upload Kartu Tanda Mahasiswa(Aktif):*</label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf" name="kta" required>
+                                        <input type="file" accept="application/pdf" name="kta" required
+                                            onchange="checkFileSize(this)">
                                         <div class="invalid-feedback">
                                             Wajib isi data ini
                                         </div>
@@ -513,7 +514,8 @@
                                 <div class="form-group">
                                     <label for="">Upload Transkrip IPK:* </label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf" name="ipk" required>
+                                        <input type="file" accept="application/pdf" name="ipk" required
+                                            onchange="checkFileSize(this)">
                                         <div class="invalid-feedback">
                                             Wajib isi data ini
                                         </div>
@@ -525,7 +527,8 @@
                                 <div class="form-group">
                                     <label for="">Upload Kartu Tanda Penduduk:* </label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf" name="ktp" required>
+                                        <input type="file" accept="application/pdf" name="ktp" required
+                                            onchange="checkFileSize(this)">
                                         <div class="invalid-feedback">
                                             Wajib isi data ini
                                         </div>
@@ -537,7 +540,8 @@
                                 <div class="form-group">
                                     <label for="">Upload Foto kopi Kartu Keluarga:*</label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf" name="kk" required>
+                                        <input type="file" accept="application/pdf" name="kk" required
+                                            onchange="checkFileSize(this)">
                                         <div class="invalid-feedback">
                                             Wajib isi data ini
                                         </div>
@@ -551,7 +555,8 @@
                                 <div class="form-group">
                                     <label for="">Slip Gaji Orang Tua Terakhir:* </label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf" name="slip_gaji" required>
+                                        <input type="file" accept="application/pdf" name="slip_gaji" required
+                                            onchange="checkFileSize(this)">
                                         <div class="invalid-feedback">
                                             Wajib isi data ini
                                         </div>
@@ -563,7 +568,8 @@
                                 <div class="form-group">
                                     <label for="">Transkrip Pembayaran BOP:*</label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf" name="bop" required>
+                                        <input type="file" accept="application/pdf" name="bop" required
+                                            onchange="checkFileSize(this)">
                                         <div class="invalid-feedback">
                                             Wajib isi data ini
                                         </div>
@@ -576,7 +582,7 @@
                                     <label for="">Upload Foto kopi Sertifikat prestasi: </label>
                                     <div class="input-group">
                                         <input type="file" accept="application/pdf" name="sertifikat_prestasi"
-                                            required>
+                                            required onchange="checkFileSize(this)">
                                         <div class="invalid-feedback">
                                             Wajib isi data ini
                                         </div>
@@ -588,7 +594,8 @@
                                 <div class="form-group">
                                     <label for="">Upload Pas Foto berwarna(ukuran 4x6):*</label>
                                     <div class="input-group">
-                                        <input type="file" accept="application/pdf" name="pas_foto" required>
+                                        <input type="file" accept="application/pdf" name="pas_foto" required
+                                            onchange="checkFileSize(this)">
                                         <div class="invalid-feedback">
                                             Wajib isi data ini
                                         </div>
@@ -734,6 +741,19 @@
                 }
             });
         });
+
+        function checkFileSize(input) {
+            if (input.files[0].size > 1024 * 1024) {
+                // Jika ukuran file lebih dari 1 MB, tampilkan pesan kesalahan
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File terlalu besar',
+                    text: 'Ukuran file harus kurang dari 1 MB',
+                });
+                // Reset nilai input file
+                input.value = '';
+            }
+        }
     </script>
 
 </body>
