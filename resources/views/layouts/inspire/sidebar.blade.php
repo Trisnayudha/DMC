@@ -117,6 +117,11 @@
                 <li><a class="nav-link" href="#">Role</a></li>
             </ul>
         </li>
+        <li class="">
+            <a class="nav-link" href="{{ url('admin/scholarship') }}">
+                <i class="fa fa-university" aria-hidden="true"></i>
+                <span>Scholarship</span></a>
+        </li>
     </ul>
 
 
