@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\NewsCategoryController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\ScholarshipController as AdminScholarshipController;
 use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorAddressController;
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
@@ -251,6 +252,9 @@ Route::prefix('admin')->group(function () {
     //Invoice
     Route::get('invoice', [InvoiceController::class, 'index']);
     Route::get('invoice-detail', [InvoiceController::class, 'detail']);
+
+    //Scholarship
+    Route::get('/scholarship', [AdminScholarshipController::class, 'index']);
 
     //Whatsapp Group
     Route::prefix('whatsapp')->group(function () {
