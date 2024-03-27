@@ -54,6 +54,20 @@
                                     </span>
                                 @endif
                             </div>
+                            <div class="form-group{{ $errors->has('reference_image') ? ' has-error' : '' }}">
+                                <label>Reference Image</label>
+                                {!! Form::textarea('reference_image', old('reference_image'), [
+                                    'cols' => '30',
+                                    'rows' => '5',
+                                    'class' => 'form-control',
+                                    'placeholder' => 'Image Reference',
+                                ]) !!}
+                                @if ($errors->has('reference_image'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('reference_image') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
                             <div class="form-group{{ $errors->has('reference_link') ? ' has-error' : '' }}">
                                 <label>Reference Link</label>
                                 {!! Form::textarea('reference_link', old('reference_link'), [
@@ -136,7 +150,7 @@
                                             </div>
                                             {!! Form::text('date_news', date('Y-m-d H:i'), [
                                                 'class' => 'form-control
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            datepicker',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                datepicker',
                                                 'placeholder' => 'Tanggal Mulai',
                                             ]) !!}
                                         </div>
@@ -146,8 +160,6 @@
                                             </span>
                                         @endif
                                     </div>
-                                </div>
-                                {{-- <div class="card-body">
                                     <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
                                         {!! Form::label('Status') !!}
                                         {!! Form::select('status', ['draft' => 'Draft', 'publish' => 'Publish'], null, ['class' => 'form-control']) !!}
@@ -157,7 +169,7 @@
                                             </span>
                                         @endif
                                     </div>
-                                </div> --}}
+                                </div>
                                 <div class="card-footer text-right">
                                     <div class="pull-right">
                                         <a href="{{ route('news') }}" class="btn btn-warning">Close</a>

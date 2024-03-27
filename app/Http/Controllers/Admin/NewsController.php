@@ -39,16 +39,20 @@ class NewsController extends Controller
         $title = $request->title;
         $desc = $request->description;
         $reference_link = $request->reference_link;
+        $reference_image = $request->reference_image;
         $image = $request->image;
         $slug = Str::slug($request->title);
         $date_news = $request->date_news;
         $file = $request->image;
+        $status = $request->status;
 
         $save = new News();
         $save->title = $title;
         $save->desc = $desc;
         $save->reference_link = $reference_link;
+        $save->reference_image = $reference_image;
         $save->slug = $slug;
+        $save->status = $status;
         $save->date_news = $date_news;
         if (!empty($file)) {
             $imageName = time() . '.' . $request->image->extension();
@@ -82,7 +86,9 @@ class NewsController extends Controller
         $news->title = $request->title;
         $news->desc = $request->desc;
         $news->reference_link = $request->reference_link;
+        $news->reference_image = $request->reference_image;
         $news->date_news = $request->date_news;
+        $news->status = $request->status;
         $news->slug = Str::slug($request->title);
 
         if ($request->hasFile('image')) {

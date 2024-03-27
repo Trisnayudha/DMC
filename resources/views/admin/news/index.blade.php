@@ -11,8 +11,41 @@
                     </div>
                 </div>
             </div>
+
             <div class="section-body">
                 <h2 class="section-title">News </h2>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-primary">
+                                <i class="far fa-newspaper"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>View News</h4>
+                                </div>
+                                <div class="card-body">
+                                    10
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-danger">
+                                <i class="far fa-newspaper"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>All News</h4>
+                                </div>
+                                <div class="card-body">
+                                    42
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
@@ -58,6 +91,7 @@
                                                 <th>Title</th>
                                                 <th>Views</th>
                                                 <th>Share</th>
+                                                <th>Status</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
@@ -75,17 +109,25 @@
                                                     <td>{{ $post->views != null ? $post->views : '0' }}</td>
                                                     <td>{{ $post->share != null ? $post->share : '0' }}</td>
                                                     <td>
-                                                        <a href="#" class="btn btn-primary" title="Lihat Peserta">
-                                                            <span class="fa fa-user"></span></a>
+                                                        <span
+                                                            class="{{ $post->status == 'publish' ? 'badge badge-primary' : 'badge badge-warning' }}">
+                                                            {{ $post->status }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="https://djakarta-miningclub.com/news/{{ $post->slug }}"
+                                                            class="btn btn-primary m-1" target="_blank">
+                                                            <span class="fa fa-eye"></span>
+                                                        </a>
                                                         <a href="{{ route('news.edit', ['id' => $post->id]) }}"
-                                                            class="btn btn-success" title="Edit Data">
+                                                            class="btn btn-success m-1" title="Edit Data">
                                                             <span class="fa fa-edit"></span>
                                                         </a>
                                                         <form method="POST"
                                                             action="{{ route('news.destroy', $post->id) }}">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button class="btn btn-danger" value="`+ row.id +`"
+                                                            <button class="btn btn-danger m-1" value="`+ row.id +`"
                                                                 id="deleteProgram" type="submit" title="Hapus Data">
                                                                 <span class="fa fa-trash"></span></button>
                                                         </form>
