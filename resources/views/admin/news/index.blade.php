@@ -22,7 +22,7 @@
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>View News</h4>
+                                    <h4>View News this month</h4>
                                 </div>
                                 <div class="card-body">
                                     10
@@ -37,7 +37,7 @@
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>All News</h4>
+                                    <h4>All News this month</h4>
                                 </div>
                                 <div class="card-body">
                                     42
@@ -150,7 +150,15 @@
 @push('bottom')
     <script>
         $(document).ready(function() {
-            $('#laravel_crud').DataTable();
+            $('#laravel_crud').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ]
+            });
         });
     </script>
 @endpush
