@@ -7,6 +7,7 @@ use App\Models\News\News;
 use App\Models\News\NewsCategory;
 use App\Models\News\NewsCategoryList;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class NewsController extends Controller
@@ -18,7 +19,14 @@ class NewsController extends Controller
     public function index()
     {
         $list = News::orderBy('id', 'desc')->get();
+        $currentMonth = Carbon::now()->month;
+        $countView = News::whereMonth('created_at', $currentMonth)->sum('views');
+        // Menghitung jumlah total view dari semua berita
+        $totalView = News::whereMonth('created_at', $currentMonth)->count('id');
+
         $data = [
+            'totalView' => $totalView,
+            'countView' => $countView,
             'list' => $list
         ];
         return view('admin.news.index', $data);
