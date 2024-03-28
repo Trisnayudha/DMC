@@ -143,14 +143,14 @@
                                                     <td>{{ $post->ukt_lainnya }}</td>
                                                     <td>{{ $post->beasiswa }}</td>
                                                     <td>{{ $post->beasiswa_lainnya }}</td>
-                                                    <td>{{ $post->alasan }}</td>
+                                                    <td>{!! $post->alasan !!}</td>
                                                     <td>{{ $post->nama_kampus }}</td>
                                                     <td>{{ $post->jurusan }}</td>
                                                     <td>{{ $post->indeks_prestasi }}</td>
                                                     <td>{{ $post->fakultas }}</td>
                                                     <td>{{ $post->semester }}</td>
                                                     <td>{{ $post->indeks_prestasi_kumulatif }}</td>
-                                                    <td>{{ $post->prestasi }}</td>
+                                                    <td>{!! $post->prestasi !!}</td>
                                                     <td>{{ $post->kta }}</td>
                                                     <td>{{ $post->ipk }}</td>
                                                     <td>{{ $post->ktp }}</td>
