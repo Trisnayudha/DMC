@@ -45,6 +45,15 @@ class SponsorsController extends Controller
     public function detail($slug)
     {
         $sponsor = Sponsor::where('slug', $slug)->first();
+        // Cek apakah founded bukan null sebelum melakukan konversi
+        if ($sponsor->founded !== null) {
+            // Konversi founded ke timestamp Unix jika diperlukan
+            if (!is_numeric($sponsor->founded)) {
+                $sponsor->founded = strtotime($sponsor->founded);
+            }
+            // Format founded menjadi tahun saja
+            $sponsor->founded = date('Y', $sponsor->founded);
+        }
         $location = SponsorAddress::where('sponsor_id', $sponsor->id)->get();
         $representative = SponsorRepresentative::where('sponsor_id', $sponsor->id)->get();
         $advertising = SponsorAdvertising::where('sponsor_id', $sponsor->id)->get();
