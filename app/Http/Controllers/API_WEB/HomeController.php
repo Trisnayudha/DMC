@@ -60,6 +60,7 @@ class HomeController extends Controller
     public function getComingSoon()
     {
         $event = Events::where('event_type', '!=', 'Partnership Event')
+            ->where('status', 'publish')
             ->where('start_date', '>=', Carbon::now())
             ->orderBy('id', 'desc')
             ->first();
