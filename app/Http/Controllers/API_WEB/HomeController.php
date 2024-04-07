@@ -19,11 +19,21 @@ class HomeController extends Controller
 
     public function getCarousel()
     {
+        $signature = '/image/libur.png';
         $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
             ->orderBy('id', 'desc')
             ->get();
 
         $result = [];
+
+        // Menambahkan signature sebagai elemen pertama di result
+        $result[] = [
+            'heading1' => null,
+            'heading2' => null,
+            'date' => null,
+            'listImage' => [$signature], // Menyertakan signature sebagai listImage
+            'slug' => null
+        ];
 
         foreach ($events as $event) {
             // Cek apakah ada event highlight untuk event saat ini
@@ -55,6 +65,7 @@ class HomeController extends Controller
 
         return response()->json($response);
     }
+
 
 
     public function getComingSoon()
