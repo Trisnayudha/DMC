@@ -26,14 +26,16 @@ class HomeController extends Controller
 
         $result = [];
 
-        // Menambahkan signature sebagai elemen pertama di result
-        $result[] = [
-            'heading1' => null,
-            'heading2' => null,
-            'date' => null,
-            'listImage' => [$signature], // Menyertakan signature sebagai listImage
-            'slug' => null
-        ];
+        // Check if signature is not null before adding to result
+        if ($signature !== null) {
+            $result[] = [
+                'heading1' => null,
+                'heading2' => null,
+                'date' => null,
+                'listImage' => [$signature], // Include signature as listImage
+                'slug' => null
+            ];
+        }
 
         foreach ($events as $event) {
             // Cek apakah ada event highlight untuk event saat ini
