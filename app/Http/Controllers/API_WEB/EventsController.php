@@ -308,6 +308,11 @@ class EventsController extends Controller
         if (empty($find)) {
             $response['message'] = 'Email not registered as a member';
             $response['status'] = 404;
+            $response['payload'] = [
+                'email' => $email,
+                'price' => 1000000,
+                'price_dollar' => 62
+            ];
         } else {
             $findPayment = Payment::where('member_id', $find->id)
                 ->where('events_id', $events_id)
