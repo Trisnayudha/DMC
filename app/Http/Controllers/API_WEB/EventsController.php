@@ -9,6 +9,7 @@ use App\Models\Events\EventsSpeakersRundown;
 use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Repositories\Events as RepositoriesEvents;
 use App\Services\Events\EventsService;
@@ -294,5 +295,36 @@ class EventsController extends Controller
         $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
         // Download the PDF with the specified filename
         return $pdf->download($filename);
+    }
+
+    public function checkUserRegister(Request $request)
+    {
+        $events_id = $request->events_id;
+        $email = $request->email;
+
+        $response = ['status' => 200, 'message' => '', 'payload' => []];
+        $find = User::where('email', $email)->first();
+
+        if (empty($find)) {
+            $response['message'] = 'Email not registered as a member';
+            $response['status'] = 404;
+        } else {
+            $findPayment = Payment::where('member_id', $find->id)
+                ->where('events_id', $events_id)
+                ->whereIn('status_registration', ['Waiting', 'Paid Off'])
+                ->first();
+            if (!empty($findPayment)) {
+                $response['message'] = 'Email already registered in event!';
+                $response['status'] = 409; // Conflict
+            } else {
+                $response['message'] = 'Email is available and can be used for registration';
+                $response['payload'] = [
+                    'email' => $email,
+                    'price' => 900000,
+                    'price_dollar' => 56.80
+                ];
+            }
+        }
+        return response()->json($response);
     }
 }

@@ -177,6 +177,8 @@ Route::prefix('web')->group(function () {
     Route::post('profile/update_profile', [ProfileController::class, 'update_profile']);
 
     Route::post('/contact_us', [ContactUsController::class, 'indexV2']);
+
+    Route::post('check/email/paid', [API_WEBEventsController::class, 'checkUserRegister']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
