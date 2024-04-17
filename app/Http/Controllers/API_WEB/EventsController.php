@@ -307,7 +307,7 @@ class EventsController extends Controller
 
         if (empty($find)) {
             $response['message'] = 'Email not registered as a member';
-            $response['status'] = 404;
+            $response['status'] = 200;
             $response['payload'] = [
                 'email' => $email,
                 'price' => 1000000,
