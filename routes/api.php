@@ -179,6 +179,8 @@ Route::prefix('web')->group(function () {
     Route::post('/contact_us', [ContactUsController::class, 'indexV2']);
 
     Route::post('check/email/paid', [API_WEBEventsController::class, 'checkUserRegister']);
+
+    Route::post('/payment/create/anon', [API_WEBPaymentController::class, 'PaymentAnonymous']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
