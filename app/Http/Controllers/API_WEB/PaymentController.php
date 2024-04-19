@@ -146,7 +146,7 @@ class PaymentController extends Controller
             // END LOOPING EACH USER IN THE GROUP
             Xendit::setApiKey($secretKey);
 
-            if ($payment_method != 'Credit Card') {
+            if ($payment_method != 'CREDIT_CARD') {
                 $params = [
                     'external_id' => $codePayment[0],
                     'bank_code' => $payment_method,
