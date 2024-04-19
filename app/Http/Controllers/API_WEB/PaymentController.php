@@ -243,7 +243,7 @@ class PaymentController extends Controller
             ];
             $response['status'] = 200;
             $response['message'] = 'success';
-            $response['payload'] = null;
+            $response['payload'] = $data;
         }
         return response()->json($response);
     }
