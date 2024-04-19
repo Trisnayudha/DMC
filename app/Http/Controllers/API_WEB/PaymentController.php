@@ -62,7 +62,11 @@ class PaymentController extends Controller
     {
         $code_payment = $request->code_payment;
         $findPayment = Payment::join('events', 'events.id', 'payment.events_id')->join('events_tickets', 'events_tickets.id', 'payment.tickets_id')->where('code_payment', $code_payment)->first();
-        $response['status'] = 200;
+        if ($findPayment->status_registration == 'Waiting') {
+            $response['status'] = 404;
+        } else {
+            $response['status'] = 200;
+        }
         $response['message'] = 'Success Refresh payment';
         $response['payload'] = $findPayment;
         return response()->json($response);
