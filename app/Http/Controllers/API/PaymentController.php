@@ -136,9 +136,13 @@ class PaymentController extends Controller
                 $notif->message = 'Your wait is over! Your Virtual Account is now up and running, ready for smooth transactions.';
                 $notif->NotifApp();
             }
+            $free = [
+                'code_payment' => $codePayment,
+                'status' => 'WAITING'
+            ];
             $response['status'] = 200;
             $response['message'] = 'success';
-            $response['payload'] = $createVA ? $createVA : null;
+            $response['payload'] = $createVA ? $createVA : $free;
         } else {
             $response['status'] = 404;
             $response['message'] = 'You have another payment, please contact admin for information';

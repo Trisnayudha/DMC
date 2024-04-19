@@ -237,6 +237,10 @@ class PaymentController extends Controller
                 // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
             });
         } else {
+            $data = [
+                'code_payment' => $codePayment[0],
+                'status' => 'WAITING'
+            ];
             $response['status'] = 200;
             $response['message'] = 'success';
             $response['payload'] = null;
