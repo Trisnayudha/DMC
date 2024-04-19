@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API_WEB;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookingContact\BookingContact;
+use App\Models\Events\Events;
 use App\Models\Events\EventsRundown;
 use App\Models\Events\EventsSpeakersRundown;
 use App\Models\Events\EventsTicket;
@@ -299,37 +300,53 @@ class EventsController extends Controller
 
     public function checkUserRegister(Request $request)
     {
-        $events_id = $request->events_id;
         $email = $request->email;
+        $events_id = $request->events_id;
 
-        $response = ['status' => 200, 'message' => '', 'payload' => []];
-        $find = User::where('email', $email)->first();
+        // Early return if event does not exist
+        $event = Events::find($events_id);
+        if (!$event) {
+            return response()->json(['status' => 404, 'message' => 'Event not found']);
+        }
 
-        if (empty($find)) {
-            $response['message'] = 'Email not registered as a member';
-            $response['status'] = 200;
-            $response['payload'] = [
+        // Define the default response
+        $response = [
+            'status' => 200,
+            'message' => '',
+            'payload' => [
                 'email' => $email,
-                'price' => 1000000,
-                'price_dollar' => 62
-            ];
-        } else {
-            $findPayment = Payment::where('member_id', $find->id)
-                ->where('events_id', $events_id)
-                ->whereIn('status_registration', ['Waiting', 'Paid Off'])
-                ->first();
-            if (!empty($findPayment)) {
+                'price' => $event->status_event === 'Free' ? 0 : 1000000,
+                'price_dollar' => $event->status_event === 'Free' ? 0 : 62,
+            ]
+        ];
+
+        // Fetch user and their payment status for the event
+        $user = User::where('email', $email)->first();
+        $payment = $user ? Payment::where('member_id', $user->id)
+            ->where('events_id', $events_id)
+            ->whereIn('status_registration', ['Waiting', 'Paid Off'])
+            ->first() : null;
+
+        if ($event->status_event !== 'Free') {
+            if (!$user) {
+                $response['message'] = 'Email not registered as a member';
+            } elseif ($payment) {
                 $response['message'] = 'Email already registered in event!';
                 $response['status'] = 409; // Conflict
             } else {
                 $response['message'] = 'Email is available and can be used for registration';
-                $response['payload'] = [
-                    'email' => $email,
-                    'price' => 900000,
-                    'price_dollar' => 56.80
-                ];
+                $response['payload']['price'] = 900000;
+                $response['payload']['price_dollar'] = 56.80;
+            }
+        } else {
+            if ($payment) {
+                $response['message'] = 'Email already registered in event!';
+                $response['status'] = 409; // Conflict
+            } else {
+                $response['message'] = 'Free event registration is available';
             }
         }
+
         return response()->json($response);
     }
 }
