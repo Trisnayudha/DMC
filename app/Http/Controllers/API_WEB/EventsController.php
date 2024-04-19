@@ -321,7 +321,7 @@ class EventsController extends Controller
         ];
 
         // Fetch user and their payment status for the event
-        $user = User::where('email', $email)->first();
+        $user = User::where('email', $email)->whereNotNull('status_member')->first();
         $payment = $user ? Payment::where('member_id', $user->id)
             ->where('events_id', $events_id)
             ->whereIn('status_registration', ['Waiting', 'Paid Off'])
