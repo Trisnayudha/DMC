@@ -451,7 +451,8 @@ Your verification code (OTP) ' . $otp;
                         'role' => $role[0]->name,
                         'token' => $accessToken,
                         'verify_email' => $user->verify_email,
-                        'verify_phone' => $user->verify_phone
+                        'verify_phone' => $user->verify_phone,
+                        'status_member' => 'member'
                     ];
                     MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;
