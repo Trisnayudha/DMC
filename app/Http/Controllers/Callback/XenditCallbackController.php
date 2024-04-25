@@ -209,6 +209,128 @@ Best Regards Bot DMC
                         $notif->id = $check->member_id;
                         $notif->message = 'Payment successfully Web';
                         $notif->NotifApp();
+                    } elseif ($check->groupby_users_id != null) {
+                        $loopPayment = Payment::where('booking_contact_id', $check->groupby_users_id)
+                            ->join('users as a', 'a.id', 'payment.member_id')
+                            ->join('profiles as b', 'a.id', 'b.users_id')
+                            ->join('company as c', 'c.id', 'b.company_id')
+                            ->leftjoin('events_tickets as d', 'payment.tickets_id', 'd.id')
+                            ->get();
+                        $detailWa = [];
+                        $item_details = [];
+                        $image = QrCode::format('png')
+                            ->size(200)->errorCorrection('H')
+                            ->generate($external_id);
+                        $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                        $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                        foreach ($loopPayment as $data) {
+                            $image = QrCode::format('png')
+                                ->size(200)->errorCorrection('H')
+                                ->generate($data->code_payment);
+                            $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                            $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                            Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
+                            $update = Payment::where('code_payment', $data->code_payment)->first();
+                            $item_details[] = [
+                                'name' => $data->name,
+                                'job_title' => $data->email,
+                                'price' => number_format($data->price_rupiah, 0, ',', '.'),
+                                'paidoff' => false
+                            ];
+                            $update->status_registration = "Paid Off";
+                            $update->qr_code =  $db;
+                            $update->link = null;
+                            $update->payment_method = $payment_method;
+                            $update->save();
+                            $UserEvent = UserRegister::where('payment_id', $update->id)->first();
+                            if (empty($UserEvent)) {
+                                $UserEvent = new UserRegister();
+                            }
+                            $UserEvent->users_id = $update->member_id;
+                            $UserEvent->events_id = $update->events_id;
+                            $UserEvent->payment_id = $update->id;
+                            $UserEvent->save();
+                            $detailWa[] = '
+Nama : ' . $data->name . '
+Email: ' . $data->email . '
+Phone Number: ' . $data->phone . '
+Company : ' . $data->company_name . '
+';
+                            //Seharusnya ngirim Eticket namun servernya ga kuat buat load selama 30 detik
+                            // $payload = [
+                            //     'users_name' => $data->name,
+                            //     'users_email' => $data->email,
+                            //     'phone' => $data->phone,
+                            //     'company_name' => $data->company_name,
+                            //     'company_address' => $data->address,
+                            //     'status' => 'Paid Off',
+                            //     'events_name' => $findEvent->name,
+                            //     'code_payment' => $data->code_payment,
+                            //     'create_date' => date('d, M Y H:i'),
+                            //     'package_name' => $data->package,
+                            //     'price' => number_format($paid_amount, 0, ',', '.'),
+                            //     'total_price' => number_format($paid_amount, 0, ',', '.'),
+                            //     'voucher_price' => number_format(0, 0, ',', '.'),
+                            //     'image' => $db,
+                            //     'job_title' => $data->job_title,
+                            //     'start_date' => $findEvent->start_date,
+                            //     'end_date' => $findEvent->end_date,
+                            //     'start_time' => $findEvent->start_time,
+                            //     'end_time' => $findEvent->end_time,
+                            // ];
+                            // $pdf = Pdf::loadView('email.ticket', $payload);
+                            // Mail::send('email.approval-event', $payload, function ($message) use ($pdf, $data) {
+                            //     $message->from(env('EMAIL_SENDER'));
+                            //     $message->to($data->email);
+                            //     $message->subject($data->code_payment . ' - Successful Registration for The 10th Anniversary of Djakarta Mining Club and Coal Club Indonesia');
+                            //     $message->attachData($pdf->output(), $data->code_payment . '-' . time() . '.pdf');
+                            // });
+                        }
+                        $link = null;
+                        $data = [
+                            'users_name' => $findUser->name,
+                            'users_email' => $findUser->email,
+                            'phone' => $findUser->phone,
+                            'company_name' => $findUser->company_name,
+                            'company_address' => $findUser->address,
+                            'status' => 'Paid Off',
+                            'events_name' => $findEvent->name,
+                            'code_payment' => $findUser->code_payment,
+                            'create_date' => date('d, M Y H:i'),
+                            'package_name' => $findUser->package,
+                            'price' => number_format($paid_amount, 0, ',', '.'),
+                            'total_price' => number_format($paid_amount, 0, ',', '.'),
+                            'voucher_price' => number_format(0, 0, ',', '.'),
+                            'image' => $db,
+                            'item' => $item_details,
+                            'job_title' => $findUser->job_title,
+                            'link' => $link,
+                            'start_date' => $findEvent->start_date,
+                            'end_date' => $findEvent->end_date,
+                            'start_time' => $findEvent->start_time,
+                            'end_time' => $findEvent->end_time,
+                        ];
+                        $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
+                        Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf, $findEvent) {
+                            $message->from(env('EMAIL_SENDER'));
+                            $message->to($findUser->email);
+                            $message->subject('Thank you for payment - ' . $findEvent->name);
+                            $message->attachData($pdf->output(), 'E-Receipt.pdf');
+                        });
+                        $send = new WhatsappApi();
+                        $send->phone = '081332178421';
+                        // $send->phone = '083829314436';
+                        $send->message = '
+Hai Team,
+
+Success payment multiple dari ' . $findUser->name_contact . '
+Detail Informasinya:
+' . implode(" ", $detailWa) . '
+
+Thank you
+Best Regards Bot DMC
+                                                ';
+                        $send->WhatsappMessage();
                     } else {
                         $image = QrCode::format('png')
                             ->size(200)->errorCorrection('H')
