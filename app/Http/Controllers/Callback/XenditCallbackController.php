@@ -256,35 +256,6 @@ Email: ' . $data->email . '
 Phone Number: ' . $data->phone . '
 Company : ' . $data->company_name . '
 ';
-                            //Seharusnya ngirim Eticket namun servernya ga kuat buat load selama 30 detik
-                            // $payload = [
-                            //     'users_name' => $data->name,
-                            //     'users_email' => $data->email,
-                            //     'phone' => $data->phone,
-                            //     'company_name' => $data->company_name,
-                            //     'company_address' => $data->address,
-                            //     'status' => 'Paid Off',
-                            //     'events_name' => $findEvent->name,
-                            //     'code_payment' => $data->code_payment,
-                            //     'create_date' => date('d, M Y H:i'),
-                            //     'package_name' => $data->package,
-                            //     'price' => number_format($paid_amount, 0, ',', '.'),
-                            //     'total_price' => number_format($paid_amount, 0, ',', '.'),
-                            //     'voucher_price' => number_format(0, 0, ',', '.'),
-                            //     'image' => $db,
-                            //     'job_title' => $data->job_title,
-                            //     'start_date' => $findEvent->start_date,
-                            //     'end_date' => $findEvent->end_date,
-                            //     'start_time' => $findEvent->start_time,
-                            //     'end_time' => $findEvent->end_time,
-                            // ];
-                            // $pdf = Pdf::loadView('email.ticket', $payload);
-                            // Mail::send('email.approval-event', $payload, function ($message) use ($pdf, $data) {
-                            //     $message->from(env('EMAIL_SENDER'));
-                            //     $message->to($data->email);
-                            //     $message->subject($data->code_payment . ' - Successful Registration for The 10th Anniversary of Djakarta Mining Club and Coal Club Indonesia');
-                            //     $message->attachData($pdf->output(), $data->code_payment . '-' . time() . '.pdf');
-                            // });
                         }
                         $link = null;
                         $data = [
