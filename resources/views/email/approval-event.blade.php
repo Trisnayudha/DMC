@@ -124,7 +124,7 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://api.djakarta-miningclub.com/image/logo-dmc-dss.png" alt="Image" class="img-logo">
+            <img src="https://api.djakarta-miningclub.com/image/logo.png" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
