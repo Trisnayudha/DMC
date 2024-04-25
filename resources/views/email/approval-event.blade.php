@@ -175,7 +175,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://djakarta-miningclub.com/dmc/2024/towards-safe-productive-and-sustainable-smelting-operations-in-indonesia/
+                (https://www.djakarta-miningclub.com/events/the-11th-anniversary-of-djakarta-mining-club
                 )
             </p>
 
