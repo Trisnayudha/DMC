@@ -127,8 +127,9 @@ class HomeController extends Controller
     public function postUpComing(Request $request)
     {
         $send = new WhatsappApi();
-        $send->message = $request->email;
-        $send->phone = '083829314436';
+        $send->message = 'Trigger UpComing Event
+        Email: ' . $request->email;
+        $send->phone = '081332178421';
         $send->WhatsappMessage();
         $response['status'] = 200;
         $response['message'] = 'Success';

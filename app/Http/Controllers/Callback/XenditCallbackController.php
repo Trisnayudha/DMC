@@ -210,7 +210,7 @@ Best Regards Bot DMC
                         $notif->message = 'Payment successfully Web';
                         $notif->NotifApp();
                     } elseif ($check->groupby_users_id != null) {
-                        $loopPayment = Payment::where('booking_contact_id', $check->groupby_users_id)
+                        $loopPayment = Payment::where('groupby_users_id', $check->groupby_users_id)
                             ->join('users as a', 'a.id', 'payment.member_id')
                             ->join('profiles as b', 'a.id', 'b.users_id')
                             ->join('company as c', 'c.id', 'b.company_id')
