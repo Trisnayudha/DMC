@@ -79,6 +79,8 @@ class PaymentController extends Controller
         $names = $request->name;
         $phones = $request->phone;
         $companies = $request->company;
+        $job_titles = $request->job_title;
+        $address = $request->address;
         $events_id = $request->events_id;
         $payment_method = $request->payment_method;
         $type = $request->type;
@@ -109,6 +111,7 @@ class PaymentController extends Controller
             if (!$company->exists) {
                 $company->users_id = $user->id;
                 $company->company_name = $companies[$index];
+                $company->address = $address[$index];
                 $company->save();
             }
 
@@ -118,6 +121,7 @@ class PaymentController extends Controller
                 $profile->users_id = $user->id;
                 $profile->company_id = $company->id;
                 $profile->phone = $phones[$index];
+                $profile->job_title = $job_titles[$index];
                 $profile->save();
             }
 
