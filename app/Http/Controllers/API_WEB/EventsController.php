@@ -39,8 +39,8 @@ class EventsController extends Controller
             $key->start_date = (!empty($key->start_date) ? date('d M Y', strtotime($key->start_date)) : '');
             $key->end_date = (!empty($key->end_date) ? date('d M Y', strtotime($key->end_date)) : '');
             // Ambil jam dan menit dari start_time dan end_time
-            $key->start_time = (!empty($key->start_time) ? date('H:i', strtotime($key->start_time)) : '');
-            $key->end_time = (!empty($key->end_time) ? date('H:i', strtotime($key->end_time)) : '');
+            $key->start_time = (!empty($key->start_time) ? date('h:i', strtotime($key->start_time)) : '');
+            $key->end_time = (!empty($key->end_time) ? date('h:i A', strtotime($key->end_time)) : '');
         }
         $response['status'] = 200;
         $response['message'] = 'Success';
