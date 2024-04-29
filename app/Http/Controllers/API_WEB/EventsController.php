@@ -60,8 +60,8 @@ class EventsController extends Controller
         if (!empty($findEvent)) {
             $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
             $eventStatus =  (new \DateTime($findEvent->end_date) >= new \DateTime(date('Y-m-d')) ?  'Upcoming Event' : 'Finished Event');
-            $startDateFormat = Carbon::parse($findEvent->start_date)->isoFormat('D MMMM YYYY');
-            $endDateFormat = Carbon::parse($findEvent->end_date)->isoFormat('D MMMM YYYY');
+            $startDateFormat = Carbon::parse($findEvent->start_date)->isoFormat('D M YYYY');
+            $endDateFormat = Carbon::parse($findEvent->end_date)->isoFormat('D M YYYY');
 
             $mappedEvent = [
                 'id' => $findEvent->id,
