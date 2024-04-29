@@ -83,6 +83,7 @@ class XenditCallbackController extends Controller
                         $findContact = BookingContact::where('id', $check->booking_contact_id)->first();
 
                         $loopPayment = Payment::where('booking_contact_id', $findContact->id)
+                            ->where('payment.events_id', $check->events_id)
                             ->join('users as a', 'a.id', 'payment.member_id')
                             ->join('profiles as b', 'a.id', 'b.users_id')
                             ->join('company as c', 'c.id', 'b.company_id')
@@ -211,6 +212,7 @@ Best Regards Bot DMC
                         $notif->NotifApp();
                     } elseif ($check->groupby_users_id != null) {
                         $loopPayment = Payment::where('groupby_users_id', $check->groupby_users_id)
+                            ->where('payment.events_id', $check->events_id)
                             ->join('users as a', 'a.id', 'payment.member_id')
                             ->join('profiles as b', 'a.id', 'b.users_id')
                             ->join('company as c', 'c.id', 'b.company_id')
