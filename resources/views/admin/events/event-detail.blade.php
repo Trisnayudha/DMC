@@ -323,7 +323,7 @@
                                                     <td>{{ $post->office_number }}</td>
                                                     <td>{{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
                                                     </td>
-                                                    <td>{{ $post->company_address }}</td>
+                                                    <td>{{ $post->address }}</td>
                                                     <td>
                                                         <span
                                                             class="badge badge-pill {{ $post->status_registration == 'Paid Off' ? 'badge-primary' : 'badge-warning' }}">
