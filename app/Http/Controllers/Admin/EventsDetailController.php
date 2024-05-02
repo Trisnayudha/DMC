@@ -287,11 +287,18 @@ class EventsDetailController extends Controller
                     $payment->member_id = $user->id;
                     $payment->events_id = $findEvent->id;
                 }
-
                 $payment->package = $paymentMethod;
+
+                $image = QrCode::format('png')
+                    ->size(200)->errorCorrection('H')
+                    ->generate($codePayment);
+                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+                Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                 if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
                     $payment->status_registration = 'Paid Off';
                     $payment->code_payment = $codePayment;
+                    $payment->qr_code = $db;
                 } else {
                     $payment->payment_method = 'Credit Card';
                     $payment->status_registration = 'Waiting';
@@ -312,12 +319,6 @@ class EventsDetailController extends Controller
                 $payment->pic_id = $pic;
                 $payment->save();
                 if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
-                    $image = QrCode::format('png')
-                        ->size(200)->errorCorrection('H')
-                        ->generate($codePayment);
-                    $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
-                    $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
-                    Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
                     $data = [
                         'code_payment' => $codePayment,
                         'create_date' => date('d, M Y H:i'),
