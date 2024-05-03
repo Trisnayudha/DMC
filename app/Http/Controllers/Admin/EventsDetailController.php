@@ -114,16 +114,16 @@ class EventsDetailController extends Controller
             $save->code_payment = $code_payment;
             $save->events_id = $findEvent->id;
             if ($ticket == 'member') {
-                // $save->tickets_id = 1;
-                $save->tickets_id = 18;
+                $save->tickets_id = 1;
+                // $save->tickets_id = 18;
             } else if ($ticket == 'nonmember') {
-                // $save->tickets_id = 2;
-                $save->tickets_id = 19;
+                $save->tickets_id = 2;
+                // $save->tickets_id = 19;
             } else if ($ticket == 'free') {
                 $save->tickets_id = 3;
             } else if ($ticket == 'onsite') {
-                // $save->tickets_id = 9;
-                $save->tickets_id = 20;
+                $save->tickets_id = 9;
+                // $save->tickets_id = 20;
             } else {
                 $save->tickets_id = 6;
             }
@@ -225,11 +225,11 @@ class EventsDetailController extends Controller
             $profile->save();
 
             if ($paymentMethod == 'member') {
-                $total_price = 500000;
+                $total_price = 900000;
             } else if ($paymentMethod == 'nonmember') {
-                $total_price = 600000;
+                $total_price = 1000000;
             } else if ($paymentMethod == 'onsite') {
-                $total_price = 750000;
+                $total_price = 1250000;
             } else {
                 $total_price = 0;
             }
