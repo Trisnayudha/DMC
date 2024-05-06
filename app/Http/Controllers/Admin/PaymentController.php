@@ -31,45 +31,87 @@ class PaymentController extends Controller
     {
         try {
             $check = Payment::findOrFail($request->id);
+            $findEvent = Events::where('id', $check->events_id)->first();
             $findUsers = User::findOrFail($check->member_id);
-            $findTicket = EventsTicket::findOrFail($check->tickets_id);
             $findProfile = ProfileModel::where('users_id', $check->member_id)->first();
             $findCompany = CompanyModel::where('users_id', $check->member_id)->first();
-            $findEvent = Events::where('id', $check->events_id)->first();
             $isProd = env('XENDIT_ISPROD');
             $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
             Xendit::setApiKey($secretKey);
-
-            $params = [
-                'external_id' => $check->code_payment,
-                'payer_email' => $findUsers->email,
-                'description' => 'Invoice Event DMC',
-                'amount' => $findTicket->price_rupiah,
-                'success_redirect_url' => 'https://djakarta-miningclub.com',
-                'failure_redirect_url' => url(''),
-            ];
-            $createInvoice = Invoice::create($params);
-            $linkPay = $createInvoice['invoice_url'];
-
             $date = date('d, M Y H:i');
             $dueDate = date('d, M Y H:i', strtotime($date . ' +1 day'));
+            if (!empty($check->booking_contact_id)) {
+                $loop = Payment::where('booking_contact_id', $check->booking_contact_id)
+                    ->where('payment.events_id', $check->events_id)
+                    ->join('events_tickets', 'events_tickets.id', '=', 'payment.tickets_id')
+                    ->select('payment.*', 'events_tickets.price_rupiah')
+                    ->get();
+                $totalPrice = 0;
+                foreach ($loop as $index => $data) {
+                    $totalPrice += $data->price_rupiah;  // Access price_rupiah from each data item
+                    $updateStatus = Payment::where('id', $data->id)->first();
+                    $updateStatus->status_registration = 'Waiting';
+                    $updateStatus->save();
+                }
 
-            $data = [
-                'code_payment' => $check->code_payment,
-                'create_date' => $date,
-                'due_date' => $dueDate,
-                'users_name' => $findUsers->name,
-                'users_email' => $findUsers->email,
-                'phone' => $findProfile->phone,
-                'company_name' => $findCompany->company_name,
-                'company_address' => $findCompany->address,
-                'status' => 'WAITING',
-                'events_name' => $findEvent->name,
-                'price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
-                'voucher_price' => 0,
-                'total_price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
-                'link' => $linkPay
-            ];
+                // Debug output, replace with Log::info or remove after testing
+                $params = [
+                    'external_id' => $check->code_payment,
+                    'payer_email' => $findUsers->email,
+                    'description' => 'Invoice Event DMC',
+                    'amount' => $totalPrice,
+                    'success_redirect_url' => 'https://djakarta-miningclub.com',
+                    'failure_redirect_url' => url('/'),
+                ];
+                $createInvoice = Invoice::create($params);
+                $linkPay = $createInvoice['invoice_url'];
+                $data = [
+                    'code_payment' => $check->code_payment,
+                    'create_date' => $date,
+                    'due_date' => $dueDate,
+                    'users_name' => $findUsers->name,
+                    'users_email' => $findUsers->email,
+                    'phone' => $findProfile->phone,
+                    'company_name' => $findCompany->company_name,
+                    'company_address' => $findCompany->address,
+                    'status' => 'WAITING',
+                    'events_name' => $findEvent->name,
+                    'price' => number_format($totalPrice, 0, ',', '.'),
+                    'voucher_price' => 0,
+                    'total_price' => number_format($totalPrice, 0, ',', '.'),
+                    'link' => $linkPay
+                ];
+            } else {
+                $findTicket = EventsTicket::findOrFail($check->tickets_id);
+                $params = [
+                    'external_id' => $check->code_payment,
+                    'payer_email' => $findUsers->email,
+                    'description' => 'Invoice Event DMC',
+                    'amount' => $findTicket->price_rupiah,
+                    'success_redirect_url' => 'https://djakarta-miningclub.com',
+                    'failure_redirect_url' => url(''),
+                ];
+                $createInvoice = Invoice::create($params);
+                $linkPay = $createInvoice['invoice_url'];
+
+
+                $data = [
+                    'code_payment' => $check->code_payment,
+                    'create_date' => $date,
+                    'due_date' => $dueDate,
+                    'users_name' => $findUsers->name,
+                    'users_email' => $findUsers->email,
+                    'phone' => $findProfile->phone,
+                    'company_name' => $findCompany->company_name,
+                    'company_address' => $findCompany->address,
+                    'status' => 'WAITING',
+                    'events_name' => $findEvent->name,
+                    'price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                    'voucher_price' => 0,
+                    'total_price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                    'link' => $linkPay
+                ];
+            }
 
             $email = $findUsers->email;
 

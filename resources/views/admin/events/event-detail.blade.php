@@ -384,7 +384,10 @@
                                                                     </li>
                                                                 </form>
                                                             @endif
-                                                            @if ($post->status_registration == 'Expired')
+                                                            @if (
+                                                                $post->status_registration == 'Expired' ||
+                                                                    $post->status_registration == 'Waiting' ||
+                                                                    $post->status_registration == 'Cancel')
                                                                 <form action="{{ url('admin/renewal-payment') }}"
                                                                     method="post">
                                                                     <li>
