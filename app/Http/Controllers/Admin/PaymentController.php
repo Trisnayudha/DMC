@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
@@ -128,7 +129,10 @@ class PaymentController extends Controller
                 $message->subject('Invoice - Waiting for Payment');
                 // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
             });
-
+            $send = new WhatsappApi();
+            $send->phone = '081332178421';
+            $send->message = 'Nih bro link renewalnya : ' . $linkPay;
+            $send->WhatsappMessage();
             return redirect()->back()->with('success', 'Check your email for payment Invoice !!!');
         } catch (\Exception $e) {
             // Handle the exception
