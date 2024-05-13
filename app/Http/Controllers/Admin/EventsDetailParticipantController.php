@@ -289,7 +289,7 @@ class EventsDetailParticipantController extends Controller
     {
         return UserRegister::firstOrCreate(
             ['users_id' => $userId, 'events_id' => $eventId],
-            ['payment_id' => $paymentId, 'pic_id_reminder' => Auth::id(), 'reminder' => Carbon::now()]
+            ['payment_id' => $paymentId]
         );
     }
 
@@ -335,7 +335,7 @@ class EventsDetailParticipantController extends Controller
     private function sendConfirmationWhatsapp($data, $profile, $event)
     {
         $pdf = Pdf::loadView('email.ticket', $data);
-        $filename = 'ticket_' . $data->name . '_' . time() . '.pdf';
+        $filename = 'ticket_' . $data['users_name'] . '_' . time() . '.pdf';
         // Store the PDF in the desired directory within the storage folder
         $pdfPath = 'public/ticket/' . $filename;
         $db = '/storage/ticket/' . $filename;
@@ -346,7 +346,7 @@ class EventsDetailParticipantController extends Controller
 
 Hi ' . $data->name . ',
 
-This is a confirmation that you are registered to attend our event on Tuesday - 14 May 2024 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($findEvent->start_time)) . ' - ' . date('h.i a', strtotime($findEvent->end_time)) . ' (WIB)
+This is a confirmation that you are registered to attend our event on Tuesday - 14 May 2024 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB)
 
 If you are confirmed to attend this event, please REPLY YES to this message.
 
@@ -365,6 +365,13 @@ Regards,
     private function markAsPresent($userRegistration)
     {
         $userRegistration->present = Carbon::now();
+        $userRegistration->save();
+    }
+
+    private function markAsWhatsapp($userRegistration)
+    {
+        $userRegistration->reminder_wa = Carbon::now();
+        $userRegistration->pic_id_reminder_wa =  Auth::id();
         $userRegistration->save();
     }
 }
