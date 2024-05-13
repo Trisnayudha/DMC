@@ -263,8 +263,10 @@ class EventsDetailParticipantController extends Controller
 
             if ($request->method == 'confirmation') {
                 $this->sendConfirmationEmail($data, $user->email, $payment->code_payment, $event->name);
+                $this->markAsEmail($userRegistration);
             } elseif ($request->method == 'confirmation_wa') {
                 $this->sendConfirmationWhatsapp($data, $profile, $event);
+                $this->markAsWhatsapp($userRegistration);
             } else {
                 $this->markAsPresent($userRegistration);
             }
@@ -344,7 +346,7 @@ class EventsDetailParticipantController extends Controller
         $send->phone = $profile->prefix_phone != null ? $profile->fullphone : $profile->phone;
         $send->message = '📌"REMINDER to attend ' . $event->name . '"
 
-Hi ' . $data->name . ',
+Hi ' . $data['users_name'] . ',
 
 This is a confirmation that you are registered to attend our event on Tuesday - 14 May 2024 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB)
 
@@ -372,6 +374,13 @@ Regards,
     {
         $userRegistration->reminder_wa = Carbon::now();
         $userRegistration->pic_id_reminder_wa =  Auth::id();
+        $userRegistration->save();
+    }
+
+    private function markAsEmail($userRegistration)
+    {
+        $userRegistration->reminder = Carbon::now();
+        $userRegistration->pic_id_reminder =  Auth::id();
         $userRegistration->save();
     }
 }
