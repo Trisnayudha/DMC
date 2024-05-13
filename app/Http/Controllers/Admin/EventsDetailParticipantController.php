@@ -360,7 +360,7 @@ Regards,
 *Secretariat Djakarta Mining Club
         ';
         $send->document = asset($db);
-        $send->WhatsappMessageWithDocument();
+        // $send->WhatsappMessageWithDocument();
         $send->WhatsappMessage();
     }
 
