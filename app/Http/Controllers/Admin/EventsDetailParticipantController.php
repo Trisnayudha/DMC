@@ -208,7 +208,7 @@ Regards,
 *Secretariat Djakarta Mining Club
 ';
                 $send->document = asset($db);
-                // $send->WhatsappMessageWithDocument();
+                $send->WhatsappMessageWithDocument();
                 $send->WhatsappMessage();
                 if ($send->res == 'invalid') {
                     return redirect()->route('events-details-participant', ['slug' => $findEvent->slug])->with('error', 'Whatsapp tidak ditemukan');
