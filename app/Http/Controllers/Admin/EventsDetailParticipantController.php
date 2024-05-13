@@ -336,12 +336,12 @@ class EventsDetailParticipantController extends Controller
 
     private function sendConfirmationWhatsapp($data, $profile, $event)
     {
-        $pdf = Pdf::loadView('email.ticket', $data);
-        $filename = 'ticket_' . $data['users_name'] . '_' . time() . '.pdf';
-        // Store the PDF in the desired directory within the storage folder
-        $pdfPath = 'public/ticket/' . $filename;
-        $db = '/storage/ticket/' . $filename;
-        Storage::put($pdfPath, $pdf->output());
+        // $pdf = Pdf::loadView('email.ticket', $data);
+        // $filename = 'ticket_' . $data['users_name'] . '_' . time() . '.pdf';
+        // // Store the PDF in the desired directory within the storage folder
+        // $pdfPath = 'public/ticket/' . $filename;
+        // $db = '/storage/ticket/' . $filename;
+        // Storage::put($pdfPath, $pdf->output());
         $send = new WhatsappApi();
         $send->phone = $profile->prefix_phone != null ? $profile->fullphone : $profile->phone;
         $send->message = '📌"REMINDER to attend ' . $event->name . '"
@@ -359,7 +359,7 @@ Your presence will be greatly appreciated. Thank you 😊🙏🏻
 Regards,
 *Secretariat Djakarta Mining Club
         ';
-        $send->document = asset($db);
+        // $send->document = asset($db);
         // $send->WhatsappMessageWithDocument();
         $send->WhatsappMessage();
     }
