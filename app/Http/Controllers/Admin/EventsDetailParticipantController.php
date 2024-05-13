@@ -281,7 +281,7 @@ class EventsDetailParticipantController extends Controller
             'users_id' => 'required',
             'events_id' => 'required',
             'method' => 'required',
-            'payment_id' => 'required|exists:payments,id'
+            'payment_id' => 'required|exists:payment,id'
         ]);
     }
 
