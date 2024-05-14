@@ -32,7 +32,7 @@ class EventsController extends Controller
         $data = RepositoriesEvents::listAllEventsOnlySearch($search, $limit, $type, $category);
         foreach ($data as $val => $key) {
             $date_end = date('Y-m-d', strtotime($key->end_date));
-            $key->isUpcoming = (new \DateTime($date_end) > new \DateTime(date('Y-m-d')) ? true : false);
+            $key->isUpcoming = (new \DateTime($date_end) >= new \DateTime(date('Y-m-d')) ? true : false);
             $key->title = (strlen($key->title) > 100 ? substr($key->title, 0,  100) . '...' : $key->title);
             $key->image = (!empty($key->image) ? asset($key->image) : '');
             $key->date_start_events = (!empty($key->start_date) ? date('d M Y', strtotime($key->start_date))  : '');
@@ -59,7 +59,7 @@ class EventsController extends Controller
         }
         if (!empty($findEvent)) {
             $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
-            $eventStatus =  (new \DateTime($findEvent->end_date) >= new \DateTime(date('Y-m-d')) ?  'Upcoming Event' : 'Finished Event');
+            $eventStatus =  (new \DateTime($findEvent->end_date) > new \DateTime(date('Y-m-d')) ?  'Upcoming Event' : 'Finished Event');
             $startDateFormat = (!empty($findEvent->start_date) ? date('d M Y', strtotime($findEvent->start_date)) : '');
             $endDateFormat = (!empty($findEvent->end_date) ? date('d M Y', strtotime($findEvent->end_date)) : '');
 
