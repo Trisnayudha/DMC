@@ -329,7 +329,7 @@ class EventsDetailParticipantController extends Controller
         Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $event) {
             $message->from(config('mail.from.address'));
             $message->to($email);
-            $message->subject($codePayment . ' - Confirmation Reminder for ' . $event->name);
+            $message->subject($codePayment . ' - Confirmation Reminder for ' . $event);
             $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
         });
     }
