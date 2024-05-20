@@ -34,7 +34,7 @@ class EventsHighlightController extends Controller
                 $image->storeAs('public/events-highlight', $imageName);
                 // Kompresi gambar dengan library Intervention
                 $compressedImage = Image::make($image);
-                $compressedImage->resize(800, null, function ($constraint) {
+                $compressedImage->resize(1400, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 });
