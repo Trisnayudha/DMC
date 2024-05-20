@@ -39,7 +39,7 @@ class HomeController extends Controller
 
         foreach ($events as $event) {
             // Cek apakah ada event highlight untuk event saat ini
-            $eventHighlight = EventsHighlight::where('events_id', $event->id)->limit(5)->get();
+            $eventHighlight = EventsHighlight::where('events_id', $event->id)->orderby('id', 'desc')->limit(5)->get();
 
             // Jika tidak ada event highlight, skip event ini
             if ($eventHighlight->isEmpty()) {
