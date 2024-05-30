@@ -53,7 +53,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::get('/apps', function () {
+    return view('apps');
+});
 Route::get('/payment-success', function () {
     return view('success');
 });
