@@ -76,11 +76,11 @@ class Events extends EventsEvents
                 if (!empty($search)) {
                     $q->where('events.name', 'LIKE', '%' . $search . '%');
                 }
-                if ($type == 'past') {
-                    $q->whereDate('events.end_date', '<=', date('Y-m-d'));
-                } elseif ($type == 'upcoming') {
-                    $q->whereDate('events.end_date', '>=', date('Y-m-d'));
-                }
+                // if ($type == 'past') {
+                // $q->whereDate('events.end_date', '<=', date('Y-m-d'));
+                // } elseif ($type == 'upcoming') {
+                $q->whereDate('events.end_date', '>=', date('Y-m-d'));
+                // }
 
                 if (!empty($category)) {
                     $q->where('event_category_list.events_category_id', '=', $category);
