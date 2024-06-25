@@ -480,14 +480,15 @@ class EventsDetailController extends Controller
         $findPayment = Payment::where('code_payment', $request->code_payment_edit)->first();
 
         $findPayment->package = $request->package_edit ?? null;
+        //Task Ubah untuk ticket id seharusnya menjadi dinamis
         if ($request->package_edit == 'member') {
-            $findPayment->tickets_id = 18;
+            $findPayment->tickets_id = 2;
         } else if ($request->package_edit == 'nonmember') {
-            $findPayment->tickets_id = 19;
+            $findPayment->tickets_id = 1;
         } else if ($request->package_edit == 'free') {
             $findPayment->tickets_id = 3;
         } else if ($request->package_edit == 'onsite') {
-            $findPayment->tickets_id = 20;
+            $findPayment->tickets_id = 9;
         } else {
             $findPayment->tickets_id = 6;
         }
