@@ -207,14 +207,14 @@ class News extends NewsModel
 
     public static function listAll()
     {
-        $data = News::select('id', 'title', 'title', 'date_news', 'slug', 'image', 'desc')->take(6)->orderBy('id', 'desc')->get();
+        $data = News::select('id', 'title', 'title', 'date_news', 'slug', 'image', 'desc')->where('status', 'publish')->take(6)->orderBy('id', 'desc')->get();
 
         return $data;
     }
 
     public static function listAllToArray()
     {
-        $data = News::select('id', 'title', 'title', 'date_news', 'slug')->where('highlight', '=', 'Yes')->take(4)->orderBy('id', 'desc')
+        $data = News::select('id', 'title', 'title', 'date_news', 'slug')->where('status', 'publish')->where('highlight', '=', 'Yes')->take(4)->orderBy('id', 'desc')
             ->pluck('news.id')
             ->toArray();
 
