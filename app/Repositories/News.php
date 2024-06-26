@@ -200,6 +200,7 @@ class News extends NewsModel
                     $q->where('news_category_list.news_category_id', '=', $category);
                 }
             })
+            ->where('status', 'publish')
             ->whereNotIn('news.date_news', $except)
             ->orderby($column_filter, $type_filter)
             ->paginate($limit);
