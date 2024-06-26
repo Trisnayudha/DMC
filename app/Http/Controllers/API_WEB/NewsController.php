@@ -55,6 +55,7 @@ class NewsController extends Controller
 
         // Get the latest news excluding the ones already displayed
         $moreNews = News::whereNotIn('id', $excludeIds)
+            ->where('status', 'publish')
             ->orderBy('date_news', 'desc')
             ->limit($limit)
             ->get();
@@ -76,6 +77,7 @@ class NewsController extends Controller
     public function relatedNews($current_news_id, $limit = 5)
     {
         $relatedNews = News::where('id', '<>', $current_news_id)
+            ->where('status', 'publish')
             ->orderBy('date_news', 'desc')
             ->limit($limit)
             ->get();
