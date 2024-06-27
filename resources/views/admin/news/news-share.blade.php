@@ -9,17 +9,14 @@
     <meta property="og:image" content="{{ url($news->image) }}">
     <meta property="og:url" content="https://djakarta-miningclub.com/news/{{ $news->slug }}">
     <meta property="og:type" content="article">
-    <title>Djakarta Mining Club</title>
+    <title>DMC News: {{ $news->title }}</title>
 </head>
 
 <body>
-    {{ $news->title }}
-    {{ $news->desc }}
-    {{ $news->image }}
-    {{ $news->slug }}
+
     <script>
         // Redirect ke halaman yang ditentukan
-        // window.location.href = "https://djakarta-miningclub.com/news/{{ $news->slug }}";
+        window.location.href = "https://djakarta-miningclub.com/news/{{ $news->slug }}";
     </script>
 </body>
 
