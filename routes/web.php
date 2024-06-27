@@ -87,6 +87,8 @@ Route::get('/term', function () {
     return view('term-condition');
 });
 
+Route::get('/linkedin-share/news/{slug}', [NewsController::class, 'share']);
+
 // Route::get('/visit', [FormMemberController::class, 'visit']);
 // Route::post('/visit', [FormMemberController::class, 'visitStore']);
 // Route::get('/register-event', [EventController::class, 'view2']);

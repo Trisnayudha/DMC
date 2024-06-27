@@ -130,4 +130,13 @@ class NewsController extends Controller
 
         return redirect()->route('news')->with('success', 'News deleted successfully');
     }
+
+    public function share($slug)
+    {
+        $news = News::where('slug', $slug)->first();
+        $data = [
+            'news' => $news
+        ];
+        return view('admin.news.news-share', $data);
+    }
 }
