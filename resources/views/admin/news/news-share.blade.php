@@ -30,10 +30,10 @@
     <p>{!! $news->desc !!}</p>
     <p> <a href="https://djakarta-miningclub.com/news/{{ $news->slug }}">https://djakarta-miningclub.com/news/{{ $news->slug }}
         </a></p>
-    {{-- <script>
+    <script>
         // Redirect ke halaman yang ditentukan
         window.location.href = "https://djakarta-miningclub.com/news/{{ $news->slug }}";
-    </script> --}}
+    </script>
 </body>
 
 </html>
