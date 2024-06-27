@@ -29,11 +29,14 @@
 </head>
 
 <body>
-
-    <script>
+    <h1>{{ $news->title }}</h1>
+    <img src="{{ url($news->image) }}" alt="">
+    <p>{!! $news->desc !!}</p>
+    <p>https://djakarta-miningclub.com/news/{{ $news->slug }}</p>
+    {{-- <script>
         // Redirect ke halaman yang ditentukan
         window.location.href = "https://djakarta-miningclub.com/news/{{ $news->slug }}";
-    </script>
+    </script> --}}
 </body>
 
 </html>
