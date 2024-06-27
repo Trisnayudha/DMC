@@ -9,14 +9,17 @@
     <meta property="og:image" content="{{ url($news->image) }}">
     <meta property="og:url" content="https://djakarta-miningclub.com/news/{{ $news->slug }}">
     <meta property="og:type" content="article">
-    <title>Preview Link di LinkedIn</title>
+    <title>Djakarta Mining Club</title>
 </head>
 
 <body>
-
+    {{ $news->title }}
+    {{ $news->desc }}
+    {{ $news->image }}
+    {{ $news->slug }}
     <script>
         // Redirect ke halaman yang ditentukan
-        window.location.href = "https://djakarta-miningclub.com/news/{{ $news->slug }}";
+        // window.location.href = "https://djakarta-miningclub.com/news/{{ $news->slug }}";
     </script>
 </body>
 
