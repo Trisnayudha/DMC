@@ -9,7 +9,7 @@
     <meta name="context" content="https://djakarta-miningclub.com/news/{{ $news->slug }}">
     <meta name="description" content="DMC News: {{ $news->title }}" />
     <meta property="og:title" content="{{ $news->title }}">
-    <meta property="og:image" content="https://membership.djakarta-miningclub{{ $news->image }}">
+    <meta property="og:image" content="https://membership.djakarta-miningclub.com{{ $news->image }}">
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="en_GB" />
     <meta property="og:locale:alternate" content="fr_FR" />
