@@ -87,7 +87,13 @@ Route::get('/term', function () {
     return view('term-condition');
 });
 
-Route::get('/linkedin-share/news/{slug}', [NewsController::class, 'share']);
+Route::get('/share/news/{slug}', function ($slug) {
+    $news = DB::table('news')->where('slug', $slug)->first();
+    $data = [
+        'news' => $news
+    ];
+    return view('admin.news.news-share', $data);
+});
 
 // Route::get('/visit', [FormMemberController::class, 'visit']);
 // Route::post('/visit', [FormMemberController::class, 'visitStore']);
