@@ -25,11 +25,9 @@
 </head>
 
 <body>
-    <h1>{{ $news->title }}</h1>
-    <img src="{{ url($news->image) }}" alt="">
-    <p>{!! $news->desc !!}</p>
-    <p> <a href="https://djakarta-miningclub.com/news/{{ $news->slug }}">https://djakarta-miningclub.com/news/{{ $news->slug }}
-        </a></p>
+    <small>
+        <i>Redirect to https://djakarta-miningclub.com/news/{{ $news->slug }}</i>
+    </small>
     <script>
         // Redirect ke halaman yang ditentukan
         window.location.href = "https://djakarta-miningclub.com/news/{{ $news->slug }}";
