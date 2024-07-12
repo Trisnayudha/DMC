@@ -44,7 +44,7 @@ class EventsDetailController extends Controller
                 $countAll = PaymentService::countRegister(null, $event->id);
                 $countAllApprove = PaymentService::countRegisterApprove(null, $event->id);
                 $countSponsor = PaymentService::countRegister('sponsor', $event->id);
-                $countPaid = PaymentService::countRegister(['nonmember', 'member', 'onsite', 'table'], $event->id);
+                $countPaid = PaymentService::countRegister(['nonmember', 'member', 'onsite', 'table', 'Premium'], $event->id);
                 $countFree = PaymentService::countRegister('free', $event->id);
                 $usersCategory = UsersService::showChartCategory($event->id);
                 $usersJobTitle = UsersService::showChartJobTitle($event->id);
