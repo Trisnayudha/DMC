@@ -62,7 +62,7 @@
                             </div>
                             <div class="form-group{{ $errors->has('description') ? ' has-error' : '' }}">
                                 {!! Form::label('Deskripsi *') !!}
-                                {!! Form::textarea('description', $data->location, [
+                                {!! Form::textarea('description', $data->description, [
                                     'id' => 'my-editor',
                                     'class' => 'form-control my-editor',
                                     'placeholder' => 'Berita',
