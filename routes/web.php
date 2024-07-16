@@ -99,7 +99,7 @@ Route::get('/share/events/{slug}', function ($slug) {
     $data = [
         'event' => $event
     ];
-    return view('admin.news.news-share', $data);
+    return view('admin.events.event-share', $data);
 });
 
 // Route::get('/visit', [FormMemberController::class, 'visit']);
