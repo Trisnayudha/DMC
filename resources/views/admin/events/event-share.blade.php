@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="{{ $event->desc }}">
+    <meta name="description" content="{{ $event->description }}">
     <meta name="keyword" content="{{ $event->title }}">
     <meta name="context" content="https://djakarta-miningclub.com/event/{{ $event->slug }}">
     <meta name="description" content="DMC event: {{ $event->title }}" />
@@ -14,7 +14,7 @@
     <meta property="og:locale" content="en_GB" />
     <meta property="og:locale:alternate" content="fr_FR" />
     <meta property="og:locale:alternate" content="es_ES" />
-    <meta property="og:description" content="{!! $event->desc !!}">
+    <meta property="og:description" content="{!! $event->description !!}">
     <meta property="og:url" content="https://djakarta-miningclub.com/events/{{ $event->slug }}">
     <meta property="og:type" content="article">
     <meta http-equiv='cache-control' content='no-cache'>
