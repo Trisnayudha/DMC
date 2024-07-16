@@ -120,7 +120,7 @@ class EventsController extends Controller
         $response['payload'] = [];
 
         foreach ($dataRundown as $rundown) {
-            $time = Carbon::parse($rundown->date)->format('H:i') . ' WIB';
+            $time = Carbon::parse($rundown->date)->format('h:i A');
 
             $item['id'] = $rundown->id;
             $item['name'] = $rundown->name;
@@ -149,6 +149,7 @@ class EventsController extends Controller
 
         return response()->json($response);
     }
+
 
     public function myEvent(Request $request)
     {
