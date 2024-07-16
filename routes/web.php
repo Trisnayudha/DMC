@@ -94,6 +94,13 @@ Route::get('/share/news/{slug}', function ($slug) {
     ];
     return view('admin.news.news-share', $data);
 });
+Route::get('/share/events/{slug}', function ($slug) {
+    $event = DB::table('events')->where('slug', $slug)->first();
+    $data = [
+        'event' => $event
+    ];
+    return view('admin.news.news-share', $data);
+});
 
 // Route::get('/visit', [FormMemberController::class, 'visit']);
 // Route::post('/visit', [FormMemberController::class, 'visitStore']);
