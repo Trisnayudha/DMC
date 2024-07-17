@@ -183,6 +183,7 @@ Company : ' . $data->company_name . '
                             'end_date' => $findEvent->end_date,
                             'start_time' => $findEvent->start_time,
                             'end_time' => $findEvent->end_time,
+                            'payment_method' => $payment_method
                         ];
                         $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
                         Mail::send('email.success-register-event', $data, function ($message) use ($findContact, $pdf, $findEvent) {
@@ -282,6 +283,7 @@ Company : ' . $data->company_name . '
                             'end_date' => $findEvent->end_date,
                             'start_time' => $findEvent->start_time,
                             'end_time' => $findEvent->end_time,
+                            'payment_method' => $payment_method
                         ];
                         $pdf = Pdf::loadView('email.invoice-new-multiple', $data);
                         Mail::send('email.success-register-event', $data, function ($message) use ($findUser, $pdf, $findEvent) {
@@ -346,6 +348,7 @@ Best Regards Bot DMC
                             'end_date' => $findEvent->end_date,
                             'start_time' => $findEvent->start_time,
                             'end_time' => $findEvent->end_time,
+                            'payment_method' => $payment_method
                         ];
                         $notif = new Notification();
                         $notif->id = $check->member_id;
@@ -502,6 +505,7 @@ Best Regards Bot DMC
                     'end_date' => $findEvent->end_date,
                     'start_time' => $findEvent->start_time,
                     'end_time' => $findEvent->end_time,
+                    'payment_method' => $payment_method
                 ];
 
                 $pdf = Pdf::loadView('email.invoice-new', $data);

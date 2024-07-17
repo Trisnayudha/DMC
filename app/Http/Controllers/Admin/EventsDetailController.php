@@ -564,7 +564,8 @@ class EventsDetailController extends Controller
                 'price' => number_format($table['price_rupiah'], 0, ',', '.'),
                 'total_price' => number_format($countPrice, 0, ',', '.'),
                 'events_name' => $findEvent->name,
-                'link' => null
+                'link' => null,
+                'payment_method' => $findPayment->payment_method
             ];
             ini_set('max_execution_time', 120);
             $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
@@ -585,6 +586,7 @@ class EventsDetailController extends Controller
             'price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
             'total_price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
             'events_name' => $findEvent->name,
+            'payment_method' => $findPayment->payment_method
         ];
         ini_set('max_execution_time', 120); // Set the maximum execution time to 120 seconds
         $pdf = PDF::loadView('email.invoice-new', $payload);

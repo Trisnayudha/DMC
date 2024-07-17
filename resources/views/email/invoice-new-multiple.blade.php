@@ -191,7 +191,7 @@
             </tr>
 
             <tr class="details">
-                <td>Credit Card</td>
+                <td>{{ $payment_method }}</td>
 
                 <td></td>
             </tr>
