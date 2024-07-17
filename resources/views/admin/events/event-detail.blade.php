@@ -371,7 +371,9 @@
                                                                         Ticket</button>
                                                                 </li>
                                                             </form>
-                                                            @if ($post->status_registration == 'Paid Off' && ($post->package != 'free' && $post->package != 'sponsor'))
+                                                            @if (
+                                                                $post->status_registration == 'Paid Off' ||
+                                                                    ($post->status_registration == 'Waiting' && ($post->package != 'free' && $post->package != 'sponsor')))
                                                                 <form action="{{ url('admin/events/invoice') }}"
                                                                     method="post" target="_blank">
                                                                     <li>
