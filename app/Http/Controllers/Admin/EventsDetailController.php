@@ -572,28 +572,64 @@ class EventsDetailController extends Controller
             $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
             // Download the PDF with the specified filename
             return $pdf->download($filename);
+        } else if ($findPayment->groupby_users_id != null) {
+            $findPayments = PaymentService::findPaymmentUsers($findPayment->groupby_users_id);
+            $countPrice = null;
+            foreach ($findPayments as $table) {
+                $item_details[] = [
+                    'name' => $table['name'],
+                    'job_title' => $table['email'],
+                    'price' => number_format($table['price_rupiah'], 0, ',', '.'),
+                    'paidoff' => false
+                ];
+                $countPrice += $table['price_rupiah'];
+            }
+            $payload = [
+                'code_payment' => $findPayment->code_payment,
+                'create_date' => date('d, M Y H:i'),
+                'users_name' => $findPayment->name,
+                'users_email' => $findPayment->email,
+                'phone' => $findPayment->phone,
+                'company_name' => $findPayment->company_name,
+                'company_address' => $findPayment->address,
+                'status' => 'Paid Off',
+                'voucher_price' => 0,
+                'item' => $item_details,
+                'price' => number_format($table['price_rupiah'], 0, ',', '.'),
+                'total_price' => number_format($countPrice, 0, ',', '.'),
+                'events_name' => $findEvent->name,
+                'link' => null,
+                'payment_method' => $findPayment->payment_method
+            ];
+            ini_set('max_execution_time', 120);
+            $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
+            $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
+            // Download the PDF with the specified filename
+            return $pdf->download($filename);
+        } else {
+
+            $payload = [
+                'code_payment' => $findPayment->code_payment,
+                'create_date' => date('d, M Y H:i'),
+                'users_name' => $findPayment->name,
+                'users_email' => $findPayment->email,
+                'phone' => $findPayment->phone,
+                'company_name' => $findPayment->company_name,
+                'company_address' => $findPayment->address,
+                'status' => 'Paid Off',
+                'voucher_price' => 0,
+                'price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
+                'total_price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
+                'events_name' => $findEvent->name,
+                'payment_method' => $findPayment->payment_method
+            ];
+            ini_set('max_execution_time', 120); // Set the maximum execution time to 120 seconds
+            $pdf = PDF::loadView('email.invoice-new', $payload);
+            // Set the desired filename for the downloaded PDF
+            $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
+            // Download the PDF with the specified filename
+            return $pdf->download($filename);
         }
-        $payload = [
-            'code_payment' => $findPayment->code_payment,
-            'create_date' => date('d, M Y H:i'),
-            'users_name' => $findPayment->name,
-            'users_email' => $findPayment->email,
-            'phone' => $findPayment->phone,
-            'company_name' => $findPayment->company_name,
-            'company_address' => $findPayment->address,
-            'status' => 'Paid Off',
-            'voucher_price' => 0,
-            'price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
-            'total_price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
-            'events_name' => $findEvent->name,
-            'payment_method' => $findPayment->payment_method
-        ];
-        ini_set('max_execution_time', 120); // Set the maximum execution time to 120 seconds
-        $pdf = PDF::loadView('email.invoice-new', $payload);
-        // Set the desired filename for the downloaded PDF
-        $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
-        // Download the PDF with the specified filename
-        return $pdf->download($filename);
     }
 
     public function ticket(Request $request)

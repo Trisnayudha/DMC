@@ -75,7 +75,7 @@ class PaymentService extends Payment
 
     public static function findPaymmentUsers($id)
     {
-        return Payment::where('payment.booking_contact_id', $id)
+        return Payment::where('payment.groupby_users_id', $id)
             ->leftjoin('users', 'users.id', 'payment.member_id')
             ->leftjoin('profiles', 'profiles.users_id', 'users.id')
             ->leftjoin('company', 'company.users_id', 'users.id')
