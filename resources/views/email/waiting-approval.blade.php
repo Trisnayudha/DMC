@@ -105,11 +105,11 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://api.djakarta-miningclub.com/image/logo-dmc-dss.png" alt="Image" class="img-logo">
+            <img src="https://api.djakarta-miningclub.com/image/dmc.png" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Thank you for registering for {{ $events_name }} partnering with dss+.</p>
+            <p>Thank you for registering for {{ $events_name }}.</p>
             <p>Your registration is now in process for approval. Please note that your registration is subject to
                 approval.</p>
             {{-- <p>Your registration is now on the waiting list. We will notify you immediately if there are seats
