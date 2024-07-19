@@ -105,7 +105,7 @@
         <main>
             <div class="py-2 text-center">
                 <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
-                    src="{{ asset('image/logo-dmc-dss.png') }}" class="img-fluid" alt="">
+                    src="{{ asset('image/dmc.png') }}" class="img-fluid" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
                 {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
@@ -321,6 +321,10 @@
                         <p>
                             <small> This is an Exclusive FREE Registration - Subject by Approval</small>
                         </p>
+                        <p>
+                            <small>Please note that seats are limited and will be allocated on a first-come,
+                                first-served basis.</small>
+                        </p>
                         <button class="w-80 btn btn-primary btn-lg" type="submit">Claim My Free Registration</button>
                     </form>
                 </div>
@@ -439,12 +443,12 @@
 
         });
     </script>
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             Swal.fire({
                 title: "Registration is closed",
                 // title: "Our Event is Fully booked",
-                text: "Thank you for your interest to the Towards Safe, Productive, and Sustainable Smelting Operations in Indonesia, we would like to inform you that our capacity is already full and we look forward to welcoming you to our next event.",
+                text: "Thank you for your interest to The 63rd Djakarta Mining Club Networking Event, we would like to inform you that our capacity is already full and we look forward to welcoming you to our next event.",
                 // text: "Due to high demand from the registrants, we inform you that you are now on the queue of waiting list. If you wantt to continue the registration, please fill in the form. We will notify you if there are seats available.",
                 icon: "warning",
                 confirmButtonColor: "#3085d6",
@@ -454,7 +458,7 @@
                 window.close(); // Close the current window
             });
         });
-    </script>
+    </script> --}}
 
 
 </body>
