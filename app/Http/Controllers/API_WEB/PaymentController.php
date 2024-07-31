@@ -158,7 +158,7 @@ Phone Number: ' . $phones[$index] . '
 Company:' . $companies[$index] . '
 Job Title:' . $job_titles[$index] . '
     ';
-            $detailEmail[] = [
+            $dataEmail[] = [
                 'name' => $names[$index],
                 'email' => $emails[$index],
                 'phone' => $phones[$index],
@@ -269,7 +269,7 @@ Job Title:' . $job_titles[$index] . '
                 ];
 
                 $send = new EmailSender();
-                $send->to = $key['emails'];
+                $send->to = $key['email'];
                 $send->from = env('EMAIL_SENDER');
                 $send->data = $dataEmail;
                 $send->subject = 'Thank you for registering ' . $findEvent->name;
