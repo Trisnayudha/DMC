@@ -159,6 +159,14 @@ Company:' . $companies[$index] . '
 Job Title:' . $job_titles[$index] . '
 Code Payment: ' . $codePayment . '
     ';
+            $detailEmail[] = [
+                'name' => $names[$index],
+                'email' => $emails[$index],
+                'phone' => $phones[$index],
+                'company' => $companies[$index],
+                'job_title' => $job_titles[$index],
+                'code_payment' => $payment->code_payment
+            ];
         }
         if ($type == 'paid') {
             // END LOOPING EACH USER IN THE GROUP
@@ -255,9 +263,9 @@ Code Payment: ' . $codePayment . '
                 'code_payment' => $codePayment[0],
                 'status' => 'WAITING'
             ];
-            foreach ($detailWa as $key) {
+            foreach ($detailEmail as $key) {
                 $dataEmail = [
-                    'users_name' => $key['names'],
+                    'users_name' => $key['name'],
                     'events_name' => $findEvent->name,
                 ];
 
