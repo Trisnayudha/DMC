@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API_WEB;
 
+use App\Helpers\EmailSender;
+use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
@@ -96,7 +98,6 @@ class PaymentController extends Controller
         $isProd = env('XENDIT_ISPROD');
         $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
         $findEvent = Events::where('id', $events_id)->first();
-
         foreach ($emails as $index => $email) {
             // Check and create User
             $user = User::firstOrNew(['email' => $email]);
@@ -125,6 +126,7 @@ class PaymentController extends Controller
                 $profile->save();
             }
 
+
             $payment = Payment::firstOrNew(['member_id' => $user->id, 'events_id' => $events_id]);
             $payment->member_id = $user->id;
             if ($price[$index] == 1000000) {
@@ -149,6 +151,14 @@ class PaymentController extends Controller
 
             $payment->save();
             $paymentId[] = $payment->id;
+            $detailWa[] = '
+Name: ' . $names[$index] . '
+Email: ' . $emails[$index] . '
+Phone Number: ' . $phones[$index] . '
+Company:' . $companies[$index] . '
+Job Title:' . $job_titles[$index] . '
+Code Payment: ' . $codePayment . '
+    ';
         }
         if ($type == 'paid') {
             // END LOOPING EACH USER IN THE GROUP
@@ -245,6 +255,35 @@ class PaymentController extends Controller
                 'code_payment' => $codePayment[0],
                 'status' => 'WAITING'
             ];
+            foreach ($detailWa as $key) {
+                $dataEmail = [
+                    'users_name' => $key['names'],
+                    'events_name' => $findEvent->name,
+                ];
+
+                $send = new EmailSender();
+                $send->to = $key['emails'];
+                $send->from = env('EMAIL_SENDER');
+                $send->data = $dataEmail;
+                $send->subject = 'Thank you for registering ' . $findEvent->name;
+                // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
+                $send->template = 'email.waiting-approval';
+                $send->sendEmail();
+            }
+            //Code whatsapp send notif
+            $send = new WhatsappApi();
+            $send->phone = '081332178421';
+            $send->message = '
+Registration Notification,
+
+Hai ada pendaftaran GRATIS
+Detail Informasinya:
+' . implode(" ", $detailWa) . '
+
+Thank you
+Best Regards Bot DMC Website
+';
+            $send->WhatsappMessage();
             $response['status'] = 200;
             $response['message'] = 'success';
             $response['payload'] = $data;
