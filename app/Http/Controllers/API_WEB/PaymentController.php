@@ -262,7 +262,7 @@ Job Title:' . $job_titles[$index] . '
                 'code_payment' => $codePayment[0],
                 'status' => 'WAITING'
             ];
-            foreach ($detailEmail as $key) {
+            foreach ($dataEmail as $key) {
                 $dataEmail = [
                     'users_name' => $key['name'],
                     'events_name' => $findEvent->name,
