@@ -157,7 +157,6 @@ Email: ' . $emails[$index] . '
 Phone Number: ' . $phones[$index] . '
 Company:' . $companies[$index] . '
 Job Title:' . $job_titles[$index] . '
-Code Payment: ' . $codePayment . '
     ';
             $detailEmail[] = [
                 'name' => $names[$index],
