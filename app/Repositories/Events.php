@@ -52,7 +52,7 @@ class Events extends EventsEvents
     public static function listAllEventsOnlySearchPartnership($search, $limit, $type, $category)
     {
         $column_filter = "events.start_date";
-        $type_filter = "desc";
+        $type_filter = "asc";
 
         return EventsEvents::select(
             'events.id',
