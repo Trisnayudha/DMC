@@ -175,7 +175,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://www.djakarta-miningclub.com/events/the-63rd-djakarta-mining-club-networking-event
+                (https://www.djakarta-miningclub.com/events/analyzing-credit-risks-climate-trends-and-market-insights-in-metals
                 )
             </p>
 
