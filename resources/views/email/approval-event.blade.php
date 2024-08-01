@@ -196,7 +196,9 @@
                     your offer your space to the next registrant on the waitlist.</li>
             </ul>
             </p>
-
+            <p><b>IMPORTANT:</b> Please confirm if there are any changes in your plans, so the seat can be offered to
+                others on
+                the waiting list.</p>
             <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
                 1937 300.</p>
             <p>
