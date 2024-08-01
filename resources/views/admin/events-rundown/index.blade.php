@@ -128,8 +128,7 @@
                         </div>
                         <div class="form-group">
                             <label>Date Times</label>
-                            <input type="text" class="form-control datetimepicker" value="" name="date"
-                                id="date">
+                            <input type="datetime-local" class="form-control" value="" name="date" id="date">
                         </div>
                         <div class="form-group">
                             <label>Speakers</label>
@@ -201,6 +200,16 @@
         });
     </script>
     <script type="text/javascript">
+        // Menggunakan moment.js untuk mengatur waktu sesuai dengan time zone
+        $(function() {
+            $('.datetimepicker').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm:ss',
+                sideBySide: true,
+                use24hours: true // ini akan memastikan waktu ditampilkan dalam format 24-jam
+            });
+        });
+
+
         $(document).ready(function($) {
             $.ajaxSetup({
                 headers: {
@@ -227,7 +236,7 @@
                     success: function(res) {
                         $('#ajaxCategoryModel').html("Edit Category");
                         $('#category-model').modal('show');
-                        $('#id').val(res.id);
+                        $('#id').val(res.id_rundown);
                         $('#name').val(res.name);
                         $('#date').val(res.date);
 
