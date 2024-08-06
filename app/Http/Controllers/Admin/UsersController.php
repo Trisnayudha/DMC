@@ -35,17 +35,19 @@ class UsersController extends Controller
         $countVerifyEmail = User::whereNotNull('users.uname')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
             ->whereNotNull('verify_email')
+            ->whereNull('verify_phone')
             ->count();
+
 
         $countVerifyPhone = User::whereNotNull('users.uname')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
             ->whereNotNull('verify_phone')
+            ->whereNull('verify_email')
             ->count();
 
-        $countUnRegistered = User::whereNotNull('users.uname')
-            ->where('created_at', '>=', Carbon::now()->startOfYear())
-            ->whereNull('verify_phone')
-            ->whereNull('verify_email')
+
+        $countUnRegistered = MemberModel::where('created_at', '>=', Carbon::now()->startOfYear())
+            ->whereNull('register_as')
             ->count();
 
         $data = [
