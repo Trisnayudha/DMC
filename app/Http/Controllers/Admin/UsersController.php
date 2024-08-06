@@ -21,7 +21,8 @@ class UsersController extends Controller
     public function index()
     {
         $list = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
-            ->leftjoin('company', 'company.id', 'profiles.company_id')->orderBy('users.id', 'desc')->select('*', 'users.id as id')->get();
+            ->leftjoin('company', 'company.id', 'profiles.company_id')
+            ->where('users.uname', '!=', null)->orderBy('users.id', 'desc')->select('*', 'users.id as id')->get();
         $data = [
             'list' => $list
         ];
