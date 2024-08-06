@@ -28,7 +28,7 @@ class UsersController extends Controller
             ->select('*', 'users.id as id')
             ->get();
 
-        $countMember = User::whereNotNull('users.uname')
+        $countMember = User::whereNotNull('users.isStatus')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
             ->count();
 
@@ -44,7 +44,6 @@ class UsersController extends Controller
             ->whereNotNull('verify_phone')
             ->whereNull('verify_email')
             ->count();
-
 
         $countUnRegistered = MemberModel::where('created_at', '>=', Carbon::now()->startOfYear())
             ->whereNull('register_as')
