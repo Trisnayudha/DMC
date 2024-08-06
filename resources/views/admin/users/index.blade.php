@@ -141,7 +141,7 @@
                                             @foreach ($list as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ date('d,F H:i', strtotime($post->created_at)) }}</td>
+                                                    <td>{{ date('d,F Y H:i', strtotime($post->created_at)) }}</td>
                                                     <td>{{ $post->name }}</td>
                                                     <td>{{ $post->job_title }}</td>
                                                     <td>{{ $post->company_name }}</td>
