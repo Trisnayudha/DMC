@@ -144,7 +144,7 @@ class UsersController extends Controller
 
             return back()->with('success', 'Successfully imported ' . $startcount . ' data');
         } catch (Exception $e) {
-            $error_code = $e->errorInfo[1];
+            $error_code = $e;
             return back()->withErrors('There was a problem uploading the data! Error Code: ' . $error_code);
         }
     }

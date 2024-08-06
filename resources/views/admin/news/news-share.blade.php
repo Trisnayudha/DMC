@@ -26,11 +26,11 @@
 
 <body>
     <small>
-        <i>Redirect to https://djakarta-miningclub.com/news/{{ $news->slug }}</i>
+        <i>Redirect to https://www.djakarta-miningclub.com/news/{{ $news->slug }}</i>
     </small>
     <script>
         // Redirect ke halaman yang ditentukan
-        window.location.href = "https://djakarta-miningclub.com/news/{{ $news->slug }}";
+        window.location.href = "https://www.djakarta-miningclub.com/news/{{ $news->slug }}";
     </script>
 </body>
 
