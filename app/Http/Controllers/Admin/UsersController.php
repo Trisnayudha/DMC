@@ -19,14 +19,21 @@ class UsersController extends Controller
     {
         $this->middleware('auth');
     }
-    public function index()
+    public function index(Request $request)
     {
-        $list = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
-            ->leftjoin('company', 'company.id', 'profiles.company_id')
-            ->whereNotNull('users.isStatus')
-            ->orderBy('users.id', 'desc')
-            ->select('*', 'users.id as id')
-            ->get();
+        if ($request->filter == 'unregist') {
+            $list = MemberModel::whereNull('register_as')
+                ->where('created_at', '>=', Carbon::now()->startOfYear())
+                ->orderby('id', 'desc')
+                ->get();
+        } else {
+            $list = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
+                ->leftjoin('company', 'company.id', 'profiles.company_id')
+                ->whereNotNull('users.isStatus')
+                ->orderBy('users.id', 'desc')
+                ->select('*', 'users.id as id')
+                ->get();
+        }
 
         $countMember = User::whereNotNull('users.isStatus')
             ->where('created_at', '>=', Carbon::now()->startOfYear())

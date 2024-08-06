@@ -66,7 +66,9 @@
                                     <h4>Unregistration Member</h4>
                                 </div>
                                 <div class="card-body">
-                                    {{ $countUnRegistered }}
+                                    {{ $countUnRegistered }} <span><a href="{{ url('admin/users?filter=unregist') }}"
+                                            class="badge badge-info">Show
+                                            Data</a></span>
                                 </div>
                             </div>
                         </div>
