@@ -136,6 +136,7 @@ class EventsController extends Controller
                 $speakerItem['name'] = $speaker->name;
                 $speakerItem['job_title'] = $speaker->job_title;
                 $speakerItem['image'] = $speaker->image;
+                $speakerItem['company'] = $speaker->company;
                 $item['speakers'][] = $speakerItem;
             }
 
