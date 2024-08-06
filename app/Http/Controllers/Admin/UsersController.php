@@ -9,6 +9,7 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -23,8 +24,28 @@ class UsersController extends Controller
         $list = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
             ->leftjoin('company', 'company.id', 'profiles.company_id')
             ->where('users.uname', '!=', null)->orderBy('users.id', 'desc')->select('*', 'users.id as id')->get();
+        $countMember = User::where('users.uname', '!=', null)
+            ->where('created_at', '>=', Carbon::now()->startOfYear())
+            ->count();
+        $countVerifyEmail = User::where('users.uname', '!=', null)
+            ->where('created_at', '>=', Carbon::now()->startOfYear())
+            ->where('verify_email', '!=', null)
+            ->count();
+        $countVerifyPhone = User::where('users.uname', '!=', null)
+            ->where('created_at', '>=', Carbon::now()->startOfYear())
+            ->where('verify_phone', '!=', null)
+            ->count();
+        $countUnRegistered = User::where('users.password', '!=', null)
+            ->where('created_at', '>=', Carbon::now()->startOfYear())
+            ->where('verify_phone', '==', null)
+            ->where('verify_email', '==', null)
+            ->count();
         $data = [
-            'list' => $list
+            'list' => $list,
+            'countMember' => $countMember,
+            'countVerifyEmail' => $countVerifyEmail,
+            'countVerifyPhone' => $countVerifyPhone,
+            'countUnRegistered' => $countUnRegistered,
         ];
         return view('admin.users.index', $data);
     }
