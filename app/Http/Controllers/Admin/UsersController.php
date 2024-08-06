@@ -45,6 +45,12 @@ class UsersController extends Controller
             ->whereNull('verify_email')
             ->count();
 
+        $countDoubleVerify = User::whereNotNull('users.isStatus')
+            ->where('created_at', '>=', Carbon::now()->startOfYear())
+            ->whereNotNull('verify_phone')
+            ->whereNotNull('verify_email')
+            ->count();
+
         $countUnRegistered = MemberModel::where('created_at', '>=', Carbon::now()->startOfYear())
             ->whereNull('register_as')
             ->count();
@@ -55,6 +61,7 @@ class UsersController extends Controller
             'countVerifyEmail' => $countVerifyEmail,
             'countVerifyPhone' => $countVerifyPhone,
             'countUnRegistered' => $countUnRegistered,
+            'countDoubleVerify' => $countDoubleVerify
         ];
 
         return view('admin.users.index', $data);

@@ -38,36 +38,24 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-12">
                         <div class="card card-statistic-1">
                             <div class="card-icon bg-info">
                                 <i class="far fa-user"></i>
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>Member Verify Email</h4>
+                                    <h4>Verify</h4>
                                 </div>
-                                <div class="card-body">
-                                    {{ $countVerifyEmail }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-                        <div class="card card-statistic-1">
-                            <div class="card-icon bg-success">
-                                <i class="far fa-user"></i>
-                            </div>
-                            <div class="card-wrap">
-                                <div class="card-header">
-                                    <h4>Member Verify Phone</h4>
-                                </div>
-                                <div class="card-body">
-                                    {{ $countVerifyPhone }}
+                                <div class="card-body" style="font-size: 12px">
+                                    <span class="badge badge-primary">Email: {{ $countVerifyEmail }}</span>
+                                    <span class="badge badge-info">Phone: {{ $countVerifyPhone }}</span>
+                                    <span class="badge badge-success">Email & Phone : {{ $countDoubleVerify }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                         <div class="card card-statistic-1">
                             <div class="card-icon bg-danger">
@@ -75,7 +63,7 @@
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>UnRegistered Member</h4>
+                                    <h4>Unregistration Member</h4>
                                 </div>
                                 <div class="card-body">
                                     {{ $countUnRegistered }}
