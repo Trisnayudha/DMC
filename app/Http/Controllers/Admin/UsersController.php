@@ -23,7 +23,7 @@ class UsersController extends Controller
     {
         $list = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
             ->leftjoin('company', 'company.id', 'profiles.company_id')
-            ->whereNotNull('users.uname')
+            ->whereNotNull('users.isStatus')
             ->orderBy('users.id', 'desc')
             ->select('*', 'users.id as id')
             ->get();
@@ -32,14 +32,14 @@ class UsersController extends Controller
             ->where('created_at', '>=', Carbon::now()->startOfYear())
             ->count();
 
-        $countVerifyEmail = User::whereNotNull('users.uname')
+        $countVerifyEmail = User::whereNotNull('users.isStatus')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
             ->whereNotNull('verify_email')
             ->whereNull('verify_phone')
             ->count();
 
 
-        $countVerifyPhone = User::whereNotNull('users.uname')
+        $countVerifyPhone = User::whereNotNull('users.isStatus')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
             ->whereNotNull('verify_phone')
             ->whereNull('verify_email')
