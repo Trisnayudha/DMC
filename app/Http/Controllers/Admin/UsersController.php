@@ -23,23 +23,31 @@ class UsersController extends Controller
     {
         $list = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
             ->leftjoin('company', 'company.id', 'profiles.company_id')
-            ->where('users.uname', '!=', null)->orderBy('users.id', 'desc')->select('*', 'users.id as id')->get();
-        $countMember = User::where('users.uname', '!=', null)
+            ->whereNotNull('users.uname')
+            ->orderBy('users.id', 'desc')
+            ->select('*', 'users.id as id')
+            ->get();
+
+        $countMember = User::whereNotNull('users.uname')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
             ->count();
-        $countVerifyEmail = User::where('users.uname', '!=', null)
+
+        $countVerifyEmail = User::whereNotNull('users.uname')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
-            ->where('verify_email', '!=', null)
+            ->whereNotNull('verify_email')
             ->count();
-        $countVerifyPhone = User::where('users.uname', '!=', null)
+
+        $countVerifyPhone = User::whereNotNull('users.uname')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
-            ->where('verify_phone', '!=', null)
+            ->whereNotNull('verify_phone')
             ->count();
-        $countUnRegistered = User::where('users.password', '!=', null)
+
+        $countUnRegistered = User::whereNotNull('users.uname')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
-            ->where('verify_phone', '==', null)
-            ->where('verify_email', '==', null)
+            ->whereNull('verify_phone')
+            ->whereNull('verify_email')
             ->count();
+
         $data = [
             'list' => $list,
             'countMember' => $countMember,
@@ -47,6 +55,7 @@ class UsersController extends Controller
             'countVerifyPhone' => $countVerifyPhone,
             'countUnRegistered' => $countUnRegistered,
         ];
+
         return view('admin.users.index', $data);
     }
 
