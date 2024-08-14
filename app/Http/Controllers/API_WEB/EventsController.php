@@ -59,7 +59,7 @@ class EventsController extends Controller
         }
         if (!empty($findEvent)) {
             $findEvent->image = (!empty($findEvent->image) ? asset($findEvent->image) : '');
-            $eventStatus =  (new \DateTime($findEvent->end_date) > new \DateTime(date('Y-m-d')) ?  'Upcoming Event' : 'Finished Event');
+            $eventStatus =  (new \DateTime($findEvent->end_date) > new \DateTime(date('Y-m-d')) ?  'Upcoming Event' : 'Event Ended');
             $startDateFormat = (!empty($findEvent->start_date) ? date('d M Y', strtotime($findEvent->start_date)) : '');
             $endDateFormat = (!empty($findEvent->end_date) ? date('d M Y', strtotime($findEvent->end_date)) : '');
 
