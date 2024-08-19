@@ -197,7 +197,7 @@
             </ul>
             </p>
             <p><b>IMPORTANT:</b> If you are unable to attend, please contact our team for substitution or if no
-                replacament, we can your offer your space to the next registrant on the waitlist.</p>
+                replacement, we can offer your space to the next registrant on the waitlist.</p>
             <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
                 1937 300.</p>
             <p>
