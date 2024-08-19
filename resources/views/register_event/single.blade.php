@@ -446,10 +446,10 @@
     <script>
         $(document).ready(function() {
             Swal.fire({
-                title: "Registration is closed",
-                // title: "Our Event is Fully booked",
-                text: "Thank you for your interest to The 63rd Djakarta Mining Club Networking Event, we would like to inform you that our capacity is already full and we look forward to welcoming you to our next event.",
-                // text: "Due to high demand from the registrants, we inform you that you are now on the queue of waiting list. If you wantt to continue the registration, please fill in the form. We will notify you if there are seats available.",
+                // title: "Registration is closed",
+                title: "Our Event is Fully booked",
+                // text: "Thank you for your interest to The 63rd Djakarta Mining Club Networking Event, we would like to inform you that our capacity is already full and we look forward to welcoming you to our next event.",
+                text: "Due to high demand from the registrants, we inform you that you are now on the queue of waiting list. If you wantt to continue the registration, please fill in the form. We will notify you if there are seats available.",
                 icon: "warning",
                 confirmButtonColor: "#3085d6",
                 confirmButtonText: "Continue"
