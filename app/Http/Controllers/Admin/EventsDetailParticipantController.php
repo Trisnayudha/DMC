@@ -325,13 +325,18 @@ class EventsDetailParticipantController extends Controller
 
     private function sendConfirmationEmail($data, $email, $codePayment, $event)
     {
-        $pdf = Pdf::loadView('email.ticket', $data);
-        Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $event) {
-            $message->from(config('mail.from.address'));
-            $message->to($email);
-            $message->subject($codePayment . ' - Confirmation Reminder for ' . $event);
-            $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
-        });
+        try {
+            $pdf = Pdf::loadView('email.ticket', $data);
+            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $event) {
+                $message->from('register@djakarta-miningclub.com');
+                $message->to($email);
+                $message->subject($codePayment . ' - Confirmation Reminder for ' . $event);
+                $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
+            });
+        } catch (\Exception $e) {
+            // Jika terjadi error
+            dd('Email gagal dikirim: ' . $e->getMessage());
+        }
     }
 
     private function sendConfirmationWhatsapp($data, $profile, $event)
