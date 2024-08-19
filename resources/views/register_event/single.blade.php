@@ -455,7 +455,7 @@
                 confirmButtonText: "Continue"
             }).then(() => {
                 // Code to execute when the user clicks "Continue"
-                window.close(); // Close the current window
+                // window.close(); // Close the current window
             });
         });
     </script>
