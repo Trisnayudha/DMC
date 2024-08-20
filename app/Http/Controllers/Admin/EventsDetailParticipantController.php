@@ -353,7 +353,7 @@ class EventsDetailParticipantController extends Controller
 
 Hi ' . $data['users_name'] . ',
 
-This is a confirmation that you are registered to attend our event on Tuesday - 23 July 2024 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB)
+This is a confirmation that you are registered to attend our event on Tuesday, 20 August 2024 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB)
 
 If you are confirmed to attend this event, please REPLY YES to this message.
 
