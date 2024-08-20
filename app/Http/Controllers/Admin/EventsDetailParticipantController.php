@@ -342,7 +342,7 @@ class EventsDetailParticipantController extends Controller
     private function sendConfirmationWhatsapp($data, $profile, $event)
     {
         $pdf = Pdf::loadView('email.ticket', $data);
-        $filename = 'ticket_' . $data['users_name'] . '_' . time() . '.pdf';
+        $filename = 'ticket_' . $data['code_payment'] . '_' . time() . '.pdf';
         // Store the PDF in the desired directory within the storage folder
         $pdfPath = 'public/ticket/' . $filename;
         $db = '/storage/ticket/' . $filename;
