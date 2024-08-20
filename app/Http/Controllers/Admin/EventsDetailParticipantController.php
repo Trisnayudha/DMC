@@ -341,12 +341,12 @@ class EventsDetailParticipantController extends Controller
 
     private function sendConfirmationWhatsapp($data, $profile, $event)
     {
-        // $pdf = Pdf::loadView('email.ticket', $data);
-        // $filename = 'ticket_' . $data['users_name'] . '_' . time() . '.pdf';
-        // // Store the PDF in the desired directory within the storage folder
-        // $pdfPath = 'public/ticket/' . $filename;
-        // $db = '/storage/ticket/' . $filename;
-        // Storage::put($pdfPath, $pdf->output());
+        $pdf = Pdf::loadView('email.ticket', $data);
+        $filename = 'ticket_' . $data['users_name'] . '_' . time() . '.pdf';
+        // Store the PDF in the desired directory within the storage folder
+        $pdfPath = 'public/ticket/' . $filename;
+        $db = '/storage/ticket/' . $filename;
+        Storage::put($pdfPath, $pdf->output());
         $send = new WhatsappApi();
         $send->phone = $profile->prefix_phone != null ? $profile->fullphone : $profile->phone;
         $send->message = '📌"REMINDER to attend ' . $event->name . '"
@@ -357,9 +357,11 @@ This is a confirmation that you are registered to attend our event on Tuesday - 
 
 If you are confirmed to attend this event, please REPLY YES to this message.
 
-We`re looking forward to seeing you there, share insightful sessions and network!
+Your E-Ticket here: ' . url($db) . '
 
-Your presence will be greatly appreciated. Thank you 😊🙏🏻
+For the event rundown and agenda, please visit our website at www.djakarta-miningclub.com.
+
+We look forward to seeing you there. Thank you 😊🙏🏻
 
 Regards,
 *Secretariat Djakarta Mining Club
