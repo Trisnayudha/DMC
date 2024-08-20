@@ -348,24 +348,29 @@ class EventsDetailParticipantController extends Controller
         $db = '/storage/ticket/' . $filename;
         Storage::put($pdfPath, $pdf->output());
         $send = new WhatsappApi();
-        $send->phone = $profile->prefix_phone != null ? $profile->fullphone : $profile->phone;
-        $send->message = '📌"REMINDER to attend ' . $event->name . '"
+        $send->phone = $profile->fullphone;
+        //         $send->message = '📌"REMINDER to attend ' . $event->name . '"
 
-Hi ' . $data['users_name'] . ',
+        // Hi ' . $data['users_name'] . ',
 
-This is a confirmation that you are registered to attend our event on Tuesday, 20 August 2024 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB)
+        // This is a confirmation that you are registered to attend our event on Tuesday, 20 August 2024 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB)
 
-If you are confirmed to attend this event, please REPLY YES to this message.
+        // If you are confirmed to attend this event, please REPLY YES to this message.
 
-Your E-Ticket here: ' . url($db) . '
+        // Your E-Ticket here: ' . url($db) . '
 
-For the event rundown and agenda, please visit our website at www.djakarta-miningclub.com.
+        // For the event rundown and agenda, please visit our website at www.djakarta-miningclub.com.
 
-We look forward to seeing you there. Thank you 😊🙏🏻
+        // We look forward to seeing you there. Thank you 😊🙏🏻
 
-Regards,
-*Secretariat Djakarta Mining Club
-        ';
+        // Regards,
+        // *Secretariat Djakarta Mining Club
+        //         ';
+        $send->message = 'We haven’t  seen you yet!
+Just a quick reminder that our event ' . $event->name . ' at The Dharmawangsa Hotel now has already started, we`re curious to know what`s keeping you from joining us.
+There`s still so much happening here that you won`t want to miss out on—insightful sessions, panel discussion, great networking opportunities, and more.
+If there`s anything holding you back, feel free to reach out. We’d love to have you here!
+';
         // $send->document = asset($db);
         // $send->WhatsappMessageWithDocument();
         $send->WhatsappMessage();
