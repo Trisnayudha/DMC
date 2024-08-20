@@ -368,7 +368,9 @@ class EventsDetailParticipantController extends Controller
         //         ';
         $send->message = 'We haven’t  seen you yet!
 Just a quick reminder that our event ' . $event->name . ' at The Dharmawangsa Hotel now has already started, we`re curious to know what`s keeping you from joining us.
+
 There`s still so much happening here that you won`t want to miss out on—insightful sessions, panel discussion, great networking opportunities, and more.
+
 If there`s anything holding you back, feel free to reach out. We’d love to have you here!
 ';
         // $send->document = asset($db);
