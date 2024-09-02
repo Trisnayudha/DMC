@@ -19,7 +19,7 @@ class HomeController extends Controller
 
     public function getCarousel()
     {
-        $signature = 'image/jexpo.png';
+        $signature = 'image/libur2.png';
         $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
             ->orderBy('id', 'desc')
             ->get();
