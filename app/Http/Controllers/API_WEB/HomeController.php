@@ -32,7 +32,7 @@ class HomeController extends Controller
                 'heading1' => null,
                 'heading2' => null,
                 'date' => null,
-                'listImage' => ['image/libur.png'], // Include signature as listImage
+                'listImage' => ['image/libur2.png'], // Include signature as listImage
                 'slug' => null
             ];
         }
