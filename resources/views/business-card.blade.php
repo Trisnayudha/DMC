@@ -80,15 +80,19 @@
         const captureButton = document.getElementById('capture');
         const formDiv = document.getElementById('form');
 
-        // Akses kamera perangkat
+        // Akses kamera perangkat dengan kamera belakang (facingMode: environment)
         navigator.mediaDevices.getUserMedia({
-                video: true
+                video: {
+                    facingMode: {
+                        exact: "environment" // Menentukan kamera belakang
+                    }
+                }
             })
             .then(function(stream) {
                 video.srcObject = stream;
             })
             .catch(function(error) {
-                console.error("Gagal mengakses kamera:", error);
+                console.error("Gagal mengakses kamera belakang:", error);
             });
 
         captureButton.addEventListener('click', function() {
@@ -131,22 +135,18 @@
 
         // Fungsi untuk parsing data hasil OCR (sederhana)
         function extractCompany(text) {
-            // Parsing Company dari text
             return "Contoh Company"; // Lakukan parsing lebih baik di sini
         }
 
         function extractName(text) {
-            // Parsing Name dari text
             return "Nama Contoh"; // Lakukan parsing lebih baik di sini
         }
 
         function extractJobTitle(text) {
-            // Parsing Job Title dari text
             return "Job Title Contoh"; // Lakukan parsing lebih baik di sini
         }
 
         function extractEmail(text) {
-            // Parsing Email dari text
             const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
             const match = text.match(emailRegex);
             return match ? match[0] : 'Tidak ditemukan';
