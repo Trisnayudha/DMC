@@ -53,6 +53,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/business-card', function () {
+    return view('business-card');
+});
 Route::get('/apps', function () {
     return view('apps');
 });
