@@ -113,24 +113,36 @@
                     }
                 }
             ).then(function(result) {
-                const ocrText = result.data.text;
-                document.getElementById('result').textContent = ocrText;
+                const ocrText = result.data.text.trim();
 
-                // Ekstrak informasi dari hasil OCR (ini bisa disesuaikan tergantung format kartu nama)
-                const company = extractCompany(ocrText);
-                const name = extractName(ocrText);
-                const jobTitle = extractJobTitle(ocrText);
-                const email = extractEmail(ocrText);
+                if (!ocrText) {
+                    document.getElementById('result').textContent = "Tidak ada data yang terdeteksi.";
+                    // Kosongkan form jika OCR tidak menemukan data
+                    document.getElementById('companyInput').value = '';
+                    document.getElementById('nameInput').value = '';
+                    document.getElementById('jobTitleInput').value = '';
+                    document.getElementById('emailInput').value = '';
+                    formDiv.style.display = 'none';
+                } else {
+                    document.getElementById('result').textContent = ocrText;
 
-                // Masukkan hasil ke input form
-                document.getElementById('companyInput').value = company;
-                document.getElementById('nameInput').value = name;
-                document.getElementById('jobTitleInput').value = jobTitle;
-                document.getElementById('emailInput').value = email;
+                    // Ekstrak informasi dari hasil OCR
+                    const company = extractCompany(ocrText);
+                    const name = extractName(ocrText);
+                    const jobTitle = extractJobTitle(ocrText);
+                    const email = extractEmail(ocrText);
 
-                // Tampilkan form untuk mengedit jika diperlukan
-                formDiv.style.display = 'block';
+                    // Masukkan hasil ke input form
+                    document.getElementById('companyInput').value = company;
+                    document.getElementById('nameInput').value = name;
+                    document.getElementById('jobTitleInput').value = jobTitle;
+                    document.getElementById('emailInput').value = email;
+
+                    // Tampilkan form untuk mengedit jika diperlukan
+                    formDiv.style.display = 'block';
+                }
             });
+
         });
 
         // Fungsi untuk parsing data hasil OCR (sederhana)
