@@ -69,7 +69,7 @@
         <label>Email:</label>
         <input type="text" id="emailInput" placeholder="Email">
 
-        <button id="submit">Input ke Spreadsheet</button>
+        <button id="submit">Input ke Laravel</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
@@ -152,33 +152,35 @@
             return match ? match[0] : 'Tidak ditemukan';
         }
 
-        // Kirim data ke Google Sheets via Apps Script ketika user klik submit
+        // Kirim data ke Laravel ketika user klik submit
         document.getElementById('submit').addEventListener('click', function() {
             const company = document.getElementById('companyInput').value;
             const name = document.getElementById('nameInput').value;
             const jobTitle = document.getElementById('jobTitleInput').value;
             const email = document.getElementById('emailInput').value;
 
-            sendToGoogleSheets(company, name, jobTitle, email);
+            sendToLaravel(company, name, jobTitle, email);
         });
 
-        function sendToGoogleSheets(company, name, jobTitle, email) {
-            const scriptURL = 'URL_APPS_SCRIPT_ANDA'; // Masukkan URL Apps Script Anda di sini
-            fetch(scriptURL, {
+        function sendToLaravel(company, name, jobTitle, email) {
+            const url = '/business-card/store'; // Route Laravel untuk menyimpan business card
+            fetch(url, {
                     method: 'POST',
                     body: JSON.stringify({
-                        company,
-                        name,
-                        jobTitle,
-                        email
+                        company: company,
+                        name: name,
+                        job_title: jobTitle,
+                        email: email,
+                        mobile: '' // Jika ada field mobile, bisa ditambahkan di sini
                     }),
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}' // Tambahkan CSRF token untuk keamanan
                     }
                 })
-                .then(response => response.text())
+                .then(response => response.json())
                 .then(data => {
-                    alert('Data berhasil dikirim ke Google Sheets!');
+                    alert('Data berhasil disimpan ke database!');
                     formDiv.style.display = 'none'; // Sembunyikan form setelah berhasil dikirim
                 })
                 .catch(error => {

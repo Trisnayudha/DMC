@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\Notification;
 use App\Helpers\WhatsappApi;
 use App\Models\BookingContact\BookingContact;
+use App\Models\BusinessCard\BusinessCard;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
@@ -21,6 +22,34 @@ use Illuminate\Support\Facades\Mail;
 
 class TestController extends Controller
 {
+
+    public function storeBusinessCard(Request $request)
+    {
+        // Validasi input, hanya email yang required
+        $validatedData = $request->validate([
+            'company' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'job_title' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:business_card,email',
+            'mobile' => 'nullable|string|max:15',
+        ]);
+
+        // Simpan data ke database
+        $businessCard = new BusinessCard();
+        $businessCard->company = $validatedData['company'] ?? null;
+        $businessCard->name = $validatedData['name'] ?? null;
+        $businessCard->job_title = $validatedData['job_title'] ?? null;
+        $businessCard->email = $validatedData['email'];
+        $businessCard->mobile = $validatedData['mobile'] ?? null;
+        $businessCard->save();
+
+        // Response sukses
+        return response()->json([
+            'message' => 'Business card successfully saved!',
+            'data' => $businessCard
+        ], 201);
+    }
+
     public function test()
     {
 

@@ -56,6 +56,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/business-card', function () {
     return view('business-card');
 });
+Route::post('/business-card/store', [TestController::class, 'storeBusinessCard']);
 Route::get('/apps', function () {
     return view('apps');
 });
