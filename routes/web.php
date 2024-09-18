@@ -38,6 +38,7 @@ use App\Http\Controllers\Frontend\FormMemberController;
 use App\Http\Controllers\Frontend\PrintController;
 use App\Http\Controllers\Frontend\ScholarshipController;
 use App\Http\Controllers\TestController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +67,15 @@ Route::get('/payment-success', function () {
 
 Route::get('ajax', function () {
     return view('ajax');
+});
+
+Route::get('collect', function () {
+    return view('collect');
+});
+// Example route call: /collect-exhibitors?ids=560,561,562
+Route::get('/collect-exhibitors', function (Request $request, TestController $controller) {
+    $ids = explode(',', $request->query('ids'));
+    return $controller->collectAndStoreExhibitorData($ids);
 });
 
 Route::get('/save-invoice', [TestController::class, 'saveInvoice']);

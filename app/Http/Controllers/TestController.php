@@ -8,6 +8,7 @@ use App\Models\BookingContact\BookingContact;
 use App\Models\BusinessCard\BusinessCard;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\UserRegister;
+use App\Models\Exhibitor;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
@@ -18,6 +19,7 @@ use Illuminate\Support\Str;
 use Xendit\Invoice;
 use Xendit\Xendit;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
 class TestController extends Controller
@@ -48,6 +50,45 @@ class TestController extends Controller
             'message' => 'Business card successfully saved!',
             'data' => $businessCard
         ], 201);
+    }
+
+    public function collectAndStoreExhibitorData(array $ids)
+    {
+        // Allow the script to run for up to 10 minutes (600 seconds)
+        set_time_limit(600);
+        foreach ($ids as $id) {
+            // Make the GET request to the exhibitor API
+            $response = Http::get("https://vexpo.iee-series.com/iee/pc/exhibitor/{$id}");
+
+            if ($response->successful()) {
+                $data = $response->json()['data'];
+
+                // Store the exhibitor data in the database
+                Exhibitor::updateOrCreate(
+                    ['id' => $id], // Ensure that the same exhibitor is not duplicated
+                    [
+                        'name' => $data['name'] ?? 'N/A',
+                        'country' => $data['country'] ?? 'N/A',
+                        'desc' => $data['desc'] ?? null,
+                        'website' => $data['website'] ?? null,
+                        'contact' => $data['contact'] ?? null,
+                        'contact_email' => $data['contactEmail'] ?? null,
+                        'display_email' => $data['displayEmail'] ?? null,
+                        'venue_hall' => $data['venueHall'] ?? null,
+                        'event_name' => $data['eventName'] ?? null,
+                        'exhibitor_logo' => $data['exhibitorLogo'] ?? null,
+                        'booth_number' => $data['boothNumber'] ?? null,
+                        'category1' => $data['category1'] ?? null,
+                        'category2' => $data['category2'] ?? null,
+                    ]
+                );
+            } else {
+                // Handle API request failure
+                return response()->json(['error' => "Failed to fetch data for exhibitor ID: {$id}"], 500);
+            }
+        }
+
+        return response()->json(['message' => 'Exhibitor data collected and stored successfully']);
     }
 
     public function test()
