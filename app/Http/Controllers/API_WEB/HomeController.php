@@ -21,6 +21,7 @@ class HomeController extends Controller
     {
         $signature = null;
         $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
+            ->where('status_event', 'publish')
             ->orderBy('id', 'desc')
             ->get();
 
