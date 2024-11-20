@@ -78,6 +78,8 @@ Route::get('/collect-exhibitors', function (Request $request, TestController $co
     return $controller->collectAndStoreExhibitorData($ids);
 });
 
+Route::get('/fetch-contacts', [TestController::class, 'fetchAndStoreContactData']);
+
 Route::get('/save-invoice', [TestController::class, 'saveInvoice']);
 Route::get('/register', function () {
     return view('register_event.register');

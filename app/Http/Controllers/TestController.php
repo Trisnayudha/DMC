@@ -7,6 +7,7 @@ use App\Helpers\WhatsappApi;
 use App\Models\BookingContact\BookingContact;
 use App\Models\BusinessCard\BusinessCard;
 use App\Models\Company\CompanyModel;
+use App\Models\Contact;
 use App\Models\Events\UserRegister;
 use App\Models\Exhibitor;
 use App\Models\Payments\Payment;
@@ -89,6 +90,67 @@ class TestController extends Controller
         }
 
         return response()->json(['message' => 'Exhibitor data collected and stored successfully']);
+    }
+
+    public function fetchAndStoreContactData(Request $request)
+    {
+        // Mendapatkan IDs dari parameter 'ids' di query string
+        $idsParam = $request->query('ids');
+
+        if (!$idsParam) {
+            return response()->json(['error' => 'No IDs provided'], 400);
+        }
+
+        $ids = explode(',', $idsParam);
+
+        // Validasi bahwa $ids adalah array dan tidak kosong
+        if (!is_array($ids) || empty($ids)) {
+            return response()->json(['error' => 'Invalid or missing IDs provided'], 400);
+        }
+
+        // Mengatur batas waktu eksekusi
+        set_time_limit(600);
+
+        // Nilai cookie session Anda
+        $sessionCookieValue = 'eyJpdiI6ImhZZ1JLcTczTk5aSTN3RFp2Q0NQdVE9PSIsInZhbHVlIjoibUVzbFIwZzFha0l0R3RVRkNHRWxzczVCaTczdU81Q0Y0VDA2S0w4emF0OFJnY2dxUmw3cHZqVjI0L3JTbGNiZHNSdU1hVzIzWlZLaS9CTEh3bWhxMitWdWZNMEJJUWUwMGZDQVBCVlFDMnhORTBpZlF0VGl2WE1QTnphUUlwUHMiLCJtYWMiOiIwZGY4ZWNlZWJkYjEwMWMzZDNiOTIyODJiYTNkNzczM2QwMmMxMWZiMDJjZGMyMzc3OGFjOTg0NGM0NmZlNThiIiwidGFnIjoiIn0%3D';
+
+        foreach ($ids as $id) {
+            $id = trim($id); // Menghilangkan spasi di awal/akhir ID
+
+            // Melakukan permintaan GET ke API dengan menyertakan cookie session
+            $response = Http::withCookies([
+                'eventware_session' => $sessionCookieValue,
+            ], '.v4.eventnetworking.com') // Menentukan domain cookie
+                ->get("https://beacon.v4.eventnetworking.com/imarc-2024/contacts/{$id}");
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                if (isset($data['contact'])) {
+                    $contact = $data['contact'];
+
+                    // Menyimpan data kontak ke database
+                    Contact::updateOrCreate(
+                        ['contact_id' => $contact['id']], // Memastikan kontak tidak duplikat
+                        [
+                            'display_name' => $contact['display_name'] ?? 'N/A',
+                            'avatar_url' => $contact['avatar_url'] ?? null,
+                            'bio' => $contact['bio'] ?? null,
+                            'country_name' => $contact['country_name'] ?? null,
+                            'flourish_text' => $contact['flourish_text'] ?? null,
+                            'job_title' => $contact['job_title'] ?? null,
+                            'company_display_name' => $contact['company']['display_name'] ?? null,
+                        ]
+                    );
+                } else {
+                    return response()->json(['error' => "Contact data not found for ID: {$id}"], 500);
+                }
+            } else {
+                return response()->json(['error' => "Failed to fetch data for contact ID: {$id}"], 500);
+            }
+        }
+
+        return response()->json(['message' => 'Contact data collected and stored successfully']);
     }
 
     public function test()

@@ -107,6 +107,18 @@
                                             </span>
                                         @endif
                                     </div>
+                                    <div class="form-group{{ $errors->has('video') ? ' has-error' : '' }}">
+                                        <label>Video Youtube</label>
+                                        {!! Form::text('video', old('video'), [
+                                            'class' => 'form-control',
+                                            'placeholder' => 'https://youtube.com/',
+                                        ]) !!}
+                                        @if ($errors->has('video'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('video') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
                                     <!-- founded -->
                                     <div class="form-group{{ $errors->has('employees') ? ' has-error' : '' }}">
                                         {!! Form::label('employees') !!}
@@ -120,6 +132,9 @@
                                             </span>
                                         @endif
                                     </div>
+
+                                </div>
+                                <div class="col-12">
                                     <div class="form-group{{ $errors->has('Company Category') ? ' has-error' : '' }}">
                                         {!! Form::label('company_category') !!}
                                         {!! Form::text('company_category', null, [

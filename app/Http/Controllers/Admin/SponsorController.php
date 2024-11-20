@@ -44,6 +44,7 @@ class SponsorController extends Controller
             'package' => 'required|string',
             'status' => 'required|string',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Contoh validasi untuk upload gambar
+            'video' => 'nullable|url'
         ]);
         // dd($request->all());
         // Proses upload gambar jika ada
@@ -77,6 +78,7 @@ class SponsorController extends Controller
             'instagram' => $request->input('instagram'),
             'facebook' => $request->input('facebook'),
             'linkedin' => $request->input('linkedin'),
+            'video' => $request->input('video')
 
         ]);
 
@@ -116,6 +118,7 @@ class SponsorController extends Controller
             'package' => 'required|string',
             'status' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'video' => 'nullable|url'
         ]);
         // dd($request->all());
         // Ambil data sponsor yang akan diupdate
@@ -136,6 +139,7 @@ class SponsorController extends Controller
         $sponsor->instagram = $request->input('instagram');
         $sponsor->facebook = $request->input('facebook');
         $sponsor->linkedin = $request->input('linkedin');
+        $sponsor->video = $request->input('video');
         // Proses pembuatan slug
         $slug = Str::slug($request->input('name')); // Membuat slug dari nama sponsor
 
