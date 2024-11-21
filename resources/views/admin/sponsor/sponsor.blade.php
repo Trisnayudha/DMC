@@ -97,6 +97,10 @@
                                                         <a href="{{ route('sponsors-address.show', $post->id) }}"
                                                             class="btn btn-info m-1"><span
                                                                 class="fa fa-address-card"></span></a>
+                                                        <a href="{{ route('photos-videos-activity.show', $post->id) }}"
+                                                            class="btn btn-secondary m-1" title="Photos/Videos Activity">
+                                                            <span class="fa fa-image"></span>
+                                                        </a>
                                                         <a href="{{ route('sponsors.edit', $post->id) }}"
                                                             class="btn btn-success m-1" title="Edit Data">
                                                             <span class="fa fa-edit"></span>
@@ -105,8 +109,9 @@
                                                             data-id="{{ $post->id }}" title="Hapus Data">
                                                             <span class="fa fa-trash"></span>
                                                         </button>
-
                                                     </td>
+
+
                                                 </tr>
                                             @endforeach
                                         </tbody>

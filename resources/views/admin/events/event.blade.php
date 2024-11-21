@@ -79,7 +79,10 @@
                                                     </td>
                                                     <td>
                                                         <a href="#" class="btn btn-primary" title="View Tickets">
-                                                            <span>ticket</span></a>
+                                                            <span>Ticket</span></a>
+                                                        <a href="{{ url('share/events/' . $post->slug) }}"
+                                                            class="btn btn-success" title="View Tickets">
+                                                            <span>Share</span></a>
                                                         <a href="{{ Route('events-details', $post->slug) }}"
                                                             class="btn btn-primary" title="Lihat Peserta">
                                                             <span class="fa fa-user"></span></a>

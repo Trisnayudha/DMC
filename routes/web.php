@@ -37,6 +37,7 @@ use App\Http\Controllers\Frontend\EventsRegisterSponsorController;
 use App\Http\Controllers\Frontend\FormMemberController;
 use App\Http\Controllers\Frontend\PrintController;
 use App\Http\Controllers\Frontend\ScholarshipController;
+use App\Http\Controllers\Admin\SponsorPhotosVideosActivityController;
 use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -170,6 +171,7 @@ Route::prefix('admin')->group(function () {
     Route::resource('sponsors-address', SponsorAddressController::class);
     Route::resource('sponsors-representative', SponsorRepresentativeController::class);
     Route::resource('sponsors-advertising', SponsorAdvertisingController::class);
+    Route::resource('photos-videos-activity', SponsorPhotosVideosActivityController::class);
 
     Route::resource('digital-edition', DigitalEditionController::class);
 
