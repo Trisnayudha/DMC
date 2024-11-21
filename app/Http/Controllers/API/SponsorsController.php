@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorAddress;
 use App\Models\Sponsors\SponsorAdvertising;
+use App\Models\Sponsors\SponsorPhotoVideo;
 use App\Models\Sponsors\SponsorRepresentative;
 use App\Services\Sponsors\SponsorService;
 
@@ -57,6 +58,7 @@ class SponsorsController extends Controller
         $location = SponsorAddress::where('sponsor_id', $sponsor->id)->get();
         $representative = SponsorRepresentative::where('sponsor_id', $sponsor->id)->get();
         $advertising = SponsorAdvertising::where('sponsor_id', $sponsor->id)->get();
+        $photosvideos = SponsorPhotoVideo::where('sponsor_id', $sponsor->id)->get();
         if (!$sponsor) {
             $response['status'] = 404; // Atur status 404 Not Found
             $response['message'] = 'Sponsor not found';
@@ -68,7 +70,7 @@ class SponsorsController extends Controller
             'location' => $location,
             'representative' => $representative,
             'advertising' => $advertising,
-
+            'photosvideos' => $photosvideos
         ];
         $response['status'] = 200;
         $response['message'] = 'Successfully show sponsor detail';
