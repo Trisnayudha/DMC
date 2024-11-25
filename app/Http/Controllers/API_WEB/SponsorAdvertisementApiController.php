@@ -14,8 +14,19 @@ class SponsorAdvertisementApiController extends Controller
     {
         try {
             $limit = $request->limit ?? 10;
+            $search = $request->input('search');
+            $order = $request->input('order', 'newest'); // Default order is 'newest'
 
-            // Mengambil data dengan join ke tabel sponsors
+            // Validasi nilai 'order'
+            $allowedOrder = ['newest', 'oldest'];
+
+            if (!in_array($order, $allowedOrder)) {
+                $order = 'newest';
+            }
+
+            // Menentukan urutan penyortiran berdasarkan parameter 'order'
+            $sortOrder = $order === 'newest' ? 'desc' : 'asc';
+            // Mengambil data dengan join ke tabel sponsors dan kondisi pencarian
             $advertisings = SponsorAdvertising::join('sponsors', 'sponsors.id', '=', 'sponsors_advertising.sponsor_id')
                 ->select(
                     'sponsors_advertising.id',
@@ -26,13 +37,20 @@ class SponsorAdvertisementApiController extends Controller
                     'sponsors_advertising.file_size',
                     'sponsors_advertising.link as download'
                 )
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($query) use ($search) {
+                        $query->where('sponsors_advertising.name', 'like', '%' . $search . '%')
+                            ->orWhere('sponsors.name', 'like', '%' . $search . '%');
+                    });
+                })
+                ->orderBy('sponsors_advertising.date', $sortOrder)
                 ->paginate($limit);
 
             // Menggunakan transform untuk memodifikasi data
             $advertisings->getCollection()->transform(function ($item) {
                 // Menggunakan accessor untuk memformat ukuran file dan tanggal
                 $item->fileSize = $item->formatted_file_size;
-                // $item->date = $item->formatted_date;
+                // $item->date = $item->formatted_date; // Jika Anda memiliki accessor untuk tanggal
                 return $item;
             });
 
@@ -60,6 +78,7 @@ class SponsorAdvertisementApiController extends Controller
 
         return response()->json($response, $response['status']);
     }
+
 
     // Metode untuk mendownload file iklan sponsor
     public function download($id)
