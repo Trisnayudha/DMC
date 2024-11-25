@@ -9,11 +9,13 @@ use Illuminate\Support\Facades\Log;
 
 class SponsorAdvertisementApiController extends Controller
 {
+    // Metode untuk mendapatkan daftar iklan sponsor
     public function index(Request $request)
     {
         try {
             $limit = $request->limit ?? 10;
 
+            // Mengambil data dengan join ke tabel sponsors
             $advertisings = SponsorAdvertising::join('sponsors', 'sponsors.id', '=', 'sponsors_advertising.sponsor_id')
                 ->select(
                     'sponsors_advertising.id',
@@ -21,15 +23,29 @@ class SponsorAdvertisementApiController extends Controller
                     'sponsors_advertising.image',
                     'sponsors.name as company',
                     'sponsors_advertising.date',
-                    'sponsors_advertising.file_size as fileSize',
+                    'sponsors_advertising.file_size',
                     'sponsors_advertising.link as download'
                 )
                 ->paginate($limit);
 
+            // Menggunakan transform untuk memodifikasi data
+            $advertisings->getCollection()->transform(function ($item) {
+                // Menggunakan accessor untuk memformat ukuran file dan tanggal
+                $item->fileSize = $item->formatted_file_size;
+                // $item->date = $item->formatted_date;
+                return $item;
+            });
+
             if ($advertisings->count() > 0) {
                 $response['status'] = 200;
                 $response['message'] = 'Success';
-                $response['payload'] = $advertisings;
+                $response['payload'] = [
+                    'data' => $advertisings->items(),
+                    'current_page' => $advertisings->currentPage(),
+                    'last_page' => $advertisings->lastPage(),
+                    'per_page' => $advertisings->perPage(),
+                    'total' => $advertisings->total(),
+                ];
             } else {
                 $response['status'] = 404;
                 $response['message'] = 'No data found';
@@ -39,12 +55,13 @@ class SponsorAdvertisementApiController extends Controller
             Log::error('Error fetching data: ' . $e->getMessage());
             $response['status'] = 500;
             $response['message'] = 'Internal Server Error';
-            $response['payload'] = $e->getMessage();
+            $response['payload'] = [];
         }
 
         return response()->json($response, $response['status']);
     }
 
+    // Metode untuk mendownload file iklan sponsor
     public function download($id)
     {
         try {
