@@ -65,16 +65,18 @@
                                                     <td>{{ $post->name }}</td>
 
                                                     <td>
+                                                        <!-- Tombol Edit (jika diperlukan) -->
                                                         <a href="{{ route('sponsors.edit', $post->id) }}"
                                                             class="btn btn-success" title="Edit Data">
                                                             <span class="fa fa-edit"></span>
                                                         </a>
+                                                        <!-- Tombol Delete -->
                                                         <button class="btn btn-danger delete-sponsor"
                                                             data-id="{{ $post->id }}" title="Hapus Data">
                                                             <span class="fa fa-trash"></span>
                                                         </button>
-
                                                     </td>
+
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -136,111 +138,49 @@
                 $('#category-model').modal('show');
             });
 
-            // $(document).on('click', '.edit', function() {
-            //     var id = $(this).data('id');
+            $(document).on('click', '.delete-sponsor', function() {
+                var id = $(this).data('id');
 
-            //     // ajax
-            //     $.ajax({
-            //         type: "GET",
-            //         url: "{{ url('admin/events/speakers') }}/" + id + "/edit",
-            //         data: {
-            //             id: id
-            //         },
-            //         dataType: 'json',
-            //         success: function(res) {
-            //             $('#ajaxCategoryModel').html("Edit Category");
-            //             $('#category-model').modal('show');
-            //             $('#id').val(res.id);
-            //             $('#name').val(res.name);
-            //             $('#company').val(res.company);
-            //             $('#job_title').val(res.job_title);
-            //             $('#image').val(res.image);
-            //         }
-            //     });
-            // });
-            // $(document).on('click', '.delete', function() {
+                Swal.fire({
+                    title: "Anda Yakin?",
+                    text: "Ingin menghapus data ini.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "{{ url('admin/sponsors-advertising') }}/" + id,
+                            data: {
+                                _token: "{{ csrf_token() }}"
+                            },
+                            success: function(res) {
+                                Swal.fire({
+                                    title: "Sukses",
+                                    text: "Data berhasil dihapus.",
+                                    icon: "success",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                }).then(function() {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Terjadi kesalahan saat menghapus data.",
+                                    icon: "error",
+                                    showConfirmButton: true
+                                });
+                            }
+                        });
+                    }
+                });
+            });
 
-            //     var id = $(this).data('id');
-            //     Swal.fire({
-            //         title: "Anda Yakin ?",
-            //         text: "Ingin Menghapus Data ini.",
-            //         icon: "warning",
-            //         showCancelButton: true,
-            //         confirmButtonColor: '#3085d6',
-            //         cancelButtonColor: '#d33',
-            //         confirmButtonText: 'Yes, delete it!'
-            //     }).then((result) => {
-            //         if (result.isConfirmed) {
-            //             $.ajax({
-            //                 type: "DELETE",
-            //                 url: "{{ url('admin/events/speakers') }}/" + id,
-            //                 data: {
-            //                     id: id
-            //                 },
-            //                 dataType: 'json',
-            //                 success: function(res) {
-            //                     Swal.fire({
-            //                         title: "Success",
-            //                         icon: "success",
-            //                         showConfirmButton: false,
-            //                         position: 'center',
-            //                         timer: 1500
-            //                     }).then(function() {
-            //                         // Code to execute after Swal is closed
-            //                         window.location.reload();
-            //                         console.log(res);
-            //                     });
-            //                 }
-            //             });
-
-            //         }
-            //     });
-
-
-            // });
-            // $(document).on('click', '#btn-save', function(event) {
-            //     var id = $("#id").val();
-            //     var name = $("#name").val();
-            //     var company = $("#company").val();
-            //     var job_title = $("#job_title").val();
-            //     var imageInput = $("#image")[0];
-
-            //     // Cek apakah file gambar dipilih
-            //     var image = imageInput.files.length > 0 ? imageInput.files[0] : null;
-
-            //     var formData = new FormData();
-            //     formData.append('id', id);
-            //     formData.append('name', name);
-            //     formData.append('company', company);
-            //     formData.append('job_title', job_title);
-            //     // Hanya tambahkan file gambar jika dipilih
-            //     if (image) {
-            //         formData.append('image', image);
-            //     }
-            //     $("#btn-save").html('Please Wait...');
-            //     $("#btn-save").attr("disabled", true);
-            //     // ajax
-            //     $.ajax({
-            //         type: "POST",
-            //         url: "{{ url('admin/events/speakers') }}",
-            //         data: formData,
-            //         processData: false,
-            //         contentType: false,
-            //         success: function(res) {
-            //             console.log(res)
-            //             Swal.fire({
-            //                     title: "Success",
-            //                     icon: "success",
-            //                     showConfirmButton: false,
-            //                     position: 'center',
-            //                     timer: 1500
-            //                 }),
-            //                 window.location.reload();
-            //             $("#btn-save").html('Submit');
-            //             $("#btn-save").attr("disabled", false);
-            //         }
-            //     });
-            // });
         });
         $(document).ready(function() {
             $('#laravel_crud').DataTable();

@@ -9,11 +9,7 @@
 </head>
 
 <body>
-    <a href="discipleapp://">Open My App</a>
-    <br>
-    <a href="dmcapps://">Open DMC App</a>
-    <br>
-    <a href="discipleship://">Open My App 2</a>
+    <img src="https://membership.djakarta-miningclub.com/storage/sponsor/advertising/1732501195.pdf" alt="">
 </body>
 
 </html>

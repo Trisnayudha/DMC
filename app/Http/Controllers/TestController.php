@@ -155,6 +155,7 @@ class TestController extends Controller
 
     public function test()
     {
+        return view('test');
 
         //        contoh respon callback invoice
         //        "id": "579c8d61f23fa4ca35e52da4",
