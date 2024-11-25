@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SponsorAdvertisingController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventsCategoryController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\API_WEB\GalleryController;
 use App\Http\Controllers\API_WEB\NewsController as API_WEBNewsController;
 use App\Http\Controllers\API_WEB\PaymentController as API_WEBPaymentController;
 use App\Http\Controllers\API_WEB\ProfileController;
+use App\Http\Controllers\API_WEB\SponsorAdvertisementApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -181,6 +183,9 @@ Route::prefix('web')->group(function () {
     Route::post('check/email/paid', [API_WEBEventsController::class, 'checkUserRegister']);
 
     Route::post('/payment/create/anon', [API_WEBPaymentController::class, 'PaymentAnonymous']);
+
+    Route::get('sponsor-advertisement', [SponsorAdvertisementApiController::class, 'index']);
+    Route::get('sponsor-advertisement/download/{id}', [SponsorAdvertisementApiController::class, 'download']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
