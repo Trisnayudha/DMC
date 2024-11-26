@@ -162,7 +162,8 @@
                                                                 <button type="button" class="btn btn-primary open-modal"
                                                                     data-users-id="{{ $post->users_id }}"
                                                                     data-events-id="{{ $post->events_id }}"
-                                                                    data-payment-id="{{ $post->payment_id }}">
+                                                                    data-payment-id="{{ $post->payment_id }}"
+                                                                    data-phone="{{ $post->prefix_phone != null ? $post->fullphone : $post->phone }}">
                                                                     <span class="fa fa-paper-plane"></span>
                                                                 </button>
                                                             @else
@@ -316,11 +317,15 @@
                 var usersId = $(this).data('users-id');
                 var eventsId = $(this).data('events-id');
                 var paymentId = $(this).data('payment-id');
+                var phone = $(this).data('phone'); // Ambil nomor telepon dari atribut data-phone
 
+                // Isi data ke dalam input form di modal
                 $('#usersId').val(usersId);
                 $('#eventsId').val(eventsId);
                 $('#paymentId').val(paymentId);
+                $('#phoneNumber').val(phone); // Isi input nomor telepon
 
+                // Tampilkan modal
                 $('#phoneModal').modal('show');
             });
         });

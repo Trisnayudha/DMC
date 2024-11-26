@@ -264,7 +264,6 @@ class EventsDetailParticipantController extends Controller
                 $this->sendConfirmationEmail($data, $user->email, $payment->code_payment, $event->name);
                 $this->markAsEmail($userRegistration);
             } elseif ($request->method == 'confirmation_wa') {
-                dd('a');
                 $this->sendConfirmationWhatsapp($data, $request->phone, $event);
                 $this->markAsWhatsapp($userRegistration);
             } else {
