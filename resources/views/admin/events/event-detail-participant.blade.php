@@ -159,21 +159,12 @@
                                                         </td>
                                                         <td>
                                                             @if ($post->reminder_wa == null)
-                                                                <form action="{{ Route('events-send-participant') }}"
-                                                                    method="post">
-                                                                    @csrf
-                                                                    <input type="hidden" name="users_id"
-                                                                        value="{{ $post->users_id }}">
-                                                                    <input type="hidden" name="events_id"
-                                                                        value="{{ $post->events_id }}">
-                                                                    <input type="hidden" name="payment_id"
-                                                                        value="{{ $post->payment_id }}">
-                                                                    <input type="hidden" name="method"
-                                                                        value="confirmation_wa">
-                                                                    <button href="#" class="btn btn-primary send"
-                                                                        title="Send Confirmation">
-                                                                        <span class="fa fa-paper-plane"></span></button>
-                                                                </form>
+                                                                <button type="button" class="btn btn-primary open-modal"
+                                                                    data-users-id="{{ $post->users_id }}"
+                                                                    data-events-id="{{ $post->events_id }}"
+                                                                    data-payment-id="{{ $post->payment_id }}">
+                                                                    <span class="fa fa-paper-plane"></span>
+                                                                </button>
                                                             @else
                                                                 {{ date('d,F H:i', strtotime($post->reminder_wa)) . ' ' . $post->name_reminder_wa }}
                                                             @endif
@@ -214,6 +205,38 @@
     <div id="loader" style="display:none">
         <div class="loader"></div>
     </div>
+
+    <div class="modal fade" id="phoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="phoneForm" method="post" action="{{ route('events-send-participant') }}">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="phoneModalLabel">Konfirmasi Nomor Telepon</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="phoneNumber">Nomor Telepon</label>
+                            <input type="text" class="form-control" id="phoneNumber" name="phone" required>
+                        </div>
+                        <input type="hidden" name="users_id" id="usersId">
+                        <input type="hidden" name="events_id" id="eventsId">
+                        <input type="hidden" name="payment_id" id="paymentId">
+                        <input type="hidden" name="method" value="confirmation_wa">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Kirim</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('top')
@@ -285,6 +308,20 @@
                 setTimeout(() => {
                     $("#loader").hide();
                 }, 15000);
+            });
+        });
+
+        $(document).ready(function() {
+            $(document).on('click', '.open-modal', function() {
+                var usersId = $(this).data('users-id');
+                var eventsId = $(this).data('events-id');
+                var paymentId = $(this).data('payment-id');
+
+                $('#usersId').val(usersId);
+                $('#eventsId').val(eventsId);
+                $('#paymentId').val(paymentId);
+
+                $('#phoneModal').modal('show');
             });
         });
     </script>

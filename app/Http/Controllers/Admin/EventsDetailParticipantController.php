@@ -248,7 +248,6 @@ class EventsDetailParticipantController extends Controller
     public function sendParticipant(Request $request)
     {
         $this->validateRequest($request);
-
         try {
             $payment = Payment::findOrFail($request->payment_id);
             $user = User::findOrFail($payment->member_id);
@@ -265,7 +264,8 @@ class EventsDetailParticipantController extends Controller
                 $this->sendConfirmationEmail($data, $user->email, $payment->code_payment, $event->name);
                 $this->markAsEmail($userRegistration);
             } elseif ($request->method == 'confirmation_wa') {
-                $this->sendConfirmationWhatsapp($data, $profile, $event);
+                dd('a');
+                $this->sendConfirmationWhatsapp($data, $request->phone, $event);
                 $this->markAsWhatsapp($userRegistration);
             } else {
                 $this->markAsPresent($userRegistration);
@@ -339,24 +339,25 @@ class EventsDetailParticipantController extends Controller
         }
     }
 
-    private function sendConfirmationWhatsapp($data, $profile, $event)
+    private function sendConfirmationWhatsapp($data, $phone, $event)
     {
         $pdf = Pdf::loadView('email.ticket', $data);
         $filename = 'ticket_' . $data['code_payment'] . '_' . time() . '.pdf';
+
         // Store the PDF in the desired directory within the storage folder
         $pdfPath = 'public/ticket/' . $filename;
         $db = '/storage/ticket/' . $filename;
         Storage::put($pdfPath, $pdf->output());
+
         $send = new WhatsappApi();
-        $send->phone = $profile->fullphone;
+        $send->phone = $phone; // Menggunakan nomor telepon yang diterima dari parameter
         $send->message = '📌"REMINDER to attend ' . $event->name . '"
 
 Hi ' . $data['users_name'] . ',
 
 This is a confirmation that you are registered to attend our event on Tuesday, 26 November 2024 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB)
 
-If you are unable to attend, please leave a messages for substitution or if no replacement, we can offer your space to the next registrant on the waitlist.
-
+Please confirm your attendance by replying "YES" to this message. If you are unable to attend, kindly respond with "NO" so that we may offer your spot to someone on the waitlist.
 
 Your E-Ticket here: ' . url($db) . '
 
@@ -367,21 +368,10 @@ We look forward to seeing you there. Thank you 😊🙏🏻
 Regards,
 *Secretariat Djakarta Mining Club
                 ';
-        //         $send->message = '*We haven’t  seen you yet*!
 
-        // Just a quick reminder that our event ' . $event->name . ' at The Dharmawangsa Hotel now has already started, we`re curious to know what`s keeping you from joining us.
-
-        // There`s still so much happening here that you won`t want to miss out on—insightful sessions, panel discussion, great networking opportunities, and more.
-
-        // If there`s anything holding you back, feel free to reach out. We’d love to have you here!
-
-        // Regards,
-        // *Secretariat Djakarta Mining Club
-        // ';
-        // $send->document = asset($db);
-        // $send->WhatsappMessageWithDocument();
         $send->WhatsappMessage();
     }
+
 
     private function markAsPresent($userRegistration)
     {
