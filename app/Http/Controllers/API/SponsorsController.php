@@ -65,13 +65,8 @@ class SponsorsController extends Controller
             // $item->date = $item->formatted_date; // Jika Anda memiliki accessor untuk tanggal
             return $item;
         });
-        $photosvideos = SponsorPhotoVideo::where('sponsor_id', $sponsor->id)->get();
-        if (!$sponsor) {
-            $response['status'] = 404; // Atur status 404 Not Found
-            $response['message'] = 'Sponsor not found';
-            $response['payload'] = null;
-            return response()->json($response);
-        }
+        $photosvideos = SponsorPhotoVideo::where('sponsor_id', $sponsor->id)->paginate(10);
+
         $data = [
             'detail' => $sponsor,
             'location' => $location,
