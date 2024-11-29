@@ -58,6 +58,13 @@ class SponsorsController extends Controller
         $location = SponsorAddress::where('sponsor_id', $sponsor->id)->get();
         $representative = SponsorRepresentative::where('sponsor_id', $sponsor->id)->get();
         $advertising = SponsorAdvertising::where('sponsor_id', $sponsor->id)->get();
+        // Menggunakan transform untuk memodifikasi data
+        $advertising->transform(function ($item) {
+            // Menggunakan accessor untuk memformat ukuran file dan tanggal
+            $item->fileSize = $item->formatted_file_size;
+            // $item->date = $item->formatted_date; // Jika Anda memiliki accessor untuk tanggal
+            return $item;
+        });
         $photosvideos = SponsorPhotoVideo::where('sponsor_id', $sponsor->id)->get();
         if (!$sponsor) {
             $response['status'] = 404; // Atur status 404 Not Found
