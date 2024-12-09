@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
+use App\Http\Controllers\Admin\SponsorController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\EventController;
 use App\Http\Controllers\API\EventsCategoryController;
@@ -184,6 +185,7 @@ Route::prefix('web')->group(function () {
 
     Route::post('/payment/create/anon', [API_WEBPaymentController::class, 'PaymentAnonymous']);
 
+    Route::post('sponsor/send-inquiry', [SponsorsController::class, 'sentInquiry']);
     Route::get('sponsor-advertisement', [SponsorAdvertisementApiController::class, 'index']);
     Route::get('sponsor-advertisement/download/{id}', [SponsorAdvertisementApiController::class, 'download']);
 });

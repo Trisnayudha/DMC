@@ -8,7 +8,10 @@ use App\Models\Sponsors\SponsorAddress;
 use App\Models\Sponsors\SponsorAdvertising;
 use App\Models\Sponsors\SponsorPhotoVideo;
 use App\Models\Sponsors\SponsorRepresentative;
+use App\Models\Sponsors\SponsorsInquiry;
 use App\Services\Sponsors\SponsorService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class SponsorsController extends Controller
 {
@@ -78,5 +81,41 @@ class SponsorsController extends Controller
         $response['message'] = 'Successfully show sponsor detail';
         $response['payload'] = $data;
         return response()->json($response);
+    }
+
+    public function sentInquiry(Request $request)
+    {
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'representative_id' => 'required|integer',
+            'message' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            $response['status'] = 422;
+            $response['message'] = 'Validation Error';
+            $response['payload'] = $validator->errors();
+
+            return response()->json($response, 422);
+        }
+
+        // Mendapatkan user_id dari user yang sedang login
+        $users_id = auth('sanctum')->user()->id;
+        $representative_id = $request->representative_id;
+        $message = $request->message;
+
+        // Simpan data ke database
+        $inquiry = new SponsorsInquiry();
+        $inquiry->sponsors_representative_id = $representative_id;
+        $inquiry->users_id = $users_id;
+        $inquiry->message = $message;
+        $inquiry->save();
+
+        // Siapkan response dengan pesan marketing yang ringkas
+        $response['status'] = 200;
+        $response['message'] = "Your inquiry has been successfully received! We'll be in touch soon with offers tailored just for you.";
+        $response['payload'] = $inquiry;
+
+        return response()->json($response, 200);
     }
 }
