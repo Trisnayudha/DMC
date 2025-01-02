@@ -19,7 +19,7 @@ class HomeController extends Controller
 
     public function getCarousel()
     {
-        $signature = '/image/libur.png';
+        $signature = null;
         $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
             ->where('status', 'publish')
             ->orderBy('id', 'desc')
