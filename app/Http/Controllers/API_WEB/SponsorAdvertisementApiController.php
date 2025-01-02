@@ -57,13 +57,7 @@ class SponsorAdvertisementApiController extends Controller
             if ($advertisings->count() > 0) {
                 $response['status'] = 200;
                 $response['message'] = 'Success';
-                $response['payload'] = [
-                    'data' => $advertisings->items(),
-                    'current_page' => $advertisings->currentPage(),
-                    'last_page' => $advertisings->lastPage(),
-                    'per_page' => $advertisings->perPage(),
-                    'total' => $advertisings->total(),
-                ];
+                $response['payload'] = $advertisings;
             } else {
                 $response['status'] = 404;
                 $response['message'] = 'No data found';
