@@ -25,7 +25,7 @@ class SponsorAdvertisementApiController extends Controller
             }
 
             // Menentukan urutan penyortiran berdasarkan parameter 'order'
-            $sortOrder = $order === 'newest' ? 'desc' : 'asc';
+            $sortOrder = $order === 'newest' ? 'asc' : 'desc';
             // Mengambil data dengan join ke tabel sponsors dan kondisi pencarian
             $advertisings = SponsorAdvertising::join('sponsors', 'sponsors.id', '=', 'sponsors_advertising.sponsor_id')
                 ->select(
