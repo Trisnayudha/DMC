@@ -18,6 +18,7 @@ use App\Http\Controllers\API\ContactUsController;
 use App\Http\Controllers\API\MarketingAdsController;
 use App\Http\Controllers\API\MikrotikController;
 use App\Http\Controllers\API\NotificationController;
+use App\Http\Controllers\API\PrintController;
 use App\Http\Controllers\API\ScanController;
 use App\Http\Controllers\API\SponsorsController;
 use App\Http\Controllers\API_WEB\AboutController;
@@ -131,6 +132,8 @@ Route::post('/marketing-ads', [MarketingAdsController::class, 'index']);
 Route::post('/notification/list', [NotificationController::class, 'notification']);
 
 Route::post('/highlight/list', [NotificationController::class, 'highlight']);
+
+Route::post('print-scan', [PrintController::class, 'scan']);
 
 
 Route::prefix('web')->group(function () {
