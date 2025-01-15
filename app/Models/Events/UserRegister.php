@@ -19,5 +19,6 @@ class UserRegister extends Model
         'pic_id_reminder',
         'reminder_wa',
         'pic_id_reminder_wa',
+        'photo'
     ];
 }
