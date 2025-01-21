@@ -8,6 +8,8 @@ use App\Models\Payments\Payment;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
+
 
 class PrintController extends Controller
 {
@@ -28,7 +30,6 @@ class PrintController extends Controller
             ];
 
             if ($nosave == 'false') {
-                // Cek apakah sudah ada data UserRegister untuk payment ini
                 $save = UserRegister::where('payment_id', $check->id)->first();
                 if (empty($save)) {
                     $save = new UserRegister();
@@ -39,13 +40,21 @@ class PrintController extends Controller
                 $save->payment_id = $check->id;
                 $save->present   = Carbon::now();
 
-                // Kondisi tambahan: jika ada foto di request, simpan ke storage
                 if ($request->hasFile('photo')) {
-                    // Simpan ke folder 'photos' di 'public' disk
-                    $path = $request->file('photo')->store('photos', 'public');
+                    // Baca file yang diupload
+                    $photo = $request->file('photo');
 
-                    // Misal kita simpan path nya di kolom 'photo_path'
-                    // Pastikan kolom 'photo_path' sudah ada di tabel user_register
+                    // Resize foto menggunakan Intervention Image
+                    $resizedImage = Image::make($photo->getRealPath())->resize(3000, 3000, function ($constraint) {
+                        $constraint->aspectRatio(); // Pertahankan aspek rasio
+                        $constraint->upsize(); // Hindari membesarkan gambar kecil
+                    });
+
+                    // Simpan foto yang diresize
+                    $path = 'photos/' . uniqid() . '.' . $photo->getClientOriginalExtension();
+                    $resizedImage->save(storage_path('app/public/' . $path));
+
+                    // Simpan path ke database
                     $save->photo = url('storage/' . $path);
                 }
 
