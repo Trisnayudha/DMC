@@ -59,6 +59,7 @@ class PrintController extends Controller
                 }
 
                 $save->save();
+                $data['photo'] = $save->photo;
             }
 
             $response['status']  = 1;
