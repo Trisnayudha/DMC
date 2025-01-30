@@ -317,7 +317,7 @@ Your verification code (OTP) ' . $otp;
 
     public function requestOtp(Request $request)
     {
-        $otp = rand(1000, 9999);
+        $otp = rand(10000, 99999);
         Log::info("otp = " . $otp);
         $email = $request->email;
         $phone = $request->phone;
