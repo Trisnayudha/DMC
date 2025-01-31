@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
+use Svg\Tag\Rect;
 
 class AuthController extends Controller
 {
@@ -33,6 +34,7 @@ class AuthController extends Controller
     {
         $this->user = $user;
     }
+
     public function signin_phone(Request $request)
     {
         $validate = Validator::make(
@@ -177,6 +179,54 @@ Your verification code (OTP) ' . $otp;
             ];
             $response['status'] = 422;
             $response['message'] = 'Invalid data';
+            $response['payload'] = $data;
+        }
+        return response()->json($response);
+    }
+
+    public function signin_qr(Request $request)
+    {
+        $validate = Validator::make(
+            $request->all(),
+            [
+                'uname' => ['required', 'uname', 'exists:users,uname'],
+            ],
+            [
+                'uname.required' => 'QR wajib diisi',
+                'uname.exists' => 'QR Not Found'
+            ]
+        );
+
+        if ($validate->fails()) {
+            $data = [
+                'uname' => $validate->errors()->first('uname')
+            ];
+            $response['status'] = 422;
+            $response['message'] = 'Invalid data';
+            $response['payload'] = $data;
+        }
+        $uname = $request->uname;
+        $findUser = User::where(['uname', '=', $uname])->first();
+        if (!empty($findUser)) {
+            $role = $this->user->checkrole($findUser->id);
+            $data = [
+                'id' => $findUser->id,
+                'name' => $findUser->name,
+                'email' => $findUser->email,
+                'role' => $role[0]->name,
+                'token' => $findUser->createToken('token-name')->plainTextToken,
+                'verify_email' => $findUser->verify_email,
+                'verify_phone' => $findUser->verify_phone
+            ];
+            $response['status'] = 200;
+            $response['message'] = 'Successfully Login';
+            $response['payload'] = $data;
+        } else {
+            $data = [
+                'uname' => 'Uname not found'
+            ];
+            $response['status'] = 422;
+            $response['message'] = 'Uname not found';
             $response['payload'] = $data;
         }
         return response()->json($response);

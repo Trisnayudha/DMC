@@ -58,6 +58,8 @@ Route::post('/signin-phone', [AuthController::class, 'signin_phone']);
 Route::post('/verify_signin_phone', [AuthController::class, 'verify_signin_phone']);
 Route::post('/signin-email', [AuthController::class, 'signin_email']);
 
+Route::post('/signin-qr', [AuthController::class, 'signin_qr']);
+
 Route::post('/check-signup', [AuthController::class, 'check']);
 Route::post('/signup', [AuthController::class, 'signup']);
 
