@@ -206,7 +206,7 @@ Your verification code (OTP) ' . $otp;
             $response['payload'] = $data;
         }
         $uname = $request->uname;
-        $findUser = User::where(['uname', '=', $uname])->first();
+        $findUser = User::where('uname', '=', $uname)->first();
         if (!empty($findUser)) {
             $role = $this->user->checkrole($findUser->id);
             $data = [
