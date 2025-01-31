@@ -169,7 +169,7 @@ Route::prefix('admin')->group(function () {
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
 
     Route::resource('sponsors-address', SponsorAddressController::class);
-    Route::get('sponsors-representative/{$id}', [SponsorRepresentativeController::class, 'show']);
+    Route::get('sponsors-representative/{$id}', [SponsorRepresentativeController::class, 'show'])->name('sponsors-representative.show');
     // 1) Tampilkan daftar sponsor representative berdasarkan sponsor_id
     Route::get('sponsors-representative/{sponsor_id}', [SponsorRepresentativeController::class, 'show'])
         ->name('sponsorRepresentative.showBySponsor');
