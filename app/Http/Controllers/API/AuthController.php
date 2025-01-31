@@ -189,7 +189,7 @@ Your verification code (OTP) ' . $otp;
         $validate = Validator::make(
             $request->all(),
             [
-                'uname' => ['required', 'uname', 'exists:users,uname'],
+                'uname' => ['required', 'exists:users,uname'],
             ],
             [
                 'uname.required' => 'QR wajib diisi',
