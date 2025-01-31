@@ -169,7 +169,26 @@ Route::prefix('admin')->group(function () {
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
 
     Route::resource('sponsors-address', SponsorAddressController::class);
-    Route::resource('sponsors-representative', SponsorRepresentativeController::class);
+    Route::get('sponsors-representative/{$id}', [SponsorRepresentativeController::class, 'show']);
+    // 1) Tampilkan daftar sponsor representative berdasarkan sponsor_id
+    Route::get('sponsors-representative/{sponsor_id}', [SponsorRepresentativeController::class, 'show'])
+        ->name('sponsorRepresentative.showBySponsor');
+
+    // 2) Simpan data baru (Create)
+    Route::post('sponsors-representative', [SponsorRepresentativeController::class, 'store'])
+        ->name('sponsorRepresentative.store');
+
+    // 3) Tampilkan form edit data tertentu (berdasarkan id)
+    Route::get('sponsors-representative/{id}/edit', [SponsorRepresentativeController::class, 'edit'])
+        ->name('sponsorRepresentative.edit');
+
+    // 4) Update data tertentu (berdasarkan id)
+    Route::put('sponsors-representative/{id}', [SponsorRepresentativeController::class, 'update'])
+        ->name('sponsorRepresentative.update');
+
+    // 5) Hapus data tertentu (berdasarkan id)
+    Route::delete('sponsors-representative/{id}', [SponsorRepresentativeController::class, 'destroy'])
+        ->name('sponsorRepresentative.destroy');
     Route::resource('sponsors-advertising', SponsorAdvertisingController::class);
     Route::resource('photos-videos-activity', SponsorPhotosVideosActivityController::class);
 
