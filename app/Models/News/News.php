@@ -20,6 +20,7 @@ class News extends Model
         'location',
         'date_news',
         'desc',
+        'desc2',
         'views',
         'share',
         'reference_link'

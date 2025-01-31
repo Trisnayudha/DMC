@@ -54,6 +54,20 @@
                                     </span>
                                 @endif
                             </div>
+                            {{-- Deskripsi 2 (tambahan) --}}
+                            <div class="form-group{{ $errors->has('description2') ? ' has-error' : '' }}">
+                                {!! Form::label('Deskripsi 2') !!}
+                                {!! Form::textarea('description2', old('description2'), [
+                                    'id' => 'my-editor2',
+                                    'class' => 'form-control',
+                                    'placeholder' => 'Berita Bagian 2',
+                                ]) !!}
+                                @if ($errors->has('description2'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('description2') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
                             <div class="form-group{{ $errors->has('reference_image') ? ' has-error' : '' }}">
                                 <label>Reference Image</label>
                                 {!! Form::textarea('reference_image', old('reference_image'), [
@@ -150,7 +164,7 @@
                                             </div>
                                             {!! Form::text('date_news', date('Y-m-d H:i'), [
                                                 'class' => 'form-control
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                datepicker',
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    datepicker',
                                                 'placeholder' => 'Tanggal Mulai',
                                             ]) !!}
                                         </div>
@@ -208,6 +222,19 @@
                     ['para', ['paragraph']]
                 ]
             })
+            // Inisialisasi Summernote untuk #my-editor2 (deskripsi 2)
+            $('#my-editor2').summernote({
+                dialogsInBody: true,
+                minHeight: 150,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear', 'link', 'picture', 'video',
+                        'undo'
+                    ]],
+                    ['font', ['strikethrough']],
+                    ['para', ['paragraph']]
+                ]
+            });
+            bsCustomFileInput.init();
         });
     </script>
 
