@@ -57,7 +57,7 @@ class AuthController extends Controller
             $phone = $request->phone;
             $findUser = ProfileModel::where([['fullphone', '=', $phone], ['users.verify_phone', '=', 'verified']])->join('users', 'users.id', 'profiles.users_id')->first();
             if (!empty($findUser)) {
-                $otp = rand(1000, 9999);
+                $otp = rand(10000, 99999);
                 Log::info("otp = " . $otp);
                 User::where('id', '=', $findUser->users_id)->update(['otp' => $otp]);
                 $send = new WhatsappApi();
