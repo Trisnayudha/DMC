@@ -334,12 +334,12 @@ Your verification code (OTP) ' . $otp;
 
     public function verifyOtp(Request $request)
     {
-        // Validasi input dasar
         $validator = Validator::make(
             $request->all(),
             [
-                'params' => 'required',
-                'new_email' => 'exists:users,email',
+                // Pastikan "new_email" bersifat unik di tabel "users", kolom "email"
+                'new_email' => 'unique:users,email',
+                'params' => 'required'
             ],
             [
                 'new_email.unique' => 'Email sudah digunakan'
@@ -351,9 +351,7 @@ Your verification code (OTP) ' . $otp;
             return response()->json([
                 'status'  => 401,
                 'message' => 'Something was wrong',
-                'payload' => [
-                    'params' => $validator->errors()->first('params')
-                ]
+                'payload' =>  $validator->errors()->first()
             ]);
         }
 
