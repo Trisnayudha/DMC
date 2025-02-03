@@ -339,7 +339,7 @@ Your verification code (OTP) ' . $otp;
             [
                 // Pastikan "new_email" bersifat unik di tabel "users", kolom "email"
                 'new_email' => 'unique:users,email',
-                'params' => 'required'
+                'params'    => 'required'
             ],
             [
                 'new_email.unique' => 'Email sudah digunakan'
@@ -390,8 +390,9 @@ Your verification code (OTP) ' . $otp;
                     ['users.otp', $otp]
                 ])->first();
 
-            // Jika user tidak ditemukan, kembalikan error
+            // Jika user tidak ditemukan, kembalikan error dengan pesan "OTP tidak valid"
             if (empty($findUser)) {
+                $response['message'] = 'Invalid OTP';
                 return response()->json($response);
             }
 
@@ -406,15 +407,15 @@ Your verification code (OTP) ' . $otp;
                 // Ubah nomor telepon di table profiles
                 $fullPhone = $prefixPhone . $newPhone;
                 $change    = ProfileModel::where('fullphone', $findUser->fullphone)->first();
-                $change->fullphone   = $fullPhone;
+                $change->fullphone    = $fullPhone;
                 $change->prefix_phone = $prefixPhone;
-                $change->phone       = $newPhone;
+                $change->phone        = $newPhone;
                 $change->save();
 
                 // Update data user
                 $update = User::where('id', $change->users_id)->first();
-                $update->otp           = null;
-                $update->verify_phone  = 'verified';
+                $update->otp          = null;
+                $update->verify_phone = 'verified';
                 $update->save();
 
                 // Set response sukses
@@ -460,8 +461,9 @@ Your verification code (OTP) ' . $otp;
                 ['otp', $otp]
             ])->first();
 
-            // Jika user tidak ditemukan, kembalikan error
+            // Jika user tidak ditemukan, kembalikan error dengan pesan "OTP tidak valid"
             if (empty($findUser)) {
+                $response['message'] = 'Invalid OTP';
                 return response()->json($response);
             }
 
@@ -508,6 +510,7 @@ Your verification code (OTP) ' . $otp;
         ];
         return response()->json($response);
     }
+
 
 
     public function check(Request $request)
