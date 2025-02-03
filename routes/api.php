@@ -130,6 +130,7 @@ Route::post('/faq', [FaqController::class, 'index']);
 Route::post('/notif', [NotifController::class, 'index']);
 
 Route::post('/marketing-ads', [MarketingAdsController::class, 'index']);
+Route::post('/advertisement', [MarketingAdsController::class, 'index']);
 
 Route::post('/notification/list', [NotificationController::class, 'notification']);
 

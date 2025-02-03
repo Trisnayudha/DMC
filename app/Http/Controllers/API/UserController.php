@@ -246,7 +246,7 @@ class UserController extends Controller
     public function requestOtp(Request $request)
     {
         $id = auth('sanctum')->user()->id;
-        $otp = rand(1000, 9999);
+        $otp = rand(10000, 99999);
         Log::info("otp = " . $otp);
         $validate = Validator::make(
             $request->all(),
@@ -334,128 +334,183 @@ Your verification code (OTP) ' . $otp;
 
     public function verifyOtp(Request $request)
     {
-        //verify Email
-        $email = $request->email;
-
-        //change Email
-        $new_email = $request->new_email;
-
-        //change phone number
-        $prefix_phone = $request->prefix_phone;
-        $old_phone = $request->old_phone;
-        $new_phone = $request->new_phone;
-
-        //verify phone number
-        $phone = $request->phone;
-        if (!empty($phone)) {
-            $old_phone = $phone;
-        }
-
-        $otp = $request->otp;
-        $params = $request->params;
-        $validate = Validator::make(
+        // Validasi input dasar
+        $validator = Validator::make(
             $request->all(),
             [
-                'params' => 'required'
+                'params' => 'required',
+                'new_email' => 'exists:users,email',
             ],
+            [
+                'new_email.unique' => 'Email sudah digunakan'
+            ]
         );
-        if ($validate->fails()) {
-            $data = [
-                'params' => $validate->errors()->first('params')
-            ];
-            $response['status'] = 401;
-            $response['message'] = 'Something was wrong';
-            $response['payload'] = $data;
-        } else {
-            if (!empty($old_phone)) {
-                $findUser = ProfileModel::join('users', 'users.id', 'profiles.users_id')
-                    ->where([['profiles.fullphone', $old_phone], ['users.otp', $otp]])->first();
-                if (!empty($findUser)) {
-                    if ($params == 'change' && !empty($prefix_phone) && !empty($new_phone)) {
-                        $fullphone = $prefix_phone . $new_phone;
-                        $change = ProfileModel::where('fullphone', $findUser->fullphone)->first();
-                        $change->fullphone = $fullphone;
-                        $change->prefix_phone = $prefix_phone;
-                        $change->phone = $new_phone;
-                        $change->save();
-                        $update = User::where('id', $change->users_id)->first();
-                        $update->otp = null;
-                        $update->verify_phone = 'verified';
-                        $update->save();
-                        $response['status'] = 200;
-                        $response['message'] = 'Success Change Phone Number';
-                        $response['payload'] = null;
-                    } elseif ($params == 'verify') {
-                        $verify = ProfileModel::where('fullphone', $old_phone)->first();
-                        $update = User::where('id', $verify->users_id)->first();
-                        $update->otp = null;
-                        $update->verify_phone = 'verified';
-                        $update->save();
-                        $response['status'] = 200;
-                        $response['message'] = 'Success Verify Phone Number';
-                        $response['payload'] = null;
-                    } else {
-                        $data = [
-                            'params' => 'Please Choose params ( verify / change )'
-                        ];
-                        $response['status'] = 401;
-                        $response['message'] = 'Something was wrong';
-                        $response['payload'] = $data;
-                        return response()->json($response);
-                    }
-                } else {
-                    $response['status'] = 401;
-                    $response['message'] = 'Something was wrong';
-                    $response['payload'] = null;
-                }
-            } elseif (!empty($email)) {
-                $findUser = User::where([['email', $email], ['otp', $otp]])->first();
-                if (!empty($findUser)) {
-                    if ($params == "change") {
-                        $change = User::where('email', $email)->first();
-                        $change->email = $new_email;
-                        $change->verify_email = 'verified';
-                        $change->otp = null;
-                        $change->save();
-                        $response['status'] = 200;
-                        $response['message'] = 'Success Change Email';
-                        $response['payload'] = null;
-                    } elseif ($params == "verify") {
-                        $change = User::where('email', $email)->first();
-                        $change->verify_email = 'verified';
-                        $change->otp = null;
-                        $change->save();
 
-                        $response['status'] = 200;
-                        $response['message'] = 'Success Verify Email';
-                        $response['payload'] = null;
-                    } else {
-                        $data = [
-                            'params' => 'Please Choose params ( verify / change )'
-                        ];
-                        $response['status'] = 401;
-                        $response['message'] = 'Something was wrong';
-                        $response['payload'] = $data;
-                        return response()->json($response);
-                    }
-                } else {
-                    $response['status'] = 401;
-                    $response['message'] = 'Something was wrong';
-                    $response['payload'] = null;
-                }
-            } else {
-                $data = [
-                    'phone' => 'choose verify/change',
-                    'email' => 'choose verify',
-                    'new_email' => 'required with email'
-                ];
-                $response['status'] = 401;
-                $response['message'] = 'Something was wrong';
-                $response['payload'] = $data;
-            }
+        // Jika validasi gagal, kembalikan response error
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => 401,
+                'message' => 'Something was wrong',
+                'payload' => [
+                    'params' => $validator->errors()->first('params')
+                ]
+            ]);
         }
+
+        // Ambil semua data request yang dibutuhkan
+        $otp         = $request->otp;
+        $params      = $request->params; // "change" atau "verify"
+        $email       = $request->email;
+        $newEmail    = $request->new_email;
+        $prefixPhone = $request->prefix_phone;
+        $oldPhone    = $request->old_phone;
+        $newPhone    = $request->new_phone;
+        $phone       = $request->phone;
+
+        // Jika ada request->phone, maka oldPhone di-override
+        if (!empty($phone)) {
+            $oldPhone = $phone;
+        }
+
+        // Persiapkan struktur response default
+        $response = [
+            'status'  => 401,
+            'message' => 'Something was wrong',
+            'payload' => null
+        ];
+
+        /**
+         * ----------------------------------------------------------------
+         * LOGIKA UNTUK NOMOR TELEPON
+         * ----------------------------------------------------------------
+         */
+        if (!empty($oldPhone)) {
+            // Coba temukan user berdasarkan fullphone dan otp
+            $findUser = ProfileModel::join('users', 'users.id', '=', 'profiles.users_id')
+                ->where([
+                    ['profiles.fullphone', $oldPhone],
+                    ['users.otp', $otp]
+                ])->first();
+
+            // Jika user tidak ditemukan, kembalikan error
+            if (empty($findUser)) {
+                return response()->json($response);
+            }
+
+            // Jika user ditemukan, cek params
+            if ($params === 'change') {
+                // Pastikan data untuk mengganti nomor telepon ada
+                if (empty($prefixPhone) || empty($newPhone)) {
+                    $response['payload'] = ['phone' => 'Prefix/nomor baru tidak boleh kosong'];
+                    return response()->json($response);
+                }
+
+                // Ubah nomor telepon di table profiles
+                $fullPhone = $prefixPhone . $newPhone;
+                $change    = ProfileModel::where('fullphone', $findUser->fullphone)->first();
+                $change->fullphone   = $fullPhone;
+                $change->prefix_phone = $prefixPhone;
+                $change->phone       = $newPhone;
+                $change->save();
+
+                // Update data user
+                $update = User::where('id', $change->users_id)->first();
+                $update->otp           = null;
+                $update->verify_phone  = 'verified';
+                $update->save();
+
+                // Set response sukses
+                $response['status']  = 200;
+                $response['message'] = 'Success Change Phone Number';
+                $response['payload'] = null;
+                return response()->json($response);
+            } elseif ($params === 'verify') {
+                // Verifikasi nomor telepon
+                $verify = ProfileModel::where('fullphone', $oldPhone)->first();
+                if ($verify) {
+                    $update = User::where('id', $verify->users_id)->first();
+                    $update->otp          = null;
+                    $update->verify_phone = 'verified';
+                    $update->save();
+
+                    $response['status']  = 200;
+                    $response['message'] = 'Success Verify Phone Number';
+                    $response['payload'] = null;
+                    return response()->json($response);
+                }
+
+                // Jika data profile tidak ditemukan
+                return response()->json($response);
+            }
+
+            // Jika params bukan "change" atau "verify"
+            $response['payload'] = [
+                'params' => 'Please Choose params ( verify / change )'
+            ];
+            return response()->json($response);
+        }
+
+        /**
+         * ----------------------------------------------------------------
+         * LOGIKA UNTUK EMAIL
+         * ----------------------------------------------------------------
+         */
+        if (!empty($email)) {
+            // Coba temukan user berdasarkan email dan otp
+            $findUser = User::where([
+                ['email', $email],
+                ['otp', $otp]
+            ])->first();
+
+            // Jika user tidak ditemukan, kembalikan error
+            if (empty($findUser)) {
+                return response()->json($response);
+            }
+
+            // Jika user ditemukan, cek params
+            if ($params === 'change') {
+                // Ganti email user
+                $findUser->email        = $newEmail;
+                $findUser->verify_email = 'verified';
+                $findUser->otp          = null;
+                $findUser->save();
+
+                $response['status']  = 200;
+                $response['message'] = 'Success Change Email';
+                $response['payload'] = null;
+                return response()->json($response);
+            } elseif ($params === 'verify') {
+                // Verifikasi email user
+                $findUser->verify_email = 'verified';
+                $findUser->otp          = null;
+                $findUser->save();
+
+                $response['status']  = 200;
+                $response['message'] = 'Success Verify Email';
+                $response['payload'] = null;
+                return response()->json($response);
+            }
+
+            // Jika params bukan "change" atau "verify"
+            $response['payload'] = [
+                'params' => 'Please Choose params ( verify / change )'
+            ];
+            return response()->json($response);
+        }
+
+        /**
+         * ----------------------------------------------------------------
+         * JIKA TELEPON ATAU EMAIL SAMA SEKALI TIDAK DIISI
+         * ----------------------------------------------------------------
+         */
+        $response['payload'] = [
+            'phone'     => 'Silakan isi `phone` (untuk verify/change)',
+            'email'     => 'Silakan isi `email` (untuk verify)',
+            'new_email' => 'Wajib diisi jika ingin mengubah email'
+        ];
         return response()->json($response);
     }
+
 
     public function check(Request $request)
     {
