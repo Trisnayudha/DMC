@@ -138,6 +138,7 @@ Route::post('/highlight/list', [NotificationController::class, 'highlight']);
 
 Route::post('print-scan', [PrintController::class, 'scan']);
 
+Route::post('home/statistic', [API_WEBHomeController::class, 'statistic']);
 
 Route::prefix('web')->group(function () {
 

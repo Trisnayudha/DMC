@@ -181,4 +181,18 @@ class HomeController extends Controller
         $response['payload'] = $data;
         return response()->json($response);
     }
+
+    public function statistic()
+    {
+        $data = [
+            'annual' => '1.500',
+            'events' => '6',
+            'members' => '4.500',
+            'corporate' => '45',
+        ];
+        $response['status'] = 200;
+        $response['message'] = 'Success';
+        $response['payload'] = $data;
+        return response()->json($response);
+    }
 }
