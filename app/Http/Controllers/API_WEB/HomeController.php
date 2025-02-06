@@ -88,6 +88,7 @@ class HomeController extends Controller
                 'type' => $event->event_type,
                 'start_date' => $event->start_date,
                 'location' => $event->location,
+                'time' => $event->start_time
             ];
         } else {
             $result = [
@@ -98,6 +99,7 @@ class HomeController extends Controller
                 'type' => null,
                 'start_date' => null,
                 'location' => null,
+                'time' => null
             ];
         }
 
