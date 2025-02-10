@@ -15,7 +15,7 @@ class SponsorAdvertisementApiController extends Controller
         try {
             $limit = $request->limit ?? 10;
             $search = $request->input('search');
-            $order = $request->input('order', 'newest'); // Default order is 'newest'
+            $order = $request->input('oldest', 'newest'); // Default order is 'newest'
 
             // Validasi nilai 'order'
             $allowedOrder = ['newest', 'oldest'];
@@ -25,7 +25,7 @@ class SponsorAdvertisementApiController extends Controller
             }
 
             // Menentukan urutan penyortiran berdasarkan parameter 'order'
-            $sortOrder = $order === 'newest' ? 'asc' : 'desc';
+            $sortOrder = $order === 'newest' ? 'desc' : 'asc';
             // Mengambil data dengan join ke tabel sponsors dan kondisi pencarian
             $advertisings = SponsorAdvertising::join('sponsors', 'sponsors.id', '=', 'sponsors_advertising.sponsor_id')
                 ->select(
