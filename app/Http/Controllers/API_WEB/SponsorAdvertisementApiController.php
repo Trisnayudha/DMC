@@ -15,14 +15,7 @@ class SponsorAdvertisementApiController extends Controller
         try {
             $limit = $request->limit ?? 10;
             $search = $request->input('search');
-            $order = $request->input('oldest', 'newest'); // Default order is 'newest'
-
-            // Validasi nilai 'order'
-            $allowedOrder = ['newest', 'oldest'];
-
-            if (!in_array($order, $allowedOrder)) {
-                $order = 'newest';
-            }
+            $order = $request->input('order'); // Default order is 'newest'
 
             // Menentukan urutan penyortiran berdasarkan parameter 'order'
             $sortOrder = ($order === 'oldest') ? 'asc' : 'desc';
