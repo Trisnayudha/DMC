@@ -55,6 +55,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/test/email', [TestController::class, 'testEmail']);
+
+Route::get('web-view-sponsor', function () {
+    return view('maps');
+});
+
 Route::get('/business-card', function () {
     return view('business-card');
 });
