@@ -89,6 +89,7 @@ class UserController extends Controller
 
         $check = User::where('id', $id)->first();
         $profile = ProfileModel::where('users_id', $check->id)->first();
+        $company = CompanyModel::where('users_id', $check->id)->first();
         if (!empty($check)) {
 
             $file = $request->image;
@@ -99,7 +100,18 @@ class UserController extends Controller
                 $profile->image = $db;
                 $profile->save();
             }
+            $company->company_name = $request->company_name;
+            $company->address = $request->address;
+            $company->office_number = $request->office_number;
+            $company->prefix_office_number = $request->prefix_office_number;
+            $company->company_website = $request->company_web;
+            $company->city = $request->city;
+            $company->portal_code = $request->portal_code;
+            $company->company_category = $request->company_category;
             $check->name = $request->name;
+            $profile->job_title = $request->job_title;
+            $company->save();
+            $profile->save();
             $check->save();
 
             $response['status'] = 200;
