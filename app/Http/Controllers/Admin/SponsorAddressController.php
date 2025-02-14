@@ -97,7 +97,7 @@ class SponsorAddressController extends Controller
 
     private function getCountry()
     {
-        $jsonFileUrl = public_path('country-flag-updated.json');
+        $jsonFileUrl = public_path('country-flag-flagcdn.json');
 
         if (file_exists($jsonFileUrl)) {
             $jsonContents = file_get_contents($jsonFileUrl);
