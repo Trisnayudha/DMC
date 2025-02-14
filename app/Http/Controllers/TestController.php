@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\EmailSender;
 use App\Helpers\Notification;
 use App\Helpers\WhatsappApi;
 use App\Models\BookingContact\BookingContact;
@@ -25,6 +26,26 @@ use Illuminate\Support\Facades\Mail;
 
 class TestController extends Controller
 {
+
+    public function testEmail()
+    {
+        // $send = Mail::send('email.test', [], function ($message) {
+        //     $message->from(env('EMAIL_SENDER'));
+        //     $message->to('yudha@indonesiaminer.com');
+        //     $message->subject('IT DMC TEST SEND MESSAGE');
+        // });
+        $send = new  EmailSender();
+        $send->template = 'email.test';
+        $send->name_sender = 'Secretariat';
+        $send->from = 'secretariat@djakarta-miningclub.com';
+        // $send->to = 'ray.ratumbanua@mammothequip.co.id';
+        // $send->to = 'yudha@indonesiaminer.com';
+        $send->to = 'erina@djakarta-miningclub.com';
+        $send->subject = 'IT DMC TEST SEND MESSAGE';
+        $send->sendEmail();
+        dd($send);
+    }
+
 
     public function storeBusinessCard(Request $request)
     {

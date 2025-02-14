@@ -100,12 +100,8 @@
 <body>
 
     <div class="body">
-        <div class="header-email">
-            <img src="{{ asset('/image/dmc.png') }}" alt="Image"
-                class="img-logo">
-        </div>
         <div class="body-email">
-           <p>Hai</p>
+            <p>HAI ERINA APA KABARS?</p>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.
