@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class Events extends EventsEvents
 {
-    public static function listAllEventsOnlySearch($search, $limit, $type, $category)
+    public static function listAllEventsOnlySearch($search, $limit, $type, $category, $event)
     {
         $column_filter = "events.start_date";
         $type_filter = "desc";
@@ -42,6 +42,9 @@ class Events extends EventsEvents
 
                 if (!empty($category)) {
                     $q->where('event_category_list.events_category_id', '=', $category);
+                }
+                if (!empty($event)) {
+                    $q->where('events.event_type', '=', $event);
                 }
                 $q->where('status', '=', 'publish');
                 $q->where('events.event_type', '!=', 'Partnership Event');
