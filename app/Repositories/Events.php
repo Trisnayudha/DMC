@@ -30,7 +30,7 @@ class Events extends EventsEvents
             ->leftJoin('events_category', function ($join) {
                 $join->on('events_category.id', '=', 'event_category_list.events_category_id');
             })
-            ->where(function ($q) use ($search, $type, $category) {
+            ->where(function ($q) use ($search, $type, $category, $event) {
                 if (!empty($search)) {
                     $q->where('events.name', 'LIKE', '%' . $search . '%');
                 }
