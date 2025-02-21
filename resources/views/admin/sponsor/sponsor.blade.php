@@ -7,17 +7,102 @@
                 <h1>Sponsors Management</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active"><a href="">Sponsors Management</a>
-                    </div>
+                    <div class="breadcrumb-item active"><a href="">Sponsors Management</a></div>
                 </div>
             </div>
             <div class="section-body">
-                <h2 class="section-title">Sponsors </h2>
+                <h2 class="section-title">Sponsors</h2>
+
+                <!-- Card Info Section (tetap sama seperti sebelumnya) -->
+                <div class="row">
+                    <!-- Card Platinum -->
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-primary">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Platinum</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $platinumCount ?? 0 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card Gold -->
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-warning">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Gold</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $goldCount ?? 0 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card Silver -->
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-secondary">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Silver</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $silverCount ?? 0 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card Total -->
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-success">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Total</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $totalCount ?? 0 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Card Info Section -->
+
+                <!-- Table Section dengan Filter di dalam header card -->
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
-                            <div class="card-header">
+                            <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4>Sponsors Management</h4>
+                                <!-- Form Filter Sponsor Type -->
+                                <form method="GET" action="{{ route('sponsors.index') }}" class="form-inline">
+                                    <div class="input-group">
+                                        <select name="type" id="filterType" class="form-control"
+                                            onchange="this.form.submit()">
+                                            <option value="">Semua</option>
+                                            <option value="platinum" {{ request('type') == 'platinum' ? 'selected' : '' }}>
+                                                Platinum</option>
+                                            <option value="gold" {{ request('type') == 'gold' ? 'selected' : '' }}>Gold
+                                            </option>
+                                            <option value="silver" {{ request('type') == 'silver' ? 'selected' : '' }}>
+                                                Silver</option>
+                                        </select>
+                                    </div>
+                                </form>
                             </div>
                             <div class="card-body">
                                 @if ($errors->any())
@@ -69,10 +154,8 @@
                                                         <span
                                                             class="badge
                                                             @if ($post->package == 'silver') badge-secondary
-                                                            @elseif($post->package == 'gold')
-                                                                badge-warning
-                                                            @elseif($post->package == 'platinum')
-                                                                badge-primary @endif
+                                                            @elseif($post->package == 'gold') badge-warning
+                                                            @elseif($post->package == 'platinum') badge-primary @endif
                                                         ">
                                                             {{ ucfirst($post->package) }}
                                                         </span>
@@ -88,29 +171,51 @@
                                                                 for="statusToggle{{ $post->id }}"></label>
                                                         </div>
                                                     </td>
-
                                                     <td>
-                                                        <a href="{{ route('sponsors-advertising.show', $post->id) }}"
-                                                            class="btn btn-primary m-1"><span class="fa fa-book"></span></a>
-                                                        <a href="{{ route('sponsors-representative.show', $post->id) }}"
-                                                            class="btn btn-warning m-1"><span class="fa fa-user"></span></a>
-                                                        <a href="{{ route('sponsors-address.show', $post->id) }}"
-                                                            class="btn btn-info m-1"><span
-                                                                class="fa fa-address-card"></span></a>
-                                                        <a href="{{ route('photos-videos-activity.show', $post->id) }}"
-                                                            class="btn btn-secondary m-1" title="Photos/Videos Activity">
-                                                            <span class="fa fa-image"></span>
-                                                        </a>
-                                                        <a href="{{ route('sponsors.edit', $post->id) }}"
-                                                            class="btn btn-success m-1" title="Edit Data">
-                                                            <span class="fa fa-edit"></span>
-                                                        </a>
-                                                        <button class="btn btn-danger delete-sponsor m-1"
-                                                            data-id="{{ $post->id }}" title="Hapus Data">
-                                                            <span class="fa fa-trash"></span>
-                                                        </button>
-                                                    </td>
+                                                        <div class="d-flex flex-wrap" style="gap: 4px; max-width: 150px;">
+                                                            <!-- Advertisement/Brochure -->
+                                                            <a href="{{ route('sponsors-advertising.show', $post->id) }}"
+                                                                class="btn btn-icon btn-sm btn-primary"
+                                                                data-toggle="tooltip" title="Advertisement/Brochure">
+                                                                <i class="fas fa-bullhorn"></i>
+                                                            </a>
 
+                                                            <!-- Sponsor Representative -->
+                                                            <a href="{{ route('sponsors-representative.show', $post->id) }}"
+                                                                class="btn btn-icon btn-sm btn-warning"
+                                                                data-toggle="tooltip" title="Sponsor Representative">
+                                                                <i class="fas fa-user-friends"></i>
+                                                            </a>
+
+                                                            <!-- Alamat Sponsor -->
+                                                            <a href="{{ route('sponsors-address.show', $post->id) }}"
+                                                                class="btn btn-icon btn-sm btn-info" data-toggle="tooltip"
+                                                                title="Alamat Sponsor">
+                                                                <i class="fas fa-map-marker-alt"></i>
+                                                            </a>
+
+                                                            <!-- Photos/Videos Activity -->
+                                                            <a href="{{ route('photos-videos-activity.show', $post->id) }}"
+                                                                class="btn btn-icon btn-sm btn-secondary"
+                                                                data-toggle="tooltip" title="Photos/Videos Activity">
+                                                                <i class="fas fa-camera"></i>
+                                                            </a>
+
+                                                            <!-- Edit Data -->
+                                                            <a href="{{ route('sponsors.edit', $post->id) }}"
+                                                                class="btn btn-icon btn-sm btn-success"
+                                                                data-toggle="tooltip" title="Edit Data">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </a>
+
+                                                            <!-- Hapus Data -->
+                                                            <button class="btn btn-icon btn-sm btn-danger delete-sponsor"
+                                                                data-id="{{ $post->id }}" data-toggle="tooltip"
+                                                                title="Hapus Data">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </div>
+                                                    </td>
 
                                                 </tr>
                                             @endforeach
@@ -122,6 +227,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- End Table Section -->
             </div>
         </section>
     </div>
@@ -152,23 +258,16 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            // Menampilkan pesan sukses menggunakan toast Stisla
                             toastr.success('Status berhasil diperbarui', 'Sukses', {
                                 "positionClass": "toast-top-right"
                             });
-
-                            console.log('Status berhasil diperbarui');
                         } else {
-                            // Menampilkan pesan kesalahan menggunakan toast Stisla
                             toastr.error('Gagal memperbarui status', 'Error', {
                                 "positionClass": "toast-top-right"
                             });
-
-                            console.error('Gagal memperbarui status');
                         }
                     },
                     error: function(xhr) {
-                        // Handle kesalahan Ajax
                         console.error('Terjadi kesalahan Ajax');
                     }
                 });
@@ -176,7 +275,6 @@
         });
 
         $(document).ready(function() {
-            // Menggunakan event delegate untuk menangani banyak tombol Hapus
             $('.table').on('click', '.delete-sponsor', function() {
                 let sponsorId = $(this).data('id');
 
@@ -202,7 +300,6 @@
                                         text: 'Data sponsor berhasil dihapus.',
                                         icon: 'success'
                                     }).then((result) => {
-                                        // Redirect atau refresh tampilan setelah menghapus
                                         window.location.reload();
                                     });
                                 } else {

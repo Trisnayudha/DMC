@@ -19,12 +19,31 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class SponsorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = Sponsor::orderBy('id', 'desc')->get();
-        return view('admin.sponsor.sponsor', ['data' => $data]);
-        // Show a list of tasks
+        $type = $request->get('type');
+
+        // Mengambil data sponsor sesuai filter (jika ada) dan urutkan secara descending
+        $data = Sponsor::when($type, function ($query, $type) {
+            return $query->where('package', $type);
+        })->orderBy('id', 'desc')->get();
+
+        // Menghitung sponsor dengan status publish per paket
+        $platinumCount = Sponsor::where('package', 'platinum')->where('status', 'publish')->count();
+        $goldCount     = Sponsor::where('package', 'gold')->where('status', 'publish')->count();
+        $silverCount   = Sponsor::where('package', 'silver')->where('status', 'publish')->count();
+        $totalCount    = Sponsor::where('status', 'publish')->count();
+
+        return view('admin.sponsor.sponsor', [
+            'data'          => $data,
+            'platinumCount' => $platinumCount,
+            'goldCount'     => $goldCount,
+            'silverCount'   => $silverCount,
+            'totalCount'    => $totalCount,
+            'type'          => $type, // agar view dapat mengetahui filter yang sedang aktif
+        ]);
     }
+
 
     public function create()
     {
