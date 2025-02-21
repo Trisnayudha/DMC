@@ -290,60 +290,81 @@
                                         <thead>
                                             <tr>
                                                 <th width="10px">No</th>
-                                                <th>Date Register</th>
-                                                <th>Code Access</th>
-                                                <th>Package</th>
-                                                <th>Nama</th>
-                                                <th>Job Title</th>
+                                                <th>Date Reg</th>
+                                                <th>Code</th>
+                                                <th>Pkg</th>
+                                                <th>Name</th>
+                                                <th>Job</th>
                                                 <th>Company</th>
                                                 <th>Email</th>
-                                                <th>Phone Number</th>
-                                                <th>Office Number</th>
-                                                <th>Company Category</th>
-                                                <th>Company Address</th>
-                                                <th>Status Approval</th>
-                                                <th>Status PIC</th>
-                                                <th>Status Daftar</th>
+                                                <th>Phone</th>
+                                                <th>Office</th>
+                                                <th>Cat</th>
+                                                <th>Address</th>
+                                                <th>Status</th>
+                                                <th>PIC</th>
+                                                <th>Sponsor</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php $no = 1; ?>
                                             @foreach ($payment as $post)
                                                 <tr id="row_{{ $post->id }}">
-                                                    <td>{{ $no++ }}</td>
-                                                    <td>{{ date('d,F H:i', strtotime($post->register)) }}</td>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ date('d, F H:i', strtotime($post->register)) }}</td>
                                                     <td>{{ $post->code_payment }}</td>
                                                     <td>{{ $post->package }}</td>
-                                                    <td>{{ $post->name }}</td>
+                                                    <td>
+                                                        {{ $post->name }}
+                                                    </td>
                                                     <td>{{ $post->job_title }}</td>
                                                     <td>{{ $post->company_name . ($post->prefix ? ', ' . $post->prefix : '') }}
+                                                    </td>
                                                     <td>{{ $post->email }}</td>
                                                     <td>{{ $post->phone }}</td>
                                                     <td>{{ $post->office_number }}</td>
-                                                    <td>{{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
+                                                    <td>
+                                                        {{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
                                                     </td>
                                                     <td>{{ $post->address }}</td>
                                                     <td>
                                                         <span
                                                             class="badge badge-pill {{ $post->status_registration == 'Paid Off' ? 'badge-primary' : 'badge-warning' }}">
-                                                            {{ $post->status_registration }}</span>
+                                                            {{ $post->status_registration }}
+                                                        </span>
                                                     </td>
-                                                    <td>
-                                                        {{ $post->pic_name ? $post->pic_name : 'System' }}
+                                                    <td>{{ $post->pic_name ? $post->pic_name : 'System' }}</td>
+                                                    <!-- Kolom Sponsor -->
+                                                    <td class="text-center">
+                                                        @if (!empty($post->sponsor_id))
+                                                            <span class="badge badge-success">SP</span>
+                                                        @else
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-outline-primary assign-btn"
+                                                                data-payment-id="{{ $post->payment_id }}"
+                                                                data-toggle="modal" data-target="#assignModal">
+                                                                <i class="fa fa-plus"></i>
+                                                            </button>
+                                                        @endif
                                                     </td>
+                                                    <!-- Kolom Aksi -->
                                                     <td>
-                                                        {{ $post->sponsor_name ? $post->sponsor_name : '' }}
-                                                    </td>
-                                                    <td>
+                                                        <a href="#" data-id="{{ $post->payment_id }}"
+                                                            class="btn btn-success btn-sm">
+                                                            <i class="fa fa-eye"></i>
+                                                        </a>
+                                                        <a href="#" data-id="{{ $post->payment_id }}"
+                                                            class="btn btn-warning btn-sm edit-button">
+                                                            <i class="fa fa-edit"></i>
+                                                        </a>
                                                         <a href="#" data-toggle="dropdown"
-                                                            class="btn btn-info dropdown-toggle">Action</a>
+                                                            class="btn btn-info btn-sm dropdown-toggle">Action</a>
                                                         <ul class="dropdown-menu dropdown-menu-sm dropdown-menu-right">
                                                             <form action="{{ url('admin/events/action') }}"
                                                                 method="post">
+                                                                @csrf
                                                                 <li>
-                                                                    @csrf
-                                                                    <input type="hidden" name="id" id="id"
+                                                                    <input type="hidden" name="id"
                                                                         value="{{ $post->payment_id }}">
                                                                     <input type="hidden" name="val" value="approve">
                                                                     <button type="submit"
@@ -352,9 +373,9 @@
                                                             </form>
                                                             <form action="{{ url('admin/events/action') }}"
                                                                 method="post">
+                                                                @csrf
                                                                 <li>
-                                                                    @csrf
-                                                                    <input type="hidden" name="id" id="id"
+                                                                    <input type="hidden" name="id"
                                                                         value="{{ $post->payment_id }}">
                                                                     <input type="hidden" name="val" value="reject">
                                                                     <button type="submit"
@@ -363,9 +384,9 @@
                                                             </form>
                                                             <form action="{{ url('admin/events/ticket') }}"
                                                                 method="post" target="_blank">
+                                                                @csrf
                                                                 <li>
-                                                                    @csrf
-                                                                    <input type="hidden" name="id" id="id"
+                                                                    <input type="hidden" name="id"
                                                                         value="{{ $post->payment_id }}">
                                                                     <button type="submit" class="dropdown-item">Download
                                                                         Ticket</button>
@@ -376,10 +397,9 @@
                                                                     ($post->status_registration == 'Waiting' && ($post->package != 'free' && $post->package != 'sponsor')))
                                                                 <form action="{{ url('admin/events/invoice') }}"
                                                                     method="post" target="_blank">
+                                                                    @csrf
                                                                     <li>
-                                                                        @csrf
                                                                         <input type="hidden" name="id"
-                                                                            id="id"
                                                                             value="{{ $post->payment_id }}">
                                                                         <button type="submit"
                                                                             class="dropdown-item">Download Invoice</button>
@@ -392,10 +412,9 @@
                                                                     $post->status_registration == 'Cancel')
                                                                 <form action="{{ url('admin/renewal-payment') }}"
                                                                     method="post">
+                                                                    @csrf
                                                                     <li>
-                                                                        @csrf
                                                                         <input type="hidden" name="id"
-                                                                            id="id"
                                                                             value="{{ $post->payment_id }}">
                                                                         <button type="submit"
                                                                             class="dropdown-item">Renewal</button>
@@ -404,27 +423,23 @@
                                                             @endif
                                                             <form action="{{ url('admin/remove-participant') }}"
                                                                 method="post">
+                                                                @csrf
                                                                 <li>
-                                                                    @csrf
-                                                                    <input type="hidden" name="id" id="id"
+                                                                    <input type="hidden" name="id"
                                                                         value="{{ $post->payment_id }}">
-                                                                    <button type="submit" class="dropdown-item ">Remove
+                                                                    <button type="submit" class="dropdown-item">Remove
                                                                         Delegate</button>
                                                                 </li>
                                                             </form>
                                                         </ul>
-                                                        <a href="#" data-id="{{ $post->payment_id }}"
-                                                            class="btn btn-success"><span class=" fa fa-eye"></a>
-                                                        <a href="#" data-id="{{ $post->payment_id }}"
-                                                            class="btn btn-warning edit-button"> <span
-                                                                class="fa fa-edit "></span></a>
                                                     </td>
-
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
                                 </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -432,6 +447,41 @@
             </div>
         </section>
     </div>
+
+    <!-- Modal for Assign Sponsor -->
+    <div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document">
+            <form action="{{ url('admin/events/assign-sponsor') }}" method="post" id="assignSponsorForm">
+                @csrf
+                <input type="hidden" name="payment_id" id="assignPaymentId" value="">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="assignModalLabel">Set Sponsor</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <select name="sponsor_id" id="sponsor_id" class="form-control" required>
+                                <option value="">Pilih Sponsor</option>
+                                @foreach ($sponsors as $sponsor)
+                                    <option value="{{ $sponsor->id }}">{{ $sponsor->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer p-2">
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Set</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <div class="modal fade" tabindex="-1" role="dialog" id="example">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -748,6 +798,13 @@
 @endpush
 @push('bottom')
     <script>
+        $(document).ready(function() {
+            // Saat tombol assign ditekan, masukkan payment_id ke input tersembunyi di modal
+            $('.assign-btn').on('click', function() {
+                var paymentId = $(this).data('payment-id');
+                $('#assignPaymentId').val(paymentId);
+            });
+        });
         //Untuk Scan
         $("#text-input").on("input", function() {
             if ($(this).val().length >= 7) {

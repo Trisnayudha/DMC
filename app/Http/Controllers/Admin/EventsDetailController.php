@@ -10,6 +10,7 @@ use App\Models\Events\Events;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
+use App\Models\Sponsors\Sponsor;
 use App\Models\User;
 use App\Services\Events\EventsService;
 use App\Services\Payment\PaymentService;
@@ -49,6 +50,7 @@ class EventsDetailController extends Controller
                 $usersCategory = UsersService::showChartCategory($event->id);
                 $usersJobTitle = UsersService::showChartJobTitle($event->id);
                 $users = User::orderBy('id', 'desc')->get();
+                $sponsors = Sponsor::where('status', 'publish')->orderBy('name', 'asc')->get();
                 $data = [
                     'payment' => $list,
                     'users' => $users,
@@ -60,7 +62,8 @@ class EventsDetailController extends Controller
                     'paid' => $countPaid,
                     'date' => $event->end_date,
                     'chartCategoryData' => $usersCategory,
-                    'chartJobTitle' => $usersJobTitle
+                    'chartJobTitle' => $usersJobTitle,
+                    'sponsors' => $sponsors
                 ];
                 return view('admin.events.event-detail', $data);
             } else {
@@ -661,5 +664,22 @@ class EventsDetailController extends Controller
         $filename = 'e_ticket-' . $findUsers->code_payment . '.pdf';
         // Download the PDF with the specified filename
         return $pdf->download($filename);
+    }
+
+    public function assignSponsorRepresentative(Request $request)
+    {
+        $request->validate([
+            'payment_id' => 'required|exists:payment,id',
+            'sponsor_id' => 'required|exists:sponsors,id',
+        ]);
+
+        $payment = Payment::find($request->payment_id);
+        if ($payment) {
+            $payment->sponsor_id = $request->sponsor_id;
+            $payment->save();
+
+            return redirect()->back()->with('success', 'Sponsor set.');
+        }
+        return redirect()->back()->with('error', 'Not found.');
     }
 }

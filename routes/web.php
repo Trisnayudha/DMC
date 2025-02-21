@@ -224,7 +224,7 @@ Route::prefix('admin')->group(function () {
     Route::post('remove-participant', [EventsDetailController::class, 'removeParticipant']);
     Route::post('renewal-payment', [PaymentController::class, 'renewal']);
     Route::post('/events/update/user', [EventsDetailController::class, 'editPeserta']);
-
+    Route::post('/events/assign-sponsor', [EventsDetailController::class, 'assignSponsorRepresentative']);
 
     // Events Detail participant
     Route::get('/events/{slug}/detail-participant', [EventsDetailParticipantController::class, 'detail_participant'])->name('events-details-participant');
