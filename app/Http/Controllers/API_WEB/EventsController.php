@@ -79,7 +79,7 @@ class EventsController extends Controller
                 'image' => $findEvent->image_banner,
                 'link' => $findEvent->link,
                 'status_event' => $findEvent->status_event,
-                'status_member' => $id != null ? (auth('sanctum')->user()->status_member != null ? auth('sanctum')->user()->status_member : 'nonmember') : 'nonmember',
+                'status_member' => $id != null ? 'member' : 'nonmember',
             ];
             $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->orderby('price_rupiah', 'asc')->get();
             $findUser = UserRegister::where('users_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
