@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorAddressController;
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
 use App\Http\Controllers\Admin\SponsorController;
+use App\Http\Controllers\Admin\SponsorCountRepresentativeController;
 use App\Http\Controllers\Admin\SponsorRepresentativeController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\VideosController;
@@ -171,6 +172,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/special-event', [SpecialEventController::class, 'request']);
 
     Route::resource('sponsors', SponsorController::class);
+    Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index']);
     Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
 

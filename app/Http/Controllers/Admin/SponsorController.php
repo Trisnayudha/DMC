@@ -23,7 +23,7 @@ class SponsorController extends Controller
     {
         $type = $request->get('type');
 
-        // Mengambil data sponsor sesuai filter (jika ada) dan urutkan secara descending
+        // Mengambil data sponsor sesuai filter (jika ada) dan mengurutkan secara descending
         $data = Sponsor::when($type, function ($query, $type) {
             return $query->where('package', $type);
         })->orderBy('id', 'desc')->get();
@@ -34,15 +34,29 @@ class SponsorController extends Controller
         $silverCount   = Sponsor::where('package', 'silver')->where('status', 'publish')->count();
         $totalCount    = Sponsor::where('status', 'publish')->count();
 
+        // Mengambil data top 5 sponsor representative attend berdasarkan tahun saat ini
+        $currentYear = now()->year; // atau Carbon::now()->year jika menggunakan Carbon
+
+        $topSponsors = Payment::selectRaw('company.company_name as company, COUNT(DISTINCT payment.member_id) as count_attend')
+            ->join('profiles', 'payment.member_id', '=', 'profiles.users_id')
+            ->join('company', 'profiles.company_id', '=', 'company.id')
+            ->whereYear('payment.created_at', $currentYear)
+            ->groupBy('company.company_name')
+            ->orderBy('count_attend', 'desc')
+            ->limit(5)
+            ->get();
+
         return view('admin.sponsor.sponsor', [
             'data'          => $data,
             'platinumCount' => $platinumCount,
             'goldCount'     => $goldCount,
             'silverCount'   => $silverCount,
             'totalCount'    => $totalCount,
-            'type'          => $type, // agar view dapat mengetahui filter yang sedang aktif
+            'type'          => $type,
+            'topSponsors'   => $topSponsors,
         ]);
     }
+
 
 
     public function create()

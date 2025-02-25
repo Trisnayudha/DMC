@@ -81,6 +81,40 @@
                     </div>
                 </div>
                 <!-- End Card Info Section -->
+                <div class="row">
+                    <!-- Card Top 5 Sponsor Representative Attend -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Top 5 Sponsor Representative Attend</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Company</th>
+                                                <th>Count Attend</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($topSponsors as $sponsor)
+                                                <tr>
+                                                    <td>{{ $sponsor->company }}</td>
+                                                    <td>{{ $sponsor->count_attend }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="text-right mt-3">
+                                    <a href="{{ url('/admin/sponsors-representative-count') }}" class="btn btn-primary">Show
+                                        More</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Table Section dengan Filter di dalam header card -->
                 <div class="row">
