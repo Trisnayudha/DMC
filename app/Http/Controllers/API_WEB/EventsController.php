@@ -331,6 +331,7 @@ class EventsController extends Controller
                     ->first();
                 $response['message'] = 'Email not registered as a member';
                 if ($ticket) {
+                    $response['payload']['email'] = $email;
                     $response['payload']['price'] = $ticket->price_rupiah;
                     $response['payload']['price_dollar'] = $ticket->price_dollar;
                     $response['payload']['ticket_id'] = $ticket->id;
@@ -346,6 +347,8 @@ class EventsController extends Controller
                     ->first();
                 $response['message'] = 'Email is available and can be used for registration';
                 if ($ticket) {
+
+                    $response['payload']['email'] = $email;
                     $response['payload']['price'] = $ticket->price_rupiah;
                     $response['payload']['price_dollar'] = $ticket->price_dollar;
                     $response['payload']['ticket_id'] = $ticket->id;
