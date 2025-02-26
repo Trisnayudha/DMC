@@ -307,55 +307,82 @@ class EventsController extends Controller
         $email = $request->email;
         $events_id = $request->events_id;
 
-        // Early return if event does not exist
+        // Early return jika event tidak ditemukan
         $event = Events::find($events_id);
         if (!$event) {
-            return response()->json(['status' => 404, 'message' => 'Event not found']);
+            return response()->json([
+                'status' => 404,
+                'message' => 'Event not found'
+            ]);
         }
-        // Define the default response
+
+        // Set nilai default jika event tidak free
+        $defaultPriceRupiah = $event->status_event === 'Free' ? 0 : 1000000;
+        $defaultPriceDollar = $event->status_event === 'Free' ? 0 : 62;
+
         $response = [
             'status' => 200,
             'message' => '',
             'payload' => [
                 'email' => $email,
-                'price' => $event->status_event === 'Free' ? 0 : 1000000,
-                'price_dollar' => $event->status_event === 'Free' ? 0 : 62,
+                'price' => $defaultPriceRupiah,
+                'price_dollar' => $defaultPriceDollar,
             ]
         ];
 
-        // Fetch user and their payment status for the event
+        // Ambil data user dan status pembayaran untuk event
         $user = User::where('email', $email)->first();
         $payment = $user ? Payment::where('member_id', $user->id)
             ->where('events_id', $events_id)
             ->whereIn('status_registration', ['Waiting', 'Paid Off'])
             ->first() : null;
-        $ticket = EventsTicket::where('events_id', $events_id);
 
         if ($event->status_event !== 'Free') {
             if (!$user) {
-                $ticket->where('title', '=', 'Non Member')->first();
+                // Jika user tidak terdaftar sebagai member, ambil ticket untuk Non Member
+                $ticket = EventsTicket::where('events_id', $events_id)
+                    ->where('title', 'Non Member')
+                    ->first();
                 $response['message'] = 'Email not registered as a member';
-                $response['payload']['price'] = $ticket->price_rupiah;
-                $response['payload']['price_dollar'] = $ticket->price_dollar;
-                $response['payload']['ticket_id'] = $ticket->id;
+                if ($ticket) {
+                    $response['payload']['price'] = $ticket->price_rupiah;
+                    $response['payload']['price_dollar'] = $ticket->price_dollar;
+                    $response['payload']['ticket_id'] = $ticket->id;
+                }
             } elseif ($payment) {
+                // Jika sudah ada payment, berarti user sudah terdaftar di event
                 $response['message'] = 'Email already registered in event!';
                 $response['status'] = 409; // Conflict
             } else {
-                $ticket->where('title', '=', 'Member')->first();
+                // Jika user adalah member dan belum melakukan pembayaran, ambil ticket untuk Member
+                $ticket = EventsTicket::where('events_id', $events_id)
+                    ->where('title', 'Member')
+                    ->first();
                 $response['message'] = 'Email is available and can be used for registration';
-                $response['payload']['price'] = $ticket->price_rupiah;
-                $response['payload']['price_dollar'] = $ticket->price_dollar;
-                $response['payload']['ticket_id'] = $ticket->id;
+                if ($ticket) {
+                    $response['payload']['price'] = $ticket->price_rupiah;
+                    $response['payload']['price_dollar'] = $ticket->price_dollar;
+                    $response['payload']['ticket_id'] = $ticket->id;
+                }
             }
         } else {
+            // Untuk event gratis
             if ($payment) {
                 $response['message'] = 'Email already registered in event!';
                 $response['status'] = 409; // Conflict
             } else {
-                $ticket->where('title', '=', 'free')->first();
+                $ticket = EventsTicket::where('events_id', $events_id)
+                    ->where('title', 'free')
+                    ->first();
                 $response['message'] = 'Free event registration is available';
-                $response['payload'] = $ticket;
+                if ($ticket) {
+                    $response['payload'] = [
+                        'ticket_id'     => $ticket->id,
+                        'email'         => $email,
+                        'price'         => $ticket->price_rupiah,
+                        'price_dollar'  => $ticket->price_dollar,
+                    ];
+                }
             }
         }
 
