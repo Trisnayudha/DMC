@@ -316,20 +316,6 @@ class EventsController extends Controller
             ]);
         }
 
-        // Set nilai default jika event tidak free
-        $defaultPriceRupiah = $event->status_event === 'Free' ? 0 : 1000000;
-        $defaultPriceDollar = $event->status_event === 'Free' ? 0 : 62;
-
-        $response = [
-            'status' => 200,
-            'message' => '',
-            'payload' => [
-                'email' => $email,
-                'price' => $defaultPriceRupiah,
-                'price_dollar' => $defaultPriceDollar,
-            ]
-        ];
-
         // Ambil data user dan status pembayaran untuk event
         $user = User::where('email', $email)->first();
         $payment = $user ? Payment::where('member_id', $user->id)
