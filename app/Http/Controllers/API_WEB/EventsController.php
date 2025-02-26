@@ -312,7 +312,6 @@ class EventsController extends Controller
         if (!$event) {
             return response()->json(['status' => 404, 'message' => 'Event not found']);
         }
-
         // Define the default response
         $response = [
             'status' => 200,
@@ -330,24 +329,33 @@ class EventsController extends Controller
             ->where('events_id', $events_id)
             ->whereIn('status_registration', ['Waiting', 'Paid Off'])
             ->first() : null;
+        $ticket = EventsTicket::where('events_id', $events_id);
 
         if ($event->status_event !== 'Free') {
             if (!$user) {
+                $ticket->where('title', '=', 'Non Member')->first();
                 $response['message'] = 'Email not registered as a member';
+                $response['payload']['price'] = $ticket->price_rupiah;
+                $response['payload']['price_dollar'] = $ticket->price_dollar;
+                $response['payload']['ticket_id'] = $ticket->id;
             } elseif ($payment) {
                 $response['message'] = 'Email already registered in event!';
                 $response['status'] = 409; // Conflict
             } else {
+                $ticket->where('title', '=', 'Member')->first();
                 $response['message'] = 'Email is available and can be used for registration';
-                $response['payload']['price'] = 900000;
-                $response['payload']['price_dollar'] = 56.80;
+                $response['payload']['price'] = $ticket->price_rupiah;
+                $response['payload']['price_dollar'] = $ticket->price_dollar;
+                $response['payload']['ticket_id'] = $ticket->id;
             }
         } else {
             if ($payment) {
                 $response['message'] = 'Email already registered in event!';
                 $response['status'] = 409; // Conflict
             } else {
+                $ticket->where('title', '=', 'free')->first();
                 $response['message'] = 'Free event registration is available';
+                $response['payload'] = $ticket;
             }
         }
 
