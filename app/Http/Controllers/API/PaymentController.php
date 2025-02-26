@@ -57,7 +57,7 @@ class PaymentController extends Controller
                 'business_id'      => Str::random(24), // business_id random
                 'is_livemode'      => true,
                 'channel_code'     => 'VISA',
-                'name'             => 'Credit Card',
+                'name'             => 'VISA',
                 'currency'         => 'IDR',
                 'channel_category' => 'CREDIT_CARD',
                 'is_enabled'       => true,
