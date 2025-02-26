@@ -22,6 +22,7 @@ use Xendit\Invoice;
 
 class PaymentController extends Controller
 {
+
     public function listbank()
     {
         // init xendit
@@ -34,18 +35,43 @@ class PaymentController extends Controller
         // params invoice
         Xendit::setApiKey($secretKey);
         $getPaymentChannels = PaymentChannels::list();
-
         $available_payment = array_filter($getPaymentChannels, function ($key) {
-            // dd($key['is_activated']);
-            return $key['is_enabled'] == true && ($key['channel_category'] == 'VIRTUAL_ACCOUNT' || $key['channel_category'] == 'CREDIT_CARD');
+            return $key['is_enabled'] == true &&
+                ($key['channel_category'] == 'VIRTUAL_ACCOUNT' || $key['channel_category'] == 'CREDIT_CARD');
         });
+
+        // Ubah kembali index array
+        $available_payment = array_values($available_payment);
+
+        // Cek apakah sudah ada opsi CREDIT_CARD, jika belum tambahkan manual
+        $hasCreditCard = false;
+        foreach ($available_payment as $payment) {
+            if ($payment['channel_category'] == 'CREDIT_CARD') {
+                $hasCreditCard = true;
+                break;
+            }
+        }
+
+        if (!$hasCreditCard) {
+            $manual_credit_card = [
+                'business_id'      => Str::random(24), // business_id random
+                'is_livemode'      => true,
+                'channel_code'     => 'CC',
+                'name'             => 'Credit Card',
+                'currency'         => 'IDR',
+                'channel_category' => 'CREDIT_CARD',
+                'is_enabled'       => true,
+            ];
+            $available_payment[] = $manual_credit_card;
+        }
 
         $response['status'] = 200;
         $response['message'] = 'List Bank';
-        $response['payload'] = array_values($available_payment);
+        $response['payload'] = $available_payment;
 
         return response()->json($response);
     }
+
 
     public function payment(Request $request)
     {
