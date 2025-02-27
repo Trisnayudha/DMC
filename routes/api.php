@@ -53,7 +53,7 @@ Route::post('/xendit/invoice_v2', [XenditCallbackController::class, 'invoice_v2'
 Route::post('/xendit/fva_create', [XenditCallbackController::class, 'fva_create']);
 Route::post('/xendit/fva_paid', [XenditCallbackController::class, 'fva_paid']);
 Route::post('payment/creditcard', [PaymentController::class, 'creditCard']);
-
+Route::post('/v2/payment/', [PaymentController::class, 'payment_v2']);
 Route::post('/signin-phone', [AuthController::class, 'signin_phone']);
 Route::post('/verify_signin_phone', [AuthController::class, 'verify_signin_phone']);
 Route::post('/signin-email', [AuthController::class, 'signin_email']);
