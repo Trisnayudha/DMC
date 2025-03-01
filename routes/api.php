@@ -21,6 +21,7 @@ use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\PrintController;
 use App\Http\Controllers\API\ScanController;
 use App\Http\Controllers\API\SponsorsController;
+use App\Http\Controllers\API\VoucherController;
 use App\Http\Controllers\API_WEB\AboutController;
 use App\Http\Controllers\API_WEB\AuthController as API_WEBAuthController;
 use App\Http\Controllers\API_WEB\HomeController as API_WEBHomeController;
@@ -54,6 +55,7 @@ Route::post('/xendit/fva_create', [XenditCallbackController::class, 'fva_create'
 Route::post('/xendit/fva_paid', [XenditCallbackController::class, 'fva_paid']);
 Route::post('payment/creditcard', [PaymentController::class, 'creditCard']);
 Route::post('/v2/payment/', [PaymentController::class, 'payment_v2']);
+Route::post('/v2/discount', [VoucherController::class, 'discount']);
 Route::post('/signin-phone', [AuthController::class, 'signin_phone']);
 Route::post('/verify_signin_phone', [AuthController::class, 'verify_signin_phone']);
 Route::post('/signin-email', [AuthController::class, 'signin_email']);
