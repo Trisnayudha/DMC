@@ -94,8 +94,20 @@ class PaymentController extends Controller
             ], 404);
         }
 
+        // Ambil exchange rate (nilai 1$ ke rupiah) dari helper
+        $exchangeRate = \App\Helpers\ScrapeHelper::scrapeExchangeRate();
+
+        // Pastikan field discount di Payment dalam bentuk integer
+        $findPayment->discount = (int) $findPayment->discount;
+        // Hitung discount_dollar: discount (rupiah) / exchange rate, kemudian dibulatkan dan di-cast ke int
+        $findPayment->discount_dollar = (int) round($findPayment->discount / $exchangeRate);
+
         // Cari data ticket berdasarkan ticket id dari payment
         $findTicket = EventsTicket::where('id', $findPayment->tickets_id)->first();
+        if ($findTicket) {
+            // Misal, jika field harga tiket (price_rupiah) ada, konversi ke integer
+            $findTicket->price_rupiah = (int) $findTicket->price_rupiah;
+        }
 
         // Ambil detail payment
         $findDetailPayment = PaymentUsersVA::where('payment_id', $findPayment->payment_id)->first();
@@ -103,12 +115,16 @@ class PaymentController extends Controller
         // Jika detail payment ditemukan, tambahkan properti 'link'
         if ($findDetailPayment) {
             $findDetailPayment->link = $findPayment->link;
+            // Jika ada field numerik lainnya (misalnya expected_amount), pastikan di-cast ke int
+            if (isset($findDetailPayment->expected_amount)) {
+                $findDetailPayment->expected_amount = (int) $findDetailPayment->expected_amount;
+            }
         }
 
         $data = [
-            'payment' => $findPayment,
+            'detail'  => $findPayment,
             'ticket'  => $findTicket,
-            'detail'  => $findDetailPayment
+            'payment' => $findDetailPayment
         ];
 
         return response()->json([
@@ -117,6 +133,7 @@ class PaymentController extends Controller
             'payload' => $data
         ]);
     }
+
 
     public function PaymentAnonymous(Request $request)
     {
