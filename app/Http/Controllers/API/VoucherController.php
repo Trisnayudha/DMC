@@ -28,6 +28,9 @@ class VoucherController extends Controller
         // 2. Ambil harga normal tiket dan pastikan berupa integer
         $price = (int) $ticket->price_rupiah;
 
+        // Ambil nilai voucher dollar dari helper
+        $voucherDollar = \App\Helpers\ScrapeHelper::scrapeExchangeRate();
+
         // 3. Jika voucher code kosong, langsung kembalikan harga normal
         if (empty($code_voucher)) {
             return response()->json([
@@ -36,7 +39,8 @@ class VoucherController extends Controller
                 'payload' => [
                     'original_price' => $price,
                     'discount'       => 0,
-                    'final_price'    => $price
+                    'final_price'    => $price,
+                    'voucher_dollar' => $voucherDollar
                 ]
             ]);
         }
@@ -79,7 +83,8 @@ class VoucherController extends Controller
                 'voucher_code'   => $code_voucher,
                 'original_price' => (int) $price,
                 'discount'       => (int) $discount,
-                'final_price'    => (int) $finalPrice
+                'final_price'    => (int) $finalPrice,
+                'voucher_dollar' => $voucherDollar
             ]
         ]);
     }
