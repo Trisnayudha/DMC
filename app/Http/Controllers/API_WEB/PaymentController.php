@@ -78,7 +78,7 @@ class PaymentController extends Controller
     public function detail(Request $request)
     {
         $code_payment = $request->code_payment;
-        $findPayment = Payment::join('events', 'events.id', 'payment.events_id')->where('code_payment', $code_payment)->select('id.payment', 'payment.*', 'events.*')->first();
+        $findPayment = Payment::join('events', 'events.id', 'payment.events_id')->where('code_payment', $code_payment)->select('id as payment.id', 'payment.*', 'events.*')->first();
         $findTicket = EventsTicket::where('id', $findPayment->tickets_id)->first();
         $findDetailPayment = PaymentUsersVA::where('payment_id', $findPayment->id)->first();
         $data = [
