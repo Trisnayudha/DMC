@@ -119,10 +119,6 @@ class PaymentController extends Controller
             if (isset($findDetailPayment->expected_amount)) {
                 $findDetailPayment->expected_amount = (int) $findDetailPayment->expected_amount;
             }
-            // Ubah account_number menjadi string
-            if (isset($findDetailPayment->account_number)) {
-                $findDetailPayment->account_number = (string) $findDetailPayment->account_number;
-            }
         }
 
         $data = [
