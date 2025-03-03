@@ -97,8 +97,13 @@ class PaymentController extends Controller
         // Cari data ticket berdasarkan ticket id dari payment
         $findTicket = EventsTicket::where('id', $findPayment->tickets_id)->first();
 
-        // Cari detail payment dari PaymentUsersVA berdasarkan payment id
+        // Ambil detail payment
         $findDetailPayment = PaymentUsersVA::where('payment_id', $findPayment->payment_id)->first();
+
+        // Jika detail payment ditemukan, tambahkan properti 'link'
+        if ($findDetailPayment) {
+            $findDetailPayment->link = $findPayment->link;
+        }
 
         $data = [
             'payment' => $findPayment,
