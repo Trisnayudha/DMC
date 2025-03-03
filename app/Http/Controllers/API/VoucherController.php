@@ -84,7 +84,7 @@ class VoucherController extends Controller
                 'original_price' => (int) $price,
                 'discount'       => (int) $discount,
                 'final_price'    => (int) $finalPrice,
-                'voucher_dollar' => $voucherDollar
+                'discount_dollar' => $voucherDollar
             ]
         ]);
     }
