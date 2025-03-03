@@ -370,16 +370,22 @@ class PaymentController extends Controller
             // --- Proses voucher diskon ---
             $discount = 0;
             if (!empty($voucher_code)) {
-                // Contoh logika sederhana: cek di table vouchers
+                // Cek di table vouchers
                 $voucherData = Voucher::where('voucher_code', $voucher_code)
                     ->where('status', 'active')
                     ->first();
                 if ($voucherData) {
-                    // Contoh diskon fix nominal
-                    $discount = $voucherData->nominal;
-                    // Pastikan discount tidak melebihi harga
-                    if ($discount > $price) {
-                        $discount = $price;
+                    if ($voucherData->type == 'fixed') {
+                        // Diskon berupa nominal tetap
+                        $discount = $voucherData->nominal;
+                        // Pastikan discount tidak melebihi harga
+                        if ($discount > $price) {
+                            $discount = $price;
+                        }
+                    } elseif ($voucherData->type == 'percentage') {
+                        // Diskon berupa persentase
+                        // Misal nominal voucher 10 berarti 10% diskon
+                        $discount = ($price * $voucherData->nominal) / 100;
                     }
                 } else {
                     DB::rollBack();
@@ -391,6 +397,7 @@ class PaymentController extends Controller
                 }
             }
             $finalPrice = $price - $discount;
+
 
             // --- Buat Payment baru ---
             $payment = new Payment();
