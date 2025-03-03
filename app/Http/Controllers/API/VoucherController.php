@@ -28,8 +28,10 @@ class VoucherController extends Controller
         // 2. Ambil harga normal tiket dan pastikan berupa integer
         $price = (int) $ticket->price_rupiah;
 
-        // Ambil nilai voucher dollar dari helper
+        // Ambil nilai tukar dollar dari helper
         $voucherDollar = \App\Helpers\ScrapeHelper::scrapeExchangeRate();
+        // Misal: jika helper mengembalikan 62, artinya 1 juta rupiah setara dengan 62 dollar.
+        $conversionFactor = $voucherDollar / 1000000; // contoh: 62/1000000 = 0.000062
 
         // 3. Jika voucher code kosong, langsung kembalikan harga normal
         if (empty($code_voucher)) {
@@ -37,10 +39,14 @@ class VoucherController extends Controller
                 'status'  => 200,
                 'message' => 'No voucher code provided',
                 'payload' => [
-                    'original_price' => $price,
-                    'discount'       => 0,
-                    'final_price'    => $price,
-                    'voucher_dollar' => $voucherDollar
+                    'voucher_code'             => null,
+                    'original_price'           => $price,
+                    'discount'                 => 0,
+                    'final_price'              => $price,
+                    'original_price_dollar'    => round($price * $conversionFactor, 2),
+                    'discount_dollar'          => 0,
+                    'final_price_dollar'       => round($price * $conversionFactor, 2),
+                    'voucher_dollar'           => $voucherDollar
                 ]
             ]);
         }
@@ -75,16 +81,24 @@ class VoucherController extends Controller
             $finalPrice = $price - $discount;
         }
 
+        // Hitung nilai dollar
+        $originalPriceDollar = round($price * $conversionFactor, 2);
+        $discountDollar = round($discount * $conversionFactor, 2);
+        $finalPriceDollar = round($finalPrice * $conversionFactor, 2);
+
         // 6. Kembalikan hasil perhitungan dengan casting yang tepat
         return response()->json([
             'status'  => 200,
             'message' => 'success',
             'payload' => [
-                'voucher_code'   => $code_voucher,
-                'original_price' => (int) $price,
-                'discount'       => (int) $discount,
-                'final_price'    => (int) $finalPrice,
-                'discount_dollar' => $voucherDollar
+                'voucher_code'             => $code_voucher,
+                'original_price'           => (int) $price,
+                'discount'                 => (int) $discount,
+                'final_price'              => (int) $finalPrice,
+                'original_price_dollar'    => $originalPriceDollar,
+                'discount_dollar'          => $discountDollar,
+                'final_price_dollar'       => $finalPriceDollar,
+                'voucher_dollar'           => $voucherDollar
             ]
         ]);
     }
