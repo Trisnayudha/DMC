@@ -99,7 +99,7 @@ class PaymentController extends Controller
 
         // Pastikan field discount di Payment dalam bentuk integer
         $findPayment->discount = (int) $findPayment->discount;
-        // Hitung discount_dollar: discount (rupiah) / exchange rate, kemudian dibulatkan dan di-cast ke int
+        // Hitung discount_dollar: discount (rupiah) / exchange rate, dibulatkan dan di-cast ke int
         $findPayment->discount_dollar = (int) round($findPayment->discount / $exchangeRate);
 
         // Cari data ticket berdasarkan ticket id dari payment
@@ -115,9 +115,13 @@ class PaymentController extends Controller
         // Jika detail payment ditemukan, tambahkan properti 'link'
         if ($findDetailPayment) {
             $findDetailPayment->link = $findPayment->link;
-            // Jika ada field numerik lainnya (misalnya expected_amount), pastikan di-cast ke int
+            // Pastikan field numerik lainnya di-cast ke int, misalnya expected_amount
             if (isset($findDetailPayment->expected_amount)) {
                 $findDetailPayment->expected_amount = (int) $findDetailPayment->expected_amount;
+            }
+            // Ubah account_number menjadi string
+            if (isset($findDetailPayment->account_number)) {
+                $findDetailPayment->account_number = (string) $findDetailPayment->account_number;
             }
         }
 
@@ -133,6 +137,7 @@ class PaymentController extends Controller
             'payload' => $data
         ]);
     }
+
 
 
     public function PaymentAnonymous(Request $request)
