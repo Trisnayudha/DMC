@@ -78,20 +78,41 @@ class PaymentController extends Controller
     public function detail(Request $request)
     {
         $code_payment = $request->code_payment;
-        $findPayment = Payment::join('events', 'events.id', 'payment.events_id')->where('code_payment', $code_payment)->select('id as payment.id', 'payment.*', 'events.*')->first();
+
+        // Cari data payment beserta data events terkait
+        $findPayment = Payment::join('events', 'events.id', '=', 'payment.events_id')
+            ->where('code_payment', $code_payment)
+            ->select('payment.id as payment_id', 'payment.*', 'events.*')
+            ->first();
+
+        // Jika payment tidak ditemukan, kembalikan error
+        if (!$findPayment) {
+            return response()->json([
+                'status'  => 404,
+                'message' => 'Payment not found',
+                'payload' => null
+            ], 404);
+        }
+
+        // Cari data ticket berdasarkan ticket id dari payment
         $findTicket = EventsTicket::where('id', $findPayment->tickets_id)->first();
-        $findDetailPayment = PaymentUsersVA::where('payment_id', $findPayment->id)->first();
+
+        // Cari detail payment dari PaymentUsersVA berdasarkan payment id
+        $findDetailPayment = PaymentUsersVA::where('payment_id', $findPayment->payment_id)->first();
+
         $data = [
             'payment' => $findPayment,
-            'ticket' => $findTicket,
-            'detail' => $findDetailPayment
+            'ticket'  => $findTicket,
+            'detail'  => $findDetailPayment
         ];
-        $response['status'] = 200;
 
-        $response['message'] = 'Success Refresh payment';
-        $response['payload'] = $data;
-        return response()->json($response);
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Success Refresh payment',
+            'payload' => $data
+        ]);
     }
+
     public function PaymentAnonymous(Request $request)
     {
         // Get data from request
