@@ -59,6 +59,7 @@ Route::post('/v2/discount', [VoucherController::class, 'discount']);
 Route::post('/signin-phone', [AuthController::class, 'signin_phone']);
 Route::post('/verify_signin_phone', [AuthController::class, 'verify_signin_phone']);
 Route::post('/signin-email', [AuthController::class, 'signin_email']);
+Route::post('payment/detail/{code_payment}', [API_WEBPaymentController::class, 'detail']);
 
 Route::post('/signin-qr', [AuthController::class, 'signin_qr']);
 

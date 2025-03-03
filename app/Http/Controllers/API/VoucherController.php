@@ -25,8 +25,8 @@ class VoucherController extends Controller
             ], 404);
         }
 
-        // 2. Ambil harga normal tiket
-        $price = $ticket->price_rupiah;  // Sesuaikan dengan kolom Anda, misal price_rupiah
+        // 2. Ambil harga normal tiket dan pastikan berupa integer
+        $price = (int) $ticket->price_rupiah;
 
         // 3. Jika voucher code kosong, langsung kembalikan harga normal
         if (empty($code_voucher)) {
@@ -54,36 +54,32 @@ class VoucherController extends Controller
         }
 
         // 5. Lakukan perhitungan diskon
-        $discount = 0;
+        $discount   = 0;
         $finalPrice = $price; // Default
 
-        // Contoh logika:
-        // - type = fixed => potongan nominal
-        // - type = percentage => potongan persentase
         if ($voucher->type == 'fixed') {
-            $discount = $voucher->nominal;
-            // Pastikan diskon tidak melebihi harga
+            $discount = (int) $voucher->nominal;
             if ($discount > $price) {
                 $discount = $price;
             }
             $finalPrice = $price - $discount;
         } else {
             // Asumsi type = 'percentage'
-            // diskon = (nominal% dari price)
-            $persen    = $voucher->nominal; // misal 10 = 10%
-            $discount  = ($price * $persen) / 100;
+            $persen   = (int) $voucher->nominal;
+            $discount = ($price * $persen) / 100;
+            $discount = (int) $discount;
             $finalPrice = $price - $discount;
         }
 
-        // 6. Kembalikan hasil perhitungan
+        // 6. Kembalikan hasil perhitungan dengan casting yang tepat
         return response()->json([
             'status'  => 200,
             'message' => 'success',
             'payload' => [
                 'voucher_code'   => $code_voucher,
-                'original_price' => $price,
-                'discount'       => $discount,
-                'final_price'    => $finalPrice
+                'original_price' => (int) $price,
+                'discount'       => (int) $discount,
+                'final_price'    => (int) $finalPrice
             ]
         ]);
     }

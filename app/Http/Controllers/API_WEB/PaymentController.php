@@ -7,6 +7,7 @@ use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
+use App\Models\Events\EventsTicket;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Payments\PaymentUsersVA;
@@ -74,6 +75,23 @@ class PaymentController extends Controller
         return response()->json($response);
     }
 
+    public function detail(Request $request)
+    {
+        $code_payment = $request->code_payment;
+        $findPayment = Payment::join('events', 'events.id', 'payment.events_id')->where('code_payment', $code_payment)->first();
+        $findTicket = EventsTicket::where('id', $findPayment->tickets_id)->first();
+        $findDetailPayment = PaymentUsersVA::where('payment_id', $findPayment->id)->first();
+        $data = [
+            'payment' => $findPayment,
+            'ticket' => $findTicket,
+            'detail' => $findDetailPayment
+        ];
+        $response['status'] = 200;
+
+        $response['message'] = 'Success Refresh payment';
+        $response['payload'] = $data;
+        return response()->json($response);
+    }
     public function PaymentAnonymous(Request $request)
     {
         // Get data from request
