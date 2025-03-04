@@ -70,10 +70,12 @@ class SponsorController extends Controller
         // Kita asumsikan contract_end disimpan sebagai string "YYYY-MM"
         $nearEndSponsors = Sponsor::where('status', 'publish')
             ->whereNotNull('contract_end')
-            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [now()->addMonths(3)->format('Y-m-01')])
-            ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') ASC")
+            // Pastikan contract_end tidak melebihi bulan ini
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [now()->format('Y-m-01')])
+            ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') DESC")
             ->limit(5)
             ->get();
+
 
         return view('admin.sponsor.sponsor', [
             'data'                 => $data,
