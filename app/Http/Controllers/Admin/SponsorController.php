@@ -8,9 +8,11 @@ use App\Models\Events\Events;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
+use App\Models\Sponsors\SponsorBenefitUsage;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
@@ -46,14 +48,24 @@ class SponsorController extends Controller
             ->limit(5)
             ->get();
 
+        // Mengambil top 5 penggunaan benefit sponsor dengan menggunakan model SponsorBenefitUsage
+        $topBenefitUsage = SponsorBenefitUsage::where('status', 'used')
+            ->select('sponsor_id', DB::raw('COUNT(*) as usage_count'))
+            ->groupBy('sponsor_id')
+            ->orderByDesc('usage_count')
+            ->limit(5)
+            ->with('sponsor')
+            ->get();
+
         return view('admin.sponsor.sponsor', [
-            'data'          => $data,
-            'platinumCount' => $platinumCount,
-            'goldCount'     => $goldCount,
-            'silverCount'   => $silverCount,
-            'totalCount'    => $totalCount,
-            'type'          => $type,
-            'topSponsors'   => $topSponsors,
+            'data'            => $data,
+            'platinumCount'   => $platinumCount,
+            'goldCount'       => $goldCount,
+            'silverCount'     => $silverCount,
+            'totalCount'      => $totalCount,
+            'type'            => $type,
+            'topSponsors'     => $topSponsors,
+            'topBenefitUsage' => $topBenefitUsage,
         ]);
     }
 
