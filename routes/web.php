@@ -177,7 +177,7 @@ Route::prefix('admin')->group(function () {
     Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
 
-    Route::get('sponsors/benefits', [SponsorBenefitController::class, 'index'])
+    Route::get('sponsor/benefits', [SponsorBenefitController::class, 'index'])
         ->name('sponsors.benefit.index');
 
     Route::get('sponsors/{sponsor}/benefits', [SponsorBenefitController::class, 'detail'])

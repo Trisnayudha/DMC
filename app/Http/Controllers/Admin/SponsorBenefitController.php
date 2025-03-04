@@ -12,9 +12,72 @@ use Carbon\Carbon;
 class SponsorBenefitController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        return 'awe awe';
+        // Ambil tahun dari request, default ke tahun sekarang
+        $year = $request->get('year', now()->format('Y'));
+
+        // Ambil semua record penggunaan benefit untuk tahun tersebut
+        // Karena field 'period' disimpan dengan format "YYYY-MM", kita gunakan LIKE untuk filter tahun
+        $usageRecords = SponsorBenefitUsage::with('benefit', 'sponsor')
+            ->where('period', 'LIKE', $year . '-%')
+            ->get();
+
+        // Summary global
+        $totalBenefits = $usageRecords->count();
+        $usedBenefits = $usageRecords->where('status', 'used')->count();
+        $unusedBenefits = $totalBenefits - $usedBenefits;
+        $benefitUsageRate = $totalBenefits > 0 ? round(($usedBenefits / $totalBenefits) * 100) : 0;
+
+        // Statistik per kategori benefit
+        $categories = $usageRecords->groupBy(function ($item) {
+            return $item->benefit->category;
+        });
+        $categoryStats = [];
+        foreach ($categories as $category => $records) {
+            $totalCat = $records->count();
+            $usedCat = $records->where('status', 'used')->count();
+            $percentUsed = $totalCat > 0 ? round(($usedCat / $totalCat) * 100) : 0;
+            $categoryStats[] = [
+                'category'     => $category,
+                'total'        => $totalCat,
+                'used'         => $usedCat,
+                'percent_used' => $percentUsed,
+            ];
+        }
+
+        // Daftar sponsor dengan perhitungan persentase penggunaan benefit per kategori
+        $sponsorGroups = $usageRecords->groupBy('sponsor_id');
+        $sponsorStats = [];
+        foreach ($sponsorGroups as $sponsorId => $records) {
+            $sponsorName = $records->first()->sponsor->name;
+            // Grouping per kategori
+            $catGroup = $records->groupBy(function ($item) {
+                return $item->benefit->category;
+            });
+            $catPercentages = [];
+            foreach ($catGroup as $category => $catRecords) {
+                $total = $catRecords->count();
+                $used = $catRecords->where('status', 'used')->count();
+                $percent = $total > 0 ? round(($used / $total) * 100) : 0;
+                $catPercentages[$category] = $percent;
+            }
+            $sponsorStats[] = [
+                'sponsor_id'           => $sponsorId,
+                'sponsor_name'         => $sponsorName,
+                'category_percentages' => $catPercentages,
+            ];
+        }
+
+        return view('admin.sponsor-benefit.index', compact(
+            'year',
+            'totalBenefits',
+            'usedBenefits',
+            'unusedBenefits',
+            'benefitUsageRate',
+            'categoryStats',
+            'sponsorStats'
+        ));
     }
     /**
      * Menampilkan daftar penggunaan benefit untuk sponsor tertentu.
