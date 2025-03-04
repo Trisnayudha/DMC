@@ -29,17 +29,30 @@ class PaymentController extends Controller
     public function historyPayment(Request $request)
     {
         $limit = $request->limit ?? 5;
-        $id =  auth('sanctum')->user()->id;
-        $findPayment = Payment::where('member_id', '=', $id)
-            ->join('events_tickets', 'events_tickets.id', 'payment.tickets_id')
+        $user = auth('sanctum')->user();
+        $id = $user->id;
+
+        // Ambil parameter type sebagai filter status_registration.
+        // Jika tidak dikirim, default akan mencakup semua status berikut:
+        $statuses = $request->input('type', ['Waiting', 'Paid Off', 'Cancel', 'Expired']);
+        if (!is_array($statuses)) {
+            $statuses = [$statuses];
+        }
+
+        $findPayment = Payment::where('member_id', $id)
+            ->join('events_tickets', 'events_tickets.id', '=', 'payment.tickets_id')
             ->select('payment.*', 'events_tickets.price_rupiah')
-            ->whereIn('package', ['nonmember', 'onsite', 'member', 'Premium'])
-            ->orderby('id', 'desc')->paginate($limit);
-        $response['status'] = 200;
-        $response['message'] = 'Success';
-        $response['payload'] = $findPayment;
-        return response()->json($response);
+            ->whereIn('status_registration', $statuses)
+            ->orderBy('id', 'desc')
+            ->paginate($limit);
+
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Success',
+            'payload' => $findPayment
+        ]);
     }
+
 
     public function cancel(Request $request)
     {
