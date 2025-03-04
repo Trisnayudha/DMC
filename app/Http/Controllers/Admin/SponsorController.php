@@ -25,50 +25,71 @@ class SponsorController extends Controller
     {
         $type = $request->get('type');
 
-        // Mengambil data sponsor sesuai filter (jika ada) dan mengurutkan secara descending
+        // Ambil data sponsor berdasarkan filter paket jika ada, urut descending
         $data = Sponsor::when($type, function ($query, $type) {
             return $query->where('package', $type);
         })->orderBy('id', 'desc')->get();
 
-        // Menghitung sponsor dengan status publish per paket
+        // Hitung sponsor aktif per paket
         $platinumCount = Sponsor::where('package', 'platinum')->where('status', 'publish')->count();
         $goldCount     = Sponsor::where('package', 'gold')->where('status', 'publish')->count();
         $silverCount   = Sponsor::where('package', 'silver')->where('status', 'publish')->count();
         $totalCount    = Sponsor::where('status', 'publish')->count();
 
-        // Mengambil data top 5 sponsor representative attend berdasarkan tahun saat ini
-        $currentYear = now()->year; // atau Carbon::now()->year jika menggunakan Carbon
-
+        // Top 5 Sponsor Representative Attend berdasarkan tahun saat ini
+        $currentYear = now()->year;
         $topSponsors = Payment::selectRaw('company.company_name as company, COUNT(DISTINCT payment.member_id) as count_attend')
             ->join('profiles', 'payment.member_id', '=', 'profiles.users_id')
             ->join('company', 'profiles.company_id', '=', 'company.id')
             ->whereYear('payment.created_at', $currentYear)
             ->groupBy('company.company_name')
-            ->orderBy('count_attend', 'desc')
+            ->orderByDesc('count_attend')
             ->limit(5)
             ->get();
 
-        // Mengambil top 5 penggunaan benefit sponsor dengan menggunakan model SponsorBenefitUsage
-        $topBenefitUsage = SponsorBenefitUsage::where('status', 'used')
-            ->select('sponsor_id', DB::raw('COUNT(*) as usage_count'))
-            ->groupBy('sponsor_id')
-            ->orderByDesc('usage_count')
+        // Benefit Usage Summary (global)
+        $totalBenefitsAssigned = SponsorBenefitUsage::whereHas('sponsor', function ($q) {
+            $q->where('status', 'publish');
+        })->count();
+
+        $totalBenefitsUsed = SponsorBenefitUsage::where('status', 'used')
+            ->whereHas('sponsor', function ($q) {
+                $q->where('status', 'publish');
+            })->count();
+
+        $totalBenefitsUnused = SponsorBenefitUsage::where('status', 'unused')
+            ->whereHas('sponsor', function ($q) {
+                $q->where('status', 'publish');
+            })->count();
+
+        $benefitUsageRate = $totalBenefitsAssigned > 0
+            ? round(($totalBenefitsUsed / $totalBenefitsAssigned) * 100)
+            : 0;
+
+        // Ambil 5 sponsor yang kontraknya hampir berakhir (dalam 3 bulan ke depan)
+        // Kita asumsikan contract_end disimpan sebagai string "YYYY-MM"
+        $nearEndSponsors = Sponsor::where('status', 'publish')
+            ->whereNotNull('contract_end')
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [now()->addMonths(3)->format('Y-m-01')])
+            ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') ASC")
             ->limit(5)
-            ->with('sponsor')
             ->get();
 
         return view('admin.sponsor.sponsor', [
-            'data'            => $data,
-            'platinumCount'   => $platinumCount,
-            'goldCount'       => $goldCount,
-            'silverCount'     => $silverCount,
-            'totalCount'      => $totalCount,
-            'type'            => $type,
-            'topSponsors'     => $topSponsors,
-            'topBenefitUsage' => $topBenefitUsage,
+            'data'                 => $data,
+            'platinumCount'        => $platinumCount,
+            'goldCount'            => $goldCount,
+            'silverCount'          => $silverCount,
+            'totalCount'           => $totalCount,
+            'type'                 => $type,
+            'topSponsors'          => $topSponsors,
+            'totalBenefitsAssigned' => $totalBenefitsAssigned,
+            'totalBenefitsUsed'    => $totalBenefitsUsed,
+            'totalBenefitsUnused'  => $totalBenefitsUnused,
+            'benefitUsageRate'     => $benefitUsageRate,
+            'nearEndSponsors'      => $nearEndSponsors,
         ]);
     }
-
 
 
     public function create()

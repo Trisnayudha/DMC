@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\ScholarshipController as AdminScholarshipControll
 use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorAddressController;
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
+use App\Http\Controllers\Admin\SponsorBenefitController;
 use App\Http\Controllers\Admin\SponsorController;
 use App\Http\Controllers\Admin\SponsorCountRepresentativeController;
 use App\Http\Controllers\Admin\SponsorRepresentativeController;
@@ -175,6 +176,15 @@ Route::prefix('admin')->group(function () {
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');
     Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
+
+    Route::get('sponsors/benefits', [SponsorBenefitController::class, 'index'])
+        ->name('sponsors.benefit.index');
+
+    Route::get('sponsors/{sponsor}/benefits', [SponsorBenefitController::class, 'detail'])
+        ->name('sponsors.benefit.detail');
+
+    Route::post('admin/sponsors/benefits/{benefitUsage}/mark-used', [SponsorBenefitController::class, 'markUsed'])
+        ->name('sponsors.benefit.markUsed');
 
     Route::resource('sponsors-address', SponsorAddressController::class);
     Route::get('sponsors-representative/{$id}', [SponsorRepresentativeController::class, 'show'])->name('sponsors-representative.show');

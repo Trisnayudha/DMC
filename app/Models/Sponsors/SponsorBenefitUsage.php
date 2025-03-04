@@ -16,6 +16,9 @@ class SponsorBenefitUsage extends Model
         'status',
         'used_at'
     ];
+    protected $casts = [
+        'used_at' => 'datetime',
+    ];
 
     // Relasi: Setiap penggunaan benefit (usage) berkaitan dengan satu Benefit
     public function benefit()

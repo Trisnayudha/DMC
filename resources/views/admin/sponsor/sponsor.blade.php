@@ -80,6 +80,76 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Benefit Usage Summary Cards -->
+                <div class="row">
+                    <!-- Card: Total Benefits Assigned -->
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-info">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Total Benefits Assigned</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $totalBenefitsAssigned }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card: Total Benefits Used -->
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Total Benefits Used</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $totalBenefitsUsed }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card: Total Benefits Unused -->
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Benefits Unused</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $totalBenefitsUnused }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card: Usage Rate -->
+                    <div class="col-lg-3 col-md-6 col-sm-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-primary">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Usage Rate</h4>
+                                </div>
+                                <div class="card-body">
+                                    {{ $benefitUsageRate }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
                 <!-- End Card Info Section -->
                 <div class="row">
                     <!-- Card Top 5 Sponsor Representative Attend -->
@@ -108,9 +178,68 @@
                                     </table>
                                 </div>
                                 <div class="text-right mt-3">
-                                    <a href="{{ url('/admin/sponsors-representative-count') }}" class="btn btn-primary">Show
+                                    <a href="{{ url('/admin/sponsors-representative-count') }}"
+                                        class="btn btn-primary">Show
                                         More</a>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>5 Companies Nearing Contract End</h4>
+                                <p class="text-muted">Sponsors with contract end date within the next 3 months</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Company</th>
+                                                <th>Contract End</th>
+                                                <th>Time Left</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($nearEndSponsors as $sponsor)
+                                                @php
+                                                    // Konversi contract_end (format "YYYY-MM") ke tanggal dengan endOfMonth()
+                                                    $endDate = \Carbon\Carbon::createFromFormat(
+                                                        'Y-m',
+                                                        $sponsor->contract_end,
+                                                    )->endOfMonth();
+                                                    // Hitung sisa hari dari hari ini sampai akhir bulan kontrak
+                                                    $daysLeft = now()->diffInDays($endDate, false);
+                                                    // Tentukan badge warna dan label berdasarkan sisa hari
+                                                    if ($daysLeft <= 30) {
+                                                        $badgeColor = 'danger';
+                                                        $urgencyText = 'Urgent';
+                                                    } elseif ($daysLeft <= 60) {
+                                                        $badgeColor = 'warning';
+                                                        $urgencyText = 'Moderate';
+                                                    } else {
+                                                        $badgeColor = 'success';
+                                                        $urgencyText = 'Safe';
+                                                    }
+                                                @endphp
+                                                <tr>
+                                                    <td>{{ $sponsor->name }}</td>
+                                                    <td>{{ $sponsor->contract_end }}</td>
+                                                    <td>
+                                                        {{ $daysLeft }} days
+                                                        <span
+                                                            class="badge badge-{{ $badgeColor }}">{{ $urgencyText }}</span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer text-right">
+                                <!-- Tombol "Show More" mengarah ke halaman detail sponsor near-end -->
+                                <a href="{{ route('sponsors.benefit.index') }}" class="btn btn-info">Show More</a>
                             </div>
                         </div>
                     </div>
@@ -128,7 +257,8 @@
                                         <select name="type" id="filterType" class="form-control"
                                             onchange="this.form.submit()">
                                             <option value="">Semua</option>
-                                            <option value="platinum" {{ request('type') == 'platinum' ? 'selected' : '' }}>
+                                            <option value="platinum"
+                                                {{ request('type') == 'platinum' ? 'selected' : '' }}>
                                                 Platinum</option>
                                             <option value="gold" {{ request('type') == 'gold' ? 'selected' : '' }}>Gold
                                             </option>
@@ -233,6 +363,12 @@
                                                                 class="btn btn-icon btn-sm btn-secondary"
                                                                 data-toggle="tooltip" title="Photos/Videos Activity">
                                                                 <i class="fas fa-camera"></i>
+                                                            </a>
+
+                                                            <a href="{{ route('sponsors.benefit.detail', $post->id) }}"
+                                                                class="btn btn-icon btn-sm btn-info" data-toggle="tooltip"
+                                                                title="Sponsor Benefit Management">
+                                                                <i class="fas fa-chart-bar"></i>
                                                             </a>
 
                                                             <!-- Edit Data -->
