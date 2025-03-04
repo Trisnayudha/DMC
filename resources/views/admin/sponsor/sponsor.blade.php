@@ -20,13 +20,30 @@
                         <p>The following companies have passed their contract end date:</p>
                         <ul>
                             @foreach ($expiredSponsors as $sponsor)
-                                <li>{{ $sponsor->name }} (Contract End: {{ $sponsor->contract_end }})</li>
+                                @php
+                                    $monthNames = [
+                                        '01' => 'Januari',
+                                        '02' => 'Februari',
+                                        '03' => 'Maret',
+                                        '04' => 'April',
+                                        '05' => 'Mei',
+                                        '06' => 'Juni',
+                                        '07' => 'Juli',
+                                        '08' => 'Agustus',
+                                        '09' => 'September',
+                                        '10' => 'Oktober',
+                                        '11' => 'November',
+                                        '12' => 'Desember',
+                                    ];
+                                    $parts = explode('-', $sponsor->contract_end);
+                                    $displayContractEnd = $monthNames[$parts[1]] . ' ' . $parts[0];
+                                @endphp
+                                <li>{{ $sponsor->name }} (Contract End: {{ $displayContractEnd }})</li>
                             @endforeach
                         </ul>
                     </div>
                 @endif
 
-                <!-- Notifikasi Alert untuk Renewal Soon -->
                 @if ($renewalSponsors->count() > 0)
                     <div class="alert alert-warning">
                         <h4><i class="fas fa-exclamation-triangle"></i> Renewal Soon</h4>
@@ -34,18 +51,35 @@
                         <ul>
                             @foreach ($renewalSponsors as $sponsor)
                                 @php
+                                    $monthNames = [
+                                        '01' => 'Januari',
+                                        '02' => 'Februari',
+                                        '03' => 'Maret',
+                                        '04' => 'April',
+                                        '05' => 'Mei',
+                                        '06' => 'Juni',
+                                        '07' => 'Juli',
+                                        '08' => 'Agustus',
+                                        '09' => 'September',
+                                        '10' => 'Oktober',
+                                        '11' => 'November',
+                                        '12' => 'Desember',
+                                    ];
+                                    $parts = explode('-', $sponsor->contract_end);
+                                    $displayContractEnd = $monthNames[$parts[1]] . ' ' . $parts[0];
                                     $endDate = \Carbon\Carbon::createFromFormat(
                                         'Y-m',
                                         $sponsor->contract_end,
                                     )->endOfMonth();
                                     $daysLeft = now()->diffInDays($endDate, false);
                                 @endphp
-                                <li>{{ $sponsor->name }} (Contract End: {{ $sponsor->contract_end }}, in {{ $daysLeft }}
+                                <li>{{ $sponsor->name }} (Contract End: {{ $displayContractEnd }}, in {{ $daysLeft }}
                                     days)</li>
                             @endforeach
                         </ul>
                     </div>
                 @endif
+
 
                 <!-- Card Info Section (tetap sama seperti sebelumnya) -->
                 <div class="row">
