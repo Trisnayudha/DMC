@@ -75,7 +75,21 @@ class SponsorController extends Controller
             ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') DESC")
             ->limit(5)
             ->get();
+        // --- Notifikasi Alert ---
+        // Expired Contracts: sponsor dengan contract_end (format "YYYY-MM") < awal bulan ini
+        $expiredSponsors = Sponsor::where('status', 'publish')
+            ->whereNotNull('contract_end')
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') < ?", [now()->format('Y-m-01')])
+            ->get();
 
+        // Renewal Soon: sponsor dengan contract_end antara awal bulan depan dan awal bulan dua bulan ke depan
+        $renewalSponsors = Sponsor::where('status', 'publish')
+            ->whereNotNull('contract_end')
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') BETWEEN ? AND ?", [
+                now()->addMonth()->format('Y-m-01'),
+                now()->addMonths(2)->format('Y-m-01')
+            ])
+            ->get();
 
         return view('admin.sponsor.sponsor', [
             'data'                 => $data,
@@ -90,6 +104,8 @@ class SponsorController extends Controller
             'totalBenefitsUnused'  => $totalBenefitsUnused,
             'benefitUsageRate'     => $benefitUsageRate,
             'nearEndSponsors'      => $nearEndSponsors,
+            'expiredSponsors'       => $expiredSponsors,
+            'renewalSponsors'       => $renewalSponsors,
         ]);
     }
 

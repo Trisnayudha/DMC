@@ -6,12 +6,46 @@
             <div class="section-header">
                 <h1>Sponsors Management</h1>
                 <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
+                    <div class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></div>
                     <div class="breadcrumb-item active"><a href="">Sponsors Management</a></div>
                 </div>
             </div>
             <div class="section-body">
                 <h2 class="section-title">Sponsors</h2>
+
+                <!-- Notifikasi Alert untuk Expired Contracts -->
+                @if ($expiredSponsors->count() > 0)
+                    <div class="alert alert-danger">
+                        <h4><i class="fas fa-exclamation-circle"></i> Expired Contracts</h4>
+                        <p>The following companies have passed their contract end date:</p>
+                        <ul>
+                            @foreach ($expiredSponsors as $sponsor)
+                                <li>{{ $sponsor->name }} (Contract End: {{ $sponsor->contract_end }})</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Notifikasi Alert untuk Renewal Soon -->
+                @if ($renewalSponsors->count() > 0)
+                    <div class="alert alert-warning">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Renewal Soon</h4>
+                        <p>The following companies will need to renew their contract within the next 1-2 months:</p>
+                        <ul>
+                            @foreach ($renewalSponsors as $sponsor)
+                                @php
+                                    $endDate = \Carbon\Carbon::createFromFormat(
+                                        'Y-m',
+                                        $sponsor->contract_end,
+                                    )->endOfMonth();
+                                    $daysLeft = now()->diffInDays($endDate, false);
+                                @endphp
+                                <li>{{ $sponsor->name }} (Contract End: {{ $sponsor->contract_end }}, in {{ $daysLeft }}
+                                    days)</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 <!-- Card Info Section (tetap sama seperti sebelumnya) -->
                 <div class="row">
@@ -149,10 +183,8 @@
                     </div>
                 </div>
 
-
-                <!-- End Card Info Section -->
+                <!-- Card Top 5 Sponsor Representative Attend -->
                 <div class="row">
-                    <!-- Card Top 5 Sponsor Representative Attend -->
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header">
@@ -179,12 +211,12 @@
                                 </div>
                                 <div class="text-right mt-3">
                                     <a href="{{ url('/admin/sponsors-representative-count') }}"
-                                        class="btn btn-primary">Show
-                                        More</a>
+                                        class="btn btn-primary">Show More</a>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Near End Period Sponsors -->
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header">
@@ -238,28 +270,25 @@
                                 </div>
                             </div>
                             <div class="card-footer text-right">
-                                <!-- Tombol "Show More" mengarah ke halaman detail sponsor near-end -->
                                 <a href="{{ route('sponsors.benefit.index') }}" class="btn btn-info">Show More</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Table Section dengan Filter di dalam header card -->
+                <!-- Table Section dengan Filter di dalam header card (Sponsor Management List) -->
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4>Sponsors Management</h4>
-                                <!-- Form Filter Sponsor Type -->
                                 <form method="GET" action="{{ route('sponsors.index') }}" class="form-inline">
                                     <div class="input-group">
                                         <select name="type" id="filterType" class="form-control"
                                             onchange="this.form.submit()">
                                             <option value="">Semua</option>
                                             <option value="platinum"
-                                                {{ request('type') == 'platinum' ? 'selected' : '' }}>
-                                                Platinum</option>
+                                                {{ request('type') == 'platinum' ? 'selected' : '' }}>Platinum</option>
                                             <option value="gold" {{ request('type') == 'gold' ? 'selected' : '' }}>Gold
                                             </option>
                                             <option value="silver" {{ request('type') == 'silver' ? 'selected' : '' }}>
@@ -293,8 +322,8 @@
                                     <a href="{{ url('admin/sponsors/create') }}"
                                         class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
                                         id="addNewCategory">
-                                        <i class="fas fa-plus-circle"></i>
-                                        Add Sponsor</a>
+                                        <i class="fas fa-plus-circle"></i> Add Sponsor
+                                    </a>
                                 </div>
 
                                 <div class="table-responsive">
@@ -317,10 +346,9 @@
                                                     <td>
                                                         <span
                                                             class="badge
-                                                            @if ($post->package == 'silver') badge-secondary
-                                                            @elseif($post->package == 'gold') badge-warning
-                                                            @elseif($post->package == 'platinum') badge-primary @endif
-                                                        ">
+                                                        @if ($post->package == 'silver') badge-secondary
+                                                        @elseif($post->package == 'gold') badge-warning
+                                                        @elseif($post->package == 'platinum') badge-primary @endif">
                                                             {{ ucfirst($post->package) }}
                                                         </span>
                                                     </td>
@@ -365,6 +393,7 @@
                                                                 <i class="fas fa-camera"></i>
                                                             </a>
 
+                                                            <!-- Sponsor Benefit Management -->
                                                             <a href="{{ route('sponsors.benefit.detail', $post->id) }}"
                                                                 class="btn btn-icon btn-sm btn-info" data-toggle="tooltip"
                                                                 title="Sponsor Benefit Management">
@@ -386,7 +415,6 @@
                                                             </button>
                                                         </div>
                                                     </td>
-
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -396,9 +424,8 @@
                             </div>
                         </div>
                     </div>
+                    <!-- End Table Section -->
                 </div>
-                <!-- End Table Section -->
-            </div>
         </section>
     </div>
 @endsection
