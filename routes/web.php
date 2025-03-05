@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ScholarshipController as AdminScholarshipController;
+use App\Http\Controllers\Admin\SocialMediaEngagementController;
 use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorAddressController;
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
@@ -176,6 +177,13 @@ Route::prefix('admin')->group(function () {
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');
     Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
+
+    Route::get('sponsor-engagement', [SocialMediaEngagementController::class, 'index'])
+        ->name('sponsor-engagement.index');
+    Route::get('sponsor-engagement/create', [SocialMediaEngagementController::class, 'create'])
+        ->name('sponsor-engagement.create');
+    Route::post('sponsor-engagement', [SocialMediaEngagementController::class, 'store'])
+        ->name('sponsor-engagement.store');
 
     Route::get('sponsor/benefits', [SponsorBenefitController::class, 'index'])
         ->name('sponsors.benefit.index');
