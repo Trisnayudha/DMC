@@ -7,10 +7,12 @@ use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
+use App\Models\Sponsors\SocialMediaEngagement;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorBenefitUsage;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -25,19 +27,19 @@ class SponsorController extends Controller
     {
         $type = $request->get('type');
 
-        // Ambil data sponsor berdasarkan filter paket jika ada, urut descending
+        // Data sponsor: filtered by type (package) jika ada
         $data = Sponsor::when($type, function ($query, $type) {
             return $query->where('package', $type);
         })->orderBy('id', 'desc')->get();
 
-        // Hitung sponsor aktif per paket
+        // Sponsor counts per package
         $platinumCount = Sponsor::where('package', 'platinum')->where('status', 'publish')->count();
         $goldCount     = Sponsor::where('package', 'gold')->where('status', 'publish')->count();
         $silverCount   = Sponsor::where('package', 'silver')->where('status', 'publish')->count();
         $totalCount    = Sponsor::where('status', 'publish')->count();
 
-        // Top 5 Sponsor Representative Attend berdasarkan tahun saat ini
-        $currentYear = now()->year;
+        // Top 5 Sponsor Representative Attend (menggunakan data Payment)
+        $currentYear = Carbon::now()->year;
         $topSponsors = Payment::selectRaw('company.company_name as company, COUNT(DISTINCT payment.member_id) as count_attend')
             ->join('profiles', 'payment.member_id', '=', 'profiles.users_id')
             ->join('company', 'profiles.company_id', '=', 'company.id')
@@ -47,7 +49,7 @@ class SponsorController extends Controller
             ->limit(5)
             ->get();
 
-        // Benefit Usage Summary (global)
+        // Benefit usage summary
         $totalBenefitsAssigned = SponsorBenefitUsage::whereHas('sponsor', function ($q) {
             $q->where('status', 'publish');
         })->count();
@@ -66,47 +68,64 @@ class SponsorController extends Controller
             ? round(($totalBenefitsUsed / $totalBenefitsAssigned) * 100)
             : 0;
 
-        // Ambil 5 sponsor yang kontraknya hampir berakhir (dalam 3 bulan ke depan)
-        // Kita asumsikan contract_end disimpan sebagai string "YYYY-MM"
+        // Near End Sponsors: sponsor dengan contract_end (format "YYYY-MM") yang sudah tidak melebihi bulan ini
         $nearEndSponsors = Sponsor::where('status', 'publish')
             ->whereNotNull('contract_end')
-            // Pastikan contract_end tidak melebihi bulan ini
-            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [now()->format('Y-m-01')])
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [Carbon::now()->format('Y-m-01')])
             ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') DESC")
             ->limit(5)
             ->get();
-        // --- Notifikasi Alert ---
-        // Expired Contracts: sponsor dengan contract_end (format "YYYY-MM") < awal bulan ini
-        $expiredSponsors = Sponsor::where('status', 'publish')
-            ->whereNotNull('contract_end')
-            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') < ?", [now()->format('Y-m-01')])
+
+        // Engagement Data (SocialMediaEngagement) untuk tahun berjalan
+        $engagements = SocialMediaEngagement::with('sponsor')
+            ->whereYear('activity_date', Carbon::now()->format('Y'))
+            ->orderBy('activity_date', 'desc')
             ->get();
 
-        // Renewal Soon: sponsor dengan contract_end antara awal bulan depan dan awal bulan dua bulan ke depan
+        // Kelompokkan engagement berdasarkan sponsor_id dan hitung jumlahnya
+        $engagementCount = $engagements->groupBy(function ($engagement) {
+            return $engagement->sponsor->id;
+        })->map(function ($group) {
+            return $group->count();
+        });
+
+        // Ambil semua sponsor aktif agar sponsor yang tidak memiliki engagement tampil dengan count 0
+        $allSponsors = Sponsor::where('status', 'publish')->get();
+
+        // Notifikasi Alert:
+        // Expired: contract_end < awal bulan ini
+        $expiredSponsors = Sponsor::where('status', 'publish')
+            ->whereNotNull('contract_end')
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') < ?", [Carbon::now()->format('Y-m-01')])
+            ->get();
+
+        // Renewal Soon: contract_end antara awal bulan depan dan awal bulan dua bulan ke depan
         $renewalSponsors = Sponsor::where('status', 'publish')
             ->whereNotNull('contract_end')
             ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') BETWEEN ? AND ?", [
-                now()->addMonth()->format('Y-m-01'),
-                now()->addMonths(2)->format('Y-m-01')
+                Carbon::now()->addMonth()->format('Y-m-01'),
+                Carbon::now()->addMonths(2)->format('Y-m-01')
             ])
             ->get();
 
-        return view('admin.sponsor.sponsor', [
-            'data'                 => $data,
-            'platinumCount'        => $platinumCount,
-            'goldCount'            => $goldCount,
-            'silverCount'          => $silverCount,
-            'totalCount'           => $totalCount,
-            'type'                 => $type,
-            'topSponsors'          => $topSponsors,
-            'totalBenefitsAssigned' => $totalBenefitsAssigned,
-            'totalBenefitsUsed'    => $totalBenefitsUsed,
-            'totalBenefitsUnused'  => $totalBenefitsUnused,
-            'benefitUsageRate'     => $benefitUsageRate,
-            'nearEndSponsors'      => $nearEndSponsors,
-            'expiredSponsors'       => $expiredSponsors,
-            'renewalSponsors'       => $renewalSponsors,
-        ]);
+        return view('admin.sponsor.sponsor', compact(
+            'data',
+            'platinumCount',
+            'goldCount',
+            'silverCount',
+            'totalCount',
+            'topSponsors',
+            'totalBenefitsAssigned',
+            'totalBenefitsUsed',
+            'totalBenefitsUnused',
+            'benefitUsageRate',
+            'nearEndSponsors',
+            'engagementCount',
+            'allSponsors',
+            'expiredSponsors',
+            'renewalSponsors',
+            'type'
+        ));
     }
 
 

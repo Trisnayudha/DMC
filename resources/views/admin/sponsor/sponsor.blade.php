@@ -250,216 +250,257 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Near End Period Sponsors -->
+                    <!-- Tabel Sponsor Engagement Count -->
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header">
-                                <h4>5 Companies Nearing Contract End</h4>
-                                <p class="text-muted">Sponsors with contract end date within the next 3 months</p>
+                                <h4>Sponsor Engagement Count</h4>
                             </div>
                             <div class="card-body">
+                                @php
+                                    // $engagementCount: collection mapping sponsor id to engagement count
+                                @endphp
                                 <div class="table-responsive">
-                                    <table class="table table-striped table-hover">
+                                    <table class="table table-striped" id="engagementCountTable">
                                         <thead>
                                             <tr>
-                                                <th>Company</th>
-                                                <th>Contract End</th>
-                                                <th>Time Left</th>
+                                                <th>Sponsor</th>
+                                                <th>Engagement Count</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($nearEndSponsors as $sponsor)
-                                                @php
-                                                    // Konversi contract_end (format "YYYY-MM") ke tanggal dengan endOfMonth()
-                                                    $endDate = \Carbon\Carbon::createFromFormat(
-                                                        'Y-m',
-                                                        $sponsor->contract_end,
-                                                    )->endOfMonth();
-                                                    // Hitung sisa hari dari hari ini sampai akhir bulan kontrak
-                                                    $daysLeft = now()->diffInDays($endDate, false);
-                                                    // Tentukan badge warna dan label berdasarkan sisa hari
-                                                    if ($daysLeft <= 30) {
-                                                        $badgeColor = 'danger';
-                                                        $urgencyText = 'Urgent';
-                                                    } elseif ($daysLeft <= 60) {
-                                                        $badgeColor = 'warning';
-                                                        $urgencyText = 'Moderate';
-                                                    } else {
-                                                        $badgeColor = 'success';
-                                                        $urgencyText = 'Safe';
-                                                    }
-                                                @endphp
+                                            @foreach ($allSponsors as $sponsor)
                                                 <tr>
                                                     <td>{{ $sponsor->name }}</td>
-                                                    <td>{{ $sponsor->contract_end }}</td>
-                                                    <td>
-                                                        {{ $daysLeft }} days
-                                                        <span
-                                                            class="badge badge-{{ $badgeColor }}">{{ $urgencyText }}</span>
+                                                    <td>{{ $engagementCount->has($sponsor->id) ? $engagementCount[$sponsor->id] : 0 }}
                                                     </td>
                                                 </tr>
                                             @endforeach
+                                            @if ($allSponsors->isEmpty())
+                                                <tr>
+                                                    <td colspan="2" class="text-center">No sponsor data found for the
+                                                        selected filters.</td>
+                                                </tr>
+                                            @endif
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
-                            <div class="card-footer text-right">
-                                <a href="{{ route('sponsors.benefit.index') }}" class="btn btn-info">Show More</a>
+                                <div class="text-right mt-3">
+                                    <a href="{{ url('/admin/sponsor-engagement') }}" class="btn btn-primary">Show More</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Table Section dengan Filter di dalam header card (Sponsor Management List) -->
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4>Sponsors Management</h4>
-                                <form method="GET" action="{{ route('sponsors.index') }}" class="form-inline">
-                                    <div class="input-group">
-                                        <select name="type" id="filterType" class="form-control"
-                                            onchange="this.form.submit()">
-                                            <option value="">Semua</option>
-                                            <option value="platinum"
-                                                {{ request('type') == 'platinum' ? 'selected' : '' }}>Platinum</option>
-                                            <option value="gold" {{ request('type') == 'gold' ? 'selected' : '' }}>Gold
-                                            </option>
-                                            <option value="silver" {{ request('type') == 'silver' ? 'selected' : '' }}>
-                                                Silver</option>
-                                        </select>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="card-body">
-                                @if ($errors->any())
-                                    <div class="alert alert-warning">
-                                        <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li>{{ $error }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-
-                                @if (session('success'))
-                                    <div class="alert alert-success">{{ session('success') }}</div>
-                                @endif
-
-                                @if (session('error'))
-                                    <div class="alert alert-danger">{{ session('error') }}</div>
-                                @endif
-
-                                <div class="float-right">
-                                    <a href="{{ url('admin/sponsors/create') }}"
-                                        class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
-                                        id="addNewCategory">
-                                        <i class="fas fa-plus-circle"></i> Add Sponsor
-                                    </a>
-                                </div>
-
-                                <div class="table-responsive">
-                                    <table id="laravel_crud" class="table table-bordered table-hover">
-                                        <thead>
+                <!-- Near End Period Sponsors -->
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>5 Companies Nearing Contract End</h4>
+                            <p class="text-muted">Sponsors with contract end date within the next 3 months</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Company</th>
+                                            <th>Contract End</th>
+                                            <th>Time Left</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($nearEndSponsors as $sponsor)
+                                            @php
+                                                // Konversi contract_end (format "YYYY-MM") ke tanggal dengan endOfMonth()
+                                                $endDate = \Carbon\Carbon::createFromFormat(
+                                                    'Y-m',
+                                                    $sponsor->contract_end,
+                                                )->endOfMonth();
+                                                // Hitung sisa hari dari hari ini sampai akhir bulan kontrak
+                                                $daysLeft = now()->diffInDays($endDate, false);
+                                                // Tentukan badge warna dan label berdasarkan sisa hari
+                                                if ($daysLeft <= 30) {
+                                                    $badgeColor = 'danger';
+                                                    $urgencyText = 'Urgent';
+                                                } elseif ($daysLeft <= 60) {
+                                                    $badgeColor = 'warning';
+                                                    $urgencyText = 'Moderate';
+                                                } else {
+                                                    $badgeColor = 'success';
+                                                    $urgencyText = 'Safe';
+                                                }
+                                            @endphp
                                             <tr>
-                                                <th width="10px">No</th>
-                                                <th>Name Sponsor</th>
-                                                <th>Package</th>
-                                                <th>Status Display</th>
-                                                <th width="15%">Aksi</th>
+                                                <td>{{ $sponsor->name }}</td>
+                                                <td>{{ $sponsor->contract_end }}</td>
+                                                <td>
+                                                    {{ $daysLeft }} days
+                                                    <span
+                                                        class="badge badge-{{ $badgeColor }}">{{ $urgencyText }}</span>
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php $no = 1; ?>
-                                            @foreach ($data as $post)
-                                                <tr>
-                                                    <td>{{ $no++ }}</td>
-                                                    <td>{{ $post->name }}</td>
-                                                    <td>
-                                                        <span
-                                                            class="badge
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer text-right">
+                            <a href="{{ route('sponsors.benefit.index') }}" class="btn btn-info">Show More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Section dengan Filter di dalam header card (Sponsor Management List) -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4>Sponsors Management</h4>
+                            <form method="GET" action="{{ route('sponsors.index') }}" class="form-inline">
+                                <div class="input-group">
+                                    <select name="type" id="filterType" class="form-control"
+                                        onchange="this.form.submit()">
+                                        <option value="">Semua</option>
+                                        <option value="platinum" {{ request('type') == 'platinum' ? 'selected' : '' }}>
+                                            Platinum</option>
+                                        <option value="gold" {{ request('type') == 'gold' ? 'selected' : '' }}>Gold
+                                        </option>
+                                        <option value="silver" {{ request('type') == 'silver' ? 'selected' : '' }}>
+                                            Silver</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-body">
+                            @if ($errors->any())
+                                <div class="alert alert-warning">
+                                    <div class="alert-title">Whoops!</div>
+                                    @lang('general.validation_error_message')
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
+                            @if (session('success'))
+                                <div class="alert alert-success">{{ session('success') }}</div>
+                            @endif
+
+                            @if (session('error'))
+                                <div class="alert alert-danger">{{ session('error') }}</div>
+                            @endif
+
+                            <div class="float-right">
+                                <a href="{{ url('admin/sponsors/create') }}"
+                                    class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
+                                    id="addNewCategory">
+                                    <i class="fas fa-plus-circle"></i> Add Sponsor
+                                </a>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table id="laravel_crud" class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th width="10px">No</th>
+                                            <th>Name Sponsor</th>
+                                            <th>Package</th>
+                                            <th>Status Display</th>
+                                            <th width="15%">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php $no = 1; ?>
+                                        @foreach ($data as $post)
+                                            <tr>
+                                                <td>{{ $no++ }}</td>
+                                                <td>{{ $post->name }}</td>
+                                                <td>
+                                                    <span
+                                                        class="badge
                                                         @if ($post->package == 'silver') badge-secondary
                                                         @elseif($post->package == 'gold') badge-warning
                                                         @elseif($post->package == 'platinum') badge-primary @endif">
-                                                            {{ ucfirst($post->package) }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <div class="custom-control custom-switch">
-                                                            <input type="checkbox"
-                                                                class="custom-control-input toggle-status"
-                                                                data-id="{{ $post->id }}"
-                                                                id="statusToggle{{ $post->id }}"
-                                                                {{ $post->status == 'publish' ? 'checked' : '' }}>
-                                                            <label class="custom-control-label"
-                                                                for="statusToggle{{ $post->id }}"></label>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex flex-wrap" style="gap: 4px; max-width: 150px;">
-                                                            <!-- Advertisement/Brochure -->
-                                                            <a href="{{ route('sponsors-advertising.show', $post->id) }}"
-                                                                class="btn btn-icon btn-sm btn-primary"
-                                                                data-toggle="tooltip" title="Advertisement/Brochure">
-                                                                <i class="fas fa-bullhorn"></i>
-                                                            </a>
+                                                        {{ ucfirst($post->package) }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input toggle-status"
+                                                            data-id="{{ $post->id }}"
+                                                            id="statusToggle{{ $post->id }}"
+                                                            {{ $post->status == 'publish' ? 'checked' : '' }}>
+                                                        <label class="custom-control-label"
+                                                            for="statusToggle{{ $post->id }}"></label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex flex-wrap" style="gap: 4px; max-width: 150px;">
+                                                        <!-- Advertisement/Brochure -->
+                                                        <a href="{{ route('sponsors-advertising.show', $post->id) }}"
+                                                            class="btn btn-icon btn-sm btn-primary" data-toggle="tooltip"
+                                                            title="Advertisement/Brochure">
+                                                            <i class="fas fa-bullhorn"></i>
+                                                        </a>
 
-                                                            <!-- Sponsor Representative -->
-                                                            <a href="{{ route('sponsors-representative.show', $post->id) }}"
-                                                                class="btn btn-icon btn-sm btn-warning"
-                                                                data-toggle="tooltip" title="Sponsor Representative">
-                                                                <i class="fas fa-user-friends"></i>
-                                                            </a>
+                                                        <!-- Sponsor Representative -->
+                                                        <a href="{{ route('sponsors-representative.show', $post->id) }}"
+                                                            class="btn btn-icon btn-sm btn-warning" data-toggle="tooltip"
+                                                            title="Sponsor Representative">
+                                                            <i class="fas fa-user-friends"></i>
+                                                        </a>
 
-                                                            <!-- Alamat Sponsor -->
-                                                            <a href="{{ route('sponsors-address.show', $post->id) }}"
-                                                                class="btn btn-icon btn-sm btn-info" data-toggle="tooltip"
-                                                                title="Alamat Sponsor">
-                                                                <i class="fas fa-map-marker-alt"></i>
-                                                            </a>
+                                                        <!-- Alamat Sponsor -->
+                                                        <a href="{{ route('sponsors-address.show', $post->id) }}"
+                                                            class="btn btn-icon btn-sm btn-info" data-toggle="tooltip"
+                                                            title="Alamat Sponsor">
+                                                            <i class="fas fa-map-marker-alt"></i>
+                                                        </a>
 
-                                                            <!-- Photos/Videos Activity -->
-                                                            <a href="{{ route('photos-videos-activity.show', $post->id) }}"
-                                                                class="btn btn-icon btn-sm btn-secondary"
-                                                                data-toggle="tooltip" title="Photos/Videos Activity">
-                                                                <i class="fas fa-camera"></i>
-                                                            </a>
+                                                        <!-- Photos/Videos Activity -->
+                                                        <a href="{{ route('photos-videos-activity.show', $post->id) }}"
+                                                            class="btn btn-icon btn-sm btn-secondary"
+                                                            data-toggle="tooltip" title="Photos/Videos Activity">
+                                                            <i class="fas fa-camera"></i>
+                                                        </a>
 
-                                                            <!-- Sponsor Benefit Management -->
-                                                            <a href="{{ route('sponsors.benefit.detail', $post->id) }}"
-                                                                class="btn btn-icon btn-sm btn-info" data-toggle="tooltip"
-                                                                title="Sponsor Benefit Management">
-                                                                <i class="fas fa-chart-bar"></i>
-                                                            </a>
+                                                        <!-- Sponsor Benefit Management -->
+                                                        <a href="{{ route('sponsors.benefit.detail', $post->id) }}"
+                                                            class="btn btn-icon btn-sm btn-info" data-toggle="tooltip"
+                                                            title="Sponsor Benefit Management">
+                                                            <i class="fas fa-chart-bar"></i>
+                                                        </a>
 
-                                                            <!-- Edit Data -->
-                                                            <a href="{{ route('sponsors.edit', $post->id) }}"
-                                                                class="btn btn-icon btn-sm btn-success"
-                                                                data-toggle="tooltip" title="Edit Data">
-                                                                <i class="fas fa-pencil-alt"></i>
-                                                            </a>
+                                                        <!-- Edit Data -->
+                                                        <a href="{{ route('sponsors.edit', $post->id) }}"
+                                                            class="btn btn-icon btn-sm btn-success" data-toggle="tooltip"
+                                                            title="Edit Data">
+                                                            <i class="fas fa-pencil-alt"></i>
+                                                        </a>
 
-                                                            <!-- Hapus Data -->
-                                                            <button class="btn btn-icon btn-sm btn-danger delete-sponsor"
-                                                                data-id="{{ $post->id }}" data-toggle="tooltip"
-                                                                title="Hapus Data">
-                                                                <i class="fas fa-trash-alt"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-
+                                                        <!-- Hapus Data -->
+                                                        <button class="btn btn-icon btn-sm btn-danger delete-sponsor"
+                                                            data-id="{{ $post->id }}" data-toggle="tooltip"
+                                                            title="Hapus Data">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
+
                         </div>
                     </div>
-                    <!-- End Table Section -->
                 </div>
+                <!-- End Table Section -->
+            </div>
         </section>
     </div>
 @endsection
