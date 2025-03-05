@@ -107,6 +107,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('/scan/request_connection', [ScanController::class, 'postRequest']);
     Route::post('/list_connection', [ScanController::class, 'listConnected']);
 
+    Route::post('payment/history', [PaymentController::class, 'historyPayment']);
+
 
     Route::post('/delete/account', [UserController::class, 'deleteAccount']);
 });
