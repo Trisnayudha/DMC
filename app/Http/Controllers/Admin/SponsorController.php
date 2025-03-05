@@ -80,6 +80,7 @@ class SponsorController extends Controller
         $engagements = SocialMediaEngagement::with('sponsor')
             ->whereYear('activity_date', Carbon::now()->format('Y'))
             ->orderBy('activity_date', 'desc')
+            ->limit(5)
             ->get();
 
         // Kelompokkan engagement berdasarkan sponsor_id dan hitung jumlahnya
