@@ -96,9 +96,17 @@ class PaymentController extends Controller
             ->join('events_tickets', 'events_tickets.id', '=', 'payment.tickets_id')
             ->join('events', 'events.id', '=', 'payment.events_id')
             ->select('payment.*', 'events_tickets.*', 'events.*')
-            ->whereIn('status_registration', $statuses)
-            ->orderBy('payment.id', 'desc')
+            ->whereIn('status_registration', $statuses);
+
+        // Tambahkan filter pencarian berdasarkan events.name jika parameter search tersedia
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $findPayment->where('events.name', 'LIKE', '%' . $search . '%');
+        }
+
+        $findPayment = $findPayment->orderBy('payment.id', 'desc')
             ->paginate($limit);
+
         return response()->json([
             'status'  => 200,
             'message' => 'Success',
