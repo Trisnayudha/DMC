@@ -91,7 +91,7 @@ class SponsorController extends Controller
         });
 
         // Ambil semua sponsor aktif agar sponsor yang tidak memiliki engagement tampil dengan count 0
-        $allSponsors = Sponsor::where('status', 'publish')->get();
+        $allSponsors = Sponsor::where('status', 'publish')->limit(5)->get();
 
         // Notifikasi Alert:
         // Expired: contract_end < awal bulan ini
