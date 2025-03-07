@@ -77,7 +77,7 @@ class EmailController extends Controller
             //    Sesuaikan urutan argumen dengan versi library Anda.
             //    Contoh ini: (from, to, subject, htmlBody, textBody, tag, trackOpens, trackLinks, messageStream, cc, bcc, replyTo, headers, attachments)
             $this->postmarkClient->sendEmail(
-                $this->fromEmail,
+                $request->fromEmail,
                 $to,
                 $subject,
                 $htmlBody,
