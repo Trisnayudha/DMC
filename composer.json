@@ -8,6 +8,7 @@
         "php": "^7.3|^8.0",
         "barryvdh/laravel-dompdf": "^2.0",
         "evilfreelancer/routeros-api-php": "^1.5",
+        "fabpot/goutte": "^4.0",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "intervention/image": "^2.7",
@@ -22,8 +23,8 @@
         "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-newsletter": "^4.11",
         "spatie/laravel-permission": "^5.5",
-        "xendit/xendit-php": "^2.19",
-        "fabpot/goutte": "^4.0"
+        "wildbit/postmark-php": "^4.0",
+        "xendit/xendit-php": "^2.19"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

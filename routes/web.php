@@ -41,6 +41,7 @@ use App\Http\Controllers\Frontend\FormMemberController;
 use App\Http\Controllers\Frontend\PrintController;
 use App\Http\Controllers\Frontend\ScholarshipController;
 use App\Http\Controllers\Admin\SponsorPhotosVideosActivityController;
+use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -169,6 +170,9 @@ Route::prefix('admin')->group(function () {
     Route::post('notification/edit', [NotificationController::class, 'edit']);
     Route::post('notification/delete', [NotificationController::class, 'destroy']);
     Route::get('notification/users', [NotificationController::class, 'users']);
+
+    Route::get('/email-management', [EmailController::class, 'index'])->name('email.index');
+    Route::post('/email/send', [EmailController::class, 'sendEmail'])->name('email.send');
 
     Route::get('/special-event', [SpecialEventController::class, 'index'])->name('special-event');
     Route::post('/special-event', [SpecialEventController::class, 'request']);
