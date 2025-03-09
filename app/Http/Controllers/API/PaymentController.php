@@ -390,7 +390,7 @@ class PaymentController extends Controller
             // --- Cek apakah user sudah pernah daftar (dan belum dibatalkan) untuk event ini ---
             $findPayment = Payment::where('member_id', $user_id)
                 ->where('events_id', $events_id)
-                ->whereIn('status_registration', '!=', ['Cancel', 'Expired'])
+                ->whereNotIn('status_registration', ['Cancel', 'Expired'])
                 ->first();
             if ($findPayment) {
                 DB::rollBack();
