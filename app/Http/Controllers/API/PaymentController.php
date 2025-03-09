@@ -95,7 +95,7 @@ class PaymentController extends Controller
         $findPayment = Payment::where('member_id', $id)
             ->join('events_tickets', 'events_tickets.id', '=', 'payment.tickets_id')
             ->join('events', 'events.id', '=', 'payment.events_id')
-            ->select('payment.*', 'events_tickets.*', 'events.*')
+            ->select('payment.*', 'events_tickets.*', 'events.*', 'payment.link')
             ->whereIn('status_registration', $statuses);
 
         // Tambahkan filter pencarian berdasarkan events.name jika parameter search tersedia
