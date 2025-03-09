@@ -95,7 +95,7 @@ class PaymentController extends Controller
         // Cari data payment beserta data events terkait
         $findPayment = Payment::join('events', 'events.id', '=', 'payment.events_id')
             ->where('code_payment', $code_payment)
-            ->select('payment.id as payment_id', 'payment.*', 'events.*')
+            ->select('payment.id as payment_id', 'payment.*', 'events.*', 'payment.link')
             ->first();
 
         // Jika payment tidak ditemukan, kembalikan error
