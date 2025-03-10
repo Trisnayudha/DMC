@@ -140,6 +140,7 @@ Route::post('/marketing-ads', [MarketingAdsController::class, 'index']);
 Route::post('/advertisement', [MarketingAdsController::class, 'index']);
 
 Route::post('/notification/list', [NotificationController::class, 'notification']);
+Route::post('/notification/read', [NotificationController::class, 'readNotif']);
 
 Route::post('/highlight/list', [NotificationController::class, 'highlight']);
 
