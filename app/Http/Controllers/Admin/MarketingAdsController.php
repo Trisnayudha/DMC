@@ -47,7 +47,7 @@ class MarketingAdsController extends Controller
             $decodedImage = base64_decode($base64Str);
             // Simpan file ke folder "ads" pada disk "public"
             Storage::disk('public')->put('ads/' . $imageName, $decodedImage);
-            $data->image = 'storage/ads/' . $imageName;
+            $data->image = '/storage/ads/' . $imageName;
             $data->save();
         }
 
