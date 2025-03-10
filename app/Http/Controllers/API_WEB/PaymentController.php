@@ -67,7 +67,7 @@ class PaymentController extends Controller
             $response['message'] = 'Success Cancel payment';
             $response['payload'] = null;
         } else {
-            $response['status'] = 200;
+            $response['status'] = 404;
             $response['message'] = 'Payment Not Found';
             $response['payload'] = null;
         }
