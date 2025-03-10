@@ -156,14 +156,18 @@ class EventsController extends Controller
 
     public function myEvent(Request $request)
     {
-        $id =  auth('sanctum')->user()->id;
+        $id = auth('sanctum')->user()->id;
         $filter = $request->filter;
         $limit = $request->limit;
+        $searchName = $request->search; // parameter pencarian nama event
+        $eventType = $request->event_type; // parameter pencarian tipe event
         $date = date('Y-m-d');
+
         $findMyEvent = UserRegister::where('users_id', $id)->first();
         if (!empty($findMyEvent)) {
             $findDetail = UserRegister::join('events', 'events.id', 'users_event.events_id')
                 ->join('payment', 'payment.id', 'users_event.payment_id')
+                // Filter sesuai dengan status event (upcoming/history)
                 ->where(function ($q) use ($filter, $date) {
                     if ($filter == 'active' || $filter == 'upcoming') {
                         $q->where('events.end_date', '>=', $date);
@@ -172,6 +176,13 @@ class EventsController extends Controller
                     }
                 })
                 ->where('users_event.users_id', '=', $id)
+                // Tambahkan filter pencarian nama event dan tipe event di sini
+                ->when($searchName, function ($query, $searchName) {
+                    return $query->where('events.name', 'like', '%' . $searchName . '%');
+                })
+                ->when($eventType, function ($query, $eventType) {
+                    return $query->where('events.event_type', $eventType);
+                })
                 ->select(
                     'events.id',
                     'events.name as event_name',
@@ -179,19 +190,25 @@ class EventsController extends Controller
                     'events.location',
                     'events.start_time',
                     'events.image',
+                    'events.event_type',
+                    'events.end_time',
                     'payment.code_payment',
+                    'events.end_date',
                     'payment.qr_code',
                     'payment.status_registration',
                     'payment.package as present',
                     'users_event.present',
-                    'events.slug',
-                    'events.end_date' // Tambahkan kolom 'end_date' ke dalam hasil kueri
+                    'events.slug'
                 )
                 ->orderBy('payment.id', 'desc')
                 ->paginate($limit);
+
+            // Set status event dan nilai present
             foreach ($findDetail as $val => $key) {
                 $key->present = $key->present != null ? true : false;
-                $key->status = isset($key->end_date) && $key->end_date >= $date ? 'Upcoming Event' : 'Completed Event';
+                $key->status = isset($key->end_date) && $key->end_date >= $date
+                    ? 'Upcoming Event'
+                    : 'Completed Event';
             }
 
             $response['status'] = 200;
@@ -202,8 +219,10 @@ class EventsController extends Controller
             $response['message'] = 'Event Not Found';
             $response['payload'] = [];
         }
+
         return response()->json($response);
     }
+
 
     public function downloadTicket(Request $request)
     {
