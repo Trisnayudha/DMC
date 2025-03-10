@@ -7,6 +7,7 @@ use App\Models\Events\Events;
 use App\Models\Marketing\MarketingAds;
 use App\Models\News\News;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MarketingAdsController extends Controller
 {
@@ -14,79 +15,66 @@ class MarketingAdsController extends Controller
     {
         $this->middleware('auth');
     }
+
     public function index()
     {
         $list = MarketingAds::orderBy('id', 'desc')->get();
-        // dd($list);
-        $data = [
-            'list' => $list
-        ];
-        return view('admin.marketing-ads.index', $data);
+        return view('admin.marketing-ads.index', ['list' => $list]);
     }
+
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Simpan data (create atau update) menggunakan base64 untuk image.
      */
     public function store(Request $request)
     {
         $data = MarketingAds::updateOrCreate(
+            ['id' => $request->id],
             [
-                'id' => $request->id
-            ],
-            [
-                'type' => $request->type,
-                'location' => $request->location,
+                'type'      => $request->type,
+                'location'  => $request->location,
                 'target_id' => $request->target_id
             ]
         );
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->extension();
-            $db = '/storage/ads/' . $imageName;
-            $image->storeAs('public/ads', $imageName);
-            $data->image = $db;
+        // Jika ada base64_image, decode dan simpan file-nya
+        if ($request->has('base64_image') && !empty($request->base64_image)) {
+            $base64Str = $request->base64_image;
+            // Hilangkan prefix data URL jika ada (contoh: "data:image/png;base64,")
+            if (strpos($base64Str, 'base64,') !== false) {
+                $base64Str = substr($base64Str, strpos($base64Str, 'base64,') + 7);
+            }
+            $imageName = time() . '.png'; // atau sesuaikan ekstensi berdasarkan kebutuhan
+            $decodedImage = base64_decode($base64Str);
+            // Simpan file ke folder "ads" pada disk "public"
+            Storage::disk('public')->put('ads/' . $imageName, $decodedImage);
+            $data->image = 'storage/ads/' . $imageName;
             $data->save();
         }
 
         return response()->json(['success' => true]);
     }
 
-
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
+     * Ambil data untuk form edit.
      */
     public function edit(Request $request)
     {
-        $where = array('id' => $request->id);
-        $data  = MarketingAds::where($where)->first();
-        // activity()->log('Edit Data Kategori');
+        $data = MarketingAds::where('id', $request->id)->first();
         return response()->json($data);
     }
 
-
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
+     * Hapus data.
      */
     public function destroy(Request $request)
     {
-        $data = MarketingAds::where('id', $request->id)->delete();
-        // activity()->log('Menghapus Data Kategori');
+        MarketingAds::where('id', $request->id)->delete();
         return response()->json(['success' => true]);
     }
 
     public function event()
     {
         $data = Events::orderBy('id', 'desc')->get();
-
         return response()->json([
             'success' => true,
             'payload' => $data
@@ -96,7 +84,6 @@ class MarketingAdsController extends Controller
     public function news()
     {
         $data = News::orderBy('id', 'desc')->get();
-
         return response()->json([
             'success' => true,
             'payload' => $data

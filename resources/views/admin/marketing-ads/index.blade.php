@@ -7,8 +7,7 @@
                 <h1>Marketing Ads Management</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active"><a href="">Marketing Ads Management</a>
-                    </div>
+                    <div class="breadcrumb-item active"><a href="">Marketing Ads Management</a></div>
                 </div>
             </div>
             <div class="section-body">
@@ -42,26 +41,17 @@
 
                                 <form method="GET" action="">
                                     <div class="form-row">
-                                        <div class="form-group col-md-4">
-
-                                        </div>
+                                        <div class="form-group col-md-4"></div>
+                                        <div class="form-group col-md-2"></div>
+                                        <div class="form-group col-md-2"></div>
+                                        <div class="form-group col-md-2"></div>
                                         <div class="form-group col-md-2">
-
-                                        </div>
-                                        <div class="form-group col-md-2">
-
-                                        </div>
-                                        <div class="form-group col-md-2">
-
-                                        </div>
-                                        <div class="form-group col-md-2">
-
                                             <a href="javascript:void(0)"
                                                 class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                                 id="addNewCategory">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Tambah Ads</a>
-
+                                                Tambah Ads
+                                            </a>
                                         </div>
                                     </div>
                                 </form>
@@ -91,16 +81,15 @@
                                                     <td>{{ $post->type }}</td>
                                                     <td>{{ $post->target_id }}</td>
                                                     <td>
-
                                                         <a href="javascript:void(0)" data-id="{{ $post->id }}"
-                                                            class="btn btn-success edit"><span
-                                                                class="fa fa-edit"></span></a>
-                                                        {{-- @dd($post-id); --}}
+                                                            class="btn btn-success edit">
+                                                            <span class="fa fa-edit"></span>
+                                                        </a>
                                                         <a href="javascript:void(0)" data-id="{{ $post->id }}"
-                                                            class="btn btn-danger delete"><span class=" fa fa-trash"></a>
-
+                                                            class="btn btn-danger delete">
+                                                            <span class="fa fa-trash"></span>
+                                                        </a>
                                                     </td>
-
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -112,8 +101,9 @@
                 </div>
             </div>
         </section>
-
     </div>
+
+    <!-- Modal -->
     <div class="modal fade" id="category-model" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -124,21 +114,23 @@
                     <form action="javascript:void(0)" id="addEditCategoryForm" name="addEditCategoryForm"
                         class="form-horizontal" method="POST" enctype="multipart/form-data">
                         <input type="hidden" name="id" id="id">
+                        <!-- Field file input -->
                         <div class="form-group">
                             <label for="">Image</label>
                             <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="thumbnail" name="image"
-                                    id="image">
-                                <label class="custom-file-label" for="exampleInputFile">Choose
-                                    file</label>
+                                <input type="file" class="custom-file-input" id="image" name="image">
+                                <label class="custom-file-label" for="image">Choose file</label>
                             </div>
                         </div>
+                        <!-- Field hidden untuk base64 image -->
+                        <input type="hidden" name="base64_image" id="base64_image">
+
                         <div class="form-group">
                             <label>Location</label>
                             <select class="form-control" name="location" id="location">
                                 <option value="">Choose</option>
                                 <option value="popup">Pop Up Home Page</option>
-                                <option value="splash">Spalash Screen</option>
+                                <option value="splash">Splash Screen</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -147,44 +139,57 @@
                                 <option value="">Choose</option>
                                 <option value="events">Event</option>
                                 <option value="news">News</option>
+                                <option value="website">Website</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <select name="target_id" id="target_id" class="form-control" style="display:none;">
-
-                            </select>
-                        </div>
-
+                        <!-- Container untuk target_id yang akan berubah: dropdown (events/news) atau input teks (website) -->
+                        <div class="form-group" id="targetGroup" style="display:none;"></div>
                         <div class="col-sm-offset-2 col-sm-10">
                             <button type="submit" class="btn btn-primary" id="btn-save" value="addNewCategory">Save
-                                changes
-                            </button>
+                                changes</button>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-
-                </div>
+                <div class="modal-footer"></div>
             </div>
         </div>
     </div>
+
+    <!-- Include Plugin JS -->
     <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
     <script>
         $(function() {
-            $('#summernote').summernote()
+            $('#summernote').summernote();
             bsCustomFileInput.init();
         });
+
+        // Konversi file image ke base64 ketika file dipilih
+        $('#image').on('change', function(e) {
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                    // Simpan hasil base64 ke input hidden
+                    $('#base64_image').val(evt.target.result);
+                    console.log('Base64 Image:', evt.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle dynamic load target_id options berdasarkan type
         $(document).ready(function() {
             $('#type').change(function() {
-                if ($(this).val() === 'events') {
-                    $('#target_id').empty();
-                    $('#target_id').show();
+                var selectedType = $(this).val();
+                if (selectedType === 'events') {
+                    var selectHtml =
+                        '<select name="target_id" id="target_id" class="form-control"></select>';
+                    $('#targetGroup').html(selectHtml).show();
                     $.ajax({
                         url: "{{ url('admin/marketing-ads/event') }}",
                         method: "GET",
                         success: function(data) {
-                            console.log(data)
                             if (data.success) {
                                 var payload = data.payload;
                                 for (var i = 0; i < payload.length; i++) {
@@ -194,14 +199,14 @@
                             }
                         }
                     });
-                } else if ($(this).val() === 'news') {
-                    $('#target_id').empty();
-                    $('#target_id').show();
+                } else if (selectedType === 'news') {
+                    var selectHtml =
+                        '<select name="target_id" id="target_id" class="form-control"></select>';
+                    $('#targetGroup').html(selectHtml).show();
                     $.ajax({
                         url: "{{ url('admin/marketing-ads/news') }}",
                         method: "GET",
                         success: function(data) {
-                            console.log(data)
                             if (data.success) {
                                 var payload = data.payload;
                                 for (var i = 0; i < payload.length; i++) {
@@ -211,29 +216,35 @@
                             }
                         }
                     });
+                } else if (selectedType === 'website') {
+                    var inputHtml =
+                        '<input type="text" name="target_id" id="target_id" class="form-control" placeholder="Masukkan link website">';
+                    $('#targetGroup').html(inputHtml).show();
                 } else {
-                    $('#target_id').hide();
+                    $('#targetGroup').hide();
                 }
             });
         });
-    </script>
-    <script type="text/javascript">
-        $(document).ready(function($) {
+
+        // Handle CRUD dengan AJAX
+        $(document).ready(function() {
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
+            // Modal tambah
             $('#addNewCategory').click(function() {
                 $('#addEditCategoryForm').trigger("reset");
                 $('#ajaxCategoryModel').html("Add Category");
+                $('#targetGroup').hide();
                 $('#category-model').modal('show');
             });
 
+            // Edit: ambil data untuk di-edit
             $(document).on('click', '.edit', function() {
                 var id = $(this).data('id');
-
-                // ajax
                 $.ajax({
                     type: "POST",
                     url: "{{ url('admin/marketing-ads/edit') }}",
@@ -245,14 +256,18 @@
                         $('#ajaxCategoryModel').html("Edit Category");
                         $('#category-model').modal('show');
                         $('#id').val(res.id);
-                        $('#image').val(res.image);
-                        $('#type').val(res.type);
                         $('#location').val(res.location);
+                        $('#type').val(res.type).trigger('change');
+                        // Setelah field targetGroup ter-load, set nilainya
+                        setTimeout(function() {
+                            $('#target_id').val(res.target_id);
+                        }, 500);
                     }
                 });
             });
-            $(document).on('click', '.delete', function() {
 
+            // Hapus data
+            $(document).on('click', '.delete', function() {
                 var id = $(this).data('id');
                 Swal.fire({
                     title: "Anda Yakin ?",
@@ -266,58 +281,56 @@
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "POST",
-                            url: "{{ url('marketing-ads/delete') }}",
+                            url: "{{ url('admin/marketing-ads/delete') }}",
                             data: {
                                 id: id
                             },
                             dataType: 'json',
                             success: function(res) {
                                 Swal.fire({
-                                        title: "Success",
-                                        icon: "success",
-                                        showConfirmButton: false,
-                                        position: 'center',
-                                        timer: 1500
-                                    }),
-                                    window.location.reload();
+                                    title: "Success",
+                                    icon: "success",
+                                    showConfirmButton: false,
+                                    position: 'center',
+                                    timer: 1500
+                                });
+                                window.location.reload();
                             }
                         });
                     }
                 });
-
-
             });
+
+            // Simpan data (create/update)
             $(document).on('click', '#btn-save', function(event) {
+                event.preventDefault();
                 var form = $('#addEditCategoryForm')[0];
                 var data = new FormData(form);
-                console.log(form);
-                console.log(data);
                 $("#btn-save").html('Please Wait...');
                 $("#btn-save").attr("disabled", true);
-                // ajax
                 $.ajax({
                     type: "POST",
-                    url: "{{ url('marketing-ads/add') }}",
+                    url: "{{ url('admin/marketing-ads/add') }}",
                     data: data,
                     contentType: false,
                     processData: false,
                     dataType: 'json',
                     success: function(res) {
-                        console.log(res);
                         Swal.fire({
-                                title: "Success",
-                                icon: "success",
-                                showConfirmButton: false,
-                                position: 'center',
-                                timer: 1500
-                            }),
-                            window.location.reload();
+                            title: "Success",
+                            icon: "success",
+                            showConfirmButton: false,
+                            position: 'center',
+                            timer: 1500
+                        });
+                        window.location.reload();
                         $("#btn-save").html('Submit');
                         $("#btn-save").attr("disabled", false);
                     }
                 });
             });
         });
+
         $(document).ready(function() {
             $('#laravel_crud').DataTable();
         });
