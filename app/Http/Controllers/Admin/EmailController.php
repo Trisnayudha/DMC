@@ -42,13 +42,38 @@ class EmailController extends Controller
         try {
             $messageDetails = $client->getOutboundMessageDetails($messageId);
 
-            // Ubah dari DynamicResponseModel ke array (bisa langsung di-encode lalu di-decode)
-            $messageDetailsArray = json_decode(json_encode($messageDetails), true);
+            // Cast objek ke array, karena properti protected akan muncul dengan key khusus
+            $detailsArray = (array) $messageDetails;
+
+            // Cari key yang berisi "container"
+            $containerKey = null;
+            foreach (array_keys($detailsArray) as $key) {
+                if (strpos($key, 'container') !== false) {
+                    $containerKey = $key;
+                    break;
+                }
+            }
+
+            if (!$containerKey || !isset($detailsArray[$containerKey])) {
+                throw new \Exception("Property container tidak ditemukan");
+            }
+
+            $container = $detailsArray[$containerKey];
+
+            // Mapping field-field yang diperlukan
+            $mapped = [
+                'from'          => $container['from'] ?? null,
+                'subject'       => $container['subject'] ?? null,
+                'date'          => $container['receivedat'] ?? null,
+                'to'            => $container['to'] ?? [],
+                'messageevents' => $container['messageevents'] ?? [],
+                'textbody'      => $container['textbody'] ?? null,
+                'htmlbody'      => $container['htmlbody'] ?? null,
+            ];
 
             return response()->json([
                 'status'  => 'success',
-                // Pastikan sudah jadi array/JSON, bukan lagi object 'DynamicResponseModel'
-                'details' => $messageDetailsArray
+                'details' => $mapped,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -57,7 +82,6 @@ class EmailController extends Controller
             ], 500);
         }
     }
-
 
     // Proses pengiriman email via AJAX
     public function sendEmail(Request $request)
