@@ -42,7 +42,7 @@ class EmailController extends Controller
                 return $item->message_id . '-' . $item->record_type;
             });
         // Render partial view untuk baris-baris <tr> dari inbox
-        $html = view('emails.partials.inbox_rows', compact('emails'))->render();
+        $html = view('admin.email.index', compact('emails'))->render();
 
         return response()->json([
             'status' => 'success',
