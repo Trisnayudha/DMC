@@ -179,12 +179,13 @@
     </div>
 
     <!-- MODAL EMAIL DETAIL -->
-    <div class="modal fade" tabindex="-1" role="dialog" id="emailDetailModal">
-        <div class="modal-dialog modal-lg" role="document">
+    <div class="modal fade" id="emailDetailModal" tabindex="-1" role="dialog" aria-labelledby="emailDetailModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Email Detail</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="emailDetailModalLabel">Email Detail</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close"
                         onclick="closeEmailDetailModal()">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -192,12 +193,14 @@
                 <div class="modal-body" id="emailDetailContent">
                     <!-- Konten detail email akan ditampilkan di sini -->
                 </div>
-                <div class="modal-footer bg-whitesmoke br">
-                    <button type="button" class="btn btn-secondary" onclick="closeEmailDetailModal()">Close</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                        onclick="closeEmailDetailModal()">Close</button>
                 </div>
             </div>
         </div>
     </div>
+
 
 
 
@@ -235,35 +238,55 @@
                 success: function(response) {
                     if (response.status === 'success') {
                         let details = response.details;
-                        console.log(response.details)
-                        console.log('ini subject' + response.details.subject)
                         let html = '';
-                        html += '<p><strong>Subject:</strong> ' + (details.subject || '-') + '</p>';
-                        html += '<p><strong>Date:</strong> ' + (details.date || '-') + '</p>';
-                        html += '<p><strong>From:</strong> ' + (details.from || '-') + '</p>';
-                        // Untuk "To", karena array of objects, kita mapping Email-nya
+
+                        // Bagian Header Email dengan Card
+                        html += '<div class="card mb-3">';
+                        html += '  <div class="card-body">';
+                        html += '    <h5 class="card-title">' + (details.subject || '-') + '</h5>';
+                        html += '    <p class="card-text"><small class="text-muted">' +
+                            (details.date ? moment(details.date).format('LLL') : '-') + '</small></p>';
+                        html += '    <p class="mb-1"><strong>From:</strong> ' + (details.from || '-') + '</p>';
                         if (details.to && details.to.length > 0) {
                             let toEmails = details.to.map(function(item) {
                                 return item.Email;
                             }).join(', ');
-                            html += '<p><strong>To:</strong> ' + toEmails + '</p>';
+                            html += '    <p class="mb-1"><strong>To:</strong> ' + toEmails + '</p>';
                         } else {
-                            html += '<p><strong>To:</strong> -</p>';
+                            html += '    <p class="mb-1"><strong>To:</strong> -</p>';
                         }
-                        // Jika ingin menampilkan HTML secara render (bukan escaped), gunakan innerHTML nanti.
-                        html += '<p><strong>HTML Body:</strong><br>' + (details.htmlbody || '-') + '</p>';
+                        html += '  </div>';
+                        html += '</div>';
 
-                        // Tampilkan message events, jika ada
+                        // Bagian Body Email (HTML)
+                        html += '<div class="mb-3">';
+                        html += '  <h6>Message</h6>';
+                        html += '  <div class="border p-3" style="background-color: #f8f9fa;">' + (details
+                            .htmlbody || '-') + '</div>';
+                        html += '</div>';
+
+                        // Bagian Message Events (dengan list-group)
                         if (details.messageevents && details.messageevents.length > 0) {
-                            html += '<hr><h5>Message Events:</h5><ul>';
+                            html += '<div class="mb-3">';
+                            html += '  <h6>Message Events</h6>';
+                            html += '  <ul class="list-group">';
                             details.messageevents.forEach(function(event) {
-                                html += '<li><strong>' + (event.Type || 'Unknown') + '</strong> at ' + (
-                                    event.ReceivedAt || '-') + '</li>';
+                                // Format tanggal event menjadi format yang mudah dibaca
+                                let eventTime = event.ReceivedAt ? moment(event.ReceivedAt).format(
+                                    'LLL') : '-';
+                                html +=
+                                    '<li class="list-group-item d-flex justify-content-between align-items-center">';
+                                html += '  <span><strong>' + (event.Type || 'Unknown') +
+                                    '</strong></span>';
+                                html += '  <span class="badge badge-secondary badge-pill">' +
+                                    eventTime + '</span>';
+                                html += '</li>';
                             });
-                            html += '</ul>';
+                            html += '  </ul>';
+                            html += '</div>';
                         }
 
-                        // Masukkan konten ke modal detail
+                        // Masukkan HTML ke modal dan tampilkan modal
                         $('#emailDetailContent').html(html);
                         $('#emailDetailModal').modal('show');
                     } else {
@@ -275,6 +298,11 @@
                 }
             });
         }
+
+        function closeEmailDetailModal() {
+            $('#emailDetailModal').modal('hide');
+        }
+
 
         function closeEmailDetailModal() {
             $('#emailDetailModal').modal('hide');
@@ -432,6 +460,7 @@
     <!-- Ganti 'latest' dengan versi spesifik, misal '2.2.6' -->
     <script src="https://unpkg.com/filepond-plugin-image-preview@4.6.12/dist/filepond-plugin-image-preview.js"></script>
     <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
     <!-- Tagify JS -->
     <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
