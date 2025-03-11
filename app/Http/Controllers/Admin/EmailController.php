@@ -82,7 +82,7 @@ class EmailController extends Controller
                 $subject,
                 $htmlBody,
                 $textBody,
-                null,  // 6) tag
+                $subject,  // 6) tag
                 null,  // 7) trackOpens
                 null,  // 8) trackLinks
                 $cc,   // 10) cc
