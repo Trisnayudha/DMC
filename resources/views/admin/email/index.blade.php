@@ -46,6 +46,15 @@
                     <!-- Daftar Email -->
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="5%"></th>
+                                    <th width="5%"></th>
+                                    <th>Message ID</th>
+                                    <th>Email Info</th>
+                                    <th width="20%">Date &amp; Time</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 @forelse ($list as $callback)
                                     <tr onclick="openEmailDetail('{{ $callback->message_id }}')" style="cursor: pointer;">
@@ -62,24 +71,29 @@
                                                 <i class="far fa-star"></i>
                                             </a>
                                         </td>
+                                        <!-- Menampilkan message_id secara unik, disingkat agar tampilan tetap rapi -->
+                                        <td class="align-middle">
+                                            <strong>{{ substr($callback->message_id, 0, 8) . '...' }}</strong>
+                                        </td>
+                                        <!-- Menampilkan jenis record dan recipient -->
                                         <td class="align-middle">
                                             <strong>{{ $callback->record_type ?? 'Unknown' }}</strong>
                                             — {{ $callback->recipient ?? '-' }}
                                         </td>
-                                        <td class="align-middle text-right" width="15%">
-                                            {{ $callback->created_at ? $callback->created_at->format('M d') : '-' }}
+                                        <!-- Menampilkan tanggal dan waktu -->
+                                        <td class="align-middle text-right">
+                                            {{ $callback->created_at ? $callback->created_at->format('M d, Y H:i') : '-' }}
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">Tidak ada email yang diterima.</td>
+                                        <td colspan="5" class="text-center">Tidak ada email yang diterima.</td>
                                     </tr>
                                 @endforelse
-
                             </tbody>
-
                         </table>
                     </div>
+
                 </div>
             </div>
         </div>
