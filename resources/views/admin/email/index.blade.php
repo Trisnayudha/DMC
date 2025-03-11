@@ -216,17 +216,15 @@
         }
 
         function refreshInbox() {
-            // Tampilkan loading state pada tombol refresh
             var $refreshBtn = $('#refreshButton');
             $refreshBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
 
             $.ajax({
-                url: "{{ route('email.refresh') }}", // Pastikan route ini mengembalikan data terbaru
+                url: "{{ route('email.refresh') }}",
                 type: "GET",
                 dataType: "json",
                 success: function(response) {
                     if (response.status === 'success') {
-                        // Misalnya response.data berisi HTML baris <tr> untuk <tbody>
                         $('tbody').html(response.data);
                     } else {
                         showAlert('danger', response.message || 'Gagal menyegarkan inbox.');
@@ -236,11 +234,11 @@
                     showAlert('danger', 'Error refreshing inbox: ' + errorThrown);
                 },
                 complete: function() {
-                    // Kembalikan tampilan tombol refresh
                     $refreshBtn.prop('disabled', false).html('<i class="fas fa-sync"></i>');
                 }
             });
         }
+
 
 
         function deleteSelected() {
