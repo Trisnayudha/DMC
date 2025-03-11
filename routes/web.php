@@ -181,6 +181,10 @@ Route::prefix('admin')->group(function () {
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');
     Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
+    Route::get('sponsors/{sponsor}/edit-contract', [SponsorController::class, 'editContract'])
+        ->name('sponsors.edit-contract');
+    Route::post('sponsors/{sponsor}/update-contract', [SponsorController::class, 'updateContract'])
+        ->name('sponsors.update-contract');
 
     Route::get('sponsor-engagement', [SocialMediaEngagementController::class, 'index'])
         ->name('sponsor-engagement.index');

@@ -15,16 +15,12 @@
         </div>
 
         <div class="section-body">
-            <h2 class="section-title">
-                Create Sponsor
-            </h2>
+            <h2 class="section-title">Create Sponsor</h2>
             <div class="row">
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-header">
-                            <h4>
-                                Basic Information
-                            </h4>
+                            <h4>Basic Information</h4>
                         </div>
                         <div class="card-body">
                             {!! Form::open([
@@ -43,7 +39,6 @@
                             </div>
                             <div class="row">
                                 <div class="col-6">
-
                                     <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                                         <label>Email</label>
                                         {!! Form::text('email', old('email'), [
@@ -68,7 +63,6 @@
                                                 'class' => 'form-control datepicker',
                                                 'placeholder' => 'Tanggal lahir company',
                                             ]) !!}
-
                                         </div>
                                         @if ($errors->has('founded'))
                                             <span class="help-block">
@@ -80,12 +74,11 @@
                                         {!! Form::label('Location Office') !!}
                                         {!! Form::number('location_office', null, [
                                             'class' => 'form-control',
-                                            'placeholder' => 'jumlah lokasi office (1/2/3/4/5 dst)',
+                                            'placeholder' => 'Jumlah lokasi office (1/2/3/4/5 dst)',
                                             'min' => 1,
                                             'max' => 5,
                                             'step' => 1,
                                         ]) !!}
-
                                         @if ($errors->has('location_office'))
                                             <span class="help-block">
                                                 <strong style="color:red">{{ $errors->first('location_office') }}</strong>
@@ -94,7 +87,6 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-
                                     <div class="form-group{{ $errors->has('website') ? ' has-error' : '' }}">
                                         <label>Website</label>
                                         {!! Form::text('website', old('website'), [
@@ -119,12 +111,11 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <!-- founded -->
                                     <div class="form-group{{ $errors->has('employees') ? ' has-error' : '' }}">
-                                        {!! Form::label('employees') !!}
+                                        {!! Form::label('Employees') !!}
                                         {!! Form::number('employees', null, [
                                             'class' => 'form-control',
-                                            'placeholder' => 'jumlah karyawan(100/5000/70000)',
+                                            'placeholder' => 'Jumlah karyawan (100/5000/70000)',
                                         ]) !!}
                                         @if ($errors->has('employees'))
                                             <span class="help-block">
@@ -132,14 +123,13 @@
                                             </span>
                                         @endif
                                     </div>
-
                                 </div>
                                 <div class="col-12">
-                                    <div class="form-group{{ $errors->has('Company Category') ? ' has-error' : '' }}">
-                                        {!! Form::label('company_category') !!}
+                                    <div class="form-group{{ $errors->has('company_category') ? ' has-error' : '' }}">
+                                        {!! Form::label('Company Category') !!}
                                         {!! Form::text('company_category', null, [
                                             'class' => 'form-control',
-                                            'placeholder' => 'Industri apa ?',
+                                            'placeholder' => 'Industri apa?',
                                         ]) !!}
                                         @if ($errors->has('company_category'))
                                             <span class="help-block">
@@ -149,11 +139,11 @@
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <div class="form-group{{ $errors->has('Instagram') ? ' has-error' : '' }}">
-                                        {!! Form::label('instagram') !!}
+                                    <div class="form-group{{ $errors->has('instagram') ? ' has-error' : '' }}">
+                                        {!! Form::label('Instagram') !!}
                                         {!! Form::text('instagram', null, [
                                             'class' => 'form-control',
-                                            'placeholder' => 'instagram',
+                                            'placeholder' => 'Instagram',
                                         ]) !!}
                                         @if ($errors->has('instagram'))
                                             <span class="help-block">
@@ -164,10 +154,10 @@
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group{{ $errors->has('facebook') ? ' has-error' : '' }}">
-                                        {!! Form::label('facebook') !!}
+                                        {!! Form::label('Facebook') !!}
                                         {!! Form::text('facebook', null, [
                                             'class' => 'form-control',
-                                            'placeholder' => 'facebook',
+                                            'placeholder' => 'Facebook',
                                         ]) !!}
                                         @if ($errors->has('facebook'))
                                             <span class="help-block">
@@ -178,14 +168,39 @@
                                 </div>
                                 <div class="col-4">
                                     <div class="form-group{{ $errors->has('linkedin') ? ' has-error' : '' }}">
-                                        {!! Form::label('linkedin') !!}
+                                        {!! Form::label('LinkedIn') !!}
                                         {!! Form::text('linkedin', null, [
                                             'class' => 'form-control',
-                                            'placeholder' => 'linkedin',
+                                            'placeholder' => 'LinkedIn',
                                         ]) !!}
                                         @if ($errors->has('linkedin'))
                                             <span class="help-block">
                                                 <strong style="color:red">{{ $errors->first('linkedin') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <!-- Tambahan untuk Contract Start dan Contract End -->
+                                <div class="col-6">
+                                    <div class="form-group{{ $errors->has('contract_start') ? ' has-error' : '' }}">
+                                        {!! Form::label('Contract Start') !!}
+                                        <input type="month" name="contract_start" class="form-control"
+                                            value="{{ old('contract_start') }}">
+                                        @if ($errors->has('contract_start'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('contract_start') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="form-group{{ $errors->has('contract_end') ? ' has-error' : '' }}">
+                                        {!! Form::label('Contract End') !!}
+                                        <input type="month" name="contract_end" class="form-control"
+                                            value="{{ old('contract_end') }}">
+                                        @if ($errors->has('contract_end'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('contract_end') }}</strong>
                                             </span>
                                         @endif
                                     </div>
@@ -218,10 +233,7 @@
                                     </span>
                                 @endif
                             </div>
-
-
                         </div>
-
                     </div>
                     <div class="card">
                         <div class="card-header">
@@ -233,8 +245,7 @@
                                 <div class="input-group">
                                     <div class="custom-file">
                                         <input type="file" class="custom-file-input" id="image" name="image">
-                                        <label class="custom-file-label" for="exampleInputFile">Choose
-                                            file</label>
+                                        <label class="custom-file-label" for="exampleInputFile">Choose file</label>
                                     </div>
                                 </div>
                                 @if ($errors->has('image'))
@@ -248,7 +259,6 @@
                     </div>
                 </div>
                 <div class="col-lg-4">
-
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
@@ -269,9 +279,7 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
                                         {!! Form::label('Status') !!}
-                                        {!! Form::select('status', ['draft' => 'Draft', 'publish' => 'Publish'], null, [
-                                            'class' => 'form-control',
-                                        ]) !!}
+                                        {!! Form::select('status', ['draft' => 'Draft', 'publish' => 'Publish'], null, ['class' => 'form-control']) !!}
                                         @if ($errors->has('status'))
                                             <span class="help-block">
                                                 <strong style="color:red">{{ $errors->first('status') }}</strong>
@@ -288,14 +296,11 @@
                             </div>
                         </div>
                     </div>
-
                     {!! Form::close() !!}
                 </div>
             </div>
         </div>
     </section>
-
-
     <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
     <script>
@@ -319,5 +324,4 @@
             })
         });
     </script>
-
 @endsection

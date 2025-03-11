@@ -12,9 +12,8 @@
             </div>
             <div class="section-body">
                 <h2 class="section-title">Sponsors</h2>
-
-                <!-- Notifikasi Alert untuk Expired Contracts -->
                 @if ($expiredSponsors->count() > 0)
+                    <!-- Notifikasi Alert untuk Expired Contracts -->
                     <div class="alert alert-danger">
                         <h4><i class="fas fa-exclamation-circle"></i> Expired Contracts</h4>
                         <p>The following companies have passed their contract end date:</p>
@@ -38,12 +37,21 @@
                                     $parts = explode('-', $sponsor->contract_end);
                                     $displayContractEnd = $monthNames[$parts[1]] . ' ' . $parts[0];
                                 @endphp
-                                <li>{{ $sponsor->name }} (Contract End: {{ $displayContractEnd }})</li>
+                                <li>
+                                    {{ $sponsor->name }} (Contract End: {{ $displayContractEnd }})
+                                    <a href="#" class="btn btn-sm btn-info update-contract-btn"
+                                        data-sponsor-id="{{ $sponsor->id }}"
+                                        data-contract-start="{{ $sponsor->contract_start }}"
+                                        data-contract-end="{{ $sponsor->contract_end }}">
+                                        Update Contract
+                                    </a>
+                                </li>
                             @endforeach
                         </ul>
                     </div>
                 @endif
 
+                <!-- Notifikasi Alert untuk Renewal Soon -->
                 @if ($renewalSponsors->count() > 0)
                     <div class="alert alert-warning">
                         <h4><i class="fas fa-exclamation-triangle"></i> Renewal Soon</h4>
@@ -73,8 +81,10 @@
                                     )->endOfMonth();
                                     $daysLeft = now()->diffInDays($endDate, false);
                                 @endphp
-                                <li>{{ $sponsor->name }} (Contract End: {{ $displayContractEnd }}, in {{ $daysLeft }}
-                                    days)</li>
+                                <li>
+                                    {{ $sponsor->name }} (Contract End: {{ $displayContractEnd }}, in {{ $daysLeft }}
+                                    days)
+                                </li>
                             @endforeach
                         </ul>
                     </div>
@@ -514,7 +524,41 @@
             $('#laravel_crud').DataTable();
         });
     </script>
-
+    <!-- Modal Update Contract -->
+    <div class="modal fade" id="updateContractModal" tabindex="-1" role="dialog"
+        aria-labelledby="updateContractModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="updateContractForm">
+                    @csrf
+                    @method('POST')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateContractModalLabel">Update Contract</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="modalSponsorId" name="sponsor_id" value="">
+                        <div class="form-group">
+                            <label for="modalContractStart">Contract Start</label>
+                            <input type="month" name="contract_start" id="modalContractStart" class="form-control"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalContractEnd">Contract End</label>
+                            <input type="month" name="contract_end" id="modalContractEnd" class="form-control"
+                                required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Update Contract</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <script>
         $(document).ready(function() {
             $('.toggle-status').change(function() {
@@ -592,6 +636,54 @@
                         });
                     }
                 });
+            });
+        });
+    </script>
+    <script>
+        // Trigger modal update contract pada tombol quick action
+        $(document).on('click', '.update-contract-btn', function(e) {
+            e.preventDefault();
+            let sponsorId = $(this).data('sponsor-id');
+            let contractStart = $(this).data('contract-start');
+            let contractEnd = $(this).data('contract-end');
+            // Set data ke modal
+            $('#modalSponsorId').val(sponsorId);
+            $('#modalContractStart').val(contractStart);
+            $('#modalContractEnd').val(contractEnd);
+            // Tampilkan modal
+            $('#updateContractModal').modal('show');
+        });
+
+        // Submit form update contract via AJAX
+        $('#updateContractForm').on('submit', function(e) {
+            e.preventDefault();
+            let sponsorId = $('#modalSponsorId').val();
+            let url = '/admin/sponsors/' + sponsorId + '/update-contract';
+            let formData = $(this).serialize();
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message, 'Success', {
+                            "positionClass": "toast-top-right"
+                        });
+                        $('#updateContractModal').modal('hide');
+                        // Reload halaman atau update bagian contract pada dashboard
+                        location.reload();
+                    } else {
+                        toastr.error(response.message, 'Error', {
+                            "positionClass": "toast-top-right"
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    toastr.error('An error occurred while updating the contract.', 'Error', {
+                        "positionClass": "toast-top-right"
+                    });
+                }
             });
         });
     </script>

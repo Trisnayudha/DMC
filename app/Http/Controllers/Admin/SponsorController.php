@@ -182,8 +182,9 @@ class SponsorController extends Controller
             'instagram' => $request->input('instagram'),
             'facebook' => $request->input('facebook'),
             'linkedin' => $request->input('linkedin'),
-            'video' => $request->input('video')
-
+            'video' => $request->input('video'),
+            'contract_start' => $request->input('contract_start'),
+            'contract_end' => $request->input('contract_end')
         ]);
 
         // Redirect ke halaman lain atau tampilkan pesan sukses
@@ -244,6 +245,8 @@ class SponsorController extends Controller
         $sponsor->facebook = $request->input('facebook');
         $sponsor->linkedin = $request->input('linkedin');
         $sponsor->video = $request->input('video');
+        $sponsor->contract_start = $request->input('contract_start');
+        $sponsor->contract_end = $request->input('contract_end');
         // Proses pembuatan slug
         $slug = Str::slug($request->input('name')); // Membuat slug dari nama sponsor
 
@@ -327,6 +330,38 @@ class SponsorController extends Controller
 
         return response()->json($detail);
     }
+
+    public function editContract($id)
+    {
+        $sponsor = Sponsor::findOrFail($id);
+        return view('admin.sponsor.edit-contract', compact('sponsor'));
+    }
+
+    /**
+     * Memproses update contract (contract_start dan contract_end).
+     */
+    public function updateContract(Request $request, $id)
+    {
+        $sponsor = Sponsor::findOrFail($id);
+
+        $validated = $request->validate([
+            'contract_start' => 'required|date_format:Y-m',
+            'contract_end'   => 'required|date_format:Y-m',
+        ]);
+
+        $start = \Carbon\Carbon::createFromFormat('Y-m', $validated['contract_start']);
+        $end = \Carbon\Carbon::createFromFormat('Y-m', $validated['contract_end']);
+        if ($end->lt($start)) {
+            return response()->json(['success' => false, 'message' => 'Contract end must be after contract start.'], 422);
+        }
+
+        $sponsor->contract_start = $validated['contract_start'];
+        $sponsor->contract_end   = $validated['contract_end'];
+        $sponsor->save();
+
+        return response()->json(['success' => true, 'message' => 'Contract updated successfully.']);
+    }
+
 
     public function register_sponsor(Request $request)
     {

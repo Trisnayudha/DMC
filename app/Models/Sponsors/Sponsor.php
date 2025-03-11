@@ -26,7 +26,9 @@ class Sponsor extends Model
         'instagram',
         'facebook',
         'linkedin',
-        'video'
+        'video',
+        'contract_start',
+        'contract_end'
 
     ];
 }
