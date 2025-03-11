@@ -231,6 +231,15 @@
         }
 
         function openEmailDetail(messageId) {
+            // Tampilkan modal dengan loading spinner terlebih dahulu
+            $('#emailDetailContent').html(`
+        <div class="text-center py-5">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p>Loading email details...</p>
+        </div>
+    `);
+            $('#emailDetailModal').modal('show');
+
             $.ajax({
                 url: "{{ route('email.detailAjax', '') }}/" + messageId,
                 type: "GET",
@@ -288,7 +297,6 @@
 
                         // Masukkan HTML ke modal dan tampilkan modal
                         $('#emailDetailContent').html(html);
-                        $('#emailDetailModal').modal('show');
                     } else {
                         showAlert('danger', response.message || 'Gagal memuat detail email.');
                     }
@@ -298,6 +306,7 @@
                 }
             });
         }
+
 
         function closeEmailDetailModal() {
             $('#emailDetailModal').modal('hide');
