@@ -235,6 +235,8 @@
                 success: function(response) {
                     if (response.status === 'success') {
                         let details = response.details;
+                        console.log(response.details)
+                        console.log('ini subject' + response.details.subject)
                         let html = '';
                         html += '<p><strong>Subject:</strong> ' + (details.subject || '-') + '</p>';
                         html += '<p><strong>Date:</strong> ' + (details.date || '-') + '</p>';
