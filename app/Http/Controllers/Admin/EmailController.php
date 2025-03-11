@@ -41,8 +41,11 @@ class EmailController extends Controller
             ->unique(function ($item) {
                 return $item->message_id . '-' . $item->record_type;
             });
+        $data = [
+            'list' => $emails
+        ];
         // Render partial view untuk baris-baris <tr> dari inbox
-        $html = view('admin.email.index', compact('list'))->render();
+        $html = view('admin.email.index', $data)->render();
 
         return response()->json([
             'status' => 'success',
