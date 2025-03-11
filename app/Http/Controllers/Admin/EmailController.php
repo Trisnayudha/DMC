@@ -23,8 +23,31 @@ class EmailController extends Controller
     // Tampilkan halaman utama (Inbox + Compose Modal dalam 1 halaman)
     public function index()
     {
-        return view('admin.email.index');
+        $list = PostmarkCallback::orderby('id', 'desc')->get();
+        $data = [
+            'list' => $list
+        ];
+        return view('admin.email.index', $data);
     }
+
+    public function detailAjax($messageId)
+    {
+        $client = $this->postmarkClient;
+
+        try {
+            $messageDetails = $client->getOutboundMessageDetails($messageId);
+            return response()->json([
+                'status'  => 'success',
+                'details' => $messageDetails
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Gagal mengambil detail: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     // Proses pengiriman email via AJAX
     public function sendEmail(Request $request)

@@ -47,46 +47,37 @@
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <tbody>
-                                <!-- Contoh data dummy 1 -->
-                                <tr onclick="openEmailDetail(1)" style="cursor: pointer;">
-                                    <td class="align-middle" width="5%" onclick="event.stopPropagation();">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="selectMail1">
-                                            <label class="custom-control-label" for="selectMail1"></label>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle" width="5%" onclick="event.stopPropagation();">
-                                        <a href="javascript:void(0);" onclick="toggleStar(event, 1)">
-                                            <i class="far fa-star"></i>
-                                        </a>
-                                    </td>
-                                    <td class="align-middle">
-                                        <strong>Postmark</strong> — Your monthly usage report is available
-                                    </td>
-                                    <td class="align-middle text-right" width="15%">Mar 7</td>
-                                </tr>
+                                @forelse ($list as $callback)
+                                    <tr onclick="openEmailDetail('{{ $callback->message_id }}')" style="cursor: pointer;">
+                                        <td class="align-middle" width="5%" onclick="event.stopPropagation();">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input"
+                                                    id="selectMail{{ $callback->id }}">
+                                                <label class="custom-control-label"
+                                                    for="selectMail{{ $callback->id }}"></label>
+                                            </div>
+                                        </td>
+                                        <td class="align-middle" width="5%" onclick="event.stopPropagation();">
+                                            <a href="javascript:void(0);" onclick="toggleStar(event, {{ $callback->id }})">
+                                                <i class="far fa-star"></i>
+                                            </a>
+                                        </td>
+                                        <td class="align-middle">
+                                            <strong>{{ $callback->record_type ?? 'Unknown' }}</strong>
+                                            — {{ $callback->recipient ?? '-' }}
+                                        </td>
+                                        <td class="align-middle text-right" width="15%">
+                                            {{ $callback->created_at ? $callback->created_at->format('M d') : '-' }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center">Tidak ada email yang diterima.</td>
+                                    </tr>
+                                @endforelse
 
-                                <!-- Contoh data dummy 2 -->
-                                <tr onclick="openEmailDetail(2)" style="cursor: pointer;">
-                                    <td class="align-middle" width="5%" onclick="event.stopPropagation();">
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input" id="selectMail2">
-                                            <label class="custom-control-label" for="selectMail2"></label>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle" width="5%" onclick="event.stopPropagation();">
-                                        <a href="javascript:void(0);" onclick="toggleStar(event, 2)">
-                                            <i class="far fa-star"></i>
-                                        </a>
-                                    </td>
-                                    <td class="align-middle">
-                                        <strong>Client A</strong> — Meeting schedule confirmation
-                                    </td>
-                                    <td class="align-middle text-right" width="15%">Mar 6</td>
-                                </tr>
-
-                                <!-- Tambahkan row lain sesuai kebutuhan -->
                             </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -127,8 +118,8 @@
                         <!-- To -->
                         <div class="form-group">
                             <label>To</label>
-                            <input type="text" id="toEmails" class="form-control"
-                                placeholder="recipient@example.com" required>
+                            <input type="text" id="toEmails" class="form-control" placeholder="recipient@example.com"
+                                required>
                         </div>
 
                         <!-- CC -->
@@ -173,7 +164,7 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL EMAIL (opsional) -->
+    <!-- MODAL DETAIL EMAIL -->
     <div class="modal fade" tabindex="-1" role="dialog" id="emailDetailModal">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -185,11 +176,12 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p id="emailDetailContent">Memuat detail email...</p>
+                    <div id="emailDetailContent">Memuat detail email...</div>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- SCRIPT UTAMA (inline) -->
     <script>
@@ -217,13 +209,43 @@
             // Implementasi AJAX untuk menandai/unmark star
         }
 
-        function openEmailDetail(mailId) {
-            // Bisa panggil AJAX untuk get detail email
-            document.getElementById('emailDetailContent').innerHTML =
-                'Detail email ID: ' + mailId + '<br><br>' +
-                'Ini contoh konten detail email yang bisa Anda ambil dari database atau API.';
-            $('#emailDetailModal').modal('show');
+        function openEmailDetail(messageId) {
+            $.ajax({
+                url: "{{ route('email.detailAjax', '') }}/" + messageId,
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === 'success') {
+                        let details = response.details;
+                        // Contoh: membangun konten HTML berdasarkan data yang dikembalikan.
+                        let html = '';
+                        html += '<p><strong>Subject:</strong> ' + (details.Subject || '-') + '</p>';
+                        html += '<p><strong>Status:</strong> ' + (details.Status || '-') + '</p>';
+                        html += '<p><strong>From:</strong> ' + (details.From || '-') + '</p>';
+                        html += '<p><strong>To:</strong> ' + (details.To || '-') + '</p>';
+
+                        // Jika terdapat array event (misalnya Events)
+                        if (details.Events && details.Events.length > 0) {
+                            html += '<hr><h5>Events:</h5><ul>';
+                            details.Events.forEach(function(event) {
+                                html += '<li>' + (event.Type || 'Unknown') + ' at ' + (event
+                                    .ReceivedAt || '-') + '</li>';
+                            });
+                            html += '</ul>';
+                        }
+
+                        $('#emailDetailContent').html(html);
+                        $('#emailDetailModal').modal('show');
+                    } else {
+                        showAlert('danger', response.message || 'Gagal memuat detail email.');
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showAlert('danger', 'Error loading details: ' + errorThrown);
+                }
+            });
         }
+
 
         // Compose Modal
         function openComposeModal() {
