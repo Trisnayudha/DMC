@@ -178,23 +178,27 @@
         </div>
     </div>
 
-    <!-- MODAL DETAIL EMAIL -->
+    <!-- MODAL EMAIL DETAIL -->
     <div class="modal fade" tabindex="-1" role="dialog" id="emailDetailModal">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Email Detail</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-                        onclick="$('#emailDetailModal').modal('hide');">
+                        onclick="closeEmailDetailModal()">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <div id="emailDetailContent">Memuat detail email...</div>
+                <div class="modal-body" id="emailDetailContent">
+                    <!-- Konten detail email akan ditampilkan di sini -->
+                </div>
+                <div class="modal-footer bg-whitesmoke br">
+                    <button type="button" class="btn btn-secondary" onclick="closeEmailDetailModal()">Close</button>
                 </div>
             </div>
         </div>
     </div>
+
 
 
     <!-- SCRIPT UTAMA (inline) -->
@@ -231,23 +235,35 @@
                 success: function(response) {
                     if (response.status === 'success') {
                         let details = response.details;
-                        // Contoh: membangun konten HTML berdasarkan data yang dikembalikan.
                         let html = '';
-                        html += '<p><strong>Subject:</strong> ' + (details.Subject || '-') + '</p>';
-                        html += '<p><strong>Status:</strong> ' + (details.Status || '-') + '</p>';
-                        html += '<p><strong>From:</strong> ' + (details.From || '-') + '</p>';
-                        html += '<p><strong>To:</strong> ' + (details.To || '-') + '</p>';
+                        html += '<p><strong>Subject:</strong> ' + (details.subject || '-') + '</p>';
+                        html += '<p><strong>Date:</strong> ' + (details.date || '-') + '</p>';
+                        html += '<p><strong>From:</strong> ' + (details.from || '-') + '</p>';
+                        // Untuk "To", karena array of objects, kita mapping Email-nya
+                        if (details.to && details.to.length > 0) {
+                            let toEmails = details.to.map(function(item) {
+                                return item.Email;
+                            }).join(', ');
+                            html += '<p><strong>To:</strong> ' + toEmails + '</p>';
+                        } else {
+                            html += '<p><strong>To:</strong> -</p>';
+                        }
+                        // Tampilkan Text Body dan HTML Body
+                        html += '<p><strong>Text Body:</strong><br>' + (details.textbody || '-') + '</p>';
+                        // Jika ingin menampilkan HTML secara render (bukan escaped), gunakan innerHTML nanti.
+                        html += '<p><strong>HTML Body:</strong><br>' + (details.htmlbody || '-') + '</p>';
 
-                        // Jika terdapat array event (misalnya Events)
-                        if (details.Events && details.Events.length > 0) {
-                            html += '<hr><h5>Events:</h5><ul>';
-                            details.Events.forEach(function(event) {
-                                html += '<li>' + (event.Type || 'Unknown') + ' at ' + (event
-                                    .ReceivedAt || '-') + '</li>';
+                        // Tampilkan message events, jika ada
+                        if (details.messageevents && details.messageevents.length > 0) {
+                            html += '<hr><h5>Message Events:</h5><ul>';
+                            details.messageevents.forEach(function(event) {
+                                html += '<li><strong>' + (event.Type || 'Unknown') + '</strong> at ' + (
+                                    event.ReceivedAt || '-') + '</li>';
                             });
                             html += '</ul>';
                         }
 
+                        // Masukkan konten ke modal detail
                         $('#emailDetailContent').html(html);
                         $('#emailDetailModal').modal('show');
                     } else {
@@ -259,6 +275,11 @@
                 }
             });
         }
+
+        function closeEmailDetailModal() {
+            $('#emailDetailModal').modal('hide');
+        }
+
 
 
         // Compose Modal
