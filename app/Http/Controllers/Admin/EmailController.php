@@ -49,6 +49,33 @@ class EmailController extends Controller
         ]);
     }
 
+    public function deleteEmails(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer'
+        ]);
+
+        // Mengambil array ID
+        $ids = $request->input('ids');
+
+        // Menghapus record dari tabel (misal menggunakan model PostmarkCallback)
+        $deleted = PostmarkCallback::whereIn('id', $ids)->delete();
+
+        if ($deleted) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Email berhasil dihapus!'
+            ]);
+        } else {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Gagal menghapus email.'
+            ], 500);
+        }
+    }
+
 
     public function detailAjax($messageId)
     {

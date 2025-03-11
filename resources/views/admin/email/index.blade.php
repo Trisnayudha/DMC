@@ -254,9 +254,47 @@
 
 
         function deleteSelected() {
-            alert('Delete selected emails...');
-            // Implementasi AJAX/Fetch untuk menghapus email terpilih
+            // Kumpulkan semua checkbox yang dicentang
+            var selectedIds = [];
+            $('input.custom-control-input:checked').each(function() {
+                // Misal id input: "selectMail59"
+                // Kita ambil angka di belakangnya sebagai id
+                var id = $(this).attr('id').replace('selectMail', '');
+                selectedIds.push(id);
+            });
+
+            if (selectedIds.length === 0) {
+                showAlert('warning', 'Tidak ada email yang dipilih untuk dihapus.');
+                return;
+            }
+
+            // Konfirmasi sebelum menghapus
+            if (!confirm('Anda yakin ingin menghapus email yang dipilih?')) {
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('email.delete') }}",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    ids: selectedIds,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        showAlert('success', response.message || 'Email berhasil dihapus!');
+                        refreshInbox();
+                    } else {
+                        showAlert('danger', response.message || 'Gagal menghapus email.');
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showAlert('danger', 'Error menghapus email: ' + errorThrown);
+                }
+            });
         }
+
 
         function toggleStar(e, mailId) {
             e.stopPropagation();
@@ -369,19 +407,17 @@
             let form = document.getElementById('composeForm');
             let formData = new FormData(form);
 
-            // BAGIAN DITAMBAHKAN: fromEmail
+            // Tambahkan nilai dari dropdown "fromEmail"
             let fromValue = document.getElementById('fromEmail').value;
             formData.append('fromEmail', fromValue);
 
-            // 1) Ambil file-file dari FilePond
-            let pondFiles = window.pond.getFiles(); // 'pond' adalah instance FilePond
-
-            // 2) Append file ke formData
+            // Ambil file dari FilePond
+            let pondFiles = window.pond.getFiles();
             pondFiles.forEach(fileItem => {
                 formData.append('attachments[]', fileItem.file, fileItem.file.name);
             });
 
-            // 3) (Opsional) Ambil Tagify (To, CC, BCC)
+            // Ambil nilai Tagify untuk To, CC, BCC jika tersedia
             if (window.tagifyTo) {
                 window.tagifyTo.value.forEach(tag => {
                     formData.append('to[]', tag.value);
@@ -398,7 +434,10 @@
                 });
             }
 
-            // 4) Kirim AJAX
+            // Tampilkan state loading pada tombol Send
+            let $sendBtn = $('.modal-footer .btn-primary');
+            $sendBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+
             $.ajax({
                 url: "{{ route('email.send') }}",
                 type: "POST",
@@ -419,9 +458,14 @@
                 error: function(jqXHR, textStatus, errorThrown) {
                     console.error(errorThrown);
                     showAlert('danger', 'Error sending email: ' + errorThrown);
+                },
+                complete: function() {
+                    // Kembalikan tampilan tombol Send
+                    $sendBtn.prop('disabled', false).html('Send');
                 }
             });
         }
+
 
         // Fungsi menampilkan alert
         function showAlert(type, message) {
