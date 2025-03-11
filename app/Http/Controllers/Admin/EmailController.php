@@ -41,9 +41,14 @@ class EmailController extends Controller
 
         try {
             $messageDetails = $client->getOutboundMessageDetails($messageId);
+
+            // Ubah dari DynamicResponseModel ke array (bisa langsung di-encode lalu di-decode)
+            $messageDetailsArray = json_decode(json_encode($messageDetails), true);
+
             return response()->json([
                 'status'  => 'success',
-                'details' => $messageDetails
+                // Pastikan sudah jadi array/JSON, bukan lagi object 'DynamicResponseModel'
+                'details' => $messageDetailsArray
             ]);
         } catch (\Exception $e) {
             return response()->json([
