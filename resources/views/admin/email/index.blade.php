@@ -250,8 +250,6 @@
                         } else {
                             html += '<p><strong>To:</strong> -</p>';
                         }
-                        // Tampilkan Text Body dan HTML Body
-                        html += '<p><strong>Text Body:</strong><br>' + (details.textbody || '-') + '</p>';
                         // Jika ingin menampilkan HTML secara render (bukan escaped), gunakan innerHTML nanti.
                         html += '<p><strong>HTML Body:</strong><br>' + (details.htmlbody || '-') + '</p>';
 
