@@ -191,9 +191,10 @@
                 dataType: "json",
                 success: function(response) {
                     if (response.status === 'success') {
-                        var emails = response.emails;
+                        var emails = Object.values(response.emails);
                         var html = '';
-
+                        // console.log(emails)
+                        console.log(emails)
                         if (emails.length > 0) {
                             emails.forEach(function(email) {
                                 html += '<tr onclick="openEmailDetail(\'' + email.message_id +
