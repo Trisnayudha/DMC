@@ -13,10 +13,10 @@
         </div>
         <div class="section-body">
 
-            <!-- ALERT MESSAGES (untuk menampilkan pesan sukses/gagal) -->
+            <!-- ALERT MESSAGES -->
             <div id="alert-container"></div>
 
-            <!-- Kartu Daftar Email (Inbox) -->
+            <!-- Kartu Inbox -->
             <div class="card">
                 <div class="card-header">
                     <h4>Inbox</h4>
@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="card-body p-2">
-                    <!-- Baris Action (Select All, Refresh, Delete, dsb.) -->
+                    <!-- Baris Action -->
                     <div class="mb-3">
                         <button class="btn btn-icon btn-light" onclick="toggleSelectAll()" title="Select All">
                             <i class="far fa-square"></i>
@@ -38,13 +38,12 @@
                         <button id="refreshButton" class="btn btn-icon btn-light" onclick="refreshInbox()" title="Refresh">
                             <i class="fas fa-sync"></i>
                         </button>
-
                         <button class="btn btn-icon btn-light" onclick="deleteSelected()" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
 
-                    <!-- Daftar Email -->
+                    <!-- Tabel Inbox (tbody dikosongkan, akan diisi AJAX) -->
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead>
@@ -56,41 +55,8 @@
                                     <th width="20%">Date &amp; Time</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @forelse ($list as $callback)
-                                    <tr onclick="openEmailDetail('{{ $callback->message_id }}')" style="cursor: pointer;">
-                                        <td class="align-middle" width="5%" onclick="event.stopPropagation();">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input"
-                                                    id="selectMail{{ $callback->id }}">
-                                                <label class="custom-control-label"
-                                                    for="selectMail{{ $callback->id }}"></label>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle" width="5%" onclick="event.stopPropagation();">
-                                            <a href="javascript:void(0);" onclick="toggleStar(event, {{ $callback->id }})">
-                                                <i class="far fa-star"></i>
-                                            </a>
-                                        </td>
-                                        <!-- Menampilkan message_id secara unik, disingkat agar tampilan tetap rapi -->
-                                        <td class="align-middle">
-                                            <strong>{{ substr($callback->message_id, 0, 8) . '...' }}</strong>
-                                        </td>
-                                        <!-- Menampilkan jenis record dan recipient -->
-                                        <td class="align-middle">
-                                            <strong>{{ $callback->record_type ?? 'Unknown' }}</strong>
-                                            — {{ $callback->recipient ?? '-' }}
-                                        </td>
-                                        <!-- Menampilkan tanggal dan waktu -->
-                                        <td class="align-middle text-right">
-                                            {{ $callback->created_at ? $callback->created_at->format('M d, Y H:i') : '-' }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center">Tidak ada email yang diterima.</td>
-                                    </tr>
-                                @endforelse
+                            <tbody id="inboxTable">
+                                <!-- Data email akan di-render oleh JavaScript -->
                             </tbody>
                         </table>
                     </div>
@@ -158,8 +124,8 @@
                         <!-- Body (Summernote) -->
                         <div class="form-group">
                             <label>Message</label>
-                            <textarea name="body" id="bodyEditor" class="form-control" rows="6"
-                                placeholder="Write your message here..." required></textarea>
+                            <textarea name="body" id="bodyEditor" class="form-control" rows="6" placeholder="Write your message here..."
+                                required></textarea>
                         </div>
 
                         <!-- Attachment (multiple) -->
@@ -225,7 +191,46 @@
                 dataType: "json",
                 success: function(response) {
                     if (response.status === 'success') {
-                        $('tbody').html(response.data);
+                        var emails = response.emails;
+                        var html = '';
+
+                        if (emails.length > 0) {
+                            emails.forEach(function(email) {
+                                html += '<tr onclick="openEmailDetail(\'' + email.message_id +
+                                    '\')" style="cursor: pointer;">';
+                                html +=
+                                    '  <td class="align-middle" width="5%" onclick="event.stopPropagation();">';
+                                html += '    <div class="custom-control custom-checkbox">';
+                                html +=
+                                    '      <input type="checkbox" class="custom-control-input" id="selectMail' +
+                                    email.id + '">';
+                                html += '      <label class="custom-control-label" for="selectMail' +
+                                    email.id + '"></label>';
+                                html += '    </div>';
+                                html += '  </td>';
+                                html +=
+                                    '  <td class="align-middle" width="5%" onclick="event.stopPropagation();">';
+                                html +=
+                                    '    <a href="javascript:void(0);" onclick="toggleStar(event, ' +
+                                    email.id + ')">';
+                                html += '      <i class="far fa-star"></i>';
+                                html += '    </a>';
+                                html += '  </td>';
+                                html += '  <td class="align-middle"><strong>' + email.message_id.substr(
+                                    0, 8) + '...</strong></td>';
+                                html += '  <td class="align-middle"><strong>' + (email.record_type ||
+                                    'Unknown') + '</strong> — ' + (email.recipient || '-') + '</td>';
+                                html += '  <td class="align-middle text-right">' + (email.created_at ?
+                                        moment(email.created_at).format('MMM DD, YYYY HH:mm') : '-') +
+                                    '</td>';
+                                html += '</tr>';
+                            });
+                        } else {
+                            html =
+                                '<tr><td colspan="5" class="text-center">Tidak ada email yang diterima.</td></tr>';
+                        }
+
+                        $('#inboxTable').html(html);
                     } else {
                         showAlert('danger', response.message || 'Gagal menyegarkan inbox.');
                     }
@@ -238,6 +243,12 @@
                 }
             });
         }
+
+        // Panggil refreshInbox saat halaman dimuat
+        $(document).ready(function() {
+            refreshInbox();
+        });
+
 
 
 
