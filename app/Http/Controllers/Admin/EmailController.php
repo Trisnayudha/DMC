@@ -33,7 +33,22 @@ class EmailController extends Controller
         ];
         return view('admin.email.index', $data);
     }
+    public function refreshInbox(Request $request)
+    {
+        // Ambil data email terbaru (urutan berdasarkan tanggal dibuat secara menurun)
+        $emails = PostmarkCallback::orderBy('id', 'desc')
+            ->get()
+            ->unique(function ($item) {
+                return $item->message_id . '-' . $item->record_type;
+            });
+        // Render partial view untuk baris-baris <tr> dari inbox
+        $html = view('emails.partials.inbox_rows', compact('emails'))->render();
 
+        return response()->json([
+            'status' => 'success',
+            'data'   => $html,
+        ]);
+    }
 
     public function detailAjax($messageId)
     {

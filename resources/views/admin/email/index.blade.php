@@ -35,9 +35,10 @@
                         <button class="btn btn-icon btn-light" onclick="toggleSelectAll()" title="Select All">
                             <i class="far fa-square"></i>
                         </button>
-                        <button class="btn btn-icon btn-light" onclick="refreshInbox()" title="Refresh">
+                        <button id="refreshButton" class="btn btn-icon btn-light" onclick="refreshInbox()" title="Refresh">
                             <i class="fas fa-sync"></i>
                         </button>
+
                         <button class="btn btn-icon btn-light" onclick="deleteSelected()" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -215,9 +216,32 @@
         }
 
         function refreshInbox() {
-            alert('Refresh inbox...');
-            // Implementasi AJAX/Fetch jika ingin data real
+            // Tampilkan loading state pada tombol refresh
+            var $refreshBtn = $('#refreshButton');
+            $refreshBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+            $.ajax({
+                url: "{{ route('email.refresh') }}", // Pastikan route ini mengembalikan data terbaru
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Misalnya response.data berisi HTML baris <tr> untuk <tbody>
+                        $('tbody').html(response.data);
+                    } else {
+                        showAlert('danger', response.message || 'Gagal menyegarkan inbox.');
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    showAlert('danger', 'Error refreshing inbox: ' + errorThrown);
+                },
+                complete: function() {
+                    // Kembalikan tampilan tombol refresh
+                    $refreshBtn.prop('disabled', false).html('<i class="fas fa-sync"></i>');
+                }
+            });
         }
+
 
         function deleteSelected() {
             alert('Delete selected emails...');

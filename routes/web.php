@@ -174,6 +174,8 @@ Route::prefix('admin')->group(function () {
     Route::get('/email-management', [EmailController::class, 'index'])->name('email.index');
     Route::post('/email/send', [EmailController::class, 'sendEmail'])->name('email.send');
     Route::get('/email/detailAjax/{messageId}', [EmailController::class, 'detailAjax'])->name('email.detailAjax');
+    Route::get('email/refresh', [EmailController::class, 'refreshInbox'])->name('email.refresh');
+
 
     Route::get('/special-event', [SpecialEventController::class, 'index'])->name('special-event');
     Route::post('/special-event', [SpecialEventController::class, 'request']);
