@@ -23,12 +23,17 @@ class EmailController extends Controller
     // Tampilkan halaman utama (Inbox + Compose Modal dalam 1 halaman)
     public function index()
     {
-        $list = PostmarkCallback::orderby('id', 'desc')->get();
+        $list = PostmarkCallback::orderBy('id', 'desc')
+            ->get()
+            ->unique(function ($item) {
+                return $item->message_id . '-' . $item->record_type;
+            });
         $data = [
             'list' => $list
         ];
         return view('admin.email.index', $data);
     }
+
 
     public function detailAjax($messageId)
     {
