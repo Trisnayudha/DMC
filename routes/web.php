@@ -42,6 +42,7 @@ use App\Http\Controllers\Frontend\PrintController;
 use App\Http\Controllers\Frontend\ScholarshipController;
 use App\Http\Controllers\Admin\SponsorPhotosVideosActivityController;
 use App\Http\Controllers\Admin\EmailController;
+use App\Http\Controllers\Admin\SponsorExportController;
 use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -182,6 +183,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/special-event', [SpecialEventController::class, 'request']);
 
     Route::resource('sponsors', SponsorController::class);
+    Route::get('admin/sponsors/export', [SponsorExportController::class, 'export'])->name('sponsors.export');
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');
     Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);

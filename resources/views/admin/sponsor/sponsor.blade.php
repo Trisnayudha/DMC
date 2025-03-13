@@ -405,11 +405,15 @@
                             @endif
 
                             <div class="float-right">
-                                <a href="{{ url('admin/sponsors/create') }}"
-                                    class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
-                                    id="addNewCategory">
-                                    <i class="fas fa-plus-circle"></i> Add Sponsor
-                                </a>
+                                <div class="card-header-action mb-2">
+                                    <a href="{{ route('sponsors.export') }}" class="btn btn-success">
+                                        <i class="fas fa-file-excel"></i> Export Data
+                                    </a>
+                                    <button id="addNewSponsor" class="btn btn-primary">
+                                        <i class="fas fa-plus"></i> Add Sponsor
+                                    </button>
+                                </div>
+
                             </div>
 
                             <div class="table-responsive">
