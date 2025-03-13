@@ -6,12 +6,8 @@
             <div class="section-header">
                 <h1>Sponsor Representatives</h1>
                 <div class="section-header-breadcrumb">
-                    <div class="breadcrumb-item">
-                        <a href="{{ route('home') }}">Dashboard</a>
-                    </div>
-                    <div class="breadcrumb-item active">
-                        <span>Representatives Management</span>
-                    </div>
+                    <div class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></div>
+                    <div class="breadcrumb-item active"><span>Representatives Management</span></div>
                 </div>
             </div>
 
@@ -20,8 +16,6 @@
 
                 <div class="row">
                     <div class="col-lg-12">
-
-                        {{-- Contoh jika pakai flash session --}}
                         @if (session('success'))
                             <div class="alert alert-success">{{ session('success') }}</div>
                         @endif
@@ -33,7 +27,6 @@
                             <div class="card-header">
                                 <h4>Data Sponsor Representatives</h4>
                                 <div class="card-header-action">
-                                    {{-- Tombol Add --}}
                                     <button id="addNewSponsor" class="btn btn-primary">
                                         <i class="fas fa-plus"></i> Add Representative
                                     </button>
@@ -47,9 +40,10 @@
                                                 <th width="5%">No</th>
                                                 <th>Name</th>
                                                 <th>Job Title</th>
+                                                <th>Email</th>
                                                 <th>Instagram</th>
                                                 <th>LinkedIn</th>
-                                                <th width="12%">Aksi</th>
+                                                <th width="12%">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -59,15 +53,14 @@
                                                     <td>{{ $no++ }}</td>
                                                     <td>{{ $row->name }}</td>
                                                     <td>{{ $row->job_title }}</td>
+                                                    <td>{{ $row->email }}</td>
                                                     <td>{{ $row->instagram }}</td>
                                                     <td>{{ $row->linkedin }}</td>
                                                     <td>
-                                                        {{-- Tombol Edit --}}
                                                         <button class="btn btn-success btn-sm edit-sponsor"
                                                             data-id="{{ $row->id }}">
                                                             <i class="fa fa-edit"></i>
                                                         </button>
-                                                        {{-- Tombol Delete --}}
                                                         <button class="btn btn-danger btn-sm delete-sponsor"
                                                             data-id="{{ $row->id }}">
                                                             <i class="fa fa-trash"></i>
@@ -80,29 +73,27 @@
                                 </div> <!-- /.table-responsive -->
                             </div> <!-- /.card-body -->
                         </div> <!-- /.card -->
-
                     </div> <!-- /.col-lg-12 -->
                 </div> <!-- /.row -->
             </div> <!-- /.section-body -->
         </section>
     </div>
 
-    {{-- Modal Add/Edit --}}
+    {{-- Modal Add/Edit Sponsor Representative --}}
     <div class="modal fade" id="modal-sponsor" tabindex="-1" role="dialog" aria-labelledby="modalSponsorTitle"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <form id="form-sponsor" enctype="multipart/form-data">
                 @csrf
-                <input type="hidden" name="id" id="id"> {{-- Hidden ID untuk Edit --}}
+                <input type="hidden" name="id" id="id"> {{-- Hidden field untuk Edit --}}
                 <input type="hidden" name="sponsor_id" id="sponsor_id" value="{{ $sponsor_id }}">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalSponsorTitle">Add Representative</h5>
+                        <h5 class="modal-title" id="modalSponsorTitle">Add Sponsor Representative</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-
                     <div class="modal-body">
                         {{-- Name --}}
                         <div class="form-group">
@@ -114,6 +105,12 @@
                             <label for="job_title">Job Title</label>
                             <input type="text" class="form-control" name="job_title" id="job_title">
                         </div>
+                        {{-- Email --}}
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" name="email" id="email"
+                                placeholder="email@example.com">
+                        </div>
                         {{-- Instagram --}}
                         <div class="form-group">
                             <label for="instagram">Instagram</label>
@@ -124,19 +121,26 @@
                             <label for="linkedin">LinkedIn</label>
                             <input type="text" class="form-control" name="linkedin" id="linkedin">
                         </div>
-                        {{-- Image --}}
+                        {{-- Image Input & Cropper --}}
                         <div class="form-group">
-                            <label for="image">Image Profile</label>
-                            <input type="file" class="form-control" name="image" id="image">
-                            <small class="form-text text-muted">
-                                Kosongkan jika tidak ingin mengubah foto saat edit
-                            </small>
+                            <label for="modalImageInput">Image Profile</label>
+                            <input type="file" class="form-control" name="image" id="modalImageInput" accept="image/*">
+                            <small class="form-text text-muted">Select an image to crop (ratio 1:1).</small>
                         </div>
+                        {{-- Cropper Container --}}
+                        <div class="form-group" id="modalCropContainer" style="display:none;">
+                            <label>Preview & Crop</label>
+                            <div>
+                                <img id="modalImagePreview" style="max-width:100%;">
+                            </div>
+                            <button type="button" id="modalCropButton" class="btn btn-primary mt-2">Crop Image</button>
+                        </div>
+                        {{-- Hidden input untuk menyimpan cropped image (base64) --}}
+                        <input type="hidden" name="cropped_image" id="modalCroppedImage">
                     </div>
-
                     <div class="modal-footer">
                         <button type="submit" id="btn-save" class="btn btn-primary">Save</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </form>
@@ -145,94 +149,74 @@
 @endsection
 
 @push('bottom')
+    <!-- Include CSS & JS untuk DataTables, SweetAlert, Cropper.js, dan jQuery -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
     <script>
         $(document).ready(function() {
-            // Jika Anda gunakan DataTables
+            // Inisialisasi DataTables
             $('#laravel_crud').DataTable();
 
-            // Setup CSRF (jika belum ada di tempat lain)
+            // Setup CSRF
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
 
-            // =========================
             // 1) Show modal ADD
-            // =========================
             $('#addNewSponsor').click(function() {
-                // Reset form
                 $('#form-sponsor')[0].reset();
                 $('#id').val('');
-                // Ubah title modal
                 $('#modalSponsorTitle').text('Add Sponsor Representative');
-                // Tampilkan modal
                 $('#modal-sponsor').modal('show');
             });
 
-            // =========================
             // 2) Show modal EDIT
-            // =========================
             $(document).on('click', '.edit-sponsor', function() {
                 var id = $(this).data('id');
-
-                // Lakukan GET ke route resource: sponsors-representative/{id}/edit
                 $.ajax({
                     url: '/admin/sponsors-representative/' + id + '/edit',
                     type: 'GET',
                     dataType: 'json',
                     success: function(res) {
-                        // Isi form
                         $('#id').val(res.id);
                         $('#name').val(res.name);
                         $('#job_title').val(res.job_title);
+                        $('#email').val(res.email);
                         $('#instagram').val(res.instagram);
                         $('#linkedin').val(res.linkedin);
-
-                        // sponsor_id kalau perlu diedit juga, sesuaikan:
-                        // $('#sponsor_id').val(res.sponsor_id);
-
-                        // Ubah title modal
                         $('#modalSponsorTitle').text('Edit Sponsor Representative');
-                        // Tampilkan modal
                         $('#modal-sponsor').modal('show');
                     },
                     error: function(xhr) {
                         console.log(xhr);
-                        Swal.fire('Error', 'Tidak dapat mengambil data', 'error');
+                        Swal.fire('Error', 'Unable to fetch data', 'error');
                     }
                 });
             });
 
-            // =========================
-            // 3) Submit form (Add/Update)
-            // =========================
+            // 3) Submit form (Add/Update) via AJAX
             $('#form-sponsor').submit(function(e) {
                 e.preventDefault();
-
                 var formData = new FormData(this);
-                var id = $('#id').val(); // cek hidden input id
-
-                let url = '/admin/sponsors-representative';
-                let method = 'POST';
-
+                var id = $('#id').val();
+                var url = '/admin/sponsors-representative';
+                var method = 'POST';
                 if (id) {
-                    // Edit
                     url = '/admin/sponsors-representative/' + id;
-                    formData.append('_method', 'PUT'); // resource route expects PUT for update
+                    formData.append('_method', 'PUT');
                 }
-
                 $.ajax({
                     url: url,
                     type: method,
                     data: formData,
-                    processData: false, // untuk FormData
-                    contentType: false, // untuk FormData
+                    processData: false,
+                    contentType: false,
                     success: function(res) {
                         if (res.success) {
-                            // Tutup modal
                             $('#modal-sponsor').modal('hide');
-                            // Notifikasi
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
@@ -240,31 +224,27 @@
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(function() {
-                                // Reload halaman
                                 window.location.reload();
                             });
                         }
                     },
                     error: function(xhr) {
                         console.log(xhr);
-                        Swal.fire('Error', 'Terjadi kesalahan', 'error');
+                        Swal.fire('Error', 'An error occurred', 'error');
                     }
                 });
             });
 
-            // =========================
             // 4) Delete data
-            // =========================
             $(document).on('click', '.delete-sponsor', function() {
                 var id = $(this).data('id');
-
                 Swal.fire({
-                    title: 'Anda yakin?',
-                    text: 'Data yang sudah dihapus tidak dapat dikembalikan!',
+                    title: 'Are you sure?',
+                    text: 'Deleted data cannot be recovered!',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: 'Yes, delete!',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -276,7 +256,7 @@
                             success: function(res) {
                                 if (res.success) {
                                     Swal.fire({
-                                        title: 'Terhapus!',
+                                        title: 'Deleted!',
                                         text: res.message,
                                         icon: 'success',
                                         timer: 1500,
@@ -288,11 +268,56 @@
                             },
                             error: function(xhr) {
                                 console.log(xhr);
-                                Swal.fire('Error', 'Terjadi kesalahan', 'error');
+                                Swal.fire('Error', 'An error occurred', 'error');
                             }
                         });
                     }
                 });
+            });
+
+            // Cropper.js integration for modal image
+            var modalCropper;
+            var modalImage = document.getElementById('modalImagePreview');
+            var modalImageInput = document.getElementById('modalImageInput');
+            var modalCropContainer = document.getElementById('modalCropContainer');
+            var modalCropButton = document.getElementById('modalCropButton');
+            var modalCroppedImageInput = document.getElementById('modalCroppedImage');
+
+            modalImageInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files.length > 0) {
+                    var file = e.target.files[0];
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        modalImage.src = e.target.result;
+                        modalCropContainer.style.display = 'block';
+                        if (modalCropper) {
+                            modalCropper.destroy();
+                        }
+                        modalCropper = new Cropper(modalImage, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            modalCropButton.addEventListener('click', function() {
+                if (modalCropper) {
+                    var canvas = modalCropper.getCroppedCanvas({
+                        width: 300,
+                        height: 300,
+                    });
+                    var croppedDataUrl = canvas.toDataURL('image/jpeg');
+                    modalCroppedImageInput.value = croppedDataUrl;
+                    Swal.fire({
+                        title: 'Cropped Image',
+                        imageUrl: croppedDataUrl,
+                        imageAlt: 'Cropped Image',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
             });
         });
     </script>

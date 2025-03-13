@@ -11,45 +11,48 @@ class SponsorRepresentativeController extends Controller
     public function show($id)
     {
         $data['sponsor_id'] = $id;
-        $data['data'] = SponsorRepresentative::where('sponsor_id', $id)->orderBy('id', 'desc')->get();
+        $data['data'] = SponsorRepresentative::where('sponsor_id', $id)
+            ->orderBy('id', 'desc')
+            ->get();
         return view('admin.sponsor-representative.sponsor', $data);
     }
 
     public function store(Request $request)
     {
-
-        //
+        // Validasi tambahan bisa ditambahkan jika diperlukan
         $save = new SponsorRepresentative();
         $save->name = $request->name;
         $save->job_title = $request->job_title;
+        $save->email = $request->email; // Field email ditambahkan
         $save->instagram = $request->instagram;
         $save->linkedin = $request->linkedin;
         $save->sponsor_id = $request->sponsor_id;
+
         if ($request->hasFile('image')) {
-            $timestamp = now()->timestamp; // Mengambil timestamp saat ini
-            $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension(); // Nama gambar menjadi timestamp.extensi
-            $imagePath = $request->file('image')->storeAs('public/sponsor/representative', $imageName); // Simpan gambar ke dalam direktori penyimpanan sponsor dengan nama timestamp
-            $imageUrl = asset('storage/sponsor/representative/' . $imageName); // Buat URL penyimpanan gambar
+            $timestamp = now()->timestamp;
+            $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension();
+            $request->file('image')->storeAs('public/sponsor/representative', $imageName);
+            $imageUrl = asset('storage/sponsor/representative/' . $imageName);
         } else {
-            $imageName = null; // Atur menjadi null jika tidak ada gambar yang diunggah
-            $imageUrl = null; // Atur menjadi null jika tidak ada gambar yang diunggah
+            $imageUrl = null;
         }
         $save->image = $imageUrl;
         $save->save();
 
-        return redirect()->back()->with('success', 'Success Add Representative');
+        return response()->json([
+            'success' => true,
+            'message' => 'Success Add Representative',
+            'data'    => $save
+        ]);
     }
+
     /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)
     {
-        // Temukan data SponsorRepresentative berdasarkan ID
         $rep = SponsorRepresentative::findOrFail($id);
-        // Jika ingin menampilkan form edit di halaman tersendiri:
-        // return view('admin.sponsor-representative.edit', compact('rep'));
-
-        // Jika ingin menampilkan data json (untuk diambil via AJAX misalnya):
+        // Kembalikan data termasuk email agar bisa ditampilkan di modal
         return response()->json($rep);
     }
 
@@ -62,25 +65,25 @@ class SponsorRepresentativeController extends Controller
 
         $rep->name       = $request->name;
         $rep->job_title  = $request->job_title;
+        $rep->email      = $request->email; // Field email diupdate
         $rep->instagram  = $request->instagram;
         $rep->linkedin   = $request->linkedin;
 
-        // Jika ada file gambar yang diupload
         if ($request->hasFile('image')) {
             $timestamp = now()->timestamp;
             $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension();
-            // Simpan gambar ke folder sponsor/representative
             $request->file('image')->storeAs('public/sponsor/representative', $imageName);
-            // Buat URL untuk di database
             $imageUrl = asset('storage/sponsor/representative/' . $imageName);
-
-            // Simpan ke kolom image
             $rep->image = $imageUrl;
         }
 
         $rep->save();
 
-        return redirect()->back()->with('success', 'Berhasil mengupdate data sponsor representative.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil mengupdate data sponsor representative.',
+            'data'    => $rep
+        ]);
     }
 
     /**
