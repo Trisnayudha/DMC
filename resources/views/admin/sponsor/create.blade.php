@@ -1,15 +1,15 @@
 @extends('layouts.inspire.master')
-@section('content-title', 'Tambah Program')
+@section('content-title', 'Create Sponsor')
 @section('content')
     <section class="section">
         <div class="section-header">
             <div class="section-header-back">
-                <a href="{{ Route('news') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+                <a href="{{ route('sponsors.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
             </div>
             <h1>Create Sponsor</h1>
             <div class="section-header-breadcrumb">
-                <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                <div class="breadcrumb-item"><a href="{{ Route('news') }}">Sponsor Management</a></div>
+                <div class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></div>
+                <div class="breadcrumb-item"><a href="{{ route('sponsors.index') }}">Sponsor Management</a></div>
                 <div class="breadcrumb-item active"><a href="">Create Sponsor</a></div>
             </div>
         </div>
@@ -37,6 +37,7 @@
                                     </span>
                                 @endif
                             </div>
+                            <!-- Field lainnya (email, founded, location_office, website, video, employees) -->
                             <div class="row">
                                 <div class="col-6">
                                     <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
@@ -233,32 +234,92 @@
                                     </span>
                                 @endif
                             </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Featured Image</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group{{ $errors->has('image') ? ' has-error' : '' }}">
-                                {!! Form::label('Thumbnails') !!}
-                                <div class="input-group">
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="image" name="image">
-                                        <label class="custom-file-label" for="exampleInputFile">Choose file</label>
-                                    </div>
+
+                            <!-- Section Sponsor PIC -->
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h4>Sponsor PIC Information</h4>
                                 </div>
-                                @if ($errors->has('image'))
-                                    <span class="help-block">
-                                        <strong style="color:red">{{ $errors->first('image') }}</strong>
-                                    </span>
-                                @endif
-                                <img id="holder" style="margin-top:15px;max-height:100px;">
+                                <div class="card-body">
+                                    <table class="table table-bordered" id="picTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Title</th>
+                                                <th>Email</th>
+                                                <th>Phone</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (old('pic'))
+                                                @foreach (old('pic.name') as $index => $picName)
+                                                    <tr>
+                                                        <td>
+                                                            <input type="text" name="pic[name][]"
+                                                                value="{{ old('pic.name')[$index] }}" class="form-control">
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="pic[title][]"
+                                                                value="{{ old('pic.title')[$index] }}"
+                                                                class="form-control">
+                                                        </td>
+                                                        <td>
+                                                            <input type="email" name="pic[email][]"
+                                                                value="{{ old('pic.email')[$index] }}"
+                                                                class="form-control">
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="pic[phone][]"
+                                                                value="{{ old('pic.phone')[$index] }}"
+                                                                class="form-control">
+                                                        </td>
+                                                        <td>
+                                                            <button type="button"
+                                                                class="btn btn-danger remove-pic">Remove</button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                    <button type="button" class="btn btn-primary" id="addPic">Add PIC</button>
+                                </div>
                             </div>
+                            <!-- End Section Sponsor PIC -->
+
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Featured Image</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group{{ $errors->has('image') ? ' has-error' : '' }}">
+                                        {!! Form::label('Thumbnails') !!}
+                                        <div class="input-group">
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input" id="image"
+                                                    name="image">
+                                                <label class="custom-file-label" for="exampleInputFile">Choose
+                                                    file</label>
+                                            </div>
+                                        </div>
+                                        @if ($errors->has('image'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('image') }}</strong>
+                                            </span>
+                                        @endif
+                                        <img id="holder" style="margin-top:15px;max-height:100px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
@@ -301,11 +362,33 @@
             </div>
         </div>
     </section>
+
+    @push('bottom')
+        <script>
+            $(document).ready(function() {
+                $('#addPic').click(function() {
+                    var row = `<tr>
+                        <td><input type="text" name="pic[name][]" class="form-control"></td>
+                        <td><input type="text" name="pic[title][]" class="form-control"></td>
+                        <td><input type="email" name="pic[email][]" class="form-control"></td>
+                        <td><input type="text" name="pic[phone][]" class="form-control"></td>
+                        <td><button type="button" class="btn btn-danger remove-pic">Remove</button></td>
+                    </tr>`;
+                    $('#picTable tbody').append(row);
+                });
+
+                $(document).on('click', '.remove-pic', function() {
+                    $(this).closest('tr').remove();
+                });
+            });
+        </script>
+    @endpush
+
     <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
     <script>
         $(function() {
-            $('#summernote').summernote()
+            $('#summernote').summernote();
             bsCustomFileInput.init();
         });
     </script>
@@ -321,7 +404,7 @@
                     ['font', ['strikethrough']],
                     ['para', ['paragraph']]
                 ]
-            })
+            });
         });
     </script>
 @endsection

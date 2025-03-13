@@ -31,4 +31,10 @@ class Sponsor extends Model
         'contract_end'
 
     ];
+
+    // Di App\Models\Sponsor.php
+    public function pics()
+    {
+        return $this->hasMany(SponsorPic::class);
+    }
 }

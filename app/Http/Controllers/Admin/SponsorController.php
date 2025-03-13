@@ -10,6 +10,7 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\SocialMediaEngagement;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorBenefitUsage;
+use App\Models\Sponsors\SponsorPic;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -138,7 +139,7 @@ class SponsorController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi data yang dikirim dari formulir
+        // Validasi data sponsor
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:sponsors,email',
@@ -147,25 +148,27 @@ class SponsorController extends Controller
             'description' => 'required|string',
             'package' => 'required|string',
             'status' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Contoh validasi untuk upload gambar
-            'video' => 'nullable|url'
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'video' => 'nullable|url',
+            'contract_start' => 'required|date_format:Y-m',
+            'contract_end' => 'required|date_format:Y-m'
         ]);
-        // dd($request->all());
+
         // Proses upload gambar jika ada
         if ($request->hasFile('image')) {
-            $timestamp = now()->timestamp; // Mengambil timestamp saat ini
-            $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension(); // Nama gambar menjadi timestamp.extensi
-            $imagePath = $request->file('image')->storeAs('public/sponsor', $imageName); // Simpan gambar ke dalam direktori penyimpanan sponsor dengan nama timestamp
-            $imageUrl = asset('storage/sponsor/' . $imageName); // Buat URL penyimpanan gambar
+            $timestamp = now()->timestamp;
+            $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension();
+            $imagePath = $request->file('image')->storeAs('public/sponsor', $imageName);
+            $imageUrl = asset('storage/sponsor/' . $imageName);
         } else {
-            $imageName = null; // Atur menjadi null jika tidak ada gambar yang diunggah
-            $imageUrl = null; // Atur menjadi null jika tidak ada gambar yang diunggah
+            $imageUrl = null;
         }
 
         // Membuat slug dari nama sponsor
         $slug = Str::slug($request->input('name'));
-        // Simpan data ke dalam model Sponsors dengan create()
-        Sponsor::create([
+
+        // Simpan data sponsor dan ambil model yang baru dibuat
+        $sponsor = Sponsor::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'company_website' => $request->input('website'),
@@ -173,8 +176,8 @@ class SponsorController extends Controller
             'description' => $request->input('description'),
             'package' => $request->input('package'),
             'status' => $request->input('status'),
-            'image' => $imageUrl, // Simpan URL gambar ke dalam kolom "image" dalam database
-            'slug' => $slug, // Simpan slug ke dalam kolom "slug" dalam database
+            'image' => $imageUrl,
+            'slug' => $slug,
             'founded' => $request->input('founded'),
             'location_office' => $request->input('location_office'),
             'employees' => $request->input('employees'),
@@ -187,12 +190,30 @@ class SponsorController extends Controller
             'contract_end' => $request->input('contract_end')
         ]);
 
-        // Redirect ke halaman lain atau tampilkan pesan sukses
+        // Simpan data PIC jika ada input PIC
+        if ($request->has('pic') && is_array($request->input('pic.name'))) {
+            $picNames = $request->input('pic.name');
+            $picTitles = $request->input('pic.title');
+            $picEmails = $request->input('pic.email');
+            $picPhones = $request->input('pic.phone');
+
+            // Looping setiap PIC yang diinput
+            foreach ($picNames as $index => $picName) {
+                // Hanya simpan jika nama PIC tidak kosong
+                if (!empty($picName)) {
+                    SponsorPic::create([
+                        'sponsor_id' => $sponsor->id,
+                        'name' => $picName,
+                        'title' => $picTitles[$index] ?? null,
+                        'email' => $picEmails[$index] ?? null,
+                        'phone' => $picPhones[$index] ?? null,
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('sponsors.index')->with('success', 'Sponsor berhasil disimpan');
     }
-
-
-
 
     public function show($id)
     {
@@ -215,21 +236,26 @@ class SponsorController extends Controller
     {
         // Validasi data yang dikirim dari formulir
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:sponsors,email,' . $id, // Tambahkan $id untuk mengabaikan email saat ini
-            'website' => 'nullable|url',
-            'address' => 'nullable|string',
-            'description' => 'nullable|string',
-            'package' => 'required|string',
-            'status' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'video' => 'nullable|url'
+            'name'           => 'required|string|max:255',
+            'email'          => 'required|email|unique:sponsors,email,' . $id,
+            'website'        => 'nullable|url',
+            'address'        => 'nullable|string',
+            'description'    => 'nullable|string',
+            'package'        => 'required|string',
+            'status'         => 'required|string',
+            'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'video'          => 'nullable|url',
+            'contract_start' => 'nullable|date_format:Y-m',
+            'contract_end'   => 'nullable|date_format:Y-m'
         ]);
-        // dd($request->all());
+
         // Ambil data sponsor yang akan diupdate
         $sponsor = Sponsor::findOrFail($id);
 
-        // Update data sponsor sesuai dengan data yang dikirim dari formulir
+        // Simpan daftar ID PIC lama (sebelum update) untuk referensi penghapusan
+        $oldPicIds = $sponsor->pics()->pluck('id')->toArray();
+
+        // Update data sponsor
         $sponsor->name = $request->input('name');
         $sponsor->email = $request->input('email');
         $sponsor->company_website = $request->input('website');
@@ -247,35 +273,82 @@ class SponsorController extends Controller
         $sponsor->video = $request->input('video');
         $sponsor->contract_start = $request->input('contract_start');
         $sponsor->contract_end = $request->input('contract_end');
+
         // Proses pembuatan slug
-        $slug = Str::slug($request->input('name')); // Membuat slug dari nama sponsor
-
-        // Periksa apakah slug sudah digunakan oleh sponsor lain
+        $slug = \Illuminate\Support\Str::slug($request->input('name'));
         if (Sponsor::where('slug', $slug)->where('id', '!=', $id)->exists()) {
-            $slug = $slug . '-' . time(); // Tambahkan timestamp jika slug sudah digunakan
+            $slug = $slug . '-' . time();
         }
-
-        $sponsor->slug = $slug; // Set slug ke dalam model Sponsor
+        $sponsor->slug = $slug;
 
         // Proses update gambar jika ada
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada
             if ($sponsor->image) {
-                Storage::delete('public/sponsor/' . $sponsor->image);
+                \Illuminate\Support\Facades\Storage::delete('public/sponsor/' . basename($sponsor->image));
             }
-
-            $timestamp = now()->timestamp; // Mengambil timestamp saat ini
-            $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension(); // Nama gambar menjadi timestamp.extensi
-            $imagePath = $request->file('image')->storeAs('public/sponsor', $imageName); // Simpan gambar ke dalam direktori penyimpanan sponsor dengan nama timestamp
-            $imageUrl = asset('storage/sponsor/' . $imageName); // Buat URL penyimpanan gambar
+            $timestamp = now()->timestamp;
+            $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension();
+            $request->file('image')->storeAs('public/sponsor', $imageName);
+            $imageUrl = asset('storage/sponsor/' . $imageName);
             $sponsor->image = $imageUrl;
         }
 
         $sponsor->save();
 
-        // Redirect ke halaman lain atau tampilkan pesan sukses
+        // Proses update/penambahan data PIC
+        if ($request->has('pic') && is_array($request->input('pic.name'))) {
+            $picNames = $request->input('pic.name');
+            $picTitles = $request->input('pic.title');
+            $picEmails = $request->input('pic.email');
+            $picPhones = $request->input('pic.phone');
+            $picIds = $request->input('pic.id', []); // Bisa kosong untuk PIC baru
+
+            $submittedPicIds = [];
+            foreach ($picNames as $index => $picName) {
+                if (!empty($picName)) {
+                    // Jika terdapat ID, update record PIC yang sudah ada
+                    if (isset($picIds[$index]) && !empty($picIds[$index])) {
+                        $pic = SponsorPic::find($picIds[$index]);
+                        if ($pic) {
+                            $pic->update([
+                                'name'  => $picName,
+                                'title' => $picTitles[$index] ?? null,
+                                'email' => $picEmails[$index] ?? null,
+                                'phone' => $picPhones[$index] ?? null,
+                            ]);
+                            $submittedPicIds[] = $pic->id;
+                        }
+                    } else {
+                        // Jika tidak ada ID, buat record PIC baru
+                        $newPic = SponsorPic::create([
+                            'sponsor_id' => $sponsor->id,
+                            'name'  => $picName,
+                            'title' => $picTitles[$index] ?? null,
+                            'email' => $picEmails[$index] ?? null,
+                            'phone' => $picPhones[$index] ?? null,
+                        ]);
+                        $submittedPicIds[] = $newPic->id;
+                    }
+                }
+            }
+
+            // Hapus PIC yang ada di database tapi tidak ada dalam submittedPicIds
+            if (!empty($oldPicIds)) {
+                $toDelete = array_diff($oldPicIds, $submittedPicIds);
+                if (!empty($toDelete)) {
+                    SponsorPic::whereIn('id', $toDelete)->delete();
+                }
+            }
+        } else {
+            // Jika tidak ada input PIC, hapus semua PIC untuk sponsor ini
+            SponsorPic::where('sponsor_id', $sponsor->id)->delete();
+        }
+
         return redirect()->route('sponsors.index')->with('success', 'Sponsor berhasil diperbarui');
     }
+
+
+
 
 
     public function destroy($id)
