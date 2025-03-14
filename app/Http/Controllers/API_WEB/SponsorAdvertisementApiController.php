@@ -53,7 +53,7 @@ class SponsorAdvertisementApiController extends Controller
                 $response['message'] = 'Success';
                 $response['payload'] = $advertisings;
             } else {
-                $response['status'] = 404;
+                $response['status'] = 200;
                 $response['message'] = 'No data found';
                 $response['payload'] = [];
             }
