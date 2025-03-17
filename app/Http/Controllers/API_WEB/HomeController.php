@@ -119,7 +119,8 @@ class HomeController extends Controller
         $type = $request->type;
         //Upcoming, Past Event, All
         $category = $request->category;
-        $data = RepositoriesEvents::listAllEventsOnlySearch($search, $limit, $type, $category);
+        $event = $request->event;
+        $data = RepositoriesEvents::listAllEventsOnlySearch($search, $limit, $type, $category, $event);
 
         foreach ($data as $val => $key) {
             $date_end = date('Y-m-d', strtotime($key->end_date));
