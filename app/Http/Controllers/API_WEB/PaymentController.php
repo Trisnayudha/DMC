@@ -326,10 +326,10 @@ Job Title:' . $job_titles[$index] . '
                 'total_price' => number_format($totalPrice, 0, ',', '.'),
                 'link' => $linkPay ?? null
             ];
-            Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
+            Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject('Invoice - Waiting for Payment');
+                $message->subject('Invoice - Waiting for Payment: ' . $findEvent->name);
                 // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
             });
         } else {

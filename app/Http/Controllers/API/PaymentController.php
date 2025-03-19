@@ -528,10 +528,10 @@ class PaymentController extends Controller
                         'link'         => $linkPay,
                         'due_date'     => Carbon::now()->addDay(1)->format('d M Y H:i'),
                     ];
-                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($email) {
+                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($email, $findEvent) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($email);
-                        $message->subject('Invoice - Waiting for Payment');
+                        $message->subject('Invoice - Waiting for Payment: ' . $findEvent->name);
                     });
                 } catch (\Exception $e) {
                     // Kalau email gagal, kita log tapi tidak kita rollback transaksinya,

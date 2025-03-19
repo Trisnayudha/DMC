@@ -357,10 +357,10 @@ class EventsDetailController extends Controller
                 } else {
                     // $pdf = Pdf::loadView('email.invoice-new', $data);
                     try {
-                        Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
+                        Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($email);
-                            $message->subject('Invoice - Waiting for Payment');
+                            $message->subject('Invoice - Waiting for Payment: ' . $findEvent->name);
                             // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
                         });
                     } catch (\Exception $e) {
