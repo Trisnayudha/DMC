@@ -123,7 +123,7 @@ class PaymentController extends Controller
         $payment_method = $request->payment_method;
         $createVA = null;
         $codePayment = strtoupper(Str::random(7));
-        $package = $type == 'paid' ? 'Premium' : 'free';
+        $package = $type == 'paid' ? 'member' : 'free';
         $payment_method = $payment_method == 'other' ? 'Free-pass Apps' : $payment_method;
         // $payment_method = $payment ? $payment : 'free pas';
         $Serv = env('APP_NAME');
@@ -140,6 +140,8 @@ class PaymentController extends Controller
         }
         $findPayment = Payment::where('member_id', '=', $id)->where('events_id', '=', $events_id)->first();
         $findUsers = User::where('id', '=', $id)->first();
+        $profileModel = ProfileModel::where('users_id', $findUsers->id)->first();
+        $companyModel = CompanyModel::where('users_id', $findUsers->id)->first();
         $findTicket = EventsTicket::where('id', '=', $tickets_id)->first();
         $save = new Payment();
         if ($findPayment == null || $findPayment->status_registration == 'Cancel') {
@@ -198,6 +200,27 @@ class PaymentController extends Controller
                 $save_va->expiration_date = $createVA['expiration_date'];
                 $save_va->is_single_use = $createVA['is_single_use'];
                 $save_va->save();
+                //notif wa
+                $send = new WhatsappApi();
+                $send->phone = '081332178421';  // Nomor admin
+                // $send->phone = '083829314436';  // Nomor admin
+                $send->message = "
+Paid Registration Notification,
+
+Ada pendaftaran baru (PAID) dengan metode pembayaran: $payment_method
+Detail Informasi:
+Name: $findUsers->name
+Email: $findUsers->email
+Phone: $profileModel->phone
+Company: $companyModel->company_name
+Job Title: $profileModel->job_title
+
+Code Payment: $codePayment
+Total Bayar: Rp. " . number_format($createVA['expected_amount'], 0, ',', '.') . "
+
+Terima kasih.
+";
+                $send->WhatsappMessage();
                 $notif = new Notification();
                 $notif->id = $id;
                 $notif->message = 'Your wait is over! Your Virtual Account is now up and running, ready for smooth transactions.';
@@ -542,8 +565,8 @@ class PaymentController extends Controller
                 // Kirim notifikasi WhatsApp (opsional), misal ke admin
                 try {
                     $send = new WhatsappApi();
-                    // $send->phone = '081332178421';  // Nomor admin
-                    $send->phone = '083829314436';  // Nomor admin
+                    $send->phone = '081332178421';  // Nomor admin
+                    // $send->phone = '083829314436';  // Nomor admin
                     $send->message = "
     Paid Registration Notification,
 
