@@ -336,7 +336,7 @@ Company: $companyModel->company_name
 Job Title: $profileModel->job_title
 
 Code Payment: $codePayment
-Total Bayar: Rp. " . number_format($createVA['expected_amount'], 0, ',', '.') . "
+Total Bayar: Rp. " . number_format($findTicket->price_rupiah, 0, ',', '.') . "
 
 Terima kasih.
 ";
