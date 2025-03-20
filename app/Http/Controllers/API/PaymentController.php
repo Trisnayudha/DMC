@@ -340,6 +340,7 @@ Total Bayar: Rp. " . number_format($findTicket->price_rupiah, 0, ',', '.') . "
 
 Terima kasih.
 ";
+                $send->WhatsappMessage();
 
                 $notif = new Notification();
                 $notif->id = $id;
