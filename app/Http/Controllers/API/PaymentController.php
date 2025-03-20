@@ -257,6 +257,8 @@ Terima kasih.
         $linkPay = null;
         $findPayment = Payment::where('member_id', '=', $id)->where('events_id', '=', $events_id)->first();
         $findUsers = User::where('id', '=', $id)->first();
+        $profileModel = ProfileModel::where('users_id', $findUsers->id)->first();
+        $companyModel = CompanyModel::where('users_id', $findUsers->id)->first();
         $findTicket = EventsTicket::where('id', '=', $tickets_id)->first();
 
         $Serv = env('APP_NAME');
@@ -318,6 +320,27 @@ Terima kasih.
                 $save_va->expiration_date = $createInvoice['expiry_date'];
                 $save_va->is_single_use = 0;
                 $save_va->save();
+                //notif wa
+                $send = new WhatsappApi();
+                $send->phone = '081332178421';  // Nomor admin
+                // $send->phone = '083829314436';  // Nomor admin
+                $send->message = "
+Paid Registration Notification,
+
+Ada pendaftaran baru (PAID) dengan metode pembayaran: $payment_method
+Detail Informasi:
+Name: $findUsers->name
+Email: $findUsers->email
+Phone: $profileModel->phone
+Company: $companyModel->company_name
+Job Title: $profileModel->job_title
+
+Code Payment: $codePayment
+Total Bayar: Rp. " . number_format($createVA['expected_amount'], 0, ',', '.') . "
+
+Terima kasih.
+";
+
                 $notif = new Notification();
                 $notif->id = $id;
                 $notif->message = 'Invoice ' . $codePayment . ' created succesfully';
