@@ -225,6 +225,10 @@ Terima kasih.
                 $notif->id = $id;
                 $notif->message = 'Your wait is over! Your Virtual Account is now up and running, ready for smooth transactions.';
                 $notif->NotifApp();
+
+                //notif email
+
+
             }
             $free = [
                 'code_payment' => $codePayment,
@@ -341,11 +345,14 @@ Total Bayar: Rp. " . number_format($findTicket->price_rupiah, 0, ',', '.') . "
 Terima kasih.
 ";
                 $send->WhatsappMessage();
-
                 $notif = new Notification();
                 $notif->id = $id;
                 $notif->message = 'Invoice ' . $codePayment . ' created succesfully';
                 $notif->NotifApp();
+
+                //notif email
+
+
                 $response['status'] = 200;
                 $response['message'] = 'success';
                 $response['payload'] = $createInvoice ? $createInvoice : null;
