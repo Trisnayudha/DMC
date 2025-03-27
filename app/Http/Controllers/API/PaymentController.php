@@ -585,8 +585,8 @@ Terima kasih.
                         'company_address' => null,
                         'status' => 'WAITING',
                         'events_name' => $findEvent->name,
-                        'price' => number_format($finalPrice, 0, ',', '.'),
-                        'voucher_price' => $discount,
+                        'price' => number_format($price, 0, ',', '.'),
+                        'voucher_price' => number_format($discount, 0, ',', '.'),
                         'total_price' => number_format($finalPrice, 0, ',', '.'),
                         'link' => $linkPay ?? null,
                         'fva' => $save_va->account_number ?? null
