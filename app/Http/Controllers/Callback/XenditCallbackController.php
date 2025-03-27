@@ -579,7 +579,7 @@ Best Regards Bot DMC
             $external_id = request('external_id');
             $check = Payment::where('code_payment', $external_id)->first();
             $fields['include_external_user_ids'] = ['external_user_id_' . $check->member_id];
-            $message = 'hey!! this is test push.!';
+            $message = 'FVA Created!';
 
             $d = OneSignal::sendPush($fields, $message);
 
