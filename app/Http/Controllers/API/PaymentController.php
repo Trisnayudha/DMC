@@ -576,11 +576,20 @@ Terima kasih.
                 try {
                     $dataEmail = [
                         'code_payment' => $codePayment,
-                        'name'         => $user->name,
-                        'events_name'  => $findEvent->name,
-                        'amount'       => number_format($finalPrice, 0, ',', '.'),
-                        'link'         => $linkPay,
-                        'due_date'     => Carbon::now()->addDay(1)->format('d M Y H:i'),
+                        'create_date' => Carbon::now()->format('d M Y H:i'),
+                        'due_date' => Carbon::now()->addDay(1)->format('d M Y H:i'),
+                        'users_name' => $user->name,
+                        'users_email' => $user->email,
+                        'phone' => $profileModel->phone,
+                        'company_name' => $companyModel->company_name,
+                        'company_address' => null,
+                        'status' => 'WAITING',
+                        'events_name' => $findEvent->name,
+                        'price' => number_format($finalPrice, 0, ',', '.'),
+                        'voucher_price' => $discount,
+                        'total_price' => number_format($finalPrice, 0, ',', '.'),
+                        'link' => $linkPay ?? null,
+                        'fva' => $save_va->account_number ?? null
                     ];
                     Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($email, $findEvent) {
                         $message->from(env('EMAIL_SENDER'));

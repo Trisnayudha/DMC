@@ -220,6 +220,22 @@
         @if ($link != null)
             <a href="{{ $link }}">Please click here to process your payment.</a>
         @endif
+        @if ($fva != null)
+            <p><strong>Virtual Account Number:</strong></p>
+            <p id="fva-number">{{ $fva }}</p>
+            <button class="copy-btn" onclick="copyFvaNumber()">Copy Account Number</button>
+            <script>
+                function copyFvaNumber() {
+                    var copyText = document.getElementById("fva-number");
+                    var range = document.createRange();
+                    range.selectNode(copyText);
+                    window.getSelection().addRange(range);
+                    document.execCommand("copy");
+                    window.getSelection().removeAllRanges();
+                    alert("Account number copied: " + copyText.textContent);
+                }
+            </script>
+        @endif
         <br>
         <br>
         Thank you for registering for one of Djakarta Mining Club events.<br />
