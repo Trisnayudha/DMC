@@ -80,7 +80,8 @@ class PaymentController extends Controller
                     'price' => number_format($totalPrice, 0, ',', '.'),
                     'voucher_price' => 0,
                     'total_price' => number_format($totalPrice, 0, ',', '.'),
-                    'link' => $linkPay
+                    'link' => $linkPay,
+                    'fva' => null,
                 ];
             } else {
                 $findTicket = EventsTicket::findOrFail($check->tickets_id);
