@@ -324,7 +324,8 @@ Job Title:' . $job_titles[$index] . '
                 'price' => number_format($totalPrice, 0, ',', '.'),
                 'voucher_price' => 0,
                 'total_price' => number_format($totalPrice, 0, ',', '.'),
-                'link' => $linkPay ?? null
+                'link' => $linkPay ?? null,
+                'fva' => $createVA['account_number'] ?? null
             ];
             Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent) {
                 $message->from(env('EMAIL_SENDER'));
