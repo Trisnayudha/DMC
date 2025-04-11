@@ -111,7 +111,8 @@ class PaymentController extends Controller
                     'price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
                     'voucher_price' => 0,
                     'total_price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
-                    'link' => $linkPay
+                    'link' => $linkPay,
+                    'fva' => null,
                 ];
             }
 
