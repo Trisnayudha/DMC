@@ -50,6 +50,9 @@ class PaymentController extends Controller
                 $totalPrice = 0;
                 foreach ($loop as $index => $data) {
                     $totalPrice += $data->price_rupiah;  // Access price_rupiah from each data item
+                    if ($data->discount > 0) {
+                        $totalPrice += $data->price_rupiah - $data->discount;
+                    }
                     $updateStatus = Payment::where('id', $data->id)->first();
                     $updateStatus->status_registration = 'Waiting';
                     $updateStatus->save();
