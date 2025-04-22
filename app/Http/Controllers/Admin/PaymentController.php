@@ -58,7 +58,7 @@ class PaymentController extends Controller
                     $updateStatus->status_registration = 'Waiting';
                     $updateStatus->save();
                 }
-
+                dd($totalPrice);
                 // Debug output, replace with Log::info or remove after testing
                 $params = [
                     'external_id' => $check->code_payment,
