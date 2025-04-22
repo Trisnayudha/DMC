@@ -93,6 +93,7 @@ class PaymentController extends Controller
                     $subtotal -= $check->discount;
                 }
                 $total = $subtotal;
+                dd($total);
                 $params = [
                     'external_id' => $check->code_payment,
                     'payer_email' => $findUsers->email,
