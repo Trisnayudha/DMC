@@ -133,12 +133,12 @@ class PaymentController extends Controller
             // Generate PDF outside of the request handling
             // $pdf = Pdf::loadView('email.invoice-new', $data);
 
-            // Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
-            //     $message->from(env('EMAIL_SENDER'));
-            //     $message->to($email);
-            //     $message->subject('Invoice - Waiting for Payment');
-            //     // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
-            // });
+            Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
+                $message->from(env('EMAIL_SENDER'));
+                $message->to($email);
+                $message->subject('Invoice - Waiting for Payment');
+                // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
+            });
             $send = new WhatsappApi();
             $send->phone = '081332178421';
             $send->message = 'Nih bro link renewalnya : ' . $linkPay;
