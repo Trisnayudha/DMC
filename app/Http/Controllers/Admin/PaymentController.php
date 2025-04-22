@@ -58,7 +58,6 @@ class PaymentController extends Controller
                     $updateStatus->status_registration = 'Waiting';
                     $updateStatus->save();
                 }
-                dd($totalPrice);
                 // Debug output, replace with Log::info or remove after testing
                 $params = [
                     'external_id' => $check->code_payment,
@@ -89,11 +88,16 @@ class PaymentController extends Controller
                 ];
             } else {
                 $findTicket = EventsTicket::findOrFail($check->tickets_id);
+                $subtotal = $findTicket->price_rupiah;
+                if ($check->discount > 0) {
+                    $subtotal -= $check->discount;
+                }
+                $total = $subtotal;
                 $params = [
                     'external_id' => $check->code_payment,
                     'payer_email' => $findUsers->email,
                     'description' => 'Invoice Event DMC',
-                    'amount' => $findTicket->price_rupiah,
+                    'amount' => $total,
                     'success_redirect_url' => 'https://djakarta-miningclub.com',
                     'failure_redirect_url' => url(''),
                 ];
@@ -112,9 +116,9 @@ class PaymentController extends Controller
                     'company_address' => $findCompany->address,
                     'status' => 'WAITING',
                     'events_name' => $findEvent->name,
-                    'price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                    'price' => number_format($total, 0, ',', '.'),
                     'voucher_price' => 0,
-                    'total_price' => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                    'total_price' => number_format($total, 0, ',', '.'),
                     'link' => $linkPay,
                     'fva' => null,
                 ];
@@ -129,12 +133,12 @@ class PaymentController extends Controller
             // Generate PDF outside of the request handling
             // $pdf = Pdf::loadView('email.invoice-new', $data);
 
-            Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
-                $message->from(env('EMAIL_SENDER'));
-                $message->to($email);
-                $message->subject('Invoice - Waiting for Payment');
-                // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
-            });
+            // Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
+            //     $message->from(env('EMAIL_SENDER'));
+            //     $message->to($email);
+            //     $message->subject('Invoice - Waiting for Payment');
+            //     // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
+            // });
             $send = new WhatsappApi();
             $send->phone = '081332178421';
             $send->message = 'Nih bro link renewalnya : ' . $linkPay;
