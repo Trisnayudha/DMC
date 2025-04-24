@@ -389,7 +389,7 @@ class SponsorController extends Controller
     public function sponsor($slug)
     {
         $event = Events::where('slug', $slug)->first();
-        $company = Sponsor::get();
+        $company = Sponsor::where('status', 'publish')->get();
         $data = [
             'events' => $event,
             'company' => $company
