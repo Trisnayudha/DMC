@@ -4,15 +4,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Register Event">
+    <meta name="description"
+        content="Register now for the Djakarta Mining Club event and be part of the mining industry!">
     <meta name="author" content="djakarta-miningclub.com">
     <meta name="generator" content="Hugo 0.98.0">
     <title>DMC Register Event</title>
 
     <!-- Open Graph (OG) Meta Tags for WhatsApp, Facebook -->
-    <meta property="og:title" content="Register Event" />
+    <meta property="og:title" content="Register for the Djakarta Mining Club Event!" />
     <meta property="og:description"
-        content="Daftar sekarang di event Djakarta Mining Club dan jadi bagian dari industri pertambangan!" />
+        content="Join the leading mining event and connect with industry professionals. Register now!" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:image" content="{{ url($image) }}" />
     <meta property="og:type" content="website" />
@@ -21,9 +22,9 @@
 
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Register Event">
+    <meta name="twitter:title" content="Register for the Djakarta Mining Club Event!">
     <meta name="twitter:description"
-        content="Daftar sekarang di event Djakarta Mining Club dan jadi bagian dari industri pertambangan!">
+        content="Join the leading mining event and connect with industry professionals. Register now!">
     <meta name="twitter:image" content="{{ url($image) }}">
 
     <!-- Favicon -->
@@ -42,13 +43,75 @@
     <!-- JS Libraries -->
     <script src="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- Custom CSS -->
     <style>
-        /* Your existing styles */
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        .myDiv {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        .b-example-divider {
+            height: 3rem;
+            background-color: rgba(0, 0, 0, .1);
+            border: solid rgba(0, 0, 0, .15);
+            border-width: 1px 0;
+            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        }
+
+        .b-example-vr {
+            flex-shrink: 0;
+            width: 1.5rem;
+            height: 100vh;
+        }
+
+        .bi {
+            vertical-align: -.125em;
+            fill: currentColor;
+        }
+
+        .nav-scroller {
+            position: relative;
+            z-index: 2;
+            height: 2.75rem;
+            overflow-y: hidden;
+        }
+
+        .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .iti {
+            display: grid;
+        }
+
+        .swal-modal .swal-text {
+            text-align: center;
+        }
+
+        .swal-footer {
+            text-align: center;
+        }
     </style>
 </head>
-
 
 <body class="bg-light">
 
