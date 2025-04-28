@@ -443,7 +443,7 @@
 
         });
     </script>
-    <script>
+    {{-- <script>
         $(document).ready(function() {
             Swal.fire({
                 title: "Registration is closed",
@@ -458,7 +458,7 @@
                 window.close(); // Close the current window
             });
         });
-    </script>
+    </script> --}}
 
 
 </body>
