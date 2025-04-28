@@ -8,6 +8,8 @@ use App\Models\Payments\Payment;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Intervention\Image\Facades\Image;
 
 
@@ -61,7 +63,15 @@ class PrintController extends Controller
                 $save->save();
                 $data['photo'] = $save->photo;
             }
-
+            try {
+                Http::post('https://df65-103-147-8-128.ngrok-free.app/webhook', [
+                    'name' => $findUsers->name,
+                    'company' => $findUsers->company_name,
+                    'package' => $check->package,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send print webhook: ' . $e->getMessage());
+            }
             $response['status']  = 1;
             $response['message'] = 'Success Scan QR Code';
             $response['data']    = $data;
