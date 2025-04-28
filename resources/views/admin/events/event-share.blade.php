@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="{{ $event->description }}">
     <meta name="keyword" content="{{ $event->name }}">
     <meta name="context" content="https://djakarta-miningclub.com/event/{{ $event->slug }}">
     <meta name="description" content="DMC event: {{ $event->name }}" />
