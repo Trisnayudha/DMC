@@ -190,7 +190,14 @@ Thank you
 Best Regards Bot DMC Website
 ';
                     $send->WhatsappMessage();
-
+                    $send = new EmailSender();
+                    $send->to = $inputData['email'];
+                    $send->from = env('EMAIL_SENDER');
+                    $send->data = $data;
+                    $send->subject = 'Thank you for registering ' . $findEvent->name;
+                    // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
+                    $send->template = 'email.waiting-approval';
+                    $send->sendEmail();
                     return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved.');
                     // return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
                 } else {
