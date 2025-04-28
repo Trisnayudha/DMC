@@ -27,9 +27,23 @@ class EventsPaymentController extends Controller
     {
         try {
             $inputData = $request->only([
-                'prefix', 'company_name', 'phone', 'email', 'name', 'job_title',
-                'company_website', 'country', 'address', 'city', 'office_number',
-                'portal_code', 'company_category', 'company_other', 'paymentMethod', 'slug', 'typeSponsor'
+                'prefix',
+                'company_name',
+                'phone',
+                'email',
+                'name',
+                'job_title',
+                'company_website',
+                'country',
+                'address',
+                'city',
+                'office_number',
+                'portal_code',
+                'company_category',
+                'company_other',
+                'paymentMethod',
+                'slug',
+                'typeSponsor'
             ]);
 
             $user = User::firstOrNew(['email' => $inputData['email']]);
@@ -37,8 +51,16 @@ class EventsPaymentController extends Controller
             $user->save();
 
             $companyData = [
-                'prefix', 'company_name', 'company_website', 'company_category', 'company_other',
-                'address', 'city', 'portal_code', 'office_number', 'country'
+                'prefix',
+                'company_name',
+                'company_website',
+                'company_category',
+                'company_other',
+                'address',
+                'city',
+                'portal_code',
+                'office_number',
+                'country'
             ];
             $company = CompanyModel::firstOrNew(['users_id' => $user->id]);
             $company->fill(array_intersect_key($inputData, array_flip($companyData)));
@@ -205,7 +227,7 @@ Best Regards Bot DMC Website
                         $send->to = $inputData['email'];
                         $send->from = env('EMAIL_SENDER');
                         $send->data = $data;
-                        $send->subject = 'Thank you for registering ' . $findEvent->name . ' 2024 ';
+                        $send->subject = 'Thank you for registering ' . $findEvent->name;
                         // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
                         $send->template = 'email.waiting-approval';
                         $send->sendEmail();
