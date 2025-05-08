@@ -409,9 +409,9 @@
                                     <a href="{{ route('sponsors.export') }}" class="btn btn-success">
                                         <i class="fas fa-file-excel"></i> Export Data
                                     </a>
-                                    <button id="addNewSponsor" class="btn btn-primary">
+                                    <a href="{{ route('sponsors.create') }}" class="btn btn-primary">
                                         <i class="fas fa-plus"></i> Add Sponsor
-                                    </button>
+                                    </a>
                                 </div>
 
                             </div>
