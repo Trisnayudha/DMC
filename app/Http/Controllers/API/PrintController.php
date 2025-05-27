@@ -64,7 +64,7 @@ class PrintController extends Controller
                 $data['photo'] = $save->photo;
             }
             try {
-                Http::post('https://cb60-103-147-8-128.ngrok-free.app/webhook', [
+                Http::post('https://b33f-182-253-35-130.ngrok-free.app/webhook', [
                     'name' => $findUsers->name,
                     'company' => $findUsers->company_name,
                     'package' => $check->package,
