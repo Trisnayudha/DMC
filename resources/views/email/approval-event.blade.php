@@ -175,7 +175,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://www.djakarta-miningclub.com/events/the-12th-anniversary-of-djakarta-mining-club)
+                (https://www.djakarta-miningclub.com/events/the-67th-djakarta-mining-club-networking-event)
             </p>
 
             <br>
