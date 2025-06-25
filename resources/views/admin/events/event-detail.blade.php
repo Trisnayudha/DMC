@@ -313,7 +313,11 @@
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ date('d, F H:i', strtotime($post->register)) }}</td>
                                                     <td>{{ $post->code_payment }}</td>
-                                                    <td>{{ $post->package }}</td>
+                                                    <td>{{ $post->package }}
+                                                        @if ($post->mobile)
+                                                            <small> Mobile</small>
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         {{ $post->name }}
                                                     </td>
