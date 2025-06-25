@@ -498,6 +498,7 @@ Terima kasih.
             $payment->status_registration = 'Waiting';
             $payment->discount            = $discount;
             $payment->voucher_code        = $voucher_code;
+            $payment->mobile              = true;
             $payment->save();
 
             // --- Integrasi Xendit ---
