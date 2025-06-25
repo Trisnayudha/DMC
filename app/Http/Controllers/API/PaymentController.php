@@ -608,21 +608,24 @@ Terima kasih.
                     $send->phone = '081332178421';  // Nomor admin
                     // $send->phone = '083829314436';  // Nomor admin
                     $send->message = "
-    Paid Registration Notification,
+Paid Registration Notification,
 
-    Ada pendaftaran baru (PAID) dengan metode pembayaran: $payment_method
-    Detail Informasi:
-    Name: $name
-    Email: $email
-    Phone: $phone
-    Company: $company
-    Job Title: $job_title
+Ada pendaftaran baru (PAID) dengan metode pembayaran: $payment_method
+Detail Informasi:
+Name: $name
+Email: $email
+Phone: $phone
+Company: $company
+Job Title: $job_title
 
-    Code Payment: $codePayment
-    Total Bayar: Rp. " . number_format($finalPrice, 0, ',', '.') . "
+Code Payment: $codePayment
+Total Bayar: Rp. " . number_format($finalPrice, 0, ',', '.') . "
+" . ($payment_method == 'CREDIT_CARD'
+                        ? "Link Pembayaran: $linkPay"
+                        : "Nomor Virtual Account: " . ($save_va->account_number ?? '-')) . "
 
-    Terima kasih.
-    ";
+Terima kasih.
+";
                     $send->WhatsappMessage();
                 } catch (\Exception $e) {
                     Log::error('Whatsapp send error (paid): ' . $e->getMessage());
