@@ -580,7 +580,7 @@ Terima kasih.
                         'due_date' => Carbon::now()->addDay(1)->format('d M Y H:i'),
                         'users_name' => $user->name,
                         'users_email' => $user->email,
-                        'phone' => $profileModel->phone,
+                        'phone' => $profileModel->phone ?? '-',
                         'company_name' => $companyModel->company_name,
                         'company_address' => null,
                         'status' => 'WAITING',
