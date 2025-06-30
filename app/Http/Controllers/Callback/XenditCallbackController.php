@@ -559,31 +559,34 @@ Best Regards Bot DMC
     }
 
     public function fva_create()
-    { {
-            // "id": "63db6e78c5f24b5e0540db9d",
-            // "name": "Dandi",
-            // "status": "ACTIVE",
-            // "country": "ID",
-            // "created": "2023-02-02T08:04:08.767Z",
-            // "updated": "2023-02-02T08:04:08.806Z",
-            // "currency": "IDR",
-            // "owner_id": "627a17539917bb3ad4f7cf88",
-            // "bank_code": "BRI",
-            // "is_closed": true,
-            // "external_id": "HMECFEQ",
-            // "is_single_use": true,
-            // "merchant_code": "13282",
-            // "account_number": "13282472664527646",
-            // "expected_amount": 10000,
-            // "expiration_date": "2023-02-03T08:04:07.137Z"
-            $external_id = request('external_id');
-            $check = Payment::where('code_payment', $external_id)->first();
-            $fields['include_external_user_ids'] = ['external_user_id_' . $check->member_id];
-            $message = 'FVA Created!';
-
-            $d = OneSignal::sendPush($fields, $message);
-
-            return response()->json($d);
+    {
+        // "id": "63db6e78c5f24b5e0540db9d",
+        // "name": "Dandi",
+        // "status": "ACTIVE",
+        // "country": "ID",
+        // "created": "2023-02-02T08:04:08.767Z",
+        // "updated": "2023-02-02T08:04:08.806Z",
+        // "currency": "IDR",
+        // "owner_id": "627a17539917bb3ad4f7cf88",
+        // "bank_code": "BRI",
+        // "is_closed": true,
+        // "external_id": "HMECFEQ",
+        // "is_single_use": true,
+        // "merchant_code": "13282",
+        // "account_number": "13282472664527646",
+        // "expected_amount": 10000,
+        // "expiration_date": "2023-02-03T08:04:07.137Z"
+        try {
+            // return only request data with message
+            $data = request()->all();
+            return response()->json([
+                'message' => 'Data ga disimpen',
+                'data' => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
