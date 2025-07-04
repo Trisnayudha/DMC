@@ -366,7 +366,7 @@
                         </div>
                     </div>
                     <div class="col-sm-6">
-                                <label for="company_website" class="form-label">Company Webstie *<span
+                                <label for="company_website" class="form-label">Company Website *<span
                                         class="text-muted"></span></label>
                                 <input type="text" class="form-control" name="company_website"
                                     value="${data.company_website}" placeholder="www.yourcompany.com" required>
