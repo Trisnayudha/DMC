@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Storage;
 
 class SponsorPhotosVideosActivityController extends Controller
 {
+    public function index()
+    {
+        return 'Page ini tidak ada, coba pake ID Sponsor belakangnya';
+    }
+
     public function show($id)
     {
         $data['sponsor_id'] = $id;
