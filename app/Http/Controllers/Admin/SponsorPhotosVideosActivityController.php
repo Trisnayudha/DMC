@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Sponsors\SponsorPhotoVideo;
+use Illuminate\Support\Facades\Storage;
 
 class SponsorPhotosVideosActivityController extends Controller
 {
@@ -60,5 +61,73 @@ class SponsorPhotosVideosActivityController extends Controller
         return redirect()
             ->route('photos-videos-activity.show', $request->sponsor_id)
             ->with('success', 'Media uploaded successfully.');
+    }
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function edit($id)
+    {
+        $item = SponsorPhotoVideo::findOrFail($id);
+        return response()->json($item);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,mov,avi|max:20480',
+        ]);
+
+        $item = SponsorPhotoVideo::findOrFail($id);
+
+        if ($request->hasFile('file')) {
+            // delete old file if stored (convert URL to storage path)
+            if ($item->path) {
+                $oldRelative = str_replace(asset('storage') . '/', '', $item->path);
+                Storage::disk('public')->delete($oldRelative);
+            }
+            $file = $request->file('file');
+            $timestamp = now()->timestamp;
+            $extension = $file->getClientOriginalExtension();
+            $fileName = $timestamp . '.' . $extension;
+            // store in sponsor/advertising
+            $file->storeAs('public/sponsor/advertising', $fileName);
+            // build full URL
+            $fileUrl = asset('storage/sponsor/advertising/' . $fileName);
+            $item->path = $fileUrl;
+            // set type
+            $item->type = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']) ? 'photo' : 'video';
+        }
+
+        $item->save();
+
+        return response()->json(['message' => 'Updated successfully']);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($id)
+    {
+        $item = SponsorPhotoVideo::findOrFail($id);
+        // delete stored file
+        if ($item->path) {
+            Storage::disk('public')->delete($item->path);
+        }
+        $item->delete();
+
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }

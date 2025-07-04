@@ -67,10 +67,10 @@
                                                     <td>{{ $post->path }}</td>
 
                                                     <td>
-                                                        <a href="{{ route('sponsors.edit', $post->id) }}"
-                                                            class="btn btn-success" title="Edit Data">
+                                                        <button class="btn btn-success btn-edit"
+                                                            data-id="{{ $post->id }}" title="Edit Data">
                                                             <span class="fa fa-edit"></span>
-                                                        </a>
+                                                        </button>
                                                         <button class="btn btn-danger delete-sponsor"
                                                             data-id="{{ $post->id }}" title="Hapus Data">
                                                             <span class="fa fa-trash"></span>
@@ -135,111 +135,93 @@
                 $('#category-model').modal('show');
             });
 
-            // $(document).on('click', '.edit', function() {
-            //     var id = $(this).data('id');
+            // Edit sponsor
+            $(document).on('click', '.btn-edit', function(e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "/admin/photos-videos-activity/" + id + "/edit",
+                    data: {
+                        id: id
+                    },
+                    dataType: 'json',
+                    success: function(res) {
+                        $('#ajaxCategoryModel').html("Edit Sponsor");
+                        $('#category-model').modal('show');
+                        $('#addEditCategoryForm').attr('action',
+                            '/admin/photos-videos-activity/' + id);
+                        // Remove previous _method if exists
+                        $('#addEditCategoryForm input[name="_method"]').remove();
+                        $('#addEditCategoryForm').append(
+                            '<input type="hidden" name="_method" value="PUT">');
+                        $('#file').val('');
+                        // You can prefill other fields if needed from res
+                    }
+                });
+            });
 
-            //     // ajax
-            //     $.ajax({
-            //         type: "GET",
-            //         url: "{{ url('admin/events/speakers') }}/" + id + "/edit",
-            //         data: {
-            //             id: id
-            //         },
-            //         dataType: 'json',
-            //         success: function(res) {
-            //             $('#ajaxCategoryModel').html("Edit Category");
-            //             $('#category-model').modal('show');
-            //             $('#id').val(res.id);
-            //             $('#name').val(res.name);
-            //             $('#company').val(res.company);
-            //             $('#job_title').val(res.job_title);
-            //             $('#image').val(res.image);
-            //         }
-            //     });
-            // });
-            // $(document).on('click', '.delete', function() {
+            // Delete sponsor
+            $(document).on('click', '.delete-sponsor', function() {
+                var id = $(this).data('id');
+                Swal.fire({
+                    title: "Anda Yakin ?",
+                    text: "Ingin Menghapus Data ini.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "/admin/photos-videos-activity/" + id,
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(res) {
+                                Swal.fire({
+                                    title: "Deleted!",
+                                    text: res.message,
+                                    icon: "success",
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            }
+                        });
+                    }
+                });
+            });
 
-            //     var id = $(this).data('id');
-            //     Swal.fire({
-            //         title: "Anda Yakin ?",
-            //         text: "Ingin Menghapus Data ini.",
-            //         icon: "warning",
-            //         showCancelButton: true,
-            //         confirmButtonColor: '#3085d6',
-            //         cancelButtonColor: '#d33',
-            //         confirmButtonText: 'Yes, delete it!'
-            //     }).then((result) => {
-            //         if (result.isConfirmed) {
-            //             $.ajax({
-            //                 type: "DELETE",
-            //                 url: "{{ url('admin/events/speakers') }}/" + id,
-            //                 data: {
-            //                     id: id
-            //                 },
-            //                 dataType: 'json',
-            //                 success: function(res) {
-            //                     Swal.fire({
-            //                         title: "Success",
-            //                         icon: "success",
-            //                         showConfirmButton: false,
-            //                         position: 'center',
-            //                         timer: 1500
-            //                     }).then(function() {
-            //                         // Code to execute after Swal is closed
-            //                         window.location.reload();
-            //                         console.log(res);
-            //                     });
-            //                 }
-            //             });
-
-            //         }
-            //     });
-
-
-            // });
-            // $(document).on('click', '#btn-save', function(event) {
-            //     var id = $("#id").val();
-            //     var name = $("#name").val();
-            //     var company = $("#company").val();
-            //     var job_title = $("#job_title").val();
-            //     var imageInput = $("#image")[0];
-
-            //     // Cek apakah file gambar dipilih
-            //     var image = imageInput.files.length > 0 ? imageInput.files[0] : null;
-
-            //     var formData = new FormData();
-            //     formData.append('id', id);
-            //     formData.append('name', name);
-            //     formData.append('company', company);
-            //     formData.append('job_title', job_title);
-            //     // Hanya tambahkan file gambar jika dipilih
-            //     if (image) {
-            //         formData.append('image', image);
-            //     }
-            //     $("#btn-save").html('Please Wait...');
-            //     $("#btn-save").attr("disabled", true);
-            //     // ajax
-            //     $.ajax({
-            //         type: "POST",
-            //         url: "{{ url('admin/events/speakers') }}",
-            //         data: formData,
-            //         processData: false,
-            //         contentType: false,
-            //         success: function(res) {
-            //             console.log(res)
-            //             Swal.fire({
-            //                     title: "Success",
-            //                     icon: "success",
-            //                     showConfirmButton: false,
-            //                     position: 'center',
-            //                     timer: 1500
-            //                 }),
-            //                 window.location.reload();
-            //             $("#btn-save").html('Submit');
-            //             $("#btn-save").attr("disabled", false);
-            //         }
-            //     });
-            // });
+            // Submit form for create/update
+            $(document).on('submit', '#addEditCategoryForm', function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                var actionUrl = $(this).attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: actionUrl,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        Swal.fire({
+                            title: "Success",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(err) {
+                        console.log(err);
+                    }
+                });
+            });
         });
         $(document).ready(function() {
             $('#laravel_crud').DataTable();
