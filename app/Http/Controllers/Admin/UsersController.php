@@ -134,6 +134,7 @@ class UsersController extends Controller
                 $user = User::firstOrNew(['email' => $email]);
                 $user->name = $sheet->getCell('B' . $row)->getValue();
                 $user->email = $email;
+                $user->isStatus = 'Active';
                 $user->save();
 
                 $company = CompanyModel::firstOrNew(['users_id' => $user->id]);

@@ -99,10 +99,14 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
-                                <div class="float-right">
+                                <div class="float-right d-flex">
                                     <a href="{{ url('admin/users') }}"
-                                        class="btn btn-block btn-icon icon-left btn-warning btn-filter mb-3">
+                                        class="btn btn-icon icon-left btn-warning btn-filter mb-3 mr-2">
                                         Clear Filter</a>
+                                    <button type="button" class="btn btn-primary mb-3" data-toggle="modal"
+                                        data-target="#example">
+                                        Import Excel
+                                    </button>
                                 </div>
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
