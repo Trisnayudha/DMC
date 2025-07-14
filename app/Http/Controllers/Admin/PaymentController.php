@@ -136,7 +136,7 @@ class PaymentController extends Controller
             Mail::send('email.confirm_payment', $data, function ($message) use ($email) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject('Invoice - Waiting for Payment');
+                $message->subject('Renewal Invoice DMC - Waiting for Payment');
                 // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
             });
             $send = new WhatsappApi();
