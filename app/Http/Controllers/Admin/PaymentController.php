@@ -41,8 +41,8 @@ class PaymentController extends Controller
             Xendit::setApiKey($secretKey);
             $date = date('d, M Y H:i');
             $dueDate = date('d, M Y H:i', strtotime($date . ' +1 day'));
-            if (!empty($check->booking_contact_id)) {
-                $loop = Payment::where('booking_contact_id', $check->booking_contact_id)
+            if (!empty($check->groupby_users_id)) {
+                $loop = Payment::where('groupby_users_id', $check->groupby_users_id)
                     ->where('payment.events_id', $check->events_id)
                     ->join('events_tickets', 'events_tickets.id', '=', 'payment.tickets_id')
                     ->select('payment.*', 'events_tickets.price_rupiah')
