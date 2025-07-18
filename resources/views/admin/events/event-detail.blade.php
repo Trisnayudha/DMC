@@ -986,7 +986,7 @@
             }
         };
 
-        xhttp.open("GET", "https://restcountries.com/v3.1/all", true);
+        xhttp.open("GET", "https://restcountries.com/v3.1/all?fields=name", true);
         xhttp.send();
 
         function assignValues() {

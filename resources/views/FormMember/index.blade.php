@@ -159,8 +159,8 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="phone" class="form-label">Mobile number *</label>
-                                <input type="tel" class="form-control" name="phone"id="phone"
-                                    placeholder="" value="+62" required>
+                                <input type="tel" class="form-control" name="phone"id="phone" placeholder=""
+                                    value="+62" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
@@ -362,7 +362,7 @@
                 handleCountryChange();
             }
         };
-        xhttp.open("GET", "https://restcountries.com/v3.1/all", true);
+        xhttp.open("GET", "https://restcountries.com/v3.1/all?fields=name", true);
         xhttp.send();
 
         function assignValues() {
