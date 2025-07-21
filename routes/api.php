@@ -145,6 +145,8 @@ Route::post('/notification/read', [NotificationController::class, 'readNotif']);
 Route::post('/highlight/list', [NotificationController::class, 'highlight']);
 
 Route::post('print-scan', [PrintController::class, 'scan']);
+Route::post('delegate-list', [PrintController::class, 'delegateList']);
+Route::post('ngrok-list', [PrintController::class, 'ngrokList']);
 
 Route::post('home/statistic', [API_WEBHomeController::class, 'statistic']);
 

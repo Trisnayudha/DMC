@@ -82,4 +82,40 @@ class PrintController extends Controller
         }
         return response()->json($response);
     }
+
+    public function delegateList(Request $request)
+    {
+        $limit = $request->limit ?? 5;
+        $findUser = Payment::join('users', 'users.id', 'payment.member_id')
+            ->join('events_tickets', 'events_tickets.id', 'payment.tickets_id')
+            ->join('profiles', 'profiles.users_id', 'users.id')
+            ->join('company', 'company.users_id', 'users.id')
+            ->where('payment.status_registration', 'Paid Off')
+            ->where('payment.events_id', 50)
+            ->when($request->search, function ($query) use ($request) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('users.name', 'like', '%' . $request->search . '%')
+                        ->orWhere('company.company_name', 'like', '%' . $request->search . '%');
+                });
+            })
+            ->select(
+                'payment.id',
+                'payment.code_payment',
+                'users.name',
+                'profiles.job_title',
+                'company.company_name',
+                'payment.package'
+            )
+            ->paginate($limit);
+
+        $response['status']  = 1;
+        $response['message'] = 'Success show list delegate';
+        $response['data']    = $findUser;
+        return response()->json($response);
+    }
+
+    public function ngrokList()
+    {
+        //
+    }
 }
