@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events\UserRegister;
+use App\Models\Ngrok\NgrokModel;
 use App\Models\Payments\Payment;
 use App\Models\User;
 use Carbon\Carbon;
@@ -116,6 +117,10 @@ class PrintController extends Controller
 
     public function ngrokList()
     {
-        //
+        $list = NgrokModel::get();
+        $response['status']  = 1;
+        $response['message'] = 'Success show list ngrok';
+        $response['data']    = $list;
+        return response()->json($response);
     }
 }
