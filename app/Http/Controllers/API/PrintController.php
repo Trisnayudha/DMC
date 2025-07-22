@@ -20,7 +20,7 @@ class PrintController extends Controller
     {
         $check = Payment::where('code_payment', $request->input_text)->first();
         $nosave = $request->noscan;
-
+        $ngrok  = $request->ngrok;
         if (!empty($check)) {
             $findUsers = User::where('users.id', $check->member_id)
                 ->join('company', 'company.users_id', 'users.id')
@@ -31,7 +31,9 @@ class PrintController extends Controller
                 'company_name'  => $findUsers->company_name,
                 'package'       => $check->package,
             ];
-
+            if ($ngrok) {
+                $this->sendWebhook($ngrok, $data);
+            }
             if ($nosave == 'false') {
                 $save = UserRegister::where('payment_id', $check->id)->first();
                 if (empty($save)) {
@@ -122,5 +124,18 @@ class PrintController extends Controller
         $response['message'] = 'Success show list ngrok';
         $response['data']    = $list;
         return response()->json($response);
+    }
+
+    private function sendWebhook($url, $payload)
+    {
+        try {
+            $response = Http::timeout(15)->post($url, $payload);
+
+            if ($response->status() !== 200) {
+                Log::error("Webhook failed with status: {$response->status()}, Response: {$response->body()}");
+            }
+        } catch (\Exception $e) {
+            Log::error("Error sending webhook: " . $e->getMessage());
+        }
     }
 }
