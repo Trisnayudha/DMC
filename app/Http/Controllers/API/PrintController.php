@@ -21,14 +21,16 @@ class PrintController extends Controller
         $check = Payment::where('code_payment', $request->input_text)->first();
         $nosave = $request->noscan;
         $ngrok  = $request->ngrok;
+        $company_name = $request->company_name;
+        $name = $request->name;
         if (!empty($check)) {
             $findUsers = User::where('users.id', $check->member_id)
                 ->join('company', 'company.users_id', 'users.id')
+                ->select('users.name', 'company.company_name')
                 ->first();
-
             $data = [
-                'name'          => $findUsers->name,
-                'company_name'  => $findUsers->company_name,
+                'name'          => $name ? $name : $findUsers->name,
+                'company_name'  => $company_name ? $company_name : $findUsers->company_name,
                 'package'       => $check->package,
             ];
             if ($ngrok) {
@@ -65,15 +67,6 @@ class PrintController extends Controller
 
                 $save->save();
                 $data['photo'] = $save->photo;
-            }
-            try {
-                Http::post('https://b33f-182-253-35-130.ngrok-free.app/webhook', [
-                    'name' => $findUsers->name,
-                    'company' => $findUsers->company_name,
-                    'package' => $check->package,
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Failed to send print webhook: ' . $e->getMessage());
             }
             $response['status']  = 1;
             $response['message'] = 'Success Scan QR Code';
