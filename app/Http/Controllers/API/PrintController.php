@@ -67,7 +67,7 @@ class PrintController extends Controller
 
                     // --- VALIDASI TAMBAHAN DI SINI ---
                     // Hanya kirim notifikasi jika package adalah 'Sponsor' atau 'Speaker'
-                    if (in_array($check->package, ['Sponsor', 'Speaker'])) {
+                    if (in_array($check->package, ['sponsor', 'speaker'])) {
                         $notif = new WhatsappApi();
                         $notif->phone = '120363234928717023';
 
