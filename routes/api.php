@@ -20,6 +20,7 @@ use App\Http\Controllers\API\MarketingAdsController;
 use App\Http\Controllers\API\MikrotikController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\PrintController;
+use App\Http\Controllers\API\PublicController;
 use App\Http\Controllers\API\ScanController;
 use App\Http\Controllers\API\SponsorsController;
 use App\Http\Controllers\API\VoucherController;
@@ -147,6 +148,8 @@ Route::post('/highlight/list', [NotificationController::class, 'highlight']);
 Route::post('print-scan', [PrintController::class, 'scan']);
 Route::post('delegate-list', [PrintController::class, 'delegateList']);
 Route::post('ngrok-list', [PrintController::class, 'ngrokList']);
+
+Route::post('summary-attandance', [PublicController::class, 'summaryAttandance']);
 
 Route::post('home/statistic', [API_WEBHomeController::class, 'statistic']);
 
