@@ -81,7 +81,7 @@ class PrintController extends Controller
                             "Photo: " . $save->photo;
 
                         $notif->message = $message;
-                        $notif->WhatsappMessage();
+                        $notif->WhatsappMessageGroup();
                     }
                     // --- AKHIR VALIDASI ---
                 }

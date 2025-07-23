@@ -50,6 +50,28 @@ class WhatsappApi
             return $this->res = $th->getMessage();
         }
     }
+    public function WhatsappMessageGroup()
+    {
+        try {
+            $phone = $this->phone;
+            $message = $this->message;
+            $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
+
+
+
+            $sendMessageUrl = 'https://nusagateway.com/api/send-message.php';
+            $sendMessageData = [
+                'token' => $token,
+                'phone' => $phone,
+                'message' => $message
+            ];
+
+            $sendMessageResponse = $this->makeCurlRequest($sendMessageUrl, 'POST', $sendMessageData);
+            return $this->res = 'valid';
+        } catch (\Exception $th) {
+            return $this->res = $th->getMessage();
+        }
+    }
     public function WhatsappMessageWithImage()
     {
         try {
