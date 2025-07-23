@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Events\UserRegister;
 use App\Models\Ngrok\NgrokModel;
@@ -63,6 +64,26 @@ class PrintController extends Controller
 
                     // Simpan path ke database
                     $save->photo = url('storage/' . $path);
+
+                    // --- VALIDASI TAMBAHAN DI SINI ---
+                    // Hanya kirim notifikasi jika package adalah 'Sponsor' atau 'Speaker'
+                    if (in_array($check->package, ['Sponsor', 'Speaker'])) {
+                        $notif = new WhatsappApi();
+                        $notif->phone = '120363234928717023';
+
+                        // Get the current check-in time
+                        $checkInTime = Carbon::now()->format('H:i'); // Format: HH:MM (e.g., 15:30)
+
+                        // Modify the WhatsApp message here
+                        $message = "Update Check-in:\n" .
+                            "*" . ($data['name'] ?? 'Unknown Participant') . "* (" . ($data['company_name'] ?? 'Unknown Company/Institution') . ")\n" .
+                            "*[" . ($data['package'] ?? 'Unknown Package') . "]* has successfully checked in at *" . $checkInTime . "*!\n\n" .
+                            "Photo: " . $save->photo;
+
+                        $notif->message = $message;
+                        $notif->WhatsappMessage();
+                    }
+                    // --- AKHIR VALIDASI ---
                 }
 
                 $save->save();
