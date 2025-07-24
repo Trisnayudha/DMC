@@ -369,7 +369,6 @@ Regards,
                 ';
 
         $send->WhatsappMessage();
-        dd($send);
     }
 
 
