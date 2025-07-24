@@ -200,7 +200,7 @@
                 <div class="alert alert-info" role="alert">
                     Enter Attendees Details Here
                 </div>
-                <div class="form-check member">
+                {{-- <div class="form-check member">
                     <input id="credit" name="paymentMethod" type="radio" class="form-check-input" required
                         value="member">
                     <label class="form-check-label" for="credit">Member (Rp. 900.000)</label>
@@ -209,9 +209,9 @@
                     <input id="debit" name="paymentMethod" type="radio" class="form-check-input" checked required
                         value="nonmember">
                     <label class="form-check-label" for="debit">Non Member (Rp. 1.000.000)</label>
-                </div>
+                </div> --}}
                 <div class="form-check member">
-                    <input id="onsite" name="paymentMethod" type="radio" class="form-check-input" required
+                    <input id="onsite" name="paymentMethod" type="radio" class="form-check-input" checked required
                         value="onsite">
                     <label class="form-check-label" for="onsite">On Site (Rp. 1.250.000)</label>
                 </div>
@@ -241,8 +241,8 @@
                                     <div class="col-sm-6">
                                         <label for="email" class="form-label">Email Address * <span
                                                 class="text-muted"></span></label>
-                                        <input type="email" class="form-control email" name="email"
-                                            id="email" placeholder="Your work email" required value="">
+                                        <input type="email" class="form-control email" name="email" id="email"
+                                            placeholder="Your work email" required value="">
                                         <div class="invalid-feedback">
                                             Please enter a valid email address.
                                         </div>
