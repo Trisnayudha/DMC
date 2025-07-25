@@ -537,47 +537,87 @@ class EventsDetailController extends Controller
     {
         $payment_id = $request->id;
         $findPayment = PaymentService::findPaymmentUser($payment_id);
-        //check booking_contact_id
+
+        if (!$findPayment) {
+            // Handle case where payment is not found, e.g., return a 404 or redirect
+            return abort(404, 'Payment not found.');
+        }
+
         $findEvent = EventsService::showDetail($findPayment->events_id);
+
+        if (!$findEvent) {
+            // Handle case where event is not found
+            return abort(404, 'Event not found.');
+        }
+
+        // Set max execution time for PDF generation
+        ini_set('max_execution_time', 120);
+
+        // Initialize variables for payload
+        $item_details = [];
+        $total_price_before_discount = 0;
+        $final_total_price = 0;
+        $voucher_price = $findPayment->discount ?? 0; // Ensure discount is not null, default to 0
+
+        // Common payload elements
+        $payload = [
+            'code_payment' => $findPayment->code_payment,
+            'create_date' => date('d, M Y H:i'),
+            'status' => $findPayment->status_registration,
+            'voucher_price' => number_format($voucher_price, 0, ',', '.'),
+            'events_name' => $findEvent->name,
+            'link' => null, // Assuming 'link' is always null for invoices
+            'payment_method' => $findPayment->payment_method
+        ];
 
         if ($findPayment->booking_contact_id != null) {
             $findPayments = PaymentService::findPaymmentUsers($findPayment->booking_contact_id);
-            $countPrice = null;
+
             foreach ($findPayments as $table) {
                 $item_details[] = [
                     'name' => $table['name'],
-                    'job_title' => $table['email'],
+                    'job_title' => $table['email'], // Assuming 'job_title' actually stores email
                     'price' => number_format($table['price_rupiah'], 0, ',', '.'),
-                    'paidoff' => false
+                    'paidoff' => false // This seems to be a fixed value
                 ];
-                $countPrice += $table['price_rupiah'];
+                $total_price_before_discount += $table['price_rupiah'];
             }
-            $findBooking = BookingContact::where('id', $table['booking_contact_id'])->first();
-            $payload = [
-                'code_payment' => $findPayment->code_payment,
-                'create_date' => date('d, M Y H:i'),
+
+            $findBooking = BookingContact::where('id', $findPayment->booking_contact_id)->first();
+
+            if (!$findBooking) {
+                return abort(404, 'Booking contact not found.');
+            }
+
+            // Calculate final total price after discount
+            $final_total_price = $total_price_before_discount - $voucher_price;
+            // Ensure final price isn't negative
+            if ($final_total_price < 0) {
+                $final_total_price = 0;
+            }
+
+            $payload = array_merge($payload, [
                 'users_name' => $findBooking->name_contact,
                 'users_email' => $findBooking->email_contact,
                 'phone' => $findBooking->phone_contact,
                 'company_name' => $findBooking->company_name,
                 'company_address' => $findBooking->address,
-                'status' => $findPayment->status_registration,
-                'voucher_price' => 0,
                 'item' => $item_details,
-                'price' => number_format($table['price_rupiah'], 0, ',', '.'),
-                'total_price' => number_format($countPrice, 0, ',', '.'),
-                'events_name' => $findEvent->name,
-                'link' => null,
-                'payment_method' => $findPayment->payment_method
-            ];
-            ini_set('max_execution_time', 120);
+                // The 'price' here refers to the price of a single item in the original loop.
+                // It might be misleading if there are multiple items.
+                // Consider if you need a 'subtotal_per_item' or similar.
+                // For now, I'll use the price of the first item in the collection if available,
+                // or you might want to remove this 'price' key if it's not meaningful for multiple items.
+                'price' => count($item_details) > 0 ? $item_details[0]['price'] : '0',
+                'total_price' => number_format($final_total_price, 0, ',', '.'),
+            ]);
+
             $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
             $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
-            // Download the PDF with the specified filename
             return $pdf->download($filename);
         } else if ($findPayment->groupby_users_id != null) {
             $findPayments = PaymentService::findPaymmentUsers($findPayment->groupby_users_id);
-            $countPrice = null;
+
             foreach ($findPayments as $table) {
                 $item_details[] = [
                     'name' => $table['name'],
@@ -585,52 +625,50 @@ class EventsDetailController extends Controller
                     'price' => number_format($table['price_rupiah'], 0, ',', '.'),
                     'paidoff' => false
                 ];
-                $countPrice += $table['price_rupiah'];
+                $total_price_before_discount += $table['price_rupiah'];
             }
-            $payload = [
-                'code_payment' => $findPayment->code_payment,
-                'create_date' => date('d, M Y H:i'),
+
+            // Calculate final total price after discount
+            $final_total_price = $total_price_before_discount - $voucher_price;
+            if ($final_total_price < 0) {
+                $final_total_price = 0;
+            }
+
+            $payload = array_merge($payload, [
                 'users_name' => $findPayment->name,
                 'users_email' => $findPayment->email,
                 'phone' => $findPayment->phone,
                 'company_name' => $findPayment->company_name,
                 'company_address' => $findPayment->address,
-                'status' => $findPayment->status_registration,
-                'voucher_price' => 0,
                 'item' => $item_details,
-                'price' => number_format($table['price_rupiah'], 0, ',', '.'),
-                'total_price' => number_format($countPrice, 0, ',', '.'),
-                'events_name' => $findEvent->name,
-                'link' => null,
-                'payment_method' => $findPayment->payment_method
-            ];
-            ini_set('max_execution_time', 120);
+                'price' => count($item_details) > 0 ? $item_details[0]['price'] : '0',
+                'total_price' => number_format($final_total_price, 0, ',', '.'),
+            ]);
+
             $pdf = Pdf::loadView('email.invoice-new-multiple', $payload);
             $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
-            // Download the PDF with the specified filename
             return $pdf->download($filename);
         } else {
+            // Single payment scenario
+            $total_price_before_discount = $findPayment->price_rupiah;
+            $final_total_price = $total_price_before_discount - $voucher_price;
+            if ($final_total_price < 0) {
+                $final_total_price = 0;
+            }
 
-            $payload = [
-                'code_payment' => $findPayment->code_payment,
-                'create_date' => date('d, M Y H:i'),
+            $payload = array_merge($payload, [
                 'users_name' => $findPayment->name,
                 'users_email' => $findPayment->email,
                 'phone' => $findPayment->phone,
                 'company_name' => $findPayment->company_name,
                 'company_address' => $findPayment->address,
-                'status' => 'Paid Off',
-                'voucher_price' => 0,
-                'price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
-                'total_price' => number_format($findPayment->price_rupiah, 0, ',', '.'),
-                'events_name' => $findEvent->name,
-                'payment_method' => $findPayment->payment_method
-            ];
-            ini_set('max_execution_time', 120); // Set the maximum execution time to 120 seconds
+                'status' => 'Paid Off', // Overriding status for single payment if needed
+                'price' => number_format($findPayment->price_rupiah, 0, ',', '.'), // This is the individual item price
+                'total_price' => number_format($final_total_price, 0, ',', '.'), // This is the total after discount
+            ]);
+
             $pdf = PDF::loadView('email.invoice-new', $payload);
-            // Set the desired filename for the downloaded PDF
             $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
-            // Download the PDF with the specified filename
             return $pdf->download($filename);
         }
     }
