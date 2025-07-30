@@ -106,6 +106,8 @@ Route::post('/scan/request', [PrintController::class, 'request']);
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
 Route::get('/test', [TestController::class, 'test']);
+Route::get('/test/data', [TestController::class, 'getData']);
+Route::get('dtiExport', [TestController::class, 'dtiExport'])->name('dti.export');
 Route::post('/test/upload', [TestController::class, 'upload']);
 Route::get('/privacy', function () {
     return view('privacy-policy');
