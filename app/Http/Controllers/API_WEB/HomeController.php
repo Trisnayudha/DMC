@@ -200,7 +200,7 @@ class HomeController extends Controller
         $data = [
             'annual' => '1.500',
             'events' => '6',
-            'members' => '4.500',
+            'members' => '5.000',
             'corporate' => '45',
         ];
         $response['status'] = 200;
