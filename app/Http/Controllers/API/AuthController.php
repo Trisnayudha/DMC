@@ -515,7 +515,7 @@ Your verification code (OTP) ' . $otp;
                         'MMERGE8' => $findUser->job_title,
                         'MMERGE10' => Carbon::now(),
                         'MMERGE11' => $findUser->office_number,
-                        'MMERGE12' => $findUser->explore,
+                        'MMERGE12' => $findUser->explore ?? $findUser->cci,
                     ]);
                     MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;
@@ -585,6 +585,7 @@ Your verification code (OTP) ' . $otp;
                         'verify_email' => $user->verify_email,
                         'verify_phone' => $user->verify_phone
                     ];
+
                     NewsletterFacade::subscribeOrUpdate($email, [
                         'FNAME' => $user->name,
                         'MERGE3' => $findUser->address,
@@ -594,7 +595,7 @@ Your verification code (OTP) ' . $otp;
                         'MMERGE8' => $findUser->job_title,
                         'MMERGE10' => Carbon::now(),
                         'MMERGE11' => $findUser->office_number,
-                        'MMERGE12' => $findUser->explore,
+                        'MMERGE12' => $findUser->explore ?? $findUser->cci,
                     ]);
                     MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;

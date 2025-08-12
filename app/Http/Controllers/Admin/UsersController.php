@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Spatie\Newsletter\NewsletterFacade;
 
 class UsersController extends Controller
 {
@@ -215,6 +217,73 @@ class UsersController extends Controller
                 'status' => 0,
                 'message' => 'Non-Members'
             ]);
+        }
+    }
+
+    public function importToMailchimp(Request $request, User $user)
+    {
+        if (!filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+            return response()->json(['success' => false, 'message' => 'Email tidak valid.'], 422);
+        }
+
+        $company = CompanyModel::where('users_id', $user->id)->first();
+        $profile = ProfileModel::where('users_id', $user->id)->first();
+
+        $flagExploreCci = $company->explore ?? $company->cci ?? null;
+        if (empty($flagExploreCci)) {
+            return response()->json(['success' => false, 'message' => 'Data explore/cci tidak tersedia.'], 422);
+        }
+
+        $mergeFields = [
+            'FNAME'    => $user->name,
+            'MERGE3'   => optional($company)->address,
+            'PHONE'    => optional($profile)->phone,
+            'MMERGE5'  => optional($company)->company_name,
+            'MMERGE6'  => optional($company)->company_category == 'other'
+                ? (optional($company)->company_other ?? 'other')
+                : optional($company)->company_category,
+            'MMERGE8'  => optional($profile)->job_title,
+            'MMERGE10' => Carbon::now()->toDateTimeString(),
+            'MMERGE11' => optional($company)->office_number,
+            'MMERGE12' => $flagExploreCci,
+        ];
+
+        $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
+        $server = config('newsletter.server');
+        if (!$server && $apiKey) {
+            $parts = explode('-', $apiKey);
+            $server = $parts[1] ?? null; // derive "us16"
+        }
+        $listId = config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID');
+
+        if (!$apiKey || !$server || !$listId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Konfigurasi Mailchimp belum lengkap (apiKey/server/listId).'
+            ], 500);
+        }
+
+        try {
+            // 1) upsert member
+            NewsletterFacade::subscribeOrUpdate($user->email, $mergeFields);
+            if (!NewsletterFacade::lastActionSucceeded()) {
+                $err = NewsletterFacade::getLastError() ?: 'Gagal impor ke Mailchimp.';
+                return response()->json(['success' => false, 'message' => $err], 500);
+            }
+
+            // 2) tambah tag (default: Register of Membership + tanggal)
+            $defaultTag = 'Register of Membership ' . Carbon::now()->format('d M Y');
+            $tags = (array) ($request->input('tags') ?: [$defaultTag]);
+
+            $subscriberHash = md5(strtolower($user->email));
+            Http::withBasicAuth('anystring', $apiKey)->post(
+                "https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/tags",
+                ['tags' => collect($tags)->filter()->values()->map(fn($t) => ['name' => $t, 'status' => 'active'])->all()]
+            );
+
+            return response()->json(['success' => true, 'message' => 'Berhasil diimport ke Mailchimp beserta tag.']);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
     }
 }

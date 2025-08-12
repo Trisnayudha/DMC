@@ -148,10 +148,18 @@
                                                         {{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
                                                     </td>
                                                     <td>
-                                                        {{ $post->cci != null ? 'cci' : '' }} -
-                                                        {{ $post->explore != null ? 'explore' : '' }}
-                                                    </td>
+                                                        {{-- Label status --}}
+                                                        {{ $post->cci ? 'cci' : '' }} -
+                                                        {{ $post->explore ? 'explore' : '' }}
 
+                                                        {{-- Tombol Import via AJAX --}}
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-outline-primary ml-2 btn-import-mailchimp"
+                                                            data-url="{{ route('users.import.mailchimp', $post->id) }}"
+                                                            {{ $post->explore || $post->cci ? '' : 'disabled' }}>
+                                                            <i class="fas fa-paper-plane"></i> Import
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -198,15 +206,90 @@
         $('#modal-2').click(function() {
             $('#example').modal('show');
         });
+        // CSRF untuk semua request AJAX
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+
+        // helper alert sederhana
+        function showAlert(type, message) {
+            // type: 'success' | 'danger' | 'warning' | 'info'
+            if ($('.section-body .alert-area').length === 0) {
+                $('.section-body').prepend('<div class="alert-area mb-3"></div>');
+            }
+            $('.section-body .alert-area').html(
+                `<div class="alert alert-${type} alert-dismissible show fade">
+        <div class="alert-body">
+          <button class="close" data-dismiss="alert"><span>×</span></button>
+          ${message}
+        </div>
+      </div>`
+            );
+        }
+
+        // parse data-tags (array JSON atau string "a,b,c")
+        function parseTags(raw) {
+            if (!raw) return [];
+            if (Array.isArray(raw)) return raw;
+            try { // coba JSON
+                const j = JSON.parse(raw);
+                return Array.isArray(j) ? j : [];
+            } catch (e) {
+                // fallback: split koma
+                return String(raw).split(',').map(s => s.trim()).filter(Boolean);
+            }
+        }
+
+        // Event delegation (aman untuk DataTables)
+        $(document).on('click', '.btn-import-mailchimp', function() {
+            const $btn = $(this);
+            const url = $btn.data('url');
+            if (!url || $btn.prop('disabled')) return;
+
+            // Ambil tags dari data-tags (opsional)
+            const tags = parseTags($btn.attr('data-tags'));
+
+            if (!confirm('Kirim data user ini ke Mailchimp?')) return;
+
+            const originalHtml = $btn.html();
+            $btn.prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span> Importing...'
+            );
+
+            $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    data: tags.length ? {
+                        tags: tags
+                    } : {} // kirim tags kalau ada
+                })
+                .done(function(res) {
+                    if (res && res.success) {
+                        showAlert('success', res.message || 'Berhasil diimport.');
+                        $btn.removeClass('btn-outline-primary').addClass('btn-success')
+                            .html('<i class="fas fa-check"></i> Imported');
+                    } else {
+                        showAlert('warning', (res && res.message) ? res.message :
+                            'Terjadi masalah saat import.');
+                        $btn.prop('disabled', false).html(originalHtml);
+                    }
+                })
+                .fail(function(xhr) {
+                    let msg = 'Gagal menghubungi server.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                    showAlert('danger', msg);
+                    $btn.prop('disabled', false).html(originalHtml);
+                });
+        });
+
+        // (opsional) inisialisasi DataTable kamu tetap seperti semula
         $(document).ready(function() {
             $('#laravel_crud').DataTable({
                 dom: 'Bfrtip',
-                buttons: [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5',
-                    'pdfHtml5'
-                ]
+                buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5']
             });
         });
     </script>
