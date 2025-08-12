@@ -213,9 +213,8 @@
             }
         });
 
-        // helper alert sederhana
+        // Helper alert (Bootstrap sederhana)
         function showAlert(type, message) {
-            // type: 'success' | 'danger' | 'warning' | 'info'
             if ($('.section-body .alert-area').length === 0) {
                 $('.section-body').prepend('<div class="alert-area mb-3"></div>');
             }
@@ -229,31 +228,28 @@
             );
         }
 
-        // parse data-tags (array JSON atau string "a,b,c")
+        // Parse data-tags
         function parseTags(raw) {
             if (!raw) return [];
             if (Array.isArray(raw)) return raw;
-            try { // coba JSON
+            try {
                 const j = JSON.parse(raw);
                 return Array.isArray(j) ? j : [];
             } catch (e) {
-                // fallback: split koma
                 return String(raw).split(',').map(s => s.trim()).filter(Boolean);
             }
         }
 
-        // Event delegation (aman untuk DataTables)
+        // Klik import langsung eksekusi
         $(document).on('click', '.btn-import-mailchimp', function() {
             const $btn = $(this);
             const url = $btn.data('url');
             if (!url || $btn.prop('disabled')) return;
 
-            // Ambil tags dari data-tags (opsional)
             const tags = parseTags($btn.attr('data-tags'));
-
-            if (!confirm('Kirim data user ini ke Mailchimp?')) return;
-
             const originalHtml = $btn.html();
+
+            // Loading state
             $btn.prop('disabled', true).html(
                 '<span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span> Importing...'
             );
@@ -264,7 +260,7 @@
                     dataType: 'json',
                     data: tags.length ? {
                         tags: tags
-                    } : {} // kirim tags kalau ada
+                    } : {}
                 })
                 .done(function(res) {
                     if (res && res.success) {
@@ -285,7 +281,7 @@
                 });
         });
 
-        // (opsional) inisialisasi DataTable kamu tetap seperti semula
+        // DataTable tetap seperti semula
         $(document).ready(function() {
             $('#laravel_crud').DataTable({
                 dom: 'Bfrtip',
