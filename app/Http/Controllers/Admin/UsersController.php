@@ -220,70 +220,134 @@ class UsersController extends Controller
         }
     }
 
-    public function importToMailchimp(Request $request, User $user)
+    public function importToMailchimp(Request $request)
     {
-        if (!filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+        $email  = strtolower(trim($request->input('email', '')));
+        $userId = $request->input('user_id');
+        $tags   = (array) $request->input('tags', []);
+
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return response()->json(['success' => false, 'message' => 'Email tidak valid.'], 422);
         }
 
-        $company = CompanyModel::where('users_id', $user->id)->first();
-        $profile = ProfileModel::where('users_id', $user->id)->first();
+        $user    = $userId ? User::find($userId) : User::where('email', $email)->first();
+        $company = $user ? CompanyModel::where('users_id', $user->id)->first()
+            : CompanyModel::where('company_email', $email)->first();
+        $profile = $user ? ProfileModel::where('users_id', $user->id)->first()
+            : ProfileModel::where('email', $email)->first();
 
-        $flagExploreCci = $company->explore ?? $company->cci ?? null;
+        $flagExploreCci = optional($company)->explore ?? optional($company)->cci;
         if (empty($flagExploreCci)) {
             return response()->json(['success' => false, 'message' => 'Data explore/cci tidak tersedia.'], 422);
         }
 
-        $mergeFields = [
-            'FNAME'    => $user->name,
-            'MERGE3'   => optional($company)->address,
-            'PHONE'    => optional($profile)->phone,
-            'MMERGE5'  => optional($company)->company_name,
-            'MMERGE6'  => optional($company)->company_category == 'other'
-                ? (optional($company)->company_other ?? 'other')
-                : optional($company)->company_category,
-            'MMERGE8'  => optional($profile)->job_title,
-            'MMERGE10' => Carbon::now()->toDateTimeString(),
-            'MMERGE11' => optional($company)->office_number,
-            'MMERGE12' => $flagExploreCci,
-        ];
+        // === Build merge_fields yang aman ===
+        $merge = [];
 
-        $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
-        $server = config('newsletter.server');
-        if (!$server && $apiKey) {
-            $parts = explode('-', $apiKey);
-            $server = $parts[1] ?? null; // derive "us16"
+        // FNAME
+        if (!empty($user->name)) $merge['FNAME'] = $user->name;
+
+        // ADDRESS (MERGE3) bertipe Address → kirim object, skip kalau kosong semua
+        $addr = [
+            'addr1'   => (string) ($company->address ?? ''),
+            'addr2'   => '',
+            'city'    => (string) ($company->city ?? ''),
+            'state'   => '',
+            'zip'     => (string) ($company->portal_code ?? ''),
+            'country' => (string) ($company->country ?? ''),
+        ];
+        $hasAddr = collect($addr)->filter(fn($v) => trim((string)$v) !== '')->isNotEmpty();
+        if ($hasAddr) $merge['MERGE3'] = $addr;
+
+        // PHONE (MERGE4) → harus format internasional (+62...) kalau tidak, skip
+        $phone = $profile->phone ?? $profile->fullphone ?? null;
+        $phone = is_string($phone) ? trim($phone) : $phone;
+        if ($phone && preg_match('/^\+\d[\d\s\-\(\)]{5,}$/', $phone)) {
+            $merge['MERGE4'] = $phone;
         }
+        // COMPANY
+        if (!empty($company->company_name)) $merge['MMERGE5'] = $company->company_name;
+
+        // CATEGORY company
+        if (!empty($company->company_category)) {
+            $merge['MMERGE6'] = $company->company_category === 'other'
+                ? ($company->company_other ?? 'other')
+                : $company->company_category;
+        }
+
+        // JOB TITLE
+        if (!empty($profile->job_title)) $merge['MMERGE8'] = $profile->job_title;
+
+        // DATE REGISTER (di audience kamu tipe "Text" → bebas)
+        $merge['MMERGE10'] = now()->toDateTimeString();
+
+        // OFFICE NUMBER
+        if (!empty($company->office_number)) $merge['MMERGE11'] = $company->office_number;
+
+        // EXPLORE (Text)
+        if (!empty($flagExploreCci)) $merge['MMERGE12'] = $flagExploreCci;
+
+        // WEBSITE
+        if (!empty($company->company_website)) $merge['MMERGE13'] = $company->company_website;
+
+        // Buang nilai kosong/null kecuali address (sudah ditangani)
+        $merge = collect($merge)->reject(fn($v, $k) => $k !== 'MERGE3' && (is_null($v) || trim((string)$v) === ''))->all();
+
+        // === Konfigurasi Mailchimp ===
+        $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
+        $server = config('newsletter.server') ?: (function ($k) {
+            $p = explode('-', $k);
+            return $p[1] ?? null;
+        })($apiKey);
         $listId = config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID');
 
         if (!$apiKey || !$server || !$listId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Konfigurasi Mailchimp belum lengkap (apiKey/server/listId).'
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Konfigurasi Mailchimp belum lengkap.'], 500);
         }
 
         try {
-            // 1) upsert member
-            NewsletterFacade::subscribeOrUpdate($user->email, $mergeFields);
-            if (!NewsletterFacade::lastActionSucceeded()) {
-                $err = NewsletterFacade::getLastError() ?: 'Gagal impor ke Mailchimp.';
-                return response()->json(['success' => false, 'message' => $err], 500);
+            // === Manual PUT untuk dapat error detail ===
+            $subscriberHash = md5(strtolower($email));
+            $url = "https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}";
+
+            $payload = [
+                'email_address' => $email,
+                'status_if_new' => 'subscribed',
+                'status'        => 'subscribed',
+                'merge_fields'  => $merge,
+            ];
+
+            $resp = \Illuminate\Support\Facades\Http::withBasicAuth('anystring', $apiKey)
+                ->timeout(20)
+                ->put($url, $payload);
+
+            if (!$resp->successful()) {
+                // Ambil error detail dari Mailchimp
+                $json = $resp->json();
+                $detail = $json['detail'] ?? 'Gagal impor.';
+                // Kadang ada field problems
+                if (!empty($json['errors'])) {
+                    // contoh: [{"field":"merge_fields.PHONE","message":"..."}]
+                    $problems = collect($json['errors'])->map(function ($e) {
+                        return ($e['field'] ?? 'field') . ': ' . ($e['message'] ?? '');
+                    })->implode(' | ');
+                    $detail .= ' — ' . $problems;
+                }
+                return response()->json(['success' => false, 'message' => $resp->status() . ': ' . $detail], 400);
             }
 
-            // 2) tambah tag (default: Register of Membership + tanggal)
-            $defaultTag = 'Register of Membership ' . Carbon::now()->format('d M Y');
-            $tags = (array) ($request->input('tags') ?: [$defaultTag]);
+            // === Tambah tags ===
+            if (empty($tags)) {
+                $tags = ['Register of Membership ' . now()->format('d M Y')];
+            }
+            \Illuminate\Support\Facades\Http::withBasicAuth('anystring', $apiKey)
+                ->post("https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/tags", [
+                    'tags' => collect($tags)->filter()->values()->map(fn($t) => ['name' => $t, 'status' => 'active'])->all()
+                ]);
 
-            $subscriberHash = md5(strtolower($user->email));
-            Http::withBasicAuth('anystring', $apiKey)->post(
-                "https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/tags",
-                ['tags' => collect($tags)->filter()->values()->map(fn($t) => ['name' => $t, 'status' => 'active'])->all()]
-            );
-
-            return response()->json(['success' => true, 'message' => 'Berhasil diimport ke Mailchimp beserta tag.']);
+            return response()->json(['success' => true, 'message' => 'Imported + tagged.']);
         } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
 }

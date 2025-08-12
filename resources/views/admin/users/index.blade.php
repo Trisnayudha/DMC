@@ -156,9 +156,12 @@
                                                         <button type="button"
                                                             class="btn btn-sm btn-outline-primary ml-2 btn-import-mailchimp"
                                                             data-url="{{ route('users.import.mailchimp', $post->id) }}"
+                                                            data-email="{{ $post->email }}"
+                                                            data-tags='["Register of Membership {{ now()->format('d M Y') }}"]'
                                                             {{ $post->explore || $post->cci ? '' : 'disabled' }}>
                                                             <i class="fas fa-paper-plane"></i> Import
                                                         </button>
+
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -244,12 +247,19 @@
         $(document).on('click', '.btn-import-mailchimp', function() {
             const $btn = $(this);
             const url = $btn.data('url');
-            if (!url || $btn.prop('disabled')) return;
+            const userId = $btn.data('user-id');
+            const email = $btn.data('email');
+            const tags = (function parseTags(raw) {
+                if (!raw) return [];
+                try {
+                    const j = JSON.parse(raw);
+                    return Array.isArray(j) ? j : [];
+                } catch (e) {
+                    return String(raw).split(',').map(s => s.trim()).filter(Boolean);
+                }
+            })($btn.attr('data-tags'));
 
-            const tags = parseTags($btn.attr('data-tags'));
-            const originalHtml = $btn.html();
-
-            // Loading state
+            const original = $btn.html();
             $btn.prop('disabled', true).html(
                 '<span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span> Importing...'
             );
@@ -258,28 +268,42 @@
                     url: url,
                     method: 'POST',
                     dataType: 'json',
-                    data: tags.length ? {
+                    data: {
+                        user_id: userId,
+                        email: email,
                         tags: tags
-                    } : {}
+                    }
                 })
                 .done(function(res) {
                     if (res && res.success) {
-                        showAlert('success', res.message || 'Berhasil diimport.');
+                        $('.section-body').prepend(
+                            `<div class="alert alert-success alert-dismissible show fade"><div class="alert-body">
+          <button class="close" data-dismiss="alert"><span>×</span></button>${res.message}
+        </div></div>`
+                        );
                         $btn.removeClass('btn-outline-primary').addClass('btn-success')
                             .html('<i class="fas fa-check"></i> Imported');
                     } else {
-                        showAlert('warning', (res && res.message) ? res.message :
-                            'Terjadi masalah saat import.');
-                        $btn.prop('disabled', false).html(originalHtml);
+                        $('.section-body').prepend(
+                            `<div class="alert alert-warning alert-dismissible show fade"><div class="alert-body">
+          <button class="close" data-dismiss="alert"><span>×</span></button>${(res&&res.message) || 'Import gagal'}
+        </div></div>`
+                        );
+                        $btn.prop('disabled', false).html(original);
                     }
                 })
                 .fail(function(xhr) {
-                    let msg = 'Gagal menghubungi server.';
-                    if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
-                    showAlert('danger', msg);
-                    $btn.prop('disabled', false).html(originalHtml);
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message :
+                        'Gagal menghubungi server.';
+                    $('.section-body').prepend(
+                        `<div class="alert alert-danger alert-dismissible show fade"><div class="alert-body">
+        <button class="close" data-dismiss="alert"><span>×</span></button>${msg}
+      </div></div>`
+                    );
+                    $btn.prop('disabled', false).html(original);
                 });
         });
+
 
         // DataTable tetap seperti semula
         $(document).ready(function() {
