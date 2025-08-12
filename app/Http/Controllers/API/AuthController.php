@@ -14,6 +14,7 @@ use App\Models\Profiles\ProfileService;
 use App\Models\ProfileUsahas\ProfileUsaha;
 use App\Models\User;
 use App\Models\Users\UserService;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Str;
+use Spatie\Newsletter\NewsletterFacade;
 use Svg\Tag\Rect;
 
 class AuthController extends Controller
@@ -504,6 +506,17 @@ Your verification code (OTP) ' . $otp;
                         'verify_phone' => $user->verify_phone,
                         'status_member' => 'member'
                     ];
+                    NewsletterFacade::subscribeOrUpdate($email, [
+                        'FNAME' => $user->name,
+                        'MERGE3' => $findUser->address,
+                        'PHONE' => $phone,
+                        'MMERGE5' => $findUser->company_name,
+                        'MMERGE6' => $findUser->company_category,
+                        'MMERGE8' => $findUser->job_title,
+                        'MMERGE10' => Carbon::now(),
+                        'MMERGE11' => $findUser->office_number,
+                        'MMERGE12' => $findUser->explore,
+                    ]);
                     MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;
                     $response['message'] = 'Successfully Register';
@@ -572,6 +585,17 @@ Your verification code (OTP) ' . $otp;
                         'verify_email' => $user->verify_email,
                         'verify_phone' => $user->verify_phone
                     ];
+                    NewsletterFacade::subscribeOrUpdate($email, [
+                        'FNAME' => $user->name,
+                        'MERGE3' => $findUser->address,
+                        'PHONE' => $phone,
+                        'MMERGE5' => $findUser->company_name,
+                        'MMERGE6' => $findUser->company_category,
+                        'MMERGE8' => $findUser->job_title,
+                        'MMERGE10' => Carbon::now(),
+                        'MMERGE11' => $findUser->office_number,
+                        'MMERGE12' => $findUser->explore,
+                    ]);
                     MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;
                     $response['message'] = 'Successfully Register';
