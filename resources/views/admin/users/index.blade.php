@@ -13,6 +13,8 @@
             </div>
             <div class="section-body">
                 <h2 class="section-title">Users </h2>
+                {{-- PLACEHOLDER ALERT --}}
+                <div id="alert-area"></div>
                 <div class="alert alert-warning alert-dismissible show fade">
                     <div class="alert-body">
                         <button class="close" data-dismiss="alert">

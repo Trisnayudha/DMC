@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
@@ -506,17 +507,33 @@ Your verification code (OTP) ' . $otp;
                         'verify_phone' => $user->verify_phone,
                         'status_member' => 'member'
                     ];
-                    NewsletterFacade::subscribeOrUpdate($email, [
-                        'FNAME' => $user->name,
-                        'MERGE3' => $findUser->address,
-                        'PHONE' => $phone,
-                        'MMERGE5' => $findUser->company_name,
-                        'MMERGE6' => $findUser->company_category,
-                        'MMERGE8' => $findUser->job_title,
-                        'MMERGE10' => Carbon::now(),
-                        'MMERGE11' => $findUser->office_number,
-                        'MMERGE12' => $findUser->explore ?? $findUser->cci,
-                    ]);
+                    $shouldSubscribe = $this->isTruthy($findUser->explore) || $this->isTruthy($findUser->cci);
+
+                    if ($shouldSubscribe) {
+                        NewsletterFacade::subscribeOrUpdate($findUser->email, [
+                            'FNAME'    => $user->name,
+                            'MERGE3'   => $findUser->address,      // jika field Address tipe "Address", boleh diganti object address
+                            'PHONE'    => $phone,
+                            'MMERGE5'  => $findUser->company_name,
+                            'MMERGE6'  => $findUser->company_category,
+                            'MMERGE8'  => $findUser->job_title,
+                            'MMERGE10' => Carbon::now(),           // di audience kamu ini Text → aman
+                            'MMERGE11' => $findUser->office_number,
+                            'MMERGE12' => $findUser->explore ?? $findUser->cci,
+                        ]);
+
+                        // Tambah tag penanda sumber registrasi
+                        $this->mcAddTags($findUser->email, [
+                            'Register of Membership ' . now()->format('d M Y'),
+                        ]);
+                    } else {
+                        Log::info('Skip Mailchimp subscribe: explore/cci tidak truthy', [
+                            'email' => $findUser->email,
+                            'explore' => $findUser->explore,
+                            'cci' => $findUser->cci
+                        ]);
+                    }
+
                     MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;
                     $response['message'] = 'Successfully Register';
@@ -586,17 +603,33 @@ Your verification code (OTP) ' . $otp;
                         'verify_phone' => $user->verify_phone
                     ];
 
-                    NewsletterFacade::subscribeOrUpdate($email, [
-                        'FNAME' => $user->name,
-                        'MERGE3' => $findUser->address,
-                        'PHONE' => $phone,
-                        'MMERGE5' => $findUser->company_name,
-                        'MMERGE6' => $findUser->company_category,
-                        'MMERGE8' => $findUser->job_title,
-                        'MMERGE10' => Carbon::now(),
-                        'MMERGE11' => $findUser->office_number,
-                        'MMERGE12' => $findUser->explore ?? $findUser->cci,
-                    ]);
+                    $shouldSubscribe = $this->isTruthy($findUser->explore) || $this->isTruthy($findUser->cci);
+
+                    if ($shouldSubscribe) {
+                        NewsletterFacade::subscribeOrUpdate($findUser->email, [
+                            'FNAME'    => $user->name,
+                            'MERGE3'   => $findUser->address,      // jika field Address tipe "Address", boleh diganti object address
+                            'PHONE'    => $phone,
+                            'MMERGE5'  => $findUser->company_name,
+                            'MMERGE6'  => $findUser->company_category,
+                            'MMERGE8'  => $findUser->job_title,
+                            'MMERGE10' => Carbon::now(),           // di audience kamu ini Text → aman
+                            'MMERGE11' => $findUser->office_number,
+                            'MMERGE12' => $findUser->explore ?? $findUser->cci,
+                        ]);
+
+                        // Tambah tag penanda sumber registrasi
+                        $this->mcAddTags($findUser->email, [
+                            'Register of Membership ' . now()->format('d M Y'),
+                        ]);
+                    } else {
+                        Log::info('Skip Mailchimp subscribe: explore/cci tidak truthy', [
+                            'email' => $findUser->email,
+                            'explore' => $findUser->explore,
+                            'cci' => $findUser->cci
+                        ]);
+                    }
+
                     MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;
                     $response['message'] = 'Successfully Register';
@@ -609,6 +642,37 @@ Your verification code (OTP) ' . $otp;
             }
         }
         return response()->json($response);
+    }
+
+    protected function isTruthy($val): bool
+    {
+        if (is_bool($val)) return $val;
+        if (is_numeric($val)) return (int)$val !== 0;
+        $s = strtolower(trim((string)$val));
+        return !in_array($s, ['', '0', 'false', 'no', 'off', 'null', 'undefined'], true);
+    }
+
+    /**
+     * Tambah tags ke Mailchimp (sama seperti sebelumnya).
+     */
+    protected function mcAddTags(string $email, array $tags): void
+    {
+        try {
+            $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
+            $listId = config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID');
+            if (!$apiKey || !$listId) return;
+
+            $server = config('newsletter.server') ?: (explode('-', $apiKey)[1] ?? null);
+            if (!$server) return;
+
+            $subscriberHash = md5(strtolower($email));
+            Http::withBasicAuth('anystring', $apiKey)->post(
+                "https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/tags",
+                ['tags' => collect($tags)->filter()->values()->map(fn($t) => ['name' => $t, 'status' => 'active'])->all()]
+            );
+        } catch (\Throwable $e) {
+            Log::error('Mailchimp tagging failed: ' . $e->getMessage());
+        }
     }
 
 
