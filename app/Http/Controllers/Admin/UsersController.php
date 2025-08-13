@@ -249,7 +249,7 @@ class UsersController extends Controller
 
         // ADDRESS (MERGE3) bertipe Address → kirim object, skip kalau kosong semua
         $addr = [
-            'addr1'   => (string) ($company->company_address ?? ''),
+            'addr1'   => (string) ($company->address ?? ''),
             'addr2'   => '',
             'city'    => (string) ($company->city ?? ''),
             'state'   => '',
