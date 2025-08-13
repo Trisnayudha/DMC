@@ -248,16 +248,20 @@ class UsersController extends Controller
         if (!empty($user->name)) $merge['FNAME'] = $user->name;
 
         // ADDRESS (MERGE3) bertipe Address → kirim object, skip kalau kosong semua
+        // ADDRESS (MERGE3) → kirim hanya jika ada minimal addr1, city, country
         $addr = [
-            'addr1'   => '',
+            'addr1'   => (string) ($company->address ?? ''),
             'addr2'   => '',
             'city'    => (string) ($company->city ?? ''),
             'state'   => '',
             'zip'     => (string) ($company->portal_code ?? ''),
             'country' => (string) ($company->country ?? ''),
         ];
-        $hasAddr = collect($addr)->filter(fn($v) => trim((string)$v) !== '')->isNotEmpty();
-        if ($hasAddr) $merge['MERGE3'] = $addr;
+
+        $hasAddr = !empty($addr['addr1']) && !empty($addr['city']) && !empty($addr['country']);
+        if ($hasAddr) {
+            $merge['MERGE3'] = $addr;
+        }
 
         // PHONE (MERGE4) → harus format internasional (+62...) kalau tidak, skip
         $phone = $profile->phone ?? $profile->fullphone ?? null;
