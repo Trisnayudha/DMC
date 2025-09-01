@@ -11,7 +11,7 @@ class MarketingAdsController extends Controller
 {
     public function index()
     {
-        $result = MarketingAds::orderBy('id', 'desc')->get();
+        $result = MarketingAds::inRandomOrder()->limit(1)->get();
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = $result;
@@ -20,8 +20,7 @@ class MarketingAdsController extends Controller
 
     public function advertisementSide()
     {
-
-        $result = AdvertisementModel::orderBy('id', 'desc')->get();
+        $result = AdvertisementModel::inRandomOrder()->limit(1)->get();
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = $result;
