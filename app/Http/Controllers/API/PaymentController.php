@@ -202,7 +202,7 @@ class PaymentController extends Controller
                 $save_va->save();
                 //notif wa
                 $send = new WhatsappApi();
-                $send->phone = '081332178421';  // Nomor admin
+                $send->phone = '120363422942310672';  // Nomor admin
                 // $send->phone = '083829314436';  // Nomor admin
                 $send->message = "
 Paid Registration Notification,
@@ -220,7 +220,7 @@ Total Bayar: Rp. " . number_format($createVA['expected_amount'], 0, ',', '.') . 
 
 Terima kasih.
 ";
-                $send->WhatsappMessage();
+                $send->WhatsappMessageGroup();
                 $notif = new Notification();
                 $notif->id = $id;
                 $notif->message = 'Your wait is over! Your Virtual Account is now up and running, ready for smooth transactions.';
@@ -326,7 +326,7 @@ Terima kasih.
                 $save_va->save();
                 //notif wa
                 $send = new WhatsappApi();
-                $send->phone = '081332178421';  // Nomor admin
+                $send->phone = '120363422942310672';  // Nomor admin
                 // $send->phone = '083829314436';  // Nomor admin
                 $send->message = "
 Paid Registration Notification,
@@ -606,7 +606,7 @@ Terima kasih.
                 // Kirim notifikasi WhatsApp (opsional), misal ke admin
                 try {
                     $send = new WhatsappApi();
-                    $send->phone = '081332178421';  // Nomor admin
+                    $send->phone = '120363422942310672';  // Nomor admin
                     // $send->phone = '083829314436';  // Nomor admin
                     $send->message = "
 Paid Registration Notification,
@@ -652,7 +652,7 @@ Terima kasih.
                 try {
                     $send = new WhatsappApi();
                     // $send->phone = '081332178421'; // Nomor admin
-                    $send->phone = '083829314436'; // Nomor admin
+                    $send->phone = '120363422942310672'; // Nomor admin
                     $send->message = "
     Registration Notification,
 

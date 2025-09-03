@@ -174,7 +174,7 @@ class EventsPaymentController extends Controller
                     $send->sendEmail();
 
                     $send = new WhatsappApi();
-                    $send->phone = '081332178421';
+                    $send->phone = '120363422942310672';
                     $send->message = '
 Registration Notification,
 
@@ -189,7 +189,7 @@ Category Company: ' . ($inputData['company_category'] == 'other' ? $inputData['c
 Thank you
 Best Regards Bot DMC Website
 ';
-                    $send->WhatsappMessage();
+                    $send->WhatsappMessageGroup();
                     $send = new EmailSender();
                     $send->to = $inputData['email'];
                     $send->from = env('EMAIL_SENDER');
@@ -409,7 +409,7 @@ Job Title: {$table['job_title']}
 
             $send = new WhatsappApi();
             // $send->phone = '083829314436';
-            $send->phone = '081332178421';
+            $send->phone = '120363422942310672';
             $send->message = "
 Registration Notification,
 

@@ -140,9 +140,9 @@ class PaymentController extends Controller
                 // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
             });
             $send = new WhatsappApi();
-            $send->phone = '081332178421';
+            $send->phone = '120363422942310672';
             $send->message = 'Nih bro link renewalnya : ' . $linkPay;
-            $send->WhatsappMessage();
+            $send->WhatsappMessageGroup();
             return redirect()->back()->with('success', 'Check your email for payment Invoice !!!');
         } catch (\Exception $e) {
             // Handle the exception

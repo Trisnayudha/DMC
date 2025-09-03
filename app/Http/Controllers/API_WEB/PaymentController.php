@@ -355,7 +355,7 @@ Job Title:' . $job_titles[$index] . '
             }
             //Code whatsapp send notif
             $send = new WhatsappApi();
-            $send->phone = '081332178421';
+            $send->phone = '120363422942310672';
             $send->message = '
 Registration Notification,
 
@@ -366,7 +366,7 @@ Detail Informasinya:
 Thank you
 Best Regards Bot DMC Website
 ';
-            $send->WhatsappMessage();
+            $send->WhatsappMessageGroup();
             $response['status'] = 200;
             $response['message'] = 'success';
             $response['payload'] = $data;

@@ -143,8 +143,8 @@ class HomeController extends Controller
         $send = new WhatsappApi();
         $send->message = 'Trigger UpComing Event
         Email: ' . $request->email;
-        $send->phone = '081332178421';
-        $send->WhatsappMessage();
+        $send->phone = '120363422942310672';
+        $send->WhatsappMessageGroup();
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = null;
