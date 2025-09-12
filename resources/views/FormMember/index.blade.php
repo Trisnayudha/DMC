@@ -121,7 +121,8 @@
                         <!-- {{ csrf_field() }} -->
                         <div class="row g-3">
                             <div class="col-md-2 mb-1">
-                                <label for="company_name" class="form-label">Company name *</label>
+                                <label for="company_name" class="form-label">Company name <span
+                                        style="color: red">*</span></label>
                                 <select class="custom-select d-block w-100" id="prefix" name="prefix" required>
                                     <option value="PT">PT</option>
                                     <option value="CV">CV</option>
@@ -150,7 +151,8 @@
                             </div>
 
                             <div class="col-sm-6">
-                                <label for="name" class="form-label">Full name *</label>
+                                <label for="name" class="form-label">Full name <span
+                                        style="color: red">*</span></label>
                                 <input type="text" class="form-control" name="name" placeholder=""
                                     value="{{ old('name') }}" required>
                                 <div class="invalid-feedback">
@@ -158,7 +160,8 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <label for="phone" class="form-label">Mobile number *</label>
+                                <label for="phone" class="form-label">Mobile number <span
+                                        style="color: red">*</span></label>
                                 <input type="tel" class="form-control" name="phone"id="phone" placeholder=""
                                     value="+62" required>
                                 <div class="invalid-feedback">
@@ -166,7 +169,8 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <label for="job_title" class="form-label">Job Title *</label>
+                                <label for="job_title" class="form-label">Job Title <span
+                                        style="color: red">*</span></label>
                                 <input type="text" class="form-control" name="job_title" placeholder="" required
                                     value="{{ old('job_title') }}">
                                 <div class="invalid-feedback">
@@ -174,8 +178,8 @@
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <label for="email" class="form-label">Email Address * <span
-                                        class="text-muted"></span></label>
+                                <label for="email" class="form-label">Email Address <span
+                                        style="color: red">*</span><span class="text-muted"></span></label>
                                 <input type="email" class="form-control" name="email"
                                     placeholder="Your work email" required value="{{ old('email') }}">
                                 <div class="invalid-feedback">
@@ -184,7 +188,7 @@
                             </div>
 
                             <div class="col-sm-6">
-                                <label for="company_website" class="form-label">Company Webstie *<span
+                                <label for="company_website" class="form-label">Password<span
                                         class="text-muted"></span></label>
                                 <input type="text" class="form-control" name="company_website"
                                     value="{{ old('company_website') }}" placeholder="www.yourcompany.com" required>
@@ -195,8 +199,8 @@
 
 
                             <div class="col-sm-12">
-                                <label for="address" class="form-label">Address *</label>
-                                <input type="text" class="form-control" name="address" placeholder="" required>
+                                <label for="address" class="form-label">Address</label>
+                                <input type="text" class="form-control" name="address" placeholder="">
                                 <div class="invalid-feedback" {{ old('address') }}>
                                     Please provide a Mobile Number
                                 </div>
@@ -204,31 +208,30 @@
                             <div class="col-sm-6">
                                 <label for="office_number" class="form-label">Office Number</label>
                                 <input type="tel" class="form-control" name="office_number"id="office_number"
-                                    placeholder="" value="+62" required>
+                                    placeholder="" value="+62">
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
                             </div>
                             <div class="col-sm-3">
                                 <label for="portal_code" class="form-label">Postal Code</label>
-                                <input type="number" class="form-control" name="portal_code" placeholder=""
-                                    required>
+                                <input type="number" class="form-control" name="portal_code" placeholder="">
                                 <div class="invalid-feedback" {{ old('portal_code') }}>
                                     Please provide a Postal Code
                                 </div>
                             </div>
                             <div class="col-sm-3">
                                 <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" name="city" placeholder="" required>
+                                <input type="text" class="form-control" name="city" placeholder="">
                                 <div class="invalid-feedback" {{ old('city') }}>
                                     Please provide a City
                                 </div>
                             </div>
 
                             <div class="col-sm-6 mb-3">
-                                <label for="country" class="form-label">Country * </label>
+                                <label for="country" class="form-label">Country</label>
                                 <select class="form-control js-example-basic-single" name="country" id="country"
-                                    placeholder="" required>
+                                    placeholder="">
                                     <option value="Indonesia" selected>Indonesia</option>
                                 </select>
                                 <div class="invalid-feedback">
@@ -238,7 +241,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="company_category" class="form-label">Company Category *</label>
                                 <select class="form-control js-example-basic-single d-block w-100"
-                                    name="company_category" id="company_category" required>
+                                    name="company_category" id="company_category">
                                     <option value="">--Select--</option>
                                     <option value="Coal Mining">Coal Mining</option>
                                     <option value="Minerals Producer">Minerals Producer</option>

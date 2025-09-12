@@ -59,10 +59,14 @@ class FormMemberController extends Controller
         $explore = $request->explore;
         $cci = $request->cci;
         $test = Newsletter::subscribeOrUpdate($email, [
-            'FNAME' => $name, 'MERGE3' => $address,
-            'PHONE' => $phone, 'MMERGE5' => $company_name,
-            'MMERGE6' => $company_category, 'MMERGE8' => $job_title,
-            'MMERGE10' => Carbon::now(), 'MMERGE11' => $office_number,
+            'FNAME' => $name,
+            'MERGE3' => $address,
+            'PHONE' => $phone,
+            'MMERGE5' => $company_name,
+            'MMERGE6' => $company_category,
+            'MMERGE8' => $job_title,
+            'MMERGE10' => Carbon::now(),
+            'MMERGE11' => $office_number,
             'MMERGE12' => $explore
         ]);
         $findUsers = MemberModel::where('phone', $phone)->orWhere('email', $email)->first();
@@ -91,10 +95,10 @@ class FormMemberController extends Controller
                 'email' => 'required|unique:xtwp_users_dmc',
                 'name' => 'required',
                 'job_title' => 'required',
-                'company_website' => 'required',
-                'address' => 'required',
-                'country' => 'required',
-                'company_category' => 'required',
+                // 'company_website' => 'required',
+                // 'address' => 'required',
+                // 'country' => 'required',
+                // 'company_category' => 'required',
 
             ]);
             $save = new MemberModel();
