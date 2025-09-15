@@ -21,8 +21,8 @@ class HomeController extends Controller
     {
         // 2 signature terpisah (urutannya sesuai array)
         $signatures = [
-            '/image/libur6.png',
             '/image/libur5.png',
+            '/image/libur6.png',
         ];
 
         $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
