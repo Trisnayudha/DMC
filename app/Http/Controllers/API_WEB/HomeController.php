@@ -19,8 +19,12 @@ class HomeController extends Controller
 
     public function getCarousel()
     {
-        $signature = '/image/libur6.png';
-        // $signature = null;
+        // 2 signature terpisah (urutannya sesuai array)
+        $signatures = [
+            '/image/libur6.png',
+            '/image/libur5.png',
+        ];
+
         $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
             ->where('status', 'publish')
             ->orderBy('id', 'desc')
@@ -28,22 +32,27 @@ class HomeController extends Controller
 
         $result = [];
 
-        // Check if signature is not null before adding to result
-        if ($signature !== null) {
-            $result[] = [
-                'heading1' => null,
-                'heading2' => null,
-                'date' => null,
-                'listImage' => [$signature], // Include signature as listImage
-                'slug' => null
-            ];
+        // Tambahkan setiap signature sebagai slide sendiri
+        foreach ($signatures as $sig) {
+            if (!empty($sig)) {
+                $result[] = [
+                    'heading1'   => null,
+                    'heading2'   => null,
+                    'date'       => null,
+                    'listImage'  => [$sig], // tetap array karena front-end expect array
+                    'slug'       => null,
+                    'is_signature' => true, // optional flag kalau mau beda styling di FE
+                ];
+            }
         }
 
+        // Lanjutkan dengan event highlight
         foreach ($events as $event) {
-            // Cek apakah ada event highlight untuk event saat ini
-            $eventHighlight = EventsHighlight::where('events_id', $event->id)->orderby('id', 'desc')->limit(5)->get();
+            $eventHighlight = EventsHighlight::where('events_id', $event->id)
+                ->orderBy('id', 'desc')
+                ->limit(5)
+                ->get();
 
-            // Jika tidak ada event highlight, skip event ini
             if ($eventHighlight->isEmpty()) {
                 continue;
             }
@@ -51,24 +60,27 @@ class HomeController extends Controller
             $nameWords = explode(' ', $event->name);
             $heading1 = implode(' ', array_slice($nameWords, 0, 4));
             $heading2 = count($nameWords) > 4 ? implode(' ', array_slice($nameWords, 4)) : '';
+
             $listImage = $eventHighlight->pluck('image')->map(function ($image) {
-                return $image; // Assuming 'image' is the column name storing file paths
+                return $image;
             })->toArray();
+
             $result[] = [
-                'heading1' => $heading1,
-                'heading2' => $heading2,
-                'date' => Carbon::parse($event->start_date)->format('d F Y'),
+                'heading1'  => $heading1,
+                'heading2'  => $heading2,
+                'date'      => \Carbon\Carbon::parse($event->start_date)->format('d F Y'),
                 'listImage' => $listImage,
-                'slug' => $event->slug
+                'slug'      => $event->slug
             ];
         }
 
-        $response['status'] = 200;
-        $response['message'] = 'Success';
-        $response['payload'] = $result;
-
-        return response()->json($response);
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Success',
+            'payload' => $result,
+        ]);
     }
+
 
 
 
