@@ -53,8 +53,8 @@ class NewsController extends Controller
             'reference_image' => 'nullable|string',
             'date_news'      => 'required|date',
             'status'         => 'required|in:draft,publish',
-            'category_id'    => 'required|array',
-            'category_id.*'  => 'exists:news_categories,id',
+            // 'category_id'    => 'required|array',
+            // 'category_id.*'  => 'exists:news_categories,id',
             'image'          => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:5120', // 5MB
         ]);
 
@@ -90,14 +90,14 @@ class NewsController extends Controller
 
         // 5) Simpan kategori (pivot)
         // Simpan kategori (jika multiple categories)
-        if (!empty($request->category_id)) {
-            foreach ($request->category_id as $catId) {
-                NewsCategoryList::create([
-                    'news_id' => $save->id,
-                    'news_category_id' => $catId
-                ]);
-            }
-        }
+        // if (!empty($request->category_id)) {
+        //     foreach ($request->category_id as $catId) {
+        //         NewsCategoryList::create([
+        //             'news_id' => $save->id,
+        //             'news_category_id' => $catId
+        //         ]);
+        //     }
+        // }
 
 
         return redirect()->route('news')->with('success', 'Successfully create news');
