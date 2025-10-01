@@ -1,6 +1,9 @@
 @extends('layouts.inspire.master')
 @section('content-title', 'Edit News')
 @section('content')
+    {{-- CSRF token untuk Ajax --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <section class="section">
         <div class="section-header">
             <div class="section-header-back">
@@ -57,7 +60,7 @@
                                 @endif
                             </div>
 
-                            {{-- Deskripsi 2 (desc2) - Tambahan --}}
+                            {{-- Deskripsi 2 (desc2) --}}
                             <div class="form-group{{ $errors->has('desc2') ? ' has-error' : '' }}">
                                 {!! Form::label('Deskripsi 2') !!}
                                 {!! Form::textarea('desc2', null, [
@@ -127,13 +130,11 @@
                                     </span>
                                 @endif
 
-                                {{-- Preview jika ingin menampilkan gambar saat ini --}}
                                 @if (!empty($news->image))
                                     <img src="{{ asset($news->image) }}" alt="Current Image"
                                         style="margin-top:15px;max-height:100px;">
                                 @endif
 
-                                {{-- Tempat preview (jika ingin menampilkan sebelum upload) --}}
                                 <img id="holder" style="margin-top:15px;max-height:100px;">
                             </div>
                         </div>
@@ -142,29 +143,6 @@
                 </div> {{-- col-lg-8 --}}
 
                 <div class="col-lg-4">
-                    {{-- Card Categories (jika dibutuhkan) --}}
-                    {{--
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Categories</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group{{ $errors->has('category_id') ? ' has-error' : '' }}">
-                                {!! Form::label('Kategori *') !!}
-                                {!! Form::select('category_id[]', $categories->pluck('name_category', 'id'), $selectedCategories, [
-                                    'multiple' => 'multiple',
-                                    'class' => 'form-control select2',
-                                ]) !!}
-                                @if ($errors->has('category_id'))
-                                    <span class="help-block">
-                                        <strong style="color:red">{{ $errors->first('category_id') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    --}}
-
                     {{-- Card Publish --}}
                     <div class="card">
                         <div class="card-header">
@@ -222,36 +200,88 @@
     {{-- Summernote & bsCustomFileInput Scripts --}}
     <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
+
     <script>
         $(function() {
-            // Inisialisasi Summernote untuk field desc (Deskripsi 1)
-            $('#my-editor').summernote({
-                dialogsInBody: true,
-                minHeight: 150,
-                toolbar: [
-                    ['style', ['bold', 'italic', 'underline', 'clear', 'link', 'picture', 'video',
-                        'undo'
-                    ]],
-                    ['font', ['strikethrough']],
-                    ['para', ['paragraph']]
-                ]
-            });
-
-            // Inisialisasi Summernote untuk field desc2 (Deskripsi 2)
-            $('#my-editor2').summernote({
-                dialogsInBody: true,
-                minHeight: 150,
-                toolbar: [
-                    ['style', ['bold', 'italic', 'underline', 'clear', 'link', 'picture', 'video',
-                        'undo'
-                    ]],
-                    ['font', ['strikethrough']],
-                    ['para', ['paragraph']]
-                ]
-            });
-
-            // Inisialisasi bsCustomFileInput
             bsCustomFileInput.init();
+
+            // Reusable init untuk dua editor
+            function initEditor(selector) {
+                $(selector).summernote({
+                    dialogsInBody: true,
+                    minHeight: 180,
+                    toolbar: [
+                        ['style', ['bold', 'italic', 'underline', 'clear']],
+                        ['font', ['strikethrough']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['view', ['undo', 'redo', 'codeview']]
+                    ],
+                    callbacks: {
+                        // Blokir paste image base64 dari clipboard (biar tidak bengkak)
+                        onPaste: function(e) {
+                            const cb = (e.originalEvent || e).clipboardData;
+                            if (cb && [...cb.items].some(it => it.type && it.type.indexOf('image') ===
+                                    0)) {
+                                e.preventDefault();
+                                alert(
+                                    'Jangan paste gambar langsung. Gunakan tombol "Insert Picture" untuk upload.');
+                            }
+                        },
+                        // Ketika user pilih gambar lewat dialog Summernote
+                        onImageUpload: function(files) {
+                            for (let i = 0; i < files.length; i++) {
+                                uploadImage(files[i], selector);
+                            }
+                        },
+                        // (Opsional) hapus file di server saat img dihapus dari editor
+                        onMediaDelete: function($target) {
+                            const src = $target.attr('src') || '';
+                            if (!src) return;
+                            $.ajax({
+                                url: '{{ route('editor.delete') }}', // opsional, buat route ini jika mau
+                                method: 'POST',
+                                data: {
+                                    src: src,
+                                    _token: $('meta[name="csrf-token"]').attr('content')
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Init untuk desc & desc2
+            initEditor('#my-editor');
+            initEditor('#my-editor2');
+
+            // Fungsi upload ke server lalu sisipkan URL ke editor
+            function uploadImage(file, editorSelector) {
+                const data = new FormData();
+                data.append('file', file);
+
+                $.ajax({
+                    url: '{{ route('editor.upload') }}', // pastikan route ini ada
+                    type: 'POST',
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(res) {
+                        if (res && res.url) {
+                            $(editorSelector).summernote('insertImage', res.url);
+                        } else {
+                            alert('Upload berhasil tapi respons tidak berisi URL.');
+                        }
+                    },
+                    error: function(xhr) {
+                        const msg = xhr.responseJSON?.message || xhr.statusText || 'Unknown error';
+                        alert('Upload gagal: ' + msg);
+                    }
+                });
+            }
         });
     </script>
 @endsection

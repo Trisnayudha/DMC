@@ -43,6 +43,7 @@ use App\Http\Controllers\Frontend\ScholarshipController;
 use App\Http\Controllers\Admin\SponsorPhotosVideosActivityController;
 use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\Admin\SponsorExportController;
+use App\Http\Controllers\EditorUploadController;
 use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -105,9 +106,11 @@ Route::get('/scan/print', [PrintController::class, 'index']);
 Route::post('/scan/request', [PrintController::class, 'request']);
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
-Route::get('/test', [TestController::class, 'test']);
+Route::get('/test', [TestController::class, 'miningIndo']);
+Route::get('/mining-indo', [TestController::class, 'miningIndoData']);
+Route::post('/exhibitors/import', [TestController::class, 'importExhibitor']);
+Route::post('/exhibitors/import-batch', [TestController::class, 'importExhibitorBatch']); // ⬅️ baru
 Route::get('/test/data', [TestController::class, 'getData']);
-Route::get('dtiExport', [TestController::class, 'dtiExport'])->name('dti.export');
 Route::post('/test/upload', [TestController::class, 'upload']);
 Route::get('/privacy', function () {
     return view('privacy-policy');
@@ -317,6 +320,9 @@ Route::prefix('admin')->group(function () {
     Route::get('news/{id}/edit', [NewsController::class, 'edit'])->name('news.edit');
     Route::patch('/news/update/{id}', [NewsController::class, 'update'])->name('news.update');
     Route::delete('/news/destroy/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
+
+    Route::post('/editor/upload', [EditorUploadController::class, 'upload'])->name('editor.upload');
+    Route::post('/editor/delete', [EditorUploadController::class, 'delete'])->name('editor.delete'); // opsional
 
     //news Category
     Route::get('news/category', [NewsCategoryController::class, 'index'])->name('news.category');

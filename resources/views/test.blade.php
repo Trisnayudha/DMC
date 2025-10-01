@@ -3,245 +3,326 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Pengguna (Server-Side, Bootstrap, Export Excel)</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
-
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.datatables.net/buttons/3.0.2/css/buttons.bootstrap5.min.css">
-
-    <style>
-        body {
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            margin-top: 30px;
-            margin-bottom: 30px;
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        #totalDataCount {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: #343a40;
-        }
-
-        #loading,
-        #error {
-            text-align: center;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        #loading {
-            color: #0d6efd;
-            /* Bootstrap primary color */
-        }
-
-        #error {
-            color: #dc3545;
-            /* Bootstrap danger color */
-        }
-
-        .dt-buttons .btn {
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-    </style>
+    <title>Exhibitors – Mining Indonesia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <div class="container">
-        <h1 class="mb-4 text-center">Daftar Detail Pengguna</h1>
+    <div class="container py-4">
 
-        <div id="totalDataCount"></div>
-        <div id="loading" class="alert alert-info" role="alert">
-            Memuat data... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        </div>
-        <div id="error" class="alert alert-danger" role="alert" style="display: none;">
-            Gagal memuat data. Terjadi kesalahan saat memuat data dari server.
-            @if (session('error'))
-                <br>{{ session('error') }}
-            @endif
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <h4 class="mb-0">Exhibitors</h4>
+            <span id="totalCount" class="text-muted">(loading...)</span>
+            <div class="ms-auto d-flex flex-wrap gap-2">
+                <input id="q" type="text" class="form-control" placeholder="Search id/name/pavilion..."
+                    style="min-width:260px">
+                <select id="perPage" class="form-select" style="width:120px">
+                    <option value="10">10 / page</option>
+                    <option value="20" selected>20 / page</option>
+                    <option value="50">50 / page</option>
+                    <option value="100">100 / page</option>
+                </select>
+                <div class="btn-group">
+                    <button id="btnImportPage" class="btn btn-primary">Import Page</button>
+                    <button id="btnImportAll" class="btn btn-outline-primary">Import All (Filtered)</button>
+                </div>
+            </div>
         </div>
 
-        <div class="table-responsive">
-            <table id="userDataTable" class="table table-striped table-bordered" style="width:100%">
-                <thead>
+        <div class="table-responsive position-relative">
+            <div id="loader" class="position-absolute top-0 start-0 w-100 h-100 d-none"
+                style="backdrop-filter: blur(1px);">
+                <div class="d-flex justify-content-center align-items-center h-100">
+                    <div class="spinner-border" role="status" aria-label="Loading"></div>
+                </div>
+            </div>
+
+            <table class="table table-hover align-middle">
+                <thead class="table-light position-sticky top-0">
                     <tr>
+                        <th style="width:100px">ID</th>
+                        <th>Name</th>
+                        <th style="width:260px">Pavilion</th>
+                        <th style="width:220px">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbody">
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">Loading...</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
+
+        <nav class="mt-3">
+            <ul id="pagination" class="pagination"></ul>
+        </nav>
+
+        <!-- Toast -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+            <div id="toast" class="toast align-items-center" role="alert" data-bs-delay="2000">
+                <div class="d-flex">
+                    <div id="toast-body" class="toast-body">Ready.</div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eEGFN7ZVAxhN+d/Lq" crossorigin="anonymous">
-    </script>
-
-    <script type="text/javascript" src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.bootstrap5.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.print.min.js"></script>
-
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        const ajaxDataUrl = "{{ url('test/data') }}";
-        const exportExcelUrl = "{{ route('dti.export') }}"; // URL untuk ekspor Excel
+        (() => {
+            const API_LIST = '/mining-indo';
+            const API_IMPORT = '/exhibitors/import';
+            const API_IMPORTB = '/exhibitors/import-batch';
 
-        $(document).ready(function() {
-            const loadingDiv = $('#loading');
-            const errorDiv = $('#error');
-            const totalDataCountDiv = $('#totalDataCount');
+            const token = document.querySelector('meta[name="csrf-token"]')?.content;
+            if (token) axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
 
-            const definedColumns = [{
-                    data: null,
-                    title: 'No.',
-                    render: function(data, type, row, meta) {
-                        return meta.row + meta.settings._iDisplayStart + 1;
-                    },
-                    orderable: false,
-                    searchable: false,
-                    width: '5%',
-                    className: 'text-center'
-                },
-                {
-                    data: 'Username',
-                    title: 'Username'
-                },
-                {
-                    data: 'Nama',
-                    title: 'Nama'
-                },
-                {
-                    data: 'Email',
-                    title: 'Email'
-                },
-                {
-                    data: 'Telepon',
-                    title: 'Telepon'
-                },
-                {
-                    data: 'LastName',
-                    title: 'Last Name'
-                },
-                {
-                    data: 'RegAs',
-                    title: 'Registered As'
-                },
-                {
-                    data: 'JobTitle',
-                    title: 'Job Title'
-                },
-                {
-                    data: 'JobLevel',
-                    title: 'Job Level'
-                },
-                {
-                    data: 'JobFunction',
-                    title: 'Job Function'
-                },
-                {
-                    data: 'Company',
-                    title: 'Company'
-                },
-                {
-                    data: 'Country',
-                    title: 'Country'
-                },
-                {
-                    data: 'Photo',
-                    title: 'Photo',
-                    render: function(data, type, row) {
-                        return data ? '<a href="' + data + '" target="_blank">Lihat Foto</a>' : '-';
-                    },
-                    orderable: false, // Tidak bisa diurutkan berdasarkan link
-                    searchable: false // Tidak bisa dicari berdasarkan link
-                },
-                {
-                    data: 'Linkedin',
-                    title: 'Linkedin',
-                    render: function(data, type, row) {
-                        return data ? '<a href="' + data + '" target="_blank">Profil LinkedIn</a>' : '-';
-                    },
-                    orderable: false,
-                    searchable: false
+            const els = {
+                tbody: document.getElementById('tbody'),
+                total: document.getElementById('totalCount'),
+                pagination: document.getElementById('pagination'),
+                perPage: document.getElementById('perPage'),
+                q: document.getElementById('q'),
+                loader: document.getElementById('loader'),
+                btnImportPage: document.getElementById('btnImportPage'),
+                btnImportAll: document.getElementById('btnImportAll'),
+                toast: new bootstrap.Toast(document.getElementById('toast')),
+                toastBody: document.getElementById('toast-body'),
+            };
+
+            const state = {
+                page: 1,
+                per_page: 20,
+                q: ''
+            };
+            let lastRows = []; // cache rows of current page
+
+            const debounce = (fn, wait = 350) => {
+                let t;
+                return (...a) => {
+                    clearTimeout(t);
+                    t = setTimeout(() => fn(...a), wait);
                 }
-            ];
+            };
 
-            const tableHead = $('#userDataTable thead tr');
-            definedColumns.forEach(col => {
-                const th = $('<th>').text(col.title);
-                tableHead.append(th);
-            });
+            function setLoading(on) {
+                els.loader.classList.toggle('d-none', !on);
+            }
 
-            $('#userDataTable').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: ajaxDataUrl,
-                    type: 'GET',
-                    error: function(xhr, error, thrown) {
-                        loadingDiv.hide();
-                        errorDiv.show();
-                        console.error("AJAX error: ", thrown, xhr.responseText);
-                    }
-                },
-                columns: definedColumns,
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/id.json'
-                },
-                // `dom` sekarang perlu menampung tombol kustom 'B'
-                // Pastikan 'B' ada di posisi yang Anda inginkan (misalnya 'lBfrtip')
-                dom: 'lBfrtip',
-                buttons: [{
-                        // Ini adalah tombol kustom yang akan memicu ekspor dari backend
-                        text: 'Export Excel (dtiExport)',
-                        className: 'btn btn-success btn-sm',
-                        action: function(e, dt, node, config) {
-                            // Cukup redirect browser ke URL endpoint ekspor Laravel Anda
-                            window.location = exportExcelUrl;
+            function notify(msg) {
+                els.toastBody.textContent = msg;
+                els.toast.show();
+            }
+
+            function actionButtons(row) {
+                const externalLink = `https://vexpo.iee-series.com/iee/pc/exhibitor/${row.id}`;
+                return `
+      <div class="btn-group">
+        <a class="btn btn-sm btn-outline-secondary" href="${externalLink}" target="_blank" rel="noopener">Open</a>
+        <button class="btn btn-sm btn-primary" onclick="window.__importRow(${row.id})">Import</button>
+      </div>
+    `;
+            }
+
+            function renderRows(rows) {
+                lastRows = rows.slice();
+                if (!rows.length) {
+                    els.tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-4">No data</td></tr>`;
+                    return;
+                }
+                els.tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td><code>${r.id}</code></td>
+        <td>${r.name ?? '-'}</td>
+        <td>${r.pavilion ?? '-'}</td>
+        <td>${actionButtons(r)}</td>
+      </tr>
+    `).join('');
+            }
+
+            function renderPagination(page, total_page) {
+                const ul = els.pagination;
+                ul.innerHTML = '';
+                if (total_page <= 1) return;
+
+                const add = (label, p, disabled = false, active = false) => {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${disabled?'disabled':''} ${active?'active':''}`;
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.href = '#';
+                    a.textContent = label;
+                    a.onclick = e => {
+                        e.preventDefault();
+                        if (!disabled && state.page !== p) {
+                            state.page = p;
+                            fetchList();
                         }
-                    },
-                    // Anda bisa tetap punya tombol DataTables bawaan lainnya jika mau, contoh:
-                    // {
-                    //     extend: 'print',
-                    //     text: 'Cetak Tampilan',
-                    //     className: 'btn btn-secondary btn-sm',
-                    //     exportOptions: {
-                    //         columns: ':visible:not(:eq(0))' // Abaikan kolom 'No.'
-                    //     }
-                    // }
-                ],
-                initComplete: function(settings, json) {
-                    loadingDiv.hide();
-                    totalDataCountDiv.text(`Total Data Pengguna: ${json.recordsTotal || 0}`);
-                },
-                drawCallback: function(settings) {
-                    const api = this.api();
-                    totalDataCountDiv.text(`Total Data Pengguna: ${api.ajax.json().recordsTotal || 0}`);
+                    };
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                };
+
+                add('«', Math.max(1, page - 1), page === 1);
+                const w = 2,
+                    start = Math.max(1, page - w),
+                    end = Math.min(total_page, page + w);
+                for (let i = start; i <= end; i++) add(String(i), i, false, i === page);
+                add('»', Math.min(total_page, page + 1), page === total_page);
+            }
+
+            async function fetchList() {
+                setLoading(true);
+                try {
+                    const {
+                        data
+                    } = await axios.get(API_LIST, {
+                        params: state
+                    });
+                    renderRows(data.rows || []);
+                    els.total.textContent = `Total: ${data.total} | Page ${data.page}/${data.total_page || 1}`;
+                    renderPagination(data.page, data.total_page || 1);
+                } catch (e) {
+                    console.error(e);
+                    els.tbody.innerHTML =
+                        `<tr><td colspan="4" class="text-danger text-center">Failed to load</td></tr>`;
+                } finally {
+                    setLoading(false);
                 }
+            }
+
+            // Single import exposed
+            window.__importRow = async function(id) {
+                try {
+                    setLoading(true);
+                    const resp = await axios.post(API_IMPORT, {
+                        id
+                    });
+                    if (resp.data?.ok) notify(`Imported ID ${id} ✅`);
+                    else notify(`Import failed for ${id}`);
+                } catch (e) {
+                    console.error(e);
+                    notify(`Error importing ${id}`);
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            // Import Page (all ids on current page)
+            async function importPage() {
+                const ids = lastRows.map(r => r.id).filter(Boolean);
+                if (!ids.length) return notify('No rows to import on this page.');
+                await importBatch(ids, 'page');
+            }
+
+            // Import All (Filtered) — fetch all pages to collect IDs based on current filter (q)
+            async function importAllFiltered() {
+                setLoading(true);
+                try {
+                    const ids = [];
+                    // step 1: get first page to know totals
+                    const first = await axios.get(API_LIST, {
+                        params: {
+                            page: 1,
+                            per_page: state.per_page,
+                            q: state.q
+                        }
+                    });
+                    const total = first.data.total || 0;
+                    const per = Math.min(200, Math.max(1, state.per_page)); // cap per request
+                    const totalPages = Math.max(1, Math.ceil(total / per));
+
+                    // collect ids page by page to avoid giant response
+                    for (let p = 1; p <= totalPages; p++) {
+                        const {
+                            data
+                        } = await axios.get(API_LIST, {
+                            params: {
+                                page: p,
+                                per_page: per,
+                                q: state.q
+                            }
+                        });
+                        (data.rows || []).forEach(r => {
+                            if (r.id) ids.push(r.id);
+                        });
+                    }
+
+                    if (!ids.length) {
+                        notify('No rows match current filter.');
+                        return;
+                    }
+
+                    await importBatch(ids, 'all');
+                } catch (e) {
+                    console.error(e);
+                    notify('Failed collecting all filtered IDs.');
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            // Batch importer with chunking
+            async function importBatch(allIds, label) {
+                // optional: chunk to avoid too large payloads
+                const chunkSize = 50;
+                const chunks = [];
+                for (let i = 0; i < allIds.length; i += chunkSize) chunks.push(allIds.slice(i, i + chunkSize));
+
+                let imported = 0,
+                    failed = 0;
+
+                setLoading(true);
+                try {
+                    for (let i = 0; i < chunks.length; i++) {
+                        const {
+                            data
+                        } = await axios.post(API_IMPORTB, {
+                            ids: chunks[i]
+                        });
+                        imported += data?.imported || 0;
+                        failed += data?.failed || 0;
+                        notify(
+                            `Importing ${label}: batch ${i+1}/${chunks.length} ✓ imported:${imported} ✗ failed:${failed}`
+                            );
+                    }
+                    notify(`Done importing ${label}. Total ✓ ${imported}, ✗ ${failed}.`);
+                } catch (e) {
+                    console.error(e);
+                    notify('Batch import error.');
+                } finally {
+                    setLoading(false);
+                }
+            }
+
+            // events
+            const debounceInput = (fn, ms = 350) => {
+                let t;
+                return (...a) => {
+                    clearTimeout(t);
+                    t = setTimeout(() => fn(...a), ms);
+                }
+            };
+            els.perPage.addEventListener('change', () => {
+                state.per_page = parseInt(els.perPage.value, 10) || 20;
+                state.page = 1;
+                fetchList();
             });
-        });
+            els.q.addEventListener('input', debounceInput(() => {
+                state.q = els.q.value.trim();
+                state.page = 1;
+                fetchList();
+            }, 300));
+            els.btnImportPage.addEventListener('click', importPage);
+            els.btnImportAll.addEventListener('click', importAllFiltered);
+
+            fetchList();
+        })();
     </script>
 </body>
 

@@ -31,6 +31,161 @@ use Maatwebsite\Excel\Facades\Excel;
 class TestController extends Controller
 {
 
+    public function miningIndo()
+    {
+        return view('test');
+    }
+
+    // List id, name, pavilion dari file public/json/mining-indo.json
+    public function miningIndoData(Request $request)
+    {
+        $path = public_path('json/electric.json');
+        if (!file_exists($path)) {
+            return response()->json(['message' => 'JSON file not found'], 404);
+        }
+        $json = json_decode(file_get_contents($path), true);
+        $rows = $json['rows'] ?? [];
+
+        // ambil hanya 3 kolom
+        $rows = array_map(fn($r) => [
+            'id'       => $r['id'] ?? null,
+            'name'     => $r['name'] ?? '',
+            'pavilion' => $r['pavilion'] ?? '',
+        ], $rows);
+
+        // optional search & pagination ringan
+        $q   = trim((string) $request->get('q', ''));
+        $per = max(1, min(100, (int)$request->get('per_page', 20)));
+        $pg  = max(1, (int)$request->get('page', 1));
+
+        if ($q !== '') {
+            $qq = mb_strtolower($q);
+            $rows = array_values(array_filter(
+                $rows,
+                fn($r) =>
+                mb_stripos(($r['name'] ?? '') . ' ' . ($r['pavilion'] ?? '') . ' ' . ($r['id'] ?? ''), $qq) !== false
+            ));
+        }
+
+        $total = count($rows);
+        $slice = array_slice($rows, ($pg - 1) * $per, $per);
+
+        return response()->json([
+            'page' => $pg,
+            'per_page' => $per,
+            'total' => $total,
+            'total_page' => (int)ceil($total / $per),
+            'rows' => $slice
+        ]);
+    }
+
+    // Import detail 1 exhibitor by id dari API eksternal lalu simpan ke DB
+    public function importExhibitor(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|min:1',
+        ]);
+
+        $id = (int) $request->input('id');
+        $url = "https://vexpo.iee-series.com/iee/pc/exhibitor/{$id}";
+
+        // Ambil data dari API eksternal
+        $resp = Http::timeout(20)->get($url);
+        if (!$resp->ok()) {
+            return response()->json(['ok' => false, 'message' => 'Fetch failed', 'status' => $resp->status()], 502);
+        }
+
+        $payload = $resp->json();
+        $data = $payload['data'] ?? null;
+        if (!$data || !isset($data['id'])) {
+            return response()->json(['ok' => false, 'message' => 'Invalid API response'], 422);
+        }
+
+        // Map field penting
+        $mapped = [
+            'id'           => (int)($data['id'] ?? $id),
+            'name'         => $data['name']         ?? null,
+            'country'      => $data['country']      ?? null,
+            'desc'         => $data['desc']         ?? null,
+            'category1'    => $data['category1']    ?? null,
+            'category2'    => $data['category2']    ?? null,
+            'website'      => $data['website']      ?? null,
+            'contact'      => $data['contact']      ?? null,
+            'contact_email' => $data['contactEmail'] ?? null,
+            'venue_hall'   => $data['venueHall']    ?? null,
+            'pavilion'     => $data['pavilion']     ?? null,
+            'raw_json'     => $data, // simpan full untuk audit (optional)
+        ];
+
+        // Upsert
+        Exhibitor::updateOrCreate(['id' => $mapped['id']], $mapped);
+
+        return response()->json(['ok' => true, 'message' => 'Imported', 'id' => $mapped['id']]);
+    }
+
+    public function importExhibitorBatch(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer|min:1'
+        ]);
+
+        $ids = array_values(array_unique($request->input('ids', [])));
+
+        $ok = 0;
+        $fail = 0;
+        $results = [];
+
+        foreach ($ids as $id) {
+            try {
+                $resp = \Illuminate\Support\Facades\Http::timeout(20)->get("https://vexpo.iee-series.com/iee/pc/exhibitor/{$id}");
+                if (!$resp->ok()) {
+                    $fail++;
+                    $results[] = ['id' => $id, 'ok' => false, 'status' => $resp->status()];
+                    continue;
+                }
+                $payload = $resp->json();
+                $data = $payload['data'] ?? null;
+                if (!$data || !isset($data['id'])) {
+                    $fail++;
+                    $results[] = ['id' => $id, 'ok' => false, 'status' => 'invalid'];
+                    continue;
+                }
+
+                $mapped = [
+                    'id'            => (int)($data['id'] ?? $id),
+                    'name'          => $data['name'] ?? null,
+                    'country'       => $data['country'] ?? null,
+                    'desc'          => $data['desc'] ?? null,
+                    'category1'     => $data['category1'] ?? null,
+                    'category2'     => $data['category2'] ?? null,
+                    'website'       => $data['website'] ?? null,
+                    'contact'       => $data['contact'] ?? null,
+                    'contact_email' => $data['contactEmail'] ?? null,
+                    'venue_hall'    => $data['venueHall'] ?? null,
+                    'pavilion'      => $data['pavilion'] ?? null,
+                    'raw_json'      => $data,
+                ];
+
+                \App\Models\Exhibitor::updateOrCreate(['id' => $mapped['id']], $mapped);
+                $ok++;
+                $results[] = ['id' => $id, 'ok' => true];
+            } catch (\Throwable $e) {
+                $fail++;
+                $results[] = ['id' => $id, 'ok' => false, 'status' => 'exception'];
+            }
+        }
+
+        return response()->json([
+            'ok' => true,
+            'imported' => $ok,
+            'failed' => $fail,
+            'total' => count($ids),
+            'results' => $results,
+        ]);
+    }
+
+
     public function testEmail()
     {
         // $send = Mail::send('email.test', [], function ($message) {

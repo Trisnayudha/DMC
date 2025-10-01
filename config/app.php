@@ -167,6 +167,7 @@ return [
          */
         RealRashid\SweetAlert\SweetAlertServiceProvider::class,
         Ladumor\OneSignal\OneSignalServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -234,6 +235,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
         'OneSignal' => \Ladumor\OneSignal\OneSignal::class,
+        'Image' => Intervention\Image\Facades\Image::class,
     ],
 
 ];

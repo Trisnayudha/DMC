@@ -9,19 +9,27 @@ class Exhibitor extends Model
 {
     use HasFactory;
 
+    protected $table = 'miningindo';
+    protected $primaryKey = 'id';
+    public $incrementing = false;
+    protected $keyType = 'int';
+
     protected $fillable = [
+        'id',
         'name',
         'country',
         'desc',
+        'category1',
+        'category2',
         'website',
         'contact',
         'contact_email',
-        'display_email',
         'venue_hall',
-        'event_name',
-        'exhibitor_logo',
-        'booth_number',
-        'category1',
-        'category2'
+        'pavilion',
+        'raw_json'
+    ];
+
+    protected $casts = [
+        'raw_json' => 'array',
     ];
 }

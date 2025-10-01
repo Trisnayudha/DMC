@@ -1,0 +1,544 @@
+[
+    {
+        "data": {
+            "view": {
+                "id": "RXZlbnRWaWV3XzEwNTc4Mzk=",
+                "recommendations": {
+                    "metadata": "{\"isColdStart\":false,\"version\":\"2.6.5\"}",
+                    "recommendedEntities": [
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE1ODI5NDI=",
+                                "firstName": "Margaux",
+                                "lastName": "Murali",
+                                "jobTitle": "Director, Office of Asian Affairs",
+                                "organization": "US Department of Energy",
+                                "photoUrl": "https://static.swapcard.com/public/images/20ca7bd9fc574fb880ea827b2f71a299.jpeg",
+                                "userInfo": {
+                                    "id": "VXNlcl8yNTY4NTMyOQ==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "BIOGRAPHY",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                },
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDA0MTMxOTE=",
+                                "firstName": "Martin",
+                                "lastName": "Adriansyah",
+                                "jobTitle": "Head of Nickel Division",
+                                "organization": "PT CARSURIN Tbk",
+                                "photoUrl": "https://static.swapcard.com/public/images/4fcacfd8c3f540fa89563aa040245d5f.jpg",
+                                "userInfo": {
+                                    "id": "VXNlcl8yMDg1OTY2Mw==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDA0ODY1MDE=",
+                                "firstName": "Erina",
+                                "lastName": "Subiantoro",
+                                "jobTitle": "Marketing Executive",
+                                "organization": "Djakarta Mining Club",
+                                "photoUrl": "https://static.swapcard.com/public/images/ca5047705b064ed6aac66b6b0f56929d.jpeg",
+                                "userInfo": {
+                                    "id": "VXNlcl8yMDgyOTc0NQ==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE5MTI1MTk=",
+                                "firstName": "Aldo",
+                                "lastName": "Namora",
+                                "jobTitle": "Head Business Development",
+                                "organization": "PT Ceria Nugraha Indotama",
+                                "photoUrl": "https://cdn-api.swapcard.com/public/images/08c945b0c6ea41e49bbb1b29daa95cf4.png",
+                                "userInfo": {
+                                    "id": "VXNlcl8xMTg1OTA0Nw==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE3NzE5NDY=",
+                                "firstName": "Anggun",
+                                "lastName": "Fariza",
+                                "jobTitle": "Head External Relations & Regulatory Compliance",
+                                "organization": "PT. Reswara Minergi Hartama - Member of ABM Investama Tbk",
+                                "photoUrl": "https://static.swapcard.com/public/images/8cd2ec0093eb4f94bbd7c525f7fa997d.jpeg",
+                                "userInfo": {
+                                    "id": "VXNlcl82OTcyMDcw",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                },
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfMzkwMTY4MTY=",
+                                "firstName": "Marc",
+                                "lastName": "Carette",
+                                "jobTitle": "Chief Strategy and Innovation Officer",
+                                "organization": "Emirates Global Aluminium (EGA)",
+                                "photoUrl": "https://static.swapcard.com/public/images/934f416e2d6644339b164e0791fe6c4c.png",
+                                "userInfo": {
+                                    "id": "VXNlcl8yNDI0NTYxMg==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE0NTM2NTY=",
+                                "firstName": "Chandra",
+                                "lastName": "Alexander",
+                                "jobTitle": "Senior Marketing Advisor",
+                                "organization": "Glencore Indonesia",
+                                "photoUrl": null,
+                                "userInfo": {
+                                    "id": "VXNlcl8yMDUyNDg5Mw==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDAxNDg2MzE=",
+                                "firstName": "Jerome",
+                                "lastName": "Baudelet",
+                                "jobTitle": "CEO Eramet Indonesia",
+                                "organization": "Eramet Group",
+                                "photoUrl": "https://static.swapcard.com/public/images/76a24f32265846ab9f050d6ad817eb00.jpeg",
+                                "userInfo": {
+                                    "id": "VXNlcl8xMDQxMTYyNA==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE3MTg5NDA=",
+                                "firstName": "Artyom",
+                                "lastName": "Kachovsky",
+                                "jobTitle": "Director, Indonesia",
+                                "organization": "dss+",
+                                "photoUrl": "https://static.swapcard.com/public/images/0f39a3c43fde4ed680bc67bcf375dd90.jpeg",
+                                "userInfo": {
+                                    "id": "VXNlcl8yMDg1OTkyMw==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE0MTYyOTk=",
+                                "firstName": "Simon",
+                                "lastName": "Simorangkir",
+                                "jobTitle": "Senior Manager of External Relations",
+                                "organization": "CNGR",
+                                "photoUrl": null,
+                                "userInfo": {
+                                    "id": "VXNlcl8yNTYwMDczNw==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                },
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDIwNzA1NjU=",
+                                "firstName": "Cindy",
+                                "lastName": "Nattaya",
+                                "jobTitle": "CEO",
+                                "organization": "PT. Dua Cipta Asia-DCA",
+                                "photoUrl": "https://static.swapcard.com/public/images/1d695e6c10bd484eb7273ffa0628f0a0.jpeg",
+                                "userInfo": {
+                                    "id": "VXNlcl8yMDc0NDYwMA==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE4OTYwNDM=",
+                                "firstName": "Ibrahim",
+                                "lastName": "Alfraih",
+                                "jobTitle": "Strategy & Business Development",
+                                "organization": "Aramco",
+                                "photoUrl": "https://static.swapcard.com/public/images/214e5e2a4f364cfd83d660f63cdaca92.jpeg",
+                                "userInfo": {
+                                    "id": "VXNlcl8yNTg1OTk4NQ==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDIwNjQzODQ=",
+                                "firstName": "MUKESH",
+                                "lastName": "KUMAR",
+                                "jobTitle": "Director & CEO",
+                                "organization": "PT GARUDA AGUNG RESOURCES",
+                                "photoUrl": "https://cdn-api.swapcard.com/public/images/f642eae714ae48458278f3d9017b1892.png",
+                                "userInfo": {
+                                    "id": "VXNlcl82MTA2ODQz",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDA2MTQzMDM=",
+                                "firstName": "Karim",
+                                "lastName": "Dahou",
+                                "jobTitle": "Deputy Director, Global Relations and Cooperation Directorate",
+                                "organization": "OECD",
+                                "photoUrl": "https://static.swapcard.com/public/images/33571ddf50224a499d7967b6daabe861.jpeg",
+                                "userInfo": {
+                                    "id": "VXNlcl8yNDIyNzM3Mg==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                },
+                                {
+                                    "type": "BIOGRAPHY",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDA1NjgxNjc=",
+                                "firstName": "Pramadipta",
+                                "lastName": "Anggana",
+                                "jobTitle": "Business Development",
+                                "organization": "PT MITSUI INDONESIA",
+                                "photoUrl": null,
+                                "userInfo": {
+                                    "id": "VXNlcl8yMDY5Nzg4Mw==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE0OTExNDA=",
+                                "firstName": "Suresh",
+                                "lastName": "Shet",
+                                "jobTitle": "Head of knowledge Center & Business Exec",
+                                "organization": "PT Golden Energy Mines",
+                                "photoUrl": null,
+                                "userInfo": {
+                                    "id": "VXNlcl8yMDU1NzE1Ng==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE0NTc1ODM=",
+                                "firstName": "Zulaikha",
+                                "lastName": "Susilo",
+                                "jobTitle": "Principal Government Relations",
+                                "organization": "PT Sumbawa Timur Mining",
+                                "photoUrl": null,
+                                "userInfo": {
+                                    "id": "VXNlcl8yNTYyMDg2OA==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                },
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDExMjQ0Njk=",
+                                "firstName": "Elsie",
+                                "lastName": "Lim",
+                                "jobTitle": "Account Manager",
+                                "organization": "Fastmarkets",
+                                "photoUrl": null,
+                                "userInfo": {
+                                    "id": "VXNlcl8xOTQ5MTQ0Ng==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDAzNjIxOTk=",
+                                "firstName": "Muchtazar",
+                                "lastName": "Muchtazar",
+                                "jobTitle": "Head of Sustainability",
+                                "organization": "Nickel Industries Limited",
+                                "photoUrl": "https://static.swapcard.com/public/images/cf1f78c28c134d2cb4ae5f0afd236b48.png",
+                                "userInfo": {
+                                    "id": "VXNlcl8yMDUyNDkxMg==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "JOBS",
+                                    "__typename": "Core_StringRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                },
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        },
+                        {
+                            "person": {
+                                "id": "RXZlbnRQZW9wbGVfNDE5NDM1NTY=",
+                                "firstName": "satrio",
+                                "lastName": "dipokusumo",
+                                "jobTitle": "business development",
+                                "organization": "Indika Energy tbk",
+                                "photoUrl": null,
+                                "userInfo": {
+                                    "id": "VXNlcl8yNTg4Njc1MQ==",
+                                    "presenceStatus": "OFFLINE",
+                                    "__typename": "Core_UserInfo"
+                                },
+                                "__typename": "Core_EventPerson"
+                            },
+                            "explanations": [
+                                {
+                                    "type": "NETWORK",
+                                    "__typename": "Core_EventPersonRecommendationExplanation"
+                                }
+                            ],
+                            "__typename": "Core_EventPersonRecommended"
+                        }
+                    ],
+                    "__typename": "Core_EventPersonRecommendation"
+                },
+                "__typename": "Core_EventPeopleListView"
+            }
+        }
+    }
+]

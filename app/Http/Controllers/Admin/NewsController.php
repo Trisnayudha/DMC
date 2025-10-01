@@ -89,12 +89,16 @@ class NewsController extends Controller
         $save->save();
 
         // 5) Simpan kategori (pivot)
-        foreach ((array) $request->input('category_id', []) as $catId) {
-            NewsCategoryList::create([
-                'news_id'          => $save->id,
-                'news_category_id' => $catId,
-            ]);
+        // Simpan kategori (jika multiple categories)
+        if (!empty($request->category_id)) {
+            foreach ($request->category_id as $catId) {
+                NewsCategoryList::create([
+                    'news_id' => $save->id,
+                    'news_category_id' => $catId
+                ]);
+            }
         }
+
 
         return redirect()->route('news')->with('success', 'Successfully create news');
     }
