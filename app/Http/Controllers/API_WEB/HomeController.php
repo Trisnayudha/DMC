@@ -20,11 +20,11 @@ class HomeController extends Controller
     public function getCarousel()
     {
         // 2 signature terpisah (urutannya sesuai array)
-        // $signatures = [
-        //     '/image/libur5.png',
-        //     '/image/libur6.png',
-        // ];
-        $signatures = null;
+        $signatures = [
+            '/image/libur5.png',
+            '/image/libur6.png',
+        ];
+        // $signatures = null;
 
         $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
             ->where('status', 'publish')
@@ -34,18 +34,18 @@ class HomeController extends Controller
         $result = [];
 
         // Tambahkan setiap signature sebagai slide sendiri
-        // foreach ($signatures as $sig) {
-        //     if (!empty($sig)) {
-        //         $result[] = [
-        //             'heading1'   => null,
-        //             'heading2'   => null,
-        //             'date'       => null,
-        //             'listImage'  => [$sig], // tetap array karena front-end expect array
-        //             'slug'       => null,
-        //             'is_signature' => true, // optional flag kalau mau beda styling di FE
-        //         ];
-        //     }
-        // }
+        foreach ($signatures as $sig) {
+            if (!empty($sig)) {
+                $result[] = [
+                    'heading1'   => null,
+                    'heading2'   => null,
+                    'date'       => null,
+                    'listImage'  => [$sig], // tetap array karena front-end expect array
+                    'slug'       => null,
+                    'is_signature' => true, // optional flag kalau mau beda styling di FE
+                ];
+            }
+        }
 
         // Lanjutkan dengan event highlight
         foreach ($events as $event) {
