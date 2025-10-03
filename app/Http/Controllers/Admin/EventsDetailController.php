@@ -459,7 +459,6 @@ class EventsDetailController extends Controller
                 $send->name = $check->name;
                 $send->template = 'email.reject-event';
                 $send->sendEmail();
-                dd($send);
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Reject Register');
             }
             // $pdf = Pdf::loadView('email.ticket', $data);
