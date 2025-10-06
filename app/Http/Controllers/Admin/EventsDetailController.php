@@ -441,14 +441,29 @@ class EventsDetailController extends Controller
             $email = $check->email;
             $code_payment = $check->code_payment;
             if ($val == 'approve') {
-                $pdf = Pdf::loadView('email.ticket', $data);
-                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
-                    $message->from(env('EMAIL_SENDER'));
-                    $message->to($email);
-                    $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
-                    // $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
-                    $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('email.ticket', $data)
+                    ->setPaper('A4', 'portrait')
+                    ->setOptions([
+                        'dpi' => 96,
+                        'enable_font_subsetting' => true,
+                        'isHtml5ParserEnabled' => true,
+                        'isRemoteEnabled' => false,
+                    ]);
+
+                $bin  = $pdf->output();
+                $size = strlen($bin); // bytes
+
+                Mail::send('email.approval-event', $data, function ($m) use ($email, $bin, $size, $code_payment, $findEvent) {
+                    $m->from(config('mail.from.address'), config('mail.from.name'));
+                    $m->to($email);
+                    $m->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
+
+                    // batas aman 7MB; sesuaikan dengan SIZE servermu
+                    if ($size <= 7 * 1024 * 1024) {
+                        $m->attachData($bin, $code_payment . '-' . time() . '.pdf', ['mime' => 'application/pdf']);
+                    }
                 });
+
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Approval');
             } else {
                 $send = new EmailSender();
