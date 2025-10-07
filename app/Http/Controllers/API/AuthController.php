@@ -372,17 +372,19 @@ Your verification code (OTP) ' . $otp;
         if ($userByEmail && !$this->isProvisionalUser($userByEmail)) {
             return response()->json([
                 'status'  => 422,
-                'message' => 'Email sudah digunakan. Silakan login atau gunakan "Lupa Password".',
+                'message' => 'This email is already registered. Please log in or use the "Forgot Password" option.',
                 'payload' => ['field' => 'email', 'action' => 'LOGIN_OR_FORGOT'],
             ]);
         }
+
         if ($profileByPhone && !is_null(optional($profileByPhone->user)->verify_phone)) {
             return response()->json([
                 'status'  => 422,
-                'message' => 'Nomor Handphone sudah terdaftar. Silakan login atau gunakan "Lupa Password".',
+                'message' => 'This phone number is already registered. Please log in or use the "Forgot Password" option.',
                 'payload' => ['field' => 'phone', 'action' => 'LOGIN_OR_FORGOT'],
             ]);
         }
+
 
         DB::beginTransaction();
         try {
