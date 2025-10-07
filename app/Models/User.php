@@ -13,11 +13,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -27,26 +22,33 @@ class User extends Authenticatable
         'otp',
         'isStatus',
         'uname',
-        'qrcode'
-
+        'qrcode',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Relasi ke ProfileModel (one to one)
+     * Setiap user hanya memiliki satu profile.
+     */
+    public function profile()
+    {
+        return $this->hasOne(\App\Models\Profiles\ProfileModel::class, 'users_id', 'id');
+    }
+
+    /**
+     * (Opsional) Relasi ke CompanyModel jika dibutuhkan
+     * Setiap user bisa punya satu company (dari profile/company_id).
+     */
+    public function company()
+    {
+        return $this->hasOne(\App\Models\Company\CompanyModel::class, 'users_id', 'id');
+    }
 }

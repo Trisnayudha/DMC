@@ -240,30 +240,76 @@ Your verification code (OTP) ' . $otp;
         $validate = Validator::make(
             $request->all(),
             [
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'fullphone' => ['required', 'unique:profiles']
+                'email' => ['required', 'string', 'email', 'max:255'],
+                'fullphone' => ['required']
             ],
             [
                 'fullphone.required' => 'Harap Masukan Nomor Handphone',
-                'fullphone.unique' => 'Nomor Handphone sudah terdaftar',
                 'email.required' => 'Email Harap diisi',
-                'email.unique' => 'Email sudah digunakan'
             ]
         );
+
         if ($validate->fails()) {
             $data = [
                 'email' => $validate->errors()->first('email'),
                 'fullphone' => $validate->errors()->first('fullphone')
             ];
-            $response['status'] = 422;
-            $response['message'] = 'Checking Email & Fullphone was wrong';
-            $response['payload'] = $data;
-        } else {
-            $response['status'] = 200;
-            $response['message'] = 'Next';
-            $response['payload'] = null;
+            return response()->json([
+                'status' => 422,
+                'message' => 'Checking Email & Fullphone was wrong',
+                'payload' => $data
+            ]);
         }
-        return response()->json($response);
+
+        $email = $request->email;
+        $phone = $request->fullphone;
+
+        // Cek apakah user dengan email ini sudah ada
+        $user = User::where('email', $email)->first();
+        $profile = ProfileModel::where('fullphone', $phone)->first();
+
+        if ($user) {
+            // Jika user ada tapi verify_email masih null -> boleh lanjut
+            if (is_null($user->verify_email)) {
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Next (email belum terverifikasi)',
+                    'payload' => null
+                ]);
+            }
+
+            // Jika sudah terverifikasi
+            return response()->json([
+                'status' => 422,
+                'message' => 'Email sudah digunakan',
+                'payload' => ['email' => 'Email sudah digunakan']
+            ]);
+        }
+
+        if ($profile) {
+            // Jika profile ada tapi user terkait belum verifikasi phone
+            $relatedUser = $profile->user ?? null;
+            if ($relatedUser && is_null($relatedUser->verify_phone)) {
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Next (phone belum terverifikasi)',
+                    'payload' => null
+                ]);
+            }
+
+            return response()->json([
+                'status' => 422,
+                'message' => 'Nomor Handphone sudah terdaftar',
+                'payload' => ['fullphone' => 'Nomor Handphone sudah terdaftar']
+            ]);
+        }
+
+        // Jika lolos semua validasi
+        return response()->json([
+            'status' => 200,
+            'message' => 'Next',
+            'payload' => null
+        ]);
     }
 
     public function signup(Request $request)
