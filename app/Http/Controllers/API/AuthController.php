@@ -917,4 +917,9 @@ Your verification code (OTP) ' . $otp;
         }
         return response()->json($response);
     }
+    protected function isProvisionalUser(\App\Models\User $u): bool
+    {
+        // Anggap provisional bila BELUM punya password ATAU belum ada verifikasi apapun
+        return (empty($u->password) || is_null($u->verify_email) || is_null($u->verify_phone));
+    }
 }
