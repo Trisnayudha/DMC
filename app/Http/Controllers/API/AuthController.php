@@ -813,7 +813,7 @@ Your verification code (OTP) ' . $otp;
         } else {
             $otp = rand(10000, 99999);
             Log::info("otp = " . $otp);
-            User::where('email', '=', $request->email)->update(['otp' => $otp]);
+            User::where('email', '=', $request->email)->update(['otp' => $otp,  'verify_email' => 'verified',]);
             $send = new EmailSender();
             $send->subject = "OTP Forgot Password";
             $wording = 'We received a request to reset the password for your account. To reset the password, please use this
