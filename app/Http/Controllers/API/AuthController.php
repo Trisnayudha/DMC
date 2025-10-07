@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -314,104 +315,159 @@ Your verification code (OTP) ' . $otp;
 
     public function signup(Request $request)
     {
+        // 1) Validasi format (tanpa unique keras)
         $validate = Validator::make(
             $request->all(),
             [
-                'name' => ['string', 'required'],
-                'phone' => ['required', 'unique:profiles'],
-                'email' => ['required', 'unique:users'],
+                'name'     => ['required', 'string', 'max:255'],
+                'phone'    => ['required', 'string', 'max:30'],
+                'email'    => ['required', 'string', 'email', 'max:255'],
                 'password' => ['required', 'string', 'min:5'],
             ],
             [
-                'phone.required' => 'Harap Masukan Nomor Handphone',
-                'phone.unique' => 'Nomor Handphone sudah terdaftar',
+                'phone.required'    => 'Harap Masukan Nomor Handphone',
                 'password.required' => 'Password Harap diisi',
-                'email.required' => 'Email Harap diisi',
-                'email.unique' => 'Email sudah digunakan'
+                'email.required'    => 'Email Harap diisi',
             ]
         );
-        $name = $request->name;
-        $country_phone = $request->country_phone;
-        $phone = $request->phone;
-        $fullphone = $request->country_phone . $request->phone;
-        $email = $request->email;
-        $password = $request->password;
-        $prefix = $request->prefix;
-        $company_name = $request->company_name;
-        $job_title = $request->job_title;
-        $address = $request->address;
-        $country = $request->country;
-        $company_category = $request->company_category;
-        $company_other = $request->company_other;
-        $company_website = $request->company_website;
-        $city = $request->city;
-        $country_phone_office = $request->country_phone_office;
-        $office_number = $request->office_number;
-        $portal_code = $request->portal_code;
-        $cci = $request->cci;
-        $explore = $request->explore;
+
         if ($validate->fails()) {
-            $response['status'] = 401;
-            $response['message'] = $validate->errors()->first();
-            $response['payload'] = null;
-        } else {
-            $findUsers = MemberModel::where('phone', $phone)->orWhere('email', $email)->first();
-            if (!empty($findUsers)) {
-                $findUsers->prefix = $prefix;
-                $findUsers->company_name = $company_name;
-                $findUsers->prefix_phone = $country_phone;
-                $findUsers->phone = $phone;
-                $findUsers->fullphone = $fullphone;
-                $findUsers->email = $email;
-                $findUsers->name = $name;
-                $findUsers->job_title = $job_title;
-                $findUsers->company_website = $company_website;
-                $findUsers->country = $country;
-                $findUsers->address = $address;
-                $findUsers->city = $city;
-                $findUsers->prefix_office_number = $country_phone_office;
-                $findUsers->office_number = $office_number;
-                $findUsers->full_office_number = $country_phone_office . $office_number;
-                $findUsers->portal_code = $portal_code;
-                $findUsers->company_category = $company_category;
-                $findUsers->company_other = $company_other;
-                $findUsers->explore = $explore;
-                $findUsers->password = Hash::make($password);
-                $findUsers->cci = $cci;
-                $findUsers->save();
-            } else {
-                $save = new MemberModel();
-                $save->prefix = $prefix;
-                $save->company_name = $company_name;
-                $save->prefix_phone = $country_phone;
-                $save->phone = $phone;
-                $save->fullphone = $fullphone;
-                $save->email = $email;
-                $save->name = $name;
-                $save->job_title = $job_title;
-                $save->company_website = $company_website;
-                $save->country = $country;
-                $save->address = $address;
-                $save->portal_code = $portal_code;
-                $save->city = $city;
-                $save->prefix_office_number = $country_phone_office;
-                $save->office_number = $office_number;
-                $save->full_office_number = $country_phone_office . $office_number;
-                $save->company_category = $company_category;
-                $save->company_other = $company_other;
-                $save->explore = $explore;
-                $save->cci = $cci;
-                $save->password = Hash::make($password);
-                $save->save();
-            }
-            $response['status'] = 200;
-            $response['message'] = 'Save data Successfully';
-            $response['payload'] = [
-                'email' => $email,
-                'phone' => $fullphone,
-            ];
+            return response()->json([
+                'status'  => 401,
+                'message' => $validate->errors()->first(),
+                'payload' => null,
+            ]);
         }
-        return response()->json($response);
+
+        // 2) Ambil input
+        $name                  = $request->name;
+        $country_phone         = $request->country_phone;
+        $phone                 = $request->phone;
+        $fullphone             = ($country_phone ?? '') . ($phone ?? '');
+        $email                 = $request->email;
+        $password              = $request->password;
+        $prefix                = $request->prefix;
+        $company_name          = $request->company_name;
+        $job_title             = $request->job_title;
+        $address               = $request->address;
+        $country               = $request->country;
+        $company_category      = $request->company_category;
+        $company_other         = $request->company_other;
+        $company_website       = $request->company_website;
+        $city                  = $request->city;
+        $country_phone_office  = $request->country_phone_office;
+        $office_number         = $request->office_number;
+        $portal_code           = $request->portal_code;
+        $cci                   = $request->cci;
+        $explore               = $request->explore;
+
+        // 3) Cek user existing (auto-create dari event biasanya sudah ada di users)
+        $userByEmail = User::where('email', $email)->first();
+        $profileByPhone = ProfileModel::where(function ($q) use ($phone, $fullphone) {
+            $q->where('phone', $phone)
+                ->orWhere('fullphone', $fullphone);
+        })->first();
+
+        // 4) If conflict verified → tolak
+        if ($userByEmail && !$this->isProvisionalUser($userByEmail)) {
+            return response()->json([
+                'status'  => 422,
+                'message' => 'Email sudah digunakan. Silakan login atau gunakan "Lupa Password".',
+                'payload' => ['field' => 'email', 'action' => 'LOGIN_OR_FORGOT'],
+            ]);
+        }
+        if ($profileByPhone && !is_null(optional($profileByPhone->user)->verify_phone)) {
+            return response()->json([
+                'status'  => 422,
+                'message' => 'Nomor Handphone sudah terdaftar. Silakan login atau gunakan "Lupa Password".',
+                'payload' => ['field' => 'phone', 'action' => 'LOGIN_OR_FORGOT'],
+            ]);
+        }
+
+        DB::beginTransaction();
+        try {
+            // 5) CLAIM MODE: userByEmail ada & provisional → update (klaim akun)
+            if ($userByEmail && $this->isProvisionalUser($userByEmail)) {
+                // Pastikan ada MemberModel draft untuk OTP flow (kalau belum, buat/merge)
+                $member = MemberModel::firstOrNew(['email' => $email]);
+                $member->prefix               = $prefix;
+                $member->company_name         = $company_name;
+                $member->prefix_phone         = $country_phone;
+                $member->phone                = $phone;
+                $member->fullphone            = $fullphone;
+                $member->email                = $email;
+                $member->name                 = $name;
+                $member->job_title            = $job_title;
+                $member->company_website      = $company_website;
+                $member->country              = $country;
+                $member->address              = $address;
+                $member->city                 = $city;
+                $member->prefix_office_number = $country_phone_office;
+                $member->office_number        = $office_number;
+                $member->full_office_number   = ($country_phone_office ?? '') . ($office_number ?? '');
+                $member->portal_code          = $portal_code;
+                $member->company_category     = $company_category;
+                $member->company_other        = $company_other;
+                $member->explore              = $explore;
+                $member->cci                  = $cci;
+                $member->password             = Hash::make($password); // simpan sementara; akan dipindah di verifyOtp
+                $member->save();
+
+                // (Opsional) Kirim OTP di step berikutnya (requestOtp)
+                DB::commit();
+                return response()->json([
+                    'status'  => 200,
+                    'message' => 'Akun ditemukan dari pendaftaran event. Silakan verifikasi (OTP) untuk mengklaim akun.',
+                    'payload' => [
+                        'mode'  => 'CLAIM',
+                        'email' => $email,
+                        'phone' => $fullphone,
+                    ],
+                ]);
+            }
+
+            // 6) CREATE MODE: tidak ada userByEmail (baru)
+            $member = MemberModel::firstOrNew(['email' => $email]);
+            $member->prefix               = $prefix;
+            $member->company_name         = $company_name;
+            $member->prefix_phone         = $country_phone;
+            $member->phone                = $phone;
+            $member->fullphone            = $fullphone;
+            $member->email                = $email;
+            $member->name                 = $name;
+            $member->job_title            = $job_title;
+            $member->company_website      = $company_website;
+            $member->country              = $country;
+            $member->address              = $address;
+            $member->portal_code          = $portal_code;
+            $member->city                 = $city;
+            $member->prefix_office_number = $country_phone_office;
+            $member->office_number        = $office_number;
+            $member->full_office_number   = ($country_phone_office ?? '') . ($office_number ?? '');
+            $member->company_category     = $company_category;
+            $member->company_other        = $company_other;
+            $member->explore              = $explore;
+            $member->cci                  = $cci;
+            $member->password             = Hash::make($password);
+            $member->save();
+
+            DB::commit();
+            return response()->json([
+                'status'  => 200,
+                'message' => 'Save data Successfully',
+                'payload' => [
+                    'email' => $email,
+                    'phone' => $fullphone,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'  => 500,
+                'message' => 'Gagal menyimpan data. ' . $e->getMessage(),
+                'payload' => null,
+            ]);
+        }
     }
 
     public function requestOtp(Request $request)
