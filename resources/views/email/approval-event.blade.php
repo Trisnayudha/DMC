@@ -176,7 +176,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://www.djakarta-miningclub.com/events/the-67th-djakarta-mining-club-networking-event)
+                (https://www.djakarta-miningclub.com/events/indonesia-energy-market-briefing-2025)
             </p>
 
             <br>
