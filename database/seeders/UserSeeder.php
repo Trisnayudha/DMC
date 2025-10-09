@@ -17,8 +17,10 @@ class UserSeeder extends Seeder
         $user = User::where('email', 'niema@dmc-cci.com')->first();
 
         if ($user) {
-            $user->assignRole('admin');
-            echo "Role admin berhasil ditambahkan ke {$user->name}";
+            $user->update([
+                'password' => bcrypt('DMC2026'),
+            ]);
+            echo "Password user {$user->name} berhasil diubah menjadi DMC2026";
         } else {
             echo "User tidak ditemukan";
         }
