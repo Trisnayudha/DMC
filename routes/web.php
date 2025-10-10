@@ -106,7 +106,7 @@ Route::get('/scan/print', [PrintController::class, 'index']);
 Route::post('/scan/request', [PrintController::class, 'request']);
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
-Route::get('/test', [TestController::class, 'miningIndo']);
+Route::get('/test', [TestController::class, 'test']);
 Route::get('/mining-indo', [TestController::class, 'miningIndoData']);
 Route::post('/exhibitors/import', [TestController::class, 'importExhibitor']);
 Route::post('/exhibitors/import-batch', [TestController::class, 'importExhibitorBatch']); // ⬅️ baru
