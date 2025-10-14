@@ -10,10 +10,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Spatie\Newsletter\NewsletterFacade;
+use Illuminate\Support\Str;
 
 class UsersController extends Controller
 {
@@ -115,55 +118,128 @@ class UsersController extends Controller
 
     public function import(Request $request)
     {
-        $this->validate($request, [
-            'uploaded_file' => 'required|file|mimes:xls,xlsx'
+        $request->validate([
+            'uploaded_file' => 'required|file|mimes:xls,xlsx|max:20480', // 20MB
         ]);
 
-        $the_file = $request->file('uploaded_file');
+        $file = $request->file('uploaded_file');
 
         try {
-            $spreadsheet = IOFactory::load($the_file->getRealPath());
-            $sheet = $spreadsheet->getActiveSheet();
-            $row_limit = $sheet->getHighestDataRow();
-            $column_limit = $sheet->getHighestDataColumn();
-            $row_range = range(2, $row_limit);
-            $column_range = range('M', $column_limit);
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $sheet       = $spreadsheet->getActiveSheet();
 
-            $startcount = 0;
+            $lastRow    = (int) $sheet->getHighestDataRow();
+            $startRow   = 2; // header di row 1
+            $success    = 0;
+            $skipped    = 0;
+            $errors     = 0;
+            $errorRows  = [];
 
-            foreach ($row_range as $row) {
-                $email = $sheet->getCell('E' . $row)->getValue();
-                $user = User::firstOrNew(['email' => $email]);
-                $user->name = $sheet->getCell('B' . $row)->getValue();
-                $user->email = $email;
-                $user->isStatus = 'Active';
-                $user->save();
+            // Helper kecil
+            $clean = fn($v) => is_string($v) ? trim($v) : (is_null($v) ? null : $v);
+            $validEmail = fn($e) => filter_var($e, FILTER_VALIDATE_EMAIL);
+            $normPhone = function ($p) {
+                if (!$p) return null;
+                $p = preg_replace('/[^0-9+]/', '', (string)$p);
+                // contoh normalisasi sederhana: leading 0 -> +62
+                if (Str::startsWith($p, '0')) $p = '+62' . ltrim($p, '0');
+                return $p;
+            };
+            $normUrl = function ($u) use ($clean) {
+                $u = $clean($u);
+                if (!$u) return null;
+                // tambah https kalau user isi tanpa schema
+                if (!Str::startsWith($u, ['http://', 'https://'])) {
+                    $u = 'https://' . $u;
+                }
+                return $u;
+            };
 
-                $company = CompanyModel::firstOrNew(['users_id' => $user->id]);
-                $company->company_name = $sheet->getCell('A' . $row)->getValue();
-                $company->company_website = $sheet->getCell('F' . $row)->getValue();
-                $company->company_category = $sheet->getCell('G' . $row)->getValue();
-                $company->company_other = $sheet->getCell('H' . $row)->getValue();
-                $company->address = $sheet->getCell('I' . $row)->getValue();
-                $company->city = $sheet->getCell('J' . $row)->getValue();
-                $company->portal_code = $sheet->getCell('K' . $row)->getValue();
-                $company->full_office_number = $sheet->getCell('L' . $row)->getValue();
-                $company->save();
+            DB::beginTransaction();
 
-                $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
-                $profile->fullphone = $sheet->getCell('D' . $row)->getValue();
-                $profile->job_title = $sheet->getCell('C' . $row)->getValue();
-                $profile->users_id = $user->id;
-                $profile->company_id = $company->id;
-                $profile->save();
+            for ($row = $startRow; $row <= $lastRow; $row++) {
+                try {
+                    // ambil per kolom (sesuai mapping di atas)
+                    $companyName   = $clean($sheet->getCell('A' . $row)->getValue());
+                    $name          = $clean($sheet->getCell('B' . $row)->getValue());
+                    $jobTitle      = $clean($sheet->getCell('C' . $row)->getValue());
+                    $phoneRaw      = $clean($sheet->getCell('D' . $row)->getValue());
+                    $email         = strtolower($clean($sheet->getCell('E' . $row)->getValue()));
+                    $companyWeb    = $normUrl($sheet->getCell('F' . $row)->getValue());
+                    $companyCat    = $clean($sheet->getCell('G' . $row)->getValue());
+                    $companyOther  = $clean($sheet->getCell('H' . $row)->getValue());
+                    $address       = $clean($sheet->getCell('I' . $row)->getValue());
+                    $city          = $clean($sheet->getCell('J' . $row)->getValue());
+                    $portalCode    = $clean($sheet->getCell('K' . $row)->getValue());
+                    $officeNumber  = $clean($sheet->getCell('L' . $row)->getValue());
+                    $registerAs    = $clean($sheet->getCell('M' . $row)->getValue()); // optional
 
-                $startcount++;
+                    // skip baris kosong total
+                    if (!$email && !$name && !$companyName) {
+                        $skipped++;
+                        continue;
+                    }
+
+                    // wajib email valid
+                    if (!$email || !$validEmail($email)) {
+                        $errors++;
+                        $errorRows[] = "Row {$row}: email invalid/empty ({$email})";
+                        continue;
+                    }
+
+                    // upsert User
+                    /** @var \App\Models\User $user */
+                    $user = \App\Models\User::firstOrNew(['email' => $email]);
+                    $user->name     = $name ?: $user->name ?: '(no name)';
+                    $user->isStatus = 'Active';
+                    // kalau user baru dan belum ada password, set random (optional)
+                    if (!$user->exists && empty($user->password)) {
+                        $user->password = bcrypt(Str::random(12));
+                    }
+                    $user->save();
+
+                    // upsert Company (by users_id)
+                    /** @var \App\Models\CompanyModel $company */
+                    $company = CompanyModel::firstOrNew(['users_id' => $user->id]);
+                    $company->company_name     = $companyName;
+                    $company->company_website  = $companyWeb;
+                    $company->company_category = $companyCat;
+                    $company->company_other    = $companyOther ?: $registerAs; // simpan 'register as' jika ada
+                    $company->address          = $address;
+                    $company->city             = $city;
+                    $company->portal_code      = $portalCode;
+                    $company->full_office_number = $officeNumber;
+                    $company->save();
+
+                    // upsert Profile (by users_id)
+                    /** @var \App\Models\ProfileModel $profile */
+                    $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
+                    $profile->fullphone  = $normPhone($phoneRaw);
+                    $profile->job_title  = $jobTitle;
+                    $profile->users_id   = $user->id;
+                    $profile->company_id = $company->id;
+                    $profile->save();
+
+                    $success++;
+                } catch (\Throwable $rowEx) {
+                    $errors++;
+                    $errorRows[] = "Row {$row}: " . $rowEx->getMessage();
+                    // lanjut baris berikutnya
+                }
             }
 
-            return back()->with('success', 'Successfully imported ' . $startcount . ' data');
-        } catch (Exception $e) {
-            $error_code = $e;
-            return back()->withErrors('There was a problem uploading the data! Error Code: ' . $error_code);
+            DB::commit();
+
+            // log detail error ke laravel.log biar ga numpuk di flash message
+            if (!empty($errorRows)) {
+                Log::warning('Import XLS - partial errors', ['errors' => $errorRows]);
+            }
+
+            return back()->with('success', "Import selesai: {$success} berhasil, {$skipped} dilewati (kosong), {$errors} error. Cek log untuk detail error.");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Import XLS gagal total', ['exception' => $e]);
+            return back()->withErrors('Gagal mengimpor data. Pesan: ' . $e->getMessage());
         }
     }
 
