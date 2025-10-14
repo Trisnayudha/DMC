@@ -320,6 +320,9 @@ Route::prefix('admin')->group(function () {
     Route::get('news/{id}/edit', [NewsController::class, 'edit'])->name('news.edit');
     Route::patch('/news/update/{id}', [NewsController::class, 'update'])->name('news.update');
     Route::delete('/news/destroy/{id}', [NewsController::class, 'destroy'])->name('news.destroy');
+    // routes/web.php
+    Route::post('/ajax/upload-image', [\App\Http\Controllers\Ajax\UploadController::class, 'image'])
+        ->name('ajax.image.upload')->middleware('auth');
 
     Route::post('/editor/upload', [EditorUploadController::class, 'upload'])->name('editor.upload');
     Route::post('/editor/delete', [EditorUploadController::class, 'delete'])->name('editor.delete'); // opsional
