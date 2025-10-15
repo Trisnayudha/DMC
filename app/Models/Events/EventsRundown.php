@@ -21,6 +21,17 @@ class EventsRundown extends Model
 
     public function speakers()
     {
-        return $this->belongsToMany(EventsSpeakersRundown::class, 'events_speakers_rundown', 'events_rundown_id', 'events_speakers_id');
+        return $this->belongsToMany(
+            \App\Models\Events\EventsSpeakers::class,
+            'events_speakers_rundown', // pivot table
+            'events_rundown_id',       // foreign key ke rundown
+            'events_speakers_id'       // foreign key ke speakers
+        )->withTimestamps();
+    }
+
+
+    public function event()
+    {
+        return $this->belongsTo(\App\Models\Events\Events::class, 'events_id');
     }
 }

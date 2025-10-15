@@ -7,12 +7,13 @@
                 <h1>Events Rundown Management</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active"><a href="">Events Rundown Management</a>
-                    </div>
+                    <div class="breadcrumb-item active">Events Rundown Management</div>
                 </div>
             </div>
+
             <div class="section-body">
                 <h2 class="section-title">Events Rundown</h2>
+
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
@@ -40,31 +41,11 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
-                                <form method="GET" action="">
-                                    <div class="form-row">
-                                        <div class="form-group col-md-4">
-
-                                        </div>
-                                        <div class="form-group col-md-2">
-
-                                        </div>
-                                        <div class="form-group col-md-2">
-
-                                        </div>
-                                        <div class="form-group col-md-2">
-
-                                        </div>
-                                        <div class="form-group col-md-2">
-
-                                            <a href="javascript:void(0)"
-                                                class="btn btn-block btn-icon icon-left btn-success btn-filter"
-                                                id="addNewCategory">
-                                                <i class="fas fa-plus-circle"></i>
-                                                Tambah Rundown</a>
-
-                                        </div>
-                                    </div>
-                                </form>
+                                <div class="mb-3 text-end">
+                                    <a href="javascript:void(0)" class="btn btn-success" id="addNewCategory">
+                                        <i class="fas fa-plus-circle me-1"></i> Tambah Rundown
+                                    </a>
+                                </div>
 
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
@@ -75,186 +56,185 @@
                                                 <th>Date</th>
                                                 <th>Events</th>
                                                 <th>Speakers</th>
-
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php $no = 1; ?>
+                                            @php $no = 1; @endphp
                                             @foreach ($list as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
                                                     <td>{{ $post->name }}</td>
-                                                    <td>{{ $post->date }}</td>
-                                                    <td>{{ $post->event_name }}</td>
-                                                    <td> </td>
-                                                    <td>
-
-                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
-                                                            class="btn btn-success edit"><span
-                                                                class="fa fa-edit"></span></a>
-                                                        {{-- @dd($post-id); --}}
-                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
-                                                            class="btn btn-danger delete"><span class=" fa fa-trash"></a>
-
+                                                    <td>{{ \Illuminate\Support\Carbon::parse($post->date)->format('Y-m-d H:i') }}
                                                     </td>
-
+                                                    <td>{{ $post->event_name }}</td>
+                                                    <td>
+                                                        @if (isset($post->speakers) && $post->speakers->count())
+                                                            {{ $post->speakers->pluck('name')->implode(', ') }}
+                                                        @else
+                                                            —
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-nowrap">
+                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
+                                                            class="btn btn-success btn-sm edit">
+                                                            <span class="fa fa-edit"></span>
+                                                        </a>
+                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
+                                                            class="btn btn-danger btn-sm delete">
+                                                            <span class="fa fa-trash"></span>
+                                                        </a>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
-                                </div>
-                            </div>
-                        </div>
+                                </div><!-- /.table-responsive -->
+                            </div><!-- /.card-body -->
+                        </div><!-- /.card -->
                     </div>
                 </div>
             </div>
         </section>
-
     </div>
+
+    {{-- Modal Add/Edit --}}
     <div class="modal fade" id="category-model" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="ajaxCategoryModel"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">×</button>
                 </div>
                 <div class="modal-body">
                     <form action="javascript:void(0)" id="addEditCategoryForm" name="addEditCategoryForm"
                         class="form-horizontal" method="POST">
+                        @csrf
                         <input type="hidden" name="id" id="id">
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" name="name" id="name" class="form-control">
+
+                        <div class="form-group mb-3">
+                            <label for="name" class="mb-1">Name</label>
+                            <input type="text" name="name" id="name" class="form-control" autocomplete="off">
                         </div>
-                        <div class="form-group">
-                            <label>Date Times</label>
-                            <input type="datetime-local" class="form-control" value="" name="date" id="date">
+
+                        <div class="form-group mb-3">
+                            <label for="date" class="mb-1">Date & Time</label>
+                            <input type="datetime-local" class="form-control" name="date" id="date">
                         </div>
-                        <div class="form-group">
-                            <label>Speakers</label>
-                            <select class="form-control select2" multiple="multiple" style="width: 100%;" name="speakers_id"
+
+                        <div class="form-group mb-3">
+                            <label class="mb-1">Speakers</label>
+                            <select class="form-control select2" multiple style="width: 100%;" name="speakers[]"
                                 id="speakers_id">
                                 @foreach ($speakers as $key)
                                     <option value="{{ $key->id }}" data-image="{{ asset($key->image) }}">
-                                        {{ $key->name . ' - ' . $key->job_title }}</option>
+                                        {{ $key->name . ' - ' . $key->job_title }}
+                                    </option>
                                 @endforeach
                             </select>
+                            <small class="text-muted d-block mt-1">Pilih lebih dari satu jika diperlukan.</small>
                         </div>
-                        <div class="form-group">
-                            <label for="events_id"> Event </label>
+
+                        <div class="form-group mb-4">
+                            <label for="events_id" class="mb-1">Event</label>
                             <select name="events_id" id="events_id" class="form-control">
                                 @foreach ($event as $item)
                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                 @endforeach
                             </select>
                         </div>
+
                         <div class="form-group">
-                            <button type="submit" class="btn btn-primary" id="btn-save" value="addNewCategory">Save
-                                changes
+                            <button type="submit" class="btn btn-primary" id="btn-save" value="addNewCategory">
+                                Save changes
                             </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
+
                     </form>
                 </div>
-                <div class="modal-footer">
-
-                </div>
+                <div class="modal-footer"></div>
             </div>
         </div>
     </div>
+
+    {{-- Scripts --}}
     <script>
         $(document).ready(function() {
-            $('#text').on('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    // Insert "\n" at the current cursor position
-                    insertTextAtCursor($(this)[0], '\n');
+            // DataTables
+            $('#laravel_crud').DataTable();
+
+            // Select2 with avatar
+            $('.select2').select2({
+                width: '100%',
+                templateResult: function(option) {
+                    if (!option.id) return option.text;
+                    var imageUrl = $(option.element).data('image');
+                    if (!imageUrl) return option.text;
+                    return $(
+                        '<span style="display:flex;align-items:center;gap:8px;">' +
+                        '<img src="' + imageUrl +
+                        '" style="width:24px;height:24px;border-radius:50%;object-fit:cover;" />' +
+                        '<span>' + option.text + '</span>' +
+                        '</span>'
+                    );
+                },
+                templateSelection: function(option) {
+                    return option.text;
                 }
             });
 
-            // Function to insert text at the current cursor position
-            function insertTextAtCursor(textarea, text) {
-                var startPos = textarea.selectionStart;
-                var endPos = textarea.selectionEnd;
-
-                // Insert the text
-                textarea.value = textarea.value.substring(0, startPos) + text + textarea.value.substring(endPos,
-                    textarea.value.length);
-
-                // Move the cursor to the end of the inserted text
-                textarea.selectionStart = textarea.selectionEnd = startPos + text.length;
-            }
-        });
-
-        $(function() {
-            $('.my-editor').summernote({
-                dialogsInBody: true,
-                minHeight: 150,
-                toolbar: [
-                    ['style', ['bold', 'italic', 'underline', 'clear', 'link', 'picture', 'video',
-                        'undo'
-                    ]],
-                    ['font', ['strikethrough']],
-                    ['para', ['paragraph']]
-                ]
-            })
-        });
-    </script>
-    <script type="text/javascript">
-        // Menggunakan moment.js untuk mengatur waktu sesuai dengan time zone
-        $(function() {
-            $('.datetimepicker').datetimepicker({
-                format: 'YYYY-MM-DD HH:mm:ss',
-                sideBySide: true,
-                use24hours: true // ini akan memastikan waktu ditampilkan dalam format 24-jam
-            });
-        });
-
-
-        $(document).ready(function($) {
+            // CSRF
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-            $('#addNewCategory').click(function() {
-                $('#addEditCategoryForm').trigger("reset");
-                $('#ajaxCategoryModel').html("Add Category");
+
+            // Add new
+            $('#addNewCategory').on('click', function() {
+                $('#addEditCategoryForm').trigger('reset');
+                $('#speakers_id').val(null).trigger('change');
+                $('#ajaxCategoryModel').text('Add Rundown');
+                $('#id').val('');
+                $('#btn-save').val('create');
                 $('#category-model').modal('show');
             });
 
+            // Edit
             $(document).on('click', '.edit', function() {
                 var id = $(this).data('id');
-
-                // ajax
                 $.ajax({
-                    type: "GET",
+                    type: 'GET',
                     url: "{{ url('admin/events/rundown') }}/" + id + "/edit",
-                    data: {
-                        id: id
-                    },
                     dataType: 'json',
                     success: function(res) {
-                        $('#ajaxCategoryModel').html("Edit Category");
+                        $('#ajaxCategoryModel').text('Edit Rundown');
                         $('#category-model').modal('show');
-                        $('#id').val(res.id_rundown);
-                        $('#name').val(res.name);
-                        $('#date').val(res.date);
 
-                        // Populate speakers in the select2 dropdown
-                        var selectedSpeakers = res.speakers.map(speaker => speaker.id);
-                        $('#speakers_id').val(selectedSpeakers).trigger('change');
+                        // Controller ideal response: {id,name,date,events_id,speakers_ids:[...]}
+                        var speakersIds = res.speakers_ids ?
+                            res.speakers_ids :
+                            (res.speakers ? res.speakers.map(function(s) {
+                                return s.id;
+                            }) : []);
 
-                        // Populate the events dropdown
-                        $('#events_id').val(res.events_id);
+                        $('#id').val(res.id || res.id_rundown || id);
+                        $('#name').val(res.name || '');
+                        $('#date').val(res.date || ''); // must be Y-m-dTH:i
+                        $('#events_id').val(res.events_id || '').trigger('change');
+                        $('#speakers_id').val(speakersIds).trigger('change');
 
-                        // Change the button value to indicate edit
-                        $('#btn-save').val('updateCategory');
+                        $('#btn-save').val('update');
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Data tidak ditemukan', 'error');
                     }
                 });
             });
 
+            // Delete
             $(document).on('click', '.delete', function() {
-
                 var id = $(this).data('id');
                 Swal.fire({
                     title: "Anda Yakin ?",
@@ -269,58 +249,38 @@
                         $.ajax({
                             type: "DELETE",
                             url: "{{ url('admin/events/rundown') }}/" + id,
-                            data: {
-                                id: id
-                            },
                             dataType: 'json',
-                            success: function(res) {
+                            success: function() {
                                 Swal.fire({
                                     title: "Success",
                                     icon: "success",
                                     showConfirmButton: false,
                                     position: 'center',
-                                    timer: 1500
+                                    timer: 1200
                                 }).then(function() {
-                                    // Code to execute after Swal is closed
                                     window.location.reload();
-                                    console.log(res);
                                 });
                             }
                         });
-
                     }
                 });
-
-
             });
-            $(document).on('click', '#btn-save', function(event) {
-                var id = $("#id").val();
-                var name = $("#name").val();
-                var date = $("#date").val();
 
-                // Extract selected values from the Speakers dropdown
-                var selectedSpeakers = $('#speakers_id').val() ||
-            []; // Corrected the ID for the speakers dropdown
-
-                // Extract the selected value from the Event dropdown
-                var selectedEvent = $('#events_id').val();
-
+            // Save (create/update) — upsert via POST store()
+            $(document).on('click', '#btn-save', function() {
                 var formData = new FormData();
-                formData.append('id', id);
-                formData.append('name', name);
-                formData.append('date', date);
+                formData.append('id', $('#id').val());
+                formData.append('name', $('#name').val());
+                formData.append('date', $('#date').val());
+                formData.append('events_id', $('#events_id').val());
 
-                // Append selected speakers as an array
-                for (var i = 0; i < selectedSpeakers.length; i++) {
-                    formData.append('speakers[]', selectedSpeakers[i]);
-                }
+                var selectedSpeakers = $('#speakers_id').val() || [];
+                selectedSpeakers.forEach(function(v) {
+                    formData.append('speakers[]', v);
+                });
 
-                formData.append('events_id', selectedEvent);
+                $("#btn-save").html('Please Wait...').prop("disabled", true);
 
-                $("#btn-save").html('Please Wait...');
-                $("#btn-save").attr("disabled", true);
-
-                // ajax
                 $.ajax({
                     type: "POST",
                     url: "{{ url('admin/events/rundown') }}",
@@ -328,56 +288,27 @@
                     contentType: false,
                     processData: false,
                     dataType: 'json',
-                    success: function(res) {
+                    success: function() {
                         Swal.fire({
                             title: "Success",
                             icon: "success",
                             showConfirmButton: false,
                             position: 'center',
-                            timer: 1500
+                            timer: 1200
                         });
-                        // console.log(res)
                         window.location.reload();
-                        $("#btn-save").html('Save changes');
-                        $("#btn-save").attr("disabled", false);
                     },
-                    error: function(error) {
-                        console.error("Error:", error);
-                        // Handle error here
-                        $("#btn-save").html('Save changes');
-                        $("#btn-save").attr("disabled", false);
+                    error: function(xhr) {
+                        let msg = 'Gagal menyimpan';
+                        if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON
+                            .message;
+                        Swal.fire('Error', msg, 'error');
+                    },
+                    complete: function() {
+                        $("#btn-save").html('Save changes').prop("disabled", false);
                     }
                 });
             });
-
-
-        });
-        $(document).ready(function() {
-            $('#laravel_crud').DataTable();
-        });
-
-        $(document).ready(function() {
-            $('.select2').select2({
-                templateResult: formatOption // Custom function to format the dropdown options
-            });
-
-            function formatOption(option) {
-                if (!option.id) {
-                    return option.text;
-                }
-
-                var imageUrl = $(option.element).data('image');
-
-                if (!imageUrl) {
-                    return option.text;
-                }
-
-                var $option = $(
-                    '<span><img src="' + asset(imageUrl) + '" class="img-flag" /> ' + option.text + '</span>'
-                );
-
-                return $option;
-            }
         });
     </script>
 @endsection

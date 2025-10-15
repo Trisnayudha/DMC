@@ -18,4 +18,14 @@ class EventsSpeakers extends Model
         'company',
         'image'
     ];
+
+    public function rundowns()
+    {
+        return $this->belongsToMany(
+            \App\Models\Events\EventsRundown::class,
+            'events_speakers_rundown', // pivot table
+            'events_speakers_id',      // foreign key ke speakers
+            'events_rundown_id'        // foreign key ke rundown
+        )->withTimestamps();
+    }
 }

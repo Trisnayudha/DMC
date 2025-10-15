@@ -6,85 +6,102 @@ use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
 use App\Models\Events\EventsRundown;
 use App\Models\Events\EventsSpeakers;
-use App\Models\Events\EventsSpeakersRundown;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class EventsRundownController extends Controller
 {
     public function index()
     {
-        $list = EventsRundown::leftjoin('events', 'events.id', 'events_rundown.events_id')
-            ->select('events_rundown.*', 'events.name as event_name')->orderby('id', 'desc')->get();
-        $event = Events::orderby('id', 'desc')->get();
-        $speakers = EventsSpeakers::orderby('id', 'desc')->get();
-        $data  = [
-            'list' => $list,
-            'event' => $event,
-            'speakers' => $speakers
-        ];
-        return view('admin.events-rundown.index', $data);
+        // Eager-load speakers & event untuk tabel
+        $list = EventsRundown::with(['event:id,name', 'speakers:id,name,job_title'])
+            ->leftJoin('events', 'events.id', '=', 'events_rundown.events_id')
+            ->select('events_rundown.*', 'events.name as event_name')
+            ->orderBy('events_rundown.id', 'desc')
+            ->get();
+
+        $event = Events::orderBy('id', 'desc')->get(['id', 'name']);
+        $speakers = EventsSpeakers::orderBy('id', 'desc')->get(['id', 'name', 'job_title', 'image']);
+
+        return view('admin.events-rundown.index', [
+            'list'     => $list,
+            'event'    => $event,
+            'speakers' => $speakers,
+        ]);
     }
 
     public function store(Request $request)
     {
-        $eventsRundownId = $request->input('id');
-        $speakerIds = $request->input('speakers', []); // Default to an empty array if 'speakers' is not provided
+        // Validasi basic
+        $validated = $request->validate([
+            'id'        => ['nullable', 'integer', 'exists:events_rundown,id'],
+            'name'      => ['required', 'string', 'max:255'],
+            // datetime-local => 'Y-m-d\TH:i' -> kita terima string apa adanya, nanti simpan ke datetime
+            'date'      => ['required', 'date'],
+            'events_id' => ['required', 'integer', Rule::exists('events', 'id')],
+            'speakers'  => ['array'],
+            'speakers.*' => ['integer', Rule::exists('events_speakers', 'id')],
+        ]);
 
-        // Cari record berdasarkan ID
-        $eventsRundown = EventsRundown::find($eventsRundownId);
-
-        if ($eventsRundown) {
-            // Jika ditemukan, update record
-            $eventsRundown->name = $request->input('name');
-            $eventsRundown->date = $request->input('date');
-            $eventsRundown->events_id = $request->input('events_id');
-        } else {
-            // Jika tidak ditemukan, buat record baru
-            $eventsRundown = new EventsRundown();
-            $eventsRundown->name = $request->input('name');
-            $eventsRundown->date = $request->input('date');
-            $eventsRundown->events_id = $request->input('events_id');
-        }
-
-        // Simpan perubahan
+        // Upsert rundown
+        $eventsRundown = EventsRundown::find($validated['id'] ?? null) ?? new EventsRundown();
+        $eventsRundown->name      = $validated['name'];
+        $eventsRundown->date      = $validated['date'];      // pastikan kolom di DB tipe datetime
+        $eventsRundown->events_id = $validated['events_id'];
         $eventsRundown->save();
 
-        // Update atau insert the associated speakers
-        $eventsRundown->speakers()->sync($speakerIds);
+        // Sync speakers (boleh kosong)
+        $eventsRundown->speakers()->sync($validated['speakers'] ?? []);
 
-        // Mengembalikan response JSON
-        return response()->json($eventsRundown);
+        return response()->json([
+            'ok' => true,
+            'id' => $eventsRundown->id,
+        ]);
     }
-
-
 
     public function edit($id)
     {
-        // Menggunakan alias yang unik untuk tabel join
-        $data = EventsRundown::join('events_speakers_rundown as esr', 'events_rundown.id', '=', 'esr.events_rundown_id')
-            ->where('events_rundown.id', $id) // Menambahkan kondisi untuk memastikan ID yang benar
-            ->select('events_rundown.*', 'events_rundown.id as id_rundown', 'esr.*') // Menyertakan kolom yang diinginkan dari kedua tabel
-            ->first(); // Menggunakan first() karena find() tidak bekerja dengan join
+        $rundown = EventsRundown::with(['speakers:id,name,job_title,image', 'event:id,name'])
+            ->find($id);
 
-        if (!$data) {
-            // Handle the case where the record with the given id is not found
+        if (!$rundown) {
             return response()->json(['error' => 'Record not found'], 404);
         }
 
-        // Assuming you have a resource or transformer to format the data
-        // If not, you can return the $data directly
+        // Format agar cocok dengan input datetime-local
+        $dateForInput = '';
+        if (!empty($rundown->date)) {
+            try {
+                $dateForInput = \Carbon\Carbon::parse($rundown->date)->format('Y-m-d\TH:i');
+            } catch (\Exception $e) {
+                $dateForInput = '';
+            }
+        }
 
-        // For example, if you have a WhatsappSenderResource:
-        // return new WhatsappSenderResource($data);
-
-        // Or just return the data directly
-        return response()->json($data);
+        return response()->json([
+            'id'           => $rundown->id,
+            'name'         => $rundown->name,
+            'date'         => $dateForInput, // <-- penting
+            'events_id'    => $rundown->events_id,
+            'speakers_ids' => $rundown->speakers->pluck('id'),
+            'speakers'     => $rundown->speakers,
+        ]);
     }
+
+
 
     public function destroy($id)
     {
-        $data = EventsRundown::find($id)->delete();
-        return response()->json($data);
+        $rundown = EventsRundown::find($id);
+        if (!$rundown) {
+            return response()->json(['error' => 'Record not found'], 404);
+        }
+
+        // Lepas pivot supaya rapi
+        $rundown->speakers()->detach();
+        $rundown->delete();
+
+        return response()->json(['ok' => true]);
     }
 }
