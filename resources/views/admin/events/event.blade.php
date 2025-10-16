@@ -80,9 +80,12 @@
                                                     <td>
                                                         <a href="#" class="btn btn-primary" title="View Tickets">
                                                             <span>Ticket</span></a>
-                                                        <a href="{{ url('share/events/' . $post->slug) }}"
-                                                            class="btn btn-success" title="View Tickets">
-                                                            <span>Share</span></a>
+                                                        <a href="javascript:void(0)" class="btn btn-success btn-share"
+                                                            data-slug="{{ $post->slug }}"
+                                                            data-url="{{ url('share/events/' . $post->slug) }}">
+                                                            <span>Share</span>
+                                                        </a>
+
                                                         <a href="{{ Route('events-details', $post->slug) }}"
                                                             class="btn btn-primary" title="Lihat Peserta">
                                                             <span class="fa fa-user"></span></a>
@@ -106,6 +109,28 @@
             </div>
         </section>
     </div>
+    <!-- Share Link Modal -->
+    <div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Share Event Link</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted mb-2">Copy this link and share it anywhere:</p>
+                    <div class="input-group">
+                        <input type="text" id="shareLinkInput" class="form-control" readonly>
+                        <button class="btn btn-primary" id="copyShareLink">Copy</button>
+                    </div>
+                    <div id="copySuccess" class="text-success mt-2" style="display:none;">
+                        <i class="fa fa-check-circle"></i> Link copied!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 @push('bottom')
     <script>
@@ -152,6 +177,23 @@
             });
 
 
+        });
+        // Handle Share Button Click
+        $(document).on('click', '.btn-share', function() {
+            const url = $(this).data('url');
+            $('#shareLinkInput').val(url);
+            $('#copySuccess').hide();
+            $('#shareModal').modal('show');
+        });
+
+        // Handle Copy Button
+        $('#copyShareLink').on('click', function() {
+            const input = document.getElementById('shareLinkInput');
+            input.select();
+            input.setSelectionRange(0, 99999); // mobile support
+            document.execCommand('copy');
+
+            $('#copySuccess').fadeIn(200).delay(1500).fadeOut(300);
         });
     </script>
 @endpush
