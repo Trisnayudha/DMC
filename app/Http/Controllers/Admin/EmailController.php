@@ -128,8 +128,9 @@ class EmailController extends Controller
     // Proses pengiriman email via AJAX
     public function sendEmail(Request $request)
     {
+        // 1. Validasi input: to (array email), subject, body, dsb.
         $request->validate([
-            'to'            => 'required|array',
+            'to'            => 'required|array',         // misal: ["foo@bar.com", "john@doe.com"]
             'to.*'          => 'email',
             'subject'       => 'required|string',
             'body'          => 'required|string',
@@ -137,92 +138,69 @@ class EmailController extends Controller
             'cc.*'          => 'email',
             'bcc'           => 'nullable|array',
             'bcc.*'         => 'email',
-            'attachments.*' => 'nullable|file|max:51200', // 50MB per file utk upload ke storage (bukan utk email)
+            'attachments.*' => 'nullable|file|max:10240', // max 10MB per file
         ]);
 
-        // === Konstanta batas Postmark ===
-        $POSTMARK_MAX = 10 * 1024 * 1024; // 10 MB total
-        $BODY_BUFFER  = 512 * 1024;       // 0.5 MB buffer utk body & header
-        $MAX_ATTACH_BYTES_BASE64 = $POSTMARK_MAX - $BODY_BUFFER;
+        // 2. Konversi array email => string dengan koma
+        $to      = implode(',', $request->input('to'));
+        $cc      = $request->has('cc')  ? implode(',', $request->input('cc'))  : null;
+        $bcc     = $request->has('bcc') ? implode(',', $request->input('bcc')) : null;
+        $subject = $request->input('subject');
 
-        // Ambil file
-        $files = $request->file('attachments', []);
-        if (!is_array($files)) $files = [$files];
-
-        // Hitung ukuran base64 (base64 ~ naik 4/3; rumus pasti: 4 * ceil(n/3))
-        $totalBase64Bytes = 0;
-        foreach ($files as $f) {
-            if (!$f) continue;
-            $n = $f->getSize();
-            $totalBase64Bytes += 4 * ceil($n / 3);
-        }
-
-        $useLinksInstead = $totalBase64Bytes > $MAX_ATTACH_BYTES_BASE64;
-
-        // Siapkan body
+        // 3. Body HTML & plain text
         $htmlBody = $request->input('body');
         $textBody = strip_tags($htmlBody);
-
-        // Siapkan recipients
-        $to  = implode(',', $request->input('to'));
-        $cc  = $request->has('cc')  ? implode(',', $request->input('cc'))  : null;
-        $bcc = $request->has('bcc') ? implode(',', $request->input('bcc')) : null;
-
-        // Siapkan attachments atau links
+        // dd($request->all());
+        // 4. Siapkan attachments (opsional)
         $attachments = [];
+        if ($request->hasFile('attachments')) {
+            // Ambil data file
+            $files = $request->file('attachments');
 
-        if (!$useLinksInstead && !empty($files)) {
+            // Jika $files bukan array (hanya 1 file), jadikan array agar foreach bisa jalan
+            if (!is_array($files)) {
+                $files = [$files];
+            }
+            // Sekarang $files pasti array
             foreach ($files as $file) {
-                if (!$file) continue;
+                $fileContent = file_get_contents($file->getRealPath());
                 $attachments[] = [
                     'Name'        => $file->getClientOriginalName(),
-                    'Content'     => base64_encode(file_get_contents($file->getRealPath())),
+                    'Content'     => base64_encode($fileContent),
                     'ContentType' => $file->getMimeType(),
                 ];
             }
-        } else if (!empty($files)) {
-            // === Opsi A: simpan ke storage 'public' (cocok di cPanel) ===
-            // Pastikan sudah: php artisan storage:link  => /public/storage
-            $links = [];
-            foreach ($files as $file) {
-                if (!$file) continue;
-                $path = $file->store('email-uploads', ['disk' => 'public']);
-                $links[] = asset('storage/' . $path);
-            }
-
-            // === Opsi B: kalau pakai S3, ganti 3 baris di atas dengan:
-            // $path = $file->store('email-uploads', ['disk' => 's3']);
-            // $links[] = Storage::disk('s3')->temporaryUrl($path, now()->addDays(3));
-
-            // Sisipkan daftar link di body
-            $htmlBody .= '<hr><p><strong>Attachments:</strong><br>'
-                . implode('<br>', array_map(fn($u) => "<a href=\"$u\">$u</a>", $links)) . '</p>';
-            $textBody .= "\n\nAttachments:\n" . implode("\n", $links);
         }
-
         try {
-            // Kirim ke Postmark
+            // 5. Panggil Postmark (VERSI TANPA METADATA)
+            //    Sesuaikan urutan argumen dengan versi library Anda.
+            //    Contoh ini: (from, to, subject, htmlBody, textBody, tag, trackOpens, trackLinks, messageStream, cc, bcc, replyTo, headers, attachments)
             $this->postmarkClient->sendEmail(
-                $request->fromEmail,           // from
-                $to,                           // to
-                $request->subject,             // subject
-                $htmlBody,                     // htmlBody
-                $textBody,                     // textBody
-                $request->subject,             // tag (boleh ganti)
-                null,                          // trackOpens
-                null,                          // trackLinks
-                $cc,                           // cc
-                $bcc,                          // bcc
-                [],                            // headers
-                $attachments                   // attachments (kosong kalau pakai link)
+                $request->fromEmail,
+                $to,
+                $subject,
+                $htmlBody,
+                $textBody,
+                $subject,  // 6) tag
+                null,  // 7) trackOpens
+                null,  // 8) trackLinks
+                $cc,   // 10) cc
+                $bcc,  // 11) bcc
+                [],    // 13) headers
+                $attachments // 14) attachments
             );
 
-            return response()->json(['status' => 'success', 'message' => 'Email berhasil dikirim!']);
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Email berhasil dikirim!'
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal mengirim email: ' . $e->getMessage()], 500);
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Gagal mengirim email: ' . $e->getMessage()
+            ], 500);
         }
     }
-
 
     public function showHistory($messageId)
     {
