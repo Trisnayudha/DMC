@@ -613,30 +613,30 @@ Your verification code (OTP) ' . $otp;
                     ];
                     $shouldSubscribe = $this->isTruthy($findUser->explore) || $this->isTruthy($findUser->cci);
 
-                    if ($shouldSubscribe) {
-                        NewsletterFacade::subscribeOrUpdate($findUser->email, [
-                            'FNAME'    => $user->name,
-                            'MERGE3'   => $findUser->address,      // jika field Address tipe "Address", boleh diganti object address
-                            'PHONE'    => $phone,
-                            'MMERGE5'  => $findUser->company_name,
-                            'MMERGE6'  => $findUser->company_category,
-                            'MMERGE8'  => $findUser->job_title,
-                            'MMERGE10' => Carbon::now(),           // di audience kamu ini Text → aman
-                            'MMERGE11' => $findUser->office_number,
-                            'MMERGE12' => $findUser->explore ?? $findUser->cci,
-                        ]);
+                    // if ($shouldSubscribe) {
+                    NewsletterFacade::subscribeOrUpdate($findUser->email, [
+                        'FNAME'    => $user->name,
+                        'MERGE3'   => $findUser->address,      // jika field Address tipe "Address", boleh diganti object address
+                        'PHONE'    => $phone,
+                        'MMERGE5'  => $findUser->company_name,
+                        'MMERGE6'  => $findUser->company_category,
+                        'MMERGE8'  => $findUser->job_title,
+                        'MMERGE10' => Carbon::now(),           // di audience kamu ini Text → aman
+                        'MMERGE11' => $findUser->office_number,
+                        'MMERGE12' => $findUser->explore ?? $findUser->cci,
+                    ]);
 
-                        // Tambah tag penanda sumber registrasi
-                        $this->mcAddTags($findUser->email, [
-                            'Register of Membership ' . now()->format('d M Y'),
-                        ]);
-                    } else {
-                        Log::info('Skip Mailchimp subscribe: explore/cci tidak truthy', [
-                            'email' => $findUser->email,
-                            'explore' => $findUser->explore,
-                            'cci' => $findUser->cci
-                        ]);
-                    }
+                    // Tambah tag penanda sumber registrasi
+                    $this->mcAddTags($findUser->email, [
+                        'Register of Membership ' . now()->format('d M Y'),
+                    ]);
+                    // } else {
+                    //     Log::info('Skip Mailchimp subscribe: explore/cci tidak truthy', [
+                    //         'email' => $findUser->email,
+                    //         'explore' => $findUser->explore,
+                    //         'cci' => $findUser->cci
+                    //     ]);
+                    // }
 
                     MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
                     $response['status'] = 200;
