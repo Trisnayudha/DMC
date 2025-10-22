@@ -33,19 +33,7 @@ class TestController extends Controller
 
     public function test()
     {
-        $send = new EmailSender();
-        $send->template = 'email/welcome-member'; // resources/views/email/welcome-member.html
-        $send->data = [
-            'first_name'   => 'Yudha',
-            'Profile_Link' => 'https://membership.djakarta-miningclub.com/profile/yudha'
-        ];
-        $send->from = env('EMAIL_SENDER');
-        $send->name_sender = 'Djakarta Mining Club';
-        $send->to = 'mrifkie@indonesiaminer.com';
-        $send->subject = 'Welcome to Djakarta Mining Club!';
-
-        $res = $send->sendEmail();
-        return response()->json(['status' => $res]);
+        // return view('test');
     }
 
 
