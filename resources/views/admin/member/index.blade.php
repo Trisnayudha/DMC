@@ -79,14 +79,13 @@
                                                     {{-- NEW: Single Export button --}}
                                                     <td>
                                                         <form method="POST"
-                                                            action="{{ route('admin.member.export', $post->id) }}"
-                                                            class="export-one">
+                                                            action="{{ route('admin.member.export', $post->id) }}">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-sm btn-primary">
-                                                                Export
-                                                            </button>
+                                                            <button type="submit"
+                                                                class="btn btn-sm btn-primary">Export</button>
                                                         </form>
                                                     </td>
+
                                                 </tr>
                                             @endforeach
                                         </tbody>
