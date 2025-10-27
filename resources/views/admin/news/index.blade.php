@@ -115,23 +115,47 @@
                                                         </span>
                                                     </td>
                                                     <td>
+                                                        {{-- Lihat --}}
                                                         <a href="https://djakarta-miningclub.com/news/{{ $post->slug }}"
-                                                            class="btn btn-primary m-1" target="_blank">
+                                                            class="btn btn-primary m-1" target="_blank"
+                                                            title="View on site">
                                                             <span class="fa fa-eye"></span>
                                                         </a>
+
+                                                        {{-- Edit --}}
                                                         <a href="{{ route('news.edit', ['id' => $post->id]) }}"
                                                             class="btn btn-success m-1" title="Edit Data">
                                                             <span class="fa fa-edit"></span>
                                                         </a>
+
+                                                        {{-- Share: Copy Link --}}
+                                                        <button type="button" class="btn btn-info m-1 btn-share-copy"
+                                                            title="Copy share link"
+                                                            data-link="https://djakarta-miningclub.com/news/{{ $post->slug }}"
+                                                            data-title="{{ $post->title }}">
+                                                            <i class="fas fa-link"></i>
+                                                        </button>
+
+                                                        {{-- Share: Halaman preview share (opsional) --}}
+                                                        <a href="{{ url('/share/news/' . $post->slug) }}"
+                                                            class="btn btn-warning m-1" target="_blank"
+                                                            title="Open share page">
+                                                            <i class="fas fa-share-alt"></i>
+                                                        </a>
+
+                                                        {{-- Hapus --}}
                                                         <form method="POST"
-                                                            action="{{ route('news.destroy', $post->id) }}">
+                                                            action="{{ route('news.destroy', $post->id) }}"
+                                                            class="d-inline">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button class="btn btn-danger m-1" value="`+ row.id +`"
-                                                                id="deleteProgram" type="submit" title="Hapus Data">
-                                                                <span class="fa fa-trash"></span></button>
+                                                            <button class="btn btn-danger m-1" type="submit"
+                                                                title="Hapus Data">
+                                                                <span class="fa fa-trash"></span>
+                                                            </button>
                                                         </form>
                                                     </td>
+
 
                                                 </tr>
                                             @endforeach
@@ -159,6 +183,66 @@
                     'pdfHtml5'
                 ]
             });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // DataTables (biarkan punyamu yang lama)
+            $('#laravel_crud').DataTable({
+                dom: 'Bfrtip',
+                buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5']
+            });
+
+            // Handler: Copy Link
+            $(document).on('click', '.btn-share-copy', async function() {
+                const link = $(this).data('link');
+                const title = $(this).data('title') || 'News Link';
+
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(link);
+                    } else {
+                        // Fallback untuk context non-https/older browsers
+                        const $temp = $('<input>');
+                        $('body').append($temp);
+                        $temp.val(link).select();
+                        document.execCommand('copy');
+                        $temp.remove();
+                    }
+                    toastSuccess('Copied', 'Link berhasil disalin:\n' + link);
+                } catch (err) {
+                    console.error(err);
+                    toastError('Gagal menyalin link');
+                }
+            });
+
+            // ====== Toast kecil (pakai iziToast kalau ada; fallback ke alert) ======
+            function toastSuccess(title, message = '') {
+                if (window.iziToast) {
+                    iziToast.success({
+                        title,
+                        message,
+                        position: 'bottomRight',
+                        timeout: 2200
+                    });
+                } else {
+                    // fallback sederhana
+                    alert(title + (message ? '\n\n' + message : ''));
+                }
+            }
+
+            function toastError(title, message = '') {
+                if (window.iziToast) {
+                    iziToast.error({
+                        title,
+                        message,
+                        position: 'bottomRight',
+                        timeout: 2600
+                    });
+                } else {
+                    alert(title + (message ? '\n\n' + message : ''));
+                }
+            }
         });
     </script>
 @endpush
