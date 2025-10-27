@@ -452,10 +452,10 @@ class UsersController extends Controller
                 [
                     'name'         => $name ?: $email,
                     'password'     => $existingUser ? $existingUser->password : Hash::make(Str::random(16)),
-                    'verify_email' => $existingUser ? ($existingUser->verify_email ?? 1) : 1,
-                    'verify_phone' => $existingUser ? ($existingUser->verify_phone ?? 0) : 0,
+                    'verify_email' => $existingUser ? ($existingUser->verify_email ?? 'verified') : 'verified',
+                    'verify_phone' => $existingUser ? ($existingUser->verify_phone ?? null) : null,
                     'otp'          => null,
-                    'isStatus'     => $existingUser ? ($existingUser->isStatus ?? 1) : 1,
+                    'isStatus'     => $existingUser ? ($existingUser->isStatus ?? 'Active') : 'Active',
                     'uname'        => $existingUser ? $existingUser->uname : (Str::slug($name ?: $email) . '-' . Str::random(4)),
                     'qrcode'       => $existingUser ? $existingUser->qrcode : null,
                 ]
