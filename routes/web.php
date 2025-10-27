@@ -353,7 +353,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
     Route::post('/import-mailchimp', [UsersController::class, 'importToMailchimp'])->name('users.import.mailchimp');
     Route::get('member', [UsersController::class, 'member'])->name('members');
-
+    Route::post('member/{id}/export', [UsersController::class, 'export'])->name('admin.member.export');
     //Invoice
     Route::get('invoice', [InvoiceController::class, 'index']);
     Route::get('invoice-detail', [InvoiceController::class, 'detail']);

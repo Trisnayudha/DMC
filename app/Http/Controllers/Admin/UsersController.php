@@ -430,4 +430,125 @@ class UsersController extends Controller
             return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
     }
+
+
+    public function export(Request $request, $id)
+    {
+        $row = MemberModel::findOrFail($id);
+
+        DB::beginTransaction();
+        try {
+            // 1) User
+            $user = $this->upsertUserFromRow($row);
+
+            // 2) Company (owner = user)
+            $company = $this->upsertCompanyFromRow($row, $user->id);
+
+            // 3) Profile (link ke user & company)
+            $profile = $this->upsertProfileFromRow($row, $user->id, $company->id);
+
+            DB::commit();
+
+            return back()->with('success', sprintf(
+                "Export OK → user:%d, company:%d, profile:%d",
+                $user->id,
+                $company->id,
+                $profile->id
+            ));
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->with('error', 'Export gagal: ' . $e->getMessage());
+        }
+    }
+
+    /* ===================== helpers ===================== */
+
+    private function upsertUserFromRow(MemberModel $r): User
+    {
+        $email = strtolower(trim((string)$r->email));
+        if (!$email) {
+            throw new \Exception('Email kosong di sumber; wajib untuk membuat User.');
+        }
+        $name  = trim((string)$r->name) ?: $email;
+
+        // Keep password & uname jika sudah ada
+        $existing = User::where('email', $email)->first();
+
+        return User::updateOrCreate(
+            ['email' => $email],
+            [
+                'name'         => $name,
+                'password'     => $existing->password ?: Hash::make(Str::random(16)),
+                'verify_email' => $existing->verify_email ?? 1,
+                'verify_phone' => $existing->verify_phone ?? 0,
+                'otp'          => null,
+                // 'isStatus'     => $existing->isStatus ?? 1,
+                'uname'        => $existing->uname ?? (Str::slug($name) . '-' . Str::random(4)),
+                'qrcode'       => $existing->qrcode,
+            ]
+        );
+    }
+
+    private function upsertCompanyFromRow(MemberModel $r, int $ownerUserId): CompanyModel
+    {
+        $companyName    = trim((string)$r->company_name);
+        if (!$companyName) {
+            throw new \Exception('Company name kosong di sumber.');
+        }
+        $companyWebsite = trim((string)($r->company_website ?? ''));
+
+        // Cari berdasarkan kombinasi name+website bila ada; fallback ke name saja
+        $query = CompanyModel::where('company_name', $companyName);
+        if ($companyWebsite !== '') {
+            $query->where('company_website', $companyWebsite);
+        }
+        $existing = $query->first();
+
+        $payload = [
+            'prefix'               => $r->prefix ?? null,
+            'company_name'         => $companyName,
+            'company_website'      => $companyWebsite ?: null,
+            'company_category'     => $r->company_category ?? null,
+            'company_other'        => $r->company_other ?? null,
+            'address'              => $r->address ?? null,
+            'city'                 => $r->city ?? null,
+            'portal_code'          => $r->portal_code ?? null,
+            'prefix_office_number' => $r->prefix_office_number ?? null,
+            'office_number'        => $r->office_number ?? null,
+            'full_office_number'   => $r->full_office_number ?? null,
+            'country'              => $r->country ?? null,
+            'cci'                  => (int)($r->cci ?? 0),
+            'explore'              => (int)($r->explore ?? 0),
+            'users_id'             => $ownerUserId,
+        ];
+
+        if ($existing) {
+            $existing->update($payload);
+            return $existing;
+        }
+
+        return CompanyModel::create($payload);
+    }
+
+    private function upsertProfileFromRow(MemberModel $r, int $userId, int $companyId): ProfileModel
+    {
+        $existing = ProfileModel::where('users_id', $userId)->first();
+
+        $payload = [
+            'prefix_phone' => $r->prefix_phone ?? null,
+            'phone'        => $r->phone ?? null,
+            'fullphone'    => $r->fullphone ?? null,
+            'image'        => $existing->image, // keep existing img
+            'job_title'    => $r->job_title,
+            'company_id'   => $companyId,
+            'users_id'     => $userId,
+        ];
+
+        if ($existing) {
+            $existing->update($payload);
+            return $existing;
+        }
+
+        return ProfileModel::create($payload);
+    }
 }

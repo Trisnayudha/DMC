@@ -39,13 +39,6 @@
                                 @if (session('error'))
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
-
-                                {{-- <div class="float-right">
-                                    <a href="javascript:;"
-                                        class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3" id="modal-2">
-                                        <i class="fas fa-plus-circle"></i>
-                                        Import Data</a>
-                                </div> --}}
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
                                         <thead>
@@ -62,6 +55,7 @@
                                                 <th>Website</th>
                                                 <th>Category Company</th>
                                                 <th width="15%">Explore Marketing</th>
+                                                <th width="120">Action</th> {{-- NEW --}}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -78,17 +72,25 @@
                                                     <td>{{ $post->office_number }}</td>
                                                     <td>{{ $post->address }}</td>
                                                     <td>{{ $post->company_website }}</td>
-                                                    <td>
-                                                        {{ $post->company_category }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $post->cci ? 'cci' : '' }} -
-                                                        {{ $post->explore ? 'explore' : '' }}
-                                                    </td>
+                                                    <td>{{ $post->company_category }}</td>
+                                                    <td>{{ $post->cci ? 'cci' : '' }} -
+                                                        {{ $post->explore ? 'explore' : '' }}</td>
 
+                                                    {{-- NEW: Single Export button --}}
+                                                    <td>
+                                                        <form method="POST"
+                                                            action="{{ route('admin.member.export', $post->id) }}"
+                                                            class="export-one">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-primary">
+                                                                Export
+                                                            </button>
+                                                        </form>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
+
                                     </table>
                                 </div>
                             </div>
@@ -97,32 +99,6 @@
                 </div>
             </div>
         </section>
-    </div>
-    <div class="modal fade" tabindex="-1" role="dialog" id="example">
-        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Import Excel</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ Route('users.import') }}" method="post" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group">
-                            <input type="file" name="uploaded_file" id="uploaded_file">
-                            <button type="submit" class="btn btn-success">Upload</button>
-                        </div>
-
-                    </form>
-                </div>
-                <div class="modal-footer bg-whitesmoke br">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <a href="{{ url('sample/sample.xlsx') }}" class="btn btn-primary" download>Download example xlsx</a>
-                </div>
-            </div>
-        </div>
     </div>
 @endsection
 
