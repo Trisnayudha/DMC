@@ -30,11 +30,10 @@ class PublicController extends Controller
                 ->select(
                     DB::raw("
                         CASE
-                            WHEN p.package = 'non member' OR p.package = 'member' THEN 'Paid Delegate'
-                            WHEN p.package = 'free' THEN 'Invitation Exclusive'
-                            WHEN p.package = 'sponsor' THEN 'Sponsor'
-                            WHEN p.package = 'speaker' THEN 'Speaker'
-                            ELSE 'Lain-lain'
+                            WHEN p.package = 'Free' OR p.package = 'nonmember' THEN 'Delegates'
+                            WHEN p.package = 'sponsor' THEN 'Sponsors'
+                            WHEN p.package = 'speaker' THEN 'Speakers'
+                            ELSE 'Delegates'
                         END AS package_category
                     "),
                     DB::raw('COUNT(ue.id) AS count')
@@ -42,7 +41,7 @@ class PublicController extends Controller
                 ->where('ue.events_id', $eventId)
                 ->whereNotNull('ue.present') // Hanya yang sudah check-in
                 ->groupBy('package_category')
-                ->orderByRaw("FIELD(package_category, 'Paid Delegate', 'Invitation Exclusive', 'Sponsor', 'Speaker', 'Lain-lain')")
+                ->orderByRaw("FIELD(package_category, 'Delegates', 'Sponsors', 'Speakers')")
                 ->get();
 
             // Mengembalikan hasil dalam format JSON
