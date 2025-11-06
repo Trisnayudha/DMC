@@ -131,7 +131,7 @@ class PublicController extends Controller
                     DB::raw('p.code_payment as codepayment'),
                     'p.package',
                     // ambil nama dari users, fallback ke users_event
-                    DB::raw('COALESCE(u.name, ue.username, ue.name) as user_name'),
+                    'u.name as user_name',
                     'ue.photo',
                     'ue.present',
                     'ue.id as users_event_id',
