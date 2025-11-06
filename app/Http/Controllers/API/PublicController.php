@@ -73,21 +73,28 @@ class PublicController extends Controller
                 ->join('payment as p', 'ue.payment_id', '=', 'p.id')
                 ->join('users as u', 'u.id', '=', 'ue.users_id')
                 ->where('ue.events_id', $eventId)
-                // ✅ hanya yang sudah check-in (present = datetime)
-                ->whereNotNull('ue.present')
+                ->whereNotNull('ue.present') // ✅ hanya yang sudah check-in (present datetime)
                 ->select([
-                    'p.package',
+                    // ✅ Kategorisasi package
+                    DB::raw("
+                    CASE
+                        WHEN p.package IN ('Free','nonmember') THEN 'Delegates'
+                        WHEN p.package = 'sponsor' THEN 'Sponsors'
+                        WHEN p.package = 'speaker' THEN 'Speakers'
+                        ELSE 'Delegates'
+                    END AS package_category
+                "),
                     'u.name as user_name',
-                    // samakan penamaan di response → "codepayment"
                     DB::raw('p.code_payment as codepayment')
                 ])
-                ->orderBy('p.package')
+                ->orderBy('package_category')
                 ->orderBy('user_name')
                 ->get();
 
-            $grouped = $rows->groupBy('package')->map(function ($items, $package) {
+            // ✅ GROUP BY kategori, bukan package asli
+            $grouped = $rows->groupBy('package_category')->map(function ($items, $category) {
                 return [
-                    'package' => $package,
+                    'category' => $category,
                     'attendees' => $items->map(fn($r) => [
                         'name'        => $r->user_name,
                         'codepayment' => $r->codepayment,
@@ -97,7 +104,7 @@ class PublicController extends Controller
 
             return response()->json([
                 'event_id'        => (int) $eventId,
-                'packages'        => $grouped,
+                'categories'      => $grouped,
                 'total_attendees' => $rows->count(),
             ]);
         } catch (\Exception $e) {
@@ -110,6 +117,7 @@ class PublicController extends Controller
             return response()->json(['message' => 'Internal Server Error'], 500);
         }
     }
+
 
     // GET /api/user-detail-by-codepayment/{codepayment}?event_id=55
     public function userDetailByCodepayment(Request $request, string $codepayment)
