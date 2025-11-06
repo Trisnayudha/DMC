@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; // Pastikan ini ada
 use Illuminate\Support\Facades\Log; // Untuk logging error
+use Illuminate\Support\Facades\Storage;
 
 class PublicController extends Controller
 {
@@ -57,6 +58,124 @@ class PublicController extends Controller
 
             // Mengembalikan respons error JSON
             return response()->json(['message' => 'Internal Server Error', 'error' => $e->getMessage()], 500);
+        }
+    }
+    // Endpoint 1: Attendance per package (checked-in only)
+    public function attendanceByPackage(Request $request)
+    {
+        $eventId = $request->input('event_id');
+        if (empty($eventId)) {
+            return response()->json(['message' => 'Parameter event_id is required'], 400);
+        }
+
+        try {
+            $rows = DB::table('users_event as ue')
+                ->join('payment as p', 'ue.payment_id', '=', 'p.id')
+                ->join('users as u', 'u.id', '=', 'ue.users_id')
+                ->where('ue.events_id', $eventId)
+                // ✅ hanya yang sudah check-in (present = datetime)
+                ->whereNotNull('ue.present')
+                ->select([
+                    'p.package',
+                    'u.name as user_name',
+                    // samakan penamaan di response → "codepayment"
+                    DB::raw('p.code_payment as codepayment')
+                ])
+                ->orderBy('p.package')
+                ->orderBy('user_name')
+                ->get();
+
+            $grouped = $rows->groupBy('package')->map(function ($items, $package) {
+                return [
+                    'package' => $package,
+                    'attendees' => $items->map(fn($r) => [
+                        'name'        => $r->user_name,
+                        'codepayment' => $r->codepayment,
+                    ])->values(),
+                ];
+            })->values();
+
+            return response()->json([
+                'event_id'        => (int) $eventId,
+                'packages'        => $grouped,
+                'total_attendees' => $rows->count(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('attendanceByPackage error: ' . $e->getMessage(), [
+                'event_id' => $eventId,
+                'file'     => $e->getFile(),
+                'line'     => $e->getLine(),
+            ]);
+
+            return response()->json(['message' => 'Internal Server Error'], 500);
+        }
+    }
+
+    // GET /api/user-detail-by-codepayment/{codepayment}?event_id=55
+    public function userDetailByCodepayment(Request $request, string $codepayment)
+    {
+        $eventId = $request->input('event_id');
+        if (empty($eventId)) {
+            return response()->json(['message' => 'Parameter event_id is required'], 400);
+        }
+
+        try {
+            $rows = DB::table('users_event as ue')
+                ->join('payment as p', 'ue.payment_id', '=', 'p.id')
+                ->leftJoin('users as u', 'u.id', '=', 'ue.users_id')
+                ->where('ue.events_id', $eventId)
+                // ⚠️ Sesuaikan dengan kolom terbaru: code_payment
+                ->where('p.code_payment', $codepayment)
+                ->select([
+                    // normalisasi output → codepayment
+                    DB::raw('p.code_payment as codepayment'),
+                    'p.package',
+                    // ambil nama dari users, fallback ke users_event
+                    DB::raw('COALESCE(u.name, ue.username, ue.name) as user_name'),
+                    'ue.photo',
+                    'ue.present',
+                    'ue.id as users_event_id',
+                ])
+                ->orderBy('user_name')
+                ->get();
+
+            // Jika ingin hanya yang sudah check-in (present datetime), aktifkan ini:
+            // $rows = $rows->filter(fn($r) => !is_null($r->present))->values();
+
+            $users = $rows->map(function ($r) {
+                $photo = $r->photo;
+
+                // Jika path storage lokal, buat URL publik
+                if ($photo && !preg_match('~^https?://~', $photo)) {
+                    $photo = Storage::url($photo); // sesuaikan disk jika perlu
+                }
+
+                return [
+                    'users_event_id' => (int) $r->users_event_id,
+                    'name'           => $r->user_name,
+                    'photo'          => $photo,     // dari users_event.photo
+                    'present'        => $r->present // datetime/null
+                ];
+            });
+
+            $meta = $rows->first();
+
+            return response()->json([
+                'event_id'    => (int) $eventId,
+                'codepayment' => $codepayment,
+                'package'     => $meta->package ?? null,
+                'users'       => $users,
+                'total'       => $users->count(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('userDetailByCodepayment error: ' . $e->getMessage(), [
+                'event_id'    => $eventId,
+                'codepayment' => $codepayment,
+                'file'        => $e->getFile(),
+                'line'        => $e->getLine(),
+            ]);
+
+            return response()->json(['message' => 'Internal Server Error'], 500);
         }
     }
 }
