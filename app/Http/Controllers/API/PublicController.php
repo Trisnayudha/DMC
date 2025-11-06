@@ -168,6 +168,7 @@ class PublicController extends Controller
                 'total'       => $users->count(),
             ]);
         } catch (\Exception $e) {
+            dd($e->getMessage());
             Log::error('userDetailByCodepayment error: ' . $e->getMessage(), [
                 'event_id'    => $eventId,
                 'codepayment' => $codepayment,
