@@ -69,7 +69,7 @@ class PrintController extends Controller
                     // Hanya kirim notifikasi jika package adalah 'Sponsor' atau 'Speaker'
                     if (in_array($check->package, ['sponsor', 'speaker'])) {
                         $notif = new WhatsappApi();
-                        $notif->phone = '120363234928717023';
+                        $notif->phone = '120363422942310672';
 
                         // Get the current check-in time
                         $checkInTime = Carbon::now()->format('H:i'); // Format: HH:MM (e.g., 15:30)
