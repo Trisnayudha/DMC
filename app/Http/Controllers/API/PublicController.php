@@ -72,6 +72,7 @@ class PublicController extends Controller
             $rows = DB::table('users_event as ue')
                 ->join('payment as p', 'ue.payment_id', '=', 'p.id')
                 ->join('users as u', 'u.id', '=', 'ue.users_id')
+                ->join('company as c', 'u.id', 'c.users_id')
                 ->where('ue.events_id', $eventId)
                 ->whereNotNull('ue.present') // ✅ hanya yang sudah check-in (present datetime)
                 ->select([
@@ -85,7 +86,8 @@ class PublicController extends Controller
                     END AS package_category
                 "),
                     'u.name as user_name',
-                    DB::raw('p.code_payment as codepayment')
+                    DB::raw('p.code_payment as codepayment'),
+                    'c.company_name as company'
                 ])
                 ->orderBy('package_category')
                 ->orderBy('user_name')
