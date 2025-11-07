@@ -148,7 +148,7 @@ class PublicController extends Controller
                     'ue.photo',
                     'ue.present',
                     'ue.id as users_event_id',
-                    'c.company_nam as company',
+                    'c.company_name as company',
                     'p.job_title as job'
                 ])
                 ->orderBy('user_name')
