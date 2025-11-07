@@ -111,7 +111,7 @@
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
             <p>Thank you for registering for {{ $events_name }}.</p>
-            @if ($quota == 'fully')
+            @if ($quota == 'Fully')
                 <p>We are pleased to confirm that you have successfully joined the waiting list. Should a spot become
                     available, we will notify you promptly.</p>
             @else
