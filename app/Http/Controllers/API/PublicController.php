@@ -134,6 +134,8 @@ class PublicController extends Controller
             $rows = DB::table('users_event as ue')
                 ->join('payment as p', 'ue.payment_id', '=', 'p.id')
                 ->leftJoin('users as u', 'u.id', '=', 'ue.users_id')
+                ->join('company as c', 'u.id', 'c.users_id')
+                ->join('profiles', 'profiles.users_id', 'u.id')
                 ->where('ue.events_id', $eventId)
                 // ⚠️ Sesuaikan dengan kolom terbaru: code_payment
                 ->where('p.code_payment', $codepayment)
@@ -146,6 +148,8 @@ class PublicController extends Controller
                     'ue.photo',
                     'ue.present',
                     'ue.id as users_event_id',
+                    'c.company_nam as company',
+                    'p.job_title as job'
                 ])
                 ->orderBy('user_name')
                 ->get();
@@ -165,7 +169,8 @@ class PublicController extends Controller
                     'users_event_id' => (int) $r->users_event_id,
                     'name'           => $r->user_name,
                     'photo'          => $photo,     // dari users_event.photo
-                    'present'        => $r->present // datetime/null
+                    'present'        => $r->present, // datetime/null
+                    'company'       => $r->company
                 ];
             });
 
