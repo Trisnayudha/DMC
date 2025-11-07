@@ -108,7 +108,7 @@ class PrintController extends Controller
             ->join('profiles', 'profiles.users_id', 'users.id')
             ->join('company', 'company.users_id', 'users.id')
             ->whereIn('payment.status_registration', ['Paid Off', 'free'])
-            ->where('payment.events_id', 50)
+            ->where('payment.events_id', 55)
             ->when($request->search, function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('users.name', 'like', '%' . $request->search . '%')

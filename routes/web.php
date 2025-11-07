@@ -44,6 +44,7 @@ use App\Http\Controllers\Admin\SponsorPhotosVideosActivityController;
 use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\Admin\SponsorExportController;
 use App\Http\Controllers\EditorUploadController;
+use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,6 +67,11 @@ Route::get('/test/email', [TestController::class, 'testEmail']);
 Route::get('web-view-sponsor', function () {
     return view('maps');
 });
+
+Route::get('survey-mccloskey', function () {
+    return view('survey.index');
+});
+Route::post('/survey-mccloskey', [SurveyController::class, 'store'])->name('survey.store');
 
 Route::get('/business-card', function () {
     return view('business-card');
