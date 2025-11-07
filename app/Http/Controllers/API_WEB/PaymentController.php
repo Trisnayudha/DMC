@@ -342,13 +342,18 @@ Job Title:' . $job_titles[$index] . '
                 $dataEmail = [
                     'users_name' => $key['name'],
                     'events_name' => $findEvent->name,
+                    'quota' => $findEvent->quota
                 ];
-
                 $send = new EmailSender();
+
+                if ($findEvent->quota == 'Fully') {
+                    $send->subject = 'Confirmation of Waiting List – ' . $findEvent->name;
+                } else {
+                    $send->subject = 'Thank you for registering ' . $findEvent->name;
+                }
                 $send->to = $key['email'];
                 $send->from = env('EMAIL_SENDER');
                 $send->data = $dataEmail;
-                $send->subject = 'Thank you for registering ' . $findEvent->name;
                 // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
                 $send->template = 'email.waiting-approval';
                 $send->sendEmail();

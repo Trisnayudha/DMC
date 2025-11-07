@@ -111,13 +111,19 @@
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
             <p>Thank you for registering for {{ $events_name }}.</p>
-            {{-- <p>Your registration is now in process for approval. Please note that your registration is subject to
-                approval.</p> --}}
+            @if ($quota == 'fully')
+                <p>We are pleased to confirm that you have successfully joined the waiting list. Should a spot become
+                    available, we will notify you promptly.</p>
+            @else
+                <p>Your registration is now in process for approval. Please note that your registration is subject to
+                    approval.</p>
+            @endif
+
             {{-- <p>Your registration is now on the waiting list. We will notify you immediately if there are seats
                 available.</p> --}}
-            <p>
+            {{-- <p>
                 We will send approval confirmation within 72 hours, please contact us via email at
-                secretariat@djakarta-miningclub.com or WhatsApp +62 811 1937 300</p>
+                secretariat@djakarta-miningclub.com or WhatsApp +62 811 1937 300</p> --}}
             <p>If you have any question or information, don’t hesitate to contact us via email
                 secretariat@djakarta-miningclub.com or WhatsApp +628111937300
             </p>

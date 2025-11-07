@@ -638,11 +638,17 @@ Terima kasih.
                     $dataEmail = [
                         'users_name'   => $user->name,
                         'events_name'  => $findEvent->name,
+                        'quota' => $findEvent->quota
                     ];
-                    Mail::send('email.waiting-approval', $dataEmail, function ($message) use ($email, $findEvent) {
+                    if ($findEvent->quota == 'Fully') {
+                        $subject = 'Confirmation of Waiting List – ' . $findEvent->name;
+                    } else {
+                        $subject = 'Thank you for registering ' . $findEvent->name;
+                    }
+                    Mail::send('email.waiting-approval', $dataEmail, function ($message) use ($email, $findEvent, $subject) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($email);
-                        $message->subject('Thank you for registering ' . $findEvent->name);
+                        $message->subject($subject);
                     });
                 } catch (\Exception $e) {
                     Log::error('Mail error: ' . $e->getMessage());
