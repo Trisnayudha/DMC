@@ -79,6 +79,7 @@ class EventsController extends Controller
                 'image' => $findEvent->image_banner,
                 'link' => $findEvent->link,
                 'status_event' => $findEvent->status_event,
+                'quota' => $findEvent->quota,
                 'status_member' => $id != null ? 'member' : 'nonmember',
             ];
             $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->orderby('price_rupiah', 'asc')->get();
