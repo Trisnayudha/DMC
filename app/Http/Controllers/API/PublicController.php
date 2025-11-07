@@ -100,6 +100,7 @@ class PublicController extends Controller
                     'attendees' => $items->map(fn($r) => [
                         'name'        => $r->user_name,
                         'codepayment' => $r->codepayment,
+                        'company' => $r->company
                     ])->values(),
                 ];
             })->values();
