@@ -170,7 +170,8 @@ class PublicController extends Controller
                     'name'           => $r->user_name,
                     'photo'          => $photo,     // dari users_event.photo
                     'present'        => $r->present, // datetime/null
-                    'company'       => $r->company
+                    'company'       => $r->company,
+                    'job'       => $r->job
                 ];
             });
 
