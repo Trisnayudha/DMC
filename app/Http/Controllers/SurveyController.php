@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SurveyResponse;
 use Illuminate\Http\Request;
-
+use Illuminate\Validation\Rule;
 
 class SurveyController extends Controller
 {
@@ -21,27 +21,43 @@ class SurveyController extends Controller
         return view('survey.index', compact('presentations'));
     }
 
-    // Terima submit form dan simpan ke DB
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'email' => 'required|email',
-            'informative_score' => 'required|integer|min:1|max:5',
-            'most_relevant_presentation' => 'required|string',
-            'is_member' => 'nullable|in:0,1',
-            'wants_more_info' => 'nullable|in:0,1',
-            'feedback' => 'nullable|string',
-            'topics_2026' => 'nullable|string',
-            'consent' => 'accepted',
-        ]);
+        $allowedPresentations = [
+            'Spotlight on US Tariffs: Impact on Global Coal Supply and Demand',
+            'Choosing the Right Coal Index and Managing Risk',
+            'Chinese Coal Policy: Impact on Supply and Demand',
+            'Met Coal Challenges and Opportunities for Indonesia',
+            'An Introduction to Minespans',
+        ];
 
+        $data = $request->validate(
+            [
+                'email'                         => 'required|email',
+                'informative_score'             => 'required|integer|min:1|max:5',
+                'most_relevant_presentations'   => 'required|array|min:1',
+                'most_relevant_presentations.*' => ['string', Rule::in($allowedPresentations)],
+                'is_member'                     => 'required|in:0,1',
+                'wants_more_info'               => 'required|in:0,1',
+                'feedback'                      => 'required|string',
+                'topics_2026'                   => 'required|string',
+            ],
+            [
+                'most_relevant_presentations.required' => 'Please select at least one option.',
+                'most_relevant_presentations.*.in'     => 'Invalid selection.',
+            ]
+        );
+
+        // normalisasi tipe untuk boolean
+        $data['is_member'] = (int) $data['is_member'];
+        $data['wants_more_info'] = (int) $data['wants_more_info'];
+
+        // metadata
         $data['ip'] = $request->ip();
         $data['ua'] = substr($request->userAgent() ?? '', 0, 255);
-        $data['consent'] = 1;
 
         SurveyResponse::create($data);
 
-        // kembali ke halaman yang sama dengan alert sukses
         return back()->with('ok', true)->withInput([]);
     }
 }

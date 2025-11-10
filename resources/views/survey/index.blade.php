@@ -13,52 +13,31 @@
 
     <style>
         body {
-            background: #f8f9fa
+            background: #f5f7fb;
         }
 
-        .section-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, .08);
-            padding: 1.25rem
-        }
-
-        /* Header ribbon mirip screenshot */
+        /* ===== Topbar ===== */
         .header-ribbon {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: .75rem 1rem;
-            border-radius: 18px;
-            background: linear-gradient(90deg, #c13025 0%, #e14a2f 45%, #ef6b54 100%);
+            padding: .9rem 1.25rem;
+            border-radius: 20px;
+            background: radial-gradient(120% 140% at 0% 0%, #c53227 0%, #e34d32 45%, #f06e57 100%);
             color: #fff;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .15)
+            box-shadow: 0 12px 30px rgba(0, 0, 0, .12)
         }
 
-        .header-ribbon .brand {
-            display: flex;
-            align-items: center;
-            font-weight: 700;
-            letter-spacing: .5px
-        }
-
-        .header-ribbon .logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, .15);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: .6rem;
-            font-size: .8rem;
-            font-weight: 800
+        .brand img {
+            height: 44px;
+            display: block
         }
 
         .burger {
             width: 28px;
             height: 18px;
-            position: relative
+            position: relative;
+            opacity: .9
         }
 
         .burger span {
@@ -81,6 +60,131 @@
         .burger span:nth-child(3) {
             bottom: 0
         }
+
+        /* ===== Card & sections ===== */
+        .section-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 10px 24px rgba(22, 31, 56, .08);
+            padding: 1.5rem
+        }
+
+        .section-title {
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: .2px
+        }
+
+        /* ===== Field labels & helper ===== */
+        .form-title {
+            font-weight: 600;
+            color: #1f2a44
+        }
+
+        .required-bullet {
+            color: #ff3b3b;
+            margin-left: .25rem
+        }
+
+        .invalid-inline {
+            color: #dc3545;
+            font-size: .875rem
+        }
+
+        /* ===== 1–5 score as buttons ===== */
+        .score-wrap {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap
+        }
+
+        .score-option input {
+            display: none
+        }
+
+        .score-btn {
+            min-width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            font-weight: 600;
+            color: #2c3e55;
+            cursor: pointer;
+            transition: all .15s ease
+        }
+
+        .score-option input:checked+.score-btn {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .15)
+        }
+
+        .score-option input:focus+.score-btn {
+            outline: none;
+            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .25)
+        }
+
+        /* ===== Checkbox “pill cards” ===== */
+        .checkcard {
+            position: relative;
+            border: 1px solid #e6e9f0;
+            border-radius: 12px;
+            padding: .9rem 1rem;
+            transition: border-color .15s, box-shadow .15s, background .15s;
+            background: #fff
+        }
+
+        .checkcard:hover {
+            border-color: #b9c2d3;
+            box-shadow: 0 6px 16px rgba(32, 40, 70, .06)
+        }
+
+        .checkcard input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none
+        }
+
+        .checkcard.checked {
+            border-color: #0d6efd;
+            background: #f2f7ff;
+            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .08)
+        }
+
+        .checkcard .tick {
+            position: absolute;
+            right: .85rem;
+            top: .85rem;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #b6c0d2
+        }
+
+        .checkcard.checked .tick {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, .18) inset
+        }
+
+        /* ===== Submit ===== */
+        .btn-primary.btn-lg {
+            padding: .8rem 1.4rem;
+            border-radius: 12px;
+            font-weight: 700
+        }
+
+        /* Banner */
+        .survey-banner .banner-img {
+            width: 100%;
+            display: block;
+            object-fit: cover;
+            border-radius: 14px 14px 0 0
+                /* only top corners */
+        }
     </style>
 </head>
 
@@ -90,138 +194,182 @@
         {{-- Header --}}
         <div class="header-ribbon mb-4">
             <div class="brand">
-                <div class="logo">DMC</div>
-                <div>
-                    <div style="font-size:.9rem;line-height:1;opacity:.9">DJAKARTA</div>
-                    <div style="margin-top:-2px;font-size:.9rem;line-height:1">MINING CLUB</div>
-                </div>
+                <img src="https://www.djakarta-miningclub.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FLogo-DMC.8bf844a3.png&w=640&q=75"
+                    alt="Djakarta Mining Club">
             </div>
             <div class="burger" aria-label="menu" role="button"><span></span><span></span><span></span></div>
         </div>
 
-        {{-- Notifikasi sukses (opsional): tampilkan kalau ada session flash "ok" --}}
+        {{-- Notifikasi sukses (opsional) --}}
         @if (session('ok'))
-            <div class="alert alert-success alert-dismissible fade show section-card" role="alert">
+            <div class="alert alert-success alert-dismissible fade show section-card mb-4" role="alert">
                 <strong>Thank you!</strong> Your response has been recorded.
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
             </div>
         @endif
 
         {{-- Form Survey --}}
         <div class="section-card">
-            <h3 class="mb-1">Thank You For Attending — DMC Briefing 2025</h3>
-            <p class="text-muted mb-4">Please fill this short survey. After submission, you'll receive a link to
-                download the speakers' slides.</p>
+            <div class="survey-banner mb-4">
+                <img src="{{ asset('image/survey.png') }}" alt="Survey Banner" class="banner-img">
+            </div>
 
-            {{-- ganti action ke URL kamu bila tidak memakai named route `survey.store` --}}
-            <form method="post" action="{{ route('survey.store') }}" novalidate>
+            <h3 class="section-title mb-2">Thank You For Attending — DMC Briefing 2025</h3>
+            <p class="text-muted mb-1">Please fill this short survey. After submission, you'll receive a link to
+                download the speakers' slides.</p>
+            <p class="text-muted">After completing the survey, we will provide you with links to download speaker
+                presentations.</p>
+
+            <form method="post" action="{{ route('survey.store') }}" novalidate id="surveyForm">
                 @csrf
 
+                {{-- Email --}}
                 <div class="form-group">
-                    <label>Email <span class="text-danger">*</span></label>
+                    <label class="form-title">Email <span class="required-bullet">*</span></label>
                     <input type="email" name="email" value="{{ old('email') }}"
-                        class="form-control @error('email') is-invalid @enderror" placeholder="you@company.com"
-                        required>
+                        class="form-control form-control-lg @error('email') is-invalid @enderror"
+                        placeholder="you@company.com" required>
                     @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
+                {{-- Score 1–5 --}}
                 <div class="form-group">
-                    <label>On a scale of 1 to 5 (1 = lowest, 5 = highest), how informative was this event?</label>
-                    <div class="d-flex align-items-center">
+                    <label class="form-title">
+                        On a scale of 1 to 5 with 1 being the lowest and 5 being the highest, how informative was this
+                        event?
+                        <span class="required-bullet">*</span>
+                    </label>
+                    <div class="score-wrap mt-1">
                         @for ($i = 1; $i <= 5; $i++)
-                            <div class="custom-control custom-radio mr-3">
+                            <label class="score-option m-0">
                                 <input type="radio" id="score{{ $i }}" name="informative_score"
-                                    value="{{ $i }}" class="custom-control-input"
-                                    {{ old('informative_score') == $i ? 'checked' : '' }} required>
-                                <label class="custom-control-label"
-                                    for="score{{ $i }}">{{ $i }}</label>
-                            </div>
+                                    value="{{ $i }}" {{ old('informative_score') == $i ? 'checked' : '' }}
+                                    required>
+                                <div class="score-btn">{{ $i }}</div>
+                            </label>
                         @endfor
                     </div>
                     @error('informative_score')
-                        <div class="text-danger small mt-1">{{ $message }}</div>
+                        <div class="invalid-inline mt-2">{{ $message }}</div>
                     @enderror
                 </div>
 
+                {{-- Checkbox group (multi select) --}}
                 <div class="form-group">
-                    <label>Which presentation was most relevant to the information you need?</label>
-                    <select name="most_relevant_presentation"
-                        class="form-control @error('most_relevant_presentation') is-invalid @enderror" required>
-                        <option value="" disabled {{ old('most_relevant_presentation') ? '' : 'selected' }}>
-                            Choose
-                            one</option>
-                        <option
-                            {{ old('most_relevant_presentation') == 'Spotlight on US Tariffs: Impact on Global Coal Supply and Demand' ? 'selected' : '' }}>
+                    <label class="form-title">Which presentation was most relevant to the information you need? <span
+                            class="required-bullet">*</span></label>
+
+                    <div class="mt-2">
+                        <label class="checkcard mb-2 d-block">
+                            <input type="checkbox" name="most_relevant_presentations[]"
+                                value="Spotlight on US Tariffs: Impact on Global Coal Supply and Demand"
+                                {{ in_array('Spotlight on US Tariffs: Impact on Global Coal Supply and Demand', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
+                            <span class="tick"></span>
                             Spotlight on US Tariffs: Impact on Global Coal Supply and Demand
-                        </option>
-                        <option
-                            {{ old('most_relevant_presentation') == 'Choosing the Right Coal Index and Managing Risk' ? 'selected' : '' }}>
+                        </label>
+
+                        <label class="checkcard mb-2 d-block">
+                            <input type="checkbox" name="most_relevant_presentations[]"
+                                value="Choosing the Right Coal Index and Managing Risk"
+                                {{ in_array('Choosing the Right Coal Index and Managing Risk', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
+                            <span class="tick"></span>
                             Choosing the Right Coal Index and Managing Risk
-                        </option>
-                        <option
-                            {{ old('most_relevant_presentation') == 'Chinese Coal Policy: Impact on Supply and Demand' ? 'selected' : '' }}>
+                        </label>
+
+                        <label class="checkcard mb-2 d-block">
+                            <input type="checkbox" name="most_relevant_presentations[]"
+                                value="Chinese Coal Policy: Impact on Supply and Demand"
+                                {{ in_array('Chinese Coal Policy: Impact on Supply and Demand', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
+                            <span class="tick"></span>
                             Chinese Coal Policy: Impact on Supply and Demand
-                        </option>
-                        <option
-                            {{ old('most_relevant_presentation') == 'Met Coal: Challenges and Opportunities for Indonesia' ? 'selected' : '' }}>
-                            Met Coal: Challenges and Opportunities for Indonesia
-                        </option>
-                    </select>
-                    @error('most_relevant_presentation')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        </label>
+
+                        <label class="checkcard mb-2 d-block">
+                            <input type="checkbox" name="most_relevant_presentations[]"
+                                value="Met Coal Challenges and Opportunities for Indonesia"
+                                {{ in_array('Met Coal Challenges and Opportunities for Indonesia', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
+                            <span class="tick"></span>
+                            Met Coal Challenges and Opportunities for Indonesia
+                        </label>
+
+                        <label class="checkcard d-block">
+                            <input type="checkbox" name="most_relevant_presentations[]"
+                                value="An Introduction to Minespans"
+                                {{ in_array('An Introduction to Minespans', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
+                            <span class="tick"></span>
+                            An Introduction to Minespans
+                        </label>
+                    </div>
+
+                    {{-- helper error (custom for checkbox group) --}}
+                    <div id="presentationsError" class="invalid-inline mt-2" style="display:none;">
+                        Please select at least one option.
+                    </div>
+                    @error('most_relevant_presentations')
+                        <div class="invalid-inline mt-2">{{ $message }}</div>
                     @enderror
                 </div>
 
+                {{-- Are you a customer... --}}
                 <div class="form-group">
-                    <label>Are you a DMC member?</label>
+                    <label class="form-title">Are you a customer of McCloskey? <span
+                            class="required-bullet">*</span></label>
                     <div class="custom-control custom-radio">
                         <input type="radio" id="mYes" name="is_member" value="1"
-                            class="custom-control-input" {{ old('is_member') === '1' ? 'checked' : '' }}>
+                            class="custom-control-input" {{ old('is_member') === '1' ? 'checked' : '' }} required>
                         <label class="custom-control-label" for="mYes">Yes</label>
                     </div>
                     <div class="custom-control custom-radio">
                         <input type="radio" id="mNo" name="is_member" value="0"
-                            class="custom-control-input" {{ old('is_member') === '0' ? 'checked' : '' }}>
+                            class="custom-control-input" {{ old('is_member') === '0' ? 'checked' : '' }} required>
                         <label class="custom-control-label" for="mNo">No</label>
                     </div>
+                    @error('is_member')
+                        <div class="invalid-inline mt-2">{{ $message }}</div>
+                    @enderror
                 </div>
 
+                {{-- If not, interested... --}}
                 <div class="form-group">
-                    <label>If not, would you be interested in learning more about DMC services?</label>
+                    <label class="form-title">If not, would you be interested in learning more about McCloskey’s
+                        services? <span class="required-bullet">*</span></label>
                     <div class="custom-control custom-radio">
                         <input type="radio" id="wYes" name="wants_more_info" value="1"
-                            class="custom-control-input" {{ old('wants_more_info') === '1' ? 'checked' : '' }}>
+                            class="custom-control-input" {{ old('wants_more_info') === '1' ? 'checked' : '' }}
+                            required>
                         <label class="custom-control-label" for="wYes">Yes</label>
                     </div>
                     <div class="custom-control custom-radio">
                         <input type="radio" id="wNo" name="wants_more_info" value="0"
-                            class="custom-control-input" {{ old('wants_more_info') === '0' ? 'checked' : '' }}>
+                            class="custom-control-input" {{ old('wants_more_info') === '0' ? 'checked' : '' }}
+                            required>
                         <label class="custom-control-label" for="wNo">No</label>
                     </div>
+                    @error('wants_more_info')
+                        <div class="invalid-inline mt-2">{{ $message }}</div>
+                    @enderror
                 </div>
 
+                {{-- Feedback --}}
                 <div class="form-group">
-                    <label>What can we do better for the next Briefing?</label>
-                    <textarea name="feedback" rows="3" class="form-control">{{ old('feedback') }}</textarea>
+                    <label class="form-title">What can we do better for the next Indonesia Energy Market Briefing?
+                        <span class="required-bullet">*</span></label>
+                    <textarea name="feedback" rows="3" class="form-control" required>{{ old('feedback') }}</textarea>
+                    @error('feedback')
+                        <div class="invalid-inline mt-2">{{ $message }}</div>
+                    @enderror
                 </div>
 
+                {{-- Topics 2026 --}}
                 <div class="form-group">
-                    <label>What topics or updates would you like to see in 2026?</label>
-                    <textarea name="topics_2026" rows="3" class="form-control">{{ old('topics_2026') }}</textarea>
-                </div>
-
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" id="consent" name="consent"
-                        {{ old('consent', true) ? 'checked' : '' }} required>
-                    <label class="form-check-label" for="consent">
-                        I consent to DMC storing my responses for follow-up.
-                    </label>
-                    @error('consent')
-                        <div class="text-danger small mt-1">{{ $message }}</div>
+                    <label class="form-title">What topics, updates would you like to see explored in 2026? <span
+                            class="required-bullet">*</span></label>
+                    <textarea name="topics_2026" rows="3" class="form-control" required>{{ old('topics_2026') }}</textarea>
+                    @error('topics_2026')
+                        <div class="invalid-inline mt-2">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -230,19 +378,60 @@
         </div>
     </div>
 
-    <!-- Bootstrap 4 JS deps -->
+    <!-- JS deps -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-        // optional: prevent double submit
+        // Toggle visual state for checkcards, and custom "required at least 1"
         (function() {
-            var btn = document.getElementById('submitBtn');
-            if (!btn) return;
-            btn.addEventListener('click', function() {
+            var groupSelector = 'input[name="most_relevant_presentations[]"]';
+            var errorEl = document.getElementById('presentationsError');
+            var group = [].slice.call(document.querySelectorAll(groupSelector));
+            var touched = false; // jangan munculkan error sebelum interaksi/submit
+
+            function refreshCheckcards() {
+                group.forEach(function(cb) {
+                    var card = cb.closest('.checkcard');
+                    if (!card) return;
+                    if (cb.checked) card.classList.add('checked');
+                    else card.classList.remove('checked');
+                });
+            }
+
+            function validateGroup(showNow) {
+                var atLeastOne = group.some(function(cb) {
+                    return cb.checked;
+                });
+                if (showNow) errorEl.style.display = atLeastOne ? 'none' : 'block';
+                return atLeastOne;
+            }
+
+            document.addEventListener('change', function(e) {
+                if (e.target && e.target.matches(groupSelector)) {
+                    touched = true;
+                    refreshCheckcards();
+                    validateGroup(true);
+                }
+            });
+
+            // initial state from old()
+            refreshCheckcards();
+            // (jangan panggil validateGroup(true) agar tidak muncul error pas load)
+
+            // Guard double submit & enforce checkbox-group validity
+            var form = document.getElementById('surveyForm');
+            var submitBtn = document.getElementById('submitBtn');
+            form.addEventListener('submit', function(e) {
+                var ok = validateGroup(true);
+                if (!ok) {
+                    e.preventDefault();
+                    touched = true;
+                    return;
+                }
                 setTimeout(function() {
-                    btn.disabled = true;
+                    submitBtn.disabled = true;
                 }, 0);
             });
         })();
