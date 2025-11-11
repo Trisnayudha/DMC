@@ -386,6 +386,24 @@
                                                                         class="dropdown-item">Reject</button>
                                                                 </li>
                                                             </form>
+                                                            @if ($post->status_registration == 'Paid Off')
+                                                                <form action="{{ url('admin/events/action') }}"
+                                                                    method="post"
+                                                                    onsubmit="return confirm('Cancel this paid registration?')">
+                                                                    @csrf
+                                                                    <li>
+                                                                        <input type="hidden" name="id"
+                                                                            value="{{ $post->payment_id }}">
+                                                                        <input type="hidden" name="val"
+                                                                            value="cancel">
+                                                                        <button type="submit"
+                                                                            class="dropdown-item text-danger">
+                                                                            Cancel Registration
+                                                                        </button>
+                                                                    </li>
+                                                                </form>
+                                                            @endif
+
                                                             <form action="{{ url('admin/events/ticket') }}"
                                                                 method="post" target="_blank">
                                                                 @csrf

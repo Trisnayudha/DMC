@@ -450,6 +450,22 @@ class EventsDetailController extends Controller
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
                 return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Approval');
+            } elseif ($val == 'cancel') {
+                // Kirim email pembatalan
+                $send = new EmailSender();
+                $send->from = env('EMAIL_SENDER');
+                $send->to = $email;
+                $send->data = $data;
+                $send->name = $check->name;
+
+                // === SUBJECT BARU ===
+                $send->subject = $check->code_payment . ' - Registration Cancellation for ' . $findEvent->name;
+
+                $send->template = 'email.cancel-event';
+                $send->sendEmail();
+
+                return redirect()->route('events-details', ['slug' => $findEvent->slug])
+                    ->with('success', 'Registration cancelled successfully');
             } else {
                 $send = new EmailSender();
                 $send->from = env('EMAIL_SENDER');
