@@ -379,111 +379,138 @@ class EventsDetailController extends Controller
 
     public function action(Request $request)
     {
-        $id = $request->id;
+        $id  = $request->id;
         $val = $request->val;
-        $db = null;
-        $update = Payment::where('id', $id)->first();
-        $findEvent = Events::where('id', $update->events_id)->first();
-        $pic = Auth::id();
-        if (!empty($update)) {
-            $check = DB::table('payment')
-                ->leftJoin('users', 'users.id', 'payment.member_id')
-                ->leftJoin('company', 'company.users_id', 'users.id')
-                ->leftJoin('profiles', 'profiles.users_id', 'users.id')
-                ->select('payment.*', 'users.*', 'payment.id as payment_id', 'profiles.*', 'company.*')
-                ->where('payment.id', '=', $id)
-                ->first();
-            if ($val == 'approve') {
-                $update->status_registration = "Paid Off";
-                $update->payment_method = 'Approve Manual';
-                $image = QrCode::format('png')
-                    ->size(200)->errorCorrection('H')
-                    ->generate($check->code_payment);
-                $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
-                $db = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
-                Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
-                $update->qr_code = $db;
-                $saveUser = UserRegister::where('users_id', $check->users_id)->where('events_id', $update->events_id)->first();
-                if (empty($saveUser)) {
-                    $saveUser = new UserRegister();
-                }
-                $saveUser->events_id = $update->events_id;
-                $saveUser->users_id = $check->users_id;
-                $saveUser->payment_id = $check->payment_id;
-                $saveUser->save();
-            } else {
-                $update->status_registration = "Reject";
-                $saveUser = UserRegister::where('users_id', $check->users_id)->where('events_id', $update->events_id)->first();
-                if (!empty($saveUser)) {
-                    $saveUser->delete();
-                }
-            }
-            $update->pic_id = $pic;
-            $update->save();
+        $db  = null;
 
-            // dd($check);
-            $data = [
-                'code_payment' => $check->code_payment,
-                'create_date' => date('d, M Y H:i'),
-                'users_name' => $check->name,
-                'users_email' => $check->email,
-                'phone' => $check->phone,
-                'job_title' => $check->job_title,
-                'company_name' => $check->company_name,
-                'company_address' => $check->address,
-                'events_name' => $findEvent->name,
-                'start_date' => $findEvent->start_date,
-                'end_date' => $findEvent->end_date,
-                'start_time' => $findEvent->start_time,
-                'end_time' => $findEvent->end_time,
-                'image' => $db
-            ];
-            $email = $check->email;
-            $code_payment = $check->code_payment;
-            if ($val == 'approve') {
-                $pdf = Pdf::loadView('email.ticket', $data);
-                Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
-                    $message->from(env('EMAIL_SENDER'));
-                    $message->to($email);
-                    $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
-                    // $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
-                    $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
-                });
-                return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Approval');
-            } elseif ($val == 'cancel') {
-                // Kirim email pembatalan
-                $send = new EmailSender();
-                $send->from = env('EMAIL_SENDER');
-                $send->to = $email;
-                $send->data = $data;
-                $send->name = $check->name;
-
-                // === SUBJECT BARU ===
-                $send->subject = $check->code_payment . ' - Registration Cancellation for ' . $findEvent->name;
-
-                $send->template = 'email.cancel-event';
-                $send->sendEmail();
-
-                return redirect()->route('events-details', ['slug' => $findEvent->slug])
-                    ->with('success', 'Registration cancelled successfully');
-            } else {
-                $send = new EmailSender();
-                $send->from = env('EMAIL_SENDER');
-                $send->to = $email;
-                $send->data = $data;
-                $send->subject = '[FULLY BOOKED] ' . $findEvent->name;
-                $send->name = $check->name;
-                $send->template = 'email.reject-event';
-                $send->sendEmail();
-                return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Successfully Reject Register');
-            }
-            // $pdf = Pdf::loadView('email.ticket', $data);
-            // return $pdf->stream();
-
-        } else {
-            dd("Payment not found");
+        $update    = Payment::where('id', $id)->first();
+        if (!$update) {
+            return back()->with('error', 'Payment not found');
         }
+
+        $findEvent = Events::where('id', $update->events_id)->first();
+        $pic       = Auth::id();
+
+        // Ambil detail user/payment
+        $check = DB::table('payment')
+            ->leftJoin('users', 'users.id', 'payment.member_id')
+            ->leftJoin('company', 'company.users_id', 'users.id')
+            ->leftJoin('profiles', 'profiles.users_id', 'users.id')
+            ->select('payment.*', 'users.*', 'payment.id as payment_id', 'profiles.*', 'company.*')
+            ->where('payment.id', $id)
+            ->first();
+
+        if (!$check) {
+            return back()->with('error', 'Payment detail not found');
+        }
+
+        if ($val === 'approve') {
+            // === APPROVE ===
+            $update->status_registration = "Paid Off";
+            $update->payment_method      = 'Approve Manual';
+
+            $image       = QrCode::format('png')->size(200)->errorCorrection('H')->generate($check->code_payment);
+            $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+            $db          = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+            Storage::disk('local')->put($output_file, $image);
+            $update->qr_code = $db;
+
+            $saveUser = UserRegister::where('users_id', $check->users_id)
+                ->where('events_id', $update->events_id)
+                ->first();
+            if (!$saveUser) $saveUser = new UserRegister();
+            $saveUser->events_id = $update->events_id;
+            $saveUser->users_id  = $check->users_id;
+            $saveUser->payment_id = $check->payment_id;
+            $saveUser->save();
+        } elseif ($val === 'cancel') {
+            // === CANCEL === (INI YANG SEBELUMNYA BELUM MENGUBAH STATUS)
+            $update->status_registration = "Cancel"; // atau "Cancelled" sesuai konvensi di DB-mu
+            $update->payment_method      = $update->payment_method ?: 'Cancelled by Admin';
+
+            // Lepas kursi: hapus record presence/register untuk event ini
+            UserRegister::where('users_id', $check->users_id)
+                ->where('events_id', $update->events_id)
+                ->delete();
+
+            // (Opsional) Hapus QR agar tidak bisa dipakai lagi
+            // $update->qr_code = null;
+        } else {
+            // === REJECT ===
+            $update->status_registration = "Reject";
+
+            $saveUser = UserRegister::where('users_id', $check->users_id)
+                ->where('events_id', $update->events_id)
+                ->first();
+            if ($saveUser) $saveUser->delete();
+        }
+
+        $update->pic_id = $pic;
+        $update->save(); // <-- PENTING: simpan perubahan status apapun cabangnya
+
+        // Data email
+        $data = [
+            'code_payment'   => $check->code_payment,
+            'create_date'    => date('d, M Y H:i'),
+            'users_name'     => $check->name,
+            'users_email'    => $check->email,
+            'phone'          => $check->phone,
+            'job_title'      => $check->job_title,
+            'company_name'   => $check->company_name,
+            'company_address' => $check->address,
+            'events_name'    => $findEvent->name,
+            'start_date'     => $findEvent->start_date,
+            'end_date'       => $findEvent->end_date,
+            'start_time'     => $findEvent->start_time,
+            'end_time'       => $findEvent->end_time,
+            'image'          => $db
+        ];
+
+        $email        = $check->email;
+        $code_payment = $check->code_payment;
+
+        if ($val === 'approve') {
+            $pdf = Pdf::loadView('email.ticket', $data);
+            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
+                $message->from(env('EMAIL_SENDER'));
+                $message->to($email);
+                $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
+                $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
+            });
+            return redirect()->route('events-details', ['slug' => $findEvent->slug])
+                ->with('success', 'Successfully Approval');
+        }
+
+        if ($val === 'cancel') {
+            // Email pembatalan (SUBJECT sesuai permintaan: "Nomor Tiket - Registration Cancellation for ...")
+            $send          = new EmailSender();
+            $send->from    = env('EMAIL_SENDER');
+            $send->to      = $email;
+            $send->data    = $data;
+            $send->name    = $check->name;
+            $send->subject = $code_payment . ' - Registration Cancellation for ' . $findEvent->name;
+            $send->template = 'email.cancel-event';
+            $send->sendEmail();
+
+            // HAPUS dd($send); karena menghentikan flow
+            return redirect()->route('events-details', ['slug' => $findEvent->slug])
+                ->with('success', 'Registration cancelled successfully');
+        }
+
+        // default: reject
+        $send          = new EmailSender();
+        $send->from    = env('EMAIL_SENDER');
+        $send->to      = $email;
+        $send->data    = $data;
+        $send->subject = '[FULLY BOOKED] ' . $findEvent->name;
+        $send->name    = $check->name;
+        $send->template = 'email.reject-event';
+        $send->sendEmail();
+
+        return redirect()->route('events-details', ['slug' => $findEvent->slug])
+            ->with('success', 'Successfully Reject Register');
     }
+
     public function removeParticipant(Request $request)
     {
         $id = $request->id;
