@@ -65,7 +65,7 @@
                 Your seat will be offered to participants on the waiting list.</p>
 
             <p>If you believe this is an error or would like further assistance, please contact us at
-                secretariat@djakarta-miningclub.com or +62 811 1937 300.</b>.
+                secretariat@djakarta-miningclub.com or +62 811 1937 300.</b>
             </p>
 
             <p>We apologize for any inconvenience caused. We look forward to welcoming you at our future events.
