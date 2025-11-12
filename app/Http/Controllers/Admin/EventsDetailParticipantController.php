@@ -104,16 +104,17 @@ class EventsDetailParticipantController extends Controller
         ]);
 
         $payment = Payment::findOrFail($request->payment_id);
-        $user    = User::findOrFail($request->users_id);
-        $event   = Events::findOrFail($request->events_id);
+        $user = User::findOrFail($payment->member_id);
+        $profile = ProfileModel::where('users_id', $payment->member_id)->firstOrFail();
+        $company = CompanyModel::where('users_id', $payment->member_id)->firstOrFail();
+        $event = Events::findOrFail($request->events_id);
+
+        $userRegistration = $this->findOrCreateUserRegistration($user->id, $event->id, $payment->id);
+        $qrCodePath = $this->generateAndStoreQrCode($payment->code_payment);
+
+        $data = $this->prepareData($user, $profile, $company, $event, $qrCodePath, $payment);
 
         // Data untuk view ticket (samakan dengan yg kamu pakai di sendConfirmationWhatsapp)
-        $data = [
-            'users_name'   => $user->name,
-            'code_payment' => $payment->code_payment,
-            'event'        => $event,
-            // tambahkan field lain yang dipakai oleh 'email.ticket' bila perlu
-        ];
 
         // Generate PDF & simpan
         $pdf      = Pdf::loadView('email.ticket', $data);
