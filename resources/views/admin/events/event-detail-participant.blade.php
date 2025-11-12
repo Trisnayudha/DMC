@@ -110,7 +110,9 @@
                                                 @if ($list[0]['end_date'] >= date('Y-m-d'))
                                                     <th>Confirmation Email</th>
                                                     <th>Confirmation Whatsapp</th>
+                                                    <th>WA Manual</th> <!-- NEW -->
                                                 @endif
+
                                                 <th>Date Present </th>
                                             </tr>
                                         </thead>
@@ -171,6 +173,27 @@
                                                             @endif
                                                         </td>
                                                     @endif
+                                                    <td>
+                                                        <button type="button" class="btn btn-success open-wa-manual"
+                                                            title="Kirim via WhatsApp Manual"
+                                                            data-users-id="{{ $post->users_id }}"
+                                                            data-events-id="{{ $post->events_id }}"
+                                                            data-payment-id="{{ $post->payment_id }}"
+                                                            data-name="{{ $post->name }}"
+                                                            data-phone="{{ $post->prefix_phone != null ? $post->fullphone : $post->phone }}"
+                                                            data-event-name="{{ $post->event_name ?? ($event->name ?? 'Our Event') }}"
+                                                            data-location="{{ $post->location ?? ($event->location ?? 'Jakarta, Indonesia') }}"
+                                                            data-start-time="{{ isset($post->start_time) ? date('h.i a', strtotime($post->start_time)) : (isset($event->start_time) ? date('h.i a', strtotime($event->start_time)) : '01.30 pm') }}"
+                                                            data-end-time="{{ isset($post->end_time) ? date('h.i a', strtotime($post->end_time)) : (isset($event->end_time) ? date('h.i a', strtotime($event->end_time)) : '06.00 pm') }}"
+                                                            data-event-date="{{ isset($post->start_date)
+                                                                ? \Carbon\Carbon::parse($post->start_date)->isoFormat('dddd, D MMMM YYYY')
+                                                                : (isset($event->start_date)
+                                                                    ? \Carbon\Carbon::parse($event->start_date)->isoFormat('dddd, D MMMM YYYY')
+                                                                    : \Carbon\Carbon::parse($post->end_date)->isoFormat('dddd, D MMMM YYYY')) }}"
+                                                            data-ticket-url="{{ $post->ticket_url ?? (isset($post->code_payment) ? url('/storage/ticket/ticket_' . $post->code_payment . '_' . time() . '.pdf') : '') }}">
+                                                            <span class="fa fa-whatsapp"></span>
+                                                        </button>
+                                                    </td>
                                                     <td>
                                                         @if ($post->present == null)
                                                             <form action="{{ Route('events-send-participant') }}"
@@ -237,6 +260,39 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal WA Manual -->
+    <div class="modal fade" id="waManualModal" tabindex="-1" role="dialog" aria-labelledby="waManualModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="waManualModalLabel">Kirim WhatsApp Manual (wa.me)</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nomor Tujuan (Internasional, tanpa +)</label>
+                        <input type="text" class="form-control" id="waManualPhone" placeholder="62xxxxxxxxxxx"
+                            required>
+                        <small class="form-text text-muted">Otomatis diformat: “0xxxx” → “62xxxx”. Simbol + akan
+                            dihapus.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Pesan</label>
+                        <textarea class="form-control" id="waManualText" rows="10" required></textarea>
+                        <small class="form-text text-muted"><span id="waCharCount">0</span> karakter</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button class="btn btn-success" id="waManualSend">Buka WhatsApp</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 @endsection
 
@@ -328,6 +384,81 @@
                 // Tampilkan modal
                 $('#phoneModal').modal('show');
             });
+        });
+    </script>
+    <script>
+        function formatPhoneTo62(raw) {
+            let p = (raw || '').toString().trim();
+            p = p.replace(/[^\d]/g, ''); // keep digits only
+            if (p.startsWith('0')) { // 08xxx -> 628xxx
+                p = '62' + p.slice(1);
+            }
+            if (p.startsWith('62')) { // ok
+                return p;
+            }
+            // kalau kosong atau format lain, tetap kembalikan apa adanya (user bisa edit)
+            return p;
+        }
+
+        function buildDefaultMessage(d) {
+            // d = {eventName, userName, eventDate, location, startTime, endTime, ticketUrl}
+            const ticketLine = d.ticketUrl ? `Your E-Ticket here: ${d.ticketUrl}\n\n` : '';
+            return (
+                `📌"REMINDER to attend ${d.eventName}"
+
+Hi ${d.userName},
+
+This is a confirmation that you are registered to attend our event on ${d.eventDate} at ${d.location}, starting at ${d.startTime} - ${d.endTime} (WIB) and followed by Networking Dinner and Drinks.
+
+Please confirm your attendance by replying "YES" to this message. If you are unable to attend, kindly respond with "NO" so that we may offer your spot to someone on the waitlist.
+
+${ticketLine}For the event rundown and agenda, please visit our website at www.djakarta-miningclub.com.
+
+We look forward to seeing you there. Thank you 😊🙏🏻
+
+Regards,
+The Djakarta Mining Club Team`
+            );
+        }
+
+        $(document).on('click', '.open-wa-manual', function() {
+            const $btn = $(this);
+            const data = {
+                userName: $btn.data('name') || 'Participant',
+                phone: $btn.data('phone') || '',
+                eventName: $btn.data('event-name') || 'Our Event',
+                location: $btn.data('location') || 'Jakarta, Indonesia',
+                startTime: $btn.data('start-time') || '01.30 pm',
+                endTime: $btn.data('end-time') || '06.00 pm',
+                eventDate: $btn.data('event-date') || '',
+                ticketUrl: $btn.data('ticket-url') || ''
+            };
+
+            // Prefill modal
+            const formatted = formatPhoneTo62(data.phone);
+            $('#waManualPhone').val(formatted);
+            const msg = buildDefaultMessage(data);
+            $('#waManualText').val(msg);
+            $('#waCharCount').text(msg.length);
+
+            $('#waManualModal').modal('show');
+        });
+
+        $('#waManualText').on('input', function() {
+            $('#waCharCount').text($(this).val().length);
+        });
+
+        $('#waManualSend').on('click', function() {
+            const phone = formatPhoneTo62($('#waManualPhone').val());
+            const text = $('#waManualText').val() || '';
+            if (!phone) {
+                alert('Nomor tujuan belum diisi.');
+                return;
+            }
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+            // opsional: close modal
+            $('#waManualModal').modal('hide');
         });
     </script>
 @endpush
