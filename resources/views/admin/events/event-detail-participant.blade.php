@@ -387,20 +387,17 @@
         });
     </script>
     <script>
-        function formatPhoneTo62(raw) {
-            let p = (raw || '').toString().trim();
-            p = p.replace(/[^\d]/g, ''); // keep digits only
-            if (p.startsWith('0')) { // 08xxx -> 628xxx
-                p = '62' + p.slice(1);
-            }
-            if (p.startsWith('62')) { // ok
-                return p;
-            }
-            // kalau kosong atau format lain, tetap kembalikan apa adanya (user bisa edit)
-            return p;
+        /** Nomor tujuan tetap: 08111937399 -> wa.me harus pakai format internasional tanpa '+' **/
+        const DEST_WA_LOCAL = '08111937399';
+
+        function formatTo62(raw) {
+            let p = (raw || '').toString().trim().replace(/[^\d]/g, '');
+            if (p.startsWith('0')) p = '62' + p.slice(1);
+            if (p.startsWith('62')) return p;
+            return p; // fallback
         }
 
-        function buildDefaultMessage(d) {
+        function buildWaMessage(d) {
             // d = {eventName, userName, eventDate, location, startTime, endTime, ticketUrl}
             const ticketLine = d.ticketUrl ? `Your E-Ticket here: ${d.ticketUrl}\n\n` : '';
             return (
@@ -421,44 +418,24 @@ The Djakarta Mining Club Team`
             );
         }
 
-        $(document).on('click', '.open-wa-manual', function() {
-            const $btn = $(this);
-            const data = {
-                userName: $btn.data('name') || 'Participant',
-                phone: $btn.data('phone') || '',
-                eventName: $btn.data('event-name') || 'Our Event',
-                location: $btn.data('location') || 'Jakarta, Indonesia',
-                startTime: $btn.data('start-time') || '01.30 pm',
-                endTime: $btn.data('end-time') || '06.00 pm',
-                eventDate: $btn.data('event-date') || '',
-                ticketUrl: $btn.data('ticket-url') || ''
+        $(document).on('click', '.wa-direct', function() {
+            const $b = $(this);
+            const payload = {
+                userName: $b.data('user-name') || 'Participant',
+                eventName: $b.data('event-name') || 'Our Event',
+                eventDate: $b.data('event-date') || '',
+                location: $b.data('location') || 'Jakarta, Indonesia',
+                startTime: $b.data('start-time') || '01.30 pm',
+                endTime: $b.data('end-time') || '06.00 pm',
+                ticketUrl: $b.data('ticket-url') || ''
             };
 
-            // Prefill modal
-            const formatted = formatPhoneTo62(data.phone);
-            $('#waManualPhone').val(formatted);
-            const msg = buildDefaultMessage(data);
-            $('#waManualText').val(msg);
-            $('#waCharCount').text(msg.length);
+            const text = buildWaMessage(payload);
+            const dest = formatTo62(DEST_WA_LOCAL); // -> 628111937399
+            const url = `https://wa.me/${dest}?text=${encodeURIComponent(text)}`;
 
-            $('#waManualModal').modal('show');
-        });
-
-        $('#waManualText').on('input', function() {
-            $('#waCharCount').text($(this).val().length);
-        });
-
-        $('#waManualSend').on('click', function() {
-            const phone = formatPhoneTo62($('#waManualPhone').val());
-            const text = $('#waManualText').val() || '';
-            if (!phone) {
-                alert('Nomor tujuan belum diisi.');
-                return;
-            }
-            const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+            // Buka tab baru langsung ke wa.me (siap kirim dari HP yg login ke nomor 0811…)
             window.open(url, '_blank');
-            // opsional: close modal
-            $('#waManualModal').modal('hide');
         });
     </script>
 @endpush

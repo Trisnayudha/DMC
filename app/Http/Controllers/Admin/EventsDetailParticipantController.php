@@ -72,6 +72,7 @@ class EventsDetailParticipantController extends Controller
                 'payment.id as payment_id',
                 'events.start_date',
                 'events.end_date',
+                'events.name as events_name',
                 'company.company_category',
                 'company.company_other'
             )
