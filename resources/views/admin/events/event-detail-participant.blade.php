@@ -176,7 +176,7 @@
                                                     @if ($post->end_date >= date('Y-m-d'))
                                                         <td>
                                                             <button type="button" class="btn btn-success open-wa-direct"
-                                                                title="Kirim via wa.me (generate + copy)"
+                                                                title="WA Manual (generate & copy)"
                                                                 data-users-id="{{ $post->users_id }}"
                                                                 data-events-id="{{ $post->events_id }}"
                                                                 data-payment-id="{{ $post->payment_id }}"
@@ -190,12 +190,13 @@
                                                                     : (isset($event->start_date)
                                                                         ? \Carbon\Carbon::parse($event->start_date)->isoFormat('dddd, D MMMM YYYY')
                                                                         : \Carbon\Carbon::parse($post->end_date)->isoFormat('dddd, D MMMM YYYY')) }}"
-                                                                data-ticket-url="{{ $post->ticket_url ?? '' }}">
+                                                                data-ticket-url="{{ $post->ticket_url ?? '' }}"
+                                                                data-dest-phone="{{ $post->prefix_phone != null ? $post->fullphone : $post->phone }}">
                                                                 <span class="fa fa-whatsapp"></span>
                                                             </button>
-
                                                         </td>
                                                     @endif
+
                                                     <td>
                                                         @if ($post->present == null)
                                                             <form action="{{ Route('events-send-participant') }}"
@@ -263,8 +264,7 @@
         </div>
     </div>
 
-    <!-- Modal WA Manual -->
-    <!-- Modal: WA Manual Generate & Copy -->
+    <!-- Modal: WA Manual — Generate & Copy (link-only) -->
     <div class="modal fade" id="waDirectModal" tabindex="-1" role="dialog" aria-labelledby="waDirectModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -280,8 +280,7 @@
                         <div class="form-group col-md-8">
                             <label>Nomor Tujuan</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="waDestPhone" value="08111937399"
-                                    placeholder="0811xxxxxxx">
+                                <input type="text" class="form-control" id="waDestPhone" placeholder="0811xxxxxxx">
                                 <div class="input-group-append">
                                     <button class="btn btn-outline-secondary" type="button" id="btnCopyPhone">Copy
                                         Nomor</button>
@@ -296,30 +295,38 @@
                         </div>
                     </div>
 
-                    <!-- Link wa.me -->
+                    <!-- Link wa.me (tanpa ?text=) -->
                     <div class="form-group">
                         <label>Link wa.me</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="waLink" readonly>
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" id="btnCopyLink">Copy Link &
-                                    Generate Template</button>
+                                <button class="btn btn-outline-secondary" type="button" id="btnCopyLink">Copy
+                                    Link</button>
                             </div>
                         </div>
-                        <small class="form-text text-muted">Klik “Copy Link” akan generate template pesan otomatis dari
-                            server.</small>
+                        <small class="form-text text-muted">Link ini hanya berisi nomor penerima (tanpa pesan).</small>
                     </div>
 
-                    <!-- Template Pesan -->
+                    <!-- Template Pesan (buat dicopy manual) -->
                     <div class="form-group">
                         <label>Template Pesan</label>
-                        <textarea class="form-control" id="waDirectText" rows="10" placeholder="Pesan akan di-generate otomatis..."></textarea>
+                        <textarea class="form-control" id="waDirectText" rows="10"
+                            placeholder="Klik 'Generate Template' untuk membuat pesan..."></textarea>
                         <div class="d-flex justify-content-between mt-2">
                             <small class="text-muted"><span id="waTextCount">0</span> karakter</small>
-                            <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyText">Copy
-                                Pesan</button>
+                            <div>
+                                <button class="btn btn-outline-primary btn-sm" type="button" id="btnGenerate">Generate
+                                    Template</button>
+                                <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyText">Copy
+                                    Pesan</button>
+                            </div>
                         </div>
                     </div>
+
+                    <small class="text-muted d-block">
+                        Nomor pengirim (HP kamu): <strong>08111937399</strong> — tidak dipakai pada link, hanya info.
+                    </small>
                 </div>
 
                 <div class="modal-footer">
@@ -431,22 +438,22 @@
             }
         });
 
+        // helper
         function normalizePhone(phone) {
-            let p = (phone || '').toString().trim().replace(/[^\d]/g, '');
+            let p = (phone || '').toString().trim();
+            p = p.replace(/[^\d+]/g, '');
+            if (p.startsWith('+')) p = p.slice(1);
+            p = p.replace(/[^\d]/g, '');
             if (p.startsWith('0')) p = '62' + p.slice(1);
-            if (p.startsWith('62')) return p;
+            if (!p.startsWith('62') && p.length > 0) p = '62' + p;
             return p;
         }
 
-        function updatePreviewLink() {
-            const raw = $('#waDestPhone').val();
-            const norm = normalizePhone(raw);
+        function updateLinkOnly() {
+            const norm = normalizePhone($('#waDestPhone').val());
             $('#waNormPhone').val(norm);
-            const text = $('#waDirectText').val() || '';
-            const link = norm ? `https://wa.me/${norm}?text=${encodeURIComponent(text)}` : '';
-            $('#waLink').val(link);
+            $('#waLink').val(norm ? `https://wa.me/${norm}` : '');
         }
-
         async function copyToClipboard(text) {
             try {
                 await navigator.clipboard.writeText(text);
@@ -462,76 +469,59 @@
             }
         }
 
-        // simpan context IDs dari tombol row
+        // context IDs
         let ctxUsersId = null,
             ctxEventsId = null,
             ctxPaymentId = null;
 
         $(document).on('click', '.open-wa-direct', function() {
             const $b = $(this);
-            // simpan IDs
             ctxUsersId = $b.data('users-id');
             ctxEventsId = $b.data('events-id');
             ctxPaymentId = $b.data('payment-id');
 
-            // default nomor tujuan (boleh ganti)
-            $('#waDestPhone').val('08111937399');
-            $('#waDirectText').val(''); // kosong dulu, nanti diisi setelah generate
+            const rawDest = $b.data('dest-phone') || '';
+            $('#waDestPhone').val(rawDest);
+            $('#waDirectText').val('');
             $('#waTextCount').text('0');
-            updatePreviewLink();
+            updateLinkOnly();
 
             $('#waDirectModal').modal('show');
         });
 
-        // sinkron tampilan
-        $('#waDestPhone').on('input', updatePreviewLink);
+        $('#waDestPhone').on('input', updateLinkOnly);
         $('#waDirectText').on('input', function() {
             $('#waTextCount').text($(this).val().length);
-            updatePreviewLink();
         });
 
-        // Copy NOMOR (bebas urutan)
+        // copy nomor
         $('#btnCopyPhone').on('click', async function() {
             const ok = await copyToClipboard($('#waDestPhone').val() || '');
             alert(ok ? 'Nomor tujuan disalin.' : 'Gagal menyalin nomor.');
         });
 
-        // Copy LINK -> setelah sukses, HIT BACKEND untuk GENERATE template
+        // copy link (link-only)
         $('#btnCopyLink').on('click', async function() {
             const ok = await copyToClipboard($('#waLink').val() || '');
-            if (!ok) {
-                alert('Gagal menyalin link.');
-                return;
-            }
+            alert(ok ? 'Link wa.me disalin.' : 'Gagal menyalin link.');
+        });
 
-            // Panggil backend generate template
-            const phoneRaw = $('#waDestPhone').val();
-            const phone = normalizePhone(phoneRaw);
-
-            if (!(ctxUsersId && ctxEventsId && ctxPaymentId)) {
-                alert('Context baris tidak lengkap.');
-                return;
-            }
-            // Opsional: spinner
-            $('#btnCopyLink').prop('disabled', true).text('Generating...');
+        // generate template (isi textarea, untuk dicopy manual)
+        $('#btnGenerate').on('click', async function() {
+            if (!(ctxUsersId && ctxEventsId && ctxPaymentId)) return alert('Data peserta tidak lengkap.');
+            const norm = normalizePhone($('#waDestPhone').val()); // opsional untuk logging
+            $('#btnGenerate').prop('disabled', true).text('Generating...');
             try {
                 const res = await $.post("{{ route('events-generate-wa-template') }}", {
                     users_id: ctxUsersId,
                     events_id: ctxEventsId,
                     payment_id: ctxPaymentId,
-                    phone: phone
+                    phone: norm
                 });
-
                 if (res && res.ok) {
-                    // isi textarea dengan message hasil generate
                     $('#waDirectText').val(res.message);
                     $('#waTextCount').text(res.message.length);
-
-                    // update link wa.me pakai pesan baru
-                    const link = `https://wa.me/${phone}?text=${encodeURIComponent(res.message)}`;
-                    $('#waLink').val(link);
-
-                    alert('Template berhasil digenerate & diisikan.');
+                    alert('Template berhasil digenerate. Silakan copy pesan.');
                 } else {
                     alert('Gagal generate template.');
                 }
@@ -539,20 +529,20 @@
                 console.error(e);
                 alert('Error generate template.');
             } finally {
-                $('#btnCopyLink').prop('disabled', false).text('Copy Link');
+                $('#btnGenerate').prop('disabled', false).text('Generate Template');
             }
         });
 
-        // Copy PESAN (opsional)
+        // copy pesan
         $('#btnCopyText').on('click', async function() {
             const ok = await copyToClipboard($('#waDirectText').val() || '');
             alert(ok ? 'Pesan disalin.' : 'Gagal menyalin pesan.');
         });
 
-        // Buka WhatsApp (pakai link terbaru)
+        // buka WA (link-only)
         $('#waDirectOpen').on('click', function() {
             const link = $('#waLink').val();
-            if (!link) return alert('Link kosong/nomor tidak valid.');
+            if (!link) return alert('Link kosong / nomor tidak valid.');
             window.open(link, '_blank');
         });
     </script>

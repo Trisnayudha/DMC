@@ -111,6 +111,7 @@ class EventsDetailParticipantController extends Controller
 
         $userRegistration = $this->findOrCreateUserRegistration($user->id, $event->id, $payment->id);
         $qrCodePath = $this->generateAndStoreQrCode($payment->code_payment);
+        $this->markAsWhatsapp($userRegistration);
 
         $data = $this->prepareData($user, $profile, $company, $event, $qrCodePath, $payment);
 
