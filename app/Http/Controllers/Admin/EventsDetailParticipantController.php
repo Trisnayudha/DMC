@@ -94,6 +94,69 @@ class EventsDetailParticipantController extends Controller
         return view('admin.events.event-detail-participant', $data);
     }
 
+    public function generateWaTemplate(Request $request)
+    {
+        $request->validate([
+            'users_id'  => 'required|integer',
+            'events_id' => 'required|integer',
+            'payment_id' => 'required|integer',
+            'phone'     => 'required|string',
+        ]);
+
+        $payment = Payment::findOrFail($request->payment_id);
+        $user    = User::findOrFail($request->users_id);
+        $event   = Events::findOrFail($request->events_id);
+
+        // Data untuk view ticket (samakan dengan yg kamu pakai di sendConfirmationWhatsapp)
+        $data = [
+            'users_name'   => $user->name,
+            'code_payment' => $payment->code_payment,
+            'event'        => $event,
+            // tambahkan field lain yang dipakai oleh 'email.ticket' bila perlu
+        ];
+
+        // Generate PDF & simpan
+        $pdf      = Pdf::loadView('email.ticket', $data);
+        $filename = 'ticket_' . $data['code_payment'] . '_' . time() . '.pdf';
+        $pdfPath  = 'public/ticket/' . $filename;
+        Storage::put($pdfPath, $pdf->output());
+        $publicUrl = url('/storage/ticket/' . $filename); // ini yg dibagikan ke peserta
+
+        // Nomor tujuan (bebas mau dipakai atau tidak dalam template)
+        $phone = $request->phone;
+
+        // Build pesan persis seperti fungsi lama (pakai tanggal/jam dynamic dari event)
+        $startTime = date('h.i a', strtotime($event->start_time));
+        $endTime   = date('h.i a', strtotime($event->end_time));
+        // Bisa pakai Carbon untuk format full hari/tanggal kalau mau
+        $eventDateHuman = \Carbon\Carbon::parse($event->start_date)->isoFormat('dddd, D MMMM YYYY');
+
+        $message =
+            '📌"REMINDER to attend ' . $event->name . '"
+
+Hi ' . $data['users_name'] . ',
+
+This is a confirmation that you are registered to attend our event on ' . $eventDateHuman . ' at ' . $event->location . ', starting at ' . $startTime . ' - ' . $endTime . ' (WIB) and followed by Networking Dinner and Drinks.
+
+Please confirm your attendance by replying "YES" to this message. If you are unable to attend, kindly respond with "NO" so that we may offer your spot to someone on the waitlist.
+
+Your E-Ticket here: ' . $publicUrl . '
+
+For the event rundown and agenda, please visit our website at www.djakarta-miningclub.com.
+
+We look forward to seeing you there. Thank you 😊🙏🏻
+
+Regards,
+The Djakarta Mining Club Team';
+
+        return response()->json([
+            'ok'         => true,
+            'ticket_url' => $publicUrl,
+            'message'    => $message,
+            'phone'      => $phone,
+        ]);
+    }
+
     //     public function sendParticipant(Request $request)
     //     {
     //         try {

@@ -176,7 +176,10 @@
                                                     @if ($post->end_date >= date('Y-m-d'))
                                                         <td>
                                                             <button type="button" class="btn btn-success open-wa-direct"
-                                                                title="Kirim via wa.me manual"
+                                                                title="Kirim via wa.me (generate + copy)"
+                                                                data-users-id="{{ $post->users_id }}"
+                                                                data-events-id="{{ $post->events_id }}"
+                                                                data-payment-id="{{ $post->payment_id }}"
                                                                 data-user-name="{{ $post->name }}"
                                                                 data-event-name="{{ $post->event_name ?? ($event->name ?? 'Our Event') }}"
                                                                 data-location="{{ $post->location ?? ($event->location ?? 'Jakarta, Indonesia') }}"
@@ -190,9 +193,9 @@
                                                                 data-ticket-url="{{ $post->ticket_url ?? '' }}">
                                                                 <span class="fa fa-whatsapp"></span>
                                                             </button>
+
                                                         </td>
                                                     @endif
-
                                                     <td>
                                                         @if ($post->present == null)
                                                             <form action="{{ Route('events-send-participant') }}"
@@ -261,34 +264,72 @@
     </div>
 
     <!-- Modal WA Manual -->
+    <!-- Modal: WA Manual Generate & Copy -->
     <div class="modal fade" id="waDirectModal" tabindex="-1" role="dialog" aria-labelledby="waDirectModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="waDirectModalLabel">Kirim WhatsApp Manual (Edit Nomor Tujuan)</h5>
+                    <h5 class="modal-title" id="waDirectModalLabel">WhatsApp Manual — Generate & Copy</h5>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
+
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label>Nomor Tujuan</label>
-                        <input type="text" class="form-control" id="waDestPhone" value="08111937399" required>
-                        <small class="form-text text-muted">Nomor tujuan (tanpa +). Akan diformat otomatis jadi
-                            62...</small>
+                    <!-- Nomor Tujuan -->
+                    <div class="form-row">
+                        <div class="form-group col-md-8">
+                            <label>Nomor Tujuan</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="waDestPhone" value="08111937399"
+                                    placeholder="0811xxxxxxx">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="btnCopyPhone">Copy
+                                        Nomor</button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Akan diformat otomatis jadi 62xxxxxxxxx untuk wa.me</small>
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label>Nomor (format wa.me)</label>
+                            <input type="text" class="form-control" id="waNormPhone" readonly>
+                        </div>
                     </div>
+
+                    <!-- Link wa.me -->
                     <div class="form-group">
-                        <label>Pesan WhatsApp</label>
-                        <textarea class="form-control" id="waDirectText" rows="10" required></textarea>
-                        <small class="form-text text-muted"><span id="waTextCount">0</span> karakter</small>
+                        <label>Link wa.me</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="waLink" readonly>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="btnCopyLink">Copy Link &
+                                    Generate Template</button>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">Klik “Copy Link” akan generate template pesan otomatis dari
+                            server.</small>
+                    </div>
+
+                    <!-- Template Pesan -->
+                    <div class="form-group">
+                        <label>Template Pesan</label>
+                        <textarea class="form-control" id="waDirectText" rows="10" placeholder="Pesan akan di-generate otomatis..."></textarea>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-muted"><span id="waTextCount">0</span> karakter</small>
+                            <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyText">Copy
+                                Pesan</button>
+                        </div>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button class="btn btn-success" id="waDirectSend">Buka WhatsApp</button>
+                    <button class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button class="btn btn-success" id="waDirectOpen">Buka di WhatsApp</button>
                 </div>
             </div>
         </div>
     </div>
+
 
 
 @endsection
@@ -384,6 +425,12 @@
         });
     </script>
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+
         function normalizePhone(phone) {
             let p = (phone || '').toString().trim().replace(/[^\d]/g, '');
             if (p.startsWith('0')) p = '62' + p.slice(1);
@@ -391,58 +438,122 @@
             return p;
         }
 
-        function buildWaText(d) {
-            const ticketLine = d.ticketUrl ? `Your E-Ticket here: ${d.ticketUrl}\n\n` : '';
-            return (
-                `📌"REMINDER to attend ${d.eventName}"
-
-Hi ${d.userName},
-
-This is a confirmation that you are registered to attend our event on ${d.eventDate} at ${d.location}, starting at ${d.startTime} - ${d.endTime} (WIB) and followed by Networking Dinner and Drinks.
-
-Please confirm your attendance by replying "YES" to this message. If you are unable to attend, kindly respond with "NO" so that we may offer your spot to someone on the waitlist.
-
-${ticketLine}For the event rundown and agenda, please visit our website at www.djakarta-miningclub.com.
-
-We look forward to seeing you there. Thank you 😊🙏🏻
-
-Regards,
-The Djakarta Mining Club Team`
-            );
+        function updatePreviewLink() {
+            const raw = $('#waDestPhone').val();
+            const norm = normalizePhone(raw);
+            $('#waNormPhone').val(norm);
+            const text = $('#waDirectText').val() || '';
+            const link = norm ? `https://wa.me/${norm}?text=${encodeURIComponent(text)}` : '';
+            $('#waLink').val(link);
         }
+
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (e) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            }
+        }
+
+        // simpan context IDs dari tombol row
+        let ctxUsersId = null,
+            ctxEventsId = null,
+            ctxPaymentId = null;
 
         $(document).on('click', '.open-wa-direct', function() {
             const $b = $(this);
-            const data = {
-                userName: $b.data('user-name') || 'Participant',
-                eventName: $b.data('event-name') || 'Our Event',
-                eventDate: $b.data('event-date') || '',
-                location: $b.data('location') || 'Jakarta, Indonesia',
-                startTime: $b.data('start-time') || '01.30 pm',
-                endTime: $b.data('end-time') || '06.00 pm',
-                ticketUrl: $b.data('ticket-url') || ''
-            };
-            const text = buildWaText(data);
-            $('#waDirectText').val(text);
-            $('#waTextCount').text(text.length);
+            // simpan IDs
+            ctxUsersId = $b.data('users-id');
+            ctxEventsId = $b.data('events-id');
+            ctxPaymentId = $b.data('payment-id');
+
+            // default nomor tujuan (boleh ganti)
+            $('#waDestPhone').val('08111937399');
+            $('#waDirectText').val(''); // kosong dulu, nanti diisi setelah generate
+            $('#waTextCount').text('0');
+            updatePreviewLink();
+
             $('#waDirectModal').modal('show');
         });
 
+        // sinkron tampilan
+        $('#waDestPhone').on('input', updatePreviewLink);
         $('#waDirectText').on('input', function() {
             $('#waTextCount').text($(this).val().length);
+            updatePreviewLink();
         });
 
-        $('#waDirectSend').on('click', function() {
-            const rawPhone = $('#waDestPhone').val();
-            const phone = normalizePhone(rawPhone);
-            const text = $('#waDirectText').val();
-            if (!phone) {
-                alert('Nomor belum diisi.');
+        // Copy NOMOR (bebas urutan)
+        $('#btnCopyPhone').on('click', async function() {
+            const ok = await copyToClipboard($('#waDestPhone').val() || '');
+            alert(ok ? 'Nomor tujuan disalin.' : 'Gagal menyalin nomor.');
+        });
+
+        // Copy LINK -> setelah sukses, HIT BACKEND untuk GENERATE template
+        $('#btnCopyLink').on('click', async function() {
+            const ok = await copyToClipboard($('#waLink').val() || '');
+            if (!ok) {
+                alert('Gagal menyalin link.');
                 return;
             }
-            const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-            window.open(waUrl, '_blank');
-            $('#waDirectModal').modal('hide');
+
+            // Panggil backend generate template
+            const phoneRaw = $('#waDestPhone').val();
+            const phone = normalizePhone(phoneRaw);
+
+            if (!(ctxUsersId && ctxEventsId && ctxPaymentId)) {
+                alert('Context baris tidak lengkap.');
+                return;
+            }
+            // Opsional: spinner
+            $('#btnCopyLink').prop('disabled', true).text('Generating...');
+            try {
+                const res = await $.post("{{ route('events-generate-wa-template') }}", {
+                    users_id: ctxUsersId,
+                    events_id: ctxEventsId,
+                    payment_id: ctxPaymentId,
+                    phone: phone
+                });
+
+                if (res && res.ok) {
+                    // isi textarea dengan message hasil generate
+                    $('#waDirectText').val(res.message);
+                    $('#waTextCount').text(res.message.length);
+
+                    // update link wa.me pakai pesan baru
+                    const link = `https://wa.me/${phone}?text=${encodeURIComponent(res.message)}`;
+                    $('#waLink').val(link);
+
+                    alert('Template berhasil digenerate & diisikan.');
+                } else {
+                    alert('Gagal generate template.');
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error generate template.');
+            } finally {
+                $('#btnCopyLink').prop('disabled', false).text('Copy Link');
+            }
+        });
+
+        // Copy PESAN (opsional)
+        $('#btnCopyText').on('click', async function() {
+            const ok = await copyToClipboard($('#waDirectText').val() || '');
+            alert(ok ? 'Pesan disalin.' : 'Gagal menyalin pesan.');
+        });
+
+        // Buka WhatsApp (pakai link terbaru)
+        $('#waDirectOpen').on('click', function() {
+            const link = $('#waLink').val();
+            if (!link) return alert('Link kosong/nomor tidak valid.');
+            window.open(link, '_blank');
         });
     </script>
 @endpush

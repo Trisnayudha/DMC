@@ -274,6 +274,10 @@ Route::prefix('admin')->group(function () {
     // Events Detail participant
     Route::get('/events/{slug}/detail-participant', [EventsDetailParticipantController::class, 'detail_participant'])->name('events-details-participant');
     Route::post('/events/confirmation', [EventsDetailParticipantController::class, 'sendParticipant'])->name('events-send-participant');
+    // routes/web.php
+    Route::post('/events/wa-template', [EventsDetailParticipantController::class, 'generateWaTemplate'])
+        ->name('events-generate-wa-template');
+
     //Events Category
     Route::get('/events/category', [EventCategoryController::class, 'index'])->name('events.category');
     Route::post('/events/addcategory', [EventCategoryController::class, 'store']);
