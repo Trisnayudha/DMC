@@ -173,27 +173,26 @@
                                                             @endif
                                                         </td>
                                                     @endif
-                                                    <td>
-                                                        <button type="button" class="btn btn-success open-wa-manual"
-                                                            title="Kirim via WhatsApp Manual"
-                                                            data-users-id="{{ $post->users_id }}"
-                                                            data-events-id="{{ $post->events_id }}"
-                                                            data-payment-id="{{ $post->payment_id }}"
-                                                            data-name="{{ $post->name }}"
-                                                            data-phone="{{ $post->prefix_phone != null ? $post->fullphone : $post->phone }}"
-                                                            data-event-name="{{ $post->event_name ?? ($event->name ?? 'Our Event') }}"
-                                                            data-location="{{ $post->location ?? ($event->location ?? 'Jakarta, Indonesia') }}"
-                                                            data-start-time="{{ isset($post->start_time) ? date('h.i a', strtotime($post->start_time)) : (isset($event->start_time) ? date('h.i a', strtotime($event->start_time)) : '01.30 pm') }}"
-                                                            data-end-time="{{ isset($post->end_time) ? date('h.i a', strtotime($post->end_time)) : (isset($event->end_time) ? date('h.i a', strtotime($event->end_time)) : '06.00 pm') }}"
-                                                            data-event-date="{{ isset($post->start_date)
-                                                                ? \Carbon\Carbon::parse($post->start_date)->isoFormat('dddd, D MMMM YYYY')
-                                                                : (isset($event->start_date)
-                                                                    ? \Carbon\Carbon::parse($event->start_date)->isoFormat('dddd, D MMMM YYYY')
-                                                                    : \Carbon\Carbon::parse($post->end_date)->isoFormat('dddd, D MMMM YYYY')) }}"
-                                                            data-ticket-url="{{ $post->ticket_url ?? (isset($post->code_payment) ? url('/storage/ticket/ticket_' . $post->code_payment . '_' . time() . '.pdf') : '') }}">
-                                                            <span class="fa fa-whatsapp"></span>
-                                                        </button>
-                                                    </td>
+                                                    @if ($post->end_date >= date('Y-m-d'))
+                                                        <td>
+                                                            <button type="button" class="btn btn-success open-wa-direct"
+                                                                title="Kirim via wa.me manual"
+                                                                data-user-name="{{ $post->name }}"
+                                                                data-event-name="{{ $post->event_name ?? ($event->name ?? 'Our Event') }}"
+                                                                data-location="{{ $post->location ?? ($event->location ?? 'Jakarta, Indonesia') }}"
+                                                                data-start-time="{{ isset($post->start_time) ? date('h.i a', strtotime($post->start_time)) : (isset($event->start_time) ? date('h.i a', strtotime($event->start_time)) : '01.30 pm') }}"
+                                                                data-end-time="{{ isset($post->end_time) ? date('h.i a', strtotime($post->end_time)) : (isset($event->end_time) ? date('h.i a', strtotime($event->end_time)) : '06.00 pm') }}"
+                                                                data-event-date="{{ isset($post->start_date)
+                                                                    ? \Carbon\Carbon::parse($post->start_date)->isoFormat('dddd, D MMMM YYYY')
+                                                                    : (isset($event->start_date)
+                                                                        ? \Carbon\Carbon::parse($event->start_date)->isoFormat('dddd, D MMMM YYYY')
+                                                                        : \Carbon\Carbon::parse($post->end_date)->isoFormat('dddd, D MMMM YYYY')) }}"
+                                                                data-ticket-url="{{ $post->ticket_url ?? '' }}">
+                                                                <span class="fa fa-whatsapp"></span>
+                                                            </button>
+                                                        </td>
+                                                    @endif
+
                                                     <td>
                                                         @if ($post->present == null)
                                                             <form action="{{ Route('events-send-participant') }}"
