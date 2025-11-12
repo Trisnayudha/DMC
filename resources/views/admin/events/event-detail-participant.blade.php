@@ -262,32 +262,30 @@
     </div>
 
     <!-- Modal WA Manual -->
-    <div class="modal fade" id="waManualModal" tabindex="-1" role="dialog" aria-labelledby="waManualModalLabel"
+    <div class="modal fade" id="waDirectModal" tabindex="-1" role="dialog" aria-labelledby="waDirectModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="waManualModalLabel">Kirim WhatsApp Manual (wa.me)</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title" id="waDirectModalLabel">Kirim WhatsApp Manual (Edit Nomor Tujuan)</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Nomor Tujuan (Internasional, tanpa +)</label>
-                        <input type="text" class="form-control" id="waManualPhone" placeholder="62xxxxxxxxxxx"
-                            required>
-                        <small class="form-text text-muted">Otomatis diformat: “0xxxx” → “62xxxx”. Simbol + akan
-                            dihapus.</small>
+                        <label>Nomor Tujuan</label>
+                        <input type="text" class="form-control" id="waDestPhone" value="08111937399" required>
+                        <small class="form-text text-muted">Nomor tujuan (tanpa +). Akan diformat otomatis jadi
+                            62...</small>
                     </div>
                     <div class="form-group">
-                        <label>Pesan</label>
-                        <textarea class="form-control" id="waManualText" rows="10" required></textarea>
-                        <small class="form-text text-muted"><span id="waCharCount">0</span> karakter</small>
+                        <label>Pesan WhatsApp</label>
+                        <textarea class="form-control" id="waDirectText" rows="10" required></textarea>
+                        <small class="form-text text-muted"><span id="waTextCount">0</span> karakter</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button class="btn btn-success" id="waManualSend">Buka WhatsApp</button>
+                    <button class="btn btn-success" id="waDirectSend">Buka WhatsApp</button>
                 </div>
             </div>
         </div>
@@ -387,18 +385,14 @@
         });
     </script>
     <script>
-        /** Nomor tujuan tetap: 08111937399 -> wa.me harus pakai format internasional tanpa '+' **/
-        const DEST_WA_LOCAL = '08111937399';
-
-        function formatTo62(raw) {
-            let p = (raw || '').toString().trim().replace(/[^\d]/g, '');
+        function normalizePhone(phone) {
+            let p = (phone || '').toString().trim().replace(/[^\d]/g, '');
             if (p.startsWith('0')) p = '62' + p.slice(1);
             if (p.startsWith('62')) return p;
-            return p; // fallback
+            return p;
         }
 
-        function buildWaMessage(d) {
-            // d = {eventName, userName, eventDate, location, startTime, endTime, ticketUrl}
+        function buildWaText(d) {
             const ticketLine = d.ticketUrl ? `Your E-Ticket here: ${d.ticketUrl}\n\n` : '';
             return (
                 `📌"REMINDER to attend ${d.eventName}"
@@ -418,9 +412,9 @@ The Djakarta Mining Club Team`
             );
         }
 
-        $(document).on('click', '.wa-direct', function() {
+        $(document).on('click', '.open-wa-direct', function() {
             const $b = $(this);
-            const payload = {
+            const data = {
                 userName: $b.data('user-name') || 'Participant',
                 eventName: $b.data('event-name') || 'Our Event',
                 eventDate: $b.data('event-date') || '',
@@ -429,13 +423,27 @@ The Djakarta Mining Club Team`
                 endTime: $b.data('end-time') || '06.00 pm',
                 ticketUrl: $b.data('ticket-url') || ''
             };
+            const text = buildWaText(data);
+            $('#waDirectText').val(text);
+            $('#waTextCount').text(text.length);
+            $('#waDirectModal').modal('show');
+        });
 
-            const text = buildWaMessage(payload);
-            const dest = formatTo62(DEST_WA_LOCAL); // -> 628111937399
-            const url = `https://wa.me/${dest}?text=${encodeURIComponent(text)}`;
+        $('#waDirectText').on('input', function() {
+            $('#waTextCount').text($(this).val().length);
+        });
 
-            // Buka tab baru langsung ke wa.me (siap kirim dari HP yg login ke nomor 0811…)
-            window.open(url, '_blank');
+        $('#waDirectSend').on('click', function() {
+            const rawPhone = $('#waDestPhone').val();
+            const phone = normalizePhone(rawPhone);
+            const text = $('#waDirectText').val();
+            if (!phone) {
+                alert('Nomor belum diisi.');
+                return;
+            }
+            const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+            window.open(waUrl, '_blank');
+            $('#waDirectModal').modal('hide');
         });
     </script>
 @endpush
