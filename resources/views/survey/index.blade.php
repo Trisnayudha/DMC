@@ -294,14 +294,6 @@
                             Chinese Coal Policy: Impact on Supply and Demand
                         </label>
 
-                        <label class="checkcard mb-2 d-block">
-                            <input type="checkbox" name="most_relevant_presentations[]"
-                                value="Met Coal Challenges and Opportunities for Indonesia"
-                                {{ in_array('Met Coal Challenges and Opportunities for Indonesia', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
-                            <span class="tick"></span>
-                            Met Coal Challenges and Opportunities for Indonesia
-                        </label>
-
                         <label class="checkcard d-block">
                             <input type="checkbox" name="most_relevant_presentations[]"
                                 value="An Introduction to Minespans"
