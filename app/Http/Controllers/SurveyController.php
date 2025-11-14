@@ -30,7 +30,6 @@ class SurveyController extends Controller
             'Met Coal Challenges and Opportunities for Indonesia',
             'An Introduction to Minespans',
         ];
-
         $data = $request->validate(
             [
                 'email'                         => 'required|email',

@@ -183,7 +183,6 @@
             display: block;
             object-fit: cover;
             border-radius: 14px 14px 0 0
-                /* only top corners */
         }
     </style>
 </head>
@@ -235,11 +234,10 @@
                     @enderror
                 </div>
 
-                {{-- Score 1–5 --}}
+                {{-- 1. On scale 1–5, how informative was the event? --}}
                 <div class="form-group">
                     <label class="form-title">
-                        On a scale of 1 to 5 with 1 being the lowest and 5 being the highest, how informative was this
-                        event?
+                        On scale 1–5, how informative was the event?
                         <span class="required-bullet">*</span>
                     </label>
                     <div class="score-wrap mt-1">
@@ -257,7 +255,7 @@
                     @enderror
                 </div>
 
-                {{-- Checkbox group (multi select) --}}
+                {{-- 2. Which presentation was most relevant to the information you need? --}}
                 <div class="form-group">
                     <label class="form-title">Which presentation was most relevant to the information you need? <span
                             class="required-bullet">*</span></label>
@@ -304,7 +302,6 @@
                         </label>
                     </div>
 
-                    {{-- helper error (custom for checkbox group) --}}
                     <div id="presentationsError" class="invalid-inline mt-2" style="display:none;">
                         Please select at least one option.
                     </div>
@@ -313,7 +310,7 @@
                     @enderror
                 </div>
 
-                {{-- Are you a customer... --}}
+                {{-- 3. Are you a customer of McCloskey? --}}
                 <div class="form-group">
                     <label class="form-title">Are you a customer of McCloskey? <span
                             class="required-bullet">*</span></label>
@@ -332,7 +329,7 @@
                     @enderror
                 </div>
 
-                {{-- If not, interested... --}}
+                {{-- 4. If not, would you be interested in learning more about McCloskey’s services? --}}
                 <div class="form-group">
                     <label class="form-title">If not, would you be interested in learning more about McCloskey’s
                         services? <span class="required-bullet">*</span></label>
@@ -353,7 +350,7 @@
                     @enderror
                 </div>
 
-                {{-- Feedback --}}
+                {{-- 5. What can we do better for the next Indonesia Energy Market Briefing? --}}
                 <div class="form-group">
                     <label class="form-title">What can we do better for the next Indonesia Energy Market Briefing?
                         <span class="required-bullet">*</span></label>
@@ -363,10 +360,10 @@
                     @enderror
                 </div>
 
-                {{-- Topics 2026 --}}
+                {{-- 6. Which topics are you interested in knowing about for the next event? --}}
                 <div class="form-group">
-                    <label class="form-title">What topics, updates would you like to see explored in 2026? <span
-                            class="required-bullet">*</span></label>
+                    <label class="form-title">Which topics are you interested in knowing about for the next event?
+                        <span class="required-bullet">*</span></label>
                     <textarea name="topics_2026" rows="3" class="form-control" required>{{ old('topics_2026') }}</textarea>
                     @error('topics_2026')
                         <div class="invalid-inline mt-2">{{ $message }}</div>
@@ -384,12 +381,10 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-        // Toggle visual state for checkcards, and custom "required at least 1"
         (function() {
             var groupSelector = 'input[name="most_relevant_presentations[]"]';
             var errorEl = document.getElementById('presentationsError');
             var group = [].slice.call(document.querySelectorAll(groupSelector));
-            var touched = false; // jangan munculkan error sebelum interaksi/submit
 
             function refreshCheckcards() {
                 group.forEach(function(cb) {
@@ -410,7 +405,6 @@
 
             document.addEventListener('change', function(e) {
                 if (e.target && e.target.matches(groupSelector)) {
-                    touched = true;
                     refreshCheckcards();
                     validateGroup(true);
                 }
@@ -418,16 +412,13 @@
 
             // initial state from old()
             refreshCheckcards();
-            // (jangan panggil validateGroup(true) agar tidak muncul error pas load)
 
-            // Guard double submit & enforce checkbox-group validity
             var form = document.getElementById('surveyForm');
             var submitBtn = document.getElementById('submitBtn');
             form.addEventListener('submit', function(e) {
                 var ok = validateGroup(true);
                 if (!ok) {
                     e.preventDefault();
-                    touched = true;
                     return;
                 }
                 setTimeout(function() {

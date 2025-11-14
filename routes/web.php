@@ -69,7 +69,8 @@ Route::get('web-view-sponsor', function () {
 });
 
 Route::get('survey-mccloskey', function () {
-    return redirect()->away('https://docs.google.com/forms/d/1QqFD5UTk-PQvoQucvscDZeqwIktAkhNRBivbgIVP8Ig');
+    // return redirect()->away('https://docs.google.com/forms/d/1QqFD5UTk-PQvoQucvscDZeqwIktAkhNRBivbgIVP8Ig');
+    return view('survey.index');
 });
 
 Route::post('/survey-mccloskey', [SurveyController::class, 'store'])->name('survey.store');
