@@ -184,6 +184,30 @@
             object-fit: cover;
             border-radius: 14px 14px 0 0
         }
+
+        .modal {
+            padding-right: 0 !important;
+            /* hilangkan efek scroll offset */
+        }
+
+        .modal-backdrop {
+            opacity: .35 !important;
+            /* biar lebih soft kalau mau */
+        }
+
+        .modal-dialog {
+            margin: auto !important;
+        }
+
+        .modal.show .modal-dialog {
+            transform: none !important;
+            /* fix posisinya kalau ada scale/transform */
+        }
+
+        body.modal-open {
+            padding-right: 0 !important;
+            /* hilangkan geser kanan saat modal terbuka */
+        }
     </style>
 </head>
 
@@ -198,22 +222,6 @@
             </div>
             <div class="burger" aria-label="menu" role="button"><span></span><span></span><span></span></div>
         </div>
-
-        {{-- Notifikasi sukses (opsional) --}}
-        @if (session('ok'))
-            <div class="alert alert-success alert-dismissible fade show section-card mb-4" role="alert">
-                <strong>Thank you!</strong> for taking the time to complete the survey. We truly value the information
-                you have provided.
-                <p>We look forward to having you again at our next event!
-                </p>
-                <p>To access the presentation please click the link below:
-                    <a href="https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link">https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link
-                    </a>
-                </p>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-            </div>
-        @endif
 
         {{-- Form Survey --}}
         <div class="section-card">
@@ -382,7 +390,47 @@
             </form>
         </div>
     </div>
+    {{-- Success Modal --}}
+    @if (session('ok'))
+        <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content border-0">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="successModalLabel">Thank you!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body pt-0">
+                        <p>
+                            <strong>Thank you</strong> for taking the time to complete the survey.
+                            We truly value the information you have provided.
+                        </p>
+                        <p>
+                            We look forward to having you again at our next event!
+                        </p>
+                        <p class="mb-0">
+                            To access the presentation please click the link below:<br>
+                            <a href="https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link"
+                                target="_blank" style="font-size: 10px;">
+                                https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link
+                            </a>
+                        </p>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <a href="https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link"
+                            target="_blank" class="btn btn-primary">
+                            Open Presentation
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
+
+    <!-- JS deps -->
     <!-- JS deps -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
@@ -434,6 +482,13 @@
                 }, 0);
             });
         })();
+
+        // Auto-show success modal kalau session('ok') ada
+        @if (session('ok'))
+            $(function() {
+                $('#successModal').modal('show');
+            });
+        @endif
     </script>
 </body>
 

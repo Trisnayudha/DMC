@@ -27,7 +27,7 @@ class SurveyController extends Controller
             'Spotlight on US Tariffs: Impact on Global Coal Supply and Demand',
             'Choosing the Right Coal Index and Managing Risk',
             'Chinese Coal Policy: Impact on Supply and Demand',
-            'Met Coal Challenges and Opportunities for Indonesia',
+            'Indonesia`s Supply Availability and Domestic Coal Consumption for 2026 and Beyond',
             'An Introduction to Minespans',
         ];
         $data = $request->validate(
