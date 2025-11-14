@@ -202,7 +202,12 @@
         {{-- Notifikasi sukses (opsional) --}}
         @if (session('ok'))
             <div class="alert alert-success alert-dismissible fade show section-card mb-4" role="alert">
-                <strong>Thank you!</strong> Your response has been recorded.
+                <strong>Thank you!</strong> for taking the time to complete the survey. We truly value the information
+                you have provided.
+                <p>We look forward to having you again at our next event!
+                </p>
+                <p>To access the presentation please click the link below:
+                    https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link</p>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
             </div>
@@ -214,11 +219,13 @@
                 <img src="{{ asset('image/survey.png') }}" alt="Survey Banner" class="banner-img">
             </div>
 
-            <h3 class="section-title mb-2">Thank You For Attending — DMC Briefing 2025</h3>
-            <p class="text-muted mb-1">Please fill this short survey. After submission, you'll receive a link to
-                download the speakers' slides.</p>
+            <h3 class="section-title mb-2">Thank You For Attending Indonesia Energy Market Briefing 2025</h3>
+            <p class="text-muted mb-1">Please take a moment to complete the post-event survey. Your feedback is
+                important for us to improve the quality of our next event.
+            </p>
             <p class="text-muted">After completing the survey, we will provide you with links to download speaker
-                presentations.</p>
+                presentations.
+            </p>
 
             <form method="post" action="{{ route('survey.store') }}" novalidate id="surveyForm">
                 @csrf
