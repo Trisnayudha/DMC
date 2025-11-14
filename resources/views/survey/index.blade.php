@@ -301,6 +301,13 @@
                             <span class="tick"></span>
                             An Introduction to Minespans
                         </label>
+                        <label class="checkcard d-block">
+                            <input type="checkbox" name="most_relevant_presentations[]"
+                                value="Indonesia`s Supply Availability and Domestic Coal Consumption for 2026 and Beyond"
+                                {{ in_array('Indonesia`s Supply Availability and Domestic Coal Consumption for 2026 and Beyond', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
+                            <span class="tick"></span>
+                            Indonesia's Supply Availability and Domestic Coal Consumption for 2026 and Beyond
+                        </label>
                     </div>
 
                     <div id="presentationsError" class="invalid-inline mt-2" style="display:none;">
