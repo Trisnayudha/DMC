@@ -207,7 +207,9 @@
                 <p>We look forward to having you again at our next event!
                 </p>
                 <p>To access the presentation please click the link below:
-                    https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link</p>
+                    <a href="https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link">https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link
+                    </a>
+                </p>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
             </div>
