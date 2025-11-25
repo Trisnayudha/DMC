@@ -106,6 +106,7 @@
                                                 @if ($list[0]['end_date'] <= date('Y-m-d'))
                                                     <th>Company Category</th>
                                                     <th>Country</th>
+                                                    <th>Office Number</th>
                                                 @endif
                                                 @if ($list[0]['end_date'] >= date('Y-m-d'))
                                                     <th>Confirmation Email</th>
@@ -136,6 +137,7 @@
                                                         <td>{{ $post->company_category != 'other' ? $post->company_category : $post->company_other }}
                                                         </td>
                                                         <td>{{ $post->country }}</td>
+                                                        <td>{{ $post->office_number }}</td>
                                                     @endif
                                                     @if ($post->end_date >= date('Y-m-d'))
                                                         <td>
