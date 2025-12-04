@@ -60,7 +60,7 @@ class SponsorsController extends Controller
         }
         $location = SponsorAddress::where('sponsor_id', $sponsor->id)->get();
         $representative = SponsorRepresentative::where('sponsor_id', $sponsor->id)->get();
-        $advertising = SponsorAdvertising::where('sponsor_id', $sponsor->id)->get();
+        $advertising = SponsorAdvertising::where('sponsor_id', $sponsor->id)->orderby('date', 'desc')->get();
         // Menggunakan transform untuk memodifikasi data
         $advertising->transform(function ($item) {
             // Menggunakan accessor untuk memformat ukuran file dan tanggal
