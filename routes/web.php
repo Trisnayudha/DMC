@@ -43,6 +43,7 @@ use App\Http\Controllers\Frontend\ScholarshipController;
 use App\Http\Controllers\Admin\SponsorPhotosVideosActivityController;
 use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\Admin\SponsorExportController;
+use App\Http\Controllers\DmcMemberSurveyController;
 use App\Http\Controllers\EditorUploadController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\TestController;
@@ -72,8 +73,12 @@ Route::get('survey-mccloskey', function () {
     // return redirect()->away('https://docs.google.com/forms/d/1QqFD5UTk-PQvoQucvscDZeqwIktAkhNRBivbgIVP8Ig');
     return view('survey.index');
 });
+Route::get('survey-member', function () {
+    return view('survey.member');
+});
 
 Route::post('/survey-mccloskey', [SurveyController::class, 'store'])->name('survey.store');
+Route::post('/survey-member', [DmcMemberSurveyController::class, 'store'])->name('survey.dmc.store');
 
 Route::get('/business-card', function () {
     return view('business-card');
