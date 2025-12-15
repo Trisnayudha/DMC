@@ -73,6 +73,14 @@ class DmcMemberSurveyController extends Controller
             'nominee_name'      => 'nullable|string|max:255',
             'nominee_company'   => 'nullable|string|max:255',
 
+            'email_primary_goal'        => 'nullable|array',
+            'email_primary_goal.*'      => 'string',
+            'email_primary_goal_other'  => 'nullable|string|max:255',
+
+            'email_best_day'            => 'nullable|array',
+            'email_best_day.*'          => 'string',
+
+
             'event_improvement' => 'nullable|string',
 
             /* =========================

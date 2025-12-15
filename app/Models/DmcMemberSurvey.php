@@ -41,6 +41,12 @@ class DmcMemberSurvey extends Model
         'app_awareness',
         'usage_frequency',
         'preferred_channels',
+
+        // === NEW: EMAIL COMMUNICATION PREFERENCES ===
+        'email_primary_goal',
+        'email_primary_goal_other',
+        'email_best_day',
+
         'communication_feedback',
 
         /* =========================
@@ -56,27 +62,37 @@ class DmcMemberSurvey extends Model
     ];
 
     /**
-     * Cast attributes (WAJIB untuk checkbox / array)
+     * Cast attributes
+     * (WAJIB untuk field checkbox / multiple choice)
      */
     protected $casts = [
-        'event_types'        => 'array',
-        'social_familiarity' => 'array',
-        'platforms'          => 'array',
-        'app_awareness'      => 'array',
-        'usage_frequency'    => 'array',
-        'preferred_channels' => 'array',
+        'event_types'         => 'array',
+        'social_familiarity'  => 'array',
+        'platforms'           => 'array',
+        'app_awareness'       => 'array',
+        'usage_frequency'     => 'array',
+        'preferred_channels'  => 'array',
+
+        // === NEW ===
+        'email_primary_goal'  => 'array',
+        'email_best_day'      => 'array',
     ];
 
     /**
-     * Default values (hindari null)
+     * Default values
+     * (hindari null untuk field array)
      */
     protected $attributes = [
-        'event_types'        => '[]',
-        'social_familiarity' => '[]',
-        'platforms'          => '[]',
-        'app_awareness'      => '[]',
-        'usage_frequency'    => '[]',
-        'preferred_channels' => '[]',
+        'event_types'         => '[]',
+        'social_familiarity'  => '[]',
+        'platforms'           => '[]',
+        'app_awareness'       => '[]',
+        'usage_frequency'     => '[]',
+        'preferred_channels'  => '[]',
+
+        // === NEW ===
+        'email_primary_goal'  => '[]',
+        'email_best_day'      => '[]',
     ];
 
     /**
@@ -85,11 +101,13 @@ class DmcMemberSurvey extends Model
      * =========================
      */
 
+    // Filter by company
     public function scopeCompany($query, $company)
     {
         return $query->where('company', $company);
     }
 
+    // Filter by survey year (future-proof)
     public function scopeYear($query, $year)
     {
         if (Schema::hasColumn($this->getTable(), 'survey_year')) {

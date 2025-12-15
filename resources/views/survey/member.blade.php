@@ -365,6 +365,37 @@
                         {{ $v }}
                     </label>
                 @endforeach
+                <label class="form-title mt-3">
+                    What is your primary goal when opening emails from the Djakarta Mining Club?
+                    <small><i>(Multiple choice)</i></small>
+                </label>
+
+                @foreach (['Seeking information on upcoming events (Registration / Agenda)', 'Obtaining industry news and updates', 'Looking for networking opportunities', 'Other'] as $v)
+                    <label class="checkcard d-block">
+                        <input type="checkbox" name="email_primary_goal[]" value="{{ $v }}"
+                            {{ in_array($v, old('email_primary_goal', [])) ? 'checked' : '' }}>
+                        {{ $v }}
+                    </label>
+                @endforeach
+
+                {{-- Other (specify) --}}
+                <div class="form-group mt-2">
+                    <input type="text" name="email_primary_goal_other" class="form-control"
+                        placeholder="If other, please specify" value="{{ old('email_primary_goal_other') }}">
+                </div>
+                <label class="form-title mt-4">
+                    What day is the best for you to receive industry-related emails?
+                    <small><i>(Multiple choice)</i></small>
+                </label>
+
+                @foreach (['Monday–Wednesday', 'Thursday–Friday', 'Saturday–Sunday', 'Time is not an issue'] as $v)
+                    <label class="checkcard d-block">
+                        <input type="checkbox" name="email_best_day[]" value="{{ $v }}"
+                            {{ in_array($v, old('email_best_day', [])) ? 'checked' : '' }}>
+                        {{ $v }}
+                    </label>
+                @endforeach
+
 
                 <div class="form-group mt-3">
                     <label class="form-title">
