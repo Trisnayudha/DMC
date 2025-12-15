@@ -253,12 +253,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-title">Phone Number</label>
+                    <label class="form-title">Mobile Number</label>
                     <input type="text" name="phone" value="{{ old('phone') }}" class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-title">LinkedIn / Professional Profile (optional)</label>
+                    <label class="form-title">LinkedIn / Professional Profile</label>
                     <input type="text" name="linkedin" value="{{ old('linkedin') }}" class="form-control">
                 </div>
 
@@ -305,16 +305,20 @@
 
                 <label class="form-title">
                     How familiar are you with our social media channels?
-                    <small><i>(Multiple choice)</i></small>
                 </label>
 
                 @foreach (['Very familiar', 'Somewhat familiar', 'Not familiar'] as $v)
-                    <label class="checkcard d-block">
-                        <input type="checkbox" name="social_familiarity[]" value="{{ $v }}"
+                    <div class="custom-control custom-radio">
+                        <input type="radio" class="custom-control-input" id="sf{{ $loop->index }}"
+                            name="social_familiarity[]" value="{{ $v }}"
                             {{ in_array($v, old('social_familiarity', [])) ? 'checked' : '' }}>
-                        {{ $v }}
-                    </label>
+                        <label class="custom-control-label" for="sf{{ $loop->index }}">
+                            {{ $v }}
+                        </label>
+                    </div>
                 @endforeach
+
+
 
 
                 <label class="form-title mt-3">Which social media platforms do you follow us on? <small><i>(Select all
@@ -329,88 +333,87 @@
 
                 <label class="form-title mt-3">
                     Are you aware of the Djakarta Mining Club mobile app and website?
-                    <small><i>(Multiple choice)</i></small>
                 </label>
 
                 @foreach (['Yes, both', 'Yes, mobile app only', 'Yes, website only', 'No'] as $v)
-                    <label class="checkcard d-block">
-                        <input type="checkbox" name="app_awareness[]" value="{{ $v }}"
+                    <div class="custom-control custom-radio">
+                        <input type="radio" class="custom-control-input" id="app{{ $loop->index }}"
+                            name="app_awareness[]" value="{{ $v }}"
                             {{ in_array($v, old('app_awareness', [])) ? 'checked' : '' }}>
-                        {{ $v }}
-                    </label>
+                        <label class="custom-control-label" for="app{{ $loop->index }}">
+                            {{ $v }}
+                        </label>
+                    </div>
                 @endforeach
+
+
 
 
                 <label class="form-title mt-3">
                     If yes, how often do you use the mobile app or visit the website?
-                    <small><i>(Multiple choice)</i></small>
                 </label>
 
                 @foreach (['Frequently', 'Occasionally', 'Rarely'] as $v)
-                    <label class="checkcard d-block">
-                        <input type="checkbox" name="usage_frequency[]" value="{{ $v }}"
+                    <div class="custom-control custom-radio">
+                        <input type="radio" class="custom-control-input" id="use{{ $loop->index }}"
+                            name="usage_frequency[]" value="{{ $v }}"
                             {{ in_array($v, old('usage_frequency', [])) ? 'checked' : '' }}>
-                        {{ $v }}
-                    </label>
+                        <label class="custom-control-label" for="use{{ $loop->index }}">
+                            {{ $v }}
+                        </label>
+                    </div>
                 @endforeach
 
-
-                <label class="form-title mt-3">
-                    Which communication channels do you prefer for updates and announcements? <small><i>(Select all that
-                            apply)</i></small>
-                </label>
-                @foreach (['Email', 'Social media', 'WhatsApp', 'Mobile app', 'Website', 'Other'] as $v)
-                    <label class="checkcard d-block">
-                        <input type="checkbox" name="preferred_channels[]" value="{{ $v }}">
-                        {{ $v }}
-                    </label>
-                @endforeach
                 <label class="form-title mt-3">
                     What is your primary goal when opening emails from the Djakarta Mining Club?
-                    <small><i>(Multiple choice)</i></small>
                 </label>
 
                 @foreach (['Seeking information on upcoming events (Registration / Agenda)', 'Obtaining industry news and updates', 'Looking for networking opportunities', 'Other'] as $v)
-                    <label class="checkcard d-block">
-                        <input type="checkbox" name="email_primary_goal[]" value="{{ $v }}"
+                    <div class="custom-control custom-radio">
+                        <input type="radio" class="custom-control-input" id="goal{{ $loop->index }}"
+                            name="email_primary_goal[]" value="{{ $v }}"
                             {{ in_array($v, old('email_primary_goal', [])) ? 'checked' : '' }}>
-                        {{ $v }}
-                    </label>
+                        <label class="custom-control-label" for="goal{{ $loop->index }}">
+                            {{ $v }}
+                        </label>
+                    </div>
                 @endforeach
+
 
                 {{-- Other (specify) --}}
                 <div class="form-group mt-2">
                     <input type="text" name="email_primary_goal_other" class="form-control"
                         placeholder="If other, please specify" value="{{ old('email_primary_goal_other') }}">
-                </div>
-                <label class="form-title mt-4">
-                    What day is the best for you to receive industry-related emails?
-                    <small><i>(Multiple choice)</i></small>
-                </label>
-
-                @foreach (['Monday–Wednesday', 'Thursday–Friday', 'Saturday–Sunday', 'Time is not an issue'] as $v)
-                    <label class="checkcard d-block">
-                        <input type="checkbox" name="email_best_day[]" value="{{ $v }}"
-                            {{ in_array($v, old('email_best_day', [])) ? 'checked' : '' }}>
-                        {{ $v }}
+                    <label class="form-title mt-4">
+                        What day is the best for you to receive industry-related emails?
                     </label>
-                @endforeach
+
+                    @foreach (['Monday–Wednesday', 'Thursday–Friday', 'Saturday–Sunday', 'Time is not an issue'] as $v)
+                        <div class="custom-control custom-radio">
+                            <input type="radio" class="custom-control-input" id="day{{ $loop->index }}"
+                                name="email_best_day[]" value="{{ $v }}"
+                                {{ in_array($v, old('email_best_day', [])) ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="day{{ $loop->index }}">
+                                {{ $v }}
+                            </label>
+                        </div>
+                    @endforeach
 
 
-                <div class="form-group mt-3">
-                    <label class="form-title">
-                        Suggestions to improve communication and engagement
-                    </label>
-                    <textarea name="communication_feedback" rows="3" class="form-control">{{ old('communication_feedback') }}</textarea>
-                </div>
+                    <div class="form-group mt-3">
+                        <label class="form-title">
+                            Suggestions to improve communication and engagement
+                        </label>
+                        <textarea name="communication_feedback" rows="3" class="form-control">{{ old('communication_feedback') }}</textarea>
+                    </div>
 
-                {{-- 4. ADDITIONAL --}}
-                <h5 class="section-title">4. Additional Feedback</h5>
-                <textarea name="additional_feedback" rows="3" class="form-control">{{ old('additional_feedback') }}</textarea>
+                    {{-- 4. ADDITIONAL --}}
+                    <h5 class="section-title">4. Additional Feedback</h5>
+                    <textarea name="additional_feedback" rows="3" class="form-control">{{ old('additional_feedback') }}</textarea>
 
-                <button type="submit" class="btn btn-primary btn-lg mt-4">
-                    Submit Survey
-                </button>
+                    <button type="submit" class="btn btn-primary btn-lg mt-4">
+                        Submit Survey
+                    </button>
             </form>
         </div>
     </div>
