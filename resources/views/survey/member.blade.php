@@ -243,7 +243,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-title">Position / Title</label>
+                    <label class="form-title">Position / Title <span class="required">*</span></label>
                     <input type="text" name="position" value="{{ old('position') }}" class="form-control">
                 </div>
 
@@ -253,7 +253,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-title">Mobile Number</label>
+                    <label class="form-title">Mobile Number <span class="required">*</span></label>
                     <input type="text" name="phone" value="{{ old('phone') }}" class="form-control">
                 </div>
 
