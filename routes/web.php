@@ -45,6 +45,7 @@ use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\Admin\SponsorExportController;
 use App\Http\Controllers\DmcMemberSurveyController;
 use App\Http\Controllers\EditorUploadController;
+use App\Http\Controllers\SponsorSurveyController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\TestController;
 use Illuminate\Http\Request;
@@ -77,8 +78,14 @@ Route::get('survey-member', function () {
     return view('survey.member');
 });
 
+Route::get('survey-sponsor', function () {
+    return view('survey.sponsor');
+});
+
 Route::post('/survey-mccloskey', [SurveyController::class, 'store'])->name('survey.store');
 Route::post('/survey-member', [DmcMemberSurveyController::class, 'store'])->name('survey.dmc.store');
+// web.php
+Route::post('/survey/sponsor', [SponsorSurveyController::class, 'store'])->name('survey.dmc.store');
 
 Route::get('/business-card', function () {
     return view('business-card');
