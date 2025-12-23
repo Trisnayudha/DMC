@@ -180,8 +180,8 @@
         ======================== --}}
             @if (session('ok'))
                 <div class="alert-success-dmc">
-                    <strong>Thank you!</strong>
-                    Your survey has been successfully submitted.
+                    <strong>Thank you for your time and insights!</strong>
+                    Your feedback helps us enhance our programs and ensure a more valuable partnership in the future.
                 </div>
             @endif
 
