@@ -10,65 +10,30 @@ return new class extends Migration {
         Schema::create('dmc_sponsor_surveys', function (Blueprint $table) {
             $table->id();
 
-            // Basic info
+            // === Basic Identity ===
             $table->string('email');
             $table->string('name');
             $table->string('company');
-            $table->string('type_of_sponsor');
+
+            // === Quick Feedback Questions ===
 
             // Q1
-            $table->string('promo_benefit_satisfaction');
-            $table->string('promo_benefit_other')->nullable();
+            $table->string('program_familiarity');
 
             // Q2
-            $table->string('event_attendance_satisfaction');
-            $table->string('event_attendance_other')->nullable();
+            $table->string('branding_value');
 
             // Q3
-            $table->string('live_event_branding_benefit');
-            $table->string('live_event_branding_other')->nullable();
+            $table->string('brand_visibility');
 
             // Q4
-            $table->string('additional_value_satisfaction');
-            $table->string('additional_value_other')->nullable();
+            $table->string('team_support');
 
             // Q5
-            $table->string('price_alignment');
-            $table->string('price_alignment_other')->nullable();
+            $table->string('renewal_interest');
 
             // Q6
-            $table->string('brand_visibility');
-            $table->string('brand_visibility_other')->nullable();
-
-            // Q7
-            $table->string('team_responsiveness');
-            $table->string('team_responsiveness_other')->nullable();
-
-            // Q8
-            $table->string('preferred_communication');
-            $table->string('preferred_communication_other')->nullable();
-
-            // Q9
-            $table->string('mobile_app_awareness');
-
-            // Q10
-            $table->string('commodity_map_awareness');
-
-            // Q11
-            $table->string('new_program_awareness');
-
-            // Q12
-            $table->string('overall_experience');
-            $table->string('overall_experience_other')->nullable();
-
-            // Q13
-            $table->string('renewal_interest');
-            $table->string('renewal_interest_other')->nullable();
-
-            // Q14–16 (paragraph)
-            $table->text('renewal_reason')->nullable();
-            $table->text('future_benefit_suggestion');
-            $table->text('overall_experience_suggestion');
+            $table->text('improvement_suggestion');
 
             $table->timestamps();
         });
