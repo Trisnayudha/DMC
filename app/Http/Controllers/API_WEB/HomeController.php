@@ -21,10 +21,9 @@ class HomeController extends Controller
     {
         // 2 signature terpisah (urutannya sesuai array)
         $signatures = [
-            // '/image/libur5.png',
-            '/image/libur7.png',
+            //     // '/image/libur5.png',
+            //     '/image/libur7.png',
         ];
-        // $signatures = null;
 
         $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
             ->where('status', 'publish')
