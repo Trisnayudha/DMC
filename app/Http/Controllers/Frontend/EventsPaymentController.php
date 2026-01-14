@@ -420,7 +420,7 @@ Detail Informasinya:
 Thank you
 Best Regards Bot DMC Website
 ";
-            $send->WhatsappMessage();
+            $send->WhatsappMessageGroup();
             $linkPay = null;
             $isProd = env('XENDIT_ISPROD');
             $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');

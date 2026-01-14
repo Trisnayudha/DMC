@@ -305,7 +305,7 @@ Detail Informasinya:
 Thank you
 Best Regards Bot DMC
                                                 ';
-                        $send->WhatsappMessage();
+                        $send->WhatsappMessageGroup();
                     } else {
                         $image = QrCode::format('png')
                             ->size(200)->errorCorrection('H')
@@ -385,7 +385,7 @@ Company : ' . $findUser->company_name . '
 Thank you
 Best Regards Bot DMC
 ';
-                        $send->WhatsappMessage();
+                        $send->WhatsappMessageGroup();
                     }
 
                     $res['api_status'] = 1;
@@ -411,7 +411,7 @@ Tolong di kontak kembali , takutnya ada kesulitan payment
 Thank you
 Best Regards Bot DMC
 ';
-                    $send->WhatsappMessage();
+                    $send->WhatsappMessageGroup();
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Expired';
                 } else {
@@ -539,7 +539,7 @@ Company : ' . $findUser->company_name . '
 Thank you
 Best Regards Bot DMC
 ';
-                $send->WhatsappMessage();
+                $send->WhatsappMessageGroup();
                 $notif = new Notification();
                 $notif->id = $findPayment->member_id;
                 $notif->message = 'Payment successfully';

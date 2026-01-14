@@ -627,7 +627,7 @@ Total Bayar: Rp. " . number_format($finalPrice, 0, ',', '.') . "
 
 Terima kasih.
 ";
-                    $send->WhatsappMessage();
+                    $send->WhatsappMessageGroup();
                 } catch (\Exception $e) {
                     Log::error('Whatsapp send error (paid): ' . $e->getMessage());
                 }
