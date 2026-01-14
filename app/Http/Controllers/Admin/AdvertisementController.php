@@ -34,7 +34,7 @@ class AdvertisementController extends Controller
             $timestamp = now()->timestamp; // Mengambil timestamp saat ini
             $imageName = $timestamp . '.' . $request->file('image')->getClientOriginalExtension(); // Nama gambar menjadi timestamp.extensi
             $imagePath = $request->file('image')->storeAs('public/advertisement', $imageName); // Simpan gambar ke dalam direktori penyimpanan advertisement dengan nama timestamp
-            $imageUrl = 'storage/advertisement/' . $imageName; // Buat URL penyimpanan gambar
+            $imageUrl = '/storage/advertisement/' . $imageName; // Buat URL penyimpanan gambar
             $advertisement->image = $imageUrl; // Simpan URL gambar dalam atribut 'image'
         }
 
