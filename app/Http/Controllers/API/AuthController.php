@@ -122,7 +122,7 @@ Your verification code (OTP) ' . $otp;
                     'id' => $findUser->id,
                     'name' => $findUser->name,
                     'email' => $findUser->email,
-                    'role' => $role[0]->name,
+                    'role' => $role[0]->name ?? 'guest',
                     'token' => $user->createToken('token-name')->plainTextToken,
                     'verify_email' => $findUser->verify_email,
                     'verify_phone' => $findUser->verify_phone
