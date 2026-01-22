@@ -55,7 +55,7 @@
 <body>
     <div class="body">
         <div class="header-email">
-            <img src="https://membership.djakarta-miningclub.com/image/logo_dmc_mccloskey_new.png" alt="Image"
+            <img src="https://membership.djakarta-miningclub.com/image/the-69-banner_new.png" alt="Image"
                 class="img-logo">
         </div>
         <div class="body-email">
