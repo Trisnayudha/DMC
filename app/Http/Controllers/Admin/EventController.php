@@ -31,7 +31,7 @@ use Xendit\Invoice;
 use Xendit\Xendit;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\QrCode;
 use Symfony\Component\HttpKernel\Profiler\Profile;
 
 class EventController extends Controller

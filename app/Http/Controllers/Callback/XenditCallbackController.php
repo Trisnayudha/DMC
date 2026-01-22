@@ -19,7 +19,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Ladumor\OneSignal\OneSignal;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\QrCode;
 
 class XenditCallbackController extends Controller
 {

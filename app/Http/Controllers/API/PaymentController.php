@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 use Xendit\PaymentChannels;
 use Xendit\Xendit;
 use Illuminate\Support\Str;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\QrCode;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Xendit\VirtualAccounts;

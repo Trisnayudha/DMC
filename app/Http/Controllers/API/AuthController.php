@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\QrCode;
 use Illuminate\Support\Str;
 use Spatie\Newsletter\NewsletterFacade;
 use Svg\Tag\Rect;

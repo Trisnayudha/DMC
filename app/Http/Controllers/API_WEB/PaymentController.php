@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Sum;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\QrCode;
 use Xendit\Invoice;
 use Xendit\VirtualAccounts;
 use Xendit\Xendit;

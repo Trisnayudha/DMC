@@ -17,7 +17,7 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\QrCode;
 use Illuminate\Support\Str;
 use Xendit\Invoice;
 use Xendit\Xendit;
