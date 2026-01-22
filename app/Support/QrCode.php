@@ -4,15 +4,20 @@ namespace App\Support;
 
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Writer;
 
 class QrCode
 {
     protected int $size = 200;
 
+    protected string $format = 'svg';
+
     public static function format(string $format)
     {
-        return new static;
+        $instance = new static;
+        $instance->format = strtolower($format); // png / svg / etc (ignored)
+        return $instance;
     }
 
     public function size(int $size)
@@ -23,6 +28,8 @@ class QrCode
 
     public function errorCorrection(string $level)
     {
+        // bacon v3: default EC is fine
+        // method tetap ada biar API kompatibel
         return $this;
     }
 
@@ -30,10 +37,11 @@ class QrCode
     {
         $renderer = new ImageRenderer(
             new RendererStyle($this->size),
-            new \BaconQrCode\Renderer\Image\GdImageBackEnd()
+            new SvgImageBackEnd()
         );
 
         $writer = new Writer($renderer);
+
         return $writer->writeString($text);
     }
 }
