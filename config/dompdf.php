@@ -23,6 +23,11 @@ return array(
     'options' => array(
 
         'compress' => true,
+        'isRemoteEnabled' => true,
+        'isHtml5ParserEnabled' => true,
+
+        // 🔥 INI KUNCI UTAMA
+        'chroot' => public_path(),
         /**
          * The location of the DOMPDF font directory
          *
@@ -80,7 +85,6 @@ return array(
          * direct class use like:
          * $dompdf = new DOMPDF();  $dompdf->load_html($htmldata); $dompdf->render(); $pdfdata = $dompdf->output();
          */
-        "chroot" => realpath(base_path()),
 
         /**
          * Protocol whitelist
@@ -107,7 +111,6 @@ return array(
          * Whether to enable font subsetting or not.
          */
         "enable_font_subsetting" => true,
-        'isRemoteEnabled' => true,
         /**
          * The PDF rendering backend to use
          *
