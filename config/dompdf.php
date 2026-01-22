@@ -107,7 +107,7 @@ return array(
          * Whether to enable font subsetting or not.
          */
         "enable_font_subsetting" => true,
-
+        'isRemoteEnabled' => true,
         /**
          * The PDF rendering backend to use
          *

@@ -744,6 +744,7 @@ class EventsDetailController extends Controller
         $email = $findUsers->email;
 
         ini_set('max_execution_time', 300);
+        // return view('email.ticket', $data);
         $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
             ->loadView('email.ticket', $data);
 
