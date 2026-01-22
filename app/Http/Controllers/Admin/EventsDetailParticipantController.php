@@ -119,7 +119,8 @@ class EventsDetailParticipantController extends Controller
         // Data untuk view ticket (samakan dengan yg kamu pakai di sendConfirmationWhatsapp)
 
         // Generate PDF & simpan
-        $pdf      = Pdf::loadView('email.ticket', $data);
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+            ->loadView('email.ticket', $data);
         $filename = 'ticket_' . $data['code_payment'] . '_' . time() . '.pdf';
         $pdfPath  = 'public/ticket/' . $filename;
         Storage::put($pdfPath, $pdf->output());
@@ -392,7 +393,8 @@ The Djakarta Mining Club Team';
     private function sendConfirmationEmail($data, $email, $codePayment, $event)
     {
         try {
-            $pdf = Pdf::loadView('email.ticket', $data);
+            $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+                ->loadView('email.ticket', $data);
             Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $event) {
                 $message->from('register@djakarta-miningclub.com');
                 $message->to($email);
@@ -407,7 +409,8 @@ The Djakarta Mining Club Team';
 
     private function sendConfirmationWhatsapp($data, $phone, $event)
     {
-        $pdf = Pdf::loadView('email.ticket', $data);
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+            ->loadView('email.ticket', $data);
         $filename = 'ticket_' . $data['code_payment'] . '_' . time() . '.pdf';
 
         // Store the PDF in the desired directory within the storage folder

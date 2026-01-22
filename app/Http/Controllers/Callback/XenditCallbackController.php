@@ -362,7 +362,8 @@ Best Regards Bot DMC
                             $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                         });
 
-                        $pdf = Pdf::loadView('email.ticket', $data);
+                        $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+                            ->loadView('email.ticket', $data);
                         Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($findUser->email);
@@ -516,7 +517,8 @@ Best Regards Bot DMC
                     $message->attachData($pdf->output(), 'E-Receipt_' . $findUser->code_payment . '.pdf');
                 });
 
-                $pdf = Pdf::loadView('email.ticket', $data);
+                $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+                    ->loadView('email.ticket', $data);
                 Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($findUser->email);

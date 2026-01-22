@@ -161,7 +161,8 @@ class EventsDetailController extends Controller
                 $email = $findUsers->email;
 
                 ini_set('max_execution_time', 300);
-                $pdf = Pdf::loadView('email.ticket', $data);
+                $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+                    ->loadView('email.ticket', $data);
 
                 Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
@@ -341,7 +342,8 @@ class EventsDetailController extends Controller
                     // dd("sukses");
                     ini_set('max_execution_time', 300);
                     // TODO bakal ada bug
-                    $pdf = Pdf::loadView('email.ticket', $data);
+                    $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+                        ->loadView('email.ticket', $data);
                     try {
                         Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
@@ -470,7 +472,8 @@ class EventsDetailController extends Controller
         $code_payment = $check->code_payment;
 
         if ($val === 'approve') {
-            $pdf = Pdf::loadView('email.ticket', $data);
+            $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+                ->loadView('email.ticket', $data);
             Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);

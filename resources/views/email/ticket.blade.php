@@ -168,7 +168,7 @@
 
             {{-- <a href="{{ $events_link }}" class="btn-link-confirm">Join Event</a> --}}
 
-            <img src="{{ asset($image) }}" alt="qr_code">
+            <img src="https://quickchart.io/qr?text={{ $code_payment }}" alt="qr_code">
             {{-- {!! QrCode::size(100)->generate('ABC') !!} --}}
             <br />
             <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
