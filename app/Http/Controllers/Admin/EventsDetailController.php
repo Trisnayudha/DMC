@@ -741,7 +741,9 @@ class EventsDetailController extends Controller
         $email = $findUsers->email;
 
         ini_set('max_execution_time', 300);
-        $pdf = Pdf::loadView('email.ticket', $data);
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+            ->loadView('email.ticket', $data);
+
         $filename = 'e_ticket-' . $findUsers->code_payment . '.pdf';
         // Download the PDF with the specified filename
         return $pdf->download($filename);
