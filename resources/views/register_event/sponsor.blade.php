@@ -94,7 +94,7 @@
     <div class="container">
         <main>
             <div class="py-2 text-center">
-                <img style="border-radius: 15px; margin-bottom: 19px; " src="{{ asset('image/the-69-banner.png') }}"
+                <img style="border-radius: 15px; margin-bottom: 19px; " src="{{ asset('image/the69banner.png') }}"
                     class="img-fluid" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
