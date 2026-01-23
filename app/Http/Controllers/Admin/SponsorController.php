@@ -44,6 +44,7 @@ class SponsorController extends Controller
         $topSponsors = Payment::selectRaw('company.company_name as company, COUNT(DISTINCT payment.member_id) as count_attend')
             ->join('profiles', 'payment.member_id', '=', 'profiles.users_id')
             ->join('company', 'profiles.company_id', '=', 'company.id')
+            ->wherenotnull('payment.sponsor_id')
             ->whereYear('payment.created_at', $currentYear)
             ->groupBy('company.company_name')
             ->orderByDesc('count_attend')
