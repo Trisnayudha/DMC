@@ -61,7 +61,8 @@
             <p>Dear {{ $users_name }},</p>
 
             <p>We regret to inform you that your registration for <b>{{ $events_name }}</b> has been cancelled.
-                Your seat will be offered to participants on the waiting list.</p>
+                {{-- Your seat will be offered to participants on the waiting list. --}}
+            </p>
 
             <p>If you believe this is an error or would like further assistance, please contact us at
                 secretariat@djakarta-miningclub.com or +62 811 1937 300.</b>
