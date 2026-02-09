@@ -424,7 +424,7 @@ The Djakarta Mining Club Team';
 
 Hi ' . $data['users_name'] . ',
 
-This is a confirmation that you are registered to attend our event on Thursday, 13 November 2025 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB) and followed by Networking Dinner and Drinks.
+This is a confirmation that you are registered to attend our event on Thursday, 12 February 2026 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB) and followed by Networking Dinner and Drinks.
 
 Please confirm your attendance by replying "YES" to this message. If you are unable to attend, kindly respond with "NO" so that we may offer your spot to someone on the waitlist.
 
