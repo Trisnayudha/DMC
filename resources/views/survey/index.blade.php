@@ -226,7 +226,7 @@
         {{-- Form Survey --}}
         <div class="section-card">
             <div class="survey-banner mb-4">
-                <img src="{{ asset('image/survey.png') }}" alt="Survey Banner" class="banner-img">
+                <img src="{{ asset('image/the69banner.png') }}" alt="Survey Banner" class="banner-img">
             </div>
 
             <h3 class="section-title mb-2">Thank You For Attending Indonesia Energy Market Briefing 2025</h3>
