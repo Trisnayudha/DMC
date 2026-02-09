@@ -120,18 +120,19 @@
             <div class="py-2 text-center">
                 <img style="border-radius: 15px; margin-bottom: 19px; height: 120px; "
                     src="{{ asset('image/dmc.png') }}" class="img-fluid" alt="">
-                <h2 style="text-transform: uppercase">REGISTER EVENT
+                <h2 style="text-transform: uppercase">
+                    EVENT REGISTRATION
                 </h2>
                 {{-- <p class="lead"> The 53rd Networking Event - Djakarta Mining Club and Coal Club Indonesia x McCloskey
                     by OPIS </p> --}}
             </div>
-            <h6>Detail event</h6>
+            <h6>Event Details:</h6>
             <div class="row g-5">
                 <div class="col-3">
                     <p>Title</p>
                 </div>
                 <div class="col-9">
-                    <p>: {{ $name }}</p>
+                    <p>: 2026 Mining Insights </p>
                 </div>
                 <div class="col-3">
                     <p>
