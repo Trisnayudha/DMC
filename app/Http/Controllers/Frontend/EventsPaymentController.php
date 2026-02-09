@@ -133,7 +133,8 @@ class EventsPaymentController extends Controller
                 'price' => number_format($total_price, 0, ',', '.'),
                 'voucher_price' => 0,
                 'total_price' => number_format($total_price, 0, ',', '.'),
-                'link' => $linkPay
+                'link' => $linkPay,
+                'quota' => null,
             ];
 
             if (empty($check)) {
