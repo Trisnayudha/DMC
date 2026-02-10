@@ -273,15 +273,18 @@
 
             const giveaway = getGiveawayResult();
 
+            // 1️⃣ SUCCESS — auto close
             swal({
                 title: "Success 🎉",
                 text: "{{ session('success') }}",
                 icon: "success",
-                button: "OK",
+                buttons: false,
+                timer: 1800,
                 closeOnClickOutside: false,
                 closeOnEsc: false,
             }).then(function() {
 
+                // 2️⃣ GIVEAWAY — must click OK
                 swal({
                     title: giveaway.title,
                     text: giveaway.message,
@@ -291,7 +294,7 @@
                     closeOnEsc: false,
                 }).then(function() {
 
-                    // reset form
+                    // 3️⃣ reset form
                     document.querySelector('form').reset();
 
                     // reset intl-tel-input
@@ -301,9 +304,7 @@
                             phoneInput.intlTelInput.setNumber("");
                         }
                     }
-
                 });
-
             });
         </script>
     @endif
