@@ -259,7 +259,7 @@
                 } else if (rand <= 90) {
                     return {
                         title: "Giveaway 🎁",
-                        message: "Selamat! Anda mendapatkan 📘 Buku",
+                        message: "Selamat! Anda mendapatkan 🎐 Kipas",
                         icon: "success"
                     };
                 } else {
