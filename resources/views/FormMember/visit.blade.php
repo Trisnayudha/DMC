@@ -247,55 +247,61 @@
 
     @if (session('success'))
         <script>
-            function getGiveawayPrize() {
+            function getGiveawayResult() {
                 const rand = Math.floor(Math.random() * 100) + 1;
 
                 if (rand <= 45) {
                     return {
-                        name: "Kipas",
-                        icon: "🎐"
+                        title: "Giveaway 🎁",
+                        message: "Selamat! Anda mendapatkan 🎐 Kipas",
+                        icon: "success"
                     };
                 } else if (rand <= 90) {
                     return {
-                        name: "Buku",
-                        icon: "📘"
+                        title: "Giveaway 🎁",
+                        message: "Selamat! Anda mendapatkan 📘 Buku",
+                        icon: "success"
                     };
                 } else {
                     return {
-                        name: "Gelas",
-                        icon: "🥛"
+                        title: "Giveaway 🎁",
+                        message: "Maaf, Anda kurang beruntung kali ini 😅",
+                        icon: "warning"
                     };
                 }
             }
 
-            const prize = getGiveawayPrize();
+            const giveaway = getGiveawayResult();
 
             swal({
                 title: "Success 🎉",
                 text: "{{ session('success') }}",
                 icon: "success",
-                buttons: false,
-                timer: 1800,
+                button: "OK",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
             }).then(function() {
 
                 swal({
-                    title: "Giveaway 🎁",
-                    text: `Selamat! Anda mendapatkan ${prize.icon} ${prize.name}`,
-                    icon: "info",
-                    buttons: false,
-                    timer: 2500,
+                    title: giveaway.title,
+                    text: giveaway.message,
+                    icon: giveaway.icon,
+                    button: "OK",
+                    closeOnClickOutside: false,
+                    closeOnEsc: false,
                 }).then(function() {
 
                     // reset form
                     document.querySelector('form').reset();
 
-                    // reset phone input
+                    // reset intl-tel-input
                     if (window.intlTelInputGlobals) {
                         var phoneInput = document.querySelector("#phone");
                         if (phoneInput && phoneInput.intlTelInput) {
                             phoneInput.intlTelInput.setNumber("");
                         }
                     }
+
                 });
 
             });
