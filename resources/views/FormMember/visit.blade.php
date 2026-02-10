@@ -3,278 +3,272 @@
 
 <head>
     <meta charset="utf-8">
+    <title>DMC – Booth Visitor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="djakarta-miningclub.com">
-    <meta name="generator" content="Hugo 0.98.0">
-    <title>DMC Register Membership</title>
-    <meta name="description" content="Register Membership " />
-    <meta property="og:title" content="Register Membership " />
-    <meta property="og:url" content="" />
-    <meta property="og:description" content="Register Membership" />
-    <meta property="og:image" content="" />
-    <meta property="og:type" content="register" />
-    <meta property="og:locale" content="en_GB" />
-    <meta property="og:locale:alternate" content="fr_FR" />
-    <meta property="og:locale:alternate" content="es_ES" />
-    <link rel="canonical" href="https://getbootstrap.com/docs/5.2/examples/checkout/">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
-        integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
 
     <link rel="stylesheet" href="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/css/intlTelInput.css" />
-    <script src="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            user-select: none;
+        :root {
+            --dmc-red: #c8102e;
+            --dmc-red-dark: #93081f;
+            --dmc-border: #e5e7eb;
+            --dmc-bg: #f4f5f7;
+            --dmc-text: #111827;
         }
 
-        .myDiv {
-            display: none;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dmc-bg);
+            color: var(--dmc-text);
         }
 
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
+        .page-wrapper {
+            padding: 26px 0 40px;
         }
 
-        .b-example-divider {
-            height: 3rem;
-            background-color: rgba(0, 0, 0, .1);
-            border: solid rgba(0, 0, 0, .15);
-            border-width: 1px 0;
-            box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+        .page-inner {
+            max-width: 860px;
+            margin: 0 auto;
         }
 
-        .b-example-vr {
-            flex-shrink: 0;
-            width: 1.5rem;
-            height: 100vh;
-        }
-
-        .bi {
-            vertical-align: -.125em;
-            fill: currentColor;
-        }
-
-        .nav-scroller {
-            position: relative;
-            z-index: 2;
-            height: 2.75rem;
-            overflow-y: hidden;
-        }
-
-        .nav-scroller .nav {
-            display: flex;
-            flex-wrap: nowrap;
-            padding-bottom: 1rem;
-            margin-top: -1px;
-            overflow-x: auto;
+        .page-header {
             text-align: center;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
+            margin-bottom: 18px;
+        }
+
+        .page-header img {
+            max-width: 200px;
+        }
+
+        .page-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .page-title span {
+            color: var(--dmc-red-dark);
+        }
+
+        .card-shell {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, .08);
+        }
+
+        .form-card {
+            padding: 20px 24px 26px;
+            border-top: 3px solid var(--dmc-red);
+            border-radius: 18px;
+        }
+
+        .form-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .chip-step {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f3f4f6;
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+        }
+
+        .chip-step span {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: var(--dmc-red);
+            color: #fff;
+            font-size: .7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 6px;
+        }
+
+        .form-section {
+            border: 1px solid var(--dmc-border);
+            border-radius: 12px;
+            padding: 14px 16px 10px;
+        }
+
+        .form-section-title {
+            font-size: .88rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-size: .85rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        label small {
+            color: #ef4444;
+        }
+
+        .form-control {
+            font-size: .88rem;
+            border-radius: 8px;
+            border-color: var(--dmc-border);
+        }
+
+        .form-control:focus {
+            border-color: var(--dmc-red);
+            box-shadow: 0 0 0 .15rem rgba(200, 16, 46, .16);
+        }
+
+        .btn-apply {
+            border-radius: 999px;
+            padding: .55rem 1.6rem;
+            font-weight: 600;
+            background: var(--dmc-red);
+            border-color: var(--dmc-red);
+        }
+
+        .btn-apply:hover {
+            background: var(--dmc-red-dark);
         }
 
         .iti {
-            display: grid;
+            width: 100%;
         }
     </style>
-    <!-- Custom styles for this template -->
-    <link href="{{ asset('new-zoom/form-validation.css') }}" rel="stylesheet">
 </head>
 
-<body class="bg-light">
+<body>
 
-    <div class="container">
-        <main>
-            <div class="py-2 text-center">
-                <img style="border: none; width:400px" src="{{ asset('image/dmc.png') }}" alt="">
-                <h2 style="text-transform: uppercase">Visit Booth</h2>
+    <div class="page-wrapper">
+        <div class="page-inner">
+
+            <!-- HEADER -->
+            <div class="page-header">
+                <img src="{{ asset('image/dmc.png') }}">
+                <h1 class="page-title">Booth <span>Visitor</span></h1>
             </div>
-            <hr class="my-1">
 
-            <div class="row g-5">
+            <!-- FORM -->
+            <div class="card-shell">
+                <div class="form-card">
 
-                <div class="col-md-12 col-lg-12">
-                    <h4 class="mb-3">* Required information</h4>
+                    <div class="form-header-row">
+                        <div class="chip-step"><span>1</span> Visitor Form</div>
+                        <small class="text-muted">* Required</small>
+                    </div>
+
                     <form action="{{ url('visit') }}" method="POST" class="needs-validation" novalidate>
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
                         @csrf
-                        <!-- {{ csrf_field() }} -->
-                        <div class="row g-3">
-                            <div class="col-md-2 mb-1">
-                                <label for="company_name" class="form-label">Company name *</label>
-                                <select class="custom-select d-block w-100" id="prefix" name="prefix" required>
-                                    <option value="PT">PT</option>
-                                    <option value="CV">CV</option>
-                                    <option value="Ltd">Ltd</option>
-                                    <option value="GmbH">GmbH</option>
-                                    <option value="Limited">Limited</option>
-                                    <option value="Llc">Llc</option>
-                                    <option value="Corp">Corp</option>
-                                    <option value="Pte Ltd">Pte Ltd</option>
-                                    <option value="Assosiation">Assosiation</option>
-                                    <option value="Government">Government</option>
-                                    <option value="Pty Ltd">Pty Ltd</option>
-                                    <option value="">Other</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Please select a valid prefix company name.
-                                </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <label for="company_name" class="form-label" style="color: white">. </label>
-                                <input type="text" class="form-control" name="company_name"
-                                    placeholder="Your company name" value="{{ old('company_name') }}" required>
-                                <div class="invalid-feedback">
-                                    Valid company name is required.
-                                </div>
-                            </div>
 
-                            <div class="col-sm-6">
-                                <label for="name" class="form-label">Full name *</label>
-                                <input type="text" class="form-control" name="name" placeholder=""
-                                    value="{{ old('name') }}" required>
-                                <div class="invalid-feedback">
-                                    Valid name is required.
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <label for="phone" class="form-label">Mobile number *</label>
-                                <input type="tel" class="form-control" name="phone"id="phone" placeholder=""
-                                    value="+62" required>
-                                <div class="invalid-feedback">
-                                    Please provide a Mobile Number
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <label for="job_title" class="form-label">Job Title *</label>
-                                <input type="text" class="form-control" name="job_title" placeholder="" required
-                                    value="{{ old('job_title') }}">
-                                <div class="invalid-feedback">
-                                    Please enter your Job Title.
-                                </div>
-                            </div>
-                            <div class="col-sm-12">
-                                <label for="email" class="form-label">Email Address * <span
-                                        class="text-muted"></span></label>
-                                <input type="email" class="form-control" name="email"
-                                    placeholder="Your work email" required value="{{ old('email') }}">
-                                <div class="invalid-feedback">
-                                    Please enter a valid email address.
-                                </div>
-                            </div>
+                        <div class="form-section">
+                            <div class="form-section-title">Visitor Information</div>
 
+                            <div class="row">
+                                <!-- NAME -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Full Name <small>*</small></label>
+                                        <input type="text" name="name" class="form-control" required>
+                                    </div>
+                                </div>
 
+                                <!-- INSTITUTION -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Institution <small>*</small></label>
+                                        <input type="text" name="institution" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group mb-1">
+                                        <label>Title <small>*</small></label>
+                                        <input type="text" name="title" class="form-control" required>
+                                    </div>
+                                </div>
+                                <!-- EMAIL -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Email <small>*</small></label>
+                                        <input type="email" name="email" class="form-control" required>
+                                    </div>
+                                </div>
+
+                                <!-- PHONE -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Phone <small>*</small></label>
+                                        <input type="tel" name="phone" id="phone" class="form-control"
+                                            required>
+                                    </div>
+                                </div>
+
+                                <!-- TITLE -->
+
+                            </div>
                         </div>
-                        <hr class="my-4">
-                        <button class="w-80 btn btn-primary btn-lg" type="submit">Visit</button>
+
+                        <div class="d-flex justify-content-end mt-3">
+                            <button class="btn btn-primary btn-apply" type="submit">
+                                Submit
+                            </button>
+                        </div>
                     </form>
+
                 </div>
             </div>
-        </main>
 
-        <footer class="my-5 pt-5 text-muted text-center text-small">
-            <p class="mb-1">&copy; Djakarta Mining Club</p>
-            <ul class="list-inline">
-                <li class="list-inline-item"><a href="{{ url('/privacy') }}">Privacy</a></li>
-                <li class="list-inline-item"><a href="#">Terms</a></li>
-            </ul>
-        </footer>
+        </div>
     </div>
 
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous">
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('.js-example-basic-single').select2();
-        });
-    </script>
-    <script src="{{ asset('new-zoom/form-validation.js') }}"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script>
-        @if (session('alert'))
-            swal({
-                text: "{{ session('alert') }}",
-                icon: "success",
-                buttons: false,
-                timer: 15000,
-            }).then(function() {
-                window.location = "https://membership.djakarta-miningclub.com/visit";
-            });
-        @endif
-
-        const xhttp = new XMLHttpRequest();
-        const select = document.getElementById("country");
-        const flag = document.getElementById("flag");
-
-        let country;
-
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                country = JSON.parse(xhttp.responseText);
-                assignValues();
-                // handleCountryChange();
-            }
-        };
-        xhttp.open("GET", "https://restcountries.com/v3.1/all?fields=name", true);
-        xhttp.send();
-
-        function assignValues() {
-            country.forEach(country => {
-                const option = document.createElement("option");
-                option.value = country.cioc;
-                option.textContent = country.name.common;
-                // select.appendChild(option);
+        var phone = document.querySelector("#phone");
+        if (phone) {
+            window.intlTelInput(phone, {
+                initialCountry: "id"
             });
         }
-
-        // function handleCountryChange() {
-        //     const countryData = country.find(
-        //         country => select.value === country.alpha2Code
-        //     );
-        //     flag.style.backgroundImage = `url(${countryData.flag})`;
-        // }
-
-        // select.addEventListener("change", handleCountryChange.bind(this));
     </script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    @if (session('success'))
+        <script>
+            swal({
+                title: "Success",
+                text: "{{ session('success') }}",
+                icon: "success",
+                buttons: false,
+                timer: 2000,
+            }).then(function() {
+                // reset form setelah sukses
+                document.querySelector('form').reset();
+
+                // reset intl-tel-input
+                if (window.intlTelInputGlobals) {
+                    var phoneInput = document.querySelector("#phone");
+                    if (phoneInput && phoneInput.intlTelInput) {
+                        phoneInput.intlTelInput.setNumber("");
+                    }
+                }
+            });
+        </script>
+    @endif
 
 
-    <script>
-        var input = document.querySelector("#phone");
-        window.intlTelInput(input, {
-            // separateDialCode: true,
-            initialCountry: "id",
-
-        });
-        var input2 = document.querySelector("#office_number");
-        window.intlTelInput(input2, {
-            // separateDialCode: true,
-            initialCountry: "id",
-
-        });
-    </script>
 </body>
 
 </html>

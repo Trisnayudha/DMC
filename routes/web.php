@@ -155,8 +155,8 @@ Route::get('/share/events/{slug}', function ($slug) {
     return view('admin.events.event-share', $data);
 });
 
-// Route::get('/visit', [FormMemberController::class, 'visit']);
-// Route::post('/visit', [FormMemberController::class, 'visitStore']);
+Route::get('/visit', [FormMemberController::class, 'visit']);
+Route::post('/visit', [FormMemberController::class, 'visitStore']);
 // Route::get('/register-event', [EventController::class, 'view2']);
 // Route::get('/register-event/multiple', [EventController::class, 'view']);
 // Route::get('/special-event/free', [SpecialEventController::class, 'free']);

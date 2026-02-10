@@ -156,20 +156,23 @@ class FormMemberController extends Controller
 
     public function visitStore(Request $request)
     {
-        $name = $request->name;
-        $company_name = $request->company_name;
-        $phone = $request->phone;
-        $job_title = $request->job_title;
-        $email = $request->email;
+        // optional tapi sangat disarankan
+        $request->validate([
+            'name'        => 'required|string|max:255',
+            'institution' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
+            'email'       => 'required|email|max:255',
+            'phone'       => 'required|string|max:30',
+        ]);
 
         $save = new VisitModel();
-        $save->name = $name;
-        $save->company_name = $company_name;
-        $save->phone = $phone;
-        $save->job_title = $job_title;
-        $save->email = $email;
+        $save->name        = $request->name;
+        $save->institution = $request->institution;
+        $save->job_title       = $request->title;
+        $save->email       = $request->email;
+        $save->phone       = $request->phone;
         $save->save();
 
-        return redirect()->back()->with('alert', 'Success Visit Booth');
+        return redirect()->back()->with('success', 'Thank you for visiting our booth!');
     }
 }

@@ -11,6 +11,11 @@ class VisitModel extends Model
     protected $table = 'visit_booth';
 
     protected $fillable = [
-        'name', 'company_name', 'job_title', 'phone', 'email'
+        'name',
+        'company_name',
+        'job_title',
+        'phone',
+        'email',
+        'institution'
     ];
 }
