@@ -253,13 +253,13 @@
                 if (rand <= 45) {
                     return {
                         title: "Giveaway 🎁",
-                        message: "Selamat! Anda mendapatkan 🎐 Kipas",
+                        message: "Selamat! Anda mendapatkan  🥛 Gelas",
                         icon: "success"
                     };
                 } else if (rand <= 90) {
                     return {
                         title: "Giveaway 🎁",
-                        message: "Selamat! Anda mendapatkan 📘 Buku",
+                        message: "Selamat! Anda mendapatkan  🥛 Gelas",
                         icon: "success"
                     };
                 } else {
