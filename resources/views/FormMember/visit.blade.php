@@ -247,26 +247,61 @@
 
     @if (session('success'))
         <script>
+            function getGiveawayPrize() {
+                const rand = Math.floor(Math.random() * 100) + 1;
+
+                if (rand <= 45) {
+                    return {
+                        name: "Kipas",
+                        icon: "🎐"
+                    };
+                } else if (rand <= 90) {
+                    return {
+                        name: "Buku",
+                        icon: "📘"
+                    };
+                } else {
+                    return {
+                        name: "Gelas",
+                        icon: "🥛"
+                    };
+                }
+            }
+
+            const prize = getGiveawayPrize();
+
             swal({
-                title: "Success",
+                title: "Success 🎉",
                 text: "{{ session('success') }}",
                 icon: "success",
                 buttons: false,
-                timer: 2000,
+                timer: 1800,
             }).then(function() {
-                // reset form setelah sukses
-                document.querySelector('form').reset();
 
-                // reset intl-tel-input
-                if (window.intlTelInputGlobals) {
-                    var phoneInput = document.querySelector("#phone");
-                    if (phoneInput && phoneInput.intlTelInput) {
-                        phoneInput.intlTelInput.setNumber("");
+                swal({
+                    title: "Giveaway 🎁",
+                    text: `Selamat! Anda mendapatkan ${prize.icon} ${prize.name}`,
+                    icon: "info",
+                    buttons: false,
+                    timer: 2500,
+                }).then(function() {
+
+                    // reset form
+                    document.querySelector('form').reset();
+
+                    // reset phone input
+                    if (window.intlTelInputGlobals) {
+                        var phoneInput = document.querySelector("#phone");
+                        if (phoneInput && phoneInput.intlTelInput) {
+                            phoneInput.intlTelInput.setNumber("");
+                        }
                     }
-                }
+                });
+
             });
         </script>
     @endif
+
 
 
 </body>
