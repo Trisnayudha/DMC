@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MemberModel;
 use App\Models\User;
 use App\Models\VisitModel;
+use App\Services\GiveawayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Newsletter;
@@ -156,7 +157,6 @@ class FormMemberController extends Controller
 
     public function visitStore(Request $request)
     {
-        // optional tapi sangat disarankan
         $request->validate([
             'name'        => 'required|string|max:255',
             'institution' => 'required|string|max:255',
@@ -165,14 +165,19 @@ class FormMemberController extends Controller
             'phone'       => 'required|string|max:30',
         ]);
 
-        $save = new VisitModel();
-        $save->name        = $request->name;
-        $save->institution = $request->institution;
-        $save->job_title       = $request->title;
-        $save->email       = $request->email;
-        $save->phone       = $request->phone;
-        $save->save();
+        $visit = VisitModel::create([
+            'name' => $request->name,
+            'institution' => $request->institution,
+            'job_title' => $request->title,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
 
-        return redirect()->back()->with('success', 'Thank you for visiting our booth!');
+        $gift = GiveawayService::draw($visit->id);
+
+        return redirect()->back()->with([
+            'success' => 'Thank you for visiting our booth!',
+            'gift' => $gift ? $gift->name : null
+        ]);
     }
 }

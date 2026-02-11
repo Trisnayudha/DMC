@@ -247,33 +247,37 @@
 
     @if (session('success'))
         <script>
-            function getGiveawayResult() {
-                const rand = Math.floor(Math.random() * 100) + 1;
+            // hadiah dari server (Laravel)
+            const giftName = @json(session('gift'));
 
-                if (rand <= 45) {
+            // mapping icon + text
+            function getGiveawayResultFromServer(gift) {
+                if (!gift) {
                     return {
                         title: "Giveaway 🎁",
-                        message: "Selamat! Anda mendapatkan  🥛 Gelas",
-                        icon: "success"
-                    };
-                } else if (rand <= 90) {
-                    return {
-                        title: "Giveaway 🎁",
-                        message: "Selamat! Anda mendapatkan  🥛 Gelas",
-                        icon: "success"
-                    };
-                } else {
-                    return {
-                        title: "Giveaway 🎁",
-                        message: "Selamat! Anda mendapatkan 🥛 Gelas",
+                        message: "Mohon maaf, giveaway hari ini sudah habis 🙏",
                         icon: "warning"
                     };
                 }
+
+                if (gift.toLowerCase().includes('gelas')) {
+                    return {
+                        title: "Giveaway 🎁",
+                        message: "Selamat! Anda mendapatkan 🥛 " + gift,
+                        icon: "success"
+                    };
+                }
+
+                return {
+                    title: "Giveaway 🎁",
+                    message: "Selamat! Anda mendapatkan 📘 " + gift,
+                    icon: "success"
+                };
             }
 
-            const giveaway = getGiveawayResult();
+            const giveaway = getGiveawayResultFromServer(giftName);
 
-            // 1️⃣ SUCCESS — auto close
+            // 1️⃣ SUCCESS — auto close (TETAP ADA)
             swal({
                 title: "Success 🎉",
                 text: "{{ session('success') }}",
@@ -308,6 +312,7 @@
             });
         </script>
     @endif
+
 
 
 
