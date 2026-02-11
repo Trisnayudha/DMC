@@ -769,4 +769,23 @@ class EventsDetailController extends Controller
         }
         return redirect()->back()->with('error', 'Not found.');
     }
+
+    public function toggleMining(Request $request)
+    {
+        try {
+            $payment = Payment::where('id', $request->id)->firstOrFail();
+            $payment->is_mining = $request->value;
+            $payment->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => $request->value ? 'Marked as Mining Company' : 'Unmarked as Mining Company'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }

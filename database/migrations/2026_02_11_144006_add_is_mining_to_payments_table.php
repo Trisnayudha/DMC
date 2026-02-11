@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGiveawayLogsTable extends Migration
+class AddIsMiningToPaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateGiveawayLogsTable extends Migration
      */
     public function up()
     {
-        // Schema::create('giveaway_logs', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->foreignId('visit_id');
-        //     $table->foreignId('giveaway_item_id');
-        //     $table->timestamps();
-        // });
+        Schema::table('payment', function (Blueprint $table) {
+            $table->boolean('is_mining')
+                ->default(false)
+                ->after('sponsor_id'); // sesuaikan posisi kolom
+        });
     }
 
     /**
@@ -28,6 +27,8 @@ class CreateGiveawayLogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('giveaway_logs');
+        Schema::table('payment', function (Blueprint $table) {
+            //
+        });
     }
 }

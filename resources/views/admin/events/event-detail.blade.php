@@ -304,6 +304,7 @@
                                                 <th>Status</th>
                                                 <th>PIC</th>
                                                 <th>Sponsor</th>
+                                                <th class="text-center">Mining</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
@@ -351,6 +352,13 @@
                                                             </button>
                                                         @endif
                                                     </td>
+                                                    <!-- Kolom Mining -->
+                                                    <td class="text-center">
+                                                        <input type="checkbox" class="mining-checkbox"
+                                                            data-id="{{ $post->payment_id }}"
+                                                            {{ $post->is_mining ? 'checked' : '' }}>
+                                                    </td>
+
                                                     <!-- Kolom Aksi -->
                                                     <td>
                                                         <a href="#" data-id="{{ $post->payment_id }}"
@@ -1073,6 +1081,48 @@
                     console.log('Checkbox dicentang');
                 } else {
                     console.log('Checkbox tidak dicentang');
+                }
+            });
+        });
+
+        $(document).on('change', '.mining-checkbox', function() {
+            let checkbox = $(this);
+            let paymentId = checkbox.data('id');
+            let value = checkbox.is(':checked') ? 1 : 0;
+
+            $.ajax({
+                url: "{{ url('admin/events/toggle-mining') }}",
+                type: "POST",
+                data: {
+                    id: paymentId,
+                    value: value,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.status) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        checkbox.prop('checked', !value);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function() {
+                    checkbox.prop('checked', !value);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Server error!'
+                    });
                 }
             });
         });

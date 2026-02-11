@@ -29,7 +29,8 @@ class Payment extends Model
         'pic_id',
         'booking_contact_id',
         'groupby_users_id',
-        'sponsor_code'
+        'sponsor_code',
+        'is_mining'
     ];
 
     public static function arrayCode()
