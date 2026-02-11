@@ -128,7 +128,8 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for {{ $events_name }} has been approved. Your registration number is
+            <p>Your registration for {{ $events_name }}: 2026 Mining Insights has been approved. Your registration
+                number is
                 <b
                     style="background-color: #F1B22C;
                 border: none;
