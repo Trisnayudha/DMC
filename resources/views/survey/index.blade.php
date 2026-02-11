@@ -1,495 +1,309 @@
 {{-- resources/views/index.blade.php --}}
-@php($title = $title ?? 'Djakarta Mining Club — Survey')
+@php($title = $title ?? 'DMC – Event Survey')
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ $title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap 4 -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --dmc-red: #c8102e;
+            --dmc-red-dark: #93081f;
+            --dmc-border: #e5e7eb;
+            --dmc-bg: #f4f5f7;
+            --dmc-text: #111827;
+        }
+
         body {
-            background: #f5f7fb;
+            font-family: 'Inter', sans-serif;
+            background: var(--dmc-bg);
+            color: var(--dmc-text);
         }
 
-        /* ===== Topbar ===== */
-        .header-ribbon {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: .9rem 1.25rem;
-            border-radius: 20px;
-            background: radial-gradient(120% 140% at 0% 0%, #c53227 0%, #e34d32 45%, #f06e57 100%);
-            color: #fff;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, .12)
+        .page-wrapper {
+            padding: 30px 0 50px;
         }
 
-        .brand img {
-            height: 44px;
-            display: block
+        .page-inner {
+            max-width: 860px;
+            margin: 0 auto;
         }
 
-        .burger {
-            width: 28px;
-            height: 18px;
-            position: relative;
-            opacity: .9
-        }
-
-        .burger span {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #fff;
-            border-radius: 2px
-        }
-
-        .burger span:nth-child(1) {
-            top: 0
-        }
-
-        .burger span:nth-child(2) {
-            top: 8px
-        }
-
-        .burger span:nth-child(3) {
-            bottom: 0
-        }
-
-        /* ===== Card & sections ===== */
-        .section-card {
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 10px 24px rgba(22, 31, 56, .08);
-            padding: 1.5rem
-        }
-
-        .section-title {
+        .page-header {
             text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .page-header img {
+            max-width: 200px;
+        }
+
+        .page-title {
+            font-size: 1.35rem;
             font-weight: 700;
-            letter-spacing: .2px
+            margin-top: 12px;
+            letter-spacing: .03em;
         }
 
-        /* ===== Field labels & helper ===== */
-        .form-title {
+        .card-shell {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, .08);
+        }
+
+        .form-card {
+            padding: 22px 26px 30px;
+            border-top: 3px solid var(--dmc-red);
+            border-radius: 18px;
+        }
+
+        .form-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .chip-step {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f3f4f6;
+            font-size: .75rem;
             font-weight: 600;
-            color: #1f2a44
+            letter-spacing: .08em;
         }
 
-        .required-bullet {
-            color: #ff3b3b;
-            margin-left: .25rem
+        .chip-step span {
+            width: 18px;
+            height: 18px;
+            border-radius: 999px;
+            background: var(--dmc-red);
+            color: #fff;
+            font-size: .7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 6px;
         }
 
-        .invalid-inline {
-            color: #dc3545;
-            font-size: .875rem
+        .form-section {
+            border: 1px solid var(--dmc-border);
+            border-radius: 12px;
+            padding: 16px 18px 14px;
         }
 
-        /* ===== 1–5 score as buttons ===== */
+        .form-section-title {
+            font-size: .85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-size: .85rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        label small {
+            color: #ef4444;
+        }
+
+        .form-control {
+            font-size: .88rem;
+            border-radius: 8px;
+            border-color: var(--dmc-border);
+        }
+
+        .form-control:focus {
+            border-color: var(--dmc-red);
+            box-shadow: 0 0 0 .15rem rgba(200, 16, 46, .15);
+        }
+
         .score-wrap {
             display: flex;
-            gap: .5rem;
-            flex-wrap: wrap
+            gap: .6rem;
         }
 
         .score-option input {
-            display: none
+            display: none;
         }
 
         .score-btn {
-            min-width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 10px;
-            border: 1px solid #ced4da;
+            border: 1px solid var(--dmc-border);
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #fff;
             font-weight: 600;
-            color: #2c3e55;
             cursor: pointer;
-            transition: all .15s ease
+            transition: .2s;
         }
 
         .score-option input:checked+.score-btn {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .15)
+            border-color: var(--dmc-red);
+            box-shadow: 0 0 0 .15rem rgba(200, 16, 46, .2);
         }
 
-        .score-option input:focus+.score-btn {
-            outline: none;
-            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .25)
+        .btn-submit {
+            border-radius: 999px;
+            padding: .6rem 1.8rem;
+            font-weight: 600;
+            background: var(--dmc-red);
+            border-color: var(--dmc-red);
         }
 
-        /* ===== Checkbox “pill cards” ===== */
-        .checkcard {
-            position: relative;
-            border: 1px solid #e6e9f0;
-            border-radius: 12px;
-            padding: .9rem 1rem;
-            transition: border-color .15s, box-shadow .15s, background .15s;
-            background: #fff
+        .btn-submit:hover {
+            background: var(--dmc-red-dark);
         }
 
-        .checkcard:hover {
-            border-color: #b9c2d3;
-            box-shadow: 0 6px 16px rgba(32, 40, 70, .06)
-        }
-
-        .checkcard input {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none
-        }
-
-        .checkcard.checked {
-            border-color: #0d6efd;
-            background: #f2f7ff;
-            box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .08)
-        }
-
-        .checkcard .tick {
-            position: absolute;
-            right: .85rem;
-            top: .85rem;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #b6c0d2
-        }
-
-        .checkcard.checked .tick {
-            background: #0d6efd;
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, .18) inset
-        }
-
-        /* ===== Submit ===== */
-        .btn-primary.btn-lg {
-            padding: .8rem 1.4rem;
-            border-radius: 12px;
-            font-weight: 700
-        }
-
-        /* Banner */
-        .survey-banner .banner-img {
+        .banner-img {
             width: 100%;
-            display: block;
-            object-fit: cover;
-            border-radius: 14px 14px 0 0
-        }
-
-        .modal {
-            padding-right: 0 !important;
-            /* hilangkan efek scroll offset */
-        }
-
-        .modal-backdrop {
-            opacity: .35 !important;
-            /* biar lebih soft kalau mau */
-        }
-
-        .modal-dialog {
-            margin: auto !important;
-        }
-
-        .modal.show .modal-dialog {
-            transform: none !important;
-            /* fix posisinya kalau ada scale/transform */
-        }
-
-        body.modal-open {
-            padding-right: 0 !important;
-            /* hilangkan geser kanan saat modal terbuka */
+            border-radius: 12px;
+            margin-bottom: 18px;
         }
     </style>
 </head>
 
 <body>
-    <div class="container py-4">
 
-        {{-- Header --}}
-        <div class="header-ribbon mb-4">
-            <div class="brand">
-                <img src="https://www.djakarta-miningclub.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FLogo-DMC.8bf844a3.png&w=640&q=75"
-                    alt="Djakarta Mining Club">
-            </div>
-            <div class="burger" aria-label="menu" role="button"><span></span><span></span><span></span></div>
-        </div>
+    <div class="page-wrapper">
+        <div class="page-inner">
 
-        {{-- Form Survey --}}
-        <div class="section-card">
-            <div class="survey-banner mb-4">
-                <img src="{{ asset('image/the69banner.png') }}" alt="Survey Banner" class="banner-img">
+            <!-- HEADER -->
+            <div class="page-header">
+                <img src="{{ asset('image/dmc.png') }}">
+                <div class="page-title">
+                    THE 69TH DJAKARTA MINING CLUB NETWORKING EVENT<br>
+                    <span style="color: var(--dmc-red-dark)">2026 MINING INSIGHTS</span>
+                </div>
             </div>
 
-            <h3 class="section-title mb-2">Thank You For Attending Indonesia Energy Market Briefing 2025</h3>
-            <p class="text-muted mb-1">Please take a moment to complete the post-event survey. Your feedback is
-                important for us to improve the quality of our next event.
-            </p>
-            <p class="text-muted">After completing the survey, we will provide you with links to download speaker
-                presentations.
-            </p>
+            <div class="card-shell">
+                <div class="form-card">
 
-            <form method="post" action="{{ route('survey.store') }}" novalidate id="surveyForm">
-                @csrf
-
-                {{-- Email --}}
-                <div class="form-group">
-                    <label class="form-title">Email <span class="required-bullet">*</span></label>
-                    <input type="email" name="email" value="{{ old('email') }}"
-                        class="form-control form-control-lg @error('email') is-invalid @enderror"
-                        placeholder="you@company.com" required>
-                    @error('email')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                {{-- 1. On scale 1–5, how informative was the event? --}}
-                <div class="form-group">
-                    <label class="form-title">
-                        On scale 1–5, how informative was the event?
-                        <span class="required-bullet">*</span>
-                    </label>
-                    <div class="score-wrap mt-1">
-                        @for ($i = 1; $i <= 5; $i++)
-                            <label class="score-option m-0">
-                                <input type="radio" id="score{{ $i }}" name="informative_score"
-                                    value="{{ $i }}" {{ old('informative_score') == $i ? 'checked' : '' }}
-                                    required>
-                                <div class="score-btn">{{ $i }}</div>
-                            </label>
-                        @endfor
-                    </div>
-                    @error('informative_score')
-                        <div class="invalid-inline mt-2">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                {{-- 2. Which presentation was most relevant to the information you need? --}}
-                <div class="form-group">
-                    <label class="form-title">Which presentation was most relevant to the information you need? <span
-                            class="required-bullet">*</span></label>
-
-                    <div class="mt-2">
-                        <label class="checkcard mb-2 d-block">
-                            <input type="checkbox" name="most_relevant_presentations[]"
-                                value="Spotlight on US Tariffs: Impact on Global Coal Supply and Demand"
-                                {{ in_array('Spotlight on US Tariffs: Impact on Global Coal Supply and Demand', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
-                            <span class="tick"></span>
-                            Spotlight on US Tariffs: Impact on Global Coal Supply and Demand
-                        </label>
-
-                        <label class="checkcard mb-2 d-block">
-                            <input type="checkbox" name="most_relevant_presentations[]"
-                                value="Choosing the Right Coal Index and Managing Risk"
-                                {{ in_array('Choosing the Right Coal Index and Managing Risk', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
-                            <span class="tick"></span>
-                            Choosing the Right Coal Index and Managing Risk
-                        </label>
-
-                        <label class="checkcard mb-2 d-block">
-                            <input type="checkbox" name="most_relevant_presentations[]"
-                                value="Chinese Coal Policy: Impact on Supply and Demand"
-                                {{ in_array('Chinese Coal Policy: Impact on Supply and Demand', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
-                            <span class="tick"></span>
-                            Chinese Coal Policy: Impact on Supply and Demand
-                        </label>
-
-                        <label class="checkcard d-block">
-                            <input type="checkbox" name="most_relevant_presentations[]"
-                                value="An Introduction to Minespans"
-                                {{ in_array('An Introduction to Minespans', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
-                            <span class="tick"></span>
-                            An Introduction to Minespans
-                        </label>
-                        <label class="checkcard d-block">
-                            <input type="checkbox" name="most_relevant_presentations[]"
-                                value="Indonesia`s Supply Availability and Domestic Coal Consumption for 2026 and Beyond"
-                                {{ in_array('Indonesia`s Supply Availability and Domestic Coal Consumption for 2026 and Beyond', old('most_relevant_presentations', [])) ? 'checked' : '' }}>
-                            <span class="tick"></span>
-                            Indonesia's Supply Availability and Domestic Coal Consumption for 2026 and Beyond
-                        </label>
+                    <div class="form-header-row">
+                        <div class="chip-step"><span>1</span> Event Survey</div>
+                        <small class="text-muted">* Required</small>
                     </div>
 
-                    <div id="presentationsError" class="invalid-inline mt-2" style="display:none;">
-                        Please select at least one option.
-                    </div>
-                    @error('most_relevant_presentations')
-                        <div class="invalid-inline mt-2">{{ $message }}</div>
-                    @enderror
-                </div>
+                    <img src="{{ asset('image/the69banner.png') }}" class="banner-img">
 
-                {{-- 3. Are you a customer of McCloskey? --}}
-                <div class="form-group">
-                    <label class="form-title">Are you a customer of McCloskey? <span
-                            class="required-bullet">*</span></label>
-                    <div class="custom-control custom-radio">
-                        <input type="radio" id="mYes" name="is_member" value="1"
-                            class="custom-control-input" {{ old('is_member') === '1' ? 'checked' : '' }} required>
-                        <label class="custom-control-label" for="mYes">Yes</label>
-                    </div>
-                    <div class="custom-control custom-radio">
-                        <input type="radio" id="mNo" name="is_member" value="0"
-                            class="custom-control-input" {{ old('is_member') === '0' ? 'checked' : '' }} required>
-                        <label class="custom-control-label" for="mNo">No</label>
-                    </div>
-                    @error('is_member')
-                        <div class="invalid-inline mt-2">{{ $message }}</div>
-                    @enderror
-                </div>
+                    <form method="POST" action="{{ route('survey.store') }}">
+                        @csrf
 
-                {{-- 4. If not, would you be interested in learning more about McCloskey’s services? --}}
-                <div class="form-group">
-                    <label class="form-title">If not, would you be interested in learning more about McCloskey’s
-                        services? <span class="required-bullet">*</span></label>
-                    <div class="custom-control custom-radio">
-                        <input type="radio" id="wYes" name="wants_more_info" value="1"
-                            class="custom-control-input" {{ old('wants_more_info') === '1' ? 'checked' : '' }}
-                            required>
-                        <label class="custom-control-label" for="wYes">Yes</label>
-                    </div>
-                    <div class="custom-control custom-radio">
-                        <input type="radio" id="wNo" name="wants_more_info" value="0"
-                            class="custom-control-input" {{ old('wants_more_info') === '0' ? 'checked' : '' }}
-                            required>
-                        <label class="custom-control-label" for="wNo">No</label>
-                    </div>
-                    @error('wants_more_info')
-                        <div class="invalid-inline mt-2">{{ $message }}</div>
-                    @enderror
-                </div>
+                        <div class="form-section">
+                            <div class="form-section-title">Survey Form</div>
 
-                {{-- 5. What can we do better for the next Indonesia Energy Market Briefing? --}}
-                <div class="form-group">
-                    <label class="form-title">What can we do better for the next Indonesia Energy Market Briefing?
-                        <span class="required-bullet">*</span></label>
-                    <textarea name="feedback" rows="3" class="form-control" required>{{ old('feedback') }}</textarea>
-                    @error('feedback')
-                        <div class="invalid-inline mt-2">{{ $message }}</div>
-                    @enderror
-                </div>
+                            <div class="form-group">
+                                <label>Email <small>*</small></label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
 
-                {{-- 6. Which topics are you interested in knowing about for the next event? --}}
-                <div class="form-group">
-                    <label class="form-title">Which topics are you interested in knowing about for the next event?
-                        <span class="required-bullet">*</span></label>
-                    <textarea name="topics_2026" rows="3" class="form-control" required>{{ old('topics_2026') }}</textarea>
-                    @error('topics_2026')
-                        <div class="invalid-inline mt-2">{{ $message }}</div>
-                    @enderror
-                </div>
+                            <div class="form-group">
+                                <label>On a scale of 1–5 (5 highest), how would you rate the event?
+                                    <small>*</small></label>
+                                <div class="score-wrap mt-2">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <label class="score-option m-0">
+                                            <input type="radio" name="event_rating" value="{{ $i }}"
+                                                required>
+                                            <div class="score-btn">{{ $i }}</div>
+                                        </label>
+                                    @endfor
+                                </div>
+                            </div>
 
-                <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">Submit</button>
-            </form>
+                            <div class="form-group">
+                                <label>Comments or suggestions to improve future events <small>*</small></label>
+                                <textarea name="improvement_feedback" rows="3" class="form-control" required></textarea>
+                            </div>
+
+                            <div class="form-group mb-0">
+                                <label>Topic or speaker recommendations for upcoming events <small>*</small></label>
+                                <textarea name="topic_recommendation" rows="3" class="form-control" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-3">
+                            <button class="btn btn-primary btn-submit" type="submit">
+                                Submit
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
         </div>
     </div>
-    {{-- Success Modal --}}
-    @if (session('ok'))
-        <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content border-0">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title" id="successModalLabel">Thank you!</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body pt-0">
-                        <p>
-                            <strong>Thank you</strong> for taking the time to complete the survey.
-                            We truly value the information you have provided.
-                        </p>
-                        <p>
-                            We look forward to having you again at our next event!
-                        </p>
-                        <p class="mb-0">
-                            To access the presentation please click the link below:<br>
-                            <a href="https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link"
-                                target="_blank" style="font-size: 10px;">
-                                https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link
-                            </a>
-                        </p>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <a href="https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link"
-                            target="_blank" class="btn btn-primary">
-                            Open Presentation
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-
-    <!-- JS deps -->
-    <!-- JS deps -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
     <script>
+        // =========================
+        // Bootstrap Validation
+        // =========================
         (function() {
-            var groupSelector = 'input[name="most_relevant_presentations[]"]';
-            var errorEl = document.getElementById('presentationsError');
-            var group = [].slice.call(document.querySelectorAll(groupSelector));
+            'use strict';
 
-            function refreshCheckcards() {
-                group.forEach(function(cb) {
-                    var card = cb.closest('.checkcard');
-                    if (!card) return;
-                    if (cb.checked) card.classList.add('checked');
-                    else card.classList.remove('checked');
-                });
-            }
+            var forms = document.getElementsByClassName('needs-validation');
 
-            function validateGroup(showNow) {
-                var atLeastOne = group.some(function(cb) {
-                    return cb.checked;
-                });
-                if (showNow) errorEl.style.display = atLeastOne ? 'none' : 'block';
-                return atLeastOne;
-            }
+            Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
 
-            document.addEventListener('change', function(e) {
-                if (e.target && e.target.matches(groupSelector)) {
-                    refreshCheckcards();
-                    validateGroup(true);
-                }
-            });
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    } else {
+                        // disable button after valid submit
+                        var btn = form.querySelector('button[type="submit"]');
+                        btn.disabled = true;
+                        btn.innerHTML = "Submitting...";
+                    }
 
-            // initial state from old()
-            refreshCheckcards();
-
-            var form = document.getElementById('surveyForm');
-            var submitBtn = document.getElementById('submitBtn');
-            form.addEventListener('submit', function(e) {
-                var ok = validateGroup(true);
-                if (!ok) {
-                    e.preventDefault();
-                    return;
-                }
-                setTimeout(function() {
-                    submitBtn.disabled = true;
-                }, 0);
+                    form.classList.add('was-validated');
+                }, false);
             });
         })();
-
-        // Auto-show success modal kalau session('ok') ada
-        @if (session('ok'))
-            $(function() {
-                $('#successModal').modal('show');
-            });
-        @endif
     </script>
+
+    @if (session('ok'))
+        <script>
+            // =========================
+            // SUCCESS ALERT
+            // =========================
+            swal({
+                title: "Thank You 🎉",
+                text: "Your feedback has been successfully submitted.",
+                icon: "success",
+                button: "Open Presentation",
+                closeOnClickOutside: false,
+                closeOnEsc: false,
+            }).then(function() {
+
+                window.open(
+                    "https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link",
+                    "_blank"
+                );
+
+                // reset form after success
+                document.querySelector("form").reset();
+            });
+        </script>
+    @endif
+
 </body>
 
 </html>

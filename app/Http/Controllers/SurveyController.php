@@ -23,40 +23,66 @@ class SurveyController extends Controller
 
     public function store(Request $request)
     {
-        $allowedPresentations = [
-            'Spotlight on US Tariffs: Impact on Global Coal Supply and Demand',
-            'Choosing the Right Coal Index and Managing Risk',
-            'Chinese Coal Policy: Impact on Supply and Demand',
-            'Indonesia`s Supply Availability and Domestic Coal Consumption for 2026 and Beyond',
-            'An Introduction to Minespans',
+        $validated = $request->validate([
+            'email'                 => 'required|email|max:255',
+            'event_rating'          => 'required|integer|min:1|max:5',
+            'improvement_feedback'  => 'required|string|max:2000',
+            'topic_recommendation'  => 'required|string|max:2000',
+        ]);
+
+        $data = [
+            'email'                 => $validated['email'],
+            'event_code'            => 'DMC69_2026_MINING_INSIGHTS',
+            'event_rating'          => $validated['event_rating'],
+            'improvement_feedback'  => $validated['improvement_feedback'],
+            'topic_recommendation'  => $validated['topic_recommendation'],
+            'ip'                    => $request->ip(),
+            'ua'                    => substr($request->userAgent() ?? '', 0, 255),
         ];
-        $data = $request->validate(
-            [
-                'email'                         => 'required|email',
-                'informative_score'             => 'required|integer|min:1|max:5',
-                'most_relevant_presentations'   => 'required|array|min:1',
-                'most_relevant_presentations.*' => ['string', Rule::in($allowedPresentations)],
-                'is_member'                     => 'required|in:0,1',
-                'wants_more_info'               => 'required|in:0,1',
-                'feedback'                      => 'required|string',
-                'topics_2026'                   => 'required|string',
-            ],
-            [
-                'most_relevant_presentations.required' => 'Please select at least one option.',
-                'most_relevant_presentations.*.in'     => 'Invalid selection.',
-            ]
-        );
-
-        // normalisasi tipe untuk boolean
-        $data['is_member'] = (int) $data['is_member'];
-        $data['wants_more_info'] = (int) $data['wants_more_info'];
-
-        // metadata
-        $data['ip'] = $request->ip();
-        $data['ua'] = substr($request->userAgent() ?? '', 0, 255);
 
         SurveyResponse::create($data);
 
-        return back()->with('ok', true)->withInput([]);
+        return back()->with('ok', true);
     }
+
+
+
+    // public function store(Request $request)
+    // {
+    //     $allowedPresentations = [
+    //         'Spotlight on US Tariffs: Impact on Global Coal Supply and Demand',
+    //         'Choosing the Right Coal Index and Managing Risk',
+    //         'Chinese Coal Policy: Impact on Supply and Demand',
+    //         'Indonesia`s Supply Availability and Domestic Coal Consumption for 2026 and Beyond',
+    //         'An Introduction to Minespans',
+    //     ];
+    //     $data = $request->validate(
+    //         [
+    //             'email'                         => 'required|email',
+    //             'informative_score'             => 'required|integer|min:1|max:5',
+    //             'most_relevant_presentations'   => 'required|array|min:1',
+    //             'most_relevant_presentations.*' => ['string', Rule::in($allowedPresentations)],
+    //             'is_member'                     => 'required|in:0,1',
+    //             'wants_more_info'               => 'required|in:0,1',
+    //             'feedback'                      => 'required|string',
+    //             'topics_2026'                   => 'required|string',
+    //         ],
+    //         [
+    //             'most_relevant_presentations.required' => 'Please select at least one option.',
+    //             'most_relevant_presentations.*.in'     => 'Invalid selection.',
+    //         ]
+    //     );
+
+    //     // normalisasi tipe untuk boolean
+    //     $data['is_member'] = (int) $data['is_member'];
+    //     $data['wants_more_info'] = (int) $data['wants_more_info'];
+
+    //     // metadata
+    //     $data['ip'] = $request->ip();
+    //     $data['ua'] = substr($request->userAgent() ?? '', 0, 255);
+
+    //     SurveyResponse::create($data);
+
+    //     return back()->with('ok', true)->withInput([]);
+    // }
 }
