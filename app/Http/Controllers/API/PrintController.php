@@ -87,7 +87,7 @@ class PrintController extends Controller
                     if ($check->is_mining == 1) {
 
                         $notifMining = new WhatsappApi();
-                        $notifMining->phone = '120363406345497749@g.us';
+                        $notifMining->phone = '120363406345497749';
 
                         $messageMining = "🚨 Mining Company Attended\n\n" .
                             "*" . ($data['name'] ?? 'Unknown Participant') . "*\n" .
