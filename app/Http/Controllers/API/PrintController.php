@@ -83,6 +83,21 @@ class PrintController extends Controller
                         $notif->message = $message;
                         $notif->WhatsappMessageGroup();
                     }
+
+                    if ($check->is_mining == 1) {
+
+                        $notifMining = new WhatsappApi();
+                        $notifMining->phone = '120363406345497749@g.us';
+
+                        $messageMining = "🚨 Mining Company Attended\n\n" .
+                            "*" . ($data['name'] ?? 'Unknown Participant') . "*\n" .
+                            "Company: *" . ($data['company_name'] ?? 'Unknown Company') . "*\n" .
+                            "Check-in Time: *" . $checkInTime . "*\n\n" .
+                            "Photo: " . $save->photo;
+
+                        $notifMining->message = $messageMining;
+                        $notifMining->WhatsappMessageGroup();
+                    }
                     // --- AKHIR VALIDASI ---
                 }
 
