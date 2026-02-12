@@ -17,7 +17,7 @@ class WhatsappApi
         try {
             $phone = $this->phone;
             $message = $this->message;
-            $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
+            $token = "J9mJ4Pmybsii8LjrRmliGsZuCAMZ5jzhLn7mtqfUbGsDC9O8Sr";
 
             // Melakukan pengecekan nomor telepon menggunakan endpoint check-number
             $checkUrl = 'https://nusagateway.com/api/check-number.php';
@@ -55,7 +55,7 @@ class WhatsappApi
         try {
             $phone = $this->phone;
             $message = $this->message;
-            $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
+            $token = "J9mJ4Pmybsii8LjrRmliGsZuCAMZ5jzhLn7mtqfUbGsDC9O8Sr";
 
 
 
@@ -77,7 +77,7 @@ class WhatsappApi
         try {
             $phone = $this->phone;
             $caption = $this->caption;
-            $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
+            $token = "J9mJ4Pmybsii8LjrRmliGsZuCAMZ5jzhLn7mtqfUbGsDC9O8Sr";
             $image = "https://indonesiaminer.com" . $this->image;
 
             // Melakukan pengecekan nomor telepon menggunakan endpoint check-number
@@ -117,7 +117,7 @@ class WhatsappApi
         try {
             $phone = $this->phone;
             $document = $this->document;
-            $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
+            $token = "J9mJ4Pmybsii8LjrRmliGsZuCAMZ5jzhLn7mtqfUbGsDC9O8Sr";
 
             // Melakukan pengecekan nomor telepon menggunakan endpoint check-number
             $checkUrl = 'https://nusagateway.com/api/check-number.php';
