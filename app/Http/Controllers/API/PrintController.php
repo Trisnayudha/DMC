@@ -88,7 +88,7 @@ class PrintController extends Controller
 
                         $notifMining = new WhatsappApi();
                         $notifMining->phone = '120363406345497749';
-
+                        $checkInTime = Carbon::now()->format('H:i'); // Format: HH:MM (e.g., 15:30)
                         $messageMining = "🚨 Mining Company Attended\n\n" .
                             "*" . ($data['name'] ?? 'Unknown Participant') . "*\n" .
                             "Company: *" . ($data['company_name'] ?? 'Unknown Company') . "*\n" .
