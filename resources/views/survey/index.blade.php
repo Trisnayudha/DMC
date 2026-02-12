@@ -171,6 +171,16 @@
             border-radius: 12px;
             margin-bottom: 18px;
         }
+
+        .intro-text p {
+            font-size: .88rem;
+            line-height: 1.6;
+            color: #4b5563;
+        }
+
+        .intro-text strong {
+            color: #111827;
+        }
     </style>
 </head>
 
@@ -198,7 +208,23 @@
 
                     <img src="{{ asset('image/the69banner.png') }}" class="banner-img">
 
-                    <form method="POST" action="{{ route('survey.store') }}">
+                    <!-- INTRO TEXT -->
+                    <div class="intro-text mb-4">
+                        <p>
+                            <strong>Thank you for attending The 69th Djakarta Mining Club Networking Event: 2026 Mining
+                                Insights.</strong>
+                        </p>
+                        <p>
+                            We kindly invite you to take a few moments to complete our post-event survey.
+                            Your feedback is invaluable in helping us enhance the quality of future events.
+                        </p>
+                        <p>
+                            Once the survey is completed, you will receive access to links for downloading
+                            the speakers’ presentation materials.
+                        </p>
+                    </div>
+
+                    <form method="POST" action="{{ route('survey.store') }}" class="needs-validation" novalidate>
                         @csrf
 
                         <div class="form-section">
@@ -207,6 +233,9 @@
                             <div class="form-group">
                                 <label>Email <small>*</small></label>
                                 <input type="email" name="email" class="form-control" required>
+                                <div class="invalid-feedback">
+                                    Please enter a valid email.
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -221,16 +250,25 @@
                                         </label>
                                     @endfor
                                 </div>
+                                <div class="invalid-feedback d-block">
+                                    Please select a rating.
+                                </div>
                             </div>
 
                             <div class="form-group">
                                 <label>Comments or suggestions to improve future events <small>*</small></label>
                                 <textarea name="improvement_feedback" rows="3" class="form-control" required></textarea>
+                                <div class="invalid-feedback">
+                                    This field is required.
+                                </div>
                             </div>
 
                             <div class="form-group mb-0">
                                 <label>Topic or speaker recommendations for upcoming events <small>*</small></label>
                                 <textarea name="topic_recommendation" rows="3" class="form-control" required></textarea>
+                                <div class="invalid-feedback">
+                                    This field is required.
+                                </div>
                             </div>
                         </div>
 
@@ -247,14 +285,12 @@
 
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
     <script>
-        // =========================
-        // Bootstrap Validation
-        // =========================
         (function() {
             'use strict';
 
@@ -267,7 +303,6 @@
                         event.preventDefault();
                         event.stopPropagation();
                     } else {
-                        // disable button after valid submit
                         var btn = form.querySelector('button[type="submit"]');
                         btn.disabled = true;
                         btn.innerHTML = "Submitting...";
@@ -281,9 +316,6 @@
 
     @if (session('ok'))
         <script>
-            // =========================
-            // SUCCESS ALERT
-            // =========================
             swal({
                 title: "Thank You 🎉",
                 text: "Your feedback has been successfully submitted.",
@@ -294,11 +326,10 @@
             }).then(function() {
 
                 window.open(
-                    "https://drive.google.com/drive/folders/17rLl_ayC8m2b2FbgsjErmSV_x7TNH5zo?usp=drive_link",
+                    "https://drive.google.com/drive/folders/15HugkNkkXW3v7sMvUFBUuAosrfP5fGIv?usp=sharing",
                     "_blank"
                 );
 
-                // reset form after success
                 document.querySelector("form").reset();
             });
         </script>
