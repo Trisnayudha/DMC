@@ -430,7 +430,7 @@ Please confirm your attendance by replying "YES" to this message. If you are una
 
 Your E-Ticket here: ' . url($db) . '
 
-For the event rundown and agenda, please visit our website at https://www.djakarta-miningclub.com/events' . $event->slug . '
+For the event rundown and agenda, please visit our website at https://www.djakarta-miningclub.com/events/' . $event->slug . '
 
 We look forward to seeing you there. Thank you 😊🙏🏻
 
