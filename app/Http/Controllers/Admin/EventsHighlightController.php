@@ -14,7 +14,7 @@ class EventsHighlightController extends Controller
     public function index()
     {
         $list = EventsHighlight::join('events', 'events.id', 'events_highlight.events_id')->orderBy('events_highlight.id', 'desc')
-            ->select('events_highlight.id as id', 'events_highlight.image', 'events.name')->get();
+            ->select('events_highlight.id as id', 'events_highlight.image', 'events_highlight.sort', 'events.name')->get();
         $events = Events::orderBy('id', 'desc')->get();
         $data = [
             'list' => $list,
@@ -25,32 +25,47 @@ class EventsHighlightController extends Controller
 
     public function store(Request $request)
     {
-        // Proses upload gambar dan kompresi
         if ($request->hasFile('image')) {
+
             $images = $request->file('image');
             $event_id = $request->events_id;
+
+            // Ambil sort terakhir berdasarkan event
+            $lastSort = EventsHighlight::where('events_id', $event_id)->max('sort');
+            $nextSort = $lastSort ? $lastSort + 1 : 1;
+
             foreach ($images as $image) {
+
                 $imageName = time() . '_' . $image->getClientOriginalName();
                 $image->storeAs('public/events-highlight', $imageName);
-                // Kompresi gambar dengan library Intervention
+
                 $compressedImage = Image::make($image);
                 $compressedImage->resize(1400, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
                 });
+
                 $compressedImage->save(storage_path('app/public/events-highlight/' . $imageName));
 
-                // Simpan data ke database
-                $data = EventsHighlight::create(
-                    [
-                        'events_id' => $event_id,
-                        'image' => '/storage/events-highlight/' . $imageName,
-                    ]
-                );
+                EventsHighlight::create([
+                    'events_id' => $event_id,
+                    'image' => '/storage/events-highlight/' . $imageName,
+                    'sort' => $nextSort++
+                ]);
             }
+
             return redirect()->back();
         }
     }
+
+    public function updateSort(Request $request)
+    {
+        EventsHighlight::where('id', $request->id)
+            ->update(['sort' => $request->sort]);
+
+        return response()->json(['success' => true]);
+    }
+
 
     public function destroy(Request $request)
     {

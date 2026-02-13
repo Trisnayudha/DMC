@@ -81,24 +81,36 @@ class GalleryController extends Controller
 
     public function navigate(Request $request)
     {
-        $slug = $request->slug;
+        $slug  = $request->slug;
         $limit = $request->limit ?? 10;
 
         $query = EventsHighlight::query();
 
-        // Check if $slug is provided
+        // Filter by slug kalau ada
         if ($slug) {
             $query->whereHas('event', function ($q) use ($slug) {
                 $q->where('slug', $slug);
             });
         }
 
-        $data = $query->orderby('id', 'desc')->paginate($limit);
+        // Clone query untuk cek apakah ada sort yang terisi
+        $hasSort = (clone $query)
+            ->whereNotNull('sort')
+            ->where('sort', '>', 0)
+            ->exists();
 
-        $response['status'] = 200;
-        $response['message'] = 'Success';
-        $response['payload'] = $data;
+        if ($hasSort) {
+            $query->orderBy('sort', 'asc');
+        } else {
+            $query->orderBy('id', 'desc');
+        }
 
-        return response()->json($response);
+        $data = $query->paginate($limit);
+
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Success',
+            'payload' => $data
+        ]);
     }
 }

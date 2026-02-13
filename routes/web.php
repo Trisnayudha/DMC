@@ -324,6 +324,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/events-highlight/addcategory', [EventsHighlightController::class, 'store']);
     Route::post('/events-highlight/editcategory', [EventsHighlightController::class, 'edit']);
     Route::post('/events-highlight/deletecategory', [EventsHighlightController::class, 'destroy']);
+    Route::post('/events-highlight/update-sort', [EventsHighlightController::class, 'updateSort']);
 
     //Events Schedule
     Route::get('/events/schedule', [EventsScheduleController::class, 'index'])->name('events.schedule');

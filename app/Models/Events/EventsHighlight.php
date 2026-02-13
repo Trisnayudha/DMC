@@ -12,8 +12,10 @@ class EventsHighlight extends Model
     protected $casts = ['id' => 'int'];
     protected $fillable = [
         'events_id',
-        'image'
+        'image',
+        'sort'
     ];
+
 
     public function event()
     {

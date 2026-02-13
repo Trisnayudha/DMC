@@ -72,28 +72,49 @@
                                             <tr>
                                                 <th width="10px">No</th>
                                                 <th>Events</th>
-                                                <th>Foto</th>
+                                                <th width="10%">Sort</th>
+                                                <th width="20%">Foto</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
+
                                         <tbody>
                                             <?php $no = 1; ?>
                                             @foreach ($list as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
+
                                                     <td>{{ $post->name }}</td>
-                                                    <td>{{ asset($post->image) }}</td>
+
+                                                    {{-- SORT EDITABLE --}}
                                                     <td>
-                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
-                                                            class="btn btn-success edit"><span
-                                                                class="fa fa-edit"></span></a>
-                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
-                                                            class="btn btn-danger delete"><span class=" fa fa-trash"></a>
+                                                        <input type="number"
+                                                            class="form-control form-control-sm update-sort"
+                                                            data-id="{{ $post->id }}" value="{{ $post->sort }}"
+                                                            style="width:80px;">
                                                     </td>
 
+                                                    {{-- IMAGE PREVIEW --}}
+                                                    <td>
+                                                        <img src="{{ asset($post->image) }}" width="120"
+                                                            style="border-radius:8px;">
+                                                    </td>
+
+                                                    <td>
+                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
+                                                            class="btn btn-success edit">
+                                                            <span class="fa fa-edit"></span>
+                                                        </a>
+
+                                                        <a href="javascript:void(0)" data-id="{{ $post->id }}"
+                                                            class="btn btn-danger delete">
+                                                            <span class="fa fa-trash"></span>
+                                                        </a>
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
+
                                     </table>
                                 </div>
                             </div>
@@ -156,6 +177,36 @@
                     ['para', ['paragraph']]
                 ]
             })
+        });
+        $(document).on('change', '.update-sort', function() {
+
+            let id = $(this).data('id');
+            let sort = $(this).val();
+
+            $.ajax({
+                type: "POST",
+                url: "{{ url('admin/events-highlight/update-sort') }}",
+                data: {
+                    id: id,
+                    sort: sort
+                },
+                success: function(res) {
+
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1200,
+                        timerProgressBar: true
+                    });
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Sort updated'
+                    });
+
+                }
+            });
         });
     </script>
     <script type="text/javascript">
