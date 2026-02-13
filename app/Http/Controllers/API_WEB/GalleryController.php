@@ -81,33 +81,46 @@ class GalleryController extends Controller
 
     public function navigate(Request $request)
     {
+        $slug  = $request->slug;
         $limit = $request->limit ?? 10;
 
-        // 🔹 1. Ambil events_id terakhir berdasarkan highlight terbaru
-        $lastEventId = EventsHighlight::orderBy('id', 'desc')
-            ->value('events_id');
+        $query = EventsHighlight::query();
 
-        if (!$lastEventId) {
-            return response()->json([
-                'status'  => 200,
-                'message' => 'No Data',
-                'payload' => []
-            ]);
-        }
+        if ($slug) {
 
-        $query = EventsHighlight::where('events_id', $lastEventId);
+            // 🔹 Filter specific event
+            $query->whereHas('event', function ($q) use ($slug) {
+                $q->where('slug', $slug);
+            });
 
-        // 🔹 2. Cek apakah event tersebut punya sort
-        $hasSort = (clone $query)
-            ->whereNotNull('sort')
-            ->where('sort', '>', 0)
-            ->exists();
+            // cek apakah event ini punya sort
+            $hasSort = (clone $query)
+                ->whereNotNull('sort')
+                ->where('sort', '>', 0)
+                ->exists();
 
-        // 🔹 3. Conditional ordering
-        if ($hasSort) {
-            $query->orderBy('sort', 'asc');
+            if ($hasSort) {
+                $query->orderBy('sort', 'asc');
+            } else {
+                $query->orderBy('id', 'desc');
+            }
         } else {
-            $query->orderBy('id', 'desc');
+
+            // 🔹 FILTER ALL
+            // Urutan:
+            // 1. events_id terbaru dulu
+            // 2. dalam event: sort asc jika ada
+            // 3. fallback id desc
+
+            $query->orderBy('events_id', 'desc')
+                ->orderByRaw("
+                    CASE
+                        WHEN sort IS NULL OR sort = 0 THEN 1
+                        ELSE 0
+                    END
+              ")
+                ->orderBy('sort', 'asc')
+                ->orderBy('id', 'desc');
         }
 
         $data = $query->paginate($limit);
