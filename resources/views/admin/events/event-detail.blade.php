@@ -272,7 +272,13 @@
                                         Scan Present Page
                                     </a>
                                 </div>
+                                <div class="float-right ml-3">
+                                    <a href="{{ route('events-financial-report', ['slug' => $slug]) }}"
+                                        class="btn btn-success">
+                                        <i class="fas fa-chart-line"></i> Financial Report
+                                    </a>
 
+                                </div>
                                 <div class="float-right ml-3 dropdown">
                                     <a href="#" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">Link
                                         Pendaftaran</a>

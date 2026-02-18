@@ -294,6 +294,15 @@ Route::prefix('admin')->group(function () {
     Route::post('/events/wa-template', [EventsDetailParticipantController::class, 'generateWaTemplate'])
         ->name('events-generate-wa-template');
 
+    Route::get('/events/{slug}/financial-report', [\App\Http\Controllers\Admin\FinancialReportController::class, 'index'])
+        ->name('events-financial-report');
+
+    Route::get('/events/{slug}/financial-report/excel', [\App\Http\Controllers\Admin\FinancialReportController::class, 'exportExcel'])
+        ->name('events-financial-report-excel');
+
+    Route::get('/events/{slug}/financial-report/pdf', [\App\Http\Controllers\Admin\FinancialReportController::class, 'exportPdf'])
+        ->name('events-financial-report-pdf');
+
     //Events Category
     Route::get('/events/category', [EventCategoryController::class, 'index'])->name('events.category');
     Route::post('/events/addcategory', [EventCategoryController::class, 'store']);
