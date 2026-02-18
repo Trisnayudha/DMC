@@ -12,11 +12,9 @@ class MasterDatabaseController extends Controller
     {
         $this->middleware('auth');
     }
-
     public function index(Request $request)
     {
-        $mode = $request->get('mode', 'deduped');
-        // deduped | duplicates | raw
+        $mode = $request->query('mode', 'deduped'); // deduped | duplicates | raw
 
         $baseSql = "
         SELECT
@@ -27,92 +25,72 @@ class MasterDatabaseController extends Controller
                 ORDER BY z.priority ASC, z.created_at DESC
             ) AS rn
         FROM (
-            /* ===== SOURCE A: users + profiles + company ===== */
             SELECT
                 u.id AS id,
                 'users' AS source,
                 u.created_at AS created_at,
-
                 u.name AS name,
                 pr.job_title AS job_title,
                 c.company_name AS company_name,
                 u.email AS email,
-
                 COALESCE(pr.fullphone, pr.phone) AS phone,
                 COALESCE(c.full_office_number, c.office_number) AS office_number,
-
                 c.address AS address,
                 c.company_website AS company_website,
                 c.company_category AS company_category,
-
                 c.cci AS cci,
                 c.explore AS explore,
-
                 COALESCE(NULLIF(u.email,''), NULLIF(COALESCE(pr.fullphone, pr.phone), ''), CONCAT('users#', u.id)) AS unique_key,
                 1 AS priority
             FROM users u
             LEFT JOIN profiles pr ON pr.users_id = u.id
             LEFT JOIN company c ON c.id = pr.company_id
-            WHERE u.isStatus IS NOT NULL
 
             UNION ALL
 
-            /* ===== SOURCE B: xtwp_users_dmc ===== */
             SELECT
                 x.id AS id,
                 'xtwp' AS source,
                 x.created_at AS created_at,
-
                 x.name AS name,
                 x.job_title AS job_title,
                 x.company_name AS company_name,
                 x.email AS email,
-
                 COALESCE(NULLIF(x.fullphone,''), NULLIF(x.phone,'')) AS phone,
                 COALESCE(NULLIF(x.full_office_number,''), NULLIF(x.office_number,'')) AS office_number,
-
                 x.address AS address,
                 x.company_website AS company_website,
                 x.company_category AS company_category,
-
                 x.cci AS cci,
                 x.explore AS explore,
-
                 COALESCE(NULLIF(x.email,''), NULLIF(x.fullphone,''), NULLIF(x.phone,''), CONCAT('xtwp#', x.id)) AS unique_key,
                 2 AS priority
             FROM xtwp_users_dmc x
         ) z
     ";
 
-        if ($mode === 'duplicates') {
-            // tampil semua row yang termasuk group duplicate (buat validasi)
-            $sql = "SELECT * FROM ({$baseSql}) t
-                WHERE t.dup_count > 1
-                ORDER BY t.unique_key ASC, t.priority ASC, t.created_at DESC";
-        } elseif ($mode === 'raw') {
-            // tampil semua raw (3k)
-            $sql = "SELECT * FROM ({$baseSql}) t
-                ORDER BY t.created_at DESC";
+        if ($mode === 'raw') {
+            $sql = "SELECT * FROM ({$baseSql}) t ORDER BY t.created_at DESC";
+        } elseif ($mode === 'duplicates') {
+            $sql = "SELECT * FROM ({$baseSql}) t WHERE t.dup_count > 1 ORDER BY t.unique_key ASC, t.priority ASC, t.created_at DESC";
         } else {
-            // default: deduped (1,8k)
-            $sql = "SELECT * FROM ({$baseSql}) t
-                WHERE t.rn = 1
-                ORDER BY t.created_at DESC";
+            $mode = 'deduped'; // normalize mode invalid
+            $sql = "SELECT * FROM ({$baseSql}) t WHERE t.rn = 1 ORDER BY t.created_at DESC";
         }
 
         $list = DB::select($sql);
 
-        // biar view bisa nampilin summary angka
+        // counts (biar summary bener & jadi bukti mode jalan)
         $totalRaw = DB::selectOne("SELECT COUNT(*) AS c FROM ({$baseSql}) t")->c;
         $totalDeduped = DB::selectOne("SELECT COUNT(*) AS c FROM ({$baseSql}) t WHERE t.rn=1")->c;
-        $totalDuplicatesRows = DB::selectOne("SELECT COUNT(*) AS c FROM ({$baseSql}) t WHERE t.dup_count>1")->c;
+        $totalDuplicateRows = DB::selectOne("SELECT COUNT(*) AS c FROM ({$baseSql}) t WHERE t.dup_count>1")->c;
 
         return view('admin.master_database.index', [
             'list' => $list,
             'mode' => $mode,
             'totalRaw' => $totalRaw,
             'totalDeduped' => $totalDeduped,
-            'totalDuplicatesRows' => $totalDuplicatesRows,
+            'totalDuplicatesRows' => $totalDuplicateRows,
         ]);
     }
 }
