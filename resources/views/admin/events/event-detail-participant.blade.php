@@ -227,8 +227,7 @@
 
                                                             @if ($post->photo)
                                                                 <button class="btn btn-sm btn-info mt-2 btn-view-photo"
-                                                                    data-photo="{{ asset('storage/' . $post->photo) }}"
-                                                                    title="View Photo">
+                                                                    data-photo="{{ $post->photo }}" title="View Photo">
                                                                     <i class="fa fa-image"></i> View Photo
                                                                 </button>
                                                             @endif
@@ -355,6 +354,15 @@
         </div>
     </div>
 
+    <div class="modal fade" id="photoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <img id="previewPhoto" src="" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 @endsection
@@ -562,6 +570,11 @@
             const link = $('#waLink').val();
             if (!link) return alert('Link kosong / nomor tidak valid.');
             window.open(link, '_blank');
+        });
+        $(document).on('click', '.btn-view-photo', function() {
+            const photo = $(this).data('photo');
+            $('#previewPhoto').attr('src', photo);
+            $('#photoModal').modal('show');
         });
     </script>
 @endpush
