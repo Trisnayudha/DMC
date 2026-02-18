@@ -193,7 +193,8 @@
                                             <td class="text-right">{{ number_format($r->discount ?? 0, 0, ',', '.') }}
                                             </td>
                                             <td class="text-right">
-                                                <b>{{ number_format($r->net_amount ?? 0, 0, ',', '.') }}</b></td>
+                                                <b>{{ number_format($r->net_amount ?? 0, 0, ',', '.') }}</b>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -217,56 +218,146 @@
             });
         });
 
-        // CHART: Daily (line)
+        // ===============================
+        // FORMAT RUPIAH
+        // ===============================
+        function formatRupiah(value) {
+            return 'Rp ' + Number(value).toLocaleString('id-ID');
+        }
+
+        // ===============================
+        // CHART: DAILY NET REVENUE
+        // ===============================
         const daily = {!! json_encode($chartDaily) !!};
         const dailyLabels = daily.map(x => x.trx_date);
         const dailyValues = daily.map(x => Number(x.net_total));
 
-        new Chart(document.getElementById('chartDaily'), {
+        const ctxDaily = document.getElementById('chartDaily').getContext('2d');
+        const gradientBlue = ctxDaily.createLinearGradient(0, 0, 0, 400);
+        gradientBlue.addColorStop(0, 'rgba(63, 81, 181, 0.4)');
+        gradientBlue.addColorStop(1, 'rgba(63, 81, 181, 0)');
+
+        new Chart(ctxDaily, {
             type: 'line',
             data: {
                 labels: dailyLabels,
                 datasets: [{
-                    label: 'Net',
-                    data: dailyValues
+                    label: 'Net Revenue',
+                    data: dailyValues,
+                    backgroundColor: gradientBlue,
+                    borderColor: '#3f51b5',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#3f51b5',
+                    pointRadius: 4
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return formatRupiah(context.raw);
+                            }
+                        }
+                    }
+                }
             }
         });
 
-        // CHART: Method (doughnut)
+        // ===============================
+        // CHART: PAYMENT METHOD
+        // ===============================
         const method = {!! json_encode($chartMethod) !!};
+
         new Chart(document.getElementById('chartMethod'), {
             type: 'doughnut',
             data: {
                 labels: method.map(x => x.label),
                 datasets: [{
-                    data: method.map(x => Number(x.value))
+                    data: method.map(x => Number(x.value)),
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#2196F3',
+                        '#FF9800',
+                        '#9C27B0',
+                        '#F44336',
+                        '#00BCD4',
+                        '#795548',
+                        '#607D8B'
+                    ],
+                    borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + formatRupiah(context.raw);
+                            }
+                        }
+                    }
+                }
             }
         });
 
-        // CHART: Ticket (bar)
+        // ===============================
+        // CHART: TOP TICKETS
+        // ===============================
         const ticket = {!! json_encode($chartTicket) !!};
-        new Chart(document.getElementById('chartTicket'), {
+
+        const ctxTicket = document.getElementById('chartTicket').getContext('2d');
+        const gradientGreen = ctxTicket.createLinearGradient(0, 0, 0, 400);
+        gradientGreen.addColorStop(0, 'rgba(76, 175, 80, 0.8)');
+        gradientGreen.addColorStop(1, 'rgba(76, 175, 80, 0.2)');
+
+        new Chart(ctxTicket, {
             type: 'bar',
             data: {
                 labels: ticket.map(x => x.label),
                 datasets: [{
-                    label: 'Net',
-                    data: ticket.map(x => Number(x.value))
+                    label: 'Net Revenue',
+                    data: ticket.map(x => Number(x.value)),
+                    backgroundColor: gradientGreen,
+                    borderRadius: 8
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return formatRupiah(context.raw);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return formatRupiah(value);
+                            }
+                        }
+                    }
+                }
             }
         });
     </script>
