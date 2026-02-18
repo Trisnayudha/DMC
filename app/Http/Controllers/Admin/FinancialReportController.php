@@ -151,6 +151,22 @@ class FinancialReportController extends Controller
             ->orderBy('payment_method', 'asc')
             ->pluck('payment_method');
 
+        $feeTotal = 0;
+
+        foreach ($rows as $r) {
+            $calc = $this->estimateFee($r->payment_method, $r->net_amount);
+            $r->x_fee = $calc['fee'];
+            $r->x_vat = $calc['vat'];
+            $r->x_total_fee = $calc['total_fee'];
+            $r->net_after_fee = max(($r->net_amount ?? 0) - $r->x_total_fee, 0);
+
+            $feeTotal += $r->x_total_fee;
+        }
+
+        $kpi->fee_total_est = $feeTotal;
+        $kpi->net_settlement_est = max(($kpi->net_total ?? 0) - $feeTotal, 0);
+
+
         return view('admin.events.financial-report', [
             'slug' => $slug,
             'event' => $event,
@@ -194,5 +210,22 @@ class FinancialReportController extends Controller
             ]);
 
         return $pdf->download('financial-report-' . $slug . '.pdf');
+    }
+
+    private function estimateFee($method, $amount)
+    {
+        $cfg = config('xendit_fee.methods')[$method] ?? config('xendit_fee.default');
+
+        $fee = 0;
+        if ($cfg['type'] === 'fixed') {
+            $fee = (float) $cfg['fixed'];
+        } elseif ($cfg['type'] === 'percent') {
+            $fee = (float) $amount * (float) $cfg['percent'];
+        } else { // percent_plus_fixed
+            $fee = ((float) $amount * (float) ($cfg['percent'] ?? 0)) + (float) ($cfg['fixed'] ?? 0);
+        }
+
+        $vat = (float) config('xendit_fee.vat_on_fee', 0) * $fee;
+        return ['fee' => $fee, 'vat' => $vat, 'total_fee' => $fee + $vat];
     }
 }
