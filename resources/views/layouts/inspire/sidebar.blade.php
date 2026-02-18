@@ -22,20 +22,20 @@
             </a>
         </li>
 
-        {{-- Jika sudah tidak diperlukan, hapus saja --}}
-        {{-- <li>
-            <a class="nav-link" href="{{ Route('special-event') }}">
-                <i class="fa fa-university" aria-hidden="true"></i>
-                <span>Events Special</span>
-            </a>
-        </li> --}}
-
         <li>
             <a class="nav-link" href="{{ Route('members') }}">
                 <i class="fa fa-user" aria-hidden="true"></i>
                 <span>Members DMC</span>
             </a>
         </li>
+
+        <li class="{{ request()->is('admin/master-database') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.master_database.index') }}">
+                <i class="fas fa-database"></i>
+                <span>Master Database</span>
+            </a>
+        </li>
+
         <li>
             <a class="nav-link" href="{{ Route('digital-edition.index') }}">
                 <i class="fa fa-book" aria-hidden="true"></i>
