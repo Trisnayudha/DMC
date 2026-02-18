@@ -75,7 +75,8 @@ class EventsDetailParticipantController extends Controller
                 'events.name as events_name',
                 'company.company_category',
                 'company.company_other',
-                'company.office_number'
+                'company.office_number',
+                'users_event.photo'
             )
             ->orderBy('payment.id', 'desc')
             ->get();
