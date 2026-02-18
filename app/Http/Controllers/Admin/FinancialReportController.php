@@ -17,6 +17,10 @@ class FinancialReportController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * Base query: PAID OFF + has payment_method + exclude free (price > 0)
+     * Includes joins for tickets/users/profiles/company.
+     */
     private function baseQuery($eventId, Request $request)
     {
         $q = DB::table('payment as p')
@@ -27,17 +31,21 @@ class FinancialReportController extends Controller
             ->where('p.events_id', $eventId)
             ->where('p.status_registration', 'Paid Off')
             ->whereNotNull('p.payment_method')
-            // exclude free by price (IMPORTANT)
             ->where(function ($w) {
                 $w->where('et.price_rupiah', '>', 0)
                     ->orWhere('et.price_dollar', '>', 0);
             });
 
-        // filters
-        if ($request->filled('start_date')) $q->whereDate('p.created_at', '>=', $request->start_date);
-        if ($request->filled('end_date')) $q->whereDate('p.created_at', '<=', $request->end_date);
+        // Filters
+        if ($request->filled('start_date')) {
+            $q->whereDate('p.created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $q->whereDate('p.created_at', '<=', $request->end_date);
+        }
 
-        if ($request->filled('payment_method')) {
+        // payment_method: treat "All" as empty (defensive)
+        if ($request->filled('payment_method') && strtolower($request->payment_method) !== 'all') {
             $q->where('p.payment_method', $request->payment_method);
         }
 
@@ -55,6 +63,9 @@ class FinancialReportController extends Controller
         return $q;
     }
 
+    /**
+     * Row columns + computed amounts.
+     */
     private function selectColumns($q)
     {
         return $q->select([
@@ -80,81 +91,57 @@ class FinancialReportController extends Controller
             'c.company_category',
         ])
             ->selectRaw("
-            CASE
-              WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah
-              ELSE et.price_dollar
-            END as gross_amount
-        ")
+                CASE
+                    WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah
+                    ELSE IFNULL(et.price_dollar,0)
+                END as gross_amount
+            ")
             ->selectRaw("
-            GREATEST(
-              (CASE
-                WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah
-                ELSE et.price_dollar
-              END) - IFNULL(p.discount,0),
-              0
-            ) as net_amount
-        ");
+                GREATEST(
+                    (CASE
+                        WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah
+                        ELSE IFNULL(et.price_dollar,0)
+                    END) - IFNULL(p.discount,0),
+                    0
+                ) as net_amount
+            ");
     }
 
-    public function index($slug, Request $request)
+    /**
+     * Fee estimation (config-based, no DB fields).
+     */
+    private function estimateFee($method, $amount)
     {
-        $event = Events::where('slug', $slug)->firstOrFail();
+        $cfg = config('xendit_fee.methods')[$method] ?? config('xendit_fee.default');
 
-        // for datatable rows
-        $rowsQuery = $this->selectColumns($this->baseQuery($event->id, $request))
-            ->orderBy('p.created_at', 'desc');
+        $fee = 0.0;
+        if (($cfg['type'] ?? '') === 'fixed') {
+            $fee = (float) ($cfg['fixed'] ?? 0);
+        } elseif (($cfg['type'] ?? '') === 'percent') {
+            $fee = (float) $amount * (float) ($cfg['percent'] ?? 0);
+        } else { // percent_plus_fixed
+            $fee = ((float) $amount * (float) ($cfg['percent'] ?? 0)) + (float) ($cfg['fixed'] ?? 0);
+        }
 
-        $rows = $rowsQuery->get();
+        $vat = (float) config('xendit_fee.vat_on_fee', 0) * $fee;
 
-        // KPI
-        $kpi = $this->baseQuery($event->id, $request)
-            ->selectRaw("COUNT(*) as paid_trx")
-            ->selectRaw("SUM(CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE et.price_dollar END) as gross_total")
-            ->selectRaw("SUM(IFNULL(p.discount,0)) as discount_total")
-            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE et.price_dollar END) - IFNULL(p.discount,0),0)) as net_total")
-            ->first();
+        return [
+            'fee' => $fee,
+            'vat' => $vat,
+            'total_fee' => $fee + $vat
+        ];
+    }
 
-
-        // chart: by day
-        $chartDaily = $this->baseQuery($event->id, $request)
-            ->selectRaw("DATE(p.created_at) as trx_date")
-            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE et.price_dollar END) - IFNULL(p.discount,0),0)) as net_total")
-            ->groupBy(DB::raw("DATE(p.created_at)"))
-            ->orderBy('trx_date', 'asc')
-            ->get();
-
-
-        // chart: by payment method
-        $chartMethod = $this->baseQuery($event->id, $request)
-            ->selectRaw("p.payment_method as label")
-            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE et.price_dollar END) - IFNULL(p.discount,0),0)) as value")
-            ->groupBy('p.payment_method')
-            ->orderBy('value', 'desc')
-            ->get();
-
-
-        // chart: by ticket
-        $chartTicket = $this->baseQuery($event->id, $request)
-            ->selectRaw("et.title as label")
-            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE et.price_dollar END) - IFNULL(p.discount,0),0)) as value")
-            ->groupBy('et.title')
-            ->orderBy('value', 'desc')
-            ->limit(12)
-            ->get();
-
-
-        // payment_method list (for filter dropdown)
-        $methods = DB::table('payment')
-            ->where('events_id', $event->id)
-            ->whereNotNull('payment_method')
-            ->distinct()
-            ->orderBy('payment_method', 'asc')
-            ->pluck('payment_method');
-
-        $feeTotal = 0;
+    /**
+     * Apply fee estimation to rows and attach KPI fields.
+     */
+    private function applyFeeEstimation($rows, $kpi)
+    {
+        $feeTotal = 0.0;
 
         foreach ($rows as $r) {
             $calc = $this->estimateFee($r->payment_method, $r->net_amount);
+
             $r->x_fee = $calc['fee'];
             $r->x_vat = $calc['vat'];
             $r->x_total_fee = $calc['total_fee'];
@@ -163,9 +150,67 @@ class FinancialReportController extends Controller
             $feeTotal += $r->x_total_fee;
         }
 
-        $kpi->fee_total_est = $feeTotal;
-        $kpi->net_settlement_est = max(($kpi->net_total ?? 0) - $feeTotal, 0);
+        // attach extra KPI
+        if ($kpi) {
+            $kpi->fee_total_est = $feeTotal;
+            $kpi->net_settlement_est = max(($kpi->net_total ?? 0) - $feeTotal, 0);
+        }
 
+        return [$rows, $kpi];
+    }
+
+    public function index($slug, Request $request)
+    {
+        $event = Events::where('slug', $slug)->firstOrFail();
+
+        // Rows for table
+        $rows = $this->selectColumns(
+            $this->baseQuery($event->id, $request)
+        )
+            ->orderBy('p.created_at', 'desc')
+            ->get();
+
+        // KPI (gross/discount/net)
+        $kpi = $this->baseQuery($event->id, $request)
+            ->selectRaw("COUNT(*) as paid_trx")
+            ->selectRaw("SUM(CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) as gross_total")
+            ->selectRaw("SUM(IFNULL(p.discount,0)) as discount_total")
+            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) - IFNULL(p.discount,0),0)) as net_total")
+            ->first();
+
+        // Chart: net by day
+        $chartDaily = $this->baseQuery($event->id, $request)
+            ->selectRaw("DATE(p.created_at) as trx_date")
+            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) - IFNULL(p.discount,0),0)) as net_total")
+            ->groupBy(DB::raw("DATE(p.created_at)"))
+            ->orderBy('trx_date', 'asc')
+            ->get();
+
+        // Chart: net by payment method
+        $chartMethod = $this->baseQuery($event->id, $request)
+            ->selectRaw("p.payment_method as label")
+            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) - IFNULL(p.discount,0),0)) as value")
+            ->groupBy('p.payment_method')
+            ->orderBy('value', 'desc')
+            ->get();
+
+        // Chart: net by ticket
+        $chartTicket = $this->baseQuery($event->id, $request)
+            ->selectRaw("et.title as label")
+            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) - IFNULL(p.discount,0),0)) as value")
+            ->groupBy('et.title')
+            ->orderBy('value', 'desc')
+            ->limit(12)
+            ->get();
+
+        // Payment method list for dropdown (clean: Paid Off + paid tickets only)
+        $methods = $this->baseQuery($event->id, new Request()) // base without request filters
+            ->distinct()
+            ->orderBy('p.payment_method', 'asc')
+            ->pluck('p.payment_method');
+
+        // Fee estimation (attach to rows + KPI)
+        [$rows, $kpi] = $this->applyFeeEstimation($rows, $kpi);
 
         return view('admin.events.financial-report', [
             'slug' => $slug,
@@ -190,16 +235,21 @@ class FinancialReportController extends Controller
     {
         $event = Events::where('slug', $slug)->firstOrFail();
 
-        $rows = $this->selectColumns($this->baseQuery($event->id, $request))
+        $rows = $this->selectColumns(
+            $this->baseQuery($event->id, $request)
+        )
             ->orderBy('p.created_at', 'desc')
             ->get();
 
         $kpi = $this->baseQuery($event->id, $request)
             ->selectRaw("COUNT(*) as paid_trx")
-            ->selectRaw("SUM(CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE et.price_dollar END) as gross_total")
+            ->selectRaw("SUM(CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) as gross_total")
             ->selectRaw("SUM(IFNULL(p.discount,0)) as discount_total")
-            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE et.price_dollar END) - IFNULL(p.discount,0),0)) as net_total")
+            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) - IFNULL(p.discount,0),0)) as net_total")
             ->first();
+
+        // Fee estimation in PDF too
+        [$rows, $kpi] = $this->applyFeeEstimation($rows, $kpi);
 
         $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
             ->loadView('admin.events.financial-report-pdf', [
@@ -210,22 +260,5 @@ class FinancialReportController extends Controller
             ]);
 
         return $pdf->download('financial-report-' . $slug . '.pdf');
-    }
-
-    private function estimateFee($method, $amount)
-    {
-        $cfg = config('xendit_fee.methods')[$method] ?? config('xendit_fee.default');
-
-        $fee = 0;
-        if ($cfg['type'] === 'fixed') {
-            $fee = (float) $cfg['fixed'];
-        } elseif ($cfg['type'] === 'percent') {
-            $fee = (float) $amount * (float) $cfg['percent'];
-        } else { // percent_plus_fixed
-            $fee = ((float) $amount * (float) ($cfg['percent'] ?? 0)) + (float) ($cfg['fixed'] ?? 0);
-        }
-
-        $vat = (float) config('xendit_fee.vat_on_fee', 0) * $fee;
-        return ['fee' => $fee, 'vat' => $vat, 'total_fee' => $fee + $vat];
     }
 }
