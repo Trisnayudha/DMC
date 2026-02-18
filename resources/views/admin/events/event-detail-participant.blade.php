@@ -211,14 +211,30 @@
                                                                 <input type="hidden" name="payment_id"
                                                                     value="{{ $post->payment_id }}">
                                                                 <input type="hidden" name="method" value="present">
-                                                                <button href="#" class="btn btn-primary present"
-                                                                    title="Send Confirmation">
-                                                                    <span class="fa fa-paper-plane"></span></button>
+                                                                <button class="btn btn-primary present"
+                                                                    title="Mark as Present">
+                                                                    <span class="fa fa-paper-plane"></span>
+                                                                </button>
                                                             </form>
                                                         @else
-                                                            {{ date('d, F H:i', strtotime($post->present)) . ' ' . $post->name_present }}
+                                                            <div>
+                                                                {{ date('d, F H:i', strtotime($post->present)) }}
+                                                                <br>
+                                                                <small class="text-muted">
+                                                                    {{ $post->name_present }}
+                                                                </small>
+                                                            </div>
+
+                                                            @if ($post->photo)
+                                                                <button class="btn btn-sm btn-info mt-2 btn-view-photo"
+                                                                    data-photo="{{ asset('storage/' . $post->photo) }}"
+                                                                    title="View Photo">
+                                                                    <i class="fa fa-image"></i> View Photo
+                                                                </button>
+                                                            @endif
                                                         @endif
                                                     </td>
+
                                                 </tr>
                                             @endforeach
                                         </tbody>
