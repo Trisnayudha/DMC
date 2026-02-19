@@ -21,7 +21,8 @@ class News extends NewsModel
                 'news.image',
                 'news.location',
                 'news.date_news',
-                'news.desc'
+                'news.desc',
+                'news.type'
             )
             ->join('news_category_list', function ($join) use ($category_news) {
                 if (!empty($category_news)) {
@@ -60,7 +61,8 @@ class News extends NewsModel
                 'news.image',
                 'news.location',
                 'news.date_news',
-                'news.desc'
+                'news.desc',
+                'news.type'
             )
             ->leftJoin('news_category_list', function ($join) use ($category_news) {
                 $join->on('news_category_list.news_id', '=', 'news.id');
@@ -116,6 +118,7 @@ class News extends NewsModel
                 'news.location',
                 'news.date_news',
                 'news.views',
+                'news.type',
                 'news.desc',
                 'news.share',
                 'news.last_update',
@@ -182,7 +185,8 @@ class News extends NewsModel
             'news.location',
             'news.date_news',
             'news.desc',
-            'news.views'
+            'news.views',
+            'news.type'
         )
             ->distinct()
             ->leftJoin('news_category_list', function ($join) {
@@ -208,14 +212,14 @@ class News extends NewsModel
 
     public static function listAll()
     {
-        $data = News::select('id', 'title', 'title', 'date_news', 'slug', 'image', 'desc')->where('status', 'publish')->take(6)->orderBy('id', 'desc')->get();
+        $data = News::select('id', 'title', 'date_news', 'slug', 'type', 'image', 'desc')->where('status', 'publish')->take(6)->orderBy('id', 'desc')->get();
 
         return $data;
     }
 
     public static function listAllToArray()
     {
-        $data = News::select('id', 'title', 'title', 'date_news', 'slug')->where('status', 'publish')->where('highlight', '=', 'Yes')->take(4)->orderBy('id', 'desc')
+        $data = News::select('id', 'title', 'date_news', 'type', 'slug')->where('status', 'publish')->where('highlight', '=', 'Yes')->take(4)->orderBy('id', 'desc')
             ->pluck('news.id')
             ->toArray();
 
