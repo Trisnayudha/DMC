@@ -100,4 +100,60 @@ class SponsorAdvertisementApiController extends Controller
             return response()->json($response, $response['status']);
         }
     }
+
+    // Metode untuk mendapatkan daftar iklan sponsor berdasarkan sponsor_id
+    public function bySponsor(Request $request, $sponsorId)
+    {
+        try {
+            $limit  = $request->limit ?? 10;
+            $search = $request->input('search');
+            $order  = $request->input('order'); // 'newest' | 'oldest'
+
+            $sortOrder = ($order === 'oldest') ? 'asc' : 'desc';
+
+            $advertisings = SponsorAdvertising::join('sponsors', 'sponsors.id', '=', 'sponsors_advertising.sponsor_id')
+                ->where('sponsors_advertising.sponsor_id', $sponsorId)
+                ->select(
+                    'sponsors_advertising.id',
+                    'sponsors_advertising.name as title',
+                    'sponsors_advertising.image',
+                    'sponsors.name as company',
+                    'sponsors_advertising.date',
+                    'sponsors_advertising.file_size',
+                    'sponsors_advertising.link as download'
+                )
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($query) use ($search) {
+                        $query->where('sponsors_advertising.name', 'like', '%' . $search . '%')
+                            ->orWhere('sponsors.name', 'like', '%' . $search . '%');
+                    });
+                })
+                ->orderBy('sponsors_advertising.date', $sortOrder)
+                ->paginate($limit);
+
+            $advertisings->getCollection()->transform(function ($item) {
+                // kalau accessor formatted_file_size ada di model SponsorAdvertising,
+                // pastikan bisa kebaca dari hasil join (kalau tidak, lihat catatan di bawah)
+                $item->fileSize = $item->formatted_file_size ?? null;
+                return $item;
+            });
+
+            if ($advertisings->count() > 0) {
+                $response['status']  = 200;
+                $response['message'] = 'Success';
+                $response['payload'] = $advertisings;
+            } else {
+                $response['status']  = 200;
+                $response['message'] = 'No data found';
+                $response['payload'] = [];
+            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching data by sponsor: ' . $e->getMessage());
+            $response['status']  = 500;
+            $response['message'] = 'Internal Server Error';
+            $response['payload'] = [];
+        }
+
+        return response()->json($response, $response['status']);
+    }
 }

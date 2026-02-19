@@ -210,6 +210,7 @@ Route::prefix('web')->group(function () {
 
     Route::post('sponsor/send-inquiry', [SponsorsController::class, 'sentInquiry']);
     Route::get('sponsor-advertisement', [SponsorAdvertisementApiController::class, 'index']);
+    Route::get('sponsor-advertisement/sponsor/{sponsorId}', [SponsorAdvertisementApiController::class, 'bySponsor']);
     Route::get('sponsor-advertisement/download/{id}', [SponsorAdvertisementApiController::class, 'download']);
 });
 
