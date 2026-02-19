@@ -17,6 +17,7 @@ use App\Http\Controllers\API\VideosContorller;
 use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\API\ContactUsController;
 use App\Http\Controllers\API\MarketingAdsController;
+use App\Http\Controllers\API\MembershipController;
 use App\Http\Controllers\API\MikrotikController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\PrintController;
@@ -50,7 +51,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
+Route::post('/check-membership', [MembershipController::class, 'check']);
 Route::post('/xendit/invoice', [XenditCallbackController::class, 'invoice']);
 Route::post('/xendit/invoice_v2', [XenditCallbackController::class, 'invoice_v2']);
 Route::post('/xendit/fva_create', [XenditCallbackController::class, 'fva_create']);
