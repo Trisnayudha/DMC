@@ -115,7 +115,7 @@ class NewsController extends Controller
     {
         $news = News::with('partner')->findOrFail($id);
         $categories = NewsCategory::orderBy('id', 'desc')->get();
-        $partners = NewsPartner::orderBy('name', 'asc')->get();
+        $partners = NewsPartner::orderBy('partner_name', 'asc')->get();
 
         return view('admin.news.edit', compact('news', 'categories', 'partners'));
     }
