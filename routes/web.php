@@ -359,6 +359,15 @@ Route::prefix('admin')->group(function () {
     // routes/web.php
     Route::post('/ajax/upload-image', [\App\Http\Controllers\Ajax\UploadController::class, 'image'])
         ->name('ajax.image.upload')->middleware('auth');
+    Route::post(
+        'news-partners/ajax-store',
+        [\App\Http\Controllers\Admin\NewsPartnerController::class, 'ajaxStore']
+    )->name('news.partners.ajaxStore');
+    Route::post(
+        'ajax/image-upload',
+        [\App\Http\Controllers\Admin\ImageUploadController::class, 'upload']
+    )->name('ajax.image.upload');
+
 
     Route::post('/editor/upload', [EditorUploadController::class, 'upload'])->name('editor.upload');
     Route::post('/editor/delete', [EditorUploadController::class, 'delete'])->name('editor.delete'); // opsional

@@ -25,4 +25,8 @@ class News extends Model
         'share',
         'reference_link'
     ];
+    public function partner()
+    {
+        return $this->belongsTo(\App\Models\News\NewsPartner::class, 'news_partners_id');
+    }
 }

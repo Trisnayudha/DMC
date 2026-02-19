@@ -1,6 +1,9 @@
 @extends('layouts.inspire.master')
 @section('content-title', 'Tambah Program')
 @section('content')
+    {{-- CSRF token untuk Ajax (pastikan juga ada di master layout) --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <section class="section">
         <div class="section-header">
             <div class="section-header-back">
@@ -136,6 +139,9 @@
                         </div>
                     </div>
 
+                    {{-- ===========================
+                        Publish Card (DITAMBAH: Type + Partner)
+                    ============================ --}}
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
@@ -143,6 +149,63 @@
                                     <h4>Publish</h4>
                                 </div>
                                 <div class="card-body">
+
+                                    {{-- ✅ NEW: Type --}}
+                                    <div class="form-group{{ $errors->has('type') ? ' has-error' : '' }}">
+                                        {!! Form::label('Type *') !!}
+                                        {!! Form::select(
+                                            'type',
+                                            [
+                                                'default' => 'Default News',
+                                                'partnership' => 'Partnership',
+                                                'sponsor' => 'Sponsor (Brochure)',
+                                            ],
+                                            old('type', 'default'),
+                                            [
+                                                'class' => 'form-control',
+                                                'id' => 'newsType',
+                                            ],
+                                        ) !!}
+                                        @if ($errors->has('type'))
+                                            <span class="help-block"><strong
+                                                    style="color:red">{{ $errors->first('type') }}</strong></span>
+                                        @endif
+                                    </div>
+
+                                    {{-- ✅ NEW: Partner dropdown (muncul kalau type=partnership) --}}
+                                    <div id="partnerWrap" style="display:none;">
+                                        <div class="form-group{{ $errors->has('news_partners_id') ? ' has-error' : '' }}">
+                                            {!! Form::label('Partner *') !!}
+                                            <div class="d-flex" style="gap:8px;">
+                                                <select name="news_partners_id" id="partnerSelect"
+                                                    class="form-control select2" style="width:100%;">
+                                                    <option value="">-- Select Partner --</option>
+                                                    @if (isset($partners))
+                                                        @foreach ($partners as $p)
+                                                            <option value="{{ $p->id }}"
+                                                                {{ old('news_partners_id') == $p->id ? 'selected' : '' }}>
+                                                                {{ $p->partner_name }}{{ !empty($p->company) ? ' - ' . $p->company : '' }}
+                                                            </option>
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+
+                                                <button type="button" class="btn btn-outline-primary"
+                                                    id="btnCreatePartner">
+                                                    + Partner
+                                                </button>
+                                            </div>
+                                            @if ($errors->has('news_partners_id'))
+                                                <span class="help-block"><strong
+                                                        style="color:red">{{ $errors->first('news_partners_id') }}</strong></span>
+                                            @endif
+                                        </div>
+                                        <small class="text-muted d-block mt-1">
+                                            Jika partner belum ada, klik <b>+ Partner</b> untuk buat baru.
+                                        </small>
+                                    </div>
+
+                                    {{-- existing --}}
                                     <div class="form-group{{ $errors->has('date_news') ? ' has-error' : '' }}">
                                         {!! Form::label('Date News *') !!}
                                         <div class="input-group date">
@@ -185,6 +248,65 @@
         </div>
     </section>
 
+    {{-- ===========================
+        ✅ NEW: Modal Create Partner
+    ============================ --}}
+    <div class="modal fade" id="partnerModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Partner</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" class="form-control" id="p_name">
+                    </div>
+                    <div class="form-group">
+                        <label>Position</label>
+                        <input type="text" class="form-control" id="p_position">
+                    </div>
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" class="form-control" id="p_company">
+                    </div>
+                    <div class="form-group">
+                        <label>Website</label>
+                        <input type="text" class="form-control" id="p_website">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image (upload → URL)</label>
+                        <div class="d-flex" style="gap:8px;">
+                            <input type="text" class="form-control" id="p_image"
+                                placeholder="Auto filled after upload" readonly>
+                            <input type="file" id="p_image_file" hidden accept="image/*">
+                            <button class="btn btn-outline-primary" type="button"
+                                id="btnUploadPartnerImage">Upload</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Quote</label>
+                        <input type="text" class="form-control" id="p_quote">
+                    </div>
+
+                    <small class="text-danger d-none" id="partnerErr"></small>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btnSavePartner">Save Partner</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     {{-- libs --}}
     <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
@@ -210,6 +332,20 @@
             $(document).on('shown.bs.modal', '.note-image-dialog', function() {
                 $(this).find('.note-group-select-from-files').remove();
             });
+
+            // ✅ NEW: Toggle partner dropdown based on type
+            function togglePartnerWrap() {
+                const type = $('#newsType').val();
+                if (type === 'partnership') {
+                    $('#partnerWrap').slideDown(120);
+                } else {
+                    $('#partnerWrap').slideUp(120);
+                    // optional: clear selection
+                    // $('#partnerSelect').val('').trigger('change');
+                }
+            }
+            togglePartnerWrap();
+            $(document).on('change', '#newsType', togglePartnerWrap);
         });
     </script>
 
@@ -373,6 +509,96 @@
             }
             setTimeout(() => showResultPanel(false), 1200);
         }
+    </script>
+
+    {{-- ===========================
+        ✅ NEW: Partner Modal JS (AJAX create + upload)
+        (tidak mengganggu FAB upload yang sudah ada)
+    ============================ --}}
+    <script>
+        const PARTNER_STORE_URL = "{{ route('news.partners.ajaxStore') }}";
+        const PARTNER_UPLOAD_URL = "{{ route('ajax.image.upload') }}"; // sama endpoint, beda variable
+
+        // open modal
+        $(document).on('click', '#btnCreatePartner', function() {
+            $('#partnerErr').addClass('d-none').text('');
+            $('#p_name,#p_position,#p_company,#p_website,#p_image,#p_quote').val('');
+            $('#partnerModal').modal('show');
+        });
+
+        // upload image partner
+        $(document).on('click', '#btnUploadPartnerImage', function() {
+            $('#p_image_file').click();
+        });
+
+        $(document).on('change', '#p_image_file', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const fd = new FormData();
+            fd.append('image', file);
+
+            $.ajax({
+                url: PARTNER_UPLOAD_URL,
+                method: 'POST',
+                data: fd,
+                processData: false,
+                contentType: false,
+                timeout: 120000,
+                success: function(res) {
+                    const url = res?.url || res?.data?.url;
+                    if (url) $('#p_image').val(url);
+                },
+                error: function(xhr) {
+                    const msg = xhr?.responseJSON?.message || 'Gagal upload image partner.';
+                    $('#partnerErr').removeClass('d-none').text(msg);
+                },
+                complete: function() {
+                    $('#p_image_file').val('');
+                }
+            });
+        });
+
+        // save partner ajax => append option => select
+        $(document).on('click', '#btnSavePartner', function() {
+            const payload = {
+                partner_name: $('#p_name').val(),
+                partner_position: $('#p_position').val(),
+                partner_company: $('#p_company').val(),
+                partner_website: $('#p_website').val(),
+                partner_image: $('#p_image').val(),
+                partner_quote: $('#p_quote').val(),
+            };
+
+            $.ajax({
+                url: PARTNER_STORE_URL,
+                method: 'POST',
+                data: payload,
+                success: function(res) {
+                    if (res?.success && res?.partner?.id) {
+                        const id = res.partner.id;
+                        const text = res.partner.text || ('Partner #' + id);
+
+                        if ($('#partnerSelect option[value="' + id + '"]').length === 0) {
+                            $('#partnerSelect').append(new Option(text, id, true, true));
+                        }
+                        $('#partnerSelect').val(id).trigger('change');
+
+                        $('#partnerModal').modal('hide');
+                    }
+                },
+                error: function(xhr) {
+                    // tampilkan error validasi yang lebih jelas
+                    let msg = xhr?.responseJSON?.message || 'Failed to create partner.';
+                    if (xhr?.responseJSON?.errors) {
+                        const errors = xhr.responseJSON.errors;
+                        const firstKey = Object.keys(errors)[0];
+                        if (firstKey && errors[firstKey]?.[0]) msg = errors[firstKey][0];
+                    }
+                    $('#partnerErr').removeClass('d-none').text(msg);
+                }
+            });
+        });
     </script>
 
 @endsection

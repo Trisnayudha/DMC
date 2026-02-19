@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/Admin/NewsController.php
 
 namespace App\Http\Controllers\Admin;
 
@@ -6,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\News\News;
 use App\Models\News\NewsCategory;
 use App\Models\News\NewsCategoryList;
+use App\Models\News\NewsPartner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -16,132 +18,159 @@ class NewsController extends Controller
     {
         $this->middleware('auth')->except('share');
     }
+
     public function index()
     {
         $list = News::orderBy('id', 'desc')->get();
         $currentMonth = Carbon::now()->month;
+
         $countView = News::whereMonth('created_at', $currentMonth)->sum('views');
-        // Menghitung jumlah total view dari semua berita
         $totalView = News::whereMonth('created_at', $currentMonth)->count('id');
 
-        $data = [
+        return view('admin.news.index', [
             'totalView' => $totalView,
             'countView' => $countView,
             'list' => $list
-        ];
-        return view('admin.news.index', $data);
+        ]);
     }
 
     public function create()
     {
         $categories = NewsCategory::orderBy('id', 'desc')->get();
+        $partners = NewsPartner::orderBy('partner_name', 'asc')->get(); // dropdown partner
 
-        $data = [
-            'categories' => $categories
-        ];
-        return view('admin.news.create', $data);
+        return view('admin.news.create', [
+            'categories' => $categories,
+            'partners'   => $partners,
+        ]);
     }
 
     public function store(Request $request)
     {
-        // 1) Validasi awal
         $request->validate([
-            'title'          => 'required|string|max:255',
-            'description'    => 'required|string',
-            'description2'   => 'nullable|string',
-            'reference_link' => 'nullable|string',
+            'type'            => 'required|in:default,partnership,sponsor',
+            'title'           => 'required|string|max:255',
+            'description'     => 'required|string',
+            'description2'    => 'nullable|string',
+            'reference_link'  => 'nullable|string',
             'reference_image' => 'nullable|string',
-            'date_news'      => 'required|date',
-            'status'         => 'required|in:draft,publish',
-            // 'category_id'    => 'required|array',
-            // 'category_id.*'  => 'exists:news_categories,id',
-            'image'          => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:5120', // 5MB
+            'date_news'       => 'required|date',
+            'status'          => 'required|in:draft,publish',
+            'image'           => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:5120',
+
+            // partner hanya id (dipakai kalau type=partnership)
+            'news_partners_id' => 'nullable|integer|exists:news_partners,id',
+
+            // categories (optional)
+            'category_id'      => 'nullable|array',
         ]);
 
-        // 2) Siapkan model
-        $save = new News();
-        $save->title           = $request->input('title');
-        $save->desc            = $request->input('description');
-        $save->desc2           = $request->input('description2');
-        $save->reference_link  = $request->input('reference_link');
-        $save->reference_image = $request->input('reference_image');
-        $save->slug            = \Str::slug($request->input('title'));
-        $save->status          = $request->input('status');
-        $save->date_news       = $request->input('date_news');
-
-        // 3) Upload gambar (aman)
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-
-            if ($image->isValid()) {
-                // pastikan folder & symlink sudah benar: php artisan storage:link
-                $imageName = time() . '.' . $image->getClientOriginalExtension();
-                $image->storeAs('public/news', $imageName);  // -> storage/app/public/news/{file}
-                $save->image = '/storage/news/' . $imageName; // URL publik
-            } else {
-                return back()
-                    ->withErrors(['image' => 'File upload tidak valid. Coba pilih file lain.'])
-                    ->withInput();
-            }
+        // partnership: wajib pilih partner
+        if ($request->type === 'partnership' && !$request->filled('news_partners_id')) {
+            return back()
+                ->withErrors(['news_partners_id' => 'Partner wajib dipilih untuk tipe Partnership.'])
+                ->withInput();
         }
 
-        // 4) Simpan record utama
+        $save = new News();
+        $save->type            = $request->type;
+        $save->title           = $request->title;
+        $save->desc            = $request->description;
+        $save->desc2           = $request->description2;
+        $save->reference_link  = $request->reference_link;
+        $save->reference_image = $request->reference_image;
+        $save->slug            = Str::slug($request->title);
+        $save->status          = $request->status;
+        $save->date_news       = $request->date_news;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            if (!$image->isValid()) {
+                return back()->withErrors(['image' => 'File upload tidak valid.'])->withInput();
+            }
+            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $image->storeAs('public/news', $imageName);
+            $save->image = '/storage/news/' . $imageName;
+        }
+
+        // set partner FK only if partnership
+        $save->news_partners_id = ($request->type === 'partnership') ? $request->news_partners_id : null;
+
         $save->save();
 
-        // 5) Simpan kategori (pivot)
-        // Simpan kategori (jika multiple categories)
-        // if (!empty($request->category_id)) {
-        //     foreach ($request->category_id as $catId) {
-        //         NewsCategoryList::create([
-        //             'news_id' => $save->id,
-        //             'news_category_id' => $catId
-        //         ]);
-        //     }
-        // }
-
+        // categories pivot (optional)
+        if (!empty($request->category_id)) {
+            foreach ($request->category_id as $catId) {
+                NewsCategoryList::create([
+                    'news_id' => $save->id,
+                    'news_category_id' => $catId
+                ]);
+            }
+        }
 
         return redirect()->route('news')->with('success', 'Successfully create news');
     }
 
-
-
     public function edit($id)
     {
-        $news = News::findOrFail($id);
+        $news = News::with('partner')->findOrFail($id);
+        $categories = NewsCategory::orderBy('id', 'desc')->get();
+        $partners = NewsPartner::orderBy('name', 'asc')->get();
 
-        // $categories = NewsCategory::orderBy('id', 'desc')->get();
-        // $selectedCategories = $news->categories->pluck('id')->toArray(); // Assuming a Many-to-Many relationship
-        return view('admin.news.edit', compact('news'));
+        return view('admin.news.edit', compact('news', 'categories', 'partners'));
     }
 
     public function update(Request $request, $id)
     {
         $news = News::findOrFail($id);
 
-        $news->title = $request->title;
-        $news->desc = $request->desc;
-        $news->desc2 = $request->desc2; // Deskripsi 2
-        $news->reference_link = $request->reference_link;
-        $news->reference_image = $request->reference_image;
-        $news->date_news = $request->date_news;
-        $news->status = $request->status;
-        $news->slug = Str::slug($request->title);
-        // Cek file baru
-        if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
-            $db = '/storage/news/' . $imageName;
+        $request->validate([
+            'type'            => 'required|in:default,partnership,sponsor',
+            'title'           => 'required|string|max:255',
+            'desc'            => 'required|string',
+            'desc2'           => 'nullable|string',
+            'reference_link'  => 'nullable|string',
+            'reference_image' => 'nullable|string',
+            'date_news'       => 'required|date',
+            'status'          => 'required|in:draft,publish',
+            'image'           => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:5120',
 
-            $request->image->storeAs('public/news', $imageName);
-            $news->image = $db;
+            'news_partners_id' => 'nullable|integer|exists:news_partners,id',
+
+            'category_id'      => 'nullable|array',
+            'category_id.*'    => 'exists:news_categories,id',
+        ]);
+
+        if ($request->type === 'partnership' && !$request->filled('news_partners_id')) {
+            return back()
+                ->withErrors(['news_partners_id' => 'Partner wajib dipilih untuk tipe Partnership.'])
+                ->withInput();
         }
 
+        $news->type            = $request->type;
+        $news->title           = $request->title;
+        $news->desc            = $request->desc;
+        $news->desc2           = $request->desc2;
+        $news->reference_link  = $request->reference_link;
+        $news->reference_image = $request->reference_image;
+        $news->date_news       = $request->date_news;
+        $news->status          = $request->status;
+        $news->slug            = Str::slug($request->title);
+
+        if ($request->hasFile('image')) {
+            $imageName = time() . '.' . $request->image->extension();
+            $request->image->storeAs('public/news', $imageName);
+            $news->image = '/storage/news/' . $imageName;
+        }
+
+        $news->news_partners_id = ($request->type === 'partnership') ? $request->news_partners_id : null;
+
         $news->save();
-        // Update categories
+
+        // categories pivot (optional)
         if (!empty($request->category_id)) {
-            // Hapus data kategori lama
             NewsCategoryList::where('news_id', $news->id)->delete();
 
-            // Simpan data kategori baru
             foreach ($request->category_id as $catId) {
                 NewsCategoryList::create([
                     'news_id' => $news->id,
@@ -152,8 +181,6 @@ class NewsController extends Controller
 
         return redirect()->route('news')->with('success', 'News updated successfully');
     }
-
-
 
     public function destroy($id)
     {
@@ -166,9 +193,9 @@ class NewsController extends Controller
     public function share($slug)
     {
         $news = News::where('slug', $slug)->first();
-        $data = [
+
+        return view('admin.news.news-share', [
             'news' => $news
-        ];
-        return view('admin.news.news-share', $data);
+        ]);
     }
 }
