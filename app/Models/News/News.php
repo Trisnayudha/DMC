@@ -29,4 +29,8 @@ class News extends Model
     {
         return $this->belongsTo(\App\Models\News\NewsPartner::class, 'news_partners_id');
     }
+    public function sponsor()
+    {
+        return $this->belongsTo(\App\Models\Sponsors\Sponsor::class, 'sponsors_id');
+    }
 }

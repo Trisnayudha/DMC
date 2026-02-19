@@ -203,6 +203,33 @@
                                 </small>
                             </div>
 
+                            {{-- ✅ NEW: Sponsor dropdown (muncul kalau type=sponsor) --}}
+                            <div id="sponsorWrap" style="display:none;">
+                                <div class="form-group{{ $errors->has('sponsors_id') ? ' has-error' : '' }}">
+                                    {!! Form::label('Sponsor *') !!}
+                                    <select name="sponsors_id" id="sponsorSelect" class="form-control select2"
+                                        style="width:100%;">
+                                        <option value="">-- Select Sponsor --</option>
+                                        @if (isset($sponsors))
+                                            @foreach ($sponsors as $s)
+                                                <option value="{{ $s->id }}"
+                                                    {{ old('sponsors_id', $news->sponsors_id ?? '') == $s->id ? 'selected' : '' }}>
+                                                    {{ $s->name }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+
+                                    @if ($errors->has('sponsors_id'))
+                                        <span class="help-block"><strong
+                                                style="color:red">{{ $errors->first('sponsors_id') }}</strong></span>
+                                    @endif
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    Pilih sponsor untuk tipe <b>Sponsor (Brochure)</b>.
+                                </small>
+                            </div>
+
                             {{-- Date News --}}
                             <div class="form-group{{ $errors->has('date_news') ? ' has-error' : '' }}">
                                 {!! Form::label('Date News *') !!}
@@ -321,24 +348,33 @@
                 ]
             });
 
-            // Buang "Select from files" di modal insert image
             $(document).on('shown.bs.modal', '.note-image-dialog', function() {
                 $(this).find('.note-group-select-from-files').remove();
             });
 
-            // ✅ NEW: Toggle partner dropdown based on type
-            function togglePartnerWrap() {
+            // ✅ NEW: Toggle partner & sponsor dropdown based on type
+            function toggleTypeWrap() {
                 const type = $('#newsType').val();
+
                 if (type === 'partnership') {
                     $('#partnerWrap').slideDown(120);
                 } else {
                     $('#partnerWrap').slideUp(120);
-                    // optional: clear selection
+                    // optional clear:
                     // $('#partnerSelect').val('').trigger('change');
                 }
+
+                if (type === 'sponsor') {
+                    $('#sponsorWrap').slideDown(120);
+                } else {
+                    $('#sponsorWrap').slideUp(120);
+                    // optional clear:
+                    // $('#sponsorSelect').val('').trigger('change');
+                }
             }
-            togglePartnerWrap();
-            $(document).on('change', '#newsType', togglePartnerWrap);
+
+            toggleTypeWrap();
+            $(document).on('change', '#newsType', toggleTypeWrap);
         });
     </script>
 

@@ -37,4 +37,8 @@ class Sponsor extends Model
     {
         return $this->hasMany(SponsorPic::class);
     }
+    public function news()
+    {
+        return $this->hasMany(\App\Models\News\News::class, 'sponsors_id');
+    }
 }

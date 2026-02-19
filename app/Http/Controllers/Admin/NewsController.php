@@ -8,6 +8,7 @@ use App\Models\News\News;
 use App\Models\News\NewsCategory;
 use App\Models\News\NewsCategoryList;
 use App\Models\News\NewsPartner;
+use App\Models\Sponsors\Sponsor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -38,10 +39,11 @@ class NewsController extends Controller
     {
         $categories = NewsCategory::orderBy('id', 'desc')->get();
         $partners = NewsPartner::orderBy('partner_name', 'asc')->get(); // dropdown partner
-
+        $sponsors = Sponsor::orderBy('name', 'asc')->get();
         return view('admin.news.create', [
             'categories' => $categories,
             'partners'   => $partners,
+            'sponsors'   => $sponsors,
         ]);
     }
 
@@ -63,12 +65,19 @@ class NewsController extends Controller
 
             // categories (optional)
             'category_id'      => 'nullable|array',
+            'sponsors_id' => 'nullable|integer|exists:sponsors,id',
         ]);
 
         // partnership: wajib pilih partner
         if ($request->type === 'partnership' && !$request->filled('news_partners_id')) {
             return back()
                 ->withErrors(['news_partners_id' => 'Partner wajib dipilih untuk tipe Partnership.'])
+                ->withInput();
+        }
+        // sponsor: wajib pilih sponsor
+        if ($request->type === 'sponsor' && !$request->filled('sponsors_id')) {
+            return back()
+                ->withErrors(['sponsors_id' => 'Sponsor wajib dipilih untuk tipe Sponsor.'])
                 ->withInput();
         }
 
@@ -93,6 +102,9 @@ class NewsController extends Controller
             $save->image = '/storage/news/' . $imageName;
         }
 
+        // set sponsor FK only if sponsor
+        $save->sponsors_id = ($request->type === 'sponsor') ? $request->sponsors_id : null;
+
         // set partner FK only if partnership
         $save->news_partners_id = ($request->type === 'partnership') ? $request->news_partners_id : null;
 
@@ -116,8 +128,8 @@ class NewsController extends Controller
         $news = News::with('partner')->findOrFail($id);
         $categories = NewsCategory::orderBy('id', 'desc')->get();
         $partners = NewsPartner::orderBy('partner_name', 'asc')->get();
-
-        return view('admin.news.edit', compact('news', 'categories', 'partners'));
+        $sponsors = Sponsor::orderBy('name', 'asc')->get();
+        return view('admin.news.edit', compact('news', 'categories', 'partners', 'sponsors'));
     }
 
     public function update(Request $request, $id)
@@ -138,12 +150,19 @@ class NewsController extends Controller
             'news_partners_id' => 'nullable|integer|exists:news_partners,id',
 
             'category_id'      => 'nullable|array',
-            'category_id.*'    => 'exists:news_categories,id',
+            'sponsors_id' => 'nullable|integer|exists:sponsors,id',
         ]);
 
         if ($request->type === 'partnership' && !$request->filled('news_partners_id')) {
             return back()
                 ->withErrors(['news_partners_id' => 'Partner wajib dipilih untuk tipe Partnership.'])
+                ->withInput();
+        }
+
+        // sponsor: wajib pilih sponsor
+        if ($request->type === 'sponsor' && !$request->filled('sponsors_id')) {
+            return back()
+                ->withErrors(['sponsors_id' => 'Sponsor wajib dipilih untuk tipe Sponsor.'])
                 ->withInput();
         }
 
@@ -164,7 +183,7 @@ class NewsController extends Controller
         }
 
         $news->news_partners_id = ($request->type === 'partnership') ? $request->news_partners_id : null;
-
+        $news->sponsors_id      = ($request->type === 'sponsor') ? $request->sponsors_id : null;
         $news->save();
 
         // categories pivot (optional)
