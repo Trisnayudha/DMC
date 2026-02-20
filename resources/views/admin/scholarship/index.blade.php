@@ -114,6 +114,8 @@
                                                 </th>
                                                 <th>sertifikat_prestasi
                                                 </th>
+                                                <th>nominal_biaya
+                                                </th>
                                                 <th>pas_foto
                                                 </th>
                                             </tr>
@@ -158,6 +160,7 @@
                                                     <td>{{ $post->slip_gaji }}</td>
                                                     <td>{{ $post->bop }}</td>
                                                     <td>{{ $post->sertifikat_prestasi }}</td>
+                                                    <td>{{ $post->nominal_biaya }}</td>
                                                     <td>{{ $post->pas_foto }}</td>
                                                 </tr>
                                             @endforeach
