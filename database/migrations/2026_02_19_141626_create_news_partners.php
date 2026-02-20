@@ -22,8 +22,6 @@ class CreateNewsPartners extends Migration
             $table->string('partner_image', 255)->nullable(); // simpan path/url
             $table->string('partner_quote', 255)->nullable();
             $table->timestamps();
-
-            $table->foreign('news_id')->references('id')->on('news')->onDelete('cascade');
         });
     }
 
