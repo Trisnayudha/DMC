@@ -44,34 +44,19 @@
                              </tr>
                          </thead>
                          <tbody>
-                             <tr>
-                                 <td>Indonesia Mining Outlook 2026</td>
-                                 <td>Industry</td>
-                                 <td>4,320</td>
-                                 <td><span class="badge badge-success">Published</span></td>
-                                 <td>2 days ago</td>
-                             </tr>
-                             <tr>
-                                 <td>Nickel & EV Supply Chain Update</td>
-                                 <td>Commodity</td>
-                                 <td>3,180</td>
-                                 <td><span class="badge badge-success">Published</span></td>
-                                 <td>5 days ago</td>
-                             </tr>
-                             <tr>
-                                 <td>Mining Safety Regulation 2026</td>
-                                 <td>Regulation</td>
-                                 <td>2,450</td>
-                                 <td><span class="badge badge-success">Published</span></td>
-                                 <td>1 week ago</td>
-                             </tr>
-                             <tr>
-                                 <td>Upcoming Mining Events Q2</td>
-                                 <td>Event</td>
-                                 <td>1,120</td>
-                                 <td><span class="badge badge-warning">Draft</span></td>
-                                 <td>-</td>
-                             </tr>
+                             @forelse(($topNews ?? []) as $n)
+                                 <tr>
+                                     <td>{{ $n->title }}</td>
+                                     <td>{{ $n->category_name ?? '-' }}</td>
+                                     <td>{{ number_format($n->views ?? 0) }}</td>
+                                     <td><span class="badge {{ $n->badge_class }}">{{ $n->status_label }}</span></td>
+                                     <td>{{ $n->status === 'publish' ? $n->published_human : '-' }}</td>
+                                 </tr>
+                             @empty
+                                 <tr>
+                                     <td colspan="5" class="text-center text-muted p-4">No data</td>
+                                 </tr>
+                             @endforelse
                          </tbody>
                      </table>
                  </div>

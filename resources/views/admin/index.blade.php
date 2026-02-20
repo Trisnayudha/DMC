@@ -72,4 +72,106 @@
             }
         });
     </script>
+
+    <script>
+        // ===== Event Registration Trend =====
+        const erLabels = @json($eventRegLabels ?? []);
+        const erData = @json($eventRegData ?? []);
+
+        new Chart(document.getElementById('eventRegistrationChart'), {
+            type: 'line',
+            data: {
+                labels: erLabels,
+                datasets: [{
+                    label: 'Registrations',
+                    data: erData,
+                    borderWidth: 3,
+                    tension: 0.35,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // ===== Event Status Donut =====
+        const evUpcoming = {{ (int) ($eventUpcoming ?? 0) }};
+        const evOngoing = {{ (int) ($eventOngoing ?? 0) }};
+        const evCompleted = {{ (int) ($eventCompleted ?? 0) }};
+
+        new Chart(document.getElementById('eventStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Upcoming', 'Ongoing', 'Completed'],
+                datasets: [{
+                    data: [evUpcoming, evOngoing, evCompleted]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+
+    <script>
+        // ===== News Views Trend (Last 7 Days) =====
+        const nvLabels = @json($newsTrendLabels ?? []);
+        const nvData = @json($newsTrendData ?? []);
+
+        new Chart(document.getElementById('newsViewsChart'), {
+            type: 'line',
+            data: {
+                labels: nvLabels,
+                datasets: [{
+                    label: 'Views',
+                    data: nvData,
+                    borderWidth: 3,
+                    tension: 0.35,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // ===== News Status Donut =====
+        const newsPublished = {{ (int) ($newsPublished ?? 0) }};
+        const newsDraft = {{ (int) ($newsDraft ?? 0) }};
+        const newsArchived = {{ (int) ($newsArchived ?? 0) }};
+
+        new Chart(document.getElementById('newsStatusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Published', 'Draft', 'Archived'],
+                datasets: [{
+                    data: [newsPublished, newsDraft, newsArchived]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
 @endpush

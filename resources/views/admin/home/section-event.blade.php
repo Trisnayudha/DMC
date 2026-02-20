@@ -44,30 +44,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Indonesia Miner Conference 2025</td>
-                                <td>12 Nov 2025</td>
-                                <td>420</td>
-                                <td><span class="badge badge-success">Completed</span></td>
-                            </tr>
-                            <tr>
-                                <td>Mining Digital Transformation</td>
-                                <td>18 Jan 2026</td>
-                                <td>310</td>
-                                <td><span class="badge badge-success">Completed</span></td>
-                            </tr>
-                            <tr>
-                                <td>Energy Transition Forum</td>
-                                <td>22 Mar 2026</td>
-                                <td>180</td>
-                                <td><span class="badge badge-warning">Upcoming</span></td>
-                            </tr>
-                            <tr>
-                                <td>Mining Safety Workshop</td>
-                                <td>5 Apr 2026</td>
-                                <td>95</td>
-                                <td><span class="badge badge-info">Upcoming</span></td>
-                            </tr>
+                            @forelse(($topEvents ?? []) as $ev)
+                                <tr>
+                                    <td>{{ $ev->name }}</td>
+                                    <td>
+                                        @php
+                                            $dateText = $ev->start_date
+                                                ? \Carbon\Carbon::parse($ev->start_date)->format('d M Y')
+                                                : '-';
+                                        @endphp
+                                        {{ $dateText }}
+                                    </td>
+                                    <td>{{ number_format($ev->attendees ?? 0) }}</td>
+                                    <td><span class="badge {{ $ev->badge_class }}">{{ $ev->status_label }}</span></td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted p-4">No data</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

@@ -17,7 +17,9 @@ class HomeController extends Controller
     {
         $kpi = $this->kpiData();
         $membership = $this->membershipSectionData();
-        return view('admin.index', array_merge($kpi, $membership));
+        $event      = $this->eventSectionData();
+        $news       = $this->newsSectionData();
+        return view('admin.index', array_merge($kpi, $membership, $event, $news));
     }
 
     /**
@@ -255,6 +257,180 @@ class HomeController extends Controller
             'joinedEventPercent',
             'avgNewsPerMember',
             'inactiveRows'
+        );
+    }
+
+
+
+    private function eventSectionData(): array
+    {
+        // ===== Registration Trend (Last 6 months, include this month) =====
+        $start = now()->copy()->startOfMonth()->subMonths(5);
+        $end   = now()->copy()->endOfMonth();
+
+        $raw = DB::table('users_event')
+            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as ym, COUNT(*) as total")
+            ->whereBetween('created_at', [$start, $end])
+            ->groupBy('ym')
+            ->orderBy('ym')
+            ->pluck('total', 'ym');
+
+        $eventRegLabels = [];
+        $eventRegData   = [];
+
+        $cursor = $start->copy();
+        while ($cursor->lte($end)) {
+            $ym = $cursor->format('Y-m');
+            $eventRegLabels[] = $cursor->format('M');
+            $eventRegData[]   = (int) ($raw[$ym] ?? 0);
+            $cursor->addMonth();
+        }
+
+        // ===== Event Status Donut (based on date, only publish) =====
+        $today = now()->toDateString();
+
+        $eventUpcoming = DB::table('events')
+            ->where('status', 'publish')
+            ->whereDate('start_date', '>', $today)
+            ->count();
+
+        $eventOngoing = DB::table('events')
+            ->where('status', 'publish')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->count();
+
+        $eventCompleted = DB::table('events')
+            ->where('status', 'publish')
+            ->whereDate('end_date', '<', $today)
+            ->count();
+
+        // ===== Top Events by Attendance (attendance = count users_event per event) =====
+        $topEvents = DB::table('users_event as ue')
+            ->join('events as e', 'e.id', '=', 'ue.events_id')
+            ->selectRaw('e.id, e.name, e.start_date, e.end_date, e.status, COUNT(*) as attendees')
+            ->where('e.status', 'publish')
+            ->groupBy('e.id', 'e.name', 'e.start_date', 'e.end_date', 'e.status')
+            ->orderByDesc('attendees')
+            ->limit(5)
+            ->get()
+            ->map(function ($row) use ($today) {
+                // status badge berdasarkan tanggal
+                $start = $row->start_date;
+                $end   = $row->end_date;
+
+                if ($start > $today) {
+                    $row->status_label = 'Upcoming';
+                    $row->badge_class  = 'badge-warning';
+                } elseif ($start <= $today && $end >= $today) {
+                    $row->status_label = 'Ongoing';
+                    $row->badge_class  = 'badge-primary';
+                } else {
+                    $row->status_label = 'Completed';
+                    $row->badge_class  = 'badge-success';
+                }
+
+                return $row;
+            });
+
+        return compact(
+            'eventRegLabels',
+            'eventRegData',
+            'eventUpcoming',
+            'eventOngoing',
+            'eventCompleted',
+            'topEvents'
+        );
+    }
+
+    private function newsSectionData(): array
+    {
+        // ===== News Status donut =====
+        $newsPublished = DB::table('news')->where('status', 'publish')->count();
+        $newsDraft     = DB::table('news')->where('status', 'draft')->count();
+
+        // kalau kamu ga punya archived, set 0 saja (atau tambahkan status lain)
+        $newsArchived  = DB::table('news')->where('status', 'archived')->count();
+
+        // ===== News Views Trend (Last 7 Days) =====
+        // Asumsi: views = akumulatif per news, jadi kita sum views artikel yang publish di tanggal tsb.
+        // Pakai date_news kalau ada, fallback created_at.
+        $start = now()->copy()->startOfDay()->subDays(6);
+        $end   = now()->copy()->endOfDay();
+
+        $raw = DB::table('news')
+            ->selectRaw("
+            DATE(COALESCE(date_news, created_at)) as d,
+            SUM(COALESCE(views,0)) as total_views
+        ")
+            ->where('status', 'publish')
+            ->whereBetween(DB::raw("DATE(COALESCE(date_news, created_at))"), [
+                $start->toDateString(),
+                $end->toDateString()
+            ])
+            ->groupBy('d')
+            ->orderBy('d')
+            ->pluck('total_views', 'd'); // ['2026-02-14' => 1200, ...]
+
+        $newsTrendLabels = [];
+        $newsTrendData   = [];
+
+        $cursor = $start->copy();
+        while ($cursor->lte($end)) {
+            $d = $cursor->toDateString();
+            $newsTrendLabels[] = $cursor->format('D'); // Mon Tue Wed ...
+            $newsTrendData[]   = (int) ($raw[$d] ?? 0);
+            $cursor->addDay();
+        }
+
+        // ===== Top Viewed News =====
+        // Join kategori jika ada table news_category (umum). Kalau tidak ada, category tampil '-'.
+        // Dari screenshot ada news_category_id, jadi aku join ke news_category.
+        $topNews = DB::table('news as n')
+            ->leftJoin('news_category as c', 'c.id', '=', 'n.news_category_id')
+            ->select([
+                'n.id',
+                'n.title',
+                'n.status',
+                'n.views',
+                'n.date_news',
+                'n.created_at',
+                // DB::raw('c.name as category_name'),
+            ])
+            ->orderByDesc(DB::raw('COALESCE(n.views,0)'))
+            ->limit(5)
+            ->get()
+            ->map(function ($row) {
+                $row->views = (int) ($row->views ?? 0);
+
+                // published time (pakai date_news kalau ada)
+                $publishedAt = $row->date_news ?? $row->created_at;
+
+                $row->published_human = $publishedAt
+                    ? Carbon::parse($publishedAt)->diffForHumans()
+                    : '-';
+
+                if ($row->status === 'publish') {
+                    $row->badge_class = 'badge-success';
+                    $row->status_label = 'Published';
+                } elseif ($row->status === 'draft') {
+                    $row->badge_class = 'badge-warning';
+                    $row->status_label = 'Draft';
+                } else {
+                    $row->badge_class = 'badge-secondary';
+                    $row->status_label = ucfirst($row->status ?? 'Unknown');
+                }
+
+                return $row;
+            });
+
+        return compact(
+            'newsPublished',
+            'newsDraft',
+            'newsArchived',
+            'newsTrendLabels',
+            'newsTrendData',
+            'topNews'
         );
     }
 }
