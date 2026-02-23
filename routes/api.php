@@ -18,6 +18,7 @@ use App\Http\Controllers\Callback\XenditCallbackController;
 use App\Http\Controllers\API\ContactUsController;
 use App\Http\Controllers\API\MarketingAdsController;
 use App\Http\Controllers\API\MembershipController;
+use App\Http\Controllers\API\MembershipTierBannerApiController;
 use App\Http\Controllers\API\MikrotikController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\PrintController;
@@ -84,6 +85,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('profile/changePassword', [UserController::class, 'changePassword']);
     Route::post('profile/subscribe', [UserController::class, 'subscribe']);
     Route::post('profile/unsubscribe', [UserController::class, 'unsubscribe']);
+
+    Route::get('/membership/tier-banners', [MembershipTierBannerApiController::class, 'index']);
 
     Route::post('/profile/request_otp', [UserController::class, 'requestOtp']);
     Route::post('/profile/verify_otp', [UserController::class, 'verifyOtp']);
