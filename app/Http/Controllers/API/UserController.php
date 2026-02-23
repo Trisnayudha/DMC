@@ -63,7 +63,8 @@ class UserController extends Controller
                     'explore' => $findUser->explore,
                     'subscribe' => $mailchimp,
                     'verify_email' => $findUser->verify_email,
-                    'verify_phone' => $findUser->verify_phone
+                    'verify_phone' => $findUser->verify_phone,
+                    'tier' => $findUser->tier
 
                 ];
                 $response['status'] = 200;
