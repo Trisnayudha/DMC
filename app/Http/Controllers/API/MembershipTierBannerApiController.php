@@ -29,7 +29,6 @@ class MembershipTierBannerApiController extends Controller
 
         $baseQuery = \App\Models\Membership\MembershipTierBanner::query()
             ->where('is_active', true);
-
         // 1) coba ambil sesuai tier user
         $q = (clone $baseQuery)->where('tier', $tier);
 
@@ -37,30 +36,25 @@ class MembershipTierBannerApiController extends Controller
             $q->where('section_key', $sectionKey);
         }
 
-        $rows = $q->orderBy('section_key')->orderBy('sort_order')->get();
+        $rows = MembershipTierBanner::query()
+            ->where('tier', $tier)
+            ->where('is_active', true)
+            ->orderBy('section_key')
+            ->orderBy('sort_order')
+            ->get();
 
-        // 2) fallback: kalau tier user tidak punya data, pakai reguler
-        if ($rows->isEmpty() && $tier !== 'reguler') {
-            $q2 = (clone $baseQuery)->where('tier', 'reguler');
-
-            if ($sectionKey) {
-                $q2->where('section_key', $sectionKey);
-            }
-
-            $rows = $q2->orderBy('section_key')->orderBy('sort_order')->get();
-            $tier = 'reguler';
-        }
-
-        $grouped = $rows->map(function ($row) {
-            return [
-                'id'           => $row->id,
-                'title'        => $row->title,
-                'image'        => $row->image,     // /storage/...
-                'link_url'     => $row->link_url,
-                'open_new_tab' => (bool) $row->open_new_tab,
-                'sort_order'   => (int) $row->sort_order,
-            ];
-        })->groupBy('section_key');
+        $grouped = $rows->groupBy('section_key')->map(function ($items) {
+            return $items->map(function ($row) {
+                return [
+                    'id'           => $row->id,
+                    'title'        => $row->title,
+                    'image'        => $row->image,
+                    'link_url'     => $row->link_url,
+                    'open_new_tab' => (bool) $row->open_new_tab,
+                    'sort_order'   => (int) $row->sort_order,
+                ];
+            })->values();
+        });
 
         return response()->json([
             'status' => true,
