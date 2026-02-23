@@ -62,6 +62,19 @@
                 </li>
             </ul>
         </li>
+        <li class="dropdown {{ request()->is('admin/membership-tier-banners*') ? 'active' : '' }}">
+            <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                <i class="fas fa-id-card"></i>
+                <span>Membership</span>
+            </a>
+            <ul class="dropdown-menu">
+                <li class="{{ request()->is('admin/membership-tier-banners*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('membership-tier-banners.index') }}">
+                        Tier Banners
+                    </a>
+                </li>
+            </ul>
+        </li>
         <li>
             <a class="nav-link" href="{{ Route('notification') }}">
                 <i class="fa fa-bell" aria-hidden="true"></i>

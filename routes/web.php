@@ -42,6 +42,7 @@ use App\Http\Controllers\Frontend\PrintController;
 use App\Http\Controllers\Frontend\ScholarshipController;
 use App\Http\Controllers\Admin\SponsorPhotosVideosActivityController;
 use App\Http\Controllers\Admin\EmailController;
+use App\Http\Controllers\Admin\MembershipTierBannerController;
 use App\Http\Controllers\Admin\SponsorExportController;
 use App\Http\Controllers\DmcMemberSurveyController;
 use App\Http\Controllers\EditorUploadController;
@@ -408,6 +409,12 @@ Route::prefix('admin')->group(function () {
 
     //Scholarship
     Route::get('/scholarship', [AdminScholarshipController::class, 'index']);
+
+
+    Route::get('/membership-tier-banners', [MembershipTierBannerController::class, 'index'])->name('membership-tier-banners.index');
+    Route::post('/membership-tier-banners', [MembershipTierBannerController::class, 'store'])->name('membership-tier-banners.store');
+    Route::put('/membership-tier-banners/{id}', [MembershipTierBannerController::class, 'update'])->name('membership-tier-banners.update');
+    Route::delete('/membership-tier-banners/{id}', [MembershipTierBannerController::class, 'destroy'])->name('membership-tier-banners.destroy');
 
     //Whatsapp Group
     Route::prefix('whatsapp')->group(function () {
