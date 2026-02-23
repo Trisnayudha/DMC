@@ -8,70 +8,64 @@ use Illuminate\Http\Request;
 
 class MembershipTierBannerApiController extends Controller
 {
-    /**
-     * GET /api/membership/tier-banners
-     * Optional query:
-     * - section_key=dashboard_left (filter 1 section)
-     * - include_inactive=1 (admin/debug)
-     */
     public function index(Request $request)
     {
+        // kalau endpoint ini tanpa auth, ganti jadi tier dari request (tapi lebih aman pakai auth)
         $user = $request->user();
 
-        // fallback aman kalau field tier null
-        $tier = $user->tier ?? 'reguler';
+        // Ambil tier user, normalize
+        $rawTier = strtolower($user->tier ?? 'reguler');
 
-        $sectionKey = $request->query('section_key'); // optional filter
-        $includeInactive = $request->boolean('include_inactive', false);
+        // mapping biar konsisten dengan DB
+        $tierMap = [
+            'regular' => 'reguler',
+            'reguler' => 'reguler',
+            'black'   => 'black',
+        ];
 
-        $q = MembershipTierBanner::query()
-            ->where('tier', $tier);
+        $tier = $tierMap[$rawTier] ?? 'reguler';
 
-        if (!$includeInactive) {
-            $q->where('is_active', true);
-        }
+        $sectionKey = $request->query('section_key'); // optional
 
-        if (!empty($sectionKey)) {
+        $baseQuery = \App\Models\Membership\MembershipTierBanner::query()
+            ->where('is_active', true);
+
+        // 1) coba ambil sesuai tier user
+        $q = (clone $baseQuery)->where('tier', $tier);
+
+        if ($sectionKey) {
             $q->where('section_key', $sectionKey);
         }
 
-        $items = $q->orderBy('section_key')
-            ->orderBy('sort_order')
-            ->get()
-            ->map(function ($row) {
-                return [
-                    'id'           => $row->id,
-                    'tier'         => $row->tier,
-                    'section_key'  => $row->section_key,
-                    'title'        => $row->title,
-                    'image'        => $row->image, // sudah /storage/...
-                    'link_url'     => $row->link_url,
-                    'open_new_tab' => (bool) $row->open_new_tab,
-                    'sort_order'   => (int) $row->sort_order,
-                ];
-            })
-            ->groupBy('section_key')
-            ->values(); // optional, kalau mau array numerik
+        $rows = $q->orderBy('section_key')->orderBy('sort_order')->get();
 
-        // Kalau kamu prefer object by key (lebih enak buat binding), pakai ini:
-        $grouped = $q->orderBy('section_key')->orderBy('sort_order')->get()
-            ->map(function ($row) {
-                return [
-                    'id'           => $row->id,
-                    'title'        => $row->title,
-                    'image'        => $row->image,
-                    'link_url'     => $row->link_url,
-                    'open_new_tab' => (bool) $row->open_new_tab,
-                    'sort_order'   => (int) $row->sort_order,
-                ];
-            })
-            ->groupBy('section_key');
+        // 2) fallback: kalau tier user tidak punya data, pakai reguler
+        if ($rows->isEmpty() && $tier !== 'reguler') {
+            $q2 = (clone $baseQuery)->where('tier', 'reguler');
+
+            if ($sectionKey) {
+                $q2->where('section_key', $sectionKey);
+            }
+
+            $rows = $q2->orderBy('section_key')->orderBy('sort_order')->get();
+            $tier = 'reguler';
+        }
+
+        $grouped = $rows->map(function ($row) {
+            return [
+                'id'           => $row->id,
+                'title'        => $row->title,
+                'image'        => $row->image,     // /storage/...
+                'link_url'     => $row->link_url,
+                'open_new_tab' => (bool) $row->open_new_tab,
+                'sort_order'   => (int) $row->sort_order,
+            ];
+        })->groupBy('section_key');
 
         return response()->json([
             'status' => true,
             'tier'   => $tier,
             'data'   => [
-                // default keys biar frontend aman kalau kosong
                 'dashboard_left'  => $grouped->get('dashboard_left', collect())->values(),
                 'dashboard_right' => $grouped->get('dashboard_right', collect())->values(),
             ],
