@@ -98,7 +98,7 @@
                 <li><a class="nav-link" href="{{ Route('rundown.index') }}">Events Rundown</a></li>
             </ul>
         </li>
-        <li class="dropdown">
+        <li class="dropdown {{ request()->is('admin/news*') || request()->is('admin/program*') ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
                 <i class="fas fa-edit" aria-hidden="true"></i>
                 <span>News</span>
@@ -106,6 +106,9 @@
             <ul class="dropdown-menu">
                 <li><a class="nav-link" href="{{ Route('news') }}">News List</a></li>
                 <li><a class="nav-link" href="{{ Route('news.category') }}">News Category</a></li>
+                <li class="{{ request()->is('admin/program*') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ url('admin/program') }}">Program Article</a>
+                </li>
             </ul>
         </li>
         <li>

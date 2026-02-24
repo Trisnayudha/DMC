@@ -43,6 +43,7 @@ use App\Http\Controllers\Frontend\ScholarshipController;
 use App\Http\Controllers\Admin\SponsorPhotosVideosActivityController;
 use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\Admin\MembershipTierBannerController;
+use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\SponsorExportController;
 use App\Http\Controllers\DmcMemberSurveyController;
 use App\Http\Controllers\EditorUploadController;
@@ -392,6 +393,19 @@ Route::prefix('admin')->group(function () {
     Route::post('marketing-ads/delete', [MarketingAdsController::class, 'destroy']);
     Route::get('marketing-ads/event', [MarketingAdsController::class, 'event']);
     Route::get('marketing-ads/news', [MarketingAdsController::class, 'news']);
+
+    Route::get('program', [ProgramController::class, 'index'])->name('admin.program');
+    Route::post('program/store', [ProgramController::class, 'store']);
+    Route::post('program/edit', [ProgramController::class, 'edit']);
+    Route::post('program/delete', [ProgramController::class, 'destroy']);
+
+    // media
+    Route::post('program/upload-images', [ProgramController::class, 'uploadImages']);
+    Route::post('program/media/update-sort', [ProgramController::class, 'updateImageSort']);
+    Route::post('program/media/delete', [ProgramController::class, 'deleteMedia']);
+
+    // video
+    Route::post('program/video', [ProgramController::class, 'upsertVideo']);
 
 
     Route::get('users', [UsersController::class, 'index'])->name('users');
