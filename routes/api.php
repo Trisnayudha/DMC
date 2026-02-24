@@ -35,6 +35,7 @@ use App\Http\Controllers\API_WEB\NewsController as API_WEBNewsController;
 use App\Http\Controllers\API_WEB\PaymentController as API_WEBPaymentController;
 use App\Http\Controllers\API_WEB\ProfileController;
 use App\Http\Controllers\API_WEB\SponsorAdvertisementApiController;
+use App\Http\Controllers\API\ProgramController as API_WEBProgramController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -77,7 +78,6 @@ Route::post('verify_otp', [AuthController::class, 'verifyOtp']);
 Route::post('/forgot-password', [AuthController::class, 'forgot']);
 Route::post('/verify_forgot', [AuthController::class, 'verify_forgot']);
 Route::post('/reset-password', [AuthController::class, 'resetpassword']);
-Route::get('/membership/tier-banners', [MembershipTierBannerApiController::class, 'index']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Route Menggunakan Token API
     Route::post('profile', [UserController::class, 'index']);
@@ -87,6 +87,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () { // Semua Request Ro
     Route::post('profile/subscribe', [UserController::class, 'subscribe']);
     Route::post('profile/unsubscribe', [UserController::class, 'unsubscribe']);
 
+    Route::get('/membership/tier-banners', [MembershipTierBannerApiController::class, 'index']);
 
     Route::post('/profile/request_otp', [UserController::class, 'requestOtp']);
     Route::post('/profile/verify_otp', [UserController::class, 'verifyOtp']);
@@ -187,6 +188,11 @@ Route::prefix('web')->group(function () {
     Route::post('/detail/news/{slug}', [API_WEBNewsController::class, 'detail']);
     Route::post('/news/releated', [API_WEBNewsController::class, 'relatedNews']);
     Route::post('/news/more', [API_WEBNewsController::class, 'moreNews']);
+
+    Route::post('/program', [API_WEBProgramController::class, 'index']);
+    Route::post('/program/{slug}/detail', [API_WEBProgramController::class, 'detail']);
+    Route::post('/program/latest', [API_WEBProgramController::class, 'latest']);
+    Route::post('/program/more', [API_WEBProgramController::class, 'more']);
 
     Route::post('gallery/home', [GalleryController::class, 'home']);
     Route::post('gallery/event', [GalleryController::class, 'eventList']);
