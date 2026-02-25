@@ -523,15 +523,34 @@ class UsersController extends Controller
                 'MMERGE11' => $company->office_number,
             ]);
 
-            // Tambahkan Tag
-            $this->mcAddTags($email, [
-                'Backend Membership',
+            // Tambah tag penanda sumber registrasi
+            $this->mcAddTags($user->email, [
+                'Backend Membership'
             ]);
             DB::commit();
             return back()->with('success', "Export OK → user:{$user->id}, company:{$company->id}, profile:{$profile->id}");
         } catch (\Throwable $e) {
             DB::rollBack();
             return back()->with('error', 'Export gagal: ' . $e->getMessage());
+        }
+    }
+    protected function mcAddTags(string $email, array $tags): void
+    {
+        try {
+            $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
+            $listId = config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID');
+            if (!$apiKey || !$listId) return;
+
+            $server = config('newsletter.server') ?: (explode('-', $apiKey)[1] ?? null);
+            if (!$server) return;
+
+            $subscriberHash = md5(strtolower($email));
+            Http::withBasicAuth('anystring', $apiKey)->post(
+                "https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/tags",
+                ['tags' => collect($tags)->filter()->values()->map(fn($t) => ['name' => $t, 'status' => 'active'])->all()]
+            );
+        } catch (\Throwable $e) {
+            Log::error('Mailchimp tagging failed: ' . $e->getMessage());
         }
     }
 }
