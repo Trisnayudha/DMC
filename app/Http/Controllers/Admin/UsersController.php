@@ -511,6 +511,22 @@ class UsersController extends Controller
                 $profile = ProfileModel::create($profilePayload);
             }
 
+            // ===== 4) MAILCHIMP INTEGRATION =====
+            NewsletterFacade::subscribeOrUpdate($email, [
+                'FNAME'    => $user->name,
+                'MERGE3'   => $company->address,
+                'PHONE'    => $profile->phone,
+                'MMERGE5'  => $company->company_name,
+                'MMERGE6'  => $company->company_category,
+                'MMERGE8'  => $profile->job_title,
+                'MMERGE10' => now(),
+                'MMERGE11' => $company->office_number,
+            ]);
+
+            // Tambahkan Tag
+            $this->mcAddTags($email, [
+                'Backend Membership',
+            ]);
             DB::commit();
             return back()->with('success', "Export OK → user:{$user->id}, company:{$company->id}, profile:{$profile->id}");
         } catch (\Throwable $e) {
