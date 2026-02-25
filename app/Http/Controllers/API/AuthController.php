@@ -628,7 +628,7 @@ Your verification code (OTP) ' . $otp;
 
                     // Tambah tag penanda sumber registrasi
                     $this->mcAddTags($findUser->email, [
-                        'Register of Membership ' . now()->format('d M Y'),
+                        'Backend Membership'
                     ]);
                     // } else {
                     //     Log::info('Skip Mailchimp subscribe: explore/cci tidak truthy', [
@@ -724,7 +724,7 @@ Your verification code (OTP) ' . $otp;
 
                         // Tambah tag penanda sumber registrasi
                         $this->mcAddTags($findUser->email, [
-                            'Register of Membership ' . now()->format('d M Y'),
+                            'Backend Membership'
                         ]);
                     } else {
                         Log::info('Skip Mailchimp subscribe: explore/cci tidak truthy', [
