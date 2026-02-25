@@ -36,6 +36,7 @@ use App\Http\Controllers\API_WEB\PaymentController as API_WEBPaymentController;
 use App\Http\Controllers\API_WEB\ProfileController;
 use App\Http\Controllers\API_WEB\SponsorAdvertisementApiController;
 use App\Http\Controllers\API\ProgramController as API_WEBProgramController;
+use App\Http\Controllers\API_WEB\MemberDirectoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -221,6 +222,9 @@ Route::prefix('web')->group(function () {
     Route::get('sponsor-advertisement', [SponsorAdvertisementApiController::class, 'index']);
     Route::get('sponsor-advertisement/sponsor/{sponsorId}', [SponsorAdvertisementApiController::class, 'bySponsor']);
     Route::get('sponsor-advertisement/download/{id}', [SponsorAdvertisementApiController::class, 'download']);
+
+
+    Route::post('member-directory', [MemberDirectoryController::class, 'index']);
 });
 
 Route::post('/mikrotik', [MikrotikController::class, 'process']);
