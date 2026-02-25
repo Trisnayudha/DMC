@@ -10,11 +10,11 @@ class MemberDirectoryController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search  = $request->input('search');
         $perPage = (int) $request->input('per_page', 12);
-        $page = (int) $request->input('page', 1);
+        $page    = (int) $request->input('page', 1);
 
-        $perPage = $perPage > 50 ? 50 : $perPage;
+        $perPage = max(1, min($perPage, 24)); // lebih ketat biar susah dump
 
         $query = DB::table('users')
             ->join('profiles', 'profiles.users_id', '=', 'users.id')
@@ -44,9 +44,8 @@ class MemberDirectoryController extends Controller
             'data' => $data->items(),
             'meta' => [
                 'current_page' => $data->currentPage(),
-                'last_page' => $data->lastPage(),
-                'per_page' => $data->perPage(),
-                'total' => $data->total(),
+                'per_page'     => $data->perPage(),
+                'has_more'     => $data->hasMorePages(),
             ],
         ]);
     }

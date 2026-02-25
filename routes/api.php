@@ -222,8 +222,8 @@ Route::prefix('web')->group(function () {
     Route::get('sponsor-advertisement', [SponsorAdvertisementApiController::class, 'index']);
     Route::get('sponsor-advertisement/sponsor/{sponsorId}', [SponsorAdvertisementApiController::class, 'bySponsor']);
     Route::get('sponsor-advertisement/download/{id}', [SponsorAdvertisementApiController::class, 'download']);
-
-
+});
+Route::prefix('web')->middleware('throttle:memberdir')->group(function () {
     Route::post('member-directory', [MemberDirectoryController::class, 'index']);
 });
 
