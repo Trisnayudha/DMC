@@ -104,24 +104,33 @@ class ProgramController extends Controller
 
     public function more(Request $request)
     {
-        // untuk "See More" / infinite scroll
-        $perPage = (int) ($request->input('per_page', 6));
-        $page = (int) ($request->input('page', 1));
+        $limit = (int) $request->input('limit', 6);
+        $lastId = $request->input('last_id');
 
-        $data = Program::where('status', 'published')
-            ->orderByRaw('COALESCE(published_at, created_at) DESC')
-            ->paginate($perPage, ['id', 'title', 'slug', 'excerpt', 'cover_image', 'published_at'], 'page', $page);
+        $limit = max(1, min($limit, 12)); // max 12 biar ga dump cepat
+
+        $query = Program::where('status', 'published')
+            ->orderByRaw('COALESCE(published_at, created_at) DESC');
+
+        // Cursor logic
+        if ($lastId) {
+            $query->where('id', '<', $lastId);
+        }
+
+        $data = $query
+            ->limit($limit + 1) // ambil 1 extra untuk cek has_more
+            ->get(['id', 'title', 'slug', 'excerpt', 'cover_image', 'published_at']);
+
+        $hasMore = $data->count() > $limit;
+
+        if ($hasMore) {
+            $data = $data->slice(0, $limit);
+        }
 
         return response()->json([
             'status' => true,
             'message' => 'OK',
-            'data' => $data->items(),
-            'meta' => [
-                'current_page' => $data->currentPage(),
-                'last_page' => $data->lastPage(),
-                'per_page' => $data->perPage(),
-                'total' => $data->total(),
-            ],
+            'data' => $data
         ]);
     }
 }
