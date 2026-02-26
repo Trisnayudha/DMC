@@ -31,13 +31,7 @@ class ProgramController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'OK',
-            'data' => $data->items(),
-            'meta' => [
-                'current_page' => $data->currentPage(),
-                'last_page' => $data->lastPage(),
-                'per_page' => $data->perPage(),
-                'total' => $data->total(),
-            ],
+            'data' => $data
         ]);
     }
 

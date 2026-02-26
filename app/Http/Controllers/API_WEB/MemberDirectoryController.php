@@ -39,14 +39,9 @@ class MemberDirectoryController extends Controller
             ->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'OK',
-            'data' => $data->items(),
-            'meta' => [
-                'current_page' => $data->currentPage(),
-                'per_page'     => $data->perPage(),
-                'has_more'     => $data->hasMorePages(),
-            ],
+            'data'    => collect($data)->except('total')
         ]);
     }
 }
