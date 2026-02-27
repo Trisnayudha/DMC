@@ -31,7 +31,7 @@ class ProgramController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'OK',
-            'data' => $data
+            'payload' => $data
         ]);
     }
 
@@ -46,7 +46,7 @@ class ProgramController extends Controller
             return response()->json([
                 'status' => 404,
                 'message' => 'Program not found',
-                'data' => null
+                'payload' => null
             ], 404);
         }
 
@@ -62,7 +62,7 @@ class ProgramController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'OK',
-            'data' => [
+            'payload' => [
                 'detail' => [
                     'id' => $program->id,
                     'title' => $program->title,
@@ -98,7 +98,7 @@ class ProgramController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'OK',
-            'data' => $latest
+            'payload' => $latest
         ]);
     }
 
@@ -130,7 +130,7 @@ class ProgramController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'OK',
-            'data' => $data
+            'payload' => $data
         ]);
     }
 }
