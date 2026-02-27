@@ -12,7 +12,7 @@ class ProgramController extends Controller
     {
         // List untuk page Our Program (bagian atas + pagination)
         $search = $request->input('search');
-        $perPage = (int) ($request->input('per_page', 8));
+        $perPage = (int) ($request->input('limit', 8));
         $perPage = $perPage > 50 ? 50 : $perPage;
 
         $q = Program::query()
