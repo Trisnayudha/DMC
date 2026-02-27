@@ -38,9 +38,9 @@ class MemberDirectoryController extends Controller
             ->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
-            'status'  => true,
+            'status'  => 200,
             'message' => 'OK',
-            'data'    => collect($data)->except('total')
+            'payload'    => collect($data)->except('total')
         ]);
     }
 }
