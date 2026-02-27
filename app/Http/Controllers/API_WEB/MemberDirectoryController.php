@@ -29,7 +29,7 @@ class MemberDirectoryController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('users.name', 'like', "%{$search}%")
-                    ->orWhere('profiles.job_title', 'like', "%{$search}%")
+                    ->orWhere('profiles.job_title', 'like', "%{$search}%");
             });
         }
 
