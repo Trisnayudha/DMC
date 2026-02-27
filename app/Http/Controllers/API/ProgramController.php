@@ -29,7 +29,7 @@ class ProgramController extends Controller
         $data = $q->paginate($perPage);
 
         return response()->json([
-            'status' => true,
+            'status' => 200,
             'message' => 'OK',
             'data' => $data
         ]);
@@ -44,7 +44,7 @@ class ProgramController extends Controller
 
         if (!$program) {
             return response()->json([
-                'status' => false,
+                'status' => 404,
                 'message' => 'Program not found',
                 'data' => null
             ], 404);
@@ -60,7 +60,7 @@ class ProgramController extends Controller
             ->get(['id', 'title', 'slug', 'excerpt', 'cover_image', 'published_at']);
 
         return response()->json([
-            'status' => true,
+            'status' => 200,
             'message' => 'OK',
             'data' => [
                 'detail' => [
@@ -96,7 +96,7 @@ class ProgramController extends Controller
             ->get(['id', 'title', 'slug', 'excerpt', 'cover_image', 'published_at']);
 
         return response()->json([
-            'status' => true,
+            'status' => 200,
             'message' => 'OK',
             'data' => $latest
         ]);
@@ -128,7 +128,7 @@ class ProgramController extends Controller
         }
 
         return response()->json([
-            'status' => true,
+            'status' => 200,
             'message' => 'OK',
             'data' => $data
         ]);
