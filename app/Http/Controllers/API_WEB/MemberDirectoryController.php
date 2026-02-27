@@ -11,7 +11,7 @@ class MemberDirectoryController extends Controller
     public function index(Request $request)
     {
         $search  = $request->input('search');
-        $perPage = (int) $request->input('per_page', 12);
+        $perPage = (int) $request->input('limit', 12);
         $page    = (int) $request->input('page', 1);
 
         $perPage = max(1, min($perPage, 24)); // lebih ketat biar susah dump
