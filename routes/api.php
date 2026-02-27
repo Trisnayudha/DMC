@@ -189,7 +189,7 @@ Route::prefix('web')->group(function () {
     Route::post('/detail/news/{slug}', [API_WEBNewsController::class, 'detail']);
     Route::post('/news/releated', [API_WEBNewsController::class, 'relatedNews']);
     Route::post('/news/more', [API_WEBNewsController::class, 'moreNews']);
-
+    Route::post('/partner-news/{id}', [API_WEBNewsController::class, 'getPartnerById']);
     Route::post('/program', [API_WEBProgramController::class, 'index']);
     Route::post('/program/{slug}/detail', [API_WEBProgramController::class, 'detail']);
     Route::post('/program/latest', [API_WEBProgramController::class, 'latest']);

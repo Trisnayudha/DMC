@@ -7,6 +7,7 @@ use App\Models\News\News;
 use App\Models\News\NewsBookmark;
 use App\Models\News\NewsComment;
 use App\Models\News\NewsLike;
+use App\Models\News\NewsPartner;
 use App\Models\News\NewsViews;
 use Illuminate\Http\Request;
 use App\Repositories\News as RepositoriesNews;
@@ -121,6 +122,16 @@ class NewsController extends Controller
             'detail' => $detail,
             'comment' => $findComment
         ];
+        $response['status'] = 200;
+        $response['message'] = 'Success';
+        $response['payload'] = $data;
+        return response()->json($response);
+    }
+
+    public function getPartnerById($id)
+    {
+        $data = NewsPartner::where('id', $id)->first();
+
         $response['status'] = 200;
         $response['message'] = 'Success';
         $response['payload'] = $data;
