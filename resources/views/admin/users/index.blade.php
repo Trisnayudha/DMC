@@ -1,3 +1,4 @@
+{{-- resources/views/admin/users/index.blade.php --}}
 @extends('layouts.inspire.master')
 
 @section('content')
@@ -7,44 +8,39 @@
                 <h1>Users Management</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active"><a href="">Users Management</a>
-                    </div>
+                    <div class="breadcrumb-item active"><a href="">Users Management</a></div>
                 </div>
             </div>
+
             <div class="section-body">
-                <h2 class="section-title">Users </h2>
-                {{-- PLACEHOLDER ALERT --}}
+                <h2 class="section-title">Users</h2>
+
+                {{-- Alerts --}}
                 <div id="alert-area"></div>
                 <div class="alert alert-warning alert-dismissible show fade">
                     <div class="alert-body">
-                        <button class="close" data-dismiss="alert">
-                            <span>×</span>
-                        </button>
+                        <button class="close" data-dismiss="alert"><span>×</span></button>
                         Data displayed from January 2025 to the current date.
                     </div>
                 </div>
 
                 <div class="row">
+                    {{-- Stats --}}
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                         <div class="card card-statistic-1">
-                            <div class="card-icon bg-primary">
-                                <i class="far fa-user"></i>
-                            </div>
+                            <div class="card-icon bg-primary"><i class="far fa-user"></i></div>
                             <div class="card-wrap">
                                 <div class="card-header">
                                     <h4>Registered Member</h4>
                                 </div>
-                                <div class="card-body">
-                                    {{ $countMember }}
-                                </div>
+                                <div class="card-body">{{ $countMember }}</div>
                             </div>
                         </div>
                     </div>
+
                     <div class="col-lg-6 col-md-6 col-sm-6 col-12">
                         <div class="card card-statistic-1">
-                            <div class="card-icon bg-info">
-                                <i class="far fa-user"></i>
-                            </div>
+                            <div class="card-icon bg-info"><i class="far fa-user"></i></div>
                             <div class="card-wrap">
                                 <div class="card-header">
                                     <h4>Verify</h4>
@@ -60,21 +56,23 @@
 
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                         <div class="card card-statistic-1">
-                            <div class="card-icon bg-danger">
-                                <i class="far fa-user"></i>
-                            </div>
+                            <div class="card-icon bg-danger"><i class="far fa-user"></i></div>
                             <div class="card-wrap">
                                 <div class="card-header">
                                     <h4>Unregistration Member</h4>
                                 </div>
                                 <div class="card-body">
-                                    {{ $countUnRegistered }} <span><a href="{{ url('admin/users?filter=unregist') }}"
-                                            class="badge badge-info">Show
-                                            Data</a></span>
+                                    {{ $countUnRegistered }}
+                                    <span>
+                                        <a href="{{ url('admin/users?filter=unregist') }}" class="badge badge-info">Show
+                                            Data</a>
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    {{-- Table --}}
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header">
@@ -104,12 +102,14 @@
                                 <div class="float-right d-flex">
                                     <a href="{{ url('admin/users') }}"
                                         class="btn btn-icon icon-left btn-warning btn-filter mb-3 mr-2">
-                                        Clear Filter</a>
+                                        Clear Filter
+                                    </a>
                                     <button type="button" class="btn btn-primary mb-3" data-toggle="modal"
                                         data-target="#example">
                                         Import Excel
                                     </button>
                                 </div>
+
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
                                         <thead>
@@ -117,6 +117,7 @@
                                                 <th width="10px">No</th>
                                                 <th>Date Register</th>
                                                 <th>Nama</th>
+                                                <th>Tier</th> {{-- NEW --}}
                                                 <th>Job Title</th>
                                                 <th>Company</th>
                                                 <th>Email</th>
@@ -133,28 +134,63 @@
                                             @foreach ($list as $post)
                                                 <tr id="row_{{ $post->id }}">
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ date('d,F Y H:i', strtotime($post->created_at)) }}</td>
+
+                                                    {{-- IMPORTANT:
+                                                        kalau di controller kamu udah pakai alias user_created_at → pakai itu.
+                                                        kalau belum, tetap pakai created_at (tapi rawan ketimpa join).
+                                                    --}}
+                                                    <td>{{ date('d,F Y H:i', strtotime($post->user_created_at ?? $post->created_at)) }}
+                                                    </td>
+
                                                     <td>{{ $post->name }}</td>
+
+                                                    {{-- TIER --}}
+                                                    <td style="min-width: 170px;">
+                                                        <div class="d-flex align-items-center">
+                                                            <select class="form-control form-control-sm user-tier-select"
+                                                                data-url="{{ route('users.update.tier', $post->id) }}"
+                                                                style="max-width: 130px;">
+                                                                @php
+                                                                    $tier = strtolower(
+                                                                        (string) ($post->tier ?? 'reguler'),
+                                                                    );
+                                                                    if (!in_array($tier, ['reguler', 'black'])) {
+                                                                        $tier = 'reguler';
+                                                                    }
+                                                                @endphp
+                                                                <option value="reguler"
+                                                                    {{ $tier === 'reguler' ? 'selected' : '' }}>Reguler
+                                                                </option>
+                                                                <option value="black"
+                                                                    {{ $tier === 'black' ? 'selected' : '' }}>Black
+                                                                </option>
+                                                            </select>
+                                                            <span class="ml-2 badge badge-light tier-status">Saved</span>
+                                                        </div>
+                                                    </td>
+
                                                     <td>{{ $post->job_title }}</td>
                                                     <td>{{ $post->company_name }}</td>
                                                     <td>{{ $post->email }}</td>
-                                                    <td>{{ $post->phone }}</td>
-                                                    <td>{{ $post->office_number }}</td>
-                                                    <td>
-                                                        {{ $post->company_category }}
+
+                                                    {{-- phone: fallback ke fullphone kalau phone kosong --}}
+                                                    <td>{{ $post->fullphone ?? $post->phone }}</td>
+
+                                                    {{-- office: fallback ke full_office_number kalau office_number kosong --}}
+                                                    <td>{{ $post->office_number ?? $post->full_office_number }}</td>
+
+                                                    {{-- address --}}
+                                                    <td>{{ $post->address }}</td>
+
+                                                    <td>{{ $post->company_website }}</td>
+
+                                                    <td>{{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
                                                     </td>
+
                                                     <td>
-                                                        {{ $post->company_website }}
-                                                    </td>
-                                                    <td>
-                                                        {{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
-                                                    </td>
-                                                    <td>
-                                                        {{-- Label status --}}
                                                         {{ $post->cci ? 'cci' : '' }} -
                                                         {{ $post->explore ? 'explore' : '' }}
 
-                                                        {{-- Tombol Import via AJAX --}}
                                                         <button type="button"
                                                             class="btn btn-sm btn-outline-primary ml-2 btn-import-mailchimp"
                                                             data-url="{{ route('users.import.mailchimp', $post->id) }}"
@@ -163,20 +199,22 @@
                                                             {{ $post->explore || $post->cci ? '' : 'disabled' }}>
                                                             <i class="fas fa-paper-plane"></i> Import
                                                         </button>
-
                                                     </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
                                 </div>
+
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div>{{-- row --}}
+            </div>{{-- section-body --}}
         </section>
     </div>
+
+    {{-- Modal Import --}}
     <div class="modal fade" tabindex="-1" role="dialog" id="example">
         <div class="modal-dialog modal-md modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -193,7 +231,6 @@
                             <input type="file" name="uploaded_file" id="uploaded_file">
                             <button type="submit" class="btn btn-success">Upload</button>
                         </div>
-
                     </form>
                 </div>
                 <div class="modal-footer bg-whitesmoke br">
@@ -203,7 +240,6 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 @push('bottom')
@@ -211,6 +247,7 @@
         $('#modal-2').click(function() {
             $('#example').modal('show');
         });
+
         // CSRF untuk semua request AJAX
         $.ajaxSetup({
             headers: {
@@ -225,11 +262,11 @@
             }
             $('.section-body .alert-area').html(
                 `<div class="alert alert-${type} alert-dismissible show fade">
-        <div class="alert-body">
-          <button class="close" data-dismiss="alert"><span>×</span></button>
-          ${message}
-        </div>
-      </div>`
+                    <div class="alert-body">
+                        <button class="close" data-dismiss="alert"><span>×</span></button>
+                        ${message}
+                    </div>
+                </div>`
             );
         }
 
@@ -245,21 +282,13 @@
             }
         }
 
-        // Klik import langsung eksekusi
+        // Klik import mailchimp
         $(document).on('click', '.btn-import-mailchimp', function() {
             const $btn = $(this);
             const url = $btn.data('url');
             const userId = $btn.data('user-id');
             const email = $btn.data('email');
-            const tags = (function parseTags(raw) {
-                if (!raw) return [];
-                try {
-                    const j = JSON.parse(raw);
-                    return Array.isArray(j) ? j : [];
-                } catch (e) {
-                    return String(raw).split(',').map(s => s.trim()).filter(Boolean);
-                }
-            })($btn.attr('data-tags'));
+            const tags = parseTags($btn.attr('data-tags'));
 
             const original = $btn.html();
             $btn.prop('disabled', true).html(
@@ -280,16 +309,16 @@
                     if (res && res.success) {
                         $('.section-body').prepend(
                             `<div class="alert alert-success alert-dismissible show fade"><div class="alert-body">
-          <button class="close" data-dismiss="alert"><span>×</span></button>${res.message}
-        </div></div>`
+                                <button class="close" data-dismiss="alert"><span>×</span></button>${res.message}
+                            </div></div>`
                         );
                         $btn.removeClass('btn-outline-primary').addClass('btn-success')
                             .html('<i class="fas fa-check"></i> Imported');
                     } else {
                         $('.section-body').prepend(
                             `<div class="alert alert-warning alert-dismissible show fade"><div class="alert-body">
-          <button class="close" data-dismiss="alert"><span>×</span></button>${(res&&res.message) || 'Import gagal'}
-        </div></div>`
+                                <button class="close" data-dismiss="alert"><span>×</span></button>${(res && res.message) || 'Import gagal'}
+                            </div></div>`
                         );
                         $btn.prop('disabled', false).html(original);
                     }
@@ -299,18 +328,52 @@
                         'Gagal menghubungi server.';
                     $('.section-body').prepend(
                         `<div class="alert alert-danger alert-dismissible show fade"><div class="alert-body">
-        <button class="close" data-dismiss="alert"><span>×</span></button>${msg}
-      </div></div>`
+                            <button class="close" data-dismiss="alert"><span>×</span></button>${msg}
+                        </div></div>`
                     );
                     $btn.prop('disabled', false).html(original);
                 });
         });
 
+        // ===== NEW: Update Tier (Reguler/Black) via AJAX =====
+        $(document).on('change', '.user-tier-select', function() {
+            const $select = $(this);
+            const url = $select.data('url');
+            const tier = $select.val();
+            const $badge = $select.closest('td').find('.tier-status');
 
-        // DataTable tetap seperti semula
+            $badge.removeClass('badge-light badge-success badge-danger').addClass('badge-warning').text(
+            'Saving...');
+
+            $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        tier: tier
+                    }
+                })
+                .done(function(res) {
+                    if (res && res.success) {
+                        $badge.removeClass('badge-warning').addClass('badge-success').text('Saved');
+                    } else {
+                        $badge.removeClass('badge-warning').addClass('badge-danger').text('Failed');
+                        showAlert('warning', (res && res.message) ? res.message : 'Gagal update tier.');
+                    }
+                })
+                .fail(function(xhr) {
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message :
+                        'Gagal menghubungi server.';
+                    $badge.removeClass('badge-warning').addClass('badge-danger').text('Failed');
+                    showAlert('danger', msg);
+                });
+        });
+
+        // DataTable
         $(document).ready(function() {
             $('#laravel_crud').DataTable({
                 dom: 'Bfrtip',
+                pageLength: 25,
                 buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5']
             });
         });

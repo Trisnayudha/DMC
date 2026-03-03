@@ -115,6 +115,23 @@ class UsersController extends Controller
         }
     }
 
+    // App\Http\Controllers\Admin\UsersController.php (tambahin method ini)
+    public function updateTier(Request $request, $id)
+    {
+        $request->validate([
+            'tier' => 'required|in:reguler,black',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->tier = $request->tier;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tier updated.',
+            'tier'    => $user->tier,
+        ]);
+    }
 
     public function import(Request $request)
     {
