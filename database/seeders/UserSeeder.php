@@ -14,24 +14,24 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $user = User::where('email', 'annisa@djakarta-miningclub.com')->first();
+        // $user = User::where('email', 'andira@djakarta-miningclub.com')->first();
 
-        if ($user) {
-            $user->update([
-                'password' => bcrypt('DMC2026'),
-            ]);
-            echo "Password user {$user->name} berhasil diubah menjadi DMC2026";
-        } else {
-            echo "User tidak ditemukan";
-        }
+        // if ($user) {
+        //     $user->update([
+        //         'password' => bcrypt('DMC2026'),
+        //     ]);
+        //     echo "Password user {$user->name} berhasil diubah menjadi DMC2026";
+        // } else {
+        //     echo "User tidak ditemukan";
+        // }
 
 
-        // $user = User::create([
-        //     'name' => 'Callula',
-        //     'email' => 'calulla@indonesiaminer.com',
-        //     'password' => bcrypt('12345')
-        // ]);
-        // $user->assignRole('admin');
+        $user = User::create([
+            'name' => 'Andira',
+            'email' => 'andira@djakarta-miningclub.com',
+            'password' => bcrypt('DMC2026')
+        ]);
+        $user->assignRole('admin');
 
         // $damun = User::create([
         //     'name' => 'Damun',
