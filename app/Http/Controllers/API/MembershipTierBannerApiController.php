@@ -57,9 +57,9 @@ class MembershipTierBannerApiController extends Controller
         });
 
         return response()->json([
-            'status' => true,
-            'tier'   => $tier,
-            'data'   => [
+            'status' => 200,
+            'message' => 'Success',
+            'payload'   => [
                 'dashboard_left'  => $grouped->get('dashboard_left', collect())->values(),
                 'dashboard_right' => $grouped->get('dashboard_right', collect())->values(),
             ],
