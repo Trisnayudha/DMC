@@ -239,7 +239,7 @@ class SponsorController extends Controller
         $request->validate([
             'name'           => 'required|string|max:255',
             'email'          => 'required|email|unique:sponsors,email,' . $id,
-            'website'        => 'nullable|url',
+            'company_website'        => 'nullable|url',
             'address'        => 'nullable|string',
             'description'    => 'nullable|string',
             'package'        => 'required|string',
@@ -249,7 +249,6 @@ class SponsorController extends Controller
             'contract_start' => 'nullable|date_format:Y-m',
             'contract_end'   => 'nullable|date_format:Y-m'
         ]);
-
         // Ambil data sponsor yang akan diupdate
         $sponsor = Sponsor::findOrFail($id);
 
@@ -259,7 +258,7 @@ class SponsorController extends Controller
         // Update data sponsor
         $sponsor->name = $request->input('name');
         $sponsor->email = $request->input('email');
-        $sponsor->company_website = $request->input('website');
+        $sponsor->company_website = $request->input('company_website');
         $sponsor->address = $request->input('address');
         $sponsor->description = $request->input('description');
         $sponsor->package = $request->input('package');

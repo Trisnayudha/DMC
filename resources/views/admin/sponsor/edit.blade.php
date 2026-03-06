@@ -86,15 +86,15 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <div class="form-group{{ $errors->has('website') ? ' has-error' : '' }}">
+                                    <div class="form-group{{ $errors->has('company_website') ? ' has-error' : '' }}">
                                         <label>Website</label>
-                                        {!! Form::text('website', null, [
+                                        {!! Form::text('company_website', null, [
                                             'class' => 'form-control',
                                             'placeholder' => 'www.google.com',
                                         ]) !!}
-                                        @if ($errors->has('website'))
+                                        @if ($errors->has('company_website'))
                                             <span class="help-block">
-                                                <strong style="color:red">{{ $errors->first('website') }}</strong>
+                                                <strong style="color:red">{{ $errors->first('company_website') }}</strong>
                                             </span>
                                         @endif
                                     </div>
