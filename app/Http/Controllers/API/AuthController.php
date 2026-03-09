@@ -530,6 +530,7 @@ Your verification code (OTP) ' . $otp;
     }
 
 
+
     public function verifyOtp(Request $request)
     {
         $validate = Validator::make(
@@ -543,209 +544,151 @@ Your verification code (OTP) ' . $otp;
                 'email.unique' => 'Email sudah digunakan'
             ]
         );
+
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Something was wrong',
+                'payload' => $validate->errors()->first()
+            ]);
+        }
+
         $email = $request->email;
         $phone = $request->phone;
         $codePayment = strtoupper(Str::random(7));
-        if ($validate->fails()) {
-            $response['status'] = 401;
-            $response['message'] = 'Something was wrong';
-            $response['payload'] = $validate->errors()->first();
+
+        if (!empty($email)) {
+            $findUser = MemberModel::where([
+                ['email', '=', $email],
+                ['otp', '=', $request->otp]
+            ])->first();
         } else {
-            if (!empty($email)) {
-                $findUser  = MemberModel::where([['email', '=', $email], ['otp', '=', $request->otp]])->first();
-                if (!empty($findUser)) {
-                    $image = QrCode::format('png')
-                        ->size(300)->errorCorrection('H')
-                        ->generate($codePayment);
-                    $output_file = '/public/uploads/qr-code/img-' . time() . '.png';
-                    $db = '/storage/uploads/qr-code/img-' . time() . '.png';
-                    Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
-                    $user = User::create([
-                        'name' => $findUser->name,
-                        'email' =>  $findUser->email,
-                        'password' => $findUser->password,
-                        'verify_email' => 'verified',
-                        'isStatus' => 'Active',
-                        'qrcode' => $db,
-                        'uname' => $codePayment,
-                    ]);
-                    $user->assignRole('guest');
-                    $company = CompanyModel::create([
-                        'prefix' => $findUser->prefix,
-                        'company_name' => $findUser->company_name,
-                        'company_website' => $findUser->company_website,
-                        'company_category' => $findUser->company_category,
-                        'company_other' => $findUser->company_other,
-                        'address' => $findUser->address,
-                        'city' => $findUser->city,
-                        'portal_code' => $findUser->portal_code,
-                        'prefix_office_number' => $findUser->prefix_office_number,
-                        'office_number' => $findUser->office_number,
-                        'full_office_number' => $findUser->full_office_number,
-                        'country' => $findUser->country,
-                        'cci' => $findUser->cci,
-                        'explore' => $findUser->explore,
-                        'users_id' => $user->id
-                    ]);
-                    $profile = ProfileModel::create([
-                        'prefix_phone' => $findUser->prefix_phone,
-                        'phone' => $findUser->phone,
-                        'fullphone' => $findUser->fullphone,
-                        'job_title' => $findUser->job_title,
-                        'users_id' => $user->id,
-                        'company_id' => $company->id
-                    ]);
-                    $user = User::where('id', '=', $user->id)->first();
-
-                    auth()->login($user, true);
-
-                    $role = $this->user->checkrole($user->id);
-                    $accessToken = auth()->user()->createToken('token-name')->plainTextToken;
-                    $data = [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $role[0]->name,
-                        'token' => $accessToken,
-                        'verify_email' => $user->verify_email,
-                        'verify_phone' => $user->verify_phone,
-                        'status_member' => 'member'
-                    ];
-                    $shouldSubscribe = $this->isTruthy($findUser->explore) || $this->isTruthy($findUser->cci);
-
-                    // if ($shouldSubscribe) {
-                    NewsletterFacade::subscribeOrUpdate($findUser->email, [
-                        'FNAME'    => $user->name,
-                        'MERGE3'   => $findUser->address,      // jika field Address tipe "Address", boleh diganti object address
-                        'PHONE'    => $phone,
-                        'MMERGE5'  => $findUser->company_name,
-                        'MMERGE6'  => $findUser->company_category,
-                        'MMERGE8'  => $findUser->job_title,
-                        'MMERGE10' => Carbon::now(),           // di audience kamu ini Text → aman
-                        'MMERGE11' => $findUser->office_number,
-                        'MMERGE12' => $findUser->explore ?? $findUser->cci,
-                    ]);
-
-                    // Tambah tag penanda sumber registrasi
-                    $this->mcAddTags($findUser->email, [
-                        'Backend Membership'
-                    ]);
-                    // } else {
-                    //     Log::info('Skip Mailchimp subscribe: explore/cci tidak truthy', [
-                    //         'email' => $findUser->email,
-                    //         'explore' => $findUser->explore,
-                    //         'cci' => $findUser->cci
-                    //     ]);
-                    // }
-
-                    MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
-                    $response['status'] = 200;
-                    $response['message'] = 'Successfully Register';
-                    $response['payload'] = $data;
-                } else {
-                    $response['status'] = 401;
-                    $response['message'] = 'OTP Invalid';
-                    $response['payload'] = null;
-                }
-            } else {
-                $findUser = MemberModel::where([['fullphone', '=', $phone], ['otp', '=', $request->otp]])->first();
-                if (!empty($findUser)) {
-                    $image = QrCode::format('png')
-                        ->size(300)->errorCorrection('H')
-                        ->generate($codePayment);
-                    $output_file = '/public/uploads/qr-code/img-' . time() . '.png';
-                    $db = '/storage/uploads/qr-code/img-' . time() . '.png';
-                    Storage::disk('local')->put($output_file, $image); //storage/app/public/img/qr-code/img-1557309130.png
-                    $user = User::create([
-                        'name' => $findUser->name,
-                        'email' =>  $findUser->email,
-                        'password' => $findUser->password,
-                        'verify_phone' => 'verified',
-                        'isStatus' => 'Active',
-                        'qrcode' => $db,
-                        'uname' => $codePayment
-                    ]);
-                    $user->assignRole('guest');
-                    $company = CompanyModel::create([
-                        'prefix' => $findUser->prefix,
-                        'company_name' => $findUser->company_name,
-                        'company_website' => $findUser->company_website,
-                        'address' => $findUser->address,
-                        'company_category' => $findUser->company_category,
-                        'company_other' => $findUser->company_other,
-                        'city' => $findUser->city,
-                        'portal_code' => $findUser->portal_code,
-                        'prefix_office_number' => $findUser->prefix_office_number,
-                        'office_number' => $findUser->office_number,
-                        'full_office_number' => $findUser->full_office_number,
-                        'country' => $findUser->country,
-                        'cci' => $findUser->cci,
-                        'explore' => $findUser->explore,
-                        'users_id' => $user->id
-                    ]);
-                    $profile = ProfileModel::create([
-                        'prefix_phone' => $findUser->prefix_phone,
-                        'phone' => $findUser->phone,
-                        'fullphone' => $findUser->fullphone,
-                        'job_title' => $findUser->job_title,
-                        'users_id' => $user->id,
-                        'company_id' => $company->id
-                    ]);
-                    $user = User::where('id', '=', $user->id)->first();
-
-                    auth()->login($user, true);
-
-                    $role = $this->user->checkrole($user->id);
-                    $accessToken = auth()->user()->createToken('token-name')->plainTextToken;
-                    $data = [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $role[0]->name,
-                        'token' => $accessToken,
-                        'verify_email' => $user->verify_email,
-                        'verify_phone' => $user->verify_phone
-                    ];
-
-                    $shouldSubscribe = $this->isTruthy($findUser->explore) || $this->isTruthy($findUser->cci);
-
-                    if ($shouldSubscribe) {
-                        NewsletterFacade::subscribeOrUpdate($findUser->email, [
-                            'FNAME'    => $user->name,
-                            'MERGE3'   => $findUser->address,      // jika field Address tipe "Address", boleh diganti object address
-                            'PHONE'    => $phone,
-                            'MMERGE5'  => $findUser->company_name,
-                            'MMERGE6'  => $findUser->company_category,
-                            'MMERGE8'  => $findUser->job_title,
-                            'MMERGE10' => Carbon::now(),           // di audience kamu ini Text → aman
-                            'MMERGE11' => $findUser->office_number,
-                            'MMERGE12' => $findUser->explore ?? $findUser->cci,
-                        ]);
-
-                        // Tambah tag penanda sumber registrasi
-                        $this->mcAddTags($findUser->email, [
-                            'Backend Membership'
-                        ]);
-                    } else {
-                        Log::info('Skip Mailchimp subscribe: explore/cci tidak truthy', [
-                            'email' => $findUser->email,
-                            'explore' => $findUser->explore,
-                            'cci' => $findUser->cci
-                        ]);
-                    }
-
-                    MemberModel::where('id', '=', $findUser->id)->delete($findUser->id);
-                    $response['status'] = 200;
-                    $response['message'] = 'Successfully Register';
-                    $response['payload'] = $data;
-                } else {
-                    $response['status'] = 401;
-                    $response['message'] = 'OTP Invalid';
-                    $response['payload'] = null;
-                }
-            }
+            $findUser = MemberModel::where([
+                ['fullphone', '=', $phone],
+                ['otp', '=', $request->otp]
+            ])->first();
         }
-        return response()->json($response);
+
+        if (!$findUser) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'OTP Invalid',
+                'payload' => null
+            ]);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $image = QrCode::format('png')
+                ->size(300)
+                ->errorCorrection('H')
+                ->generate($codePayment);
+
+            $fileName = 'img-' . time() . '.png';
+            $outputFile = '/public/uploads/qr-code/' . $fileName;
+            $db = '/storage/uploads/qr-code/' . $fileName;
+
+            Storage::disk('local')->put($outputFile, $image);
+
+            $userData = [
+                'name' => $findUser->name,
+                'email' => $findUser->email,
+                'password' => $findUser->password,
+                'isStatus' => 'Active',
+                'qrcode' => $db,
+                'uname' => $codePayment,
+            ];
+
+            if (!empty($email)) {
+                $userData['verify_email'] = 'verified';
+            } else {
+                $userData['verify_phone'] = 'verified';
+            }
+
+            $user = User::create($userData);
+            $user->assignRole('guest');
+
+            $company = CompanyModel::create([
+                'prefix' => $findUser->prefix,
+                'company_name' => $findUser->company_name,
+                'company_website' => $findUser->company_website,
+                'company_category' => $findUser->company_category,
+                'company_other' => $findUser->company_other,
+                'address' => $findUser->address,
+                'city' => $findUser->city,
+                'portal_code' => $findUser->portal_code,
+                'prefix_office_number' => $findUser->prefix_office_number,
+                'office_number' => $findUser->office_number,
+                'full_office_number' => $findUser->full_office_number,
+                'country' => $findUser->country,
+                'cci' => $findUser->cci,
+                'explore' => $findUser->explore,
+                'users_id' => $user->id
+            ]);
+
+            ProfileModel::create([
+                'prefix_phone' => $findUser->prefix_phone,
+                'phone' => $findUser->phone,
+                'fullphone' => $findUser->fullphone,
+                'job_title' => $findUser->job_title,
+                'users_id' => $user->id,
+                'company_id' => $company->id
+            ]);
+
+            $mergeFields = array_filter([
+                'FNAME'    => $user->name ?? '',
+                'MMERGE4'  => $phone ?? '',
+                'MMERGE5'  => $findUser->company_name ?? '',
+                'MMERGE6'  => $findUser->company_category ?? '',
+                'MMERGE8'  => $findUser->job_title ?? '',
+                'MMERGE10' => now()->format('Y-m-d H:i:s'),
+                'MMERGE11' => $findUser->office_number ?? '',
+                'MMERGE12' => $findUser->explore ?: $findUser->cci,
+            ], function ($value) {
+                return $value !== null && $value !== '';
+            });
+
+            $news = NewsletterFacade::subscribeOrUpdate($findUser->email, $mergeFields);
+
+            // aktifkan nanti setelah subscribe sukses
+            $this->mcAddTags($findUser->email, ['Backend Membership']);
+
+            auth()->login($user, true);
+
+            $role = $this->user->checkrole($user->id);
+            $accessToken = auth()->user()->createToken('token-name')->plainTextToken;
+
+            $data = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $role[0]->name,
+                'token' => $accessToken,
+                'verify_email' => $user->verify_email,
+                'verify_phone' => $user->verify_phone,
+                'status_member' => 'member'
+            ];
+
+            MemberModel::where('id', $findUser->id)->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Successfully Register',
+                'payload' => $data
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            dd([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+        }
     }
 
     protected function isTruthy($val): bool
