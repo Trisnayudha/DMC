@@ -20,6 +20,20 @@
 
     </section>
 @endsection
+
+@push('top')
+    <style>
+        .clickable-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clickable-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+@endpush
 @push('bottom')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 

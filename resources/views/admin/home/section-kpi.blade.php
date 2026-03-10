@@ -2,28 +2,30 @@
 
     {{-- 1. New Members --}}
     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-primary">
-                <i class="far fa-user-plus"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header">
-                    <h4>New Members</h4>
+        <a href="{{ url('admin/users?filter=this_month') }}" style="text-decoration: none; color: inherit;">
+            <div class="card card-statistic-1 clickable-card">
+                <div class="card-icon bg-primary">
+                    <i class="far fa-user-plus"></i>
                 </div>
-                <div class="card-body">
-                    {{ number_format($newMembersThisMonth ?? 0) }}
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>New Members</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ number_format($newMembersThisMonth ?? 0) }}
 
-                    @php
-                        $gp = $growthPercent ?? 0;
-                        $isUp = $gp >= 0;
-                    @endphp
+                        @php
+                            $gp = $growthPercent ?? 0;
+                            $isUp = $gp >= 0;
+                        @endphp
 
-                    <div class="text-small {{ $isUp ? 'text-success' : 'text-danger' }}">
-                        {{ $isUp ? '+' : '' }}{{ $gp }}% this month
+                        <div class="text-small {{ $isUp ? 'text-success' : 'text-danger' }}">
+                            {{ $isUp ? '+' : '' }}{{ $gp }}% this month
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     {{-- 2. Active Members --}}

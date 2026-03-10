@@ -17,12 +17,38 @@
 
                 {{-- Alerts --}}
                 <div id="alert-area"></div>
-                <div class="alert alert-warning alert-dismissible show fade">
-                    <div class="alert-body">
-                        <button class="close" data-dismiss="alert"><span>×</span></button>
-                        Data displayed from January 2025 to the current date.
+                @if (request('filter') == 'this_month')
+                    <div class="alert alert-info alert-dismissible show fade">
+                        <div class="alert-body">
+                            <button class="close" data-dismiss="alert"><span>×</span></button>
+                            Showing new members registered in {{ now()->format('F Y') }}.
+                        </div>
                     </div>
-                </div>
+                @endif
+                @if (request('date_from') || request('date_to') || request('month') || request('year'))
+                    <div class="alert alert-info alert-dismissible show fade">
+                        <div class="alert-body">
+                            <button class="close" data-dismiss="alert"><span>×</span></button>
+                            Filter applied:
+                            @if (request('date_from'))
+                                From <strong>{{ request('date_from') }}</strong>
+                            @endif
+
+                            @if (request('date_to'))
+                                to <strong>{{ request('date_to') }}</strong>
+                            @endif
+
+                            @if (request('month'))
+                                | Month:
+                                <strong>{{ \Carbon\Carbon::create()->month((int) request('month'))->format('F') }}</strong>
+                            @endif
+
+                            @if (request('year'))
+                                | Year: <strong>{{ request('year') }}</strong>
+                            @endif
+                        </div>
+                    </div>
+                @endif
 
                 <div class="row">
                     {{-- Stats --}}
@@ -99,15 +125,71 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
-                                <div class="float-right d-flex">
-                                    <a href="{{ url('admin/users') }}"
-                                        class="btn btn-icon icon-left btn-warning btn-filter mb-3 mr-2">
-                                        Clear Filter
-                                    </a>
-                                    <button type="button" class="btn btn-primary mb-3" data-toggle="modal"
-                                        data-target="#example">
-                                        Import Excel
-                                    </button>
+                                <div class="d-flex flex-wrap justify-content-between align-items-end mb-3">
+                                    <form action="{{ url('admin/users') }}" method="GET"
+                                        class="d-flex flex-wrap align-items-end">
+                                        <div class="form-group mr-2 mb-2">
+                                            <label class="mb-1">From Date</label>
+                                            <input type="date" name="date_from" class="form-control"
+                                                value="{{ request('date_from') }}">
+                                        </div>
+
+                                        <div class="form-group mr-2 mb-2">
+                                            <label class="mb-1">To Date</label>
+                                            <input type="date" name="date_to" class="form-control"
+                                                value="{{ request('date_to') }}">
+                                        </div>
+
+                                        <div class="form-group mr-2 mb-2">
+                                            <label class="mb-1">Month</label>
+                                            <select name="month" class="form-control">
+                                                <option value="">All</option>
+                                                @for ($m = 1; $m <= 12; $m++)
+                                                    <option value="{{ $m }}"
+                                                        {{ request('month') == $m ? 'selected' : '' }}>
+                                                        {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                                                    </option>
+                                                @endfor
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group mr-2 mb-2">
+                                            <label class="mb-1">Year</label>
+                                            <select name="year" class="form-control">
+                                                <option value="">All</option>
+                                                @for ($y = now()->year; $y >= 2025; $y--)
+                                                    <option value="{{ $y }}"
+                                                        {{ request('year') == $y ? 'selected' : '' }}>
+                                                        {{ $y }}
+                                                    </option>
+                                                @endfor
+                                            </select>
+                                        </div>
+
+                                        {{-- keep filter lama kalau ada --}}
+                                        @if (request('filter'))
+                                            <input type="hidden" name="filter" value="{{ request('filter') }}">
+                                        @endif
+
+                                        <div class="form-group mr-2 mb-2">
+                                            <button type="submit" class="btn btn-primary">
+                                                Filter
+                                            </button>
+                                        </div>
+
+                                        <div class="form-group mr-2 mb-2">
+                                            <a href="{{ url('admin/users') }}" class="btn btn-warning">
+                                                Clear Filter
+                                            </a>
+                                        </div>
+                                    </form>
+
+                                    <div class="mb-2">
+                                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                            data-target="#example">
+                                            Import Excel
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div class="table-responsive">
@@ -343,7 +425,7 @@
             const $badge = $select.closest('td').find('.tier-status');
 
             $badge.removeClass('badge-light badge-success badge-danger').addClass('badge-warning').text(
-            'Saving...');
+                'Saving...');
 
             $.ajax({
                     url: url,

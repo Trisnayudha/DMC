@@ -26,17 +26,75 @@ class UsersController extends Controller
     }
     public function index(Request $request)
     {
-        if ($request->filter == 'unregist') {
-            $list = MemberModel::whereNull('register_as')
-                ->where('created_at', '>=', Carbon::now()->startOfYear())
-                ->orderby('id', 'desc')
-                ->get();
+        $filter    = $request->filter;
+        $dateFrom  = $request->date_from;
+        $dateTo    = $request->date_to;
+        $month     = $request->month;
+        $year      = $request->year;
+
+        if ($filter == 'unregist') {
+            $query = MemberModel::whereNull('register_as');
+
+            // filter tanggal
+            if ($dateFrom) {
+                $query->whereDate('created_at', '>=', $dateFrom);
+            }
+
+            if ($dateTo) {
+                $query->whereDate('created_at', '<=', $dateTo);
+            }
+
+            if ($month) {
+                $query->whereMonth('created_at', $month);
+            }
+
+            if ($year) {
+                $query->whereYear('created_at', $year);
+            }
+
+            // default lama kalau tidak ada filter apapun
+            if (!$dateFrom && !$dateTo && !$month && !$year) {
+                $query->where('created_at', '>=', Carbon::now()->startOfYear());
+            }
+
+            $list = $query->orderBy('id', 'desc')->get();
         } else {
-            $list = User::leftjoin('profiles', 'profiles.users_id', 'users.id')
-                ->leftjoin('company', 'company.id', 'profiles.company_id')
-                ->whereNotNull('users.isStatus')
-                ->orderBy('users.id', 'desc')
-                ->select('*', 'users.id as id')
+            $query = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
+                ->leftJoin('company', 'company.id', 'profiles.company_id')
+                ->whereNotNull('users.isStatus');
+
+            if ($filter == 'this_month') {
+                $query->whereBetween('users.created_at', [
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()->endOfMonth()
+                ]);
+            }
+
+            // filter tanggal
+            if ($dateFrom) {
+                $query->whereDate('users.created_at', '>=', $dateFrom);
+            }
+
+            if ($dateTo) {
+                $query->whereDate('users.created_at', '<=', $dateTo);
+            }
+
+            if ($month) {
+                $query->whereMonth('users.created_at', $month);
+            }
+
+            if ($year) {
+                $query->whereYear('users.created_at', $year);
+            }
+
+            $list = $query->orderBy('users.id', 'desc')
+                ->select(
+                    'users.*',
+                    'users.id as id',
+                    'users.created_at as user_created_at',
+                    'profiles.*',
+                    'company.*'
+                )
                 ->get();
         }
 
@@ -49,7 +107,6 @@ class UsersController extends Controller
             ->whereNotNull('verify_email')
             ->whereNull('verify_phone')
             ->count();
-
 
         $countVerifyPhone = User::whereNotNull('users.isStatus')
             ->where('created_at', '>=', Carbon::now()->startOfYear())
