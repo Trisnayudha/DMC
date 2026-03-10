@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -243,6 +244,14 @@ class HomeController extends Controller
                 return $row;
             });
 
+        // Quick Insight - Data Source
+        $dataSourceStats = User::select('source', DB::raw('COUNT(*) as total'))
+            ->whereNotNull('source')
+            ->where('source', '!=', '')
+            ->groupBy('source')
+            ->orderByDesc('total')
+            ->get();
+
         return compact(
             'membershipGrowthLabels',
             'membershipGrowthData',
@@ -256,7 +265,8 @@ class HomeController extends Controller
             'activePercent',
             'joinedEventPercent',
             'avgNewsPerMember',
-            'inactiveRows'
+            'inactiveRows',
+            'dataSourceStats'
         );
     }
 

@@ -202,6 +202,7 @@ class EventsDetailController extends Controller
             $user = User::firstOrNew(['email' => $email]);
             $user->name = $name;
             $user->email = $email;
+            $user->source = 'Event';
             $user->save();
 
             $company = CompanyModel::firstOrNew(['users_id' => $user->id]);

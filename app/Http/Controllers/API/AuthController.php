@@ -412,6 +412,7 @@ Your verification code (OTP) ' . $otp;
                 $member->company_other        = $company_other;
                 $member->explore              = $explore;
                 $member->cci                  = $cci;
+                $member->source                  = $source ?? 'apps';
                 $member->password             = Hash::make($password); // simpan sementara; akan dipindah di verifyOtp
                 $member->save();
 
@@ -450,6 +451,7 @@ Your verification code (OTP) ' . $otp;
             $member->company_other        = $company_other;
             $member->explore              = $explore;
             $member->cci                  = $cci;
+            $member->source               = $source ?? 'apps';
             $member->password             = Hash::make($password);
             $member->save();
 
@@ -598,6 +600,7 @@ Your verification code (OTP) ' . $otp;
                 'isStatus' => 'Active',
                 'qrcode' => $db,
                 'uname' => $codePayment,
+                'source' => $findUser->source
             ];
 
             if (!empty($email)) {

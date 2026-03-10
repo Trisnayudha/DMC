@@ -34,6 +34,22 @@
                         {{ number_format($avgPerMonth ?? 0) }} Members
                     </li>
                 </ul>
+                <ul class="list-unstyled">
+
+                    @foreach ($dataSourceStats as $item)
+                        <li class="mb-3">
+                            <strong>{{ ucfirst($item->source) }}</strong><br>
+                            {{ number_format($item->total) }} Members
+                        </li>
+                    @endforeach
+
+                    @if ($dataSourceStats->count() == 0)
+                        <li class="text-muted">
+                            No data source available
+                        </li>
+                    @endif
+
+                </ul>
             </div>
         </div>
     </div>

@@ -33,6 +33,7 @@ class MemberModel extends Model
         'city',
         'portal_code',
         'sponsor_id',
-        'register_as'
+        'register_as',
+        'source'
     ];
 }

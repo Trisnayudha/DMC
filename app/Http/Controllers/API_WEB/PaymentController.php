@@ -178,6 +178,7 @@ class PaymentController extends Controller
             $user = User::firstOrNew(['email' => $email]);
             if (!$user->exists) {
                 $user->name = $names[$index];
+                $user->source = 'Event';
                 $user->save();
             }
             $user_ids[] = $user->id; // Store user ID

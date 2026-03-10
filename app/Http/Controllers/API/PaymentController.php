@@ -414,6 +414,7 @@ Terima kasih.
                 $user = User::firstOrNew(['email' => $email]);
                 if (!$user->exists) {
                     $user->name     = $name;
+                    $user->source   = 'Event';
                     // misal generate password random
                     $user->password = bcrypt(Str::random(12));
                     $user->save();

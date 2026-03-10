@@ -23,6 +23,7 @@ class User extends Authenticatable
         'isStatus',
         'uname',
         'qrcode',
+        'source'
     ];
 
     protected $hidden = [
