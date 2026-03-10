@@ -360,6 +360,7 @@ Your verification code (OTP) ' . $otp;
         $portal_code           = $request->portal_code;
         $cci                   = $request->cci;
         $explore               = $request->explore;
+        $source                = $request->source;
 
         // 3) Cek user existing (auto-create dari event biasanya sudah ada di users)
         $userByEmail = User::where('email', $email)->first();
