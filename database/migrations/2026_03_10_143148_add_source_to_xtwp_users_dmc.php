@@ -14,7 +14,7 @@ class AddSourceToXtwpUsersDmc extends Migration
     public function up()
     {
         Schema::table('xtwp_users_dmc', function (Blueprint $table) {
-            $table->string('source')->default('website')->nullable();
+            $table->string('source')->default('Website')->nullable();
         });
     }
 
