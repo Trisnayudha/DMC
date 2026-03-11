@@ -132,7 +132,6 @@ class HomeController extends Controller
     {
         $totalUsers = DB::table('users')->count();
 
-        // ===== Active / Inactive (strict verified OR updated within 1 year) =====
         $oneYearAgo = now()->subYear();
 
         $activeMembers = DB::table('users')
@@ -147,11 +146,9 @@ class HomeController extends Controller
 
         $activePercent = $totalUsers > 0 ? round(($activeMembers / $totalUsers) * 100) : 0;
 
-        // ===== Joined Event % (distinct users yang pernah ada di users_event) =====
         $joinedEventUsers = DB::table('users_event')->distinct('users_id')->count('users_id');
         $joinedEventPercent = $totalUsers > 0 ? round(($joinedEventUsers / $totalUsers) * 100) : 0;
 
-        // ===== Membership Growth (Last 6 Months incl this month) =====
         $start = now()->copy()->startOfMonth()->subMonths(5);
         $end   = now()->copy()->endOfMonth();
 
@@ -160,7 +157,7 @@ class HomeController extends Controller
             ->whereBetween('created_at', [$start, $end])
             ->groupBy('ym')
             ->orderBy('ym')
-            ->pluck('total', 'ym'); // ['2026-01' => 12, ...]
+            ->pluck('total', 'ym');
 
         $membershipGrowthLabels = [];
         $membershipGrowthData   = [];
@@ -168,12 +165,11 @@ class HomeController extends Controller
         $cursor = $start->copy();
         while ($cursor->lte($end)) {
             $ym = $cursor->format('Y-m');
-            $membershipGrowthLabels[] = $cursor->format('M'); // Aug, Sep, ...
+            $membershipGrowthLabels[] = $cursor->format('M');
             $membershipGrowthData[]   = (int) ($raw[$ym] ?? 0);
             $cursor->addMonth();
         }
 
-        // ===== Quick Insights (best/lowest/avg from last 6 months data) =====
         $bestMonthIndex = null;
         $lowestMonthIndex = null;
 
@@ -194,8 +190,6 @@ class HomeController extends Controller
             ? (int) round(array_sum($membershipGrowthData) / count($membershipGrowthData))
             : 0;
 
-        // ===== Avg News / Member (biar angka realistis, pakai avg views/month per member) =====
-        // - ambil total views news publish bulan ini, lalu / totalUsers
         $newsViewsThisMonth = DB::table('news')
             ->where('status', 'publish')
             ->where(function ($q) {
@@ -213,7 +207,6 @@ class HomeController extends Controller
 
         $avgNewsPerMember = $totalUsers > 0 ? round($newsViewsThisMonth / $totalUsers, 1) : 0;
 
-        // ===== Inactive Members Table (30+ days by updated_at) =====
         $inactiveRows = DB::table('users as u')
             ->leftJoin('profiles as p', 'p.users_id', '=', 'u.id')
             ->leftJoin('company as c', 'c.id', '=', 'p.company_id')
@@ -244,13 +237,55 @@ class HomeController extends Controller
                 return $row;
             });
 
-        // Quick Insight - Data Source
         $dataSourceStats = User::select('source', DB::raw('COUNT(*) as total'))
             ->whereNotNull('source')
             ->where('source', '!=', '')
             ->groupBy('source')
             ->orderByDesc('total')
             ->get();
+
+        // =========================
+        // Company Category Chart
+        // =========================
+        $companyCategoryStats = DB::table('users as u')
+            ->join('company as c', 'c.users_id', '=', 'u.id')
+            ->selectRaw("
+            CASE
+                WHEN c.company_category IS NULL OR c.company_category = '' THEN 'Uncategorized'
+                ELSE c.company_category
+            END as category,
+            COUNT(DISTINCT u.id) as total
+        ")
+            ->groupBy('category')
+            ->orderByDesc('total')
+            ->get();
+
+        $companyCategoryLabels = $companyCategoryStats->pluck('category')->values();
+        $companyCategoryData   = $companyCategoryStats->pluck('total')->map(fn($v) => (int) $v)->values();
+
+        // =========================
+        // Job Title Tier Chart
+        // =========================
+        $jobTitles = DB::table('profiles')
+            ->whereNotNull('job_title')
+            ->where('job_title', '!=', '')
+            ->pluck('job_title');
+
+        $jobTitleTierMap = [
+            'Tier 1' => 0,
+            'Tier 2' => 0,
+            'Tier 3' => 0,
+            'Tier 4' => 0,
+            'Tier 5' => 0,
+        ];
+
+        foreach ($jobTitles as $jobTitle) {
+            $tier = $this->classifyJobTitleTier($jobTitle);
+            $jobTitleTierMap[$tier]++;
+        }
+
+        $jobTitleTierLabels = array_keys($jobTitleTierMap);
+        $jobTitleTierData   = array_values($jobTitleTierMap);
 
         return compact(
             'membershipGrowthLabels',
@@ -266,7 +301,11 @@ class HomeController extends Controller
             'joinedEventPercent',
             'avgNewsPerMember',
             'inactiveRows',
-            'dataSourceStats'
+            'dataSourceStats',
+            'companyCategoryLabels',
+            'companyCategoryData',
+            'jobTitleTierLabels',
+            'jobTitleTierData'
         );
     }
 
@@ -442,5 +481,137 @@ class HomeController extends Controller
             'newsTrendData',
             'topNews'
         );
+    }
+
+    private function classifyJobTitleTier(?string $jobTitle): string
+    {
+        $title = strtolower(trim((string) $jobTitle));
+
+        if ($title === '') {
+            return 'Tier 5';
+        }
+
+        // Tier 1: top executive / owner / board
+        $tier1Keywords = [
+            'chief executive officer',
+            'ceo',
+            'chief operating officer',
+            'coo',
+            'chief financial officer',
+            'cfo',
+            'chief commercial officer',
+            'cco',
+            'chief technology officer',
+            'cto',
+            'chief',
+            'president director',
+            'president commissioner',
+            'president',
+            'commissioner',
+            'board of director',
+            'board',
+            'owner',
+            'founder',
+            'co-founder',
+            'partner',
+            'managing partner',
+        ];
+
+        // Tier 2: director / vp / head / gm
+        $tier2Keywords = [
+            'director',
+            'direktur',
+            'vice president',
+            'vp',
+            'svp',
+            'evp',
+            'general manager',
+            'gm',
+            'country manager',
+            'head of',
+            'head ',
+            'head,',
+            'head-',
+            'manager in chief',
+        ];
+
+        // Tier 3: manager / superintendent / lead
+        $tier3Keywords = [
+            'senior manager',
+            'manager',
+            'mgr',
+            'superintendent',
+            'lead',
+            'team lead',
+            'principal',
+            'project manager',
+            'department manager',
+        ];
+
+        // Tier 4: specialist / engineer / officer / supervisor
+        $tier4Keywords = [
+            'supervisor',
+            'coordinator',
+            'specialist',
+            'engineer',
+            'analyst',
+            'consultant',
+            'officer',
+            'advisor',
+            'representative',
+            'executive',
+            'planner',
+            'surveyor',
+            'geologist',
+            'metallurgist',
+        ];
+
+        // Tier 5: operational / support / junior
+        $tier5Keywords = [
+            'staff',
+            'admin',
+            'administrator',
+            'assistant',
+            'junior',
+            'intern',
+            'trainee',
+            'student',
+            'clerk',
+            'operator',
+        ];
+
+        foreach ($tier1Keywords as $keyword) {
+            if (str_contains($title, $keyword)) {
+                return 'Tier 1';
+            }
+        }
+
+        foreach ($tier2Keywords as $keyword) {
+            if (str_contains($title, $keyword)) {
+                return 'Tier 2';
+            }
+        }
+
+        foreach ($tier3Keywords as $keyword) {
+            if (str_contains($title, $keyword)) {
+                return 'Tier 3';
+            }
+        }
+
+        foreach ($tier4Keywords as $keyword) {
+            if (str_contains($title, $keyword)) {
+                return 'Tier 4';
+            }
+        }
+
+        foreach ($tier5Keywords as $keyword) {
+            if (str_contains($title, $keyword)) {
+                return 'Tier 5';
+            }
+        }
+
+        // fallback cerdas:
+        // kalau title tidak kena keyword, taruh di Tier 4 karena biasanya posisi profesional umum
+        return 'Tier 4';
     }
 }

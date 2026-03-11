@@ -188,4 +188,65 @@
             }
         });
     </script>
+
+    <script>
+        const companyCategoryCtx = document.getElementById('companyCategoryChart');
+        if (companyCategoryCtx) {
+            new Chart(companyCategoryCtx, {
+                type: 'pie',
+                data: {
+                    labels: @json($companyCategoryLabels ?? []),
+                    datasets: [{
+                        data: @json($companyCategoryData ?? []),
+                        backgroundColor: [
+                            '#6777ef',
+                            '#63ed7a',
+                            '#ffa426',
+                            '#fc544b',
+                            '#3abaf4',
+                            '#191d21',
+                            '#e3eaef',
+                            '#cdd3d8'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        const jobTitleTierCtx = document.getElementById('jobTitleTierChart');
+        if (jobTitleTierCtx) {
+            new Chart(jobTitleTierCtx, {
+                type: 'pie',
+                data: {
+                    labels: @json($jobTitleTierLabels ?? []),
+                    datasets: [{
+                        data: @json($jobTitleTierData ?? []),
+                        backgroundColor: [
+                            '#fc544b',
+                            '#ffa426',
+                            '#6777ef',
+                            '#3abaf4',
+                            '#63ed7a'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    </script>
 @endpush

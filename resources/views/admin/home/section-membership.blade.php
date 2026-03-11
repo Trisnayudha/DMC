@@ -56,8 +56,29 @@
 </div>
 
 <div class="row">
+    <div class="col-lg-4 col-md-12 col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Company Category Distribution</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="companyCategoryChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-md-12 col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Tier Job Title Distribution</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="jobTitleTierChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
     {{-- Donut Active vs Inactive --}}
-    <div class="col-lg-6 col-md-12 col-12">
+    <div class="col-lg-4 col-md-12 col-12">
         <div class="card">
             <div class="card-header">
                 <h4>Member Activity Status</h4>
@@ -68,8 +89,10 @@
         </div>
     </div>
 
+</div>
+<div class="row">
     {{-- Insights 3 angka --}}
-    <div class="col-lg-6 col-md-12 col-12">
+    <div class="col-lg-12 col-md-12 col-12">
         <div class="card">
             <div class="card-header">
                 <h4>Member Engagement Insights</h4>
