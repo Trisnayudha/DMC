@@ -25,6 +25,50 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Top 10 Members by Event Attendance</h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Company</th>
+                                <th>Job Title</th>
+                                <th>Total Events</th>
+                                <th>Last Attend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse(($topMemberAttendEvents ?? []) as $member)
+                                <tr>
+                                    <td>
+                                        {{ $member->name ?? '-' }}
+                                        <div class="text-small text-muted">{{ $member->email ?? '' }}</div>
+                                    </td>
+                                    <td>{{ $member->company_name ?? '-' }}</td>
+                                    <td>{{ $member->job_title ?? '-' }}</td>
+                                    <td>{{ number_format($member->total_events ?? 0) }}</td>
+                                    <td>
+                                        {{ $member->last_attend_at ? \Carbon\Carbon::parse($member->last_attend_at)->format('d M Y') : '-' }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted p-4">No data</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div class="col-12">

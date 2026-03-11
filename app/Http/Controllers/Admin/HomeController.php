@@ -381,14 +381,39 @@ class HomeController extends Controller
 
                 return $row;
             });
-
+        // ===== Top 10 Members by Event Attendance =====
+        $topMemberAttendEvents = DB::table('users_event as ue')
+            ->join('users as u', 'u.id', '=', 'ue.users_id')
+            ->leftJoin('profiles as p', 'p.users_id', '=', 'u.id')
+            ->leftJoin('company as c', 'c.id', '=', 'p.company_id')
+            ->selectRaw('
+        u.id,
+        u.name,
+        u.email,
+        p.job_title,
+        c.company_name,
+        COUNT(DISTINCT ue.events_id) as total_events,
+        MAX(ue.created_at) as last_attend_at
+    ')
+            ->groupBy(
+                'u.id',
+                'u.name',
+                'u.email',
+                'p.job_title',
+                'c.company_name'
+            )
+            ->orderByDesc('total_events')
+            ->orderByDesc('last_attend_at')
+            ->limit(10)
+            ->get();
         return compact(
             'eventRegLabels',
             'eventRegData',
             'eventUpcoming',
             'eventOngoing',
             'eventCompleted',
-            'topEvents'
+            'topEvents',
+            'topMemberAttendEvents'
         );
     }
 
