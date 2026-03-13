@@ -270,6 +270,7 @@ class UsersController extends Controller
                     if (!$user->exists && empty($user->password)) {
                         $user->password = bcrypt(Str::random(12));
                     }
+                    $user->source = $registerAs;
                     $user->save();
 
                     // upsert Company (by users_id)
@@ -278,7 +279,7 @@ class UsersController extends Controller
                     $company->company_name     = $companyName;
                     $company->company_website  = $companyWeb;
                     $company->company_category = $companyCat;
-                    $company->company_other    = $companyOther ?: $registerAs; // simpan 'register as' jika ada
+                    $company->company_other    = $companyOther; // simpan 'register as' jika ada
                     $company->address          = $address;
                     $company->city             = $city;
                     $company->portal_code      = $portalCode;
