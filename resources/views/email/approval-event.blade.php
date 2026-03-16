@@ -124,7 +124,7 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://membership.djakarta-miningclub.com/image/banner69.png" alt="Image" class="img-logo">
+            <img src="https://membership.djakarta-miningclub.com/image/banner13.png" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
@@ -176,7 +176,7 @@
             </table>
 
             <p>View the latest of the event program by clicking here
-                (https://www.djakarta-miningclub.com/events/the-69th-djakarta-mining-club-networking-event)
+                (https://www.djakarta-miningclub.com/events/the-13th-anniversary-of-djakarta-mining-club)
             </p>
 
             <br>
