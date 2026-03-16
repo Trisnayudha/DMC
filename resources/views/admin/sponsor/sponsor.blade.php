@@ -369,18 +369,40 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h4>Sponsors Management</h4>
                             <form method="GET" action="{{ route('sponsors.index') }}" class="form-inline">
-                                <div class="input-group">
+                                <div class="input-group mr-2">
                                     <select name="type" id="filterType" class="form-control"
                                         onchange="this.form.submit()">
-                                        <option value="">Semua</option>
+                                        <option value="">Semua Package</option>
                                         <option value="platinum" {{ request('type') == 'platinum' ? 'selected' : '' }}>
-                                            Platinum</option>
-                                        <option value="gold" {{ request('type') == 'gold' ? 'selected' : '' }}>Gold
+                                            Platinum
+                                        </option>
+                                        <option value="gold" {{ request('type') == 'gold' ? 'selected' : '' }}>
+                                            Gold
                                         </option>
                                         <option value="silver" {{ request('type') == 'silver' ? 'selected' : '' }}>
-                                            Silver</option>
+                                            Silver
+                                        </option>
                                     </select>
                                 </div>
+
+                                <div class="input-group mr-2">
+                                    <select name="status" id="filterStatus" class="form-control"
+                                        onchange="this.form.submit()">
+                                        <option value="">Semua Status</option>
+                                        <option value="publish" {{ request('status') == 'publish' ? 'selected' : '' }}>
+                                            Active
+                                        </option>
+                                        <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>
+                                            Inactive
+                                        </option>
+                                    </select>
+                                </div>
+
+                                @if (request('type') || request('status'))
+                                    <div class="input-group">
+                                        <a href="{{ route('sponsors.index') }}" class="btn btn-secondary">Reset</a>
+                                    </div>
+                                @endif
                             </form>
                         </div>
                         <div class="card-body">
@@ -443,13 +465,22 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <div class="custom-control custom-switch">
-                                                        <input type="checkbox" class="custom-control-input toggle-status"
-                                                            data-id="{{ $post->id }}"
-                                                            id="statusToggle{{ $post->id }}"
-                                                            {{ $post->status == 'publish' ? 'checked' : '' }}>
-                                                        <label class="custom-control-label"
-                                                            for="statusToggle{{ $post->id }}"></label>
+                                                    <div class="d-flex align-items-center" style="gap: 8px;">
+                                                        <div class="custom-control custom-switch mb-0">
+                                                            <input type="checkbox"
+                                                                class="custom-control-input toggle-status"
+                                                                data-id="{{ $post->id }}"
+                                                                id="statusToggle{{ $post->id }}"
+                                                                {{ $post->status == 'publish' ? 'checked' : '' }}>
+                                                            <label class="custom-control-label"
+                                                                for="statusToggle{{ $post->id }}"></label>
+                                                        </div>
+
+                                                        @if ($post->status == 'publish')
+                                                            <span class="badge badge-success">Active</span>
+                                                        @else
+                                                            <span class="badge badge-secondary">Inactive</span>
+                                                        @endif
                                                     </div>
                                                 </td>
                                                 <td>

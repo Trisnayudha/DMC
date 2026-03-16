@@ -27,11 +27,17 @@ class SponsorController extends Controller
     public function index(Request $request)
     {
         $type = $request->get('type');
+        $statusFilter = $request->get('status');
 
-        // Data sponsor: filtered by type (package) jika ada
+        // Data sponsor: filtered by type (package) dan status jika ada
         $data = Sponsor::when($type, function ($query, $type) {
             return $query->where('package', $type);
-        })->orderBy('id', 'desc')->get();
+        })
+            ->when($statusFilter, function ($query, $statusFilter) {
+                return $query->where('status', $statusFilter);
+            })
+            ->orderBy('id', 'desc')
+            ->get();
 
         // Sponsor counts per package
         $platinumCount = Sponsor::where('package', 'platinum')->where('status', 'publish')->count();
@@ -70,7 +76,6 @@ class SponsorController extends Controller
             ? round(($totalBenefitsUsed / $totalBenefitsAssigned) * 100)
             : 0;
 
-        // Near End Sponsors: sponsor dengan contract_end (format "YYYY-MM") yang sudah tidak melebihi bulan ini
         $nearEndSponsors = Sponsor::where('status', 'publish')
             ->whereNotNull('contract_end')
             ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [Carbon::now()->format('Y-m-01')])
@@ -78,31 +83,25 @@ class SponsorController extends Controller
             ->limit(5)
             ->get();
 
-        // Engagement Data (SocialMediaEngagement) untuk tahun berjalan
         $engagements = SocialMediaEngagement::with('sponsor')
             ->whereYear('activity_date', Carbon::now()->format('Y'))
             ->orderBy('activity_date', 'desc')
             ->limit(5)
             ->get();
 
-        // Kelompokkan engagement berdasarkan sponsor_id dan hitung jumlahnya
         $engagementCount = $engagements->groupBy(function ($engagement) {
             return $engagement->sponsor->id;
         })->map(function ($group) {
             return $group->count();
         });
 
-        // Ambil semua sponsor aktif agar sponsor yang tidak memiliki engagement tampil dengan count 0
         $allSponsors = Sponsor::where('status', 'publish')->limit(5)->get();
 
-        // Notifikasi Alert:
-        // Expired: contract_end < awal bulan ini
         $expiredSponsors = Sponsor::where('status', 'publish')
             ->whereNotNull('contract_end')
             ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') < ?", [Carbon::now()->format('Y-m-01')])
             ->get();
 
-        // Renewal Soon: contract_end antara awal bulan depan dan awal bulan dua bulan ke depan
         $renewalSponsors = Sponsor::where('status', 'publish')
             ->whereNotNull('contract_end')
             ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') BETWEEN ? AND ?", [
@@ -127,7 +126,8 @@ class SponsorController extends Controller
             'allSponsors',
             'expiredSponsors',
             'renewalSponsors',
-            'type'
+            'type',
+            'statusFilter'
         ));
     }
 
