@@ -11,158 +11,115 @@ class WhatsappApi
     public $image;
     public $caption;
 
+    protected $baseUrl = 'https://wa-gateway.indonesiaminer.com/api';
+    protected $apiKey  = 'wg_8cdbbd2cf9818933e53792252a2892c70a2f5c1bc2c83e28';
 
+    /**
+     * Kirim pesan WA ke nomor biasa
+     * Body: { to, text }
+     */
     public function WhatsappMessage()
     {
         try {
-            $phone = $this->phone;
-            $message = $this->message;
-            $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
+            $to = $this->phone;
+            $text = $this->message;
 
-            // Melakukan pengecekan nomor telepon menggunakan endpoint check-number
-            $checkUrl = 'https://nusagateway.com/api/check-number.php';
-            $checkData = [
-                'phone' => $phone,
-                'token' => $token
+            $payload = [
+                'to' => $to,
+                'text' => $text,
             ];
 
-            $checkResponse = $this->makeCurlRequest($checkUrl, 'POST', $checkData);
+            $response = $this->makeJsonRequest(
+                $this->baseUrl . '/send',
+                'POST',
+                $payload
+            );
 
-            if ($checkResponse['status'] === 'valid') {
-                // Nomor telepon valid, lanjutkan proses pengiriman pesan WhatsApp
-
-                $sendMessageUrl = 'https://nusagateway.com/api/send-message.php';
-                $sendMessageData = [
-                    'token' => $token,
-                    'phone' => $phone,
-                    'message' => $message
-                ];
-
-                $sendMessageResponse = $this->makeCurlRequest($sendMessageUrl, 'POST', $sendMessageData);
-
-
+            if (!empty($response['ok']) && $response['ok'] === true) {
                 return $this->res = 'valid';
-            } else {
-                // Nomor telepon tidak valid, kembalikan pesan error
-                return $this->res = 'invalid';
             }
+
+            return $this->res = $response['message'] ?? 'failed';
         } catch (\Exception $th) {
             return $this->res = $th->getMessage();
         }
     }
+
+    /**
+     * Kirim pesan ke group
+     * phone diisi group id, misal: 1203630xxxxxxx@g.us
+     * atau raw id yang nanti dinormalize oleh API
+     */
     public function WhatsappMessageGroup()
     {
         try {
-            $phone = $this->phone;
-            $message = $this->message;
-            $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
+            $to = $this->phone;
+            $text = $this->message;
 
-
-
-            $sendMessageUrl = 'https://nusagateway.com/api/send-message.php';
-            $sendMessageData = [
-                'token' => $token,
-                'phone' => $phone,
-                'message' => $message
+            $payload = [
+                'to' => $to,
+                'text' => $text,
             ];
 
-            $sendMessageResponse = $this->makeCurlRequest($sendMessageUrl, 'POST', $sendMessageData);
-            return $this->res = 'valid';
+            $response = $this->makeJsonRequest(
+                $this->baseUrl . '/send',
+                'POST',
+                $payload
+            );
+
+            if (!empty($response['ok']) && $response['ok'] === true) {
+                return $this->res = 'valid';
+            }
+
+            return $this->res = $response['message'] ?? 'failed';
         } catch (\Exception $th) {
             return $this->res = $th->getMessage();
         }
     }
+
+    /**
+     * Belum bisa dipakai karena API /send saat ini hanya support text
+     */
     public function WhatsappMessageWithImage()
     {
         try {
-            $phone = $this->phone;
-            $caption = $this->caption;
-            $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
-            $image = "https://indonesiaminer.com" . $this->image;
-
-            // Melakukan pengecekan nomor telepon menggunakan endpoint check-number
-            $checkUrl = 'https://nusagateway.com/api/check-number.php';
-            $checkData = [
-                'phone' => $phone,
-                'token' => $token
-            ];
-
-            $checkResponse = $this->makeCurlRequest($checkUrl, 'POST', $checkData);
-
-            if ($checkResponse['status'] === 'valid') {
-                // Nomor telepon valid, lanjutkan proses pengiriman pesan WhatsApp dengan gambar
-
-                $sendMessageUrl = 'https://nusagateway.com/api/send-image.php';
-                $sendMessageData = [
-                    'token' => $token,
-                    'phone' => $phone,
-                    'caption' => $caption,
-                    'image' => $image,
-                ];
-
-                $sendMessageResponse = $this->makeCurlRequest($sendMessageUrl, 'POST', $sendMessageData);
-
-                return $this->res = $sendMessageResponse;
-            } else {
-                // Nomor telepon tidak valid, kembalikan pesan error
-                return $this->res = 'invalid';
-            }
+            return $this->res = 'Image sending endpoint is not available yet in wa-gateway.';
         } catch (\Exception $th) {
             return $this->res = $th->getMessage();
         }
     }
 
+    /**
+     * Belum bisa dipakai karena API /send saat ini hanya support text
+     */
     public function WhatsappMessageWithDocument()
     {
         try {
-            $phone = $this->phone;
-            $document = $this->document;
-            $token = "7EoagVjJfYgElEkYI1KKXOObIzZoGB7S1QcDQbbOH6dqKNk6SL";
-
-            // Melakukan pengecekan nomor telepon menggunakan endpoint check-number
-            $checkUrl = 'https://nusagateway.com/api/check-number.php';
-            $checkData = [
-                'phone' => $phone,
-                'token' => $token
-            ];
-
-            $checkResponse = $this->makeCurlRequest($checkUrl, 'POST', $checkData);
-
-            if ($checkResponse['status'] === 'valid') {
-                // Nomor telepon valid, lanjutkan proses pengiriman pesan WhatsApp dengan dokumen
-
-                $sendMessageUrl = 'https://nusagateway.com/api/send-document.php';
-                $sendMessageData = [
-                    'token' => $token,
-                    'phone' => $phone,
-                    'document' => $document,
-                ];
-
-                $sendMessageResponse = $this->makeCurlRequest($sendMessageUrl, 'POST', $sendMessageData);
-
-                return $this->res = $sendMessageResponse;
-            } else {
-                // Nomor telepon tidak valid, kembalikan pesan error
-                return $this->res = 'invalid';
-            }
+            return $this->res = 'Document sending endpoint is not available yet in wa-gateway.';
         } catch (\Exception $th) {
             return $this->res = $th->getMessage();
         }
     }
 
-
-    private function makeCurlRequest($url, $method, $data)
+    private function makeJsonRequest($url, $method, $data = [])
     {
         $ch = curl_init();
+
+        $headers = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'X-API-KEY: ' . $this->apiKey,
+        ];
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         }
 
         $response = curl_exec($ch);
@@ -175,10 +132,13 @@ class WhatsappApi
 
         curl_close($ch);
 
-        if ($statusCode !== 200) {
-            throw new \Exception('Request failed with status code ' . $statusCode);
+        $decoded = json_decode($response, true);
+
+        if ($statusCode < 200 || $statusCode >= 300) {
+            $message = $decoded['message'] ?? ('Request failed with status code ' . $statusCode);
+            throw new \Exception($message);
         }
 
-        return json_decode($response, true);
+        return $decoded;
     }
 }
