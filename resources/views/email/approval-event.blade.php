@@ -162,7 +162,8 @@
                     <th>Time</th>
                     <th>:</th>
                     <td>
-                        {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}(Followed
+                        {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        (Followed
                         by Networking Dinner & Drinks)
                         {{-- 08.00 – 14.00 WITA & 17.00 – 21.00 WITA --}}
                     </td>
