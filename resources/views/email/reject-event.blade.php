@@ -139,7 +139,8 @@
                 WhatsApp +628111937300.
             </p>
             <br>
-            <p>Your Sincerely,</p>
+            <p>Yours Sincerely,</p>
+            <p>Kind regards,</p>
             <span>The Djakarta Mining Club Team</span>
         </div>
         <div class="footer-email">

@@ -126,7 +126,7 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>This is your E-Ticket to attend {{ $events_name }}, Your E-Ticket Attached.</p>
+            <p>This is your e-ticket to attend {{ $events_name }}, Your e-ticket is attached.</p>
 
             <table class="table">
                 <tr>
@@ -162,8 +162,8 @@
 
             </table>
 
-            <p>Below is your QR CODE, please use to check-in and get your delegate badge, you must present this document
-                along with your business card at the registration table at the venue.
+            <p>Below is your QR code. Please use it to check in and collect your delegate badge. You must present this
+                document along with your business card at the registration table at the venue.
             </p>
 
             {{-- <a href="{{ $events_link }}" class="btn-link-confirm">Join Event</a> --}}
@@ -174,7 +174,7 @@
             <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
                 1937 300.</p>
 
-            <p>Your Sincerely,</p>
+            <p>Yours Sincerely,</p>
             <span>The Djakarta Mining Club Team</span>
         </div>
     </div>

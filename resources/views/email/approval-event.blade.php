@@ -156,7 +156,8 @@
                 <tr>
                     <th>Date</th>
                     <th>:</th>
-                    <td>{{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }}</td>
+                    <td>{{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} (Followed
+                        by Networking Dinner & Drinks)</td>
                 </tr>
                 <tr>
                     <th>Time</th>
@@ -175,7 +176,7 @@
                 </tr>
             </table>
 
-            <p>View the latest of the event program by clicking here
+            <p>You can view the latest event program by clicking here:
                 (https://www.djakarta-miningclub.com/events/the-13th-anniversary-of-djakarta-mining-club)
             </p>
 
@@ -187,23 +188,25 @@
             </p>
             <p>
             <ul>
-                <li>Bring your business card to change with a badge at our registration table.</li>
-                <li>Please note that picking up a badge for someone else is not permitted, all attendees will need to
-                    collect their own badge and show a matching business card to gain entry.
+                <li>Please bring your business card to exchange for a badge at the registration table.</li>
+                <li>Kindly note that collecting a badge on behalf of someone else is not permitted. All attendees must
+                    collect their own badge and present a matching business card to gain entry.
+
                 </li>
                 {{-- <li>If you are unable to attend, please contact our team for substitution of attendee information at the
                     latest by 1 day before the event.</li> --}}
 
             </ul>
             </p>
-            <p><b>IMPORTANT:</b> If you are unable to attend, please contact our team for substitution or if no
-                replacement, we can offer your space to the next registrant on the waitlist.</p>
+            <p><b>IMPORTANT:</b> If you are unable to attend, please contact our team for a substitution. If no
+                replacement is provided, we may offer your spot to the next registrant on the waitlist.</p>
             <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
                 1937 300.</p>
             <p>
-                We look forward to meeting you in person. Thank you</p>
+                We look forward to meeting you in person. Thank you.</p>
             <br>
-            <p>Your Sincerely,</p>
+            <p>Yours Sincerely,</p>
+            <p>Kind regards,</p>
             <span>The Djakarta Mining Club Team</span>
         </div>
         <div class="footer-email">
