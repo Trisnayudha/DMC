@@ -76,7 +76,7 @@ class EventsController extends Controller
                 'start_time' => date('h:i', strtotime($findEvent->start_time)),
                 'end_time' => date('h:i A', strtotime($findEvent->end_time)),
                 'location' => $findEvent->location,
-                'image' => $findEvent->image_banner,
+                'image' => $findEvent->image,
                 'link' => $findEvent->link,
                 'status_event' => $findEvent->status_event,
                 'quota' => $findEvent->quota,
