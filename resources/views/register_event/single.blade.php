@@ -132,7 +132,7 @@
                     <p>Title</p>
                 </div>
                 <div class="col-9">
-                    <p>: 2026 Mining Insights </p>
+                    <p>: The 13th Anniversary of Djakarta Mining Club </p>
                 </div>
                 <div class="col-3">
                     <p>
