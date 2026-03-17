@@ -4,253 +4,227 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Invoice Payment</title>
 
-    <title>A simple, clean, and responsive HTML invoice template</title>
-
-    <!-- Favicon -->
-    <link rel="icon" href="./images/favicon.png" type="image/x-icon" />
-
-    <!-- Invoice styling -->
     <style>
         body {
-            font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-            text-align: center;
-            color: #777;
-        }
-
-        body h1 {
-            font-weight: 300;
-            margin-bottom: 0px;
-            padding-bottom: 0px;
-            color: #000;
-        }
-
-        body h3 {
-            font-weight: 300;
-            margin-top: 10px;
-            margin-bottom: 20px;
-            font-style: italic;
-            color: #555;
-        }
-
-        body a {
-            color: #06f;
+            font-family: Arial, sans-serif;
+            background-color: #f6f6f6;
+            margin: 0;
+            padding: 0;
         }
 
         .invoice-box {
-            max-width: 800px;
+            max-width: 700px;
             margin: auto;
+            background: #ffffff;
             padding: 30px;
             border: 1px solid #eee;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-            font-size: 16px;
-            line-height: 24px;
-            font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+        }
+
+        .header {
+            text-align: left;
+        }
+
+        .header img {
+            max-width: 180px;
+        }
+
+        .invoice-info {
+            text-align: right;
+            font-size: 14px;
             color: #555;
         }
 
-        .invoice-box table {
+        .section {
+            margin-top: 30px;
+        }
+
+        .table {
             width: 100%;
-            line-height: inherit;
-            text-align: left;
             border-collapse: collapse;
         }
 
-        .invoice-box table td {
-            padding: 5px;
-            vertical-align: top;
+        .table td {
+            padding: 8px;
+            font-size: 14px;
         }
 
-        .invoice-box table tr td:nth-child(2) {
-            text-align: right;
-        }
-
-        .invoice-box table tr.top table td {
-            padding-bottom: 20px;
-        }
-
-        .invoice-box table tr.top table td.title {
-            font-size: 45px;
-            line-height: 45px;
-            color: #333;
-        }
-
-        .invoice-box table tr.information table td {
-            padding-bottom: 40px;
-        }
-
-        .invoice-box table tr.heading td {
-            background: #eee;
-            border-bottom: 1px solid #ddd;
+        .heading {
+            background: #f2f2f2;
             font-weight: bold;
         }
 
-        .invoice-box table tr.details td {
-            padding-bottom: 20px;
-        }
-
-        .invoice-box table tr.item td {
-            border-bottom: 1px solid #eee;
-        }
-
-        .invoice-box table tr.item.last td {
-            border-bottom: none;
-        }
-
-        .invoice-box table tr.total td:nth-child(2) {
+        .total {
+            font-weight: bold;
             border-top: 2px solid #eee;
-            font-weight: bold;
-        }
-
-        @media only screen and (max-width: 600px) {
-            .invoice-box table tr.top table td {
-                width: 100%;
-                display: block;
-                text-align: center;
-            }
-
-            .invoice-box table tr.information table td {
-                width: 100%;
-                display: block;
-                text-align: center;
-            }
         }
 
         .capsule {
-            background-color: yellow;
-            border: none;
-            color: black;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
+            background-color: #ffc619;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
             display: inline-block;
-            margin: 4px 2px;
-            border-radius: 16px;
+        }
+
+        .va-box {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        .cta {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .cta a {
+            background-color: #015174;
+            color: #fff;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            text-align: center;
+            color: #888;
         }
     </style>
 </head>
 
 <body>
     <div class="invoice-box">
-        <table>
-            <tr class="top">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td class="title">
-                                <img src="{{ asset('image/dmc.png') }}" alt="Company logo"
-                                    style="width: 100%; max-width: 250px" />
-                            </td>
 
-                            <td align="right">
-                                Invoice no: {{ $code_payment }}<br />
-                                Created: {{ $create_date }}<br />
-                                Due date: {{ $due_date }}
-                            </td>
-                        </tr>
-                    </table>
+        <!-- HEADER -->
+        <table width="100%">
+            <tr>
+                <td class="header">
+                    <img src="{{ asset('image/dmc.png') }}" />
                 </td>
-            </tr>
-
-            <tr class=" information">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td>
-                                {{ $users_name }}.<br />
-                                {{ $users_email }}<br />
-                                +{{ $phone }}
-
-                            </td>
-
-                            <td align="right">
-                                {{ $company_name }}<br />
-                                {{ $company_address }}
-                            </td>
-                        </tr>
-                    </table>
+                <td class="invoice-info">
+                    Invoice No: {{ $code_payment }}<br>
+                    Created: {{ $create_date }}<br>
+                    Due Date: {{ $due_date }}
                 </td>
-            </tr>
-
-            <tr class="heading">
-                <td>Payment Method</td>
-                <td></td>
-            </tr>
-
-            <tr class="details">
-                <td>{{ $payment_method ?? 'Credit Card' }}</td>
-                <td></td>
-            </tr>
-            <tr class="details">
-                <td>Status Payment</td>
-
-                <td align="right">
-                    <span class="capsule">
-                        {{ $status }}
-                    </span>
-                </td>
-            </tr>
-
-            <tr class="heading">
-                <td>Item</td>
-
-                <td align="right">Price</td>
-            </tr>
-
-            <tr class="item">
-                <td>{{ $events_name }}</td>
-
-                <td align="right">IDR {{ $price }}</td>
-            </tr>
-
-            <tr class="item last">
-                <td>Voucher</td>
-
-                <td align="right">IDR {{ $voucher_price }}</td>
-            </tr>
-
-            <tr class="total">
-                <td align="right"></td>
-
-                <td align="right">Total: IDR {{ $total_price }}</td>
             </tr>
         </table>
-        @if ($link != null)
-            <a href="{{ $link }}">Please click here to process your payment.</a>
-        @endif
-        @if ($fva != null)
-            <p><strong>Virtual Account Number:</strong></p>
-            <p id="fva-number">{{ $fva }}</p>
-            <button class="copy-btn" onclick="copyFvaNumber()">Copy Account Number</button>
-            <script>
-                function copyFvaNumber() {
-                    var copyText = document.getElementById("fva-number");
-                    var range = document.createRange();
-                    range.selectNode(copyText);
-                    window.getSelection().addRange(range);
-                    document.execCommand("copy");
-                    window.getSelection().removeAllRanges();
-                    alert("Account number copied: " + copyText.textContent);
-                }
-            </script>
-        @endif
-        <br>
-        <br>
-        Thank you for registering for one of Djakarta Mining Club events.<br />
-        <br />
-        <p>Regards,</p>
-        <span>Djakarta Mining Club</span><br />
-        <div style="text-align: center;font-size: 15px">
-            Gedung 47 Lantai 2 – 201B
-            Jalan Letjen TB Simatupang No. 47, Tanjung Barat
-            ,<br />
-            Jakarta Selatan 12530
+
+        <!-- USER INFO -->
+        <div class="section">
+            <table class="table">
+                <tr>
+                    <td>
+                        <strong>{{ $users_name }}</strong><br>
+                        {{ $users_email }}<br>
+                        +{{ $phone }}
+                    </td>
+                    <td align="right">
+                        {{ $company_name }}<br>
+                        {{ $company_address }}
+                    </td>
+                </tr>
+            </table>
         </div>
 
-        <div style="font-family:Helvetica, sans-serif;font-size:10px;line-height:25px;text-align:center;color:#7187A5;">
-            <p>Do not reply to this email address. This email is sent automatically by our system. If you need further
-                assistance, please contact secretariat@djakarta-miningclub.com or WhatsApp at +62811 1937 300. </p>
+        <!-- PAYMENT INFO -->
+        <div class="section">
+            <table class="table">
+                <tr class="heading">
+                    <td>Payment Method</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>{{ $payment_method ?: 'Credit Card' }}</td>
+                    <td></td>
+                </tr>
+
+                <tr class="heading">
+                    <td>Status</td>
+                    <td align="right"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="capsule">{{ $status }}</span>
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
         </div>
+
+        <!-- ITEM -->
+        <div class="section">
+            <table class="table">
+                <tr class="heading">
+                    <td>Item</td>
+                    <td align="right">Price</td>
+                </tr>
+
+                <tr>
+                    <td>{{ $events_name }}</td>
+                    <td align="right">IDR {{ $price }}</td>
+                </tr>
+
+                <tr>
+                    <td>Voucher</td>
+                    <td align="right">IDR {{ $voucher_price }}</td>
+                </tr>
+
+                <tr class="total">
+                    <td></td>
+                    <td align="right">Total: IDR {{ $total_price }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- PAYMENT ACTION -->
+        @if ($link != null)
+            <div class="cta">
+                <a href="{{ $link }}">Proceed to Payment</a>
+            </div>
+        @endif
+
+        <!-- VIRTUAL ACCOUNT -->
+        @if ($fva != null)
+            <div class="section">
+                <p><strong>Virtual Account Number</strong></p>
+
+                <div class="va-box">
+                    {{ $fva }}
+                </div>
+
+                <p style="font-size:12px; color:#888; text-align:center;">
+                    Tap and hold to copy the number
+                </p>
+
+                <p style="text-align:center;">
+                    Please complete your payment before the due date.
+                </p>
+            </div>
+        @endif
+
+        <!-- FOOTER -->
+        <div class="footer">
+            Thank you for registering for Djakarta Mining Club event.<br><br>
+
+            <strong>Djakarta Mining Club</strong><br>
+            Gedung 47 Lantai 2 – 201B<br>
+            Jalan Letjen TB Simatupang No. 47, Jakarta Selatan<br><br>
+
+            Do not reply to this email.<br>
+            For assistance: secretariat@djakarta-miningclub.com<br>
+            WhatsApp: +62811 1937 300
+        </div>
+
     </div>
 </body>
 
