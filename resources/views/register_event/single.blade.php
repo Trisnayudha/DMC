@@ -15,7 +15,7 @@
     <meta property="og:description"
         content="Join the leading mining event and connect with industry professionals. Register now!" />
     <meta property="og:url" content="{{ url()->current() }}" />
-    <meta name="image" property="og:image" content="{{ asset('image/free-square.jpeg') }}">
+    <meta name="image" property="og:image" content="{{ asset('image/meta.png') }}">
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_GB" />
     <meta property="og:site_name" content="Djakarta Mining Club" />
