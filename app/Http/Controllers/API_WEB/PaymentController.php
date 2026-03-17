@@ -163,16 +163,38 @@ class PaymentController extends Controller
         $type = $request->type;
         $price = $request->price;
         $price_dollar = $request->price_dollar;
-        $totalPrice = array_sum($price); // Sum the prices for total amount
+        $totalPrice = array_sum($price);
         $package = null;
-        // Validation Request
-        $user_ids = []; // Array to store user IDs
-        $codePayment = []; // Array to store code payment
-        $paymentId = []; // Array to store payment ID
+
+        // Init variables
+        $user_ids = [];
+        $codePayment = [];
+        $paymentId = [];
+        $detailWa = [];
+        $dataEmail = [];
+        $linkPay = null;
+        $createVA = null;
+        $save_va = null;
+        $response = [];
+
         // Xendit configuration
         $isProd = env('XENDIT_ISPROD');
         $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
+
         $findEvent = Events::where('id', $events_id)->first();
+
+        // Payment method label for email / WA
+        $paymentMethodMap = [
+            'BCA' => 'Virtual Account BCA',
+            'BNI' => 'Virtual Account BNI',
+            'BRI' => 'Virtual Account BRI',
+            'MANDIRI' => 'Virtual Account Mandiri',
+            'PERMATA' => 'Virtual Account Permata',
+            'CREDIT_CARD' => 'Credit Card / Online Payment',
+        ];
+
+        $paymentMethodLabel = $paymentMethodMap[$payment_method] ?? $payment_method;
+
         foreach ($emails as $index => $email) {
             // Check and create User
             $user = User::firstOrNew(['email' => $email]);
@@ -181,7 +203,7 @@ class PaymentController extends Controller
                 $user->source = 'Event';
                 $user->save();
             }
-            $user_ids[] = $user->id; // Store user ID
+            $user_ids[] = $user->id;
 
             // Check and create Company
             $company = CompanyModel::firstOrNew(['users_id' => $user->id]);
@@ -202,9 +224,13 @@ class PaymentController extends Controller
                 $profile->save();
             }
 
+            $payment = Payment::firstOrNew([
+                'member_id' => $user->id,
+                'events_id' => $events_id
+            ]);
 
-            $payment = Payment::firstOrNew(['member_id' => $user->id, 'events_id' => $events_id]);
             $payment->member_id = $user->id;
+
             if ($price[$index] == 1000000) {
                 $ticket_id = 11;
                 $package = 'nonmember';
@@ -215,25 +241,27 @@ class PaymentController extends Controller
                 $ticket_id = 26;
                 $package = 'free';
             }
+
             $payment->package = $package;
             $payment->code_payment = strtoupper(Str::random(7));
             $codePayment[] = $payment->code_payment;
             $payment->payment_method = $payment_method;
             $payment->events_id = $events_id;
             $payment->status_registration = 'Waiting';
-            // Only set groupby_users_id in the first loop if there are multiple users
             $payment->groupby_users_id = count($emails) == 1 ? null : $user_ids[0];
             $payment->tickets_id = $ticket_id;
 
             $payment->save();
             $paymentId[] = $payment->id;
-            $detailWa[] = '
-Name: ' . $names[$index] . '
+
+            $detailWa[] =
+                'Name: ' . $names[$index] . '
 Email: ' . $emails[$index] . '
 Phone Number: ' . $phones[$index] . '
-Company:' . $companies[$index] . '
-Job Title:' . $job_titles[$index] . '
-    ';
+Company: ' . $companies[$index] . '
+Job Title: ' . $job_titles[$index] . '
+Code Payment: ' . $payment->code_payment;
+
             $dataEmail[] = [
                 'name' => $names[$index],
                 'email' => $emails[$index],
@@ -243,8 +271,8 @@ Job Title:' . $job_titles[$index] . '
                 'code_payment' => $payment->code_payment
             ];
         }
+
         if ($type == 'paid') {
-            // END LOOPING EACH USER IN THE GROUP
             Xendit::setApiKey($secretKey);
 
             if ($payment_method != 'CREDIT_CARD') {
@@ -254,16 +282,17 @@ Job Title:' . $job_titles[$index] . '
                     'name' => $names[0],
                     'expected_amount' => $totalPrice,
                     'is_closed' => true,
-                    "expiration_date" => Carbon::now()->addDays(1)->toISOString(),
+                    'expiration_date' => Carbon::now()->addDays(1)->toISOString(),
                     'is_single_use' => true,
                 ];
+
                 $createVA = VirtualAccounts::create($params);
+
                 $save_va = new PaymentUsersVA();
                 $save_va->payment_id = $paymentId[0];
                 $save_va->is_closed = $createVA['is_closed'];
                 $save_va->status = $createVA['status'];
                 $save_va->currency = $createVA['currency'];
-                // $save_va->country = $createVA['country'];
                 $save_va->owner_id = $createVA['owner_id'];
                 $save_va->bank_code = $createVA['bank_code'];
                 $save_va->merchant_code = $createVA['merchant_code'];
@@ -272,9 +301,10 @@ Job Title:' . $job_titles[$index] . '
                 $save_va->expiration_date = $createVA['expiration_date'];
                 $save_va->is_single_use = $createVA['is_single_use'];
                 $save_va->save();
+
                 $response['status'] = 200;
                 $response['message'] = 'success';
-                $response['payload'] = $createVA ? $createVA : null;
+                $response['payload'] = $createVA ?: null;
             } else {
                 $params = [
                     'external_id' => $codePayment[0],
@@ -284,32 +314,36 @@ Job Title:' . $job_titles[$index] . '
                     'success_redirect_url' => 'https://djakarta-miningclub.com',
                     'failure_redirect_url' => url('/'),
                 ];
+
                 $createInvoice = Invoice::create($params);
                 $linkPay = $createInvoice['invoice_url'];
+
                 $payment = Payment::where('id', $paymentId[0])->first();
                 $payment->link = $linkPay;
                 $payment->save();
+
                 $save_va = new PaymentUsersVA();
                 $save_va->payment_id = $paymentId[0];
                 $save_va->is_closed = 0;
-                $save_va->status = "PENDING";
-                // $save_va->currency = $createInvoice['currency'];
+                $save_va->status = 'PENDING';
                 $save_va->country = 'IDR';
                 $save_va->owner_id = $createInvoice['user_id'];
                 $save_va->bank_code = 'CREDIT_CARD';
-                // $save_va->merchant_code = $createInvoice['merchant_code'];
-                // $save_va->account_number = $createInvoice['account_number'];
                 $save_va->expected_amount = $createInvoice['amount'];
                 $save_va->expiration_date = $createInvoice['expiry_date'];
                 $save_va->is_single_use = 0;
                 $save_va->save();
+
                 $response['status'] = 200;
                 $response['message'] = 'success';
-                $response['payload'] = $createInvoice ? $createInvoice : null;
-                //Payment CC
+                $response['payload'] = $createInvoice ?: null;
             }
-            $date = date('d, M Y H:i');
-            $dueDate = date('d, M Y H:i', strtotime($date . ' +1 day'));
+
+            $createdAt = Carbon::now();
+            $dueAt = Carbon::now()->addDay();
+
+            $date = $createdAt->format('d, M Y H:i');
+            $dueDate = $dueAt->format('d, M Y H:i');
 
             $data = [
                 'code_payment' => $codePayment[0],
@@ -326,25 +360,52 @@ Job Title:' . $job_titles[$index] . '
                 'voucher_price' => 0,
                 'total_price' => number_format($totalPrice, 0, ',', '.'),
                 'link' => $linkPay ?? null,
-                'fva' => $createVA['account_number'] ?? null
+                'fva' => $createVA['account_number'] ?? null,
+                'payment_method' => $paymentMethodLabel,
             ];
-            Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent) {
+
+            $recipientEmail = $emails[0];
+
+            Mail::send('email.confirm_payment', $data, function ($message) use ($recipientEmail, $findEvent) {
                 $message->from(env('EMAIL_SENDER'));
-                $message->to($email);
+                $message->to($recipientEmail);
                 $message->subject('Invoice - Waiting for Payment: ' . $findEvent->name);
-                // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
             });
+
+            // WhatsApp notification for PAID registration - show all participants
+            $send = new WhatsappApi();
+            $send->phone = '120363422942310672';
+            $send->message = "
+Paid Registration Notification,
+
+Ada pendaftaran baru (PAID)
+Metode Pembayaran: {$paymentMethodLabel}
+Event: {$findEvent->name}
+
+Detail Informasi Peserta:
+" . implode("\n---------------------\n", $detailWa) . "
+
+Total Bayar: Rp. " . number_format($totalPrice, 0, ',', '.') . "
+" . ($payment_method == 'CREDIT_CARD'
+                ? "Link Pembayaran: {$linkPay}"
+                : "Nomor Virtual Account: " . ($save_va->account_number ?? '-')) . "
+
+Terima kasih.
+";
+            $send->WhatsappMessageGroup();
         } else {
             $data = [
                 'code_payment' => $codePayment[0],
                 'status' => 'WAITING'
             ];
+
             foreach ($dataEmail as $key) {
-                $dataEmail = [
+                $emailData = [
                     'users_name' => $key['name'],
                     'events_name' => $findEvent->name,
                     'quota' => $findEvent->quota
                 ];
+
                 $send = new EmailSender();
 
                 if ($findEvent->quota == 'Fully') {
@@ -352,14 +413,15 @@ Job Title:' . $job_titles[$index] . '
                 } else {
                     $send->subject = 'Thank you for registering ' . $findEvent->name;
                 }
+
                 $send->to = $key['email'];
                 $send->from = env('EMAIL_SENDER');
-                $send->data = $dataEmail;
-                // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
+                $send->data = $emailData;
                 $send->template = 'email.waiting-approval';
                 $send->sendEmail();
             }
-            //Code whatsapp send notif
+
+            // WhatsApp notification for FREE registration
             $send = new WhatsappApi();
             $send->phone = '120363422942310672';
             $send->message = '
@@ -367,16 +429,18 @@ Registration Notification,
 
 Hai ada pendaftaran GRATIS
 Detail Informasinya:
-' . implode(" ", $detailWa) . '
+' . implode("\n---------------------\n", $detailWa) . '
 
 Thank you
 Best Regards Bot DMC Website
 ';
             $send->WhatsappMessageGroup();
+
             $response['status'] = 200;
             $response['message'] = 'success';
             $response['payload'] = $data;
         }
+
         return response()->json($response);
     }
 }

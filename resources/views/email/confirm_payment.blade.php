@@ -174,13 +174,11 @@
 
             <tr class="heading">
                 <td>Payment Method</td>
-
                 <td></td>
             </tr>
 
             <tr class="details">
-                <td>Credit Card</td>
-
+                <td>{{ $payment_method }}</td>
                 <td></td>
             </tr>
             <tr class="details">
