@@ -175,6 +175,7 @@
                 1937 300.</p>
 
             <p>Yours Sincerely,</p>
+            <p>Kind regards,</p>
             <span>The Djakarta Mining Club Team</span>
         </div>
     </div>
