@@ -114,7 +114,7 @@
                 <p>We are pleased to confirm that you have successfully joined the waiting list. Should a spot become
                     available, we will notify you promptly.</p>
             @else
-                <p>Your registration is now in process for approval. Please note that your registration is subject to
+                <p>Your registration is currently being processed for approval. Please note that it is subject to
                     approval.</p>
             @endif
 
