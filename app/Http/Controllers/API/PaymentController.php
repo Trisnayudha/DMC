@@ -389,7 +389,16 @@ Terima kasih.
             $ticket_id      = $request->tickets_id;    // ID ticket
             $voucher_code   = $request->voucher_code;  // kode voucher
             $codePayment    = strtoupper(Str::random(7));
+            $paymentMethodMap = [
+                'BCA' => 'Virtual Account BCA',
+                'BNI' => 'Virtual Account BNI',
+                'BRI' => 'Virtual Account BRI',
+                'MANDIRI' => 'Virtual Account Mandiri',
+                'PERMATA' => 'Virtual Account Permata',
+                'CREDIT_CARD' => 'Credit Card / Online Payment',
+            ];
 
+            $paymentMethodLabel = $paymentMethodMap[$payment_method] ?? $payment_method;
             // Variabel penampung link invoice (untuk CC)
             $linkPay = null;
 
@@ -591,7 +600,8 @@ Terima kasih.
                         'voucher_price' => number_format($discount, 0, ',', '.'),
                         'total_price' => number_format($finalPrice, 0, ',', '.'),
                         'link' => $linkPay ?? null,
-                        'fva' => $save_va->account_number ?? null
+                        'fva' => $save_va->account_number ?? null,
+                        'payment_method' => $paymentMethodLabel,
                     ];
                     Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($email, $findEvent) {
                         $message->from(env('EMAIL_SENDER'));

@@ -178,7 +178,7 @@
             </tr>
 
             <tr class="details">
-                <td>{{ $payment_method }}</td>
+                <td>{{ $payment_method ?? 'Credit Card' }}</td>
                 <td></td>
             </tr>
             <tr class="details">
