@@ -140,7 +140,6 @@
             </p>
             <br>
             <p>Yours Sincerely,</p>
-            <p>Kind regards,</p>
             <span>The Djakarta Mining Club Team</span>
         </div>
         <div class="footer-email">

@@ -127,7 +127,6 @@
                 secretariat@djakarta-miningclub.com or WhatsApp +628111937300
             </p>
             <p>Yours Sincerely,</p>
-            <p>Kind regards,</p>
             <span>The Djakarta Mining Club Team</span>
         </div>
         <div class="footer-email">

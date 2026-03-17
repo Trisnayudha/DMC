@@ -156,14 +156,14 @@
                 <tr>
                     <th>Date</th>
                     <th>:</th>
-                    <td>{{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} (Followed
-                        by Networking Dinner & Drinks)</td>
+                    <td>{{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} </td>
                 </tr>
                 <tr>
                     <th>Time</th>
                     <th>:</th>
                     <td>
-                        {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}(Followed
+                        by Networking Dinner & Drinks)
                         {{-- 08.00 – 14.00 WITA & 17.00 – 21.00 WITA --}}
                     </td>
                 </tr>
@@ -206,7 +206,6 @@
                 We look forward to meeting you in person. Thank you.</p>
             <br>
             <p>Yours Sincerely,</p>
-            <p>Kind regards,</p>
             <span>The Djakarta Mining Club Team</span>
         </div>
         <div class="footer-email">
