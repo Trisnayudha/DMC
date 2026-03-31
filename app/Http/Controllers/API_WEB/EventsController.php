@@ -268,7 +268,7 @@ class EventsController extends Controller
         $findEvent = EventsService::showDetail($findPayment->events_id);
 
         if ($findPayment->booking_contact_id != null) {
-            $findPayments = PaymentService::findPaymmentUsers($findPayment->booking_contact_id);
+            $findPayments = PaymentService::findPaymmentUsers($findPayment->booking_contact_id, $findEvent->id);
             $countPrice = null;
             foreach ($findPayments as $table) {
                 $item_details[] = [

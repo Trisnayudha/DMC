@@ -618,7 +618,7 @@ class EventsDetailController extends Controller
         ];
 
         if ($findPayment->booking_contact_id != null) {
-            $findPayments = PaymentService::findPaymmentUsers($findPayment->booking_contact_id);
+            $findPayments = PaymentService::findPaymmentUsers($findPayment->booking_contact_id, $findEvent->id);
 
             foreach ($findPayments as $table) {
                 $item_details[] = [
@@ -663,14 +663,14 @@ class EventsDetailController extends Controller
             $filename = 'invoice_' . $findPayment->code_payment . '.pdf';
             return $pdf->download($filename);
         } else if ($findPayment->groupby_users_id != null) {
-            $findPayments = PaymentService::findPaymmentUsers($findPayment->groupby_users_id);
+            $findPayments = PaymentService::findPaymmentUsers($findPayment->groupby_users_id, $findEvent->id);
 
             foreach ($findPayments as $table) {
                 $item_details[] = [
                     'name' => $table['name'],
                     'job_title' => $table['email'],
                     'price' => number_format($table['price_rupiah'], 0, ',', '.'),
-                    'paidoff' => false
+                    'paidoff' => false,
                 ];
                 $total_price_before_discount += $table['price_rupiah'];
             }

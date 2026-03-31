@@ -73,16 +73,20 @@ class PaymentService extends Payment
             ->count();
     }
 
-    public static function findPaymmentUsers($id)
+    public static function findPaymmentUsers($id, $events_id = null)
     {
         return Payment::where('payment.groupby_users_id', $id)
-            ->leftjoin('users', 'users.id', 'payment.member_id')
-            ->leftjoin('profiles', 'profiles.users_id', 'users.id')
-            ->leftjoin('company', 'company.users_id', 'users.id')
-            ->leftjoin('events_tickets', 'payment.tickets_id', 'events_tickets.id')
+            ->when($events_id, function ($query) use ($events_id) {
+                $query->where('payment.events_id', $events_id);
+            })
+            ->leftJoin('users', 'users.id', 'payment.member_id')
+            ->leftJoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftJoin('company', 'company.users_id', 'users.id')
+            ->leftJoin('events_tickets', 'payment.tickets_id', 'events_tickets.id')
             ->select('*', 'payment.events_id as events_id')
             ->get();
     }
+
     public static function findPaymmentUser($id)
     {
         return Payment::where('payment.id', $id)
