@@ -218,6 +218,8 @@ Route::prefix('admin')->group(function () {
         ->name('sponsors.edit-contract');
     Route::post('sponsors/{sponsor}/update-contract', [SponsorController::class, 'updateContract'])
         ->name('sponsors.update-contract');
+    Route::get('sponsors/export-renewals', [SponsorController::class, 'exportRenewals'])
+        ->name('sponsors.exportRenewals');
 
     Route::get('sponsor-engagement', [SocialMediaEngagementController::class, 'index'])
         ->name('sponsor-engagement.index');

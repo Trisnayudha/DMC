@@ -397,6 +397,40 @@
                                         </option>
                                     </select>
                                 </div>
+                                <div class="input-group mr-2">
+                                    <select name="renewal_year" class="form-control" onchange="this.form.submit()">
+                                        <option value="">Semua Tahun</option>
+                                        @foreach ($availableYears as $year)
+                                            <option value="{{ $year }}"
+                                                {{ request('renewal_year') == $year ? 'selected' : '' }}>
+                                                {{ $year }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="input-group mr-2">
+                                    <select name="renewal_state" class="form-control" onchange="this.form.submit()">
+                                        <option value="">Semua Renewal</option>
+                                        <option value="renewed"
+                                            {{ request('renewal_state') == 'renewed' ? 'selected' : '' }}>
+                                            Renewed
+                                        </option>
+                                        <option value="not_renewed"
+                                            {{ request('renewal_state') == 'not_renewed' ? 'selected' : '' }}>
+                                            Not Renewed
+                                        </option>
+                                    </select>
+                                </div>
+                                <a href="{{ route('sponsors.exportRenewals', [
+                                    'renewal_year' => request('renewal_year'),
+                                    'renewal_state' => request('renewal_state'),
+                                    'type' => request('type'),
+                                    'status' => request('status'),
+                                ]) }}"
+                                    class="btn btn-success">
+                                    <i class="fas fa-file-excel"></i> Export Renewal Data
+                                </a>
 
                                 @if (request('type') || request('status'))
                                     <div class="input-group">
@@ -446,6 +480,7 @@
                                             <th>Name Sponsor</th>
                                             <th>Package</th>
                                             <th>Status Display</th>
+                                            <th>Renewal Info</th>
                                             <th width="15%">Aksi</th>
                                         </tr>
                                     </thead>
@@ -482,6 +517,30 @@
                                                             <span class="badge badge-secondary">Inactive</span>
                                                         @endif
                                                     </div>
+                                                </td>
+                                                <td>
+                                                    @if (request('renewal_year'))
+                                                        @php
+                                                            $hasRenewed =
+                                                                $post->renewals
+                                                                    ->where(
+                                                                        'renewal_year',
+                                                                        (int) request('renewal_year'),
+                                                                    )
+                                                                    ->where('renewal_status', 'renewed')
+                                                                    ->count() > 0;
+                                                        @endphp
+
+                                                        @if ($hasRenewed)
+                                                            <span class="badge badge-success">Renewed
+                                                                {{ request('renewal_year') }}</span>
+                                                        @else
+                                                            <span class="badge badge-danger">Not Renewed
+                                                                {{ request('renewal_year') }}</span>
+                                                        @endif
+                                                    @else
+                                                        <span class="badge badge-secondary">No Year Selected</span>
+                                                    @endif
                                                 </td>
                                                 <td>
                                                     <div class="d-flex flex-wrap" style="gap: 4px; max-width: 150px;">
