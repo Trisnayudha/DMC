@@ -28,7 +28,7 @@
                                 <div class="collapse {{ $date <= date('Y-m-d') ? ' show' : '' }}" id="detail-registration">
                                     <div class="card-body" style="background: #f8f9fa">
                                         <div class="row">
-                                            <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                                                 <div class="card card-statistic-1">
                                                     <div class="card-icon bg-primary">
                                                         <i class="far fa-user"></i>
@@ -39,12 +39,11 @@
                                                         </div>
                                                         <div class="card-body">
                                                             {{ $checkin }}
-
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-6 col-md-6 col-sm-6 col-12">
+                                            <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                                                 <div class="card card-statistic-1">
                                                     <div class="card-icon bg-info">
                                                         <i class="far fa-user"></i>
@@ -55,6 +54,51 @@
                                                         </div>
                                                         <div class="card-body">
                                                             {{ $absent }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+                                                <div class="card card-statistic-1">
+                                                    <div class="card-icon bg-success">
+                                                        <i class="fas fa-id-card"></i>
+                                                    </div>
+                                                    <div class="card-wrap">
+                                                        <div class="card-header">
+                                                            <h4>Member</h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            {{ $memberCount }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+                                                <div class="card card-statistic-1">
+                                                    <div class="card-icon bg-warning">
+                                                        <i class="fas fa-user-times"></i>
+                                                    </div>
+                                                    <div class="card-wrap">
+                                                        <div class="card-header">
+                                                            <h4>Non Member</h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            {{ $nonMemberCount }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+                                                <div class="card card-statistic-1">
+                                                    <div class="card-icon bg-danger">
+                                                        <i class="fas fa-star"></i>
+                                                    </div>
+                                                    <div class="card-wrap">
+                                                        <div class="card-header">
+                                                            <h4>Sponsor</h4>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            {{ $sponsorCount }}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -88,6 +132,15 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
+
+                                <div class="mb-3">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-outline-secondary btn-filter active" data-filter="all">All</button>
+                                        <button type="button" class="btn btn-outline-success btn-filter" data-filter="member">Member</button>
+                                        <button type="button" class="btn btn-outline-warning btn-filter" data-filter="non-member">Non Member</button>
+                                        <button type="button" class="btn btn-outline-danger btn-filter" data-filter="sponsor">Sponsor</button>
+                                    </div>
+                                </div>
 
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
@@ -409,15 +462,32 @@
             $('#example').modal('show');
         });
         $(document).ready(function() {
-            $('#laravel_crud').DataTable({
+            var table = $('#laravel_crud').DataTable({
                 dom: 'Bfrtip',
-                pageLength: 20, // Set the number of rows to be displayed on each page
+                pageLength: 20,
                 buttons: [
                     'copyHtml5',
                     'excelHtml5',
                     'csvHtml5',
                     'pdfHtml5'
                 ]
+            });
+
+            // Package column index is 3
+            $(document).on('click', '.btn-filter', function() {
+                $('.btn-filter').removeClass('active');
+                $(this).addClass('active');
+
+                var filter = $(this).data('filter');
+                if (filter === 'all') {
+                    table.column(3).search('').draw();
+                } else if (filter === 'member') {
+                    table.column(3).search('^Member$', true, false).draw();
+                } else if (filter === 'non-member') {
+                    table.column(3).search('Non', true, false).draw();
+                } else if (filter === 'sponsor') {
+                    table.column(3).search('Sponsor', true, false).draw();
+                }
             });
         });
 
