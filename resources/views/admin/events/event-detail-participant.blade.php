@@ -170,7 +170,7 @@
                                             <td>
                                                 <code style="font-size:.78rem; color:#6366f1;">{{ $post->code_payment }}</code>
                                             </td>
-                                            <td>
+                                            <td data-pkg="{{ $pkg }}">
                                                 <span class="pkg-badge {{ $pkgClass }}">
                                                     <i class="fas {{ $pkgIcon }} mr-1"></i>{{ $post->package }}
                                                 </span>
@@ -634,15 +634,24 @@
             ]
         });
 
-        /* ── Filter Pills (Package column = index 3) ── */
+        /* ── Filter Pills – pakai data-pkg di <td> ── */
+        var activeFilter = 'all';
+
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            if (activeFilter === 'all') return true;
+            var row   = table.row(dataIndex).node();
+            var pkg   = $(row).find('td[data-pkg]').data('pkg') || '';
+            if (activeFilter === 'member')     return pkg === 'member' || pkg === 'premium';
+            if (activeFilter === 'non-member') return pkg.indexOf('non') !== -1;
+            if (activeFilter === 'sponsor')    return pkg.indexOf('sponsor') !== -1;
+            return true;
+        });
+
         $(document).on('click', '.pill', function () {
             $('.pill').removeClass('active');
             $(this).addClass('active');
-            var f = $(this).data('filter');
-            if      (f === 'all')        table.column(3).search('').draw();
-            else if (f === 'member')     table.column(3).search('^(Member|Premium)$', true, false).draw();
-            else if (f === 'non-member') table.column(3).search('Non', true, false).draw();
-            else if (f === 'sponsor')    table.column(3).search('Sponsor', true, false).draw();
+            activeFilter = $(this).data('filter');
+            table.draw();
         });
 
         /* ── Loader: Email / Present ── */
