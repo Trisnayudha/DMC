@@ -87,7 +87,7 @@ class EventsDetailParticipantController extends Controller
             ->whereNull('users_event.present')
             ->count();
 
-        $memberCount    = $findParticipant->filter(fn($p) => strtolower($p->package) === 'member')->count();
+        $memberCount    = $findParticipant->filter(fn($p) => in_array(strtolower($p->package), ['member', 'premium']))->count();
         $nonMemberCount = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package), 'non'))->count();
         $sponsorCount   = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package), 'sponsor'))->count();
 
