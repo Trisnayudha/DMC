@@ -16,8 +16,6 @@
         content="Join the leading mining event and connect with industry professionals. Register now!" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:image" content="{{ url('image/meta.jpeg') }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="en_GB" />
     <meta property="og:site_name" content="Djakarta Mining Club" />
@@ -28,9 +26,6 @@
     <meta name="twitter:description"
         content="Join the leading mining event and connect with industry professionals. Register now!">
     <meta name="twitter:image" content="{{ url($image) }}">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('image/logo-crop.png') }}">
 
     <!-- Canonical -->
     <link rel="canonical" href="{{ url()->current() }}">
