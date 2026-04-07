@@ -266,6 +266,7 @@ Best Regards Bot DMC Website
             $prefix = $bookingContact['prefix_contact'];
             $company_other = $bookingContact['company_other'];
             $slug = $bookingContact['slug'];
+            $referral = $request->referral;
 
             // Save booking contact data
             $saveBooking = new BookingContact();
@@ -362,7 +363,8 @@ Best Regards Bot DMC Website
                         'events_id' => $findEvent->id,
                         'tickets_id' => $ticket_id,
                         'booking_contact_id' => $saveBooking->id,
-                        'groupby_users_id' => (count($tables) > 1) ? $saveBooking->id : null // Jika count($table) > 1, set $saveBooking->id, jika tidak, set null.
+                        'groupby_users_id' => (count($tables) > 1) ? $saveBooking->id : null,
+                        'referral' => $referral,
                     ]);
                     $checkPayment->save();
                 } elseif ($checkPayment->status_registration == 'Waiting' || $checkPayment->status_registration == 'Expired') {
@@ -372,7 +374,8 @@ Best Regards Bot DMC Website
                     $checkPayment->member_id = $checkUsers->id;
                     $checkPayment->tickets_id = $ticket_id;
                     $checkPayment->events_id = $findEvent->id;
-                    $checkPayment->booking_contact_id = (count($tables) > 1) ? $saveBooking->id : null; // Jika count($table) > 1, set $saveBooking->id, jika tidak, set null.
+                    $checkPayment->booking_contact_id = (count($tables) > 1) ? $saveBooking->id : null;
+                    $checkPayment->referral = $referral;
                     $checkPayment->save();
                 } else {
                     // Payment has already been paid off
@@ -407,6 +410,7 @@ Registration Notification,
 Hai ada pendaftaran multiple dari {$name_contact}
 Detail Informasinya:
 " . implode(" ", $detailWa) . "
+" . ($referral ? "Referral: {$referral}" : "") . "
 
 Thank you
 Best Regards Bot DMC Website

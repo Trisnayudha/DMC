@@ -283,11 +283,24 @@
                                     <a href="#" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">Link
                                         Pendaftaran</a>
                                     <div class="dropdown-menu dropdown-menu-right">
+                                        <h6 class="dropdown-header">Backend (Membership)</h6>
                                         <a href="{{ url($slug . '/register-event') }}" class="dropdown-item">Berbayar</a>
+                                        <a href="{{ url($slug . '/register-event?referral=wa-channel') }}"
+                                            class="dropdown-item">Berbayar – WA Channel</a>
+                                        <a href="{{ url($slug . '/register-event?referral=comitte') }}"
+                                            class="dropdown-item">Berbayar – Comitte</a>
                                         <a href="{{ url($slug . '/exclusive-invitation') }}"
                                             class="dropdown-item">Exclusive Gratis</a>
                                         <a href="{{ url($slug . '/register-event/sponsor') }}"
                                             class="dropdown-item">Sponsors</a>
+                                        <div class="dropdown-divider"></div>
+                                        <h6 class="dropdown-header">Frontend (Website)</h6>
+                                        <a href="https://www.djakarta-miningclub.com/events/{{ $slug }}/register"
+                                            class="dropdown-item" target="_blank">Berbayar</a>
+                                        <a href="https://www.djakarta-miningclub.com/events/{{ $slug }}/register?referral=wa-channel"
+                                            class="dropdown-item" target="_blank">Berbayar – WA Channel</a>
+                                        <a href="https://www.djakarta-miningclub.com/events/{{ $slug }}/register?referral=comitte"
+                                            class="dropdown-item" target="_blank">Berbayar – Comitte</a>
                                     </div>
                                 </div>
 

@@ -194,6 +194,7 @@
 
         {{-- @csrf --}}
         <input type="hidden" data-action-type="submit" data-event-type="theatre" id="formType">
+        <input type="hidden" id="referralInput" value="{{ request('referral') }}">
         <div class="row g-5">
             <div class="col-md-8 order-md-1">
                 <h4 class="mb-3">* ATTENDEES</h4>
@@ -915,8 +916,8 @@
                 var booking_obj = {
                     // 'name': your_details.find('input[name="name"]').val(),
                     'booking_contact': booking_contact,
-                    'tables': collectTableDatas()
-
+                    'tables': collectTableDatas(),
+                    'referral': $('#referralInput').val() || null
                 };
                 //Nyambung ke class atas
                 // booking_obj.tables = collectTableDatas();
