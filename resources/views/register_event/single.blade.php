@@ -441,88 +441,56 @@
             text-decoration: underline;
         }
 
-        /* ── Mobile collapsible ── */
+        /* ── Mobile Tab Bar ── */
+        .mob-tab-bar { display: none; }
+
         @media (max-width: 767px) {
-            .mob-collapsible {
-                position: relative;
-            }
-
-            .mob-collapsible-body {
-                max-height: 200px;
-                overflow: hidden;
-                transition: max-height .35s ease;
-            }
-
-            .mob-collapsible-body.expanded {
-                max-height: 9999px;
-            }
-
-            /* gradient fade at bottom when collapsed */
-            .mob-collapsible-fade {
-                position: absolute;
-                bottom: 44px; /* sit above the button */
-                left: 0;
-                right: 0;
-                height: 60px;
-                background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
-                pointer-events: none;
-                transition: opacity .25s;
-            }
-
-            .mob-collapsible-fade.hidden {
-                opacity: 0;
-            }
-
-            .mob-toggle-btn {
+            /* Tab bar */
+            .mob-tab-bar {
                 display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 5px;
-                width: 100%;
-                margin-top: 10px;
-                padding: 6px 0;
-                background: none;
+                background: #fff;
+                border-radius: 14px;
+                box-shadow: 0 4px 16px rgba(15, 23, 42, .06);
+                padding: 5px;
+                margin-bottom: 14px;
+                gap: 4px;
+            }
+
+            .mob-tab {
+                flex: 1;
+                padding: 9px 6px;
                 border: none;
-                font-size: .8rem;
+                background: none;
+                border-radius: 10px;
+                font-size: .78rem;
                 font-weight: 600;
-                color: var(--dmc-red);
+                color: #6b7280;
                 cursor: pointer;
-                letter-spacing: .04em;
+                transition: background .18s, color .18s;
+                line-height: 1.2;
             }
 
-            .mob-toggle-btn svg {
-                transition: transform .3s ease;
-                flex-shrink: 0;
+            .mob-tab.active {
+                background: var(--dmc-red);
+                color: #fff;
             }
 
-            .mob-toggle-btn.expanded svg {
-                transform: rotate(180deg);
-            }
-        }
-
-        /* On desktop: never collapse, cards handle their own scroll */
-        @media (min-width: 768px) {
-            .mob-collapsible-fade,
-            .mob-toggle-btn {
-                display: none !important;
+            /* Hide desktop sections on mobile by default */
+            .content-grid {
+                display: none;
             }
 
-            .mob-collapsible-body {
-                max-height: none !important;
-                overflow: visible !important;
+            /* formPanel: visible by default (Form tab is active) */
+            #formPanel {
+                display: block;
             }
 
-            /* Mobile collapsible wrapper resets on desktop */
-            .mob-collapsible {
-                position: static;
-            }
-        }
-
-        @media (max-width: 767px) {
+            /* Desc/Rundown cards: full width, scrollable, no height limit */
             .desc-card,
             .rundown-card {
-                max-height: none;
-                overflow-y: visible;
+                max-height: 65vh;
+                overflow-y: auto;
+                border-radius: 14px;
             }
         }
     </style>
@@ -554,72 +522,65 @@
                 </div>
             </div>
 
+            <!-- MOBILE TAB BAR (mobile only) -->
+            <div class="mob-tab-bar">
+                <button class="mob-tab active" onclick="switchTab('form')" id="tabForm">Form</button>
+                @if (!empty($description))
+                <button class="mob-tab" onclick="switchTab('detail')" id="tabDetail">Event Detail</button>
+                @endif
+                @if (!empty($rundown))
+                <button class="mob-tab" onclick="switchTab('rundown')" id="tabRundown">Rundown</button>
+                @endif
+            </div>
+
             <!-- DESCRIPTION + RUNDOWN -->
-            <div class="content-grid">
+            <div class="content-grid" id="contentGrid">
 
                 <!-- Description -->
                 @if (!empty($description))
-                <div class="desc-card mob-collapsible">
+                <div class="desc-card" id="descCard">
                     <div class="section-label">Event Details</div>
-                    <div class="mob-collapsible-body" id="descBody">
-                        {!! $description !!}
-                    </div>
-                    <div class="mob-collapsible-fade" id="descFade"></div>
-                    <button class="mob-toggle-btn" id="descToggle" onclick="toggleCollapsible('descBody','descFade','descToggle')" type="button">
-                        See More
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </button>
+                    {!! $description !!}
                 </div>
                 @endif
 
                 <!-- Rundown -->
                 @if (!empty($rundown))
-                <div class="rundown-card mob-collapsible">
+                <div class="rundown-card" id="rundownCard">
                     <div class="section-label">Event Rundown</div>
-                    <div class="mob-collapsible-body" id="rundownBody">
-                        <div class="rundown-timeline">
-                            @foreach ($rundown as $item)
-                            <div class="rundown-item">
-                                <div class="rundown-dot"></div>
-                                <div class="rundown-time">{{ $item['time'] }}</div>
-                                <div class="rundown-name">{{ $item['name'] }}</div>
-                                @if (!empty($item['speakers']))
-                                <div class="rundown-speakers">
-                                    @foreach ($item['speakers'] as $speaker)
-                                    <div class="speaker-item">
-                                        @if (!empty($speaker['image']))
-                                            <img class="speaker-avatar" src="{{ asset($speaker['image']) }}" alt="{{ $speaker['name'] }}">
-                                        @else
-                                            <div class="speaker-avatar-placeholder">{{ strtoupper(substr($speaker['name'], 0, 2)) }}</div>
-                                        @endif
-                                        <div class="speaker-info">
-                                            <div class="name">{{ $speaker['name'] }}</div>
-                                            <div class="title">{{ $speaker['job_title'] }}@if(!empty($speaker['company'])), {{ $speaker['company'] }}@endif</div>
-                                        </div>
+                    <div class="rundown-timeline">
+                        @foreach ($rundown as $item)
+                        <div class="rundown-item">
+                            <div class="rundown-dot"></div>
+                            <div class="rundown-time">{{ $item['time'] }}</div>
+                            <div class="rundown-name">{{ $item['name'] }}</div>
+                            @if (!empty($item['speakers']))
+                            <div class="rundown-speakers">
+                                @foreach ($item['speakers'] as $speaker)
+                                <div class="speaker-item">
+                                    @if (!empty($speaker['image']))
+                                        <img class="speaker-avatar" src="{{ asset($speaker['image']) }}" alt="{{ $speaker['name'] }}">
+                                    @else
+                                        <div class="speaker-avatar-placeholder">{{ strtoupper(substr($speaker['name'], 0, 2)) }}</div>
+                                    @endif
+                                    <div class="speaker-info">
+                                        <div class="name">{{ $speaker['name'] }}</div>
+                                        <div class="title">{{ $speaker['job_title'] }}@if(!empty($speaker['company'])), {{ $speaker['company'] }}@endif</div>
                                     </div>
-                                    @endforeach
                                 </div>
-                                @endif
+                                @endforeach
                             </div>
-                            @endforeach
+                            @endif
                         </div>
+                        @endforeach
                     </div>
-                    <div class="mob-collapsible-fade" id="rundownFade"></div>
-                    <button class="mob-toggle-btn" id="rundownToggle" onclick="toggleCollapsible('rundownBody','rundownFade','rundownToggle')" type="button">
-                        See More
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </button>
                 </div>
                 @endif
 
             </div>
 
             <!-- FORM -->
-            <div class="card-shell">
+            <div class="card-shell" id="formPanel">
                 <div class="form-card">
 
                     <div class="form-header-row">
@@ -785,50 +746,38 @@
         </div>
     </div>
 
-    <!-- Mobile collapsible -->
+    <!-- Mobile Tab Switcher -->
     <script>
-        function toggleCollapsible(bodyId, fadeId, btnId) {
-            var body = document.getElementById(bodyId);
-            var fade = document.getElementById(fadeId);
-            var btn  = document.getElementById(btnId);
-            if (!body) return;
-
-            var isExpanded = body.classList.contains('expanded');
-
-            if (isExpanded) {
-                body.classList.remove('expanded');
-                fade.classList.remove('hidden');
-                btn.classList.remove('expanded');
-                btn.childNodes[0].textContent = 'See More ';
-            } else {
-                body.classList.add('expanded');
-                fade.classList.add('hidden');
-                btn.classList.add('expanded');
-                btn.childNodes[0].textContent = 'See Less ';
-            }
-        }
-
-        // On mobile: hide toggle button if content is short enough (no need to collapse)
-        document.addEventListener('DOMContentLoaded', function () {
+        function switchTab(panel) {
             if (window.innerWidth >= 768) return;
 
-            [
-                { body: 'descBody',    fade: 'descFade',    btn: 'descToggle' },
-                { body: 'rundownBody', fade: 'rundownFade', btn: 'rundownToggle' }
-            ].forEach(function (ids) {
-                var body = document.getElementById(ids.body);
-                var fade = document.getElementById(ids.fade);
-                var btn  = document.getElementById(ids.btn);
-                if (!body || !btn) return;
+            var contentGrid = document.getElementById('contentGrid');
+            var formPanel   = document.getElementById('formPanel');
+            var descCard    = document.getElementById('descCard');
+            var rundownCard = document.getElementById('rundownCard');
 
-                // If actual content height ≤ collapsed max-height, no need for toggle
-                if (body.scrollHeight <= 200) {
-                    body.style.maxHeight = 'none';
-                    if (fade) fade.style.display = 'none';
-                    btn.style.display = 'none';
-                }
+            // Reset all tab buttons
+            document.querySelectorAll('.mob-tab').forEach(function(b) {
+                b.classList.remove('active');
             });
-        });
+            var activeBtn = document.getElementById('tab' + panel.charAt(0).toUpperCase() + panel.slice(1));
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (panel === 'form') {
+                contentGrid.style.display = 'none';
+                formPanel.style.display   = 'block';
+            } else if (panel === 'detail') {
+                formPanel.style.display   = 'none';
+                contentGrid.style.display = 'block';
+                if (descCard)    descCard.style.display    = 'block';
+                if (rundownCard) rundownCard.style.display = 'none';
+            } else if (panel === 'rundown') {
+                formPanel.style.display   = 'none';
+                contentGrid.style.display = 'block';
+                if (descCard)    descCard.style.display    = 'none';
+                if (rundownCard) rundownCard.style.display = 'block';
+            }
+        }
     </script>
 
     <!-- Scripts -->
