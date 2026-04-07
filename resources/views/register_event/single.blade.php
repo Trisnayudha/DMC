@@ -137,6 +137,25 @@
             border-radius: 14px;
             box-shadow: 0 4px 16px rgba(15, 23, 42, .06);
             padding: 20px 22px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .desc-card::-webkit-scrollbar,
+        .rundown-card::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .desc-card::-webkit-scrollbar-track,
+        .rundown-card::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 4px;
+        }
+
+        .desc-card::-webkit-scrollbar-thumb,
+        .rundown-card::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
         }
 
         .section-label {
@@ -170,6 +189,8 @@
             border-radius: 14px;
             box-shadow: 0 4px 16px rgba(15, 23, 42, .06);
             padding: 20px 22px;
+            max-height: 480px;
+            overflow-y: auto;
         }
 
         .rundown-timeline {
@@ -479,7 +500,7 @@
             }
         }
 
-        /* On desktop: never collapse */
+        /* On desktop: never collapse, cards handle their own scroll */
         @media (min-width: 768px) {
             .mob-collapsible-fade,
             .mob-toggle-btn {
@@ -489,6 +510,19 @@
             .mob-collapsible-body {
                 max-height: none !important;
                 overflow: visible !important;
+            }
+
+            /* Mobile collapsible wrapper resets on desktop */
+            .mob-collapsible {
+                position: static;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .desc-card,
+            .rundown-card {
+                max-height: none;
+                overflow-y: visible;
             }
         }
     </style>
