@@ -24,9 +24,10 @@ class EventsRegisterController extends Controller
 
         $rundown = $rundownRaw->map(function ($item) {
             return [
-                'name'     => $item->name,
-                'time'     => Carbon::parse($item->date)->format('h:i A'),
-                'speakers' => $item->speakers->map(function ($s) {
+                'name'      => $item->name,
+                'time'      => Carbon::parse($item->date)->format('h:i A'),
+                'timestamp' => Carbon::parse($item->date)->timestamp,
+                'speakers'  => $item->speakers->map(function ($s) {
                     return [
                         'name'      => $s->name,
                         'job_title' => $s->job_title,
@@ -35,7 +36,7 @@ class EventsRegisterController extends Controller
                     ];
                 })->toArray(),
             ];
-        })->toArray();
+        })->sortBy('timestamp')->values()->toArray();
 
         return view('register_event.single', array_merge($findEvent->toArray(), [
             'rundown' => $rundown,
