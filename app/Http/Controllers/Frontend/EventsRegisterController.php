@@ -36,7 +36,7 @@ class EventsRegisterController extends Controller
                     ];
                 })->toArray(),
             ];
-        })->sortBy('timestamp')->values()->toArray();
+        })->sortBy('time')->values()->toArray();
 
         return view('register_event.single', array_merge($findEvent->toArray(), [
             'rundown' => $rundown,
