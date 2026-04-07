@@ -4,13 +4,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Register now for the Djakarta Mining Club event and be part of the mining industry!">
+    <meta name="description"
+        content="Register now for the Djakarta Mining Club event and be part of the mining industry!">
     <meta name="author" content="djakarta-miningclub.com">
     <title>DMC – Event Registration</title>
 
     <!-- Open Graph -->
     <meta property="og:title" content="Register for the Djakarta Mining Club Event!" />
-    <meta property="og:description" content="Join the leading mining event and connect with industry professionals. Register now!" />
+    <meta property="og:description"
+        content="Join the leading mining event and connect with industry professionals. Register now!" />
     <meta property="og:url" content="{{ url()->current() }}" />
     <meta property="og:image" content="{{ url('image/meta.png') }}">
     <meta property="og:type" content="website" />
@@ -20,7 +22,8 @@
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Register for the Djakarta Mining Club Event!">
-    <meta name="twitter:description" content="Join the leading mining event and connect with industry professionals. Register now!">
+    <meta name="twitter:description"
+        content="Join the leading mining event and connect with industry professionals. Register now!">
     <meta name="twitter:image" content="{{ url($image) }}">
 
     <link rel="canonical" href="{{ url()->current() }}">
@@ -179,7 +182,8 @@
             margin-bottom: .85rem;
         }
 
-        .desc-card strong, .desc-card b {
+        .desc-card strong,
+        .desc-card b {
             font-weight: 700;
         }
 
@@ -442,15 +446,18 @@
         }
 
         /* ── Mobile Tab Bar ── */
-        .mob-tab-bar { display: none; }
+        .mob-tab-bar {
+            display: none;
+        }
 
         @media (max-width: 767px) {
+
             /* Tab bar */
             .mob-tab-bar {
                 display: flex;
                 background: #fff;
                 border-radius: 14px;
-                box-shadow: 0 4px 16px rgba(15, 23, 42, .06);
+                box-shadow: 0 4px 16px rgba(42, 15, 15, 0.06);
                 padding: 5px;
                 margin-bottom: 14px;
                 gap: 4px;
@@ -468,6 +475,12 @@
                 cursor: pointer;
                 transition: background .18s, color .18s;
                 line-height: 1.2;
+                outline: none;
+            }
+
+            .mob-tab:focus {
+                outline: none;
+                box-shadow: none;
             }
 
             .mob-tab.active {
@@ -514,9 +527,12 @@
                     <div class="label">Title</div>
                     <div class="value">{{ $name }}</div>
                     <div class="label">Date</div>
-                    <div class="value">{{ date('l', strtotime($start_date)) . ' – ' . date('j F Y', strtotime($end_date)) }}</div>
+                    <div class="value">
+                        {{ date('l', strtotime($start_date)) . ' – ' . date('j F Y', strtotime($end_date)) }}</div>
                     <div class="label">Time</div>
-                    <div class="value">{{ date('h.i A', strtotime($start_time)) . ' – ' . date('h.i A', strtotime($end_time)) }} (Jakarta Time)</div>
+                    <div class="value">
+                        {{ date('h.i A', strtotime($start_time)) . ' – ' . date('h.i A', strtotime($end_time)) }}
+                        (Jakarta Time)</div>
                     <div class="label">Location</div>
                     <div class="value">{{ $location }}</div>
                 </div>
@@ -526,10 +542,10 @@
             <div class="mob-tab-bar">
                 <button class="mob-tab active" onclick="switchTab('form')" id="tabForm">Form</button>
                 @if (!empty($description))
-                <button class="mob-tab" onclick="switchTab('detail')" id="tabDetail">Event Detail</button>
+                    <button class="mob-tab" onclick="switchTab('detail')" id="tabDetail">Event Detail</button>
                 @endif
                 @if (!empty($rundown))
-                <button class="mob-tab" onclick="switchTab('rundown')" id="tabRundown">Rundown</button>
+                    <button class="mob-tab" onclick="switchTab('rundown')" id="tabRundown">Rundown</button>
                 @endif
             </div>
 
@@ -538,43 +554,49 @@
 
                 <!-- Description -->
                 @if (!empty($description))
-                <div class="desc-card" id="descCard">
-                    <div class="section-label">Event Details</div>
-                    {!! $description !!}
-                </div>
+                    <div class="desc-card" id="descCard">
+                        <div class="section-label">Event Detail</div>
+                        {!! $description !!}
+                    </div>
                 @endif
 
                 <!-- Rundown -->
                 @if (!empty($rundown))
-                <div class="rundown-card" id="rundownCard">
-                    <div class="section-label">Event Rundown</div>
-                    <div class="rundown-timeline">
-                        @foreach ($rundown as $item)
-                        <div class="rundown-item">
-                            <div class="rundown-dot"></div>
-                            <div class="rundown-time">{{ $item['time'] }}</div>
-                            <div class="rundown-name">{{ $item['name'] }}</div>
-                            @if (!empty($item['speakers']))
-                            <div class="rundown-speakers">
-                                @foreach ($item['speakers'] as $speaker)
-                                <div class="speaker-item">
-                                    @if (!empty($speaker['image']))
-                                        <img class="speaker-avatar" src="{{ asset($speaker['image']) }}" alt="{{ $speaker['name'] }}">
-                                    @else
-                                        <div class="speaker-avatar-placeholder">{{ strtoupper(substr($speaker['name'], 0, 2)) }}</div>
+                    <div class="rundown-card" id="rundownCard">
+                        <div class="section-label">Event Rundown</div>
+                        <div class="rundown-timeline">
+                            @foreach ($rundown as $item)
+                                <div class="rundown-item">
+                                    <div class="rundown-dot"></div>
+                                    <div class="rundown-time">{{ $item['time'] }}</div>
+                                    <div class="rundown-name">{{ $item['name'] }}</div>
+                                    @if (!empty($item['speakers']))
+                                        <div class="rundown-speakers">
+                                            @foreach ($item['speakers'] as $speaker)
+                                                <div class="speaker-item">
+                                                    @if (!empty($speaker['image']))
+                                                        <img class="speaker-avatar"
+                                                            src="{{ asset($speaker['image']) }}"
+                                                            alt="{{ $speaker['name'] }}">
+                                                    @else
+                                                        <div class="speaker-avatar-placeholder">
+                                                            {{ strtoupper(substr($speaker['name'], 0, 2)) }}</div>
+                                                    @endif
+                                                    <div class="speaker-info">
+                                                        <div class="name">{{ $speaker['name'] }}</div>
+                                                        <div class="title">{{ $speaker['job_title'] }}@if (!empty($speaker['company']))
+                                                                , {{ $speaker['company'] }}
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     @endif
-                                    <div class="speaker-info">
-                                        <div class="name">{{ $speaker['name'] }}</div>
-                                        <div class="title">{{ $speaker['job_title'] }}@if(!empty($speaker['company'])), {{ $speaker['company'] }}@endif</div>
-                                    </div>
                                 </div>
-                                @endforeach
-                            </div>
-                            @endif
+                            @endforeach
                         </div>
-                        @endforeach
                     </div>
-                </div>
                 @endif
 
             </div>
@@ -649,7 +671,8 @@
                                 <div class="col-md-3 col-sm-4">
                                     <div class="form-group">
                                         <label class="form-label">Prefix *</label>
-                                        <select class="custom-select d-block w-100" id="prefix" name="prefix" required>
+                                        <select class="custom-select d-block w-100" id="prefix" name="prefix"
+                                            required>
                                             <option value="PT">PT</option>
                                             <option value="CV">CV</option>
                                             <option value="Ltd">Ltd</option>
@@ -670,7 +693,8 @@
                                     <div class="form-group">
                                         <label class="form-label">Company Name *</label>
                                         <input type="text" class="form-control" name="company_name"
-                                            placeholder="Your company name" value="{{ old('company_name') }}" required>
+                                            placeholder="Your company name" value="{{ old('company_name') }}"
+                                            required>
                                         <div class="invalid-feedback">Valid company name is required.</div>
                                     </div>
                                 </div>
@@ -700,9 +724,11 @@
                                             <option value="">-- Select --</option>
                                             <option value="Coal Mining">Coal Mining</option>
                                             <option value="Minerals Producer">Minerals Producer</option>
-                                            <option value="Supplier/Distributor/Manufacturer">Supplier / Distributor / Manufacturer</option>
+                                            <option value="Supplier/Distributor/Manufacturer">Supplier / Distributor /
+                                                Manufacturer</option>
                                             <option value="Contractor">Contractor</option>
-                                            <option value="Association / Organization / Government">Association / Organization / Government</option>
+                                            <option value="Association / Organization / Government">Association /
+                                                Organization / Government</option>
                                             <option value="Financial Services">Financial Services</option>
                                             <option value="Technology">Technology</option>
                                             <option value="Investors">Investors</option>
@@ -717,7 +743,8 @@
                                 <div class="col-md-12 myDiv">
                                     <div class="form-group">
                                         <label class="form-label">Company Other *</label>
-                                        <input type="text" class="form-control" name="company_other" placeholder="">
+                                        <input type="text" class="form-control" name="company_other"
+                                            placeholder="">
                                         <div class="invalid-feedback">Please enter your Company Other.</div>
                                     </div>
                                 </div>
@@ -725,7 +752,8 @@
                         </div>
 
                         <!-- Notice + Submit -->
-                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mt-2">
+                        <div
+                            class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mt-2">
                             <div class="notice-text mb-3 mb-sm-0">
                                 <div>Exclusive <strong>FREE</strong> Registration – Subject to Approval</div>
                                 <div>Seats are limited and allocated on a first-come, first-served basis.</div>
@@ -752,8 +780,8 @@
             if (window.innerWidth >= 768) return;
 
             var contentGrid = document.getElementById('contentGrid');
-            var formPanel   = document.getElementById('formPanel');
-            var descCard    = document.getElementById('descCard');
+            var formPanel = document.getElementById('formPanel');
+            var descCard = document.getElementById('descCard');
             var rundownCard = document.getElementById('rundownCard');
 
             // Reset all tab buttons
@@ -765,16 +793,16 @@
 
             if (panel === 'form') {
                 contentGrid.style.display = 'none';
-                formPanel.style.display   = 'block';
+                formPanel.style.display = 'block';
             } else if (panel === 'detail') {
-                formPanel.style.display   = 'none';
+                formPanel.style.display = 'none';
                 contentGrid.style.display = 'block';
-                if (descCard)    descCard.style.display    = 'block';
+                if (descCard) descCard.style.display = 'block';
                 if (rundownCard) rundownCard.style.display = 'none';
             } else if (panel === 'rundown') {
-                formPanel.style.display   = 'none';
+                formPanel.style.display = 'none';
                 contentGrid.style.display = 'block';
-                if (descCard)    descCard.style.display    = 'none';
+                if (descCard) descCard.style.display = 'none';
                 if (rundownCard) rundownCard.style.display = 'block';
             }
         }
@@ -808,9 +836,15 @@
 
     <script>
         @if (session('alert'))
-            swal({ text: "{{ session('alert') }}", icon: "success" });
+            swal({
+                text: "{{ session('alert') }}",
+                icon: "success"
+            });
         @elseif (session('error'))
-            swal({ text: "{{ session('error') }}", icon: "error" });
+            swal({
+                text: "{{ session('error') }}",
+                icon: "error"
+            });
         @endif
 
         const xhttp = new XMLHttpRequest();
