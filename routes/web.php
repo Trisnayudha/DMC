@@ -165,6 +165,9 @@ Route::post('/visit', [FormMemberController::class, 'visitStore']);
 // Route::post('regis-special-event', [SpecialEventController::class, 'store']);
 
 
+Route::get('/anniversary/exclusive-invitation', function () {
+    return redirect('/the-13th-anniversary-of-djakarta-mining-club/exclusive-invitation', 301);
+});
 Route::get('/{slug}/exclusive-invitation', [EventsRegisterController::class, 'single']);
 Route::get('/{slug}/invitation/{type}', [EventsRegisterController::class, 'sponsor']);
 Route::post('/payment-personal', [EventsPaymentController::class, 'payment_personal']);
