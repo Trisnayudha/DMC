@@ -30,7 +30,8 @@ class Payment extends Model
         'booking_contact_id',
         'groupby_users_id',
         'sponsor_code',
-        'is_mining'
+        'is_mining',
+        'referral',
     ];
 
     public static function arrayCode()

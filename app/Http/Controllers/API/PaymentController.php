@@ -153,6 +153,7 @@ class PaymentController extends Controller
             $save->events_id = $events_id;
             $save->status_registration = ($type == 'free' ? 'Waiting' : 'Waiting');
             $save->qr_code = $db;
+            $save->referral = $request->referral;
             $save->save();
             if ($type == 'free') {
                 $saveUser = new UserRegister();
@@ -213,7 +214,8 @@ Name: $findUsers->name
 Email: $findUsers->email
 Phone: $profileModel->phone
 Company: $companyModel->company_name
-Job Title: $profileModel->job_title
+Job Title: $profileModel->job_title" .
+($request->referral ? "\nReferral: {$request->referral}" : "") . "
 
 Code Payment: $codePayment
 Total Bayar: Rp. " . number_format($createVA['expected_amount'], 0, ',', '.') . "
@@ -287,6 +289,7 @@ Terima kasih.
                 $save->events_id = $events_id;
                 $save->status_registration = ($type == 'free' ? 'Waiting' : 'Waiting');
                 $save->qr_code = $db;
+                $save->referral = $request->referral;
 
                 // init xendit
                 $isProd = env('XENDIT_ISPROD');
@@ -337,7 +340,8 @@ Name: $findUsers->name
 Email: $findUsers->email
 Phone: $profileModel->phone
 Company: $companyModel->company_name
-Job Title: $profileModel->job_title
+Job Title: $profileModel->job_title" .
+($request->referral ? "\nReferral: {$request->referral}" : "") . "
 
 Code Payment: $codePayment
 Total Bayar: Rp. " . number_format($findTicket->price_rupiah, 0, ',', '.') . "
