@@ -164,6 +164,7 @@ class PaymentController extends Controller
         $price = $request->price;
         $price_dollar = $request->price_dollar;
         $totalPrice = array_sum($price);
+        $referral = $request->referral;
         $package = null;
 
         // Init variables
@@ -250,6 +251,7 @@ class PaymentController extends Controller
             $payment->status_registration = 'Waiting';
             $payment->groupby_users_id = count($emails) == 1 ? null : $user_ids[0];
             $payment->tickets_id = $ticket_id;
+            $payment->referral = $referral;
 
             $payment->save();
             $paymentId[] = $payment->id;
@@ -389,6 +391,7 @@ Total Bayar: Rp. " . number_format($totalPrice, 0, ',', '.') . "
 " . ($payment_method == 'CREDIT_CARD'
                 ? "Link Pembayaran: {$linkPay}"
                 : "Nomor Virtual Account: " . ($save_va->account_number ?? '-')) . "
+" . ($referral ? "Referral: {$referral}" : "") . "
 
 Terima kasih.
 ";
@@ -430,6 +433,7 @@ Registration Notification,
 Hai ada pendaftaran GRATIS
 Detail Informasinya:
 ' . implode("\n---------------------\n", $detailWa) . '
+' . ($referral ? "Referral: {$referral}" : '') . '
 
 Thank you
 Best Regards Bot DMC Website
