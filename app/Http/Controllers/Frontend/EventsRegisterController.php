@@ -4,17 +4,42 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
+use App\Models\Events\EventsRundown;
 use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\EventSponsors;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class EventsRegisterController extends Controller
 {
     public function single($slug)
     {
         $findEvent = Events::where('slug', $slug)->first();
-        return view('register_event.single', $findEvent);
+
+        $rundownRaw = EventsRundown::with('speakers')
+            ->where('events_id', $findEvent->id)
+            ->orderBy('date')
+            ->get();
+
+        $rundown = $rundownRaw->map(function ($item) {
+            return [
+                'name'     => $item->name,
+                'time'     => Carbon::parse($item->date)->format('h:i A'),
+                'speakers' => $item->speakers->map(function ($s) {
+                    return [
+                        'name'      => $s->name,
+                        'job_title' => $s->job_title,
+                        'company'   => $s->company,
+                        'image'     => $s->image,
+                    ];
+                })->toArray(),
+            ];
+        })->toArray();
+
+        return view('register_event.single', array_merge($findEvent->toArray(), [
+            'rundown' => $rundown,
+        ]));
     }
 
     public function multiple($slug)
