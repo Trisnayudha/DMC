@@ -165,7 +165,7 @@ Route::post('/visit', [FormMemberController::class, 'visitStore']);
 // Route::post('regis-special-event', [SpecialEventController::class, 'store']);
 
 
-Route::get('/anniversary/exclusive-invitation', function () {
+Route::get('/anniversary/exclusive-registration', function () {
     return redirect('/the-13th-anniversary-of-djakarta-mining-club/exclusive-invitation', 301);
 });
 Route::get('/{slug}/exclusive-invitation', [EventsRegisterController::class, 'single']);
