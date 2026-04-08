@@ -180,5 +180,12 @@
                 <span>Scholarship</span>
             </a>
         </li>
+
+        <li class="{{ request()->is('admin/ngrok*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.ngrok.index') }}">
+                <i class="fa fa-link" aria-hidden="true"></i>
+                <span>Ngrok Setting</span>
+            </a>
+        </li>
     </ul>
 </aside>

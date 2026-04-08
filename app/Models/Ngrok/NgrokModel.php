@@ -9,4 +9,5 @@ class NgrokModel extends Model
 {
     use HasFactory;
     protected $table = 'ngrok';
+    protected $fillable = ['link'];
 }

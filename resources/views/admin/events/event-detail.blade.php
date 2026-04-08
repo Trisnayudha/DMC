@@ -324,6 +324,7 @@
                                                 <th>PIC</th>
                                                 <th>Sponsor</th>
                                                 <th class="text-center">Mining</th>
+                                                <th>Referral</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
@@ -376,6 +377,15 @@
                                                         <input type="checkbox" class="mining-checkbox"
                                                             data-id="{{ $post->payment_id }}"
                                                             {{ $post->is_mining ? 'checked' : '' }}>
+                                                    </td>
+
+                                                    <!-- Kolom Referral -->
+                                                    <td>
+                                                        @if (!empty($post->referral))
+                                                            <span class="badge badge-info">{{ $post->referral }}</span>
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
                                                     </td>
 
                                                     <!-- Kolom Aksi -->

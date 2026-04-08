@@ -438,6 +438,12 @@ Route::prefix('admin')->group(function () {
     Route::put('/membership-tier-banners/{id}', [MembershipTierBannerController::class, 'update'])->name('membership-tier-banners.update');
     Route::delete('/membership-tier-banners/{id}', [MembershipTierBannerController::class, 'destroy'])->name('membership-tier-banners.destroy');
 
+    // Ngrok
+    Route::get('ngrok', [\App\Http\Controllers\Admin\NgrokController::class, 'index'])->name('admin.ngrok.index');
+    Route::post('ngrok', [\App\Http\Controllers\Admin\NgrokController::class, 'store'])->name('admin.ngrok.store');
+    Route::put('ngrok/{id}', [\App\Http\Controllers\Admin\NgrokController::class, 'update'])->name('admin.ngrok.update');
+    Route::delete('ngrok/{id}', [\App\Http\Controllers\Admin\NgrokController::class, 'destroy'])->name('admin.ngrok.destroy');
+
     //Whatsapp Group
     Route::prefix('whatsapp')->group(function () {
         Route::resource('blasting', WhatsappBlastingController::class);
