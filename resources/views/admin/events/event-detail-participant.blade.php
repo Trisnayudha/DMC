@@ -631,6 +631,11 @@
             color: #fff;
         }
 
+        .pill-free.active {
+            background: #faeb8b;
+            color: #fff;
+        }
+
         /* ── TABLE ── */
         .participant-table {
             border-collapse: separate;
@@ -913,6 +918,7 @@
                 if (activeFilter === 'member') return pkg === 'member' || pkg === 'premium';
                 if (activeFilter === 'non-member') return pkg.indexOf('non') !== -1;
                 if (activeFilter === 'sponsor') return pkg.indexOf('sponsor') !== -1;
+                if (activeFilter === 'free') return pkg.indexOf('free') !== -1;
                 return true;
             });
 
