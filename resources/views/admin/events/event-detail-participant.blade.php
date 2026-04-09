@@ -632,7 +632,7 @@
         }
 
         .pill-free.active {
-            background: #faeb8b;
+            background: #a2d80d;
             color: #fff;
         }
 
