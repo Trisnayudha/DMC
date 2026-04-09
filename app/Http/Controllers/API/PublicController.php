@@ -132,21 +132,22 @@ class PublicController extends Controller
         }
 
         try {
-            $results = DB::table('users_event as ue')
-                ->join('payment as p', 'ue.payment_id', '=', 'p.id')
+            $results = DB::table('payment as p')
+                ->where('p.events_id', $eventId)
+                ->where('p.status_registration', 'Paid Off')
                 ->select(
                     DB::raw("
                         CASE
                             WHEN LOWER(p.package) IN ('member', 'premium', 'member/premium') THEN 'Member'
-                            WHEN LOWER(p.package) IN ('nonmember', 'non-member')             THEN 'Non-Member'
-                            WHEN LOWER(p.package) = 'sponsor'                                THEN 'Sponsor'
+                            WHEN LOWER(p.package) IN ('nonmember', 'non-member')
+                                OR LOWER(p.package) LIKE '%non%'                             THEN 'Non-Member'
+                            WHEN LOWER(p.package) LIKE '%sponsor%'                          THEN 'Sponsor'
                             WHEN LOWER(p.package) IN ('free', 'complimentary', 'invitation') THEN 'Complimentary'
                             ELSE 'Other'
                         END AS package_category
                     "),
-                    DB::raw('COUNT(ue.id) AS count')
+                    DB::raw('COUNT(p.id) AS count')
                 )
-                ->where('ue.events_id', $eventId)
                 ->groupBy('package_category')
                 ->orderByRaw("FIELD(package_category, 'Member', 'Non-Member', 'Sponsor', 'Complimentary', 'Other')")
                 ->get();
