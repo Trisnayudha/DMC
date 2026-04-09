@@ -90,6 +90,7 @@ class EventsDetailParticipantController extends Controller
         $memberCount    = $findParticipant->filter(fn($p) => in_array(strtolower($p->package), ['member', 'premium']))->count();
         $nonMemberCount = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package), 'non'))->count();
         $sponsorCount   = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package), 'sponsor'))->count();
+        $freeCount      = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package), 'free'))->count();
 
         $data = [
             'list'           => $findParticipant,
@@ -99,6 +100,7 @@ class EventsDetailParticipantController extends Controller
             'memberCount'    => $memberCount,
             'nonMemberCount' => $nonMemberCount,
             'sponsorCount'   => $sponsorCount,
+            'freeCount'      => $freeCount,
         ];
         return view('admin.events.event-detail-participant', $data);
     }
