@@ -88,6 +88,10 @@
                                 <i class="fas fa-star mr-1"></i>Sponsor
                                 <span class="pill-count">{{ $sponsorCount }}</span>
                             </button>
+                            <button class="pill pill-sponsor" data-filter="free">
+                                <i class="fas fa-star mr-1"></i>Invitation/Free
+                                <span class="pill-count">{{ $freeCount }}</span>
+                            </button>
                         </div>
                     </div>
 
