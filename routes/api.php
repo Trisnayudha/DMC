@@ -158,6 +158,7 @@ Route::post('ngrok-list', [PrintController::class, 'ngrokList']);
 Route::post('summary-attandance', [PublicController::class, 'summaryAttandance']);
 Route::get('/attendance-by-package', [PublicController::class, 'attendanceByPackage']);
 Route::get('/user-detail-by-codepayment/{codepayment}', [PublicController::class, 'userDetailByCodepayment']);
+Route::post('/registration-report', [PublicController::class, 'registrationReport']);
 
 Route::post('home/statistic', [API_WEBHomeController::class, 'statistic']);
 

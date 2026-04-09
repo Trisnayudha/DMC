@@ -122,6 +122,47 @@ class PublicController extends Controller
     }
 
 
+    // POST /api/registration-report  body: { "event_id": "55" }
+    public function registrationReport(Request $request)
+    {
+        $eventId = $request->input('event_id');
+
+        if (empty($eventId)) {
+            return response()->json(['message' => 'Parameter event_id is required'], 400);
+        }
+
+        try {
+            $results = DB::table('users_event as ue')
+                ->join('payment as p', 'ue.payment_id', '=', 'p.id')
+                ->select(
+                    DB::raw("
+                        CASE
+                            WHEN LOWER(p.package) IN ('member', 'premium', 'member/premium') THEN 'Member'
+                            WHEN LOWER(p.package) IN ('nonmember', 'non-member')             THEN 'Non-Member'
+                            WHEN LOWER(p.package) = 'sponsor'                                THEN 'Sponsor'
+                            WHEN LOWER(p.package) IN ('free', 'complimentary', 'invitation') THEN 'Complimentary'
+                            ELSE 'Other'
+                        END AS package_category
+                    "),
+                    DB::raw('COUNT(ue.id) AS count')
+                )
+                ->where('ue.events_id', $eventId)
+                ->groupBy('package_category')
+                ->orderByRaw("FIELD(package_category, 'Member', 'Non-Member', 'Sponsor', 'Complimentary', 'Other')")
+                ->get();
+
+            return response()->json(['data' => $results]);
+        } catch (\Exception $e) {
+            Log::error('registrationReport error: ' . $e->getMessage(), [
+                'event_id' => $eventId,
+                'file'     => $e->getFile(),
+                'line'     => $e->getLine(),
+            ]);
+
+            return response()->json(['message' => 'Internal Server Error'], 500);
+        }
+    }
+
     // GET /api/user-detail-by-codepayment/{codepayment}?event_id=55
     public function userDetailByCodepayment(Request $request, string $codepayment)
     {
