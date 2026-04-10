@@ -54,9 +54,15 @@ class GalleryController extends Controller
         return response()->json($response);
     }
 
-    public function feature()
+    public function feature(Request $request)
     {
-        $list = Videos::orderBy('id', 'desc')->get();
+        $query = Videos::orderBy('id', 'desc');
+
+        if ($request->events_id) {
+            $query->where('events_id', $request->events_id);
+        }
+
+        $list = $query->get();
 
         $response['status'] = 200;
         $response['message'] = 'Success';
