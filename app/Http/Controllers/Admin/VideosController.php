@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Events\Events;
 use App\Models\Videos\Videos;
 use Illuminate\Http\Request;
 
@@ -15,9 +16,10 @@ class VideosController extends Controller
     public function index()
     {
         $list = Videos::orderBy('id', 'desc')->get();
-        // dd($list);
+        $events = Events::orderBy('name', 'asc')->get(['id', 'name']);
         $data = [
-            'list' => $list
+            'list'   => $list,
+            'events' => $events,
         ];
         return view('admin.videos.index', $data);
     }
@@ -34,7 +36,8 @@ class VideosController extends Controller
                 'id' => $request->id
             ],
             [
-                'link' => $request->link,
+                'link'      => $request->link,
+                'events_id' => $request->events_id ?: null,
             ]
         );
         // activity()->log('Menambahkan Data Kategori');

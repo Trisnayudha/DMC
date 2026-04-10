@@ -10,6 +10,7 @@ class Videos extends Model
     use HasFactory;
     protected $table = 'videos';
     protected $fillable = [
-        'link'
+        'link',
+        'events_id',
     ];
 }
