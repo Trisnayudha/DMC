@@ -206,13 +206,12 @@
                         <small class="text-muted">* Required</small>
                     </div>
 
-                    <img src="{{ asset('image/the69banner.png') }}" class="banner-img">
+                    <img src="{{ asset('image/the13banner.png') }}" class="banner-img">
 
                     <!-- INTRO TEXT -->
                     <div class="intro-text mb-4">
                         <p>
-                            <strong>Thank you for attending The 69th Djakarta Mining Club Networking Event: 2026 Mining
-                                Insights.</strong>
+                            <strong>Thank you for attending the 13th Djakarta Mining Club.</strong>
                         </p>
                         <p>
                             We kindly invite you to take a few moments to complete our post-event survey.
@@ -326,7 +325,7 @@
             }).then(function() {
 
                 window.open(
-                    "https://drive.google.com/drive/folders/15HugkNkkXW3v7sMvUFBUuAosrfP5fGIv?usp=sharing",
+                    "https://drive.google.com/drive/folders/1uSgSz_CICbvoRfNDnNLOillFmUkfrk7-?usp=sharing",
                     "_blank"
                 );
 
