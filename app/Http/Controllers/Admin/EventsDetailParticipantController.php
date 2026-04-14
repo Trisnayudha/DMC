@@ -430,7 +430,7 @@ The Djakarta Mining Club Team';
 
         $send = new WhatsappApi();
         $send->phone = $phone; // Menggunakan nomor telepon yang diterima dari parameter
-        $send->message = '📌"REMINDER to attend ' . $event->name . ': 2026 Mining Insights"
+        $send->message = '📌"REMINDER to attend ' . $event->name . ': Creating Lasting Value"
 
 Hi ' . $data['users_name'] . ',
 
