@@ -193,7 +193,7 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}">
                 <div class="page-title">
-                    THE 13TH DJAKARTA MINING CLUB<br>
+                    THE 13TH ANNIVERSARY OF DJAKARTA MINING CLUB<br>
                     <span style="color: var(--dmc-red-dark)">Creating
                         Lasting Value</span>
                 </div>
