@@ -193,8 +193,9 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}">
                 <div class="page-title">
-                    THE 69TH DJAKARTA MINING CLUB NETWORKING EVENT<br>
-                    <span style="color: var(--dmc-red-dark)">2026 MINING INSIGHTS</span>
+                    THE 13TH DJAKARTA MINING CLUB<br>
+                    <span style="color: var(--dmc-red-dark)">Creating
+                        Lasting Value</span>
                 </div>
             </div>
 
@@ -245,24 +246,28 @@
                                 <div class="score-wrap mt-2">
                                     @for ($i = 1; $i <= 5; $i++)
                                         <label class="score-option m-0">
-                                            <input type="radio" name="event_rating" value="{{ $i }}" required>
+                                            <input type="radio" name="event_rating" value="{{ $i }}"
+                                                required>
                                             <div class="score-btn">{{ $i }}</div>
                                         </label>
                                     @endfor
                                 </div>
-                                <div class="invalid-feedback d-block" id="err_event_rating" style="display:none!important"></div>
+                                <div class="invalid-feedback d-block" id="err_event_rating"
+                                    style="display:none!important"></div>
                             </div>
 
                             {{-- 3. Rate aspects --}}
                             <div class="form-group">
-                                <label class="d-block mb-2">Please rate the following aspects of the event: <small>*</small></label>
+                                <label class="d-block mb-2">Please rate the following aspects of the event:
+                                    <small>*</small></label>
 
                                 <div class="pl-2 mb-2">
                                     <label class="mb-1">Content/Topics <small>*</small></label>
                                     <div class="score-wrap">
                                         @for ($i = 1; $i <= 5; $i++)
                                             <label class="score-option m-0">
-                                                <input type="radio" name="rating_content" value="{{ $i }}" required>
+                                                <input type="radio" name="rating_content" value="{{ $i }}"
+                                                    required>
                                                 <div class="score-btn">{{ $i }}</div>
                                             </label>
                                         @endfor
@@ -274,7 +279,8 @@
                                     <div class="score-wrap">
                                         @for ($i = 1; $i <= 5; $i++)
                                             <label class="score-option m-0">
-                                                <input type="radio" name="rating_networking" value="{{ $i }}" required>
+                                                <input type="radio" name="rating_networking"
+                                                    value="{{ $i }}" required>
                                                 <div class="score-btn">{{ $i }}</div>
                                             </label>
                                         @endfor
@@ -311,14 +317,17 @@
 
                             {{-- 7. Mobile app activation --}}
                             <div class="form-group mb-0">
-                                <label>Have you activated your membership on the Djakarta Mining Club mobile app? <small>*</small></label>
+                                <label>Have you activated your membership on the Djakarta Mining Club mobile app?
+                                    <small>*</small></label>
                                 <div class="mt-2">
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        <input type="radio" id="app_yes" name="app_activated" value="Yes" class="custom-control-input" required>
+                                        <input type="radio" id="app_yes" name="app_activated" value="Yes"
+                                            class="custom-control-input" required>
                                         <label class="custom-control-label" for="app_yes">Yes</label>
                                     </div>
                                     <div class="custom-control custom-radio custom-control-inline">
-                                        <input type="radio" id="app_not_yet" name="app_activated" value="Not Yet" class="custom-control-input" required>
+                                        <input type="radio" id="app_not_yet" name="app_activated" value="Not Yet"
+                                            class="custom-control-input" required>
                                         <label class="custom-control-label" for="app_not_yet">Not Yet</label>
                                     </div>
                                 </div>
