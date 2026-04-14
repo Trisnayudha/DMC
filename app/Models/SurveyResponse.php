@@ -21,8 +21,12 @@ class SurveyResponse extends Model
         // baru
         'event_code',
         'event_rating',
+        'rating_content',
+        'rating_networking',
+        'liked_most',
         'improvement_feedback',
         'topic_recommendation',
+        'app_activated',
 
         'ip',
         'ua',
@@ -33,5 +37,7 @@ class SurveyResponse extends Model
         'is_member' => 'boolean',
         'wants_more_info' => 'boolean',
         'event_rating' => 'integer',
+        'rating_content' => 'integer',
+        'rating_networking' => 'integer',
     ];
 }

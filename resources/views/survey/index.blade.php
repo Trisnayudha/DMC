@@ -211,7 +211,8 @@
                     <!-- INTRO TEXT -->
                     <div class="intro-text mb-4">
                         <p>
-                            <strong>Thank you for attending the 13th Djakarta Mining Club.</strong>
+                            <strong>Thank you for attending the 13th Anniversary of Djakarta Mining Club – Creating
+                                Lasting Value.</strong>
                         </p>
                         <p>
                             We kindly invite you to take a few moments to complete our post-event survey.
@@ -229,6 +230,7 @@
                         <div class="form-section">
                             <div class="form-section-title">Survey Form</div>
 
+                            {{-- 1. Email --}}
                             <div class="form-group">
                                 <label>Email <small>*</small></label>
                                 <input type="email" name="email" class="form-control" required>
@@ -237,23 +239,59 @@
                                 </div>
                             </div>
 
+                            {{-- 2. Overall satisfaction --}}
                             <div class="form-group">
-                                <label>On a scale of 1–5 (5 highest), how would you rate the event?
-                                    <small>*</small></label>
+                                <label>Overall, how satisfied are you with the event? (1–5) <small>*</small></label>
                                 <div class="score-wrap mt-2">
                                     @for ($i = 1; $i <= 5; $i++)
                                         <label class="score-option m-0">
-                                            <input type="radio" name="event_rating" value="{{ $i }}"
-                                                required>
+                                            <input type="radio" name="event_rating" value="{{ $i }}" required>
                                             <div class="score-btn">{{ $i }}</div>
                                         </label>
                                     @endfor
                                 </div>
-                                <div class="invalid-feedback d-block">
-                                    Please select a rating.
+                                <div class="invalid-feedback d-block" id="err_event_rating" style="display:none!important"></div>
+                            </div>
+
+                            {{-- 3. Rate aspects --}}
+                            <div class="form-group">
+                                <label class="d-block mb-2">Please rate the following aspects of the event: <small>*</small></label>
+
+                                <div class="pl-2 mb-2">
+                                    <label class="mb-1">Content/Topics <small>*</small></label>
+                                    <div class="score-wrap">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <label class="score-option m-0">
+                                                <input type="radio" name="rating_content" value="{{ $i }}" required>
+                                                <div class="score-btn">{{ $i }}</div>
+                                            </label>
+                                        @endfor
+                                    </div>
+                                </div>
+
+                                <div class="pl-2">
+                                    <label class="mb-1">Networking Opportunities <small>*</small></label>
+                                    <div class="score-wrap">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <label class="score-option m-0">
+                                                <input type="radio" name="rating_networking" value="{{ $i }}" required>
+                                                <div class="score-btn">{{ $i }}</div>
+                                            </label>
+                                        @endfor
+                                    </div>
                                 </div>
                             </div>
 
+                            {{-- 4. What did you like most --}}
+                            <div class="form-group">
+                                <label>What did you like most about the event? <small>*</small></label>
+                                <textarea name="liked_most" rows="3" class="form-control" required></textarea>
+                                <div class="invalid-feedback">
+                                    This field is required.
+                                </div>
+                            </div>
+
+                            {{-- 5. Comments / suggestions --}}
                             <div class="form-group">
                                 <label>Comments or suggestions to improve future events <small>*</small></label>
                                 <textarea name="improvement_feedback" rows="3" class="form-control" required></textarea>
@@ -262,11 +300,30 @@
                                 </div>
                             </div>
 
-                            <div class="form-group mb-0">
+                            {{-- 6. Topic / speaker recommendations --}}
+                            <div class="form-group">
                                 <label>Topic or speaker recommendations for upcoming events <small>*</small></label>
                                 <textarea name="topic_recommendation" rows="3" class="form-control" required></textarea>
                                 <div class="invalid-feedback">
                                     This field is required.
+                                </div>
+                            </div>
+
+                            {{-- 7. Mobile app activation --}}
+                            <div class="form-group mb-0">
+                                <label>Have you activated your membership on the Djakarta Mining Club mobile app? <small>*</small></label>
+                                <div class="mt-2">
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input type="radio" id="app_yes" name="app_activated" value="Yes" class="custom-control-input" required>
+                                        <label class="custom-control-label" for="app_yes">Yes</label>
+                                    </div>
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input type="radio" id="app_not_yet" name="app_activated" value="Not Yet" class="custom-control-input" required>
+                                        <label class="custom-control-label" for="app_not_yet">Not Yet</label>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please select an option.
                                 </div>
                             </div>
                         </div>

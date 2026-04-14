@@ -26,16 +26,24 @@ class SurveyController extends Controller
         $validated = $request->validate([
             'email'                 => 'required|email|max:255',
             'event_rating'          => 'required|integer|min:1|max:5',
+            'rating_content'        => 'required|integer|min:1|max:5',
+            'rating_networking'     => 'required|integer|min:1|max:5',
+            'liked_most'            => 'required|string|max:2000',
             'improvement_feedback'  => 'required|string|max:2000',
             'topic_recommendation'  => 'required|string|max:2000',
+            'app_activated'         => 'required|in:Yes,Not Yet',
         ]);
 
         $data = [
             'email'                 => $validated['email'],
             'event_code'            => 'DMC69_2026_MINING_INSIGHTS',
             'event_rating'          => $validated['event_rating'],
+            'rating_content'        => $validated['rating_content'],
+            'rating_networking'     => $validated['rating_networking'],
+            'liked_most'            => $validated['liked_most'],
             'improvement_feedback'  => $validated['improvement_feedback'],
             'topic_recommendation'  => $validated['topic_recommendation'],
+            'app_activated'         => $validated['app_activated'],
             'ip'                    => $request->ip(),
             'ua'                    => substr($request->userAgent() ?? '', 0, 255),
         ];
