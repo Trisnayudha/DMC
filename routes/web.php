@@ -292,6 +292,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/events/update/user', [EventsDetailController::class, 'editPeserta']);
     Route::post('/events/assign-sponsor', [EventsDetailController::class, 'assignSponsorRepresentative']);
     Route::post('/events/toggle-mining', [EventsDetailController::class, 'toggleMining']);
+    Route::get('/company/lookup', [EventsDetailController::class, 'companyLookup'])->name('company.lookup');
 
 
     // Events Detail participant

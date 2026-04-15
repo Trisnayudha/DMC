@@ -737,8 +737,19 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="company_name"> Company Name</label>
-                                    <input type="text" class="form-control" name="company_name_edit"
-                                        id="company_name_edit">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="company_name_edit"
+                                            id="company_name_edit">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-info btn-sm" id="btn-auto-sync"
+                                                title="Auto-fill dari database">
+                                                <span id="sync-icon">&#x21BB;</span>
+                                                <span id="sync-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                                Auto Sync
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Ketik nama company lalu klik Auto Sync untuk isi otomatis dari database</small>
                                 </div>
 
                                 <div class="form-group">
@@ -1152,6 +1163,50 @@
                         title: 'Error',
                         text: 'Server error!'
                     });
+                }
+            });
+        });
+
+        // Auto Sync company fields dari database
+        $('#btn-auto-sync').on('click', function() {
+            var companyName = $('#company_name_edit').val().trim();
+            if (!companyName) {
+                Swal.fire({ icon: 'warning', title: 'Isi dulu nama company', timer: 1500, showConfirmButton: false });
+                return;
+            }
+
+            var $btn = $(this);
+            $('#sync-icon').addClass('d-none');
+            $('#sync-spinner').removeClass('d-none');
+            $btn.prop('disabled', true);
+
+            $.ajax({
+                url: "{{ route('company.lookup') }}",
+                type: 'GET',
+                data: { name: companyName },
+                success: function(res) {
+                    if (!res.found) {
+                        Swal.fire({ icon: 'info', title: 'Data company tidak ditemukan di database', timer: 2000, showConfirmButton: false });
+                        return;
+                    }
+
+                    if (res.prefix)           $('#prefix_edit').val(res.prefix);
+                    if (res.company_website)  $('#company_website_edit').val(res.company_website);
+                    if (res.company_category) $('#company_category_edit').val(res.company_category).trigger('change');
+                    if (res.company_other)    $('#company_other_edit').val(res.company_other);
+                    if (res.address)          $('#address_edit').val(res.address);
+                    if (res.office_number)    $('#office_number_edit').val(res.office_number);
+                    if (res.country)          $('.country_edit').val(res.country);
+
+                    Swal.fire({ icon: 'success', title: 'Data berhasil disync!', timer: 1500, showConfirmButton: false });
+                },
+                error: function() {
+                    Swal.fire({ icon: 'error', title: 'Gagal mengambil data', timer: 1500, showConfirmButton: false });
+                },
+                complete: function() {
+                    $('#sync-icon').removeClass('d-none');
+                    $('#sync-spinner').addClass('d-none');
+                    $btn.prop('disabled', false);
                 }
             });
         });

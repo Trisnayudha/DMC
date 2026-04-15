@@ -219,6 +219,12 @@ class EventsDetailController extends Controller
             $company->users_id = $user->id;
             $company->save();
 
+            // Auto-sync: update semua record company dengan nama yang sama
+            // menggunakan data paling lengkap dari tabel company
+            if (!empty($company_name)) {
+                CompanyModel::syncByName($company_name);
+            }
+
             $profile = ProfileModel::where('users_id', $user->id)->first();
             if (empty($profile)) {
                 $profile = new ProfileModel();
@@ -568,6 +574,12 @@ class EventsDetailController extends Controller
         $company->users_id = $findUsers->id;
         $company->save();
 
+        // Auto-sync: update semua record company dengan nama yang sama
+        // menggunakan data paling lengkap dari tabel company
+        if (!empty($request->company_name_edit)) {
+            CompanyModel::syncByName($request->company_name_edit);
+        }
+
         $profile = ProfileModel::where('users_id', $findUsers->id)->first();
         if (empty($profile)) {
             $profile = new ProfileModel();
@@ -769,6 +781,43 @@ class EventsDetailController extends Controller
             return redirect()->back()->with('success', 'Sponsor set.');
         }
         return redirect()->back()->with('error', 'Not found.');
+    }
+
+    public function companyLookup(Request $request)
+    {
+        $name = trim($request->get('name', ''));
+        if (empty($name)) {
+            return response()->json(['found' => false]);
+        }
+
+        $fields = [
+            'prefix', 'company_name', 'company_website', 'company_category', 'company_other',
+            'address', 'city', 'portal_code', 'prefix_office_number',
+            'office_number', 'full_office_number', 'country', 'cci', 'explore',
+        ];
+
+        $companies = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [strtolower($name)])->get();
+
+        if ($companies->isEmpty()) {
+            return response()->json(['found' => false]);
+        }
+
+        $best = $companies->sortByDesc(function ($row) use ($fields) {
+            return collect($fields)->filter(fn($f) => !empty($row->$f))->count();
+        })->first();
+
+        return response()->json([
+            'found'            => true,
+            'prefix'           => $best->prefix,
+            'company_website'  => $best->company_website,
+            'company_category' => $best->company_category,
+            'company_other'    => $best->company_other,
+            'address'          => $best->address,
+            'city'             => $best->city,
+            'portal_code'      => $best->portal_code,
+            'office_number'    => $best->office_number,
+            'country'          => $best->country,
+        ]);
     }
 
     public function toggleMining(Request $request)
