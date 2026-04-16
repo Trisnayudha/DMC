@@ -31,7 +31,6 @@ class SurveyController extends Controller
             'liked_most'            => 'required|string|max:2000',
             'improvement_feedback'  => 'required|string|max:2000',
             'topic_recommendation'  => 'required|string|max:2000',
-            'app_activated'         => 'required|in:Yes,Not Yet',
         ]);
 
         $data = [
@@ -43,7 +42,6 @@ class SurveyController extends Controller
             'liked_most'            => $validated['liked_most'],
             'improvement_feedback'  => $validated['improvement_feedback'],
             'topic_recommendation'  => $validated['topic_recommendation'],
-            'app_activated'         => $validated['app_activated'],
             'ip'                    => $request->ip(),
             'ua'                    => substr($request->userAgent() ?? '', 0, 255),
         ];
