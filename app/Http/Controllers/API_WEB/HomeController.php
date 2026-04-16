@@ -49,7 +49,7 @@ class HomeController extends Controller
         // Lanjutkan dengan event highlight
         foreach ($events as $event) {
             $eventHighlight = EventsHighlight::where('events_id', $event->id)
-                ->orderBy('id', 'desc')
+                ->orderBy('sort', 'asc')
                 ->limit(5)
                 ->get();
 
