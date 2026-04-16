@@ -314,27 +314,6 @@
                                     This field is required.
                                 </div>
                             </div>
-
-                            {{-- 7. Mobile app activation --}}
-                            <div class="form-group mb-0">
-                                <label>Have you activated your membership on the Djakarta Mining Club mobile app?
-                                    <small>*</small></label>
-                                <div class="mt-2">
-                                    <div class="custom-control custom-radio custom-control-inline">
-                                        <input type="radio" id="app_yes" name="app_activated" value="Yes"
-                                            class="custom-control-input" required>
-                                        <label class="custom-control-label" for="app_yes">Yes</label>
-                                    </div>
-                                    <div class="custom-control custom-radio custom-control-inline">
-                                        <input type="radio" id="app_not_yet" name="app_activated" value="Not Yet"
-                                            class="custom-control-input" required>
-                                        <label class="custom-control-label" for="app_not_yet">Not Yet</label>
-                                    </div>
-                                </div>
-                                <div class="invalid-feedback">
-                                    Please select an option.
-                                </div>
-                            </div>
                         </div>
 
                         <div class="d-flex justify-content-end mt-3">
