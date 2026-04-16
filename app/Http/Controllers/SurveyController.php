@@ -35,7 +35,7 @@ class SurveyController extends Controller
 
         $data = [
             'email'                 => $validated['email'],
-            'event_code'            => 'DMC69_2026_MINING_INSIGHTS',
+            'event_code'            => 'DMC13_2026_MINING_INSIGHTS',
             'event_rating'          => $validated['event_rating'],
             'rating_content'        => $validated['rating_content'],
             'rating_networking'     => $validated['rating_networking'],
