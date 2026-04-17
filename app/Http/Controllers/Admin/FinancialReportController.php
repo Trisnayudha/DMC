@@ -75,6 +75,8 @@ class FinancialReportController extends Controller
             'p.payment_method',
             'p.discount',
             'p.package',
+            'p.groupby_users_id',
+            'p.booking_contact_id',
 
             'et.title as ticket_title',
             'et.type as ticket_type',
@@ -130,6 +132,54 @@ class FinancialReportController extends Controller
             'vat' => $vat,
             'total_fee' => $fee + $vat
         ];
+    }
+
+    /**
+     * Collapse group-payment rows (same code_payment + groupby_users_id set) into one summary row.
+     * Individual payments (groupby_users_id IS NULL) are kept as-is.
+     */
+    private function groupRows($rows)
+    {
+        $singles = [];
+        $groups  = [];
+
+        foreach ($rows as $row) {
+            if (!empty($row->groupby_users_id)) {
+                $key = $row->code_payment;
+                if (!isset($groups[$key])) {
+                    $g = clone $row;
+                    $g->gross_amount     = 0;
+                    $g->discount         = 0;
+                    $g->net_amount       = 0;
+                    $g->participant_count = 0;
+                    $g->members          = [];
+                    $g->ticket_titles    = [];
+                    $g->is_group         = true;
+                    $groups[$key]        = $g;
+                }
+                $groups[$key]->gross_amount      += (float) ($row->gross_amount ?? 0);
+                $groups[$key]->discount          += (float) ($row->discount ?? 0);
+                $groups[$key]->net_amount        += (float) ($row->net_amount ?? 0);
+                $groups[$key]->participant_count++;
+                $groups[$key]->members[]          = $row->name . ' (' . $row->email . ')';
+                if ($row->ticket_title && !in_array($row->ticket_title, $groups[$key]->ticket_titles)) {
+                    $groups[$key]->ticket_titles[] = $row->ticket_title;
+                }
+            } else {
+                $row->is_group = false;
+                $singles[]     = $row;
+            }
+        }
+
+        // Finalize ticket_title for group rows
+        foreach ($groups as $g) {
+            $g->ticket_title = implode(', ', $g->ticket_titles);
+        }
+
+        $all = array_merge($singles, array_values($groups));
+        usort($all, fn ($a, $b) => strcmp($b->paid_at, $a->paid_at));
+
+        return collect($all);
     }
 
     /**
@@ -209,6 +259,9 @@ class FinancialReportController extends Controller
             ->orderBy('p.payment_method', 'asc')
             ->pluck('p.payment_method');
 
+        // Collapse group payments into single summary rows
+        $rows = $this->groupRows($rows);
+
         // Fee estimation (attach to rows + KPI)
         [$rows, $kpi] = $this->applyFeeEstimation($rows, $kpi);
 
@@ -247,6 +300,9 @@ class FinancialReportController extends Controller
             ->selectRaw("SUM(IFNULL(p.discount,0)) as discount_total")
             ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) - IFNULL(p.discount,0),0)) as net_total")
             ->first();
+
+        // Collapse group payments into single summary rows
+        $rows = $this->groupRows($rows);
 
         // Fee estimation in PDF too
         [$rows, $kpi] = $this->applyFeeEstimation($rows, $kpi);

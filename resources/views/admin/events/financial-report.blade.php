@@ -180,18 +180,29 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ date('d M Y H:i', strtotime($r->paid_at)) }}</td>
-                                            <td>{{ $r->code_payment }}</td>
                                             <td>
-                                                <b>{{ $r->name }}</b><br>
-                                                <small>{{ $r->email }}</small>
+                                                {{ $r->code_payment }}
+                                                @if (!empty($r->is_group))
+                                                    <br><span class="badge badge-info">Group &bull; {{ $r->participant_count }} persons</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if (!empty($r->is_group))
+                                                    <span title="{{ implode("\n", $r->members ?? []) }}" style="cursor:help">
+                                                        <b>{{ $r->name }}</b>
+                                                        <small class="text-muted">(+{{ $r->participant_count - 1 }} more)</small>
+                                                    </span>
+                                                    <br><small class="text-muted">hover to see all</small>
+                                                @else
+                                                    <b>{{ $r->name }}</b><br>
+                                                    <small>{{ $r->email }}</small>
+                                                @endif
                                             </td>
                                             <td>{{ $r->company_name }}</td>
                                             <td>{{ $r->ticket_title }}</td>
                                             <td><span class="badge badge-light">{{ $r->payment_method }}</span></td>
-                                            <td class="text-right">{{ number_format($r->gross_amount ?? 0, 0, ',', '.') }}
-                                            </td>
-                                            <td class="text-right">{{ number_format($r->discount ?? 0, 0, ',', '.') }}
-                                            </td>
+                                            <td class="text-right">{{ number_format($r->gross_amount ?? 0, 0, ',', '.') }}</td>
+                                            <td class="text-right">{{ number_format($r->discount ?? 0, 0, ',', '.') }}</td>
                                             <td class="text-right">
                                                 <b>{{ number_format($r->net_amount ?? 0, 0, ',', '.') }}</b>
                                             </td>
