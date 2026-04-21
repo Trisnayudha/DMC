@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdvertisementController;
 use App\Http\Controllers\Admin\DigitalEditionController;
 use App\Http\Controllers\Admin\CompanyDatabaseController;
+use App\Http\Controllers\Admin\SponsorInterviewScheduleController as AdminSponsorInterviewScheduleController;
 use App\Http\Controllers\Admin\EventCategoryController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\EventsConferenceController;
@@ -41,6 +42,7 @@ use App\Http\Controllers\Frontend\EventsRegisterSponsorController;
 use App\Http\Controllers\Frontend\FormMemberController;
 use App\Http\Controllers\Frontend\PrintController;
 use App\Http\Controllers\Frontend\ScholarshipController;
+use App\Http\Controllers\Frontend\SponsorInterviewScheduleController;
 use App\Http\Controllers\Admin\SponsorPhotosVideosActivityController;
 use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\Admin\MembershipTierBannerController;
@@ -177,6 +179,9 @@ Route::get('/{slug}/register-event', [EventsRegisterController::class, 'multiple
 Route::post('/payment-multiple', [EventsPaymentController::class, 'payment_multiple']);
 
 Route::get('/{slug}/register-event/sponsor', [SponsorController::class, 'sponsor']);
+Route::get('/interview-schedule/sponsor', [SponsorInterviewScheduleController::class, 'create'])->name('sponsor.interview-schedule.create');
+Route::get('/interview-schedule/sponsor/booked-slots', [SponsorInterviewScheduleController::class, 'bookedSlots'])->name('sponsor.interview-schedule.booked-slots');
+Route::post('/interview-schedule/sponsor', [SponsorInterviewScheduleController::class, 'store'])->name('sponsor.interview-schedule.store');
 Route::post('/regis-sponsor', [SponsorController::class, 'register_sponsor']);
 Route::get('/sponsor/{id}', [SponsorController::class, 'show_sponsor']);
 
@@ -435,6 +440,8 @@ Route::prefix('admin')->group(function () {
         ->name('admin.company_database.update');
     Route::post('/company-database/sync-all', [CompanyDatabaseController::class, 'syncAll'])
         ->name('admin.company_database.sync_all');
+    Route::get('/interview-schedule/sponsor', [AdminSponsorInterviewScheduleController::class, 'index'])
+        ->name('admin.interview-schedule.sponsor.index');
 
     //Invoice
     Route::get('invoice', [InvoiceController::class, 'index']);

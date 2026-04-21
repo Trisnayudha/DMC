@@ -41,6 +41,12 @@
                 <span>Company Database</span>
             </a>
         </li>
+        <li class="{{ request()->is('admin/interview-schedule*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.interview-schedule.sponsor.index') }}">
+                <i class="fas fa-microphone"></i>
+                <span>Interview Schedule</span>
+            </a>
+        </li>
 
         <li>
             <a class="nav-link" href="{{ Route('digital-edition.index') }}">
