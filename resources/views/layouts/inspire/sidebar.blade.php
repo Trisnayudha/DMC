@@ -35,6 +35,12 @@
                 <span>Master Database</span>
             </a>
         </li>
+        <li class="{{ request()->is('admin/company-database*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.company_database.index') }}">
+                <i class="fas fa-building"></i>
+                <span>Company Database</span>
+            </a>
+        </li>
 
         <li>
             <a class="nav-link" href="{{ Route('digital-edition.index') }}">

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdvertisementController;
 use App\Http\Controllers\Admin\DigitalEditionController;
+use App\Http\Controllers\Admin\CompanyDatabaseController;
 use App\Http\Controllers\Admin\EventCategoryController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\EventsConferenceController;
@@ -426,6 +427,14 @@ Route::prefix('admin')->group(function () {
     Route::post('member/{id}/export', [UsersController::class, 'export'])->name('admin.member.export');
     Route::get('/master-database', [App\Http\Controllers\Admin\MasterDatabaseController::class, 'index'])
         ->name('admin.master_database.index');
+    Route::get('/company-database', [CompanyDatabaseController::class, 'index'])
+        ->name('admin.company_database.index');
+    Route::post('/company-database/sync', [CompanyDatabaseController::class, 'sync'])
+        ->name('admin.company_database.sync');
+    Route::post('/company-database/update', [CompanyDatabaseController::class, 'update'])
+        ->name('admin.company_database.update');
+    Route::post('/company-database/sync-all', [CompanyDatabaseController::class, 'syncAll'])
+        ->name('admin.company_database.sync_all');
 
     //Invoice
     Route::get('invoice', [InvoiceController::class, 'index']);
