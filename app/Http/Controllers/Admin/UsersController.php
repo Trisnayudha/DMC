@@ -26,33 +26,21 @@ class UsersController extends Controller
     }
     public function index(Request $request)
     {
-        $filter    = $request->filter;
-        $dateFrom  = $request->date_from;
-        $dateTo    = $request->date_to;
-        $month     = $request->month;
-        $year      = $request->year;
+        $filter       = $request->filter;
+        $dateFrom     = $request->date_from;
+        $dateTo       = $request->date_to;
+        $month        = $request->month;
+        $year         = $request->year;
+        $statusMember = $request->status_member; // 'active' | 'pending' | ''
 
         if ($filter == 'unregist') {
             $query = MemberModel::whereNull('register_as');
 
-            // filter tanggal
-            if ($dateFrom) {
-                $query->whereDate('created_at', '>=', $dateFrom);
-            }
+            if ($dateFrom) $query->whereDate('created_at', '>=', $dateFrom);
+            if ($dateTo)   $query->whereDate('created_at', '<=', $dateTo);
+            if ($month)    $query->whereMonth('created_at', $month);
+            if ($year)     $query->whereYear('created_at', $year);
 
-            if ($dateTo) {
-                $query->whereDate('created_at', '<=', $dateTo);
-            }
-
-            if ($month) {
-                $query->whereMonth('created_at', $month);
-            }
-
-            if ($year) {
-                $query->whereYear('created_at', $year);
-            }
-
-            // default lama kalau tidak ada filter apapun
             if (!$dateFrom && !$dateTo && !$month && !$year) {
                 $query->where('created_at', '>=', Carbon::now()->startOfYear());
             }
@@ -66,74 +54,77 @@ class UsersController extends Controller
             if ($filter == 'this_month') {
                 $query->whereBetween('users.created_at', [
                     Carbon::now()->startOfMonth(),
-                    Carbon::now()->endOfMonth()
+                    Carbon::now()->endOfMonth(),
                 ]);
             }
 
-            // filter tanggal
-            if ($dateFrom) {
-                $query->whereDate('users.created_at', '>=', $dateFrom);
+            if ($statusMember === 'active') {
+                $query->where('users.status_member', 'active');
+            } elseif ($statusMember === 'pending') {
+                $query->where(function ($q) {
+                    $q->whereNull('users.status_member')
+                      ->orWhere('users.status_member', '!=', 'active');
+                });
             }
 
-            if ($dateTo) {
-                $query->whereDate('users.created_at', '<=', $dateTo);
-            }
-
-            if ($month) {
-                $query->whereMonth('users.created_at', $month);
-            }
-
-            if ($year) {
-                $query->whereYear('users.created_at', $year);
-            }
+            if ($dateFrom) $query->whereDate('users.created_at', '>=', $dateFrom);
+            if ($dateTo)   $query->whereDate('users.created_at', '<=', $dateTo);
+            if ($month)    $query->whereMonth('users.created_at', $month);
+            if ($year)     $query->whereYear('users.created_at', $year);
 
             $list = $query->orderBy('users.id', 'desc')
                 ->select(
                     'users.*',
-                    'users.id as id',
                     'users.created_at as user_created_at',
                     'profiles.*',
-                    'company.*'
+                    'company.*',
+                    'users.id as user_id'
                 )
                 ->get();
         }
 
-        $countMember = User::whereNotNull('users.isStatus')
-            ->where('created_at', '>=', Carbon::now()->startOfYear())
+        // Stats
+        $countActiveMember = User::whereNotNull('isStatus')
+            ->where('status_member', 'active')
             ->count();
 
-        $countVerifyEmail = User::whereNotNull('users.isStatus')
-            ->where('created_at', '>=', Carbon::now()->startOfYear())
-            ->whereNotNull('verify_email')
-            ->whereNull('verify_phone')
+        $countPendingMember = User::whereNotNull('isStatus')
+            ->where(function ($q) {
+                $q->whereNull('status_member')
+                  ->orWhere('status_member', '!=', 'active');
+            })
             ->count();
 
-        $countVerifyPhone = User::whereNotNull('users.isStatus')
-            ->where('created_at', '>=', Carbon::now()->startOfYear())
-            ->whereNotNull('verify_phone')
-            ->whereNull('verify_email')
-            ->count();
-
-        $countDoubleVerify = User::whereNotNull('users.isStatus')
-            ->where('created_at', '>=', Carbon::now()->startOfYear())
-            ->whereNotNull('verify_phone')
-            ->whereNotNull('verify_email')
+        $countNewThisMonth = User::whereNotNull('isStatus')
+            ->whereBetween('created_at', [
+                Carbon::now()->startOfMonth(),
+                Carbon::now()->endOfMonth(),
+            ])
             ->count();
 
         $countUnRegistered = MemberModel::where('created_at', '>=', Carbon::now()->startOfYear())
             ->whereNull('register_as')
             ->count();
 
-        $data = [
-            'list' => $list,
-            'countMember' => $countMember,
-            'countVerifyEmail' => $countVerifyEmail,
-            'countVerifyPhone' => $countVerifyPhone,
-            'countUnRegistered' => $countUnRegistered,
-            'countDoubleVerify' => $countDoubleVerify
-        ];
+        $countVerifyEmail = User::whereNotNull('isStatus')
+            ->whereNotNull('verify_email')->whereNull('verify_phone')->count();
 
-        return view('admin.users.index', $data);
+        $countVerifyPhone = User::whereNotNull('isStatus')
+            ->whereNotNull('verify_phone')->whereNull('verify_email')->count();
+
+        $countDoubleVerify = User::whereNotNull('isStatus')
+            ->whereNotNull('verify_phone')->whereNotNull('verify_email')->count();
+
+        return view('admin.users.index', [
+            'list'               => $list,
+            'countActiveMember'  => $countActiveMember,
+            'countPendingMember' => $countPendingMember,
+            'countNewThisMonth'  => $countNewThisMonth,
+            'countUnRegistered'  => $countUnRegistered,
+            'countVerifyEmail'   => $countVerifyEmail,
+            'countVerifyPhone'   => $countVerifyPhone,
+            'countDoubleVerify'  => $countDoubleVerify,
+        ]);
     }
 
     public function store(Request $request)
@@ -187,6 +178,68 @@ class UsersController extends Controller
             'success' => true,
             'message' => 'Tier updated.',
             'tier'    => $user->tier,
+        ]);
+    }
+
+    public function verifyMember(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $user->status_member = 'active';
+        $user->save();
+
+        // Auto-import to Mailchimp after verify
+        $company = CompanyModel::where('users_id', $user->id)->first();
+        $profile = ProfileModel::where('users_id', $user->id)->first();
+
+        $email = strtolower(trim($user->email ?? ''));
+
+        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            try {
+                $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
+                $server = config('newsletter.server') ?: (explode('-', $apiKey)[1] ?? null);
+                $listId = config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID');
+
+                if ($apiKey && $server && $listId) {
+                    $merge = [];
+                    if (!empty($user->name))                  $merge['FNAME']   = $user->name;
+                    if (!empty($profile->job_title))          $merge['MMERGE8'] = $profile->job_title;
+                    if (!empty($company->company_name))       $merge['MMERGE5'] = $company->company_name;
+                    if (!empty($company->company_category))   $merge['MMERGE6'] = $company->company_category === 'other' ? ($company->company_other ?? 'other') : $company->company_category;
+                    if (!empty($company->office_number))      $merge['MMERGE11'] = $company->office_number;
+                    if (!empty($company->company_website))    $merge['MMERGE13'] = $company->company_website;
+                    $merge['MMERGE10'] = now()->toDateTimeString();
+
+                    $phone = $profile->fullphone ?? $profile->phone ?? null;
+                    if ($phone && preg_match('/^\+\d[\d\s\-\(\)]{5,}$/', trim((string) $phone))) {
+                        $merge['MERGE4'] = trim((string) $phone);
+                    }
+
+                    $subscriberHash = md5($email);
+                    Http::withBasicAuth('anystring', $apiKey)
+                        ->timeout(20)
+                        ->put("https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}", [
+                            'email_address' => $email,
+                            'status_if_new' => 'subscribed',
+                            'status'        => 'subscribed',
+                            'merge_fields'  => $merge,
+                        ]);
+
+                    Http::withBasicAuth('anystring', $apiKey)
+                        ->post("https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/tags", [
+                            'tags' => [
+                                ['name' => 'Register of Membership ' . now()->format('d M Y'), 'status' => 'active'],
+                                ['name' => 'Verified Member', 'status' => 'active'],
+                            ],
+                        ]);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('verifyMember: Mailchimp import failed for user ' . $id . ': ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Member verified dan data telah diimport ke Mailchimp.',
         ]);
     }
 
