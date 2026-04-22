@@ -265,6 +265,28 @@ class UsersController extends Controller
             // Helper kecil
             $clean = fn($v) => is_string($v) ? trim($v) : (is_null($v) ? null : $v);
             $validEmail = fn($e) => filter_var($e, FILTER_VALIDATE_EMAIL);
+            $normalizeHeader = function ($header) {
+                $header = strtolower(trim((string) $header));
+                if ($header === '') {
+                    return '';
+                }
+                // Samakan format header: "Email Address" -> "email address"
+                $header = preg_replace('/[^a-z0-9]+/i', ' ', $header);
+                return trim(preg_replace('/\s+/', ' ', $header));
+            };
+            $nullIfPlaceholder = function ($value) use ($clean) {
+                $value = $clean($value);
+                if (!is_string($value)) {
+                    return $value;
+                }
+
+                $normalized = strtolower(trim($value));
+                if (in_array($normalized, ['-', '--', 'n/a', 'na', 'null', 'none'], true)) {
+                    return null;
+                }
+
+                return $value;
+            };
             $normPhone = function ($p) {
                 if (!$p) return null;
                 $p = preg_replace('/[^0-9+]/', '', (string)$p);
@@ -282,24 +304,58 @@ class UsersController extends Controller
                 return $u;
             };
 
+            // Build mapping header -> column letter (row 1)
+            $highestColumn = $sheet->getHighestDataColumn();
+            $headerRow     = $sheet->rangeToArray("A1:{$highestColumn}1", null, true, true, true)[1] ?? [];
+            $headerToCol   = [];
+            foreach ($headerRow as $columnLetter => $headerValue) {
+                $normalizedHeader = $normalizeHeader($headerValue);
+                if ($normalizedHeader !== '') {
+                    $headerToCol[$normalizedHeader] = $columnLetter;
+                }
+            }
+
+            $getCellValue = function ($columnLetter, $row) use ($sheet, $clean) {
+                $cell = $sheet->getCell($columnLetter . $row);
+                $rawValue = $cell->getValue();
+
+                // Untuk numeric (terutama nomor telepon), gunakan formatted value agar tidak scientific notation
+                if (is_numeric($rawValue)) {
+                    return $clean($cell->getFormattedValue());
+                }
+
+                return $clean($rawValue);
+            };
+
+            $valueFromAliases = function (int $row, array $aliases, ?string $fallbackColumn = null) use ($headerToCol, $normalizeHeader, $getCellValue) {
+                foreach ($aliases as $alias) {
+                    $normalizedAlias = $normalizeHeader($alias);
+                    if (isset($headerToCol[$normalizedAlias])) {
+                        return $getCellValue($headerToCol[$normalizedAlias], $row);
+                    }
+                }
+
+                return $fallbackColumn ? $getCellValue($fallbackColumn, $row) : null;
+            };
+
             DB::beginTransaction();
 
             for ($row = $startRow; $row <= $lastRow; $row++) {
                 try {
-                    // ambil per kolom (sesuai mapping di atas)
-                    $companyName   = $clean($sheet->getCell('A' . $row)->getValue());
-                    $name          = $clean($sheet->getCell('B' . $row)->getValue());
-                    $jobTitle      = $clean($sheet->getCell('C' . $row)->getValue());
-                    $phoneRaw      = $clean($sheet->getCell('D' . $row)->getValue());
-                    $email         = strtolower($clean($sheet->getCell('E' . $row)->getValue()));
-                    $companyWeb    = $normUrl($sheet->getCell('F' . $row)->getValue());
-                    $companyCat    = $clean($sheet->getCell('G' . $row)->getValue());
-                    $companyOther  = $clean($sheet->getCell('H' . $row)->getValue());
-                    $address       = $clean($sheet->getCell('I' . $row)->getValue());
-                    $city          = $clean($sheet->getCell('J' . $row)->getValue());
-                    $portalCode    = $clean($sheet->getCell('K' . $row)->getValue());
-                    $officeNumber  = $clean($sheet->getCell('L' . $row)->getValue());
-                    $registerAs    = $clean($sheet->getCell('M' . $row)->getValue()); // optional
+                    // Mapping berdasarkan header template, fallback ke posisi lama agar tetap backward-compatible
+                    $name          = $valueFromAliases($row, ['Name'], 'B');
+                    $jobTitle      = $valueFromAliases($row, ['Job title', 'Job Title'], 'C');
+                    $companyName   = $valueFromAliases($row, ['Company name', 'Company Name'], 'A');
+                    $email         = strtolower((string) $valueFromAliases($row, ['Email Address', 'Email'], 'E'));
+                    $phoneRaw      = $valueFromAliases($row, ['Mobile Phone', 'Phone', 'Phone Number'], 'D');
+                    $officeNumber  = $valueFromAliases($row, ['Office Number', 'Full Office Number'], 'L');
+                    $address       = $valueFromAliases($row, ['Office Address', 'Address'], 'I');
+                    $companyWeb    = $normUrl($valueFromAliases($row, ['Website', 'Company Website'], 'F'));
+                    $companyCat    = $valueFromAliases($row, ['Category', 'Company Category'], 'G');
+                    $companyOther  = $valueFromAliases($row, ['Company Other', 'Other Category'], 'H');
+                    $city          = $valueFromAliases($row, ['City'], 'J');
+                    $portalCode    = $valueFromAliases($row, ['Portal Code', 'Postal Code', 'Zip Code'], 'K');
+                    $registerAs    = $nullIfPlaceholder($valueFromAliases($row, ['Register As', 'Source'], 'M')); // optional
 
                     // skip baris kosong total
                     if (!$email && !$name && !$companyName) {
@@ -323,27 +379,38 @@ class UsersController extends Controller
                     if (!$user->exists && empty($user->password)) {
                         $user->password = bcrypt(Str::random(12));
                     }
-                    $user->source = $registerAs;
+                    if ($registerAs) {
+                        $user->source = $registerAs;
+                    }
                     $user->save();
 
                     // upsert Company (by users_id)
                     /** @var \App\Models\CompanyModel $company */
                     $company = CompanyModel::firstOrNew(['users_id' => $user->id]);
-                    $company->company_name     = $companyName;
-                    $company->company_website  = $companyWeb;
-                    $company->company_category = $companyCat;
-                    $company->company_other    = $companyOther; // simpan 'register as' jika ada
-                    $company->address          = $address;
-                    $company->city             = $city;
-                    $company->portal_code      = $portalCode;
-                    $company->full_office_number = $officeNumber;
+                    if ($companyName)  $company->company_name = $companyName;
+                    if ($companyWeb)   $company->company_website = $companyWeb;
+                    if ($companyCat)   $company->company_category = $companyCat;
+                    if ($companyOther) $company->company_other = $companyOther;
+                    if ($address)      $company->address = $address;
+                    if ($city)         $company->city = $city;
+                    if ($portalCode)   $company->portal_code = $portalCode;
+                    if ($officeNumber) {
+                        $company->office_number = $officeNumber;
+                        $company->full_office_number = $officeNumber;
+                    }
                     $company->save();
 
                     // upsert Profile (by users_id)
                     /** @var \App\Models\ProfileModel $profile */
                     $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
-                    $profile->fullphone  = $normPhone($phoneRaw);
-                    $profile->job_title  = $jobTitle;
+                    $phoneNormalized = $normPhone($phoneRaw);
+                    if ($phoneNormalized) {
+                        $profile->fullphone  = $phoneNormalized;
+                        $profile->phone      = $phoneNormalized;
+                    }
+                    if ($jobTitle) {
+                        $profile->job_title  = $jobTitle;
+                    }
                     $profile->users_id   = $user->id;
                     $profile->company_id = $company->id;
                     $profile->save();
