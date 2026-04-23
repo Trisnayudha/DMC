@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Helpers\EmailSender;
 use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Sponsors\Sponsor;
@@ -15,11 +16,16 @@ class SponsorInterviewScheduleController extends Controller
 {
     public function create()
     {
+        $allowedNames = $this->allowedSponsorNames();
+
         $sponsors = Sponsor::query()
             ->where('status', 'publish')
-            ->whereIn('package', ['silver', 'gold'])
-            ->orderBy('name')
-            ->get(['id', 'name', 'package']);
+            ->whereIn('name', $allowedNames)
+            ->get(['id', 'name', 'package'])
+            ->sortBy(function ($sponsor) use ($allowedNames) {
+                return array_search($sponsor->name, $allowedNames, true);
+            })
+            ->values();
 
         $bookedSlots = SponsorInterviewSchedule::query()
             ->pluck('preferred_time_slot')
@@ -30,6 +36,7 @@ class SponsorInterviewScheduleController extends Controller
             'timeSlots' => $this->timeSlots(),
             'questions' => $this->questions(),
             'bookedSlots' => $bookedSlots,
+            'maxAdditionalByName' => $this->maxAdditionalBySponsorName(),
         ]);
     }
 
@@ -37,6 +44,8 @@ class SponsorInterviewScheduleController extends Controller
     {
         $validated = $request->validate([
             'company_id' => ['required', 'integer', Rule::exists('sponsors', 'id')],
+            'pic_name' => 'required|string|max:255',
+            'pic_email' => 'required|email|max:255',
             'number_of_interviewees' => 'required|integer|min:1|max:5',
             'interviewees' => 'required|array|min:1|max:5',
             'interviewees.*.name' => 'required|string|max:255',
@@ -55,9 +64,9 @@ class SponsorInterviewScheduleController extends Controller
             return back()->withErrors(['company_id' => 'Company sponsor tidak ditemukan.'])->withInput();
         }
 
-        $package = strtolower((string) $sponsor->package);
-        if (!in_array($package, ['silver', 'gold'], true)) {
-            return back()->withErrors(['company_id' => 'Hanya sponsor Silver / Gold yang bisa mengisi form ini.'])->withInput();
+        $allowedNameLimits = $this->maxAdditionalBySponsorName();
+        if (!array_key_exists($sponsor->name, $allowedNameLimits)) {
+            return back()->withErrors(['company_id' => 'Company sponsor tidak termasuk daftar interview IM 2026.'])->withInput();
         }
 
         $selectedQuestions = collect($validated['selected_questions'])
@@ -76,10 +85,10 @@ class SponsorInterviewScheduleController extends Controller
             ->reject(fn($q) => in_array($q, [1, 11], true))
             ->count();
 
-        $maxAdditional = $package === 'silver' ? 3 : 5;
+        $maxAdditional = $allowedNameLimits[$sponsor->name];
         if ($additionalCount > $maxAdditional) {
             return back()->withErrors([
-                'selected_questions' => "Sponsor {$package} maksimal memilih {$maxAdditional} pertanyaan tambahan.",
+                'selected_questions' => "Sponsor ini maksimal memilih {$maxAdditional} pertanyaan tambahan.",
             ])->withInput();
         }
 
@@ -99,11 +108,15 @@ class SponsorInterviewScheduleController extends Controller
             ])->withInput();
         }
 
+        $package = strtolower((string) $sponsor->package);
+
         try {
             $saved = SponsorInterviewSchedule::create([
                 'sponsor_id' => $sponsor->id,
                 'company_name' => $sponsor->name,
                 'sponsor_package' => $package,
+                'pic_name' => $validated['pic_name'],
+                'pic_email' => $validated['pic_email'],
                 'number_of_interviewees' => (int) $validated['number_of_interviewees'],
                 'interviewees' => array_values($validated['interviewees']),
                 'preferred_time_slot' => $validated['preferred_time_slot'],
@@ -121,10 +134,11 @@ class SponsorInterviewScheduleController extends Controller
         }
 
         $this->sendInterviewScheduleNotification($saved, $selectedQuestions->all());
+        $this->sendInterviewScheduleConfirmationEmail($saved, $selectedQuestions->all());
 
         return redirect()
             ->route('sponsor.interview-schedule.create')
-            ->with('success', 'Interview schedule berhasil dikirim.');
+            ->with('success', 'Thank you. We have successfully received your submission. A summary of your responses has been sent to your email.');
     }
 
     public function bookedSlots()
@@ -176,6 +190,42 @@ class SponsorInterviewScheduleController extends Controller
         ];
     }
 
+    private function allowedSponsorNames(): array
+    {
+        return [
+            'MMD Mining Machinery Indonesia',
+            'Weir Minerals',
+            'PT Suprabakti Mandiri',
+            'Mclanahan',
+            'PT Teknokraftindo Asia',
+            'PT Puncakbaru Jayatama',
+            'Diamond Hire Group',
+            'PT Hexindo Adiperkasa Tbk',
+            'PT Herrenknecht Tunnelling Systems Indonesia',
+            'PT Valenza Engineering Asia',
+            'Deswik Mining Consultant (Australia) Pty Ltd',
+            'Johnson Screens',
+        ];
+    }
+
+    private function maxAdditionalBySponsorName(): array
+    {
+        return [
+            'MMD Mining Machinery Indonesia' => 5,
+            'Weir Minerals' => 5,
+            'PT Suprabakti Mandiri' => 5,
+            'Mclanahan' => 5,
+            'PT Teknokraftindo Asia' => 5,
+            'PT Puncakbaru Jayatama' => 5,
+            'Diamond Hire Group' => 3,
+            'PT Hexindo Adiperkasa Tbk' => 3,
+            'PT Herrenknecht Tunnelling Systems Indonesia' => 3,
+            'PT Valenza Engineering Asia' => 3,
+            'Deswik Mining Consultant (Australia) Pty Ltd' => 3,
+            'Johnson Screens' => 3,
+        ];
+    }
+
     private function sendInterviewScheduleNotification(SponsorInterviewSchedule $schedule, array $selectedQuestions): void
     {
         try {
@@ -191,6 +241,8 @@ class SponsorInterviewScheduleController extends Controller
             $message = "New Sponsor Interview Schedule Submitted\n\n"
                 . "Company: {$schedule->company_name}\n"
                 . "Package: " . strtoupper((string) $schedule->sponsor_package) . "\n"
+                . "PIC Name: {$schedule->pic_name}\n"
+                . "PIC Email: {$schedule->pic_email}\n"
                 . "Time Slot: {$schedule->preferred_time_slot}\n"
                 . "Number of Interviewees: {$schedule->number_of_interviewees}\n"
                 . "Selected Questions: " . implode(', ', $selectedQuestions) . "\n"
@@ -203,6 +255,38 @@ class SponsorInterviewScheduleController extends Controller
             $wa->WhatsappMessageGroup();
         } catch (\Throwable $e) {
             Log::warning('Failed sending sponsor interview schedule WA notification: ' . $e->getMessage());
+        }
+    }
+
+    private function sendInterviewScheduleConfirmationEmail(SponsorInterviewSchedule $schedule, array $selectedQuestions): void
+    {
+        try {
+            $questionMap = $this->questions();
+
+            $questionDetails = collect($selectedQuestions)
+                ->map(function ($no) use ($questionMap) {
+                    return [
+                        'no' => (int) $no,
+                        'text' => $questionMap[(int) $no] ?? '',
+                    ];
+                })
+                ->values()
+                ->all();
+
+            $send = new EmailSender();
+            $send->subject = 'Djakarta Mining Club - Indonesia Miner 2026 Interview Confirmation';
+            $send->template = 'email.interview-schedule-confirmation';
+            $send->data = [
+                'schedule' => $schedule,
+                'questionDetails' => $questionDetails,
+            ];
+            $send->name = (string) $schedule->pic_name;
+            $send->from = env('EMAIL_SENDER');
+            $send->name_sender = env('EMAIL_NAME');
+            $send->to = (string) $schedule->pic_email;
+            $send->sendEmail();
+        } catch (\Throwable $e) {
+            Log::warning('Failed sending sponsor interview schedule confirmation email: ' . $e->getMessage());
         }
     }
 }

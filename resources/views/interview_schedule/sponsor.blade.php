@@ -113,14 +113,6 @@
             background: var(--dmc-red-dark);
         }
 
-        .note-box {
-            font-size: .82rem;
-            border-radius: 8px;
-            background: #fff8f0;
-            border: 1px solid #fcd9bd;
-            padding: 10px 12px;
-        }
-
         .question-item {
             border: 1px solid #edf0f3;
             border-radius: 10px;
@@ -199,9 +191,25 @@
 
                     <form action="{{ route('sponsor.interview-schedule.store') }}" method="POST" id="interview-form">
                         @csrf
+                        <div class="form-section">
+                            <div class="form-section-title">Interview Guidelines & Terms of Participation</div>
+                            <ol class="guideline-list">
+                                <li>The interview will be conducted on 5 May 2026 at each respective sponsor's booth,
+                                    and the Djakarta Mining Club team and videographer will visit based on the selected
+                                    time slot.</li>
+                                <li>Each interview session will have a duration of 10-15 minutes for video recording.
+                                </li>
+                                <li>Each sponsor may assign 1-5 participants per session; interviews can be conducted
+                                    with one or multiple participants, who will take turns answering the selected
+                                    questions.</li>
+                                <li>The final interview video will be approximately 1 minute long; therefore,
+                                    participants are requested to select a suitable number of questions to be answered.
+                                </li>
+                            </ol>
+                        </div>
 
                         <div class="form-section">
-                            <div class="form-section-title">Interview Setup</div>
+                            <div class="form-section-title">Company Name</div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -209,25 +217,16 @@
                                         <select name="company_id" id="company_id" class="form-control js-select2" required>
                                             <option value="">-- Select Sponsor --</option>
                                             @foreach ($sponsors as $sponsor)
-                                                <option value="{{ $sponsor->id }}" data-package="{{ strtolower($sponsor->package) }}"
+                                                <option value="{{ $sponsor->id }}"
+                                                    data-max-optional="{{ (int) ($maxAdditionalByName[$sponsor->name] ?? 0) }}"
                                                     {{ (string) old('company_id') === (string) $sponsor->id ? 'selected' : '' }}>
-                                                    {{ $sponsor->name }} ({{ ucfirst($sponsor->package) }})
+                                                    {{ $sponsor->name }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Number of Interviewees <small>*</small></label>
-                                        <select name="number_of_interviewees" id="number_of_interviewees" class="form-control" required>
-                                            @for ($i = 1; $i <= 5; $i++)
-                                                <option value="{{ $i }}" {{ (int) old('number_of_interviewees', 1) === $i ? 'selected' : '' }}>{{ $i }}</option>
-                                            @endfor
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label>Preferred Interview Time Slot <small>*</small></label>
                                         <select name="preferred_time_slot" id="preferred_time_slot" class="form-control" required>
@@ -240,33 +239,74 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="text-muted">Once selected by another sponsor, a slot is no longer available.</small>
+                                        <small class="text-muted">Once selected by another sponsor, a slot is no longer
+                                            available.</small>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="note-box">
-                                Required questions: <strong>#1</strong> and <strong>#11</strong>.<br>
-                                Additional questions are optional: Silver sponsor can choose up to <strong>3</strong>, Gold sponsor up to <strong>5</strong>.
                             </div>
                         </div>
 
                         <div class="form-section">
-                            <div class="form-section-title">Interviewee Details</div>
-                            <div class="section-subtitle">Fields below will follow your selected number of interviewees.</div>
+                            <div class="form-section-title">PIC Name, Address, Message</div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>PIC Name <small>*</small></label>
+                                        <input type="text" name="pic_name" class="form-control"
+                                            value="{{ old('pic_name') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>PIC Email Address <small>*</small></label>
+                                        <input type="email" name="pic_email" class="form-control"
+                                            value="{{ old('pic_email') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <small class="text-muted">A copy of this form response will be sent to the email address provided above</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">Number of Interviewees</div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-0">
+                                        <label>Number of Interviewees <small>*</small></label>
+                                        <select name="number_of_interviewees" id="number_of_interviewees"
+                                            class="form-control" required>
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <option value="{{ $i }}"
+                                                    {{ (int) old('number_of_interviewees', 1) === $i ? 'selected' : '' }}>
+                                                    {{ $i }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">Interviewee Details (Name & Job Title)</div>
+                            <div class="section-subtitle">Fields below will follow your selected number of interviewees.
+                            </div>
                             <div id="interviewees-container"></div>
                         </div>
 
                         <div class="form-section">
                             <div class="form-section-title">List of Questions</div>
-                            <div class="section-subtitle">Please select your questions by ticking the boxes.</div>
 
                             <div class="question-item required">
                                 <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input required-question" id="question_1" name="selected_questions[]" value="1"
+                                    <input type="checkbox" class="custom-control-input required-question"
+                                        id="question_1" name="selected_questions[]" value="1"
                                         {{ in_array(1, old('selected_questions', [1, 11])) ? 'checked' : '' }}>
                                     <label class="custom-control-label" for="question_1">
                                         <span class="question-no">#1</span>
-                                        Could you briefly introduce your company, including your core business and expertise?
+                                        Could you briefly introduce your company, including your core business and
+                                        expertise?
                                     </label>
                                 </div>
                             </div>
@@ -275,7 +315,9 @@
                                 @if (!in_array($no, [1, 11], true))
                                     <div class="question-item">
                                         <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input optional-question" id="question_{{ $no }}" name="selected_questions[]" value="{{ $no }}"
+                                            <input type="checkbox" class="custom-control-input optional-question"
+                                                id="question_{{ $no }}" name="selected_questions[]"
+                                                value="{{ $no }}"
                                                 {{ in_array($no, old('selected_questions', [])) ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="question_{{ $no }}">
                                                 <span class="question-no">#{{ $no }}</span>{{ $question }}
@@ -287,7 +329,8 @@
 
                             <div class="question-item required mb-0">
                                 <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input required-question" id="question_11" name="selected_questions[]" value="11"
+                                    <input type="checkbox" class="custom-control-input required-question"
+                                        id="question_11" name="selected_questions[]" value="11"
                                         {{ in_array(11, old('selected_questions', [1, 11])) ? 'checked' : '' }}>
                                     <label class="custom-control-label" for="question_11">
                                         <span class="question-no">#11</span>
@@ -302,22 +345,24 @@
                         </div>
 
                         <div class="form-section">
-                            <div class="form-section-title">Interview Guidelines & Terms of Participation</div>
-                            <ol class="guideline-list">
-                                <li>The interview will be conducted on 5 May 2026 at each respective sponsor's booth, and the Djakarta Mining Club team and videographer will visit based on the selected time slot.</li>
-                                <li>Each interview session will have a duration of 10-15 minutes for video recording.</li>
-                                <li>Each sponsor may assign 1-5 participants per session; interviews can be conducted with one or multiple participants, who will take turns answering the selected questions.</li>
-                                <li>The final interview video will be approximately 1 minute long; therefore, participants are requested to select a suitable number of questions to be answered.</li>
-                            </ol>
-                        </div>
-
-                        <div class="form-section">
                             <div class="form-section-title">Sample Interview Script</div>
                             <div class="script-text">
-                                Djakarta Mining Club members,<br><br>
-                                We are from [Company Name], a trusted provider of integrated mining solutions, specializing in innovative technologies that drive operational excellence, safety, and productivity across mining operations. At Indonesia Miner 2026, we are proud to showcase our latest solutions, including advanced digital and operational technologies designed to help mining companies enhance site performance, optimize workflows, and achieve greater efficiency in an increasingly competitive industry landscape.<br><br>
-                                Today's mining sector is rapidly evolving toward smarter, more data-driven, and sustainable operations, while also facing key challenges such as cost efficiency, productivity pressures, and operational complexity. In response, we continuously innovate and tailor our solutions to meet the changing needs of the industry.<br><br>
-                                We strongly believe that collaboration and strategic partnerships are essential in shaping the future of mining, enabling innovation and long-term value creation across the ecosystem. You can find us at Booth A12, where we warmly invite you to visit, explore our solutions, and connect with our team to discuss how we can support your mining operations and future growth.
+                                Hello Djakarta Mining Club Members,<br><br>
+                                We are from [Company Name], a trusted provider of integrated mining solutions,
+                                specializing in innovative technologies that drive operational excellence, safety, and
+                                productivity across mining operations. At Indonesia Miner 2026, we are proud to showcase
+                                our latest solutions, including advanced digital and operational technologies designed
+                                to help mining companies enhance site performance, optimize workflows, and achieve
+                                greater efficiency in an increasingly competitive industry landscape.<br><br>
+                                Today's mining sector is rapidly evolving toward smarter, more data-driven, and
+                                sustainable operations, while also facing key challenges such as cost efficiency,
+                                productivity pressures, and operational complexity. In response, we continuously
+                                innovate and tailor our solutions to meet the changing needs of the industry.<br><br>
+                                We strongly believe that collaboration and strategic partnerships are essential in
+                                shaping the future of mining, enabling innovation and long-term value creation across
+                                the ecosystem. You can find us at Booth A12, where we warmly invite you to visit,
+                                explore our solutions, and connect with our team to discuss how we can support your
+                                mining operations and future growth.
                             </div>
                         </div>
 
@@ -345,16 +390,9 @@
                 return isNaN(parsed) ? fallback : parsed;
             }
 
-            function companyPackage() {
+            function companyMaxAdditional() {
                 var option = $('#company_id option:selected');
-                return (option.data('package') || '').toString().toLowerCase();
-            }
-
-            function maxOptionalByPackage() {
-                var pkg = companyPackage();
-                if (pkg === 'silver') return 3;
-                if (pkg === 'gold') return 5;
-                return 0;
+                return toInt(option.data('max-optional'), 0);
             }
 
             function renderInterviewees() {
@@ -368,8 +406,14 @@
                     html += '<div class="interviewee-item">';
                     html += '<div class="font-weight-bold mb-2">Interviewee ' + (i + 1) + '</div>';
                     html += '<div class="row">';
-                    html += '<div class="col-md-6"><div class="form-group mb-2"><label>Name <small>*</small></label><input type="text" name="interviewees[' + i + '][name]" class="form-control" value="' + oldName.replace(/"/g, '&quot;') + '" required></div></div>';
-                    html += '<div class="col-md-6"><div class="form-group mb-2"><label>Job Title <small>*</small></label><input type="text" name="interviewees[' + i + '][job_title]" class="form-control" value="' + oldJob.replace(/"/g, '&quot;') + '" required></div></div>';
+                    html +=
+                        '<div class="col-md-6"><div class="form-group mb-2"><label>Name <small>*</small></label><input type="text" name="interviewees[' +
+                        i + '][name]" class="form-control" value="' + oldName.replace(/"/g, '&quot;') +
+                        '" required></div></div>';
+                    html +=
+                        '<div class="col-md-6"><div class="form-group mb-2"><label>Job Title <small>*</small></label><input type="text" name="interviewees[' +
+                        i + '][job_title]" class="form-control" value="' + oldJob.replace(/"/g, '&quot;') +
+                        '" required></div></div>';
                     html += '</div>';
                     html += '</div>';
                 }
@@ -378,27 +422,26 @@
             }
 
             function enforceQuestionRules() {
-                maxOptional = maxOptionalByPackage();
+                maxOptional = companyMaxAdditional();
 
-                // #1 and #11 always checked
                 $('#question_1').prop('checked', true);
                 $('#question_11').prop('checked', true);
 
                 var selectedOptional = $('.optional-question:checked').length;
 
-                if (maxOptional === 0) {
-                    $('.optional-question').prop('disabled', true);
-                    $('#question-counter').text('Select a company first to enable optional questions.');
-                    return;
+                if (maxOptional <= 0) {
+                    $('.optional-question').prop('checked', false).prop('disabled', true);
+                    selectedOptional = 0;
+                } else {
+                    $('.optional-question').prop('disabled', false);
+
+                    if (selectedOptional >= maxOptional) {
+                        $('.optional-question:not(:checked)').prop('disabled', true);
+                    }
                 }
 
-                $('.optional-question').prop('disabled', false);
-
-                if (selectedOptional >= maxOptional) {
-                    $('.optional-question:not(:checked)').prop('disabled', true);
-                }
-
-                $('#question-counter').text('Selected additional questions: ' + selectedOptional + ' / ' + maxOptional + ' max (' + companyPackage().toUpperCase() + ')');
+                $('#question-counter').text('Selected additional questions: ' + selectedOptional + ' / ' + maxOptional +
+                    ' max');
             }
 
             function applyBookedSlots(booked, showWarningWhenSelectedTaken) {
@@ -450,7 +493,6 @@
                 });
 
                 $('#company_id').on('change', function() {
-                    // reset optional questions when sponsor changes
                     $('.optional-question').prop('checked', false).prop('disabled', false);
                     enforceQuestionRules();
                 });
@@ -479,7 +521,6 @@
                             form.submit();
                         }
                     }).fail(function() {
-                        // fallback: allow submit, server still protected by unique constraint
                         form.submit();
                     });
                 });

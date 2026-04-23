@@ -13,6 +13,8 @@ class SponsorInterviewSchedule extends Model
         'sponsor_id',
         'company_name',
         'sponsor_package',
+        'pic_name',
+        'pic_email',
         'number_of_interviewees',
         'interviewees',
         'preferred_time_slot',

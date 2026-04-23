@@ -83,6 +83,8 @@
                                                     data-toggle="modal" data-target="#detailModal"
                                                     data-company="{{ $row->company_name }}"
                                                     data-package="{{ strtoupper($row->sponsor_package) }}"
+                                                    data-pic-name="{{ $row->pic_name }}"
+                                                    data-pic-email="{{ $row->pic_email }}"
                                                     data-slot="{{ $row->preferred_time_slot }}"
                                                     data-created="{{ $row->created_at ? $row->created_at->format('d M Y H:i') : '-' }}"
                                                     data-interviewees='@json($row->interviewees)'
@@ -113,6 +115,8 @@
                 <div class="modal-body">
                     <div class="mb-2"><strong>Company:</strong> <span id="d-company"></span></div>
                     <div class="mb-2"><strong>Package:</strong> <span id="d-package"></span></div>
+                    <div class="mb-2"><strong>PIC Name:</strong> <span id="d-pic-name"></span></div>
+                    <div class="mb-2"><strong>PIC Email:</strong> <span id="d-pic-email"></span></div>
                     <div class="mb-2"><strong>Time Slot:</strong> <span id="d-slot"></span></div>
                     <div class="mb-3"><strong>Submitted:</strong> <span id="d-created"></span></div>
 
@@ -150,6 +154,8 @@
 
                 $('#d-company').text($(this).data('company') || '-');
                 $('#d-package').text($(this).data('package') || '-');
+                $('#d-pic-name').text($(this).data('pic-name') || '-');
+                $('#d-pic-email').text($(this).data('pic-email') || '-');
                 $('#d-slot').text($(this).data('slot') || '-');
                 $('#d-created').text($(this).data('created') || '-');
 
