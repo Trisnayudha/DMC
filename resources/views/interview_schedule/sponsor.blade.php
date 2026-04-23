@@ -416,7 +416,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end mt-3">
-                            <button class="btn btn-primary btn-apply" type="submit">Submit Interview Schedule</button>
+                            <button id="submit-btn" class="btn btn-primary btn-apply" type="submit">Submit Interview Schedule</button>
                         </div>
                     </form>
                 </div>
@@ -559,9 +559,18 @@
                     enforceQuestionRules();
                 });
 
+                var $submitBtn = $('#submit-btn');
+
+                // If page loaded with errors, keep button enabled
+                @if ($errors->any())
+                $submitBtn.prop('disabled', false).text('Submit Interview Schedule');
+                @endif
+
                 $('#interview-form').on('submit', function(e) {
                     e.preventDefault();
                     var form = this;
+
+                    $submitBtn.prop('disabled', true).text('Submitting...');
 
                     $.getJSON(bookedSlotsUrl, function(resp) {
                         var booked = (resp && resp.booked_slots) ? resp.booked_slots : [];
@@ -569,6 +578,8 @@
                         if (okToSubmit) {
                             if (refreshTimer) clearInterval(refreshTimer);
                             form.submit();
+                        } else {
+                            $submitBtn.prop('disabled', false).text('Submit Interview Schedule');
                         }
                     }).fail(function() {
                         if (refreshTimer) clearInterval(refreshTimer);
