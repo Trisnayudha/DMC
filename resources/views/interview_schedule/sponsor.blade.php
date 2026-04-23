@@ -218,7 +218,7 @@
                                             <option value="">-- Select Sponsor --</option>
                                             @foreach ($sponsors as $sponsor)
                                                 <option value="{{ $sponsor->id }}"
-                                                    data-max-optional="{{ (int) ($maxAdditionalByName[$sponsor->name] ?? 0) }}"
+                                                    data-max-optional="{{ (int) ($maxAdditionalById[$sponsor->id] ?? 0) }}"
                                                     {{ (string) old('company_id') === (string) $sponsor->id ? 'selected' : '' }}>
                                                     {{ $sponsor->name }}
                                                 </option>

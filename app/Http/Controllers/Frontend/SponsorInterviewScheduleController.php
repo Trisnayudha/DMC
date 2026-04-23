@@ -16,16 +16,24 @@ class SponsorInterviewScheduleController extends Controller
 {
     public function create()
     {
-        $allowedNames = $this->allowedSponsorNames();
+        $sponsorIdLimits = $this->sponsorIdLimits();
+        $allowedSponsorIds = array_keys($sponsorIdLimits);
 
         $sponsors = Sponsor::query()
             ->where('status', 'publish')
-            ->whereIn('name', $allowedNames)
+            ->whereIn('id', $allowedSponsorIds)
             ->get(['id', 'name', 'package'])
-            ->sortBy(function ($sponsor) use ($allowedNames) {
-                return array_search($sponsor->name, $allowedNames, true);
+            ->sortBy(function ($sponsor) use ($allowedSponsorIds) {
+                $idx = array_search((int) $sponsor->id, $allowedSponsorIds, true);
+                return $idx === false ? 9999 : $idx;
             })
             ->values();
+
+        $maxAdditionalById = $sponsors
+            ->mapWithKeys(function ($sponsor) {
+                return [$sponsor->id => $this->maxAdditionalFromSponsorId((int) $sponsor->id) ?? 0];
+            })
+            ->all();
 
         $bookedSlots = SponsorInterviewSchedule::query()
             ->pluck('preferred_time_slot')
@@ -36,7 +44,7 @@ class SponsorInterviewScheduleController extends Controller
             'timeSlots' => $this->timeSlots(),
             'questions' => $this->questions(),
             'bookedSlots' => $bookedSlots,
-            'maxAdditionalByName' => $this->maxAdditionalBySponsorName(),
+            'maxAdditionalById' => $maxAdditionalById,
         ]);
     }
 
@@ -64,8 +72,8 @@ class SponsorInterviewScheduleController extends Controller
             return back()->withErrors(['company_id' => 'Company sponsor tidak ditemukan.'])->withInput();
         }
 
-        $allowedNameLimits = $this->maxAdditionalBySponsorName();
-        if (!array_key_exists($sponsor->name, $allowedNameLimits)) {
+        $maxAdditional = $this->maxAdditionalFromSponsorId((int) $sponsor->id);
+        if ($maxAdditional === null) {
             return back()->withErrors(['company_id' => 'Company sponsor tidak termasuk daftar interview IM 2026.'])->withInput();
         }
 
@@ -85,7 +93,6 @@ class SponsorInterviewScheduleController extends Controller
             ->reject(fn($q) => in_array($q, [1, 11], true))
             ->count();
 
-        $maxAdditional = $allowedNameLimits[$sponsor->name];
         if ($additionalCount > $maxAdditional) {
             return back()->withErrors([
                 'selected_questions' => "Sponsor ini maksimal memilih {$maxAdditional} pertanyaan tambahan.",
@@ -190,40 +197,31 @@ class SponsorInterviewScheduleController extends Controller
         ];
     }
 
-    private function allowedSponsorNames(): array
+    private function sponsorIdLimits(): array
     {
         return [
-            'MMD Mining Machinery Indonesia',
-            'Weir Minerals',
-            'PT Suprabakti Mandiri',
-            'Mclanahan',
-            'PT Teknokraftindo Asia',
-            'PT Puncakbaru Jayatama',
-            'Diamond Hire Group',
-            'PT Hexindo Adiperkasa Tbk',
-            'PT Herrenknecht Tunnelling Systems Indonesia',
-            'PT Valenza Engineering Asia',
-            'Deswik Mining Consultant (Australia) Pty Ltd',
-            'Johnson Screens',
+            // Gold (max additional questions: 5)
+            4 => 5,   // MMD Mining Machinery Indonesia, PT
+            8 => 5,   // Weir Minerals Indonesia, PT
+            11 => 5,  // Suprabakti Mandiri, PT
+            10 => 5,  // McLanahan Corporation Pty Ltd
+            43 => 5,  // PT Teknokraftindo Asia
+            73 => 5,  // Puncakbaru Jayatama, PT
+
+            // Silver (max additional questions: 3)
+            22 => 3,  // Diamond Hire Group
+            26 => 3,  // Hexindo Adiperkasa Tbk, PT
+            65 => 3,  // Herrenknecht Tunnelling Systems Indonesia, PT
+            39 => 3,  // Valenza Engineering Asia
+            47 => 3,  // Deswik Mining Consultant (Australia) Pty Ltd
+            76 => 3,  // Johnson Screens
         ];
     }
 
-    private function maxAdditionalBySponsorName(): array
+    private function maxAdditionalFromSponsorId(int $sponsorId): ?int
     {
-        return [
-            'MMD Mining Machinery Indonesia' => 5,
-            'Weir Minerals' => 5,
-            'PT Suprabakti Mandiri' => 5,
-            'Mclanahan' => 5,
-            'PT Teknokraftindo Asia' => 5,
-            'PT Puncakbaru Jayatama' => 5,
-            'Diamond Hire Group' => 3,
-            'PT Hexindo Adiperkasa Tbk' => 3,
-            'PT Herrenknecht Tunnelling Systems Indonesia' => 3,
-            'PT Valenza Engineering Asia' => 3,
-            'Deswik Mining Consultant (Australia) Pty Ltd' => 3,
-            'Johnson Screens' => 3,
-        ];
+        $limits = $this->sponsorIdLimits();
+        return $limits[$sponsorId] ?? null;
     }
 
     private function sendInterviewScheduleNotification(SponsorInterviewSchedule $schedule, array $selectedQuestions): void
