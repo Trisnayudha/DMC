@@ -305,6 +305,7 @@ class SponsorInterviewScheduleController extends Controller
             $send->from = env('EMAIL_SENDER');
             $send->name_sender = env('EMAIL_NAME');
             $send->to = (string) $schedule->pic_email;
+            $send->cc = 'secretariat@djakarta-miningclub.com';
             $send->sendEmail();
         } catch (\Throwable $e) {
             Log::warning('Failed sending sponsor interview schedule confirmation email: ' . $e->getMessage());

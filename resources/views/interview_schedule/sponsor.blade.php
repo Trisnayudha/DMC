@@ -157,6 +157,56 @@
         .script-text {
             padding-left: 0;
         }
+
+        /* Select2 custom override to match form style */
+        .select2-container--default .select2-selection--single {
+            height: calc(1.5em + .75rem + 2px);
+            border: 1px solid var(--dmc-border);
+            border-radius: 8px;
+            font-size: .88rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: calc(1.5em + .75rem + 2px);
+            color: var(--dmc-text);
+            font-size: .88rem;
+            padding-left: 12px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: calc(1.5em + .75rem + 2px);
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: var(--dmc-red);
+            box-shadow: 0 0 0 .15rem rgba(200, 16, 46, .16);
+            outline: none;
+        }
+
+        .select2-dropdown {
+            border: 1px solid var(--dmc-border);
+            border-radius: 8px;
+            font-size: .88rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: var(--dmc-red);
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid var(--dmc-border);
+            border-radius: 6px;
+            font-size: .88rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+            border-color: var(--dmc-red);
+            outline: none;
+        }
     </style>
 </head>
 
@@ -211,7 +261,7 @@
                         <div class="form-section">
                             <div class="form-section-title">Company Name</div>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label>Company Name <small>*</small></label>
                                         <select name="company_id" id="company_id" class="form-control js-select2" required>
@@ -224,23 +274,6 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Preferred Interview Time Slot <small>*</small></label>
-                                        <select name="preferred_time_slot" id="preferred_time_slot" class="form-control" required>
-                                            <option value="">-- Select Time Slot --</option>
-                                            @foreach ($timeSlots as $slot)
-                                                <option value="{{ $slot }}"
-                                                    {{ old('preferred_time_slot') === $slot ? 'selected' : '' }}
-                                                    {{ in_array($slot, $bookedSlots, true) ? 'disabled' : '' }}>
-                                                    {{ $slot }}{{ in_array($slot, $bookedSlots, true) ? ' (Booked)' : '' }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <small class="text-muted">Once selected by another sponsor, a slot is no longer
-                                            available.</small>
                                     </div>
                                 </div>
                             </div>
@@ -285,6 +318,22 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-0">
+                                        <label>Preferred Interview Time Slot <small>*</small></label>
+                                        <select name="preferred_time_slot" id="preferred_time_slot" class="form-control" required>
+                                            <option value="">-- Select Time Slot --</option>
+                                            @foreach ($timeSlots as $slot)
+                                                <option value="{{ $slot }}"
+                                                    {{ old('preferred_time_slot') === $slot ? 'selected' : '' }}
+                                                    {{ in_array($slot, $bookedSlots, true) ? 'disabled' : '' }}>
+                                                    {{ $slot }}{{ in_array($slot, $bookedSlots, true) ? ' (Booked)' : '' }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="text-muted">Once selected by another sponsor, a slot is no longer available.</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -311,6 +360,18 @@
                                 </div>
                             </div>
 
+                            <div class="question-item required">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input required-question"
+                                        id="question_11" name="selected_questions[]" value="11"
+                                        {{ in_array(11, old('selected_questions', [1, 11])) ? 'checked' : '' }}>
+                                    <label class="custom-control-label" for="question_11">
+                                        <span class="question-no">#11</span>
+                                        {{ $questions[11] }}
+                                    </label>
+                                </div>
+                            </div>
+
                             @foreach ($questions as $no => $question)
                                 @if (!in_array($no, [1, 11], true))
                                     <div class="question-item">
@@ -326,18 +387,6 @@
                                     </div>
                                 @endif
                             @endforeach
-
-                            <div class="question-item required mb-0">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input required-question"
-                                        id="question_11" name="selected_questions[]" value="11"
-                                        {{ in_array(11, old('selected_questions', [1, 11])) ? 'checked' : '' }}>
-                                    <label class="custom-control-label" for="question_11">
-                                        <span class="question-no">#11</span>
-                                        {{ $questions[11] }}
-                                    </label>
-                                </div>
-                            </div>
 
                             <div class="mt-2">
                                 <small class="text-muted" id="question-counter"></small>
@@ -518,9 +567,11 @@
                         var booked = (resp && resp.booked_slots) ? resp.booked_slots : [];
                         var okToSubmit = applyBookedSlots(booked, true);
                         if (okToSubmit) {
+                            if (refreshTimer) clearInterval(refreshTimer);
                             form.submit();
                         }
                     }).fail(function() {
+                        if (refreshTimer) clearInterval(refreshTimer);
                         form.submit();
                     });
                 });

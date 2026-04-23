@@ -16,6 +16,7 @@ class EmailSender
     public $name;
     public $file;
     public $res;
+    public $cc;
 
     public function sendEmail()
     {
@@ -27,11 +28,15 @@ class EmailSender
             $to = $this->to;
             $subject = $this->subject;
             $name = (!empty($this->name) ? $this->name : 'Member');
+            $cc = $this->cc ?? null;
 
-            Mail::send($template, $data, function ($email) use ($from, $name_sender, $to, $subject, $name) {
+            Mail::send($template, $data, function ($email) use ($from, $name_sender, $to, $subject, $name, $cc) {
                 $email->priority(1);
                 $email->to($to, $name)->subject($subject);
                 $email->from($from, $name_sender);
+                if ($cc) {
+                    $email->cc($cc);
+                }
             });
 
             return $this->res = "send";
