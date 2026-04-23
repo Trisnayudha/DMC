@@ -220,7 +220,7 @@
                                                 <option value="{{ $sponsor->id }}"
                                                     data-max-optional="{{ (int) ($maxAdditionalById[$sponsor->id] ?? 0) }}"
                                                     {{ (string) old('company_id') === (string) $sponsor->id ? 'selected' : '' }}>
-                                                    {{ $sponsor->name }}
+                                                    {{ $sponsor->display_name ?? $sponsor->name }}
                                                 </option>
                                             @endforeach
                                         </select>

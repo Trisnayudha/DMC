@@ -18,6 +18,7 @@ class SponsorInterviewScheduleController extends Controller
     {
         $sponsorIdLimits = $this->sponsorIdLimits();
         $allowedSponsorIds = array_keys($sponsorIdLimits);
+        $sponsorDisplayNames = $this->sponsorDisplayNames();
 
         $sponsors = Sponsor::query()
             ->where('status', 'publish')
@@ -26,6 +27,10 @@ class SponsorInterviewScheduleController extends Controller
             ->sortBy(function ($sponsor) use ($allowedSponsorIds) {
                 $idx = array_search((int) $sponsor->id, $allowedSponsorIds, true);
                 return $idx === false ? 9999 : $idx;
+            })
+            ->map(function ($sponsor) use ($sponsorDisplayNames) {
+                $sponsor->setAttribute('display_name', $sponsorDisplayNames[(int) $sponsor->id] ?? $sponsor->name);
+                return $sponsor;
             })
             ->values();
 
@@ -201,20 +206,38 @@ class SponsorInterviewScheduleController extends Controller
     {
         return [
             // Gold (max additional questions: 5)
-            4 => 5,   // MMD Mining Machinery Indonesia, PT
-            8 => 5,   // Weir Minerals Indonesia, PT
-            11 => 5,  // Suprabakti Mandiri, PT
-            10 => 5,  // McLanahan Corporation Pty Ltd
-            43 => 5,  // PT Teknokraftindo Asia
-            73 => 5,  // Puncakbaru Jayatama, PT
+            4 => 3,   // MMD Mining Machinery Indonesia, PT
+            8 => 3,   // Weir Minerals Indonesia, PT
+            11 => 3,  // Suprabakti Mandiri, PT
+            10 => 3,  // McLanahan Corporation Pty Ltd
+            43 => 3,  // PT Teknokraftindo Asia
+            73 => 3,  // Puncakbaru Jayatama, PT
 
             // Silver (max additional questions: 3)
-            22 => 3,  // Diamond Hire Group
-            26 => 3,  // Hexindo Adiperkasa Tbk, PT
-            65 => 3,  // Herrenknecht Tunnelling Systems Indonesia, PT
-            39 => 3,  // Valenza Engineering Asia
-            47 => 3,  // Deswik Mining Consultant (Australia) Pty Ltd
-            76 => 3,  // Johnson Screens
+            22 => 1,  // Diamond Hire Group
+            26 => 1,  // Hexindo Adiperkasa Tbk, PT
+            65 => 1,  // Herrenknecht Tunnelling Systems Indonesia, PT
+            39 => 1,  // Valenza Engineering Asia
+            47 => 1,  // Deswik Mining Consultant (Australia) Pty Ltd
+            76 => 1,  // Johnson Screens
+        ];
+    }
+
+    private function sponsorDisplayNames(): array
+    {
+        return [
+            4 => 'MMD Mining Machinery Indonesia',
+            8 => 'Weir Minerals',
+            11 => 'PT Suprabakti Mandiri',
+            10 => 'Mclanahan',
+            43 => 'PT Teknokraftindo Asia',
+            73 => 'PT Puncakbaru Jayatama',
+            22 => 'Diamond Hire Group',
+            26 => 'PT Hexindo Adiperkasa Tbk',
+            65 => 'PT Herrenknecht Tunnelling Systems Indonesia',
+            39 => 'PT Valenza Engineering Asia',
+            47 => 'Deswik Mining Consultant (Australia) Pty Ltd',
+            76 => 'Johnson Screens',
         ];
     }
 
