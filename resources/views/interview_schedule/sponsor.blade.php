@@ -264,7 +264,8 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label>Company Name <small>*</small></label>
-                                        <select name="company_id" id="company_id" class="form-control js-select2" required>
+                                        <select name="company_id" id="company_id" class="form-control js-select2"
+                                            required>
                                             <option value="">-- Select Sponsor --</option>
                                             @foreach ($sponsors as $sponsor)
                                                 <option value="{{ $sponsor->id }}"
@@ -297,7 +298,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <small class="text-muted">A copy of this form response will be sent to the email address provided above</small>
+                                    <small class="text-muted">A copy of this form response will be sent to the email
+                                        address provided above</small>
                                 </div>
                             </div>
                         </div>
@@ -321,7 +323,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group mb-0">
                                         <label>Preferred Interview Time Slot <small>*</small></label>
-                                        <select name="preferred_time_slot" id="preferred_time_slot" class="form-control" required>
+                                        <select name="preferred_time_slot" id="preferred_time_slot" class="form-control"
+                                            required>
                                             <option value="">-- Select Time Slot --</option>
                                             @foreach ($timeSlots as $slot)
                                                 <option value="{{ $slot }}"
@@ -331,7 +334,8 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <small class="text-muted">Once selected by another sponsor, a slot is no longer available.</small>
+                                        <small class="text-muted">Once selected by another sponsor, a slot is no longer
+                                            available.</small>
                                     </div>
                                 </div>
                             </div>
@@ -381,7 +385,8 @@
                                                 value="{{ $no }}"
                                                 {{ in_array($no, old('selected_questions', [])) ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="question_{{ $no }}">
-                                                <span class="question-no">#{{ $no }}</span>{{ $question }}
+                                                <span
+                                                    class="question-no">#{{ $no }}</span>{{ $question }}
                                             </label>
                                         </div>
                                     </div>
@@ -395,28 +400,34 @@
 
                         <div class="form-section">
                             <div class="form-section-title">Sample Interview Script</div>
-                            <div class="script-text">
-                                Hello Djakarta Mining Club Members,<br><br>
-                                We are from [Company Name], a trusted provider of integrated mining solutions,
-                                specializing in innovative technologies that drive operational excellence, safety, and
-                                productivity across mining operations. At Indonesia Miner 2026, we are proud to showcase
-                                our latest solutions, including advanced digital and operational technologies designed
-                                to help mining companies enhance site performance, optimize workflows, and achieve
-                                greater efficiency in an increasingly competitive industry landscape.<br><br>
-                                Today's mining sector is rapidly evolving toward smarter, more data-driven, and
-                                sustainable operations, while also facing key challenges such as cost efficiency,
-                                productivity pressures, and operational complexity. In response, we continuously
-                                innovate and tailor our solutions to meet the changing needs of the industry.<br><br>
-                                We strongly believe that collaboration and strategic partnerships are essential in
-                                shaping the future of mining, enabling innovation and long-term value creation across
-                                the ecosystem. You can find us at Booth A12, where we warmly invite you to visit,
-                                explore our solutions, and connect with our team to discuss how we can support your
-                                mining operations and future growth.
+                            <div class="script-text"><i>
+                                    Hello Djakarta Mining Club Members,<br><br>
+                                    We are from [Company Name], a trusted provider of integrated mining solutions,
+                                    specializing in innovative technologies that drive operational excellence, safety,
+                                    and
+                                    productivity across mining operations. At Indonesia Miner 2026, we are proud to
+                                    showcase
+                                    our latest solutions, including advanced digital and operational technologies
+                                    designed
+                                    to help mining companies enhance site performance, optimize workflows, and achieve
+                                    greater efficiency in an increasingly competitive industry landscape.<br><br>
+                                    Today's mining sector is rapidly evolving toward smarter, more data-driven, and
+                                    sustainable operations, while also facing key challenges such as cost efficiency,
+                                    productivity pressures, and operational complexity. In response, we continuously
+                                    innovate and tailor our solutions to meet the changing needs of the
+                                    industry.<br><br>
+                                    We strongly believe that collaboration and strategic partnerships are essential in
+                                    shaping the future of mining, enabling innovation and long-term value creation
+                                    across
+                                    the ecosystem. You can find us at Booth A12, where we warmly invite you to visit,
+                                    explore our solutions, and connect with our team to discuss how we can support your
+                                    mining operations and future growth.</i>
                             </div>
                         </div>
 
                         <div class="d-flex justify-content-end mt-3">
-                            <button id="submit-btn" class="btn btn-primary btn-apply" type="submit">Submit Interview Schedule</button>
+                            <button id="submit-btn" class="btn btn-primary btn-apply" type="submit">Submit Interview
+                                Schedule</button>
                         </div>
                     </form>
                 </div>
@@ -563,7 +574,7 @@
 
                 // If page loaded with errors, keep button enabled
                 @if ($errors->any())
-                $submitBtn.prop('disabled', false).text('Submit Interview Schedule');
+                    $submitBtn.prop('disabled', false).text('Submit Interview Schedule');
                 @endif
 
                 $('#interview-form').on('submit', function(e) {
@@ -579,7 +590,8 @@
                             if (refreshTimer) clearInterval(refreshTimer);
                             form.submit();
                         } else {
-                            $submitBtn.prop('disabled', false).text('Submit Interview Schedule');
+                            $submitBtn.prop('disabled', false).text(
+                            'Submit Interview Schedule');
                         }
                     }).fail(function() {
                         if (refreshTimer) clearInterval(refreshTimer);
