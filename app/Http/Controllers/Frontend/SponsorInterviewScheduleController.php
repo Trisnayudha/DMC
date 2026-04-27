@@ -88,14 +88,14 @@ class SponsorInterviewScheduleController extends Controller
             ->sort()
             ->values();
 
-        if (!$selectedQuestions->contains(1) || !$selectedQuestions->contains(11)) {
+        if (!$selectedQuestions->contains(1) || !$selectedQuestions->contains(2)) {
             return back()->withErrors([
-                'selected_questions' => 'Question nomor 1 dan 11 wajib dipilih.',
+                'selected_questions' => 'Question nomor 1 dan 2 wajib dipilih.',
             ])->withInput();
         }
 
         $additionalCount = $selectedQuestions
-            ->reject(fn($q) => in_array($q, [1, 11], true))
+            ->reject(fn($q) => in_array($q, [1, 2], true))
             ->count();
 
         if ($additionalCount > $maxAdditional) {
@@ -189,16 +189,16 @@ class SponsorInterviewScheduleController extends Controller
     {
         return [
             1 => 'Could you briefly introduce your company, including your core business and expertise?',
-            2 => 'What key products or solutions are you showcasing at this event?',
-            3 => 'What\'s something new about your product or solution?',
-            4 => 'Why is this solution relevant for the industry today?',
-            5 => 'What trends or challenges are you currently seeing in the mining industry?',
-            6 => 'How is your company adapting to new developments and demands in the market?',
-            7 => 'What makes your products or services unique in the mining sector?',
-            8 => 'Why did you decide to participate in Indonesia Miner 2026?',
-            9 => 'What made this event relevant for your company?',
-            10 => 'How do you see partnerships and collaborations shaping the future of the mining industry?',
-            11 => 'Where can visitors find your booth, and what can they expect to see, discuss, or experience when they visit?',
+            2 => 'Where can visitors find your booth, and what can they expect to see, discuss, or experience when they visit?',
+            3 => 'What key products or solutions are you showcasing at this event?',
+            4 => 'What\'s something new about your product or solution?',
+            5 => 'Why is this solution relevant for the industry today?',
+            6 => 'What trends or challenges are you currently seeing in the mining industry?',
+            7 => 'How is your company adapting to new developments and demands in the market?',
+            8 => 'What makes your products or services unique in the mining sector?',
+            9 => 'Why did you decide to participate in Indonesia Miner 2026?',
+            10 => 'What made this event relevant for your company?',
+            11 => 'How do you see partnerships and collaborations shaping the future of the mining industry?',
         ];
     }
 

@@ -351,7 +351,7 @@
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input required-question"
                                         id="question_1" name="selected_questions[]" value="1"
-                                        {{ in_array(1, old('selected_questions', [1, 11])) ? 'checked' : '' }}>
+                                        {{ in_array(1, old('selected_questions', [1, 2])) ? 'checked' : '' }}>
                                     <label class="custom-control-label" for="question_1">
                                         <span class="question-no">#1</span>
                                         Could you briefly introduce your company, including your core business and
@@ -363,17 +363,17 @@
                             <div class="question-item required">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input required-question"
-                                        id="question_11" name="selected_questions[]" value="11"
-                                        {{ in_array(11, old('selected_questions', [1, 11])) ? 'checked' : '' }}>
-                                    <label class="custom-control-label" for="question_11">
-                                        <span class="question-no">#11</span>
-                                        {{ $questions[11] }}
+                                        id="question_2" name="selected_questions[]" value="2"
+                                        {{ in_array(2, old('selected_questions', [1, 2])) ? 'checked' : '' }}>
+                                    <label class="custom-control-label" for="question_2">
+                                        <span class="question-no">#2</span>
+                                        {{ $questions[2] }}
                                     </label>
                                 </div>
                             </div>
 
                             @foreach ($questions as $no => $question)
-                                @if (!in_array($no, [1, 11], true))
+                                @if (!in_array($no, [1, 2], true))
                                     <div class="question-item">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input optional-question"
@@ -474,7 +474,7 @@
                 maxOptional = companyMaxAdditional();
 
                 $('#question_1').prop('checked', true);
-                $('#question_11').prop('checked', true);
+                $('#question_2').prop('checked', true);
 
                 var selectedOptional = $('.optional-question:checked').length;
 
