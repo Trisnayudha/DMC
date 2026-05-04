@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\EmailSender;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\MemberModel;
@@ -185,6 +186,9 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
         $user->status_member = 'active';
+        if (empty($user->uname)) {
+            $user->uname = $this->generateObfuscatedMemberId();
+        }
         $user->save();
 
         // Auto-import to Mailchimp after verify
@@ -235,12 +239,64 @@ class UsersController extends Controller
             } catch (\Throwable $e) {
                 Log::warning('verifyMember: Mailchimp import failed for user ' . $id . ': ' . $e->getMessage());
             }
+
+            try {
+                $baseSetPasswordUrl = rtrim((string) config('dmc.fe_set_password_url', env('DMC_FE_SET_PASSWORD_URL', 'https://www.djakarta-miningclub.com/login')), '/');
+                $setPasswordUrl = $baseSetPasswordUrl;
+                $setPasswordUrl .= str_contains($setPasswordUrl, '?') ? '&' : '?';
+                $setPasswordUrl .= http_build_query(['email' => $email]);
+
+                $memberId = $user->uname;
+                $linkExpiryHours = (int) config('dmc.set_password_link_expiry_hours', 24);
+
+                $send = new EmailSender();
+                $send->subject = 'Welcome! Your Membership Is Approved (ID: ' . $memberId . ')';
+                $send->template = 'email.membership-approved';
+                $send->data = [
+                    'users_name' => $user->name ?? 'Member',
+                    'member_id' => $memberId,
+                    'registered_email' => $email,
+                    'set_password_url' => $setPasswordUrl,
+                    'link_expiry_hours' => $linkExpiryHours,
+                ];
+                $send->name = $user->name ?? 'Member';
+                $send->from = env('EMAIL_SENDER');
+                $send->name_sender = env('EMAIL_NAME');
+                $send->to = $email;
+                $send->sendEmail();
+            } catch (\Throwable $e) {
+                Log::warning('verifyMember: approval email failed for user ' . $id . ': ' . $e->getMessage());
+            }
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Member verified dan data telah diimport ke Mailchimp.',
         ]);
+    }
+
+    private function generateObfuscatedMemberId(): string
+    {
+        $now = Carbon::now();
+        $datePart = $now->format('Ymd');
+        $prefix = $datePart;
+
+        $baseSequence = User::where('uname', 'like', $prefix . '%')
+            ->count() + 1;
+
+        if ($baseSequence > 9999) {
+            $baseSequence = 9999;
+        }
+
+        for ($sequence = $baseSequence; $sequence <= 9999; $sequence++) {
+            $memberId = $prefix . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+
+            if (!User::where('uname', $memberId)->exists()) {
+                return $memberId;
+            }
+        }
+
+        return $prefix . strtoupper(Str::random(4));
     }
 
     public function import(Request $request)

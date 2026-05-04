@@ -105,29 +105,15 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://membership.djakarta-miningclub.com/image/banner13_v1.png" alt="Image" class="img-logo">
+            <img src="https://membership.djakarta-miningclub.com/image/dmc.png" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Thank you for registering for {{ $events_name }}.</p>
-            @if ($quota == 'Fully')
-                <p>We are pleased to confirm that you have successfully joined the waiting list. Should a spot become
-                    available, we will notify you promptly.</p>
-            @else
-                <p>Your registration is currently being processed for approval. Please note that it is subject to
-                    approval.</p>
-            @endif
-
-            {{-- <p>Your registration is now on the waiting list. We will notify you immediately if there are seats
-                available.</p> --}}
-            {{-- <p>
-                We will send approval confirmation within 72 hours, please contact us via email at
-                secretariat@djakarta-miningclub.com or WhatsApp +62 811 1937 300</p> --}}
-            <p>If you have any question or information, don’t hesitate to contact us via email
-                secretariat@djakarta-miningclub.com or WhatsApp +628111937300
-            </p>
-            <p>Yours Sincerely,</p>
-            <span>The Djakarta Mining Club Team</span>
+            <p>Thank you for your membership registration.</p>
+            <p>Your application is currently under review. This process will take up to 2 x 24 hours. Once completed, we
+                will notify you via email regarding the status of your application.</p>
+            <p>Should you have any questions, please feel free to contact us.</p>
+            <p>Best regards,<br>Djakarta Mining Club Team</p>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.

@@ -88,7 +88,19 @@ class FormMemberController extends Controller
             $findUsers->cci = $cci;
             $findUsers->register_as = 'Member';
             $findUsers->save();
-            return redirect()->back()->with('alert', 'Updated data!');
+            $send = new EmailSender();
+            $send->subject = "Thank You for Registering – Your Membership Application Is Under Review";
+            $send->template = "email.waiting-approval";
+            $send->data = [
+                'users_name' => $name,
+                'events_name' => 'Djakarta Mining Club Membership',
+            ];
+            $send->name = $name;
+            $send->from = env('EMAIL_SENDER');
+            $send->name_sender = env('EMAIL_NAME');
+            $send->to = $email;
+            $send->sendEmail();
+            return redirect()->back()->with('alert', 'Registration updated. We will notify you by email after verification.');
         } else {
             $validated = $request->validate([
                 'company_name' => 'required',
@@ -122,19 +134,18 @@ class FormMemberController extends Controller
 
 
             $send = new EmailSender();
-            $send->subject = "Your Membership is Activated!";
-            $send->template = "email.membership";
+            $send->subject = "Thank You for Registering – Your Membership Application Is Under Review";
+            $send->template = "email.waiting-approval";
             $send->data = [
-                "name" => $name,
-                'email' => $email,
-
+                'users_name' => $name,
+                'events_name' => 'Djakarta Mining Club Membership',
             ];
             $send->name = $name;
             $send->from = env('EMAIL_SENDER');
             $send->name_sender = env('EMAIL_NAME');
             $send->to = $email;
             $send->sendEmail();
-            return redirect()->back()->with('alert', 'New Membership DMC!');
+            return redirect()->back()->with('alert', 'Registration successful. We will notify you by email after verification.');
         }
     }
     public function check_email(Request $request)

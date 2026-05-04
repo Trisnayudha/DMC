@@ -188,10 +188,10 @@
                             </div>
 
                             <div class="col-sm-6">
-                                <label for="company_website" class="form-label">Password<span
+                                <label for="company_website" class="form-label">Company Website<span
                                         class="text-muted"></span></label>
                                 <input type="text" class="form-control" name="company_website"
-                                    value="{{ old('company_website') }}" placeholder="www.yourcompany.com" required>
+                                    value="{{ old('company_website') }}" placeholder="www.yourcompany.com">
                                 <div class="invalid-feedback">
                                     Please enter a valid company website .
                                 </div>
@@ -279,16 +279,10 @@
 
                         <div class="my-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="cci" name="cci"
-                                    value="true">
-                                <label class="form-check-label" for="cci">I am also willing to be
-                                    registered as a member of Coal Club Indonesia</label>
-                            </div>
-                            <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="explore" name="explore"
                                     value="true">
-                                <label class="form-check-label" for="explore">I am also willing explore
-                                    marketing opportunities for my company through this mining club</label>
+                                <label class="form-check-label" for="explore">I am also interested in exploring
+                                    sponsorship or collaboration opportunities with Djakarta Mining Club.</label>
                             </div>
                             <div class="invalid-feedback">
                                 Field is Required
@@ -297,8 +291,8 @@
 
                         <hr class="my-4">
 
-                        <p>By completing this registration form, your account on Djakarta Mining Club Platform will be
-                            automatically created.</p>
+                        <p>By completing this registration form, your account on the Djakarta Mining Club platform will
+                            be created upon verification.</p>
                         <button class="w-80 btn btn-primary btn-lg" type="submit">Register</button>
                     </form>
                 </div>

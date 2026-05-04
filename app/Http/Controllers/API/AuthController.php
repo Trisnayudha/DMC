@@ -558,7 +558,7 @@ Your verification code (OTP) ' . $otp;
 
         $email = $request->email;
         $phone = $request->phone;
-        $codePayment = strtoupper(Str::random(7));
+        $memberId = $this->generateObfuscatedMemberId();
 
         if (!empty($email)) {
             $findUser = MemberModel::where([
@@ -586,7 +586,7 @@ Your verification code (OTP) ' . $otp;
             $image = QrCode::format('png')
                 ->size(300)
                 ->errorCorrection('H')
-                ->generate($codePayment);
+                ->generate($memberId);
 
             $fileName = 'img-' . time() . '.png';
             $outputFile = '/public/uploads/qr-code/' . $fileName;
@@ -599,8 +599,9 @@ Your verification code (OTP) ' . $otp;
                 'email' => $findUser->email,
                 'password' => $findUser->password,
                 'isStatus' => 'Active',
+                'status_member' => 'pending',
                 'qrcode' => $db,
-                'uname' => $codePayment,
+                'uname' => $memberId,
                 'source' => $findUser->source
             ];
 
@@ -671,7 +672,7 @@ Your verification code (OTP) ' . $otp;
                 'token' => $accessToken,
                 'verify_email' => $user->verify_email,
                 'verify_phone' => $user->verify_phone,
-                'status_member' => 'member'
+                'status_member' => $user->status_member ?? 'pending'
             ];
 
             MemberModel::where('id', $findUser->id)->delete();
@@ -680,7 +681,7 @@ Your verification code (OTP) ' . $otp;
 
             return response()->json([
                 'status' => 200,
-                'message' => 'Successfully Register',
+                'message' => 'Successfully Register. Your membership is pending approval.',
                 'payload' => $data
             ]);
         } catch (\Throwable $e) {
@@ -701,6 +702,30 @@ Your verification code (OTP) ' . $otp;
         if (is_numeric($val)) return (int)$val !== 0;
         $s = strtolower(trim((string)$val));
         return !in_array($s, ['', '0', 'false', 'no', 'off', 'null', 'undefined'], true);
+    }
+
+    private function generateObfuscatedMemberId(): string
+    {
+        $now = Carbon::now();
+        $datePart = $now->format('Ymd');
+        $prefix = $datePart;
+
+        $baseSequence = User::where('uname', 'like', $prefix . '%')
+            ->count() + 1;
+
+        if ($baseSequence > 9999) {
+            $baseSequence = 9999;
+        }
+
+        for ($sequence = $baseSequence; $sequence <= 9999; $sequence++) {
+            $candidate = $prefix . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+
+            if (!User::where('uname', $candidate)->exists()) {
+                return $candidate;
+            }
+        }
+
+        return $prefix . strtoupper(Str::random(4));
     }
 
     /**

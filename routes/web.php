@@ -111,10 +111,10 @@ Route::get('collect', function () {
     return view('collect');
 });
 // Example route call: /collect-exhibitors?ids=560,561,562
-Route::get('/collect-exhibitors', function (Request $request, TestController $controller) {
-    $ids = explode(',', $request->query('ids'));
-    return $controller->collectAndStoreExhibitorData($ids);
-});
+// Route::get('/collect-exhibitors', function (Request $request, TestController $controller) {
+//     $ids = explode(',', $request->query('ids'));
+//     return $controller->collectAndStoreExhibitorData($ids);
+// });
 
 Route::get('/fetch-contacts', [TestController::class, 'fetchAndStoreContactData']);
 
