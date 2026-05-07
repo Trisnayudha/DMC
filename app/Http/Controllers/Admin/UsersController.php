@@ -8,14 +8,15 @@ use App\Models\Company\CompanyModel;
 use App\Models\MemberModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
+use App\Support\QrCode;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Spatie\Newsletter\NewsletterFacade;
 use Illuminate\Support\Str;
@@ -186,10 +187,27 @@ class UsersController extends Controller
     public function verifyMember(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        $verifiedAt = now();
+
         $user->status_member = 'active';
-        if (empty($user->uname)) {
-            $user->uname = $this->generateObfuscatedMemberId();
+        $user->uname = $this->generateVerificationMemberId($user, $verifiedAt);
+
+        try {
+            $qrImage = QrCode::format('png')
+                ->size(300)
+                ->errorCorrection('H')
+                ->generate($user->uname);
+
+            $fileName = 'img-verify-' . $user->id . '-' . $verifiedAt->timestamp . '.png';
+            $outputFile = '/public/uploads/qr-code/' . $fileName;
+            $dbPath = '/storage/uploads/qr-code/' . $fileName;
+
+            Storage::disk('local')->put($outputFile, $qrImage);
+            $user->qrcode = $dbPath;
+        } catch (\Throwable $e) {
+            Log::warning('verifyMember: QR regeneration failed for user ' . $id . ': ' . $e->getMessage());
         }
+
         $user->save();
 
         // Auto-import to Mailchimp after verify
@@ -242,15 +260,19 @@ class UsersController extends Controller
             }
 
             try {
-                $token = Password::broker()->createToken($user);
-                $setPasswordUrl = route('password.reset', [
-                    'token' => $token,
-                    'email' => $email,
-                ]);
+                $setPasswordUrl = null;
+                if (empty($user->password)) {
+                    $token = Password::broker()->createToken($user);
+                    $setPasswordUrl = route('password.reset', [
+                        'token' => $token,
+                        'email' => $email,
+                    ]);
+                }
 
                 $memberId = $user->uname;
                 $linkExpiryMinutes = (int) config('auth.passwords.users.expire', 60);
                 $linkExpiryHours = (int) max(1, ceil($linkExpiryMinutes / 60));
+                $loginUrl = (string) config('dmc.post_reset_password_redirect_url', 'https://www.djakarta-miningclub.com?modalloginopen=true');
 
                 $send = new EmailSender();
                 $send->subject = 'Welcome! Your Membership Is Approved (ID: ' . $memberId . ')';
@@ -261,6 +283,7 @@ class UsersController extends Controller
                     'registered_email' => $email,
                     'set_password_url' => $setPasswordUrl,
                     'link_expiry_hours' => $linkExpiryHours,
+                    'login_url' => $loginUrl,
                 ];
                 $send->name = $user->name ?? 'Member';
                 $send->from = env('EMAIL_SENDER');
@@ -278,28 +301,70 @@ class UsersController extends Controller
         ]);
     }
 
-    private function generateObfuscatedMemberId(): string
+    private function generateVerificationMemberId(User $user, ?Carbon $verifiedAt = null): string
     {
-        $now = Carbon::now();
-        $datePart = $now->format('Ymd');
-        $prefix = $datePart;
+        $verifiedAt = $verifiedAt ? $verifiedAt->copy() : now();
+        $datePart = $verifiedAt->format('Ymd');
+        $monthPrefix = $verifiedAt->format('Ym');
 
-        $baseSequence = User::where('uname', 'like', $prefix . '%')
-            ->count() + 1;
+        $maxSequence = 0;
 
-        if ($baseSequence > 9999) {
-            $baseSequence = 9999;
-        }
+        User::where('uname', 'like', $monthPrefix . '%')
+            ->pluck('uname')
+            ->each(function ($uname) use ($monthPrefix, &$maxSequence) {
+                if (!is_string($uname)) {
+                    return;
+                }
 
-        for ($sequence = $baseSequence; $sequence <= 9999; $sequence++) {
-            $memberId = $prefix . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+                if (preg_match('/^' . preg_quote($monthPrefix, '/') . '\d{2}(\d{4})[A-Z0-9]*$/', $uname, $matches)) {
+                    $sequence = (int) $matches[1];
+                    if ($sequence > $maxSequence) {
+                        $maxSequence = $sequence;
+                    }
+                }
+            });
 
-            if (!User::where('uname', $memberId)->exists()) {
+        $nextSequence = max(1, $maxSequence + 1);
+
+        for ($sequence = $nextSequence; $sequence <= 9999; $sequence++) {
+            $memberId = $datePart . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+            if (!$this->memberIdExistsForOtherUser($memberId, $user)) {
                 return $memberId;
             }
         }
 
-        return $prefix . strtoupper(Str::random(4));
+        $sequence = max(10000, $nextSequence);
+        while (true) {
+            $memberId = $datePart . (string) $sequence;
+            if (!$this->memberIdExistsForOtherUser($memberId, $user)) {
+                return $memberId;
+            }
+            $sequence++;
+        }
+    }
+
+    private function memberIdExistsForOtherUser(string $memberId, User $user): bool
+    {
+        return User::where('uname', $memberId)
+            ->where('id', '!=', $user->id)
+            ->exists();
+    }
+
+    private function generateMemberIdFromUser(User $user): string
+    {
+        $datePart = Carbon::parse($user->created_at ?? now())->format('Ymd');
+        $idPart = str_pad((string) $user->id, 6, '0', STR_PAD_LEFT);
+        $memberId = $datePart . $idPart;
+
+        $isTakenByOtherUser = User::where('uname', $memberId)
+            ->where('id', '!=', $user->id)
+            ->exists();
+
+        if (!$isTakenByOtherUser) {
+            return $memberId;
+        }
+
+        return $memberId . strtoupper(Str::random(2));
     }
 
     public function import(Request $request)
@@ -434,10 +499,6 @@ class UsersController extends Controller
                     $user = \App\Models\User::firstOrNew(['email' => $email]);
                     $user->name     = $name ?: $user->name ?: '(no name)';
                     $user->isStatus = 'Active';
-                    // kalau user baru dan belum ada password, set random (optional)
-                    if (!$user->exists && empty($user->password)) {
-                        $user->password = bcrypt(Str::random(12));
-                    }
                     if ($registerAs) {
                         $user->source = $registerAs;
                     }
@@ -705,15 +766,19 @@ class UsersController extends Controller
                 ['email' => $email],
                 [
                     'name'         => $name ?: $email,
-                    'password'     => $existingUser ? $existingUser->password : Hash::make(Str::random(16)),
+                    'password'     => $existingUser ? $existingUser->password : null,
                     'verify_email' => $existingUser ? ($existingUser->verify_email ?? 'verified') : 'verified',
                     'verify_phone' => $existingUser ? ($existingUser->verify_phone ?? null) : null,
                     'otp'          => null,
                     'isStatus'     => $existingUser ? ($existingUser->isStatus ?? 'Active') : 'Active',
-                    'uname'        => $existingUser ? $existingUser->uname : (Str::slug($name ?: $email) . '-' . Str::random(4)),
                     'qrcode'       => $existingUser ? $existingUser->qrcode : null,
                 ]
             );
+
+            if (empty($user->uname)) {
+                $user->uname = $this->generateMemberIdFromUser($user);
+                $user->save();
+            }
 
             // ===== 2) COMPANY (key: company_name + optional company_website) =====
             $companyWebsite = trim((string)($m->company_website ?? ''));

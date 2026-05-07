@@ -57,12 +57,22 @@
             <p>Member ID: {{ $member_id }}</p>
             <p>Registered Email: {{ $registered_email }}</p>
             <p>For security purposes, we do not send passwords via email.</p>
-            <p>To access your account, please set your password using the link below:</p>
-            <p>
-                <a href="{{ $set_password_url }}" class="button" target="_blank" rel="noopener noreferrer">Set Your Password</a>
-            </p>
-            <p>Set Your Password: {{ $set_password_url }}</p>
-            <p>This link is secure and will expire within {{ $link_expiry_hours }} hours. If it expires, you can request a new link via the login page.</p>
+            @if (!empty($set_password_url))
+                <p>To access your account, please set your password using the link below:</p>
+                <p>
+                    <a href="{{ $set_password_url }}" class="button" target="_blank" rel="noopener noreferrer">Set Your Password</a>
+                </p>
+                <p>Set Your Password: {{ $set_password_url }}</p>
+                <p>This link is secure and will expire within {{ $link_expiry_hours }} hours. If it expires, you can request a new link via the login page.</p>
+            @else
+                <p>Your account password is already active.</p>
+                <p>You can log in directly using your registered email and existing password.</p>
+                @if (!empty($login_url))
+                    <p>
+                        <a href="{{ $login_url }}" class="button" target="_blank" rel="noopener noreferrer">Go To Login</a>
+                    </p>
+                @endif
+            @endif
             <p>Once your account is activated, you will be able to:</p>
             <ul>
                 <li>Access member-exclusive features</li>
@@ -72,8 +82,10 @@
             <p>If you have any questions or require assistance, please do not hesitate to contact us.</p>
             <p>We look forward to your participation and engagement.</p>
             <p>Best regards,<br>Djakarta Mining Club Team</p>
-            <p>If the button does not work, open this link in your browser:</p>
-            <p>{{ $set_password_url }}</p>
+            @if (!empty($set_password_url))
+                <p>If the button does not work, open this link in your browser:</p>
+                <p>{{ $set_password_url }}</p>
+            @endif
         </div>
         <div class="footer">
             Do not reply to emails to this email address. This email is sent automatically by our system.

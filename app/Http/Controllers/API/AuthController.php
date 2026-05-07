@@ -558,7 +558,6 @@ Your verification code (OTP) ' . $otp;
 
         $email = $request->email;
         $phone = $request->phone;
-        $memberId = $this->generateObfuscatedMemberId();
 
         if (!empty($email)) {
             $findUser = MemberModel::where([
@@ -583,6 +582,24 @@ Your verification code (OTP) ' . $otp;
         DB::beginTransaction();
 
         try {
+            $userData = [
+                'name' => $findUser->name,
+                'email' => $findUser->email,
+                'password' => $findUser->password,
+                'isStatus' => 'Active',
+                'status_member' => 'pending',
+                'source' => $findUser->source
+            ];
+
+            if (!empty($email)) {
+                $userData['verify_email'] = 'verified';
+            } else {
+                $userData['verify_phone'] = 'verified';
+            }
+
+            $user = User::create($userData);
+            $memberId = $this->generateMemberIdFromUser($user);
+
             $image = QrCode::format('png')
                 ->size(300)
                 ->errorCorrection('H')
@@ -594,24 +611,10 @@ Your verification code (OTP) ' . $otp;
 
             Storage::disk('local')->put($outputFile, $image);
 
-            $userData = [
-                'name' => $findUser->name,
-                'email' => $findUser->email,
-                'password' => $findUser->password,
-                'isStatus' => 'Active',
-                'status_member' => 'pending',
-                'qrcode' => $db,
-                'uname' => $memberId,
-                'source' => $findUser->source
-            ];
+            $user->uname = $memberId;
+            $user->qrcode = $db;
+            $user->save();
 
-            if (!empty($email)) {
-                $userData['verify_email'] = 'verified';
-            } else {
-                $userData['verify_phone'] = 'verified';
-            }
-
-            $user = User::create($userData);
             $user->assignRole('guest');
 
             $company = CompanyModel::create([
@@ -704,28 +707,21 @@ Your verification code (OTP) ' . $otp;
         return !in_array($s, ['', '0', 'false', 'no', 'off', 'null', 'undefined'], true);
     }
 
-    private function generateObfuscatedMemberId(): string
+    private function generateMemberIdFromUser(User $user): string
     {
-        $now = Carbon::now();
-        $datePart = $now->format('Ymd');
-        $prefix = $datePart;
+        $datePart = Carbon::parse($user->created_at ?? now())->format('Ymd');
+        $idPart = str_pad((string) $user->id, 6, '0', STR_PAD_LEFT);
+        $memberId = $datePart . $idPart;
 
-        $baseSequence = User::where('uname', 'like', $prefix . '%')
-            ->count() + 1;
+        $isTakenByOtherUser = User::where('uname', $memberId)
+            ->where('id', '!=', $user->id)
+            ->exists();
 
-        if ($baseSequence > 9999) {
-            $baseSequence = 9999;
+        if (!$isTakenByOtherUser) {
+            return $memberId;
         }
 
-        for ($sequence = $baseSequence; $sequence <= 9999; $sequence++) {
-            $candidate = $prefix . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
-
-            if (!User::where('uname', $candidate)->exists()) {
-                return $candidate;
-            }
-        }
-
-        return $prefix . strtoupper(Str::random(4));
+        return $memberId . strtoupper(Str::random(2));
     }
 
     /**
