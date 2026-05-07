@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Spatie\Newsletter\NewsletterFacade;
 use Illuminate\Support\Str;
@@ -241,13 +242,15 @@ class UsersController extends Controller
             }
 
             try {
-                $baseSetPasswordUrl = rtrim((string) config('dmc.fe_set_password_url', env('DMC_FE_SET_PASSWORD_URL', 'https://www.djakarta-miningclub.com/login')), '/');
-                $setPasswordUrl = $baseSetPasswordUrl;
-                $setPasswordUrl .= str_contains($setPasswordUrl, '?') ? '&' : '?';
-                $setPasswordUrl .= http_build_query(['email' => $email]);
+                $token = Password::broker()->createToken($user);
+                $setPasswordUrl = route('password.reset', [
+                    'token' => $token,
+                    'email' => $email,
+                ]);
 
                 $memberId = $user->uname;
-                $linkExpiryHours = (int) config('dmc.set_password_link_expiry_hours', 24);
+                $linkExpiryMinutes = (int) config('auth.passwords.users.expire', 60);
+                $linkExpiryHours = (int) max(1, ceil($linkExpiryMinutes / 60));
 
                 $send = new EmailSender();
                 $send->subject = 'Welcome! Your Membership Is Approved (ID: ' . $memberId . ')';
