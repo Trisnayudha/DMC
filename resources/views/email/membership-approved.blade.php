@@ -60,16 +60,21 @@
             @if (!empty($set_password_url))
                 <p>To access your account, please set your password using the link below:</p>
                 <p>
-                    <a href="{{ $set_password_url }}" class="button" target="_blank" rel="noopener noreferrer">Set Your Password</a>
+                    <a href="{{ $set_password_url }}" class="button" target="_blank" rel="noopener noreferrer">Set Your
+                        Password</a>
                 </p>
                 <p>Set Your Password: {{ $set_password_url }}</p>
-                <p>This link is secure and will expire within {{ $link_expiry_hours }} hours. If it expires, you can request a new link via the login page.</p>
+                <p>Please note that this password setup link is valid for <b>2 x 24 hours</b>.</p>
+                <p>If the link expires, kindly reply to this email or contact us via WhatsApp at +62 811-1937-399 for
+                    further assistance.
+                </p>
             @else
                 <p>Your account password is already active.</p>
                 <p>You can log in directly using your registered email and existing password.</p>
                 @if (!empty($login_url))
                     <p>
-                        <a href="{{ $login_url }}" class="button" target="_blank" rel="noopener noreferrer">Go To Login</a>
+                        <a href="{{ $login_url }}" class="button" target="_blank" rel="noopener noreferrer">Go To
+                            Login</a>
                     </p>
                 @endif
             @endif
