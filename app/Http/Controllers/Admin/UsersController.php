@@ -250,7 +250,7 @@ class UsersController extends Controller
                     Http::withBasicAuth('anystring', $apiKey)
                         ->post("https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/tags", [
                             'tags' => [
-                                ['name' => 'Register of Membership ' . now()->format('d M Y'), 'status' => 'active'],
+                                ['name' => 'Register of Membership', 'status' => 'active'],
                                 ['name' => 'Verified Member', 'status' => 'active'],
                             ],
                         ]);
