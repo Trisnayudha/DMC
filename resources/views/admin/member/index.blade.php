@@ -78,12 +78,19 @@
 
                                                     {{-- NEW: Single Export button --}}
                                                     <td>
-                                                        <form method="POST"
-                                                            action="{{ route('admin.member.export', $post->id) }}">
-                                                            @csrf
-                                                            <button type="submit"
-                                                                class="btn btn-sm btn-primary">Export</button>
-                                                        </form>
+                                                        @if ($post->exported_at)
+                                                            <span class="btn btn-sm btn-secondary disabled"
+                                                                title="Exported pada {{ \Carbon\Carbon::parse($post->exported_at)->format('d M Y H:i') }}">
+                                                                <i class="fas fa-check-circle"></i> Exported
+                                                            </span>
+                                                        @else
+                                                            <form method="POST"
+                                                                action="{{ route('admin.member.export', $post->id) }}">
+                                                                @csrf
+                                                                <button type="submit"
+                                                                    class="btn btn-sm btn-primary">Export</button>
+                                                            </form>
+                                                        @endif
                                                     </td>
 
                                                 </tr>

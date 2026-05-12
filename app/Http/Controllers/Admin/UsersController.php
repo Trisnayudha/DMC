@@ -66,7 +66,7 @@ class UsersController extends Controller
             } elseif ($statusMember === 'pending') {
                 $query->where(function ($q) {
                     $q->whereNull('users.status_member')
-                      ->orWhere('users.status_member', '!=', 'active');
+                        ->orWhere('users.status_member', '!=', 'active');
                 });
             }
 
@@ -94,7 +94,7 @@ class UsersController extends Controller
         $countPendingMember = User::whereNotNull('isStatus')
             ->where(function ($q) {
                 $q->whereNull('status_member')
-                  ->orWhere('status_member', '!=', 'active');
+                    ->orWhere('status_member', '!=', 'active');
             })
             ->count();
 
@@ -830,22 +830,24 @@ class UsersController extends Controller
                 $profile = ProfileModel::create($profilePayload);
             }
 
-            // ===== 4) MAILCHIMP INTEGRATION =====
-            NewsletterFacade::subscribeOrUpdate($email, [
-                'FNAME'    => $user->name,
-                'MERGE3'   => $company->address,
-                'PHONE'    => $profile->phone,
-                'MMERGE5'  => $company->company_name,
-                'MMERGE6'  => $company->company_category,
-                'MMERGE8'  => $profile->job_title,
-                'MMERGE10' => now(),
-                'MMERGE11' => $company->office_number,
-            ]);
+            // // ===== 4) MAILCHIMP INTEGRATION =====
+            // NewsletterFacade::subscribeOrUpdate($email, [
+            //     'FNAME'    => $user->name,
+            //     'MERGE3'   => $company->address,
+            //     'PHONE'    => $profile->phone,
+            //     'MMERGE5'  => $company->company_name,
+            //     'MMERGE6'  => $company->company_category,
+            //     'MMERGE8'  => $profile->job_title,
+            //     'MMERGE10' => now(),
+            //     'MMERGE11' => $company->office_number,
+            // ]);
 
-            // Tambah tag penanda sumber registrasi
-            $this->mcAddTags($user->email, [
-                'Backend Membership'
-            ]);
+            // // Tambah tag penanda sumber registrasi
+            // $this->mcAddTags($user->email, [
+            //     'Backend Membership'
+            // ]);
+            $m->update(['exported_at' => now()]);
+
             DB::commit();
             return back()->with('success', "Export OK → user:{$user->id}, company:{$company->id}, profile:{$profile->id}");
         } catch (\Throwable $e) {

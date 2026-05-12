@@ -34,6 +34,7 @@ class MemberModel extends Model
         'portal_code',
         'sponsor_id',
         'register_as',
-        'source'
+        'source',
+        'exported_at',
     ];
 }

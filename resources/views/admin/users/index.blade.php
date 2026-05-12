@@ -293,11 +293,17 @@
                                             <td>{{ $post->address }}</td>
                                             <td>{{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}</td>
                                             <td>
-                                                <a href="{{ route('admin.member.export', $post->id) }}"
-                                                    class="btn btn-xs btn-success"
-                                                    onclick="return confirm('Export member ini ke Users?')">
-                                                    <i class="fas fa-file-export"></i> Export to Member
-                                                </a>
+                                                @if($post->exported_at)
+                                                    <span class="btn btn-xs btn-secondary disabled" title="Sudah di-export pada {{ \Carbon\Carbon::parse($post->exported_at)->format('d M Y H:i') }}">
+                                                        <i class="fas fa-check-circle"></i> Exported
+                                                    </span>
+                                                @else
+                                                    <a href="{{ route('admin.member.export', $post->id) }}"
+                                                        class="btn btn-xs btn-success"
+                                                        onclick="return confirm('Export member ini ke Users?')">
+                                                        <i class="fas fa-file-export"></i> Export to Member
+                                                    </a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -333,6 +339,7 @@
                                                 title="CCI: anggota CCI. Open to Sponsorship: member bersedia menerima penawaran paket sponsorship."
                                                 data-toggle="tooltip"></i>
                                         </th>
+                                        <th width="100px">Password</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -441,6 +448,19 @@
                                                         <i class="fas fa-sync-alt"></i> Re-sync MC
                                                     </button>
                                                 </div>
+                                            </td>
+
+                                            {{-- PASSWORD STATUS --}}
+                                            <td class="text-center">
+                                                @if($post->password)
+                                                    <span class="badge badge-success" title="User sudah set password" data-toggle="tooltip">
+                                                        <i class="fas fa-lock"></i> Set
+                                                    </span>
+                                                @else
+                                                    <span class="badge badge-danger" title="User belum set password" data-toggle="tooltip">
+                                                        <i class="fas fa-lock-open"></i> Belum
+                                                    </span>
+                                                @endif
                                             </td>
 
                                         </tr>
