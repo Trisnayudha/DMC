@@ -14,10 +14,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Traits\LogsProfileChanges;
 use Newsletter;
 
 class UserController extends Controller
 {
+    use LogsProfileChanges;
 
     public function index()
     {
@@ -93,27 +95,56 @@ class UserController extends Controller
         $company = CompanyModel::where('users_id', $check->id)->first();
         if (!empty($check)) {
 
+            // Snapshot sebelum diubah
+            $oldValues = [
+                'name'                 => $check->name,
+                'job_title'            => $profile->job_title ?? '',
+                'company_name'         => $company->company_name ?? '',
+                'address'              => $company->address ?? '',
+                'office_number'        => $company->office_number ?? '',
+                'prefix_office_number' => $company->prefix_office_number ?? '',
+                'company_website'      => $company->company_website ?? '',
+                'city'                 => $company->city ?? '',
+                'portal_code'          => $company->portal_code ?? '',
+                'company_category'     => $company->company_category ?? '',
+            ];
+
             $file = $request->image;
             if (!empty($file)) {
                 $imageName = time() . '.' . $request->image->extension();
                 $db = '/storage/profile/' . $imageName;
-                $save_folder = $request->image->storeAs('public/profile', $imageName);
+                $request->image->storeAs('public/profile', $imageName);
                 $profile->image = $db;
                 $profile->save();
             }
-            $company->company_name = $request->company_name;
-            $company->address = $request->address;
-            $company->office_number = $request->office_number;
+            $company->company_name         = $request->company_name;
+            $company->address              = $request->address;
+            $company->office_number        = $request->office_number;
             $company->prefix_office_number = $request->prefix_office_number;
-            $company->company_website = $request->company_web;
-            $company->city = $request->city;
-            $company->portal_code = $request->portal_code;
-            $company->company_category = $request->company_category;
-            $check->name = $request->name;
-            $profile->job_title = $request->job_title;
+            $company->company_website      = $request->company_web;
+            $company->city                 = $request->city;
+            $company->portal_code          = $request->portal_code;
+            $company->company_category     = $request->company_category;
+            $check->name                   = $request->name;
+            $profile->job_title            = $request->job_title;
             $company->save();
             $profile->save();
             $check->save();
+
+            $newValues = [
+                'name'                 => $request->name,
+                'job_title'            => $request->job_title,
+                'company_name'         => $request->company_name,
+                'address'              => $request->address,
+                'office_number'        => $request->office_number,
+                'prefix_office_number' => $request->prefix_office_number,
+                'company_website'      => $request->company_web,
+                'city'                 => $request->city,
+                'portal_code'          => $request->portal_code,
+                'company_category'     => $request->company_category,
+            ];
+
+            $this->trackProfileChanges($check, $oldValues, $newValues, 'mobile_app');
 
             $response['status'] = 200;
             $response['message'] = 'Successfully update data';
@@ -133,26 +164,62 @@ class UserController extends Controller
             ->join('company', 'company.id', 'profiles.company_id')
             ->select('users.id as users_id', 'profiles.id as profile_id', 'company.id as company_id')
             ->first();
-        // dd($check);
+
         if (!empty($check)) {
             $updateCompany = CompanyModel::where('id', $check->company_id)->first();
             $updateProfile = ProfileModel::where('id', $check->profile_id)->first();
-            $updateProfile->job_title = $request->job_title;
+            $user          = User::find($check->users_id);
+
+            // Snapshot sebelum diubah
+            $oldValues = [
+                'job_title'            => $updateProfile->job_title ?? '',
+                'prefix'               => $updateCompany->prefix ?? '',
+                'company_name'         => $updateCompany->company_name ?? '',
+                'prefix_office_number' => $updateCompany->prefix_office_number ?? '',
+                'office_number'        => $updateCompany->office_number ?? '',
+                'company_website'      => $updateCompany->company_website ?? '',
+                'address'              => $updateCompany->address ?? '',
+                'country'              => $updateCompany->country ?? '',
+                'city'                 => $updateCompany->city ?? '',
+                'portal_code'          => $updateCompany->portal_code ?? '',
+                'company_category'     => $updateCompany->company_category ?? '',
+                'company_other'        => $updateCompany->company_other ?? '',
+            ];
+
+            $updateProfile->job_title            = $request->job_title;
             $updateProfile->save();
-            $updateCompany->prefix = $request->prefix;
-            $updateCompany->company_name = $request->company_name;
+            $updateCompany->prefix               = $request->prefix;
+            $updateCompany->company_name         = $request->company_name;
             $updateCompany->prefix_office_number = $request->prefix_office_number;
-            $updateCompany->office_number = $request->office_number;
-            $updateCompany->company_website = $request->company_website;
-            $updateCompany->address = $request->address;
-            $updateCompany->country = $request->country;
-            $updateCompany->city = $request->city;
-            $updateCompany->portal_code = $request->postal_code;
-            $updateCompany->cci = $request->cci;
-            $updateCompany->explore = $request->explore;
-            $updateCompany->company_category = $request->company_category;
-            $updateCompany->company_other = $request->company_other;
+            $updateCompany->office_number        = $request->office_number;
+            $updateCompany->company_website      = $request->company_website;
+            $updateCompany->address              = $request->address;
+            $updateCompany->country              = $request->country;
+            $updateCompany->city                 = $request->city;
+            $updateCompany->portal_code          = $request->postal_code;
+            $updateCompany->cci                  = $request->cci;
+            $updateCompany->explore              = $request->explore;
+            $updateCompany->company_category     = $request->company_category;
+            $updateCompany->company_other        = $request->company_other;
             $updateCompany->save();
+
+            $newValues = [
+                'job_title'            => $request->job_title,
+                'prefix'               => $request->prefix,
+                'company_name'         => $request->company_name,
+                'prefix_office_number' => $request->prefix_office_number,
+                'office_number'        => $request->office_number,
+                'company_website'      => $request->company_website,
+                'address'              => $request->address,
+                'country'              => $request->country,
+                'city'                 => $request->city,
+                'portal_code'          => $request->postal_code,
+                'company_category'     => $request->company_category,
+                'company_other'        => $request->company_other,
+            ];
+
+            $this->trackProfileChanges($user, $oldValues, $newValues, 'mobile_app');
+
             $response['status'] = 200;
             $response['message'] = 'Company Update Successfully';
             $response['payload'] = null;

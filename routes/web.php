@@ -428,6 +428,14 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
     Route::post('/import-mailchimp', [UsersController::class, 'importToMailchimp'])->name('users.import.mailchimp');
     Route::post('users/{id}/verify', [UsersController::class, 'verifyMember'])->name('users.verify');
+    Route::get('users/edit-logs', [UsersController::class, 'editLogs'])->name('admin.user_edit_logs');
+
+    // CMS Users (admin role management)
+    Route::get('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'index'])->name('admin.cms_users.index');
+    Route::post('cms-users/assign', [App\Http\Controllers\Admin\CmsUsersController::class, 'assign'])->name('admin.cms_users.assign');
+    Route::post('cms-users/{id}/revoke', [App\Http\Controllers\Admin\CmsUsersController::class, 'revoke'])->name('admin.cms_users.revoke');
+    Route::post('users/{id}/update', [UsersController::class, 'updateUser'])->name('users.update');
+    Route::get('users/{id}/logs', [UsersController::class, 'userLogs'])->name('users.logs');
     Route::get('member', [UsersController::class, 'member'])->name('members');
     Route::post('member/{id}/export', [UsersController::class, 'export'])->name('admin.member.export');
     Route::get('/master-database', [App\Http\Controllers\Admin\MasterDatabaseController::class, 'index'])
@@ -440,6 +448,12 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('admin.company_database.update');
     Route::post('/company-database/sync-all', [CompanyDatabaseController::class, 'syncAll'])
         ->name('admin.company_database.sync_all');
+    Route::get('/company-database/verified-companies', [CompanyDatabaseController::class, 'verifiedCompanies'])
+        ->name('admin.company_database.verified_companies');
+    Route::get('/company-database/company-users', [CompanyDatabaseController::class, 'companyUsers'])
+        ->name('admin.company_database.company_users');
+    Route::get('/company-database/chart-data', [CompanyDatabaseController::class, 'chartData'])
+        ->name('admin.company_database.chart_data');
     Route::get('/interview-schedule/sponsor', [AdminSponsorInterviewScheduleController::class, 'index'])
         ->name('admin.interview-schedule.sponsor.index');
 

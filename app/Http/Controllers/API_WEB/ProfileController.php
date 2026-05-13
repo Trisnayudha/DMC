@@ -9,11 +9,13 @@ use App\Models\Company\CompanyModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Traits\LogsProfileChanges;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
 {
+    use LogsProfileChanges;
     public function requestOtp(Request $request)
     {
         $id = auth('sanctum')->user()->id;
@@ -112,22 +114,43 @@ Your verification code (OTP) ' . $otp;
         $company = CompanyModel::where('users_id', $check->id)->first();
         if (!empty($check)) {
 
+            // Snapshot sebelum diubah
+            $oldValues = [
+                'name'                 => $check->name ?? '',
+                'company_name'         => $company->company_name ?? '',
+                'address'              => $company->address ?? '',
+                'office_number'        => $company->office_number ?? '',
+                'prefix_office_number' => $company->prefix_office_number ?? '',
+                'company_website'      => $company->company_website ?? '',
+            ];
+
             $file = $request->image;
             if (!empty($file)) {
                 $imageName = time() . '.' . $request->image->extension();
                 $db = '/storage/profile/' . $imageName;
-                $save_folder = $request->image->storeAs('public/profile', $imageName);
+                $request->image->storeAs('public/profile', $imageName);
                 $profile->image = $db;
                 $profile->save();
             }
-            $company->company_name = $request->company_name;
-            $company->address = $request->address;
-            $company->office_number = $request->office_number;
+            $company->company_name         = $request->company_name;
+            $company->address              = $request->address;
+            $company->office_number        = $request->office_number;
             $company->prefix_office_number = $request->prefix_office_number;
-            $company->company_website = $request->company_web;
-            $check->name = $request->name;
+            $company->company_website      = $request->company_web;
+            $check->name                   = $request->name;
             $company->save();
             $check->save();
+
+            $newValues = [
+                'name'                 => $request->name,
+                'company_name'         => $request->company_name,
+                'address'              => $request->address,
+                'office_number'        => $request->office_number,
+                'prefix_office_number' => $request->prefix_office_number,
+                'company_website'      => $request->company_web,
+            ];
+
+            $this->trackProfileChanges($check, $oldValues, $newValues, 'web');
 
             $response['status'] = 200;
             $response['message'] = 'Successfully update data';

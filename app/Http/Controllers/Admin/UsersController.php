@@ -8,6 +8,7 @@ use App\Models\Company\CompanyModel;
 use App\Models\MemberModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
+use App\Models\UserEditLog;
 use App\Support\QrCode;
 use Illuminate\Http\Request;
 use Exception;
@@ -61,6 +62,16 @@ class UsersController extends Controller
                 ]);
             }
 
+            if ($filter == 'self_edited') {
+                $selfEditedIds = DB::table('user_edit_logs')
+                    ->whereNull('admin_id')
+                    ->pluck('user_id')
+                    ->unique()
+                    ->values()
+                    ->all();
+                $query->whereIn('users.id', $selfEditedIds);
+            }
+
             if ($statusMember === 'active') {
                 $query->where('users.status_member', 'active');
             } elseif ($statusMember === 'pending') {
@@ -85,6 +96,14 @@ class UsersController extends Controller
                 )
                 ->get();
         }
+
+        // Self-edit map: user_id => latest self-edit timestamp (single query)
+        $selfEditMap = DB::table('user_edit_logs')
+            ->whereNull('admin_id')
+            ->select('user_id', DB::raw('MAX(created_at) as last_self_edit'))
+            ->groupBy('user_id')
+            ->pluck('last_self_edit', 'user_id')
+            ->all();
 
         // Stats
         $countActiveMember = User::whereNotNull('isStatus')
@@ -118,6 +137,11 @@ class UsersController extends Controller
         $countDoubleVerify = User::whereNotNull('isStatus')
             ->whereNotNull('verify_phone')->whereNotNull('verify_email')->count();
 
+        $countSelfEdited = DB::table('user_edit_logs')
+            ->whereNull('admin_id')
+            ->distinct('user_id')
+            ->count('user_id');
+
         return view('admin.users.index', [
             'list'               => $list,
             'countActiveMember'  => $countActiveMember,
@@ -127,6 +151,8 @@ class UsersController extends Controller
             'countVerifyEmail'   => $countVerifyEmail,
             'countVerifyPhone'   => $countVerifyPhone,
             'countDoubleVerify'  => $countDoubleVerify,
+            'countSelfEdited'    => $countSelfEdited,
+            'selfEditMap'        => $selfEditMap,
         ]);
     }
 
@@ -357,6 +383,136 @@ class UsersController extends Controller
         }
 
         return $memberId . strtoupper(Str::random(2));
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $request->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|max:255',
+            'job_title'     => 'nullable|string|max:255',
+            'phone'         => 'nullable|string|max:50',
+            'status_member' => 'nullable|in:active,pending',
+            'tier'          => 'nullable|in:reguler,black',
+        ]);
+
+        $user    = User::findOrFail($id);
+        $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
+
+        $watchUser    = ['name', 'email', 'status_member', 'tier'];
+        $watchProfile = ['job_title', 'phone'];
+
+        $changes = [];
+
+        foreach ($watchUser as $field) {
+            $old = (string) ($user->$field ?? '');
+            $new = (string) ($request->input($field, '') ?? '');
+            if ($old !== $new) {
+                $changes[$field] = ['old' => $old, 'new' => $new];
+            }
+        }
+
+        foreach ($watchProfile as $field) {
+            $old = (string) ($profile->$field ?? '');
+            $new = (string) ($request->input($field, '') ?? '');
+            if ($old !== $new) {
+                $changes[$field] = ['old' => $old, 'new' => $new];
+            }
+        }
+
+        if (empty($changes)) {
+            return response()->json(['success' => true, 'message' => 'Tidak ada perubahan.']);
+        }
+
+        $user->name          = $request->name;
+        $user->email         = $request->email;
+        $user->status_member = $request->status_member ?: $user->status_member;
+        $user->tier          = $request->tier ?: $user->tier;
+        $user->save();
+
+        $profile->job_title = $request->job_title;
+        $profile->phone     = $request->phone;
+        $profile->fullphone = $request->phone;
+        $profile->users_id  = $user->id;
+        $profile->save();
+
+        $adminUser = auth()->user();
+        DB::table('user_edit_logs')->insert([
+            'user_id'    => $user->id,
+            'admin_id'   => auth()->id(),
+            'admin_name' => $adminUser ? $adminUser->name : null,
+            'changes'    => json_encode($changes),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        Log::info('Admin edited user', [
+            'admin'   => $adminUser ? $adminUser->name : null,
+            'user_id' => $user->id,
+            'email'   => $user->email,
+            'changes' => $changes,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Data user berhasil diperbarui.', 'changes' => $changes]);
+    }
+
+    public function editLogs(Request $request)
+    {
+        $criticalFields = ['company_name', 'company_category', 'company_other', 'prefix'];
+
+        $query = UserEditLog::with('user')->orderByDesc('created_at');
+
+        if ($request->source === 'self') {
+            $query->whereNull('admin_id');
+        } elseif ($request->source === 'admin') {
+            $query->whereNotNull('admin_id');
+        }
+
+        if ($request->date_from) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->date_to) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        if ($request->critical === '1') {
+            $query->where(function ($q) use ($criticalFields) {
+                foreach ($criticalFields as $field) {
+                    $q->orWhere('changes', 'like', '%"' . $field . '"%');
+                }
+            });
+        }
+
+        $logs = $query->paginate(50);
+
+        $countSelfEdit    = UserEditLog::whereNull('admin_id')->count();
+        $countAdminEdit   = UserEditLog::whereNotNull('admin_id')->count();
+        $countUniqueUsers = UserEditLog::distinct('user_id')->count('user_id');
+        $countCritical    = UserEditLog::whereNull('admin_id')
+            ->where(function ($q) use ($criticalFields) {
+                foreach ($criticalFields as $field) {
+                    $q->orWhere('changes', 'like', '%"' . $field . '"%');
+                }
+            })->count();
+
+        return view('admin.users.edit_logs', compact(
+            'logs', 'countSelfEdit', 'countAdminEdit', 'countUniqueUsers', 'countCritical'
+        ));
+    }
+
+    public function userLogs(Request $request, $id)
+    {
+        $logs = DB::table('user_edit_logs')
+            ->where('user_id', $id)
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get()
+            ->map(function ($log) {
+                $log->changes = json_decode($log->changes, true);
+                return $log;
+            });
+
+        return response()->json($logs);
     }
 
     public function import(Request $request)
