@@ -103,6 +103,19 @@
                         </a>
                     </div>
 
+                    {{-- Mailchimp Contacts --}}
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-info"><i class="fab fa-mailchimp"></i></div>
+                            <div class="card-wrap">
+                                <div class="card-header"><h4>Mailchimp Contacts</h4></div>
+                                <div class="card-body" id="mc-contact-count">
+                                    <span class="spinner-border spinner-border-sm text-info" role="status"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>{{-- /stats row --}}
 
                 {{-- Self-edit alert banner (only shown when there are self-edits) --}}
@@ -1295,6 +1308,26 @@
                 $('#logs-empty').text('Gagal memuat log.').show();
             });
         });
+
+        // ===== Mailchimp Contact Count =====
+        (function fetchMcCount() {
+            $.ajax({
+                url: '{{ route('users.mailchimp.count') }}',
+                method: 'GET',
+                dataType: 'json',
+                timeout: 12000,
+            })
+            .done(function(res) {
+                if (res && res.success && res.count !== null) {
+                    $('#mc-contact-count').text(Number(res.count).toLocaleString());
+                } else {
+                    $('#mc-contact-count').html('<span class="text-muted small">N/A</span>');
+                }
+            })
+            .fail(function() {
+                $('#mc-contact-count').html('<span class="text-muted small">N/A</span>');
+            });
+        })();
 
         // DataTable
         $(document).ready(function() {

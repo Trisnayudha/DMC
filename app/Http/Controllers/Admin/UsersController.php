@@ -496,7 +496,11 @@ class UsersController extends Controller
             })->count();
 
         return view('admin.users.edit_logs', compact(
-            'logs', 'countSelfEdit', 'countAdminEdit', 'countUniqueUsers', 'countCritical'
+            'logs',
+            'countSelfEdit',
+            'countAdminEdit',
+            'countUniqueUsers',
+            'countCritical'
         ));
     }
 
@@ -707,6 +711,40 @@ class UsersController extends Controller
     }
 
 
+
+    public function mailchimpContactCount()
+    {
+        $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
+        $listId = config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID');
+        $server = config('newsletter.server') ?: (explode('-', $apiKey)[1] ?? null);
+
+        if (!$apiKey || !$listId || !$server) {
+            return response()->json(['success' => false, 'count' => null, 'message' => 'Mailchimp belum dikonfigurasi.']);
+        }
+
+        try {
+            $resp = Http::withBasicAuth('anystring', $apiKey)
+                ->timeout(10)
+                ->get("https://{$server}.api.mailchimp.com/3.0/lists/{$listId}", [
+                    'fields' => 'stats.member_count,stats.unsubscribe_count,stats.cleaned_count',
+                ]);
+
+            if (!$resp->successful()) {
+                return response()->json(['success' => false, 'count' => null, 'message' => 'Gagal mengambil data Mailchimp.']);
+            }
+
+            $stats = $resp->json('stats');
+            return response()->json([
+                'success'      => true,
+                'count'        => $stats['member_count'] ?? 0,
+                'unsubscribed' => $stats['unsubscribe_count'] ?? 0,
+                'cleaned'      => $stats['cleaned_count'] ?? 0,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('mailchimpContactCount failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'count' => null, 'message' => $e->getMessage()]);
+        }
+    }
 
     public function member()
     {

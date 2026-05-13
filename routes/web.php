@@ -429,6 +429,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/import-mailchimp', [UsersController::class, 'importToMailchimp'])->name('users.import.mailchimp');
     Route::post('users/{id}/verify', [UsersController::class, 'verifyMember'])->name('users.verify');
     Route::get('users/edit-logs', [UsersController::class, 'editLogs'])->name('admin.user_edit_logs');
+    Route::get('users/mailchimp-count', [UsersController::class, 'mailchimpContactCount'])->name('users.mailchimp.count');
 
     // CMS Users (admin role management)
     Route::get('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'index'])->name('admin.cms_users.index');
