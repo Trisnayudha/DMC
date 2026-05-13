@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Profiles\ProfileModel;
-use Illuminate\Support\Facades\DB;
 
 class CompanyModel extends Model
 {
@@ -17,6 +16,8 @@ class CompanyModel extends Model
     protected $fillable = [
         'prefix',
         'company_name',
+        'is_verified',
+        'verified_at',
         'company_website',
         'company_category',
         'company_other',
