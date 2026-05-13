@@ -63,7 +63,6 @@
                     <a href="{{ $set_password_url }}" class="button" target="_blank" rel="noopener noreferrer">Set Your
                         Password</a>
                 </p>
-                <p>Set Your Password: {{ $set_password_url }}</p>
                 <p>Please note that this password setup link is valid for <b>2 x 24 hours</b>.</p>
                 <p>If the link expires, kindly reply to this email or contact us via WhatsApp at +62 811-1937-399 for
                     further assistance.
