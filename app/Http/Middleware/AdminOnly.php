@@ -14,7 +14,7 @@ class AdminOnly
             return redirect()->route('login');
         }
 
-        if (Auth::user()->role_id !== 1) {
+        if (!Auth::user()->hasRole('admin')) {
             abort(403, 'Unauthorized access.');
         }
 
