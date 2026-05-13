@@ -47,8 +47,8 @@ class AuthController extends Controller
                 'phone' => ['required', 'exists:profiles,fullphone'],
             ],
             [
-                'phone.required' => 'Phone wajib di isi',
-                'phone.exists' => 'Phone Number tidak ditemukan'
+                'phone.required' => 'Phone is required',
+                'phone.exists' => 'Phone number not found',
             ]
         );
 
@@ -98,8 +98,8 @@ Your verification code (OTP) ' . $otp;
                 'phone' => ['required', 'exists:profiles,fullphone'],
             ],
             [
-                'phone.required' => 'Phone wajib di isi',
-                'phone.exists' => 'Phone Number tidak ditemukan'
+                'phone.required' => 'Phone is required',
+                'phone.exists' => 'Phone number not found',
             ]
         );
 
@@ -150,7 +150,7 @@ Your verification code (OTP) ' . $otp;
                 'email' => ['required', 'email', 'exists:users,email'],
             ],
             [
-                'email.required' => 'Email wajib diisi',
+                'email.required' => 'Email is required',
                 'email.exists' => 'Email Not Found'
             ]
         );
@@ -196,7 +196,7 @@ Your verification code (OTP) ' . $otp;
                 'uname' => ['required', 'exists:users,uname'],
             ],
             [
-                'uname.required' => 'QR wajib diisi',
+                'uname.required' => 'QR is required',
                 'uname.exists' => 'QR Not Found'
             ]
         );
@@ -245,8 +245,8 @@ Your verification code (OTP) ' . $otp;
                 'fullphone' => ['required']
             ],
             [
-                'fullphone.required' => 'Harap Masukan Nomor Handphone',
-                'email.required' => 'Email Harap diisi',
+                'fullphone.required' => 'Phone number is required',
+                'email.required' => 'Email is required',
             ]
         );
 
@@ -265,47 +265,47 @@ Your verification code (OTP) ' . $otp;
         $email = $request->email;
         $phone = $request->fullphone;
 
-        // Cek apakah user dengan email ini sudah ada
+        // Check if a user with this email already exists
         $user = User::where('email', $email)->first();
         $profile = ProfileModel::where('fullphone', $phone)->first();
 
         if ($user) {
-            // Jika user ada tapi verify_email masih null -> boleh lanjut
+            // User exists but verify_email is still null → allow to continue
             if (is_null($user->verify_email)) {
                 return response()->json([
                     'status' => 200,
-                    'message' => 'Next (email belum terverifikasi)',
+                    'message' => 'Next (email not yet verified)',
                     'payload' => null
                 ]);
             }
 
-            // Jika sudah terverifikasi
+            // Already verified
             return response()->json([
                 'status' => 422,
-                'message' => 'Email sudah digunakan',
-                'payload' => ['email' => 'Email sudah digunakan']
+                'message' => 'Email is already in use',
+                'payload' => ['email' => 'Email is already in use']
             ]);
         }
 
         if ($profile) {
-            // Jika profile ada tapi user terkait belum verifikasi phone
+            // Profile exists but related user has not verified phone yet
             $relatedUser = $profile->user ?? null;
             if ($relatedUser && is_null($relatedUser->verify_phone)) {
                 return response()->json([
                     'status' => 200,
-                    'message' => 'Next (phone belum terverifikasi)',
+                    'message' => 'Next (phone not yet verified)',
                     'payload' => null
                 ]);
             }
 
             return response()->json([
                 'status' => 422,
-                'message' => 'Nomor Handphone sudah terdaftar',
-                'payload' => ['fullphone' => 'Nomor Handphone sudah terdaftar']
+                'message' => 'Phone number is already registered',
+                'payload' => ['fullphone' => 'Phone number is already registered']
             ]);
         }
 
-        // Jika lolos semua validasi
+        // All validations passed
         return response()->json([
             'status' => 200,
             'message' => 'Next',
@@ -315,7 +315,7 @@ Your verification code (OTP) ' . $otp;
 
     public function signup(Request $request)
     {
-        // 1) Validasi format (tanpa unique keras)
+        // 1) Validate format (without strict unique check)
         $validate = Validator::make(
             $request->all(),
             [
@@ -325,9 +325,9 @@ Your verification code (OTP) ' . $otp;
                 'password' => ['required', 'string', 'min:5'],
             ],
             [
-                'phone.required'    => 'Harap Masukan Nomor Handphone',
-                'password.required' => 'Password Harap diisi',
-                'email.required'    => 'Email Harap diisi',
+                'phone.required'    => 'Phone number is required',
+                'password.required' => 'Password is required',
+                'email.required'    => 'Email is required',
             ]
         );
 
@@ -339,7 +339,7 @@ Your verification code (OTP) ' . $otp;
             ]);
         }
 
-        // 2) Ambil input
+        // 2) Get input
         $name                  = $request->name;
         $country_phone         = $request->country_phone;
         $phone                 = $request->phone;
@@ -362,14 +362,14 @@ Your verification code (OTP) ' . $otp;
         $explore               = $request->explore;
         $source                = $request->source;
 
-        // 3) Cek user existing (auto-create dari event biasanya sudah ada di users)
+        // 3) Check existing user (auto-created from event is usually already in users)
         $userByEmail = User::where('email', $email)->first();
         $profileByPhone = ProfileModel::where(function ($q) use ($phone, $fullphone) {
             $q->where('phone', $phone)
                 ->orWhere('fullphone', $fullphone);
         })->first();
 
-        // 4) If conflict verified → tolak
+        // 4) If conflict verified → reject
         if ($userByEmail && !$this->isProvisionalUser($userByEmail)) {
             return response()->json([
                 'status'  => 422,
@@ -389,9 +389,9 @@ Your verification code (OTP) ' . $otp;
 
         DB::beginTransaction();
         try {
-            // 5) CLAIM MODE: userByEmail ada & provisional → update (klaim akun)
+            // 5) CLAIM MODE: userByEmail exists & provisional → update (claim account)
             if ($userByEmail && $this->isProvisionalUser($userByEmail)) {
-                // Pastikan ada MemberModel draft untuk OTP flow (kalau belum, buat/merge)
+                // Ensure MemberModel draft exists for OTP flow (create/merge if not)
                 $member = MemberModel::firstOrNew(['email' => $email]);
                 $member->prefix               = $prefix;
                 $member->company_name         = $company_name;
@@ -413,15 +413,15 @@ Your verification code (OTP) ' . $otp;
                 $member->company_other        = $company_other;
                 $member->explore              = $explore;
                 $member->cci                  = $cci;
-                $member->source                  = $source ?? 'apps';
-                $member->password             = Hash::make($password); // simpan sementara; akan dipindah di verifyOtp
+                $member->source               = $source ?? 'apps';
+                $member->password             = Hash::make($password); // temporary; will be moved in verifyOtp
                 $member->save();
 
-                // (Opsional) Kirim OTP di step berikutnya (requestOtp)
+                // (Optional) Send OTP in next step (requestOtp)
                 DB::commit();
                 return response()->json([
                     'status'  => 200,
-                    'message' => 'Akun ditemukan dari pendaftaran event. Silakan verifikasi (OTP) untuk mengklaim akun.',
+                    'message' => 'Account found from event registration. Please verify (OTP) to claim your account.',
                     'payload' => [
                         'mode'  => 'CLAIM',
                         'email' => $email,
@@ -430,7 +430,7 @@ Your verification code (OTP) ' . $otp;
                 ]);
             }
 
-            // 6) CREATE MODE: tidak ada userByEmail (baru)
+            // 6) CREATE MODE: no userByEmail (new user)
             $member = MemberModel::firstOrNew(['email' => $email]);
             $member->prefix               = $prefix;
             $member->company_name         = $company_name;
@@ -469,7 +469,7 @@ Your verification code (OTP) ' . $otp;
             DB::rollBack();
             return response()->json([
                 'status'  => 500,
-                'message' => 'Gagal menyimpan data. ' . $e->getMessage(),
+                'message' => 'Failed to save data. ' . $e->getMessage(),
                 'payload' => null,
             ]);
         }
@@ -543,8 +543,8 @@ Your verification code (OTP) ' . $otp;
                 'phone' => ['unique:profiles'],
             ],
             [
-                'phone.unique' => 'Nomor Handphone sudah terdaftar',
-                'email.unique' => 'Email sudah digunakan'
+                'phone.unique' => 'Phone number is already registered',
+                'email.unique' => 'Email is already in use',
             ]
         );
 
@@ -659,7 +659,7 @@ Your verification code (OTP) ' . $otp;
 
             $news = NewsletterFacade::subscribeOrUpdate($findUser->email, $mergeFields);
 
-            // aktifkan nanti setelah subscribe sukses
+            // enable after subscribe succeeds
             $this->mcAddTags($findUser->email, ['Backend Membership']);
 
             auth()->login($user, true);
@@ -724,9 +724,6 @@ Your verification code (OTP) ' . $otp;
         return $memberId . strtoupper(Str::random(2));
     }
 
-    /**
-     * Tambah tags ke Mailchimp (sama seperti sebelumnya).
-     */
     protected function mcAddTags(string $email, array $tags): void
     {
         try {
@@ -754,7 +751,7 @@ Your verification code (OTP) ' . $otp;
         $user->currentAccessToken()->delete();
 
         return response()->json([
-            'message'   => 'Berhasil LogOut'
+            'message' => 'Successfully logged out'
         ], 200);
     }
 
@@ -766,7 +763,7 @@ Your verification code (OTP) ' . $otp;
                 'email' => ['required', 'email', 'exists:users,email'],
             ],
             [
-                'email.required' => 'Email wajib diisi',
+                'email.required' => 'Email is required',
                 'email.exists' => 'Email Not Found'
             ]
         );
@@ -812,7 +809,7 @@ Your verification code (OTP) ' . $otp;
                 'otp' => ['required']
             ],
             [
-                'email.required' => 'Email wajib diisi',
+                'email.required' => 'Email is required',
                 'email.exists' => 'Email Not Found'
             ]
         );
@@ -824,13 +821,12 @@ Your verification code (OTP) ' . $otp;
             $response['message'] = 'Invalid data';
             $response['payload'] = $data;
         } else {
-            //
             $email = $request->email;
             $otp = $request->otp;
             $user = User::where([['email', '=', $email], ['otp', '=', $otp]])->first();
             if (!empty($user)) {
                 $response['status'] = 200;
-                $response['message'] = 'Berhasil Verify OTP';
+                $response['message'] = 'OTP verified successfully';
                 $response['payload'] = null;
             } else {
                 $data = [
@@ -853,7 +849,7 @@ Your verification code (OTP) ' . $otp;
                 'password' => ['required']
             ],
             [
-                'email.required' => 'Email wajib diisi',
+                'email.required' => 'Email is required',
                 'email.exists' => 'Email Not Found'
             ]
         );
@@ -887,9 +883,10 @@ Your verification code (OTP) ' . $otp;
         }
         return response()->json($response);
     }
+
     protected function isProvisionalUser(\App\Models\User $u): bool
     {
-        // Anggap provisional bila BELUM punya password ATAU belum ada verifikasi apapun
+        // Considered provisional if password is not set OR no verification of any kind exists
         return (empty($u->password) || is_null($u->verify_email) || is_null($u->verify_phone));
     }
 }

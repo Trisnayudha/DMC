@@ -294,7 +294,7 @@
                                             <td>{{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}</td>
                                             <td>
                                                 @if($post->exported_at)
-                                                    <span class="btn btn-xs btn-secondary disabled" title="Sudah di-export pada {{ \Carbon\Carbon::parse($post->exported_at)->format('d M Y H:i') }}">
+                                                    <span class="btn btn-xs btn-secondary disabled" title="Exported on {{ \Carbon\Carbon::parse($post->exported_at)->format('d M Y H:i') }}">
                                                         <i class="fas fa-check-circle"></i> Exported
                                                     </span>
                                                 @else
@@ -453,12 +453,12 @@
                                             {{-- PASSWORD STATUS --}}
                                             <td class="text-center">
                                                 @if($post->password)
-                                                    <span class="badge badge-success" title="User sudah set password" data-toggle="tooltip">
+                                                    <span class="badge badge-success" title="Password has been set" data-toggle="tooltip">
                                                         <i class="fas fa-lock"></i> Set
                                                     </span>
                                                 @else
-                                                    <span class="badge badge-danger" title="User belum set password" data-toggle="tooltip">
-                                                        <i class="fas fa-lock-open"></i> Belum
+                                                    <span class="badge badge-danger" title="Password not set yet" data-toggle="tooltip">
+                                                        <i class="fas fa-lock-open"></i> Not Set
                                                     </span>
                                                 @endif
                                             </td>

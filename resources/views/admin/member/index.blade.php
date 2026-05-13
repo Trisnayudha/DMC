@@ -80,7 +80,7 @@
                                                     <td>
                                                         @if ($post->exported_at)
                                                             <span class="btn btn-sm btn-secondary disabled"
-                                                                title="Exported pada {{ \Carbon\Carbon::parse($post->exported_at)->format('d M Y H:i') }}">
+                                                                title="Exported on {{ \Carbon\Carbon::parse($post->exported_at)->format('d M Y H:i') }}">
                                                                 <i class="fas fa-check-circle"></i> Exported
                                                             </span>
                                                         @else

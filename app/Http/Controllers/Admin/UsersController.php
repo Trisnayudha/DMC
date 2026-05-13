@@ -246,14 +246,6 @@ class UsersController extends Controller
                             'status'        => 'subscribed',
                             'merge_fields'  => $merge,
                         ]);
-
-                    Http::withBasicAuth('anystring', $apiKey)
-                        ->post("https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}/tags", [
-                            'tags' => [
-                                ['name' => 'Register of Membership', 'status' => 'active'],
-                                ['name' => 'Verified Member', 'status' => 'active'],
-                            ],
-                        ]);
                 }
             } catch (\Throwable $e) {
                 Log::warning('verifyMember: Mailchimp import failed for user ' . $id . ': ' . $e->getMessage());
