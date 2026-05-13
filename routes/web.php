@@ -69,7 +69,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/test/email', [TestController::class, 'testEmail']);
+Route::get('/test/email', [TestController::class, 'testEmail'])->middleware(['auth', 'admin']);
 
 Route::get('web-view-sponsor', function () {
     return view('maps');
@@ -116,9 +116,9 @@ Route::get('collect', function () {
 //     return $controller->collectAndStoreExhibitorData($ids);
 // });
 
-Route::get('/fetch-contacts', [TestController::class, 'fetchAndStoreContactData']);
+Route::get('/fetch-contacts', [TestController::class, 'fetchAndStoreContactData'])->middleware(['auth', 'admin']);
 
-Route::get('/save-invoice', [TestController::class, 'saveInvoice']);
+Route::get('/save-invoice', [TestController::class, 'saveInvoice'])->middleware(['auth', 'admin']);
 Route::get('/register', function () {
     return view('register_event.register');
 });
@@ -132,11 +132,11 @@ Route::post('/scan/request', [PrintController::class, 'request']);
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
 Route::get('/test', [TestController::class, 'test']);
-Route::get('/mining-indo', [TestController::class, 'miningIndoData']);
-Route::post('/exhibitors/import', [TestController::class, 'importExhibitor']);
-Route::post('/exhibitors/import-batch', [TestController::class, 'importExhibitorBatch']); // ⬅️ baru
-Route::get('/test/data', [TestController::class, 'getData']);
-Route::post('/test/upload', [TestController::class, 'upload']);
+Route::get('/mining-indo', [TestController::class, 'miningIndoData'])->middleware(['auth', 'admin']);
+Route::post('/exhibitors/import', [TestController::class, 'importExhibitor'])->middleware(['auth', 'admin']);
+Route::post('/exhibitors/import-batch', [TestController::class, 'importExhibitorBatch'])->middleware(['auth', 'admin']);
+Route::get('/test/data', [TestController::class, 'getData'])->middleware(['auth', 'admin']);
+Route::post('/test/upload', [TestController::class, 'upload'])->middleware(['auth', 'admin']);
 Route::get('/privacy', function () {
     return view('privacy-policy');
 });
@@ -200,7 +200,7 @@ Auth::routes([
 ]);
 
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     //Notification
     Route::get('notification', [NotificationController::class, 'index'])->name('notification');
     Route::post('notification/add', [NotificationController::class, 'store']);
