@@ -82,7 +82,7 @@
         }
 
         .img-logo {
-            height: 200px;
+            height: 100px;
             display: block;
             margin-left: auto;
             margin-right: auto;

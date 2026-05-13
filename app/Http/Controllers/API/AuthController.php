@@ -682,6 +682,19 @@ Your verification code (OTP) ' . $otp;
 
             DB::commit();
 
+            $send = new EmailSender();
+            $send->subject = "Thank You for Registering – Your Membership Application Is Under Review";
+            $send->template = "email.waiting-approval";
+            $send->data = [
+                'users_name' => $user->name,
+                'events_name' => 'Djakarta Mining Club Membership',
+            ];
+            $send->name = $user->name;
+            $send->from = env('EMAIL_SENDER');
+            $send->name_sender = env('EMAIL_NAME');
+            $send->to = $user->email;
+            $send->sendEmail();
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Successfully Register. Your membership is pending approval.',
@@ -690,11 +703,10 @@ Your verification code (OTP) ' . $otp;
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            dd([
-                'error' => true,
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile()
+            return response()->json([
+                'status' => 500,
+                'message' => 'Registration failed. Please try again.',
+                'payload' => $e->getMessage()
             ]);
         }
     }
