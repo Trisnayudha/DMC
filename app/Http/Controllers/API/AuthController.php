@@ -644,23 +644,23 @@ Your verification code (OTP) ' . $otp;
                 'company_id' => $company->id
             ]);
 
-            $mergeFields = array_filter([
-                'FNAME'    => $user->name ?? '',
-                'MMERGE4'  => $phone ?? '',
-                'MMERGE5'  => $findUser->company_name ?? '',
-                'MMERGE6'  => $findUser->company_category ?? '',
-                'MMERGE8'  => $findUser->job_title ?? '',
-                'MMERGE10' => now()->format('Y-m-d H:i:s'),
-                'MMERGE11' => $findUser->office_number ?? '',
-                'MMERGE12' => $findUser->explore ?: $findUser->cci,
-            ], function ($value) {
-                return $value !== null && $value !== '';
-            });
+            // $mergeFields = array_filter([
+            //     'FNAME'    => $user->name ?? '',
+            //     'MMERGE4'  => $phone ?? '',
+            //     'MMERGE5'  => $findUser->company_name ?? '',
+            //     'MMERGE6'  => $findUser->company_category ?? '',
+            //     'MMERGE8'  => $findUser->job_title ?? '',
+            //     'MMERGE10' => now()->format('Y-m-d H:i:s'),
+            //     'MMERGE11' => $findUser->office_number ?? '',
+            //     'MMERGE12' => $findUser->explore ?: $findUser->cci,
+            // ], function ($value) {
+            //     return $value !== null && $value !== '';
+            // });
 
-            $news = NewsletterFacade::subscribeOrUpdate($findUser->email, $mergeFields);
+            // $news = NewsletterFacade::subscribeOrUpdate($findUser->email, $mergeFields);
 
             // enable after subscribe succeeds
-            $this->mcAddTags($findUser->email, ['Backend Membership']);
+            // $this->mcAddTags($findUser->email, ['Backend Membership']);
 
             auth()->login($user, true);
 
