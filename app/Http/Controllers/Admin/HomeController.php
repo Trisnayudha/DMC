@@ -87,7 +87,7 @@ class HomeController extends Controller
         // (kalau kamu mau Paid Off saja, tinggal hapus 'Waiting')
         $eventRegistrations = DB::table('users_event as ue')
             ->leftJoin('payment as p', 'p.id', '=', 'ue.payment_id')
-            ->whereIn('p.status_registration', ['Paid Off', 'Waiting'])
+            ->whereIn('p.status_registration', ['Paid Off'])
             ->count();
 
         // ===== 7) Published News =====
