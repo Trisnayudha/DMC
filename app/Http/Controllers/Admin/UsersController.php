@@ -98,6 +98,23 @@ class UsersController extends Controller
                     'users.id as user_id'
                 )
                 ->get();
+
+            // Mapping manual: jika ada company lain dengan nama sama yang sudah verified,
+            // tandai row ini agar tombol verify bisa langsung biru.
+            $verifiedCompanyNameMap = CompanyModel::query()
+                ->where('is_verified', true)
+                ->whereNotNull('company_name')
+                ->whereRaw("TRIM(company_name) <> ''")
+                ->selectRaw('LOWER(TRIM(company_name)) as normalized_name')
+                ->distinct()
+                ->pluck('normalized_name')
+                ->flip();
+
+            $list = $list->map(function ($row) use ($verifiedCompanyNameMap) {
+                $normalizedName = Str::lower(trim((string) ($row->company_name ?? '')));
+                $row->has_verified_company_name = $normalizedName !== '' && $verifiedCompanyNameMap->has($normalizedName);
+                return $row;
+            });
         }
 
         // Self-edit map: user_id => latest self-edit timestamp (single query)

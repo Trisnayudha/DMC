@@ -484,7 +484,7 @@
                                                                 <i class="fas fa-clock mr-1"></i>Pending
                                                             </span>
                                                             @php
-                                                                $companyVerified = !empty($post->is_verified);
+                                                                $companyVerified = !empty($post->is_verified) || !empty($post->has_verified_company_name);
                                                                 $companyPayload = [
                                                                     'company_name' => $post->company_name,
                                                                     'prefix' => $post->prefix,
