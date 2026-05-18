@@ -82,12 +82,8 @@
                 @endphp
                 <h4 class="mb-0">
                     Tier Job Title Distribution
-                    <i class="fas fa-info-circle text-muted ml-1"
-                        data-toggle="tooltip"
-                        data-html="true"
-                        data-placement="top"
-                        style="cursor: help;"
-                        title="{!! $jobTitleTierTooltip !!}"></i>
+                    <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip" data-html="true"
+                        data-placement="top" style="cursor: help;" title="{!! $jobTitleTierTooltip !!}"></i>
                 </h4>
             </div>
             <div class="card-body">
@@ -125,10 +121,10 @@
                         <h5>{{ $joinedEventPercent ?? 0 }}%</h5>
                         <p class="text-muted mb-0">Joined Event</p>
                     </div>
-                    <div class="col-4">
+                    {{-- <div class="col-4">
                         <h5>{{ $avgNewsPerMember ?? 0 }}</h5>
                         <p class="text-muted mb-0">Avg News / Member</p>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>

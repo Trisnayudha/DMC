@@ -29,14 +29,14 @@
         <li class="{{ request()->is('admin/member*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ Route('members') }}">
                 <i class="fas fa-id-badge"></i>
-                <span>Members DMC</span>
+                <span>Data Tampung</span>
             </a>
         </li>
 
         <li class="{{ request()->is('admin/users') || request()->routeIs('users') ? 'active' : '' }}">
             <a class="nav-link" href="{{ Route('users') }}">
                 <i class="fas fa-users"></i>
-                <span>Members List</span>
+                <span>Members DMC</span>
             </a>
         </li>
 
@@ -117,7 +117,8 @@
         {{-- ── MARKETING & COMMUNICATION ────────────── --}}
         <li class="menu-header">Marketing &amp; Communication</li>
 
-        <li class="dropdown {{ request()->is('admin/advertisement*') || request()->is('admin/marketing*') ? 'active' : '' }}">
+        <li
+            class="dropdown {{ request()->is('admin/advertisement*') || request()->is('admin/marketing*') ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
                 <i class="fas fa-bullhorn"></i>
                 <span>Advertisement</span>
