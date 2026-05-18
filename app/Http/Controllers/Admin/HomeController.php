@@ -63,16 +63,11 @@ class HomeController extends Controller
             })
             ->count();
 
-        // ===== 3) Expiring (30 Days) =====
-        // yang akan melewati batas "inactive 1 tahun" dalam 30 hari ke depan
-        $expiring30Days = DB::table('users')
+        // ===== 3) Active Members Without Password =====
+        // indikator member aktif yang belum set password (password masih NULL)
+        $activeWithoutPassword = DB::table('users')
             ->where('status_member', 'active')
-            ->whereBetween('updated_at', [now()->subYear(), now()->subYear()->addDays(30)])
-            ->count();
-
-        $inactiveOver1Year = DB::table('users')
-            ->where('status_member', 'inactive')
-            ->where('updated_at', '<', $oneYearAgo)
+            ->whereNull('password')
             ->count();
 
         // ===== 4) Total Events =====
@@ -123,8 +118,7 @@ class HomeController extends Controller
             'newMembersThisMonth',
             'growthPercent',
             'activeMembers',
-            'expiring30Days',
-            'inactiveOver1Year',
+            'activeWithoutPassword',
             'totalEvents',
             'upcomingEvents',
             'eventRegistrations',

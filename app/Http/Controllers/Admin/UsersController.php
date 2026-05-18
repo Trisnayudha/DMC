@@ -53,7 +53,8 @@ class UsersController extends Controller
         } else {
             $query = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
                 ->leftJoin('company', 'company.id', 'profiles.company_id')
-                ->whereNotNull('users.isStatus');
+                ->whereNotNull('users.isStatus')
+                ->where('users.status_member', '==', 'active');
 
             if ($filter == 'this_month') {
                 $query->whereBetween('users.created_at', [

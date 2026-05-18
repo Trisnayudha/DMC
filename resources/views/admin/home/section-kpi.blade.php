@@ -45,22 +45,20 @@
         </div>
     </div>
 
-    {{-- 3. Expiring Membership --}}
+    {{-- 3. Active Members Without Password --}}
     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
         <div class="card card-statistic-1">
             <div class="card-icon bg-warning">
-                <i class="fas fa-hourglass-end"></i>
+                <i class="fas fa-key"></i>
             </div>
             <div class="card-wrap">
                 <div class="card-header">
-                    <h4>Expiring (30 Days)</h4>
+                    <h4>Password Not Set</h4>
                 </div>
                 <div class="card-body">
-                    {{ number_format($expiring30Days ?? 0) }}
-
-                    {{-- optional info kecil --}}
+                    {{ number_format($activeWithoutPassword ?? 0) }}
                     <div class="text-small text-muted" style="margin-top:6px;">
-                        Inactive &gt; 1 year: {{ number_format($inactiveOver1Year ?? 0) }}
+                        Active members with password = NULL
                     </div>
                 </div>
             </div>
