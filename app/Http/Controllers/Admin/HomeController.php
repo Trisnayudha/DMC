@@ -134,6 +134,7 @@ class HomeController extends Controller
         $oneYearAgo = now()->subYear();
 
         $activeMembers = DB::table('users')
+            ->where('status_member', 'active')
             ->where(function ($q) use ($oneYearAgo) {
                 $q->where('updated_at', '>=', $oneYearAgo)
                     ->orWhere('verify_email', 'verified')
