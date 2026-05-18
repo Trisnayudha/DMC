@@ -30,11 +30,13 @@ class HomeController extends Controller
     {
         // ===== 1) New Members (this month) + Growth =====
         $newMembersThisMonth = DB::table('users')
+            ->where('status_member', 'active')
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->count();
 
         $newMembersLastMonth = DB::table('users')
+            ->where('status_member', 'active')
             ->whereYear('created_at', now()->subMonth()->year)
             ->whereMonth('created_at', now()->subMonth()->month)
             ->count();
@@ -51,6 +53,7 @@ class HomeController extends Controller
         $oneYearAgo = now()->subYear();
 
         $activeMembers = DB::table('users')
+            ->where('status_member', 'active')
             ->where(function ($q) use ($oneYearAgo) {
                 $q->where('updated_at', '>=', $oneYearAgo)
                     ->orWhere('verify_email', 'verified')
@@ -63,10 +66,12 @@ class HomeController extends Controller
         // ===== 3) Expiring (30 Days) =====
         // yang akan melewati batas "inactive 1 tahun" dalam 30 hari ke depan
         $expiring30Days = DB::table('users')
+            ->where('status_member', 'active')
             ->whereBetween('updated_at', [now()->subYear(), now()->subYear()->addDays(30)])
             ->count();
 
         $inactiveOver1Year = DB::table('users')
+            ->where('status_member', 'inactive')
             ->where('updated_at', '<', $oneYearAgo)
             ->count();
 
