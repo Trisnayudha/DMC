@@ -70,7 +70,25 @@
     <div class="col-lg-4 col-md-12 col-12">
         <div class="card">
             <div class="card-header">
-                <h4>Tier Job Title Distribution</h4>
+                @php
+                    $jobTitleTierTooltip = implode('<br>', [
+                        '<strong>Tier 1</strong>: CEO, COO, CFO, President, Commissioner, Owner, Founder, Partner, Board',
+                        '<strong>Tier 2</strong>: Director, VP, SVP, EVP, General Manager, Country Manager, Head',
+                        '<strong>Tier 3</strong>: Senior Manager, Manager, Mgr, Superintendent, Team Lead, Principal',
+                        '<strong>Tier 4</strong>: Supervisor, Coordinator, Specialist, Engineer, Analyst, Officer, Advisor, Consultant',
+                        '<strong>Tier 5</strong>: Staff, Admin, Administrator, Assistant, Junior, Intern, Trainee, Operator',
+                        '<strong>Fallback</strong>: jika tidak kena keyword, masuk Tier 4',
+                    ]);
+                @endphp
+                <h4 class="mb-0">
+                    Tier Job Title Distribution
+                    <i class="fas fa-info-circle text-muted ml-1"
+                        data-toggle="tooltip"
+                        data-html="true"
+                        data-placement="top"
+                        style="cursor: help;"
+                        title="{!! $jobTitleTierTooltip !!}"></i>
+                </h4>
             </div>
             <div class="card-body">
                 <canvas id="jobTitleTierChart" height="220"></canvas>
