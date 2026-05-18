@@ -47,22 +47,24 @@
 
     {{-- 3. Active Members Without Password --}}
     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-        <div class="card card-statistic-1">
-            <div class="card-icon bg-warning">
-                <i class="fas fa-key"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header">
-                    <h4>Password Not Set</h4>
+        <a href="{{ url('admin/users?filter=password_null') }}" style="text-decoration: none; color: inherit;">
+            <div class="card card-statistic-1 clickable-card">
+                <div class="card-icon bg-warning">
+                    <i class="fas fa-key"></i>
                 </div>
-                <div class="card-body">
-                    {{ number_format($activeWithoutPassword ?? 0) }}
-                    <div class="text-small text-muted" style="margin-top:6px;">
-                        Active members with password = NULL
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Password Not Set</h4>
+                    </div>
+                    <div class="card-body">
+                        {{ number_format($activeWithoutPassword ?? 0) }}
+                        <div class="text-small text-muted" style="margin-top:6px;">
+                            Member aktif yang belum set password
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     {{-- 4. Total Events --}}

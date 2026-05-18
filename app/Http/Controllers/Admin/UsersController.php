@@ -73,6 +73,10 @@ class UsersController extends Controller
                 $query->whereIn('users.id', $selfEditedIds);
             }
 
+            if ($filter == 'password_null') {
+                $query->whereNull('users.password');
+            }
+
             if ($statusMember === 'active') {
                 $query->where('users.status_member', 'active');
             } elseif ($statusMember === 'pending') {
@@ -143,6 +147,11 @@ class UsersController extends Controller
             ->distinct('user_id')
             ->count('user_id');
 
+        $countActiveWithoutPassword = User::whereNotNull('isStatus')
+            ->where('status_member', 'active')
+            ->whereNull('password')
+            ->count();
+
         return view('admin.users.index', [
             'list'               => $list,
             'countActiveMember'  => $countActiveMember,
@@ -153,6 +162,7 @@ class UsersController extends Controller
             'countVerifyPhone'   => $countVerifyPhone,
             'countDoubleVerify'  => $countDoubleVerify,
             'countSelfEdited'    => $countSelfEdited,
+            'countActiveWithoutPassword' => $countActiveWithoutPassword,
             'selfEditMap'        => $selfEditMap,
         ]);
     }

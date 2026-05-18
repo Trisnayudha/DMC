@@ -144,6 +144,8 @@
                                 <span class="text-danger"><i class="fas fa-user-times mr-1"></i>Unregistered</span>
                             @elseif (request('filter') === 'self_edited')
                                 <span class="text-warning"><i class="fas fa-user-edit mr-1"></i>Self-Edited by User</span>
+                            @elseif (request('filter') === 'password_null')
+                                <span class="text-warning"><i class="fas fa-key mr-1"></i>Active Members Without Password</span>
                             @else
                                 <i class="fas fa-users mr-1"></i>All Members
                             @endif
@@ -201,6 +203,14 @@
                                     <i class="fas fa-user-edit mr-1"></i> Self-Edited
                                     @if ($countSelfEdited > 0)
                                         <span class="badge {{ request('filter') === 'self_edited' ? 'badge-light' : 'badge-warning' }} ml-1">{{ $countSelfEdited }}</span>
+                                    @endif
+                                </a>
+                                <a href="{{ url('admin/users?filter=password_null') }}"
+                                    class="btn btn-sm {{ request('filter') === 'password_null' ? 'btn-warning' : 'btn-outline-warning' }}"
+                                    title="Member aktif yang password-nya masih kosong">
+                                    <i class="fas fa-key mr-1"></i> Password NULL
+                                    @if (($countActiveWithoutPassword ?? 0) > 0)
+                                        <span class="badge {{ request('filter') === 'password_null' ? 'badge-light' : 'badge-warning' }} ml-1">{{ $countActiveWithoutPassword }}</span>
                                     @endif
                                 </a>
                             </div>
