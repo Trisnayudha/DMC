@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $user = User::where('email', 'mrifkie@djakarta-miningclub.com')->first();
+        $user = User::where('email', 'mrifkie@indonesiaminer.com')->first();
 
         if ($user) {
             $user->update([
