@@ -418,47 +418,212 @@ class UsersController extends Controller
             'email'         => 'required|email|max:255',
             'job_title'     => 'nullable|string|max:255',
             'phone'         => 'nullable|string|max:50',
+            'prefix'        => 'nullable|string|max:255',
+            'company_name'  => 'nullable|string|max:255',
+            'company_website' => 'nullable|string|max:255',
+            'company_category' => 'nullable|string|max:255',
+            'company_other' => 'nullable|string|max:255',
+            'address'       => 'nullable|string|max:255',
+            'city'          => 'nullable|string|max:255',
+            'portal_code'   => 'nullable|string|max:255',
+            'country'       => 'nullable|string|max:255',
+            'prefix_office_number' => 'nullable|string|max:255',
+            'office_number' => 'nullable|string|max:255',
+            'full_office_number' => 'nullable|string|max:255',
             'status_member' => 'nullable|in:active,pending',
             'tier'          => 'nullable|in:reguler,black',
         ]);
 
         $user    = User::findOrFail($id);
         $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
+        $company = null;
+
+        if (!empty($profile->company_id)) {
+            $company = CompanyModel::find($profile->company_id);
+        }
+
+        if (!$company) {
+            $company = CompanyModel::where('users_id', $user->id)->first();
+        }
+
+        if (!$company) {
+            $company = new CompanyModel();
+            $company->users_id = $user->id;
+        }
+
+        $normalizeForCompare = static function ($value): string {
+            if (is_null($value)) {
+                return '';
+            }
+
+            return is_string($value) ? trim($value) : (string) $value;
+        };
+
+        $nullableString = static function ($value): ?string {
+            if (is_null($value)) {
+                return null;
+            }
+
+            $value = is_string($value) ? trim($value) : (string) $value;
+            return $value === '' ? null : $value;
+        };
+
+        $nextStatusMember = $request->filled('status_member')
+            ? (string) $request->input('status_member')
+            : (string) ($user->status_member ?? '');
+        $nextTier = $request->filled('tier')
+            ? (string) $request->input('tier')
+            : (string) ($user->tier ?? '');
 
         $watchUser    = ['name', 'email', 'status_member', 'tier'];
         $watchProfile = ['job_title', 'phone'];
+        $watchCompany = [
+            'prefix',
+            'company_name',
+            'company_website',
+            'company_category',
+            'company_other',
+            'address',
+            'city',
+            'portal_code',
+            'country',
+            'prefix_office_number',
+            'office_number',
+            'full_office_number',
+        ];
 
         $changes = [];
+        $hasCompanyChanges = false;
+        $shouldAutoVerifyCompany = false;
+        $isFilled = static function ($value): bool {
+            return !is_null($value) && (!is_string($value) || trim($value) !== '');
+        };
 
         foreach ($watchUser as $field) {
-            $old = (string) ($user->$field ?? '');
-            $new = (string) ($request->input($field, '') ?? '');
+            $old = $normalizeForCompare($user->$field ?? '');
+            if ($field === 'status_member') {
+                $new = $normalizeForCompare($nextStatusMember);
+            } elseif ($field === 'tier') {
+                $new = $normalizeForCompare($nextTier);
+            } else {
+                $new = $normalizeForCompare($request->input($field, ''));
+            }
             if ($old !== $new) {
                 $changes[$field] = ['old' => $old, 'new' => $new];
             }
         }
 
         foreach ($watchProfile as $field) {
-            $old = (string) ($profile->$field ?? '');
-            $new = (string) ($request->input($field, '') ?? '');
+            $old = $normalizeForCompare($profile->$field ?? '');
+            $new = $normalizeForCompare($request->input($field, ''));
             if ($old !== $new) {
                 $changes[$field] = ['old' => $old, 'new' => $new];
             }
+        }
+
+        foreach ($watchCompany as $field) {
+            if (!$request->has($field)) {
+                continue;
+            }
+            $old = $normalizeForCompare($company->$field ?? '');
+            $new = $normalizeForCompare($request->input($field, ''));
+            if ($old !== $new) {
+                $hasCompanyChanges = true;
+                $changes[$field] = ['old' => $old, 'new' => $new];
+            }
+        }
+
+        $candidateCompanyData = [];
+        foreach ($watchCompany as $field) {
+            if ($request->has($field)) {
+                $candidateCompanyData[$field] = $nullableString($request->input($field));
+            } else {
+                $candidateCompanyData[$field] = $nullableString($company->{$field} ?? null);
+            }
+        }
+
+        $requiredCompanyFields = [
+            'prefix',
+            'company_name',
+            'company_website',
+            'company_category',
+            'address',
+            'city',
+            'portal_code',
+            'prefix_office_number',
+            'office_number',
+            'full_office_number',
+            'country',
+        ];
+
+        $isCompanyComplete = true;
+        foreach ($requiredCompanyFields as $field) {
+            if (!$isFilled($candidateCompanyData[$field] ?? null)) {
+                $isCompanyComplete = false;
+                break;
+            }
+        }
+
+        if (($candidateCompanyData['company_category'] ?? null) === 'other' && !$isFilled($candidateCompanyData['company_other'] ?? null)) {
+            $isCompanyComplete = false;
+        }
+
+        if (!(bool) ($company->is_verified ?? false) && $isCompanyComplete) {
+            // Auto-verify hanya jika field company lengkap.
+            $shouldAutoVerifyCompany = true;
+        }
+
+        if ($shouldAutoVerifyCompany) {
+            $changes['is_verified'] = ['old' => (bool) ($company->is_verified ?? false) ? '1' : '0', 'new' => '1'];
         }
 
         if (empty($changes)) {
             return response()->json(['success' => true, 'message' => 'Tidak ada perubahan.']);
         }
 
-        $user->name          = $request->name;
-        $user->email         = $request->email;
-        $user->status_member = $request->status_member ?: $user->status_member;
-        $user->tier          = $request->tier ?: $user->tier;
+        $user->name          = trim((string) $request->name);
+        $user->email         = trim((string) $request->email);
+        $user->status_member = $nextStatusMember;
+        $user->tier          = $nextTier;
         $user->save();
 
-        $profile->job_title = $request->job_title;
-        $profile->phone     = $request->phone;
-        $profile->fullphone = $request->phone;
+        $shouldSaveCompany = $hasCompanyChanges || $shouldAutoVerifyCompany;
+        if ($shouldSaveCompany && $company->exists) {
+            $belongsToOtherUser = !empty($company->users_id) && (int) $company->users_id !== (int) $user->id;
+            $sharedWithOtherUsers = ProfileModel::where('company_id', $company->id)
+                ->where('users_id', '!=', $user->id)
+                ->exists();
+
+            if ($belongsToOtherUser || $sharedWithOtherUsers) {
+                $company = $company->replicate();
+                $company->users_id = $user->id;
+            }
+        }
+
+        if ($shouldSaveCompany) {
+            foreach ($watchCompany as $field) {
+                if (!$request->has($field)) {
+                    continue;
+                }
+                $company->{$field} = $nullableString($request->input($field));
+            }
+
+            if ($shouldAutoVerifyCompany) {
+                $company->is_verified = true;
+                $company->verified_at = now();
+            }
+
+            $company->users_id = $user->id;
+            $company->save();
+        }
+
+        $phone = $nullableString($request->phone);
+        $profile->job_title = $nullableString($request->job_title);
+        $profile->phone     = $phone;
+        $profile->fullphone = $phone;
+        if (($hasCompanyChanges || $company->exists) && (int) ($company->id ?? 0) > 0) {
+            $profile->company_id = $company->id;
+        }
         $profile->users_id  = $user->id;
         $profile->save();
 

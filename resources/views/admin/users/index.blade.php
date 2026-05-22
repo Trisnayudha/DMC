@@ -595,6 +595,18 @@
                                                             data-email="{{ $post->email }}"
                                                             data-job-title="{{ $post->job_title }}"
                                                             data-phone="{{ $post->fullphone ?? $post->phone }}"
+                                                            data-prefix="{{ $post->prefix }}"
+                                                            data-company-name="{{ $post->company_name }}"
+                                                            data-company-website="{{ $post->company_website }}"
+                                                            data-company-category="{{ $post->company_category }}"
+                                                            data-company-other="{{ $post->company_other }}"
+                                                            data-address="{{ $post->address }}"
+                                                            data-city="{{ $post->city }}"
+                                                            data-portal-code="{{ $post->portal_code }}"
+                                                            data-country="{{ $post->country }}"
+                                                            data-prefix-office-number="{{ $post->prefix_office_number }}"
+                                                            data-office-number="{{ $post->office_number }}"
+                                                            data-full-office-number="{{ $post->full_office_number }}"
                                                             data-status-member="{{ $post->status_member }}"
                                                             data-tier="{{ strtolower((string) ($post->tier ?? 'reguler')) }}"
                                                             data-update-url="{{ route('users.update', $post->user_id) }}"
@@ -807,7 +819,7 @@
 
     {{-- Modal: Edit User --}}
     <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Edit Data User</h5>
@@ -834,6 +846,111 @@
                         <label class="small font-weight-bold">Phone</label>
                         <input type="text" id="eu-phone" class="form-control">
                     </div>
+
+                    <div class="border rounded p-3 mb-3">
+                        <div class="small font-weight-bold text-primary mb-3">Data Company</div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label class="small font-weight-bold">Prefix</label>
+                                <select id="eu-prefix" class="form-control eu-prefix-select2">
+                                    <option value="">Other</option>
+                                    <option value="PT">PT</option>
+                                    <option value="CV">CV</option>
+                                    <option value="Ltd">Ltd</option>
+                                    <option value="GmbH">GmbH</option>
+                                    <option value="Limited">Limited</option>
+                                    <option value="Llc">Llc</option>
+                                    <option value="Corp">Corp</option>
+                                    <option value="Pte Ltd">Pte Ltd</option>
+                                    <option value="Assosiation">Assosiation</option>
+                                    <option value="Government">Government</option>
+                                    <option value="Pty Ltd">Pty Ltd</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-8">
+                                <label class="small font-weight-bold">Company Name</label>
+                                <div class="position-relative">
+                                    <input type="text" id="eu-company-name" class="form-control" autocomplete="off"
+                                        placeholder="Ketik nama company atau pilih dari verified...">
+                                    <div id="eu-company-suggestions" class="list-group position-absolute w-100"
+                                        style="z-index:9999; display:none; max-height:180px; overflow-y:auto; top:100%; left:0; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                                    </div>
+                                </div>
+                                <small class="text-muted">Suggestion hanya dari company yang sudah verified.</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label class="small font-weight-bold">Website</label>
+                                <input type="text" id="eu-company-website" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="small font-weight-bold">Company Category</label>
+                                <select id="eu-company-category" class="form-control">
+                                    <option value="">--Select--</option>
+                                    <option value="Coal Mining">Coal Mining</option>
+                                    <option value="Minerals Producer">Minerals Producer</option>
+                                    <option value="Supplier/Distributor/Manufacturer">Supplier/Distributor/Manufacturer
+                                    </option>
+                                    <option value="Contrator">Contrator</option>
+                                    <option value="Association / Organization / Government">Association / Organization /
+                                        Government</option>
+                                    <option value="Financial Services">Financial Services</option>
+                                    <option value="Technology">Technology</option>
+                                    <option value="Investors">Investors</option>
+                                    <option value="Logistics and Shipping">Logistics and Shipping</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Consultant">Consultant</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6 eu-company-other-wrap" style="display:none;">
+                                <label class="small font-weight-bold">Company Other</label>
+                                <input type="text" id="eu-company-other" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="small font-weight-bold">Address</label>
+                            <textarea id="eu-address" rows="2" class="form-control"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label class="small font-weight-bold">City</label>
+                                <input type="text" id="eu-city" class="form-control">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="small font-weight-bold">Postal Code</label>
+                                <input type="text" id="eu-portal-code" class="form-control">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="small font-weight-bold">Country</label>
+                                <input type="text" id="eu-country" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-row mb-0">
+                            <div class="form-group col-md-4">
+                                <label class="small font-weight-bold">Prefix Office Number</label>
+                                <input type="text" id="eu-prefix-office-number" class="form-control">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="small font-weight-bold">Office Number</label>
+                                <input type="text" id="eu-office-number" class="form-control">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="small font-weight-bold">Full Office Number</label>
+                                <input type="text" id="eu-full-office-number" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label class="small font-weight-bold">Status Member</label>
@@ -1287,15 +1404,115 @@
                 });
         });
 
+        $(document).on('change', '#eu-company-category', function() {
+            if ($(this).val() === 'other') {
+                $('.eu-company-other-wrap').show();
+            } else {
+                $('.eu-company-other-wrap').hide();
+                $('#eu-company-other').val('');
+            }
+        });
+
+        function euFillCompanyFields(company) {
+            $('#eu-prefix').val(company.prefix || '');
+            if ($.fn.select2) $('#eu-prefix').trigger('change');
+            $('#eu-company-name').val(company.company_name || '');
+            $('#eu-company-website').val(company.company_website || '');
+            $('#eu-company-category').val(company.company_category || '').trigger('change');
+            $('#eu-company-other').val(company.company_other || '');
+            $('#eu-address').val(company.address || '');
+            $('#eu-city').val(company.city || '');
+            $('#eu-portal-code').val(company.portal_code || '');
+            $('#eu-country').val(company.country || '');
+            $('#eu-prefix-office-number').val(company.prefix_office_number || '');
+            $('#eu-office-number').val(company.office_number || '');
+            $('#eu-full-office-number').val(company.full_office_number || '');
+        }
+
+        var euSuggestTimeout = null;
+        $(document).on('input', '#eu-company-name', function() {
+            var q = $(this).val().trim();
+            clearTimeout(euSuggestTimeout);
+            $('#eu-company-suggestions').hide().empty();
+            if (q.length < 2) return;
+
+            euSuggestTimeout = setTimeout(function() {
+                $.ajax({
+                    url: '{{ route('admin.company_database.verified_companies') }}',
+                    data: {
+                        q: q
+                    },
+                    success: function(data) {
+                        var $box = $('#eu-company-suggestions');
+                        $box.empty();
+                        if (!data || data.length === 0) {
+                            $box.hide();
+                            return;
+                        }
+                        $.each(data, function(i, c) {
+                            var $item = $(
+                                '<button type="button" class="list-group-item list-group-item-action"></button>'
+                            );
+                            $item.html(
+                                '<span class="badge badge-success badge-sm mr-1"><i class="fas fa-check-circle"></i> Verified</span> <strong>' +
+                                $('<span>').text(c.company_name).html() +
+                                '</strong>'
+                            );
+                            $item.on('click', function() {
+                                euFillCompanyFields(c);
+                                $box.hide().empty();
+                            });
+                            $box.append($item);
+                        });
+                        $box.show();
+                    },
+                    error: function() {
+                        $('#eu-company-suggestions').hide().empty();
+                    }
+                });
+            }, 300);
+        });
+
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#eu-company-name, #eu-company-suggestions').length) {
+                $('#eu-company-suggestions').hide().empty();
+            }
+        });
+
         // ===== Edit User =====
         $(document).on('click', '.btn-edit-user', function() {
             const $btn = $(this);
+
+            if ($.fn.select2 && !$('#eu-prefix').data('select2')) {
+                $('#eu-prefix').select2({
+                    dropdownParent: $('#editUserModal'),
+                    width: '100%',
+                    placeholder: 'Select Prefix',
+                    allowClear: true
+                });
+            }
+
             $('#eu-user-id').val($btn.attr('data-user-id'));
             $('#eu-update-url').val($btn.attr('data-update-url'));
             $('#eu-name').val($btn.attr('data-name'));
             $('#eu-email').val($btn.attr('data-email'));
             $('#eu-job-title').val($btn.attr('data-job-title'));
             $('#eu-phone').val($btn.attr('data-phone'));
+            $('#eu-prefix').val($btn.attr('data-prefix') || '');
+            if ($.fn.select2) $('#eu-prefix').trigger('change');
+            $('#eu-company-name').val($btn.attr('data-company-name'));
+            $('#eu-company-website').val($btn.attr('data-company-website'));
+            $('#eu-company-category').val($btn.attr('data-company-category') || '');
+            $('#eu-company-other').val($btn.attr('data-company-other'));
+            $('#eu-address').val($btn.attr('data-address'));
+            $('#eu-city').val($btn.attr('data-city'));
+            $('#eu-portal-code').val($btn.attr('data-portal-code'));
+            $('#eu-country').val($btn.attr('data-country'));
+            $('#eu-prefix-office-number').val($btn.attr('data-prefix-office-number'));
+            $('#eu-office-number').val($btn.attr('data-office-number'));
+            $('#eu-full-office-number').val($btn.attr('data-full-office-number'));
+            $('#eu-company-category').trigger('change');
+            $('#eu-company-suggestions').hide().empty();
             $('#eu-status-member').val($btn.attr('data-status-member') || '');
             $('#eu-tier').val($btn.attr('data-tier') || 'reguler');
             $('#eu-btn-save').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Simpan Perubahan');
@@ -1325,6 +1542,18 @@
                         email: email,
                         job_title: $('#eu-job-title').val(),
                         phone: $('#eu-phone').val(),
+                        prefix: $('#eu-prefix').val(),
+                        company_name: $('#eu-company-name').val(),
+                        company_website: $('#eu-company-website').val(),
+                        company_category: $('#eu-company-category').val(),
+                        company_other: $('#eu-company-other').val(),
+                        address: $('#eu-address').val(),
+                        city: $('#eu-city').val(),
+                        portal_code: $('#eu-portal-code').val(),
+                        country: $('#eu-country').val(),
+                        prefix_office_number: $('#eu-prefix-office-number').val(),
+                        office_number: $('#eu-office-number').val(),
+                        full_office_number: $('#eu-full-office-number').val(),
                         status_member: $('#eu-status-member').val(),
                         tier: $('#eu-tier').val(),
                     }
@@ -1386,6 +1615,19 @@
                         email: 'Email',
                         job_title: 'Job Title',
                         phone: 'Phone',
+                        prefix: 'Prefix',
+                        company_name: 'Company Name',
+                        company_website: 'Company Website',
+                        company_category: 'Company Category',
+                        company_other: 'Company Other',
+                        address: 'Address',
+                        city: 'City',
+                        portal_code: 'Postal Code',
+                        country: 'Country',
+                        prefix_office_number: 'Prefix Office Number',
+                        office_number: 'Office Number',
+                        full_office_number: 'Full Office Number',
+                        is_verified: 'Company Verified',
                         status_member: 'Status Member',
                         tier: 'Tier'
                     };
