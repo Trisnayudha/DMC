@@ -15,6 +15,9 @@ class SponsorRenewal extends Model
         'contract_end',
         'package',
         'renewal_status',
+        'renewal_type',
+        'amount_usd',
+        'amount_idr',
         'is_current',
         'notes',
     ];

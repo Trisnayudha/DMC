@@ -217,7 +217,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/special-event', [SpecialEventController::class, 'index'])->name('special-event');
     Route::post('/special-event', [SpecialEventController::class, 'request']);
-
+    Route::get('sponsors/download-annual-report', [SponsorController::class, 'downloadAnnualReport'])
+        ->name('sponsors.downloadAnnualReport');
     Route::resource('sponsors', SponsorController::class);
     Route::get('admin/sponsors/export', [SponsorExportController::class, 'export'])->name('sponsors.export');
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');
@@ -229,6 +230,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('sponsors.update-contract');
     Route::get('sponsors/export-renewals', [SponsorController::class, 'exportRenewals'])
         ->name('sponsors.exportRenewals');
+    Route::post('sponsors/{sponsor}/mark-not-renewed', [SponsorController::class, 'markNotRenewed'])
+        ->name('sponsors.markNotRenewed');
+
 
     Route::get('sponsor-engagement', [SocialMediaEngagementController::class, 'index'])
         ->name('sponsor-engagement.index');

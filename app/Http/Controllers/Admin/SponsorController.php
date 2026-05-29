@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\SponsorAnnualReportExport;
 use App\Exports\SponsorRenewalsExport;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
@@ -22,8 +23,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\WhatsappApi;
+use App\Services\Sponsors\SponsorBenefitService;
 use App\Support\QrCode;
-use Maatwebsite\Excel\Excel;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SponsorController extends Controller
 {
@@ -37,27 +40,38 @@ class SponsorController extends Controller
         $renewalState = $request->get('renewal_state');
 
         // Data sponsor: filtered by type (package), status, dan renewal jika ada
-        $data = Sponsor::with(['renewals', 'currentRenewal'])
+        // Default ke status=publish jika tidak ada filter status dari request
+        $effectiveStatus = $statusFilter ?: 'publish';
+
+        $data = Sponsor::with(['renewals', 'currentRenewal', 'firstPic'])
             ->when($type, function ($query, $type) {
                 return $query->where('package', $type);
             })
-            ->when($statusFilter, function ($query, $statusFilter) {
-                return $query->where('status', $statusFilter);
-            })
+            ->where('status', $effectiveStatus)
 
-            // sponsor yang SUDAH renew di tahun tertentu
+            // sponsor yang SUDAH renew (renewal/upgrade) di tahun tertentu
             ->when($renewalYear && $renewalState === 'renewed', function ($query) use ($renewalYear) {
                 return $query->whereHas('renewals', function ($q) use ($renewalYear) {
                     $q->where('renewal_year', $renewalYear)
-                        ->where('renewal_status', 'renewed');
+                        ->where('renewal_status', 'renewed')
+                        ->whereNotIn('renewal_type', ['new', 'new_member']);
                 });
             })
 
-            // sponsor yang BELUM / TIDAK renew di tahun tertentu
+            // sponsor yang TIDAK renew di tahun tertentu (ada record not_renewed)
             ->when($renewalYear && $renewalState === 'not_renewed', function ($query) use ($renewalYear) {
-                return $query->whereDoesntHave('renewals', function ($q) use ($renewalYear) {
+                return $query->whereHas('renewals', function ($q) use ($renewalYear) {
                     $q->where('renewal_year', $renewalYear)
-                        ->where('renewal_status', 'renewed');
+                        ->where('renewal_status', 'not_renewed');
+                });
+            })
+
+            // sponsor baru (new/new_member) di tahun tertentu
+            ->when($renewalYear && $renewalState === 'new_sponsor', function ($query) use ($renewalYear) {
+                return $query->whereHas('renewals', function ($q) use ($renewalYear) {
+                    $q->where('renewal_year', $renewalYear)
+                        ->where('renewal_status', 'renewed')
+                        ->whereIn('renewal_type', ['new', 'new_member']);
                 });
             })
 
@@ -70,11 +84,19 @@ class SponsorController extends Controller
             ->orderBy('renewal_year', 'desc')
             ->pluck('renewal_year');
 
-        // Sponsor counts per package
-        $platinumCount = Sponsor::where('package', 'platinum')->where('status', 'publish')->count();
-        $goldCount     = Sponsor::where('package', 'gold')->where('status', 'publish')->count();
-        $silverCount   = Sponsor::where('package', 'silver')->where('status', 'publish')->count();
-        $totalCount    = Sponsor::where('status', 'publish')->count();
+        // Sponsor counts — ikuti filter jika ada, default ke semua aktif
+        $isFiltered = $renewalYear || $renewalState || $type || $statusFilter;
+        if ($isFiltered) {
+            $platinumCount = $data->where('package', 'platinum')->count();
+            $goldCount     = $data->where('package', 'gold')->count();
+            $silverCount   = $data->where('package', 'silver')->count();
+            $totalCount    = $data->count();
+        } else {
+            $platinumCount = Sponsor::where('package', 'platinum')->where('status', 'publish')->count();
+            $goldCount     = Sponsor::where('package', 'gold')->where('status', 'publish')->count();
+            $silverCount   = Sponsor::where('package', 'silver')->where('status', 'publish')->count();
+            $totalCount    = Sponsor::where('status', 'publish')->count();
+        }
 
         // Top 5 Sponsor Representative Attend (menggunakan data Payment)
         $currentYear = Carbon::now()->year;
@@ -141,6 +163,26 @@ class SponsorController extends Controller
             ])
             ->get();
 
+        // Recent sponsor inquiries
+        $recentInquiries = DB::table('sponsors_inquiry as si')
+            ->leftJoin('sponsors_representative as sr', 'si.sponsors_representative_id', '=', 'sr.id')
+            ->leftJoin('sponsors as s', 'sr.sponsor_id', '=', 's.id')
+            ->leftJoin('users as u', 'si.users_id', '=', 'u.id')
+            ->leftJoin('company as c', 'u.id', '=', 'c.users_id')
+            ->select(
+                'si.id',
+                'si.message',
+                'si.created_at',
+                'sr.name as rep_name',
+                'sr.job_title as rep_title',
+                's.name as sponsor_name',
+                'u.name as user_name',
+                'c.company_name'
+            )
+            ->orderByDesc('si.created_at')
+            ->limit(10)
+            ->get();
+
         return view('admin.sponsor.sponsor', compact(
             'data',
             'platinumCount',
@@ -161,7 +203,8 @@ class SponsorController extends Controller
             'statusFilter',
             'renewalYear',
             'renewalState',
-            'availableYears'
+            'availableYears',
+            'recentInquiries'
         ));
     }
 
@@ -233,6 +276,9 @@ class SponsorController extends Controller
             'renewal_status'  => 'renewed',
             'is_current'      => 1,
         ]);
+
+        SponsorBenefitService::generateForSponsor($sponsor);
+
         // Simpan data PIC jika ada input PIC
         if ($request->has('pic') && is_array($request->input('pic.name'))) {
             $picNames = $request->input('pic.name');
@@ -258,10 +304,6 @@ class SponsorController extends Controller
         return redirect()->route('sponsors.index')->with('success', 'Sponsor berhasil disimpan');
     }
 
-    public function show($id)
-    {
-        // Show a specific task
-    }
 
     public function edit($id)
     {
@@ -453,7 +495,7 @@ class SponsorController extends Controller
     }
 
     /**
-     * Memproses update contract (contract_start dan contract_end).
+     * Memproses update contract / renewal sponsor.
      */
     public function updateContract(Request $request, $id)
     {
@@ -462,6 +504,11 @@ class SponsorController extends Controller
         $validated = $request->validate([
             'contract_start' => 'required|date_format:Y-m',
             'contract_end'   => 'required|date_format:Y-m',
+            'renewal_type'   => 'required|in:renewal,upgrade,new,new_member',
+            'package'        => 'required|in:platinum,gold,silver',
+            'amount_usd'     => 'nullable|numeric|min:0',
+            'amount_idr'     => 'nullable|numeric|min:0',
+            'notes'          => 'nullable|string|max:1000',
         ]);
 
         $start = Carbon::createFromFormat('Y-m', $validated['contract_start']);
@@ -484,15 +531,36 @@ class SponsorController extends Controller
                 'renewal_year'    => $start->year,
                 'contract_start'  => $validated['contract_start'],
                 'contract_end'    => $validated['contract_end'],
-                'package'         => $sponsor->package,
+                'package'         => $validated['package'],
+                'renewal_type'    => $validated['renewal_type'],
                 'renewal_status'  => 'renewed',
+                'amount_usd'      => $validated['amount_usd'] ?? null,
+                'amount_idr'      => $validated['amount_idr'] ?? null,
+                'notes'           => $validated['notes'] ?? null,
                 'is_current'      => 1,
             ]);
 
             $sponsor->contract_start = $validated['contract_start'];
             $sponsor->contract_end   = $validated['contract_end'];
+            $sponsor->package        = $validated['package'];
             $sponsor->save();
         });
+
+        // Generate benefit usage untuk periode kontrak yang baru (idempotent, tidak duplikat)
+        $sponsor->refresh();
+        SponsorBenefitService::generateForSponsor($sponsor);
+
+        // Kirim notifikasi WhatsApp ke group finance
+        try {
+            $pic     = $sponsor->firstPic;
+            $message = $this->buildContractUpdateMessage($sponsor, $validated, $pic);
+            $wa = new WhatsappApi();
+            $wa->phone   = '120363429723388586@g.us';
+            $wa->message = $message;
+            $wa->WhatsappMessageGroup();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('WA contract notification failed: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,
@@ -500,6 +568,139 @@ class SponsorController extends Controller
         ]);
     }
 
+    private function buildContractUpdateMessage($sponsor, array $validated, $pic): string
+    {
+        $months = [
+            '01' => 'January',
+            '02' => 'February',
+            '03' => 'March',
+            '04' => 'April',
+            '05' => 'May',
+            '06' => 'June',
+            '07' => 'July',
+            '08' => 'August',
+            '09' => 'September',
+            '10' => 'October',
+            '11' => 'November',
+            '12' => 'December',
+        ];
+
+        $typeLabels = [
+            'renewal'    => 'Renewal',
+            'upgrade'    => 'Renewal – Upgrade',
+            'new'        => 'New Sponsor',
+            'new_member' => 'New Member',
+        ];
+
+        $packageLabels = [
+            'platinum' => 'Platinum / Major',
+            'gold'     => 'Gold',
+            'silver'   => 'Silver',
+        ];
+
+        [$sy, $sm] = explode('-', $validated['contract_start']);
+        [$ey, $em] = explode('-', $validated['contract_end']);
+        $periode = ($months[$sm] ?? $sm) . ' ' . $sy . ' – ' . ($months[$em] ?? $em) . ' ' . $ey;
+
+        $renewalType  = $typeLabels[$validated['renewal_type']] ?? $validated['renewal_type'];
+        $packageLabel = $packageLabels[$validated['package']] ?? ucfirst($validated['package']);
+
+        $amountLine = '';
+        if (!empty($validated['amount_usd'])) {
+            $amountLine .= '• USD: *USD ' . number_format($validated['amount_usd'], 0, '.', '.') . "*\n";
+        }
+        if (!empty($validated['amount_idr'])) {
+            $amountLine .= '• IDR: *IDR ' . number_format($validated['amount_idr'], 0, '.', '.') . "*\n";
+        }
+        if (!$amountLine) {
+            $amountLine = "• _Belum dicantumkan_\n";
+        }
+
+        $picSection = '';
+        if ($pic) {
+            $picSection  = "👤 *PIC / Contact Person*\n";
+            $picSection .= '• Nama: ' . $pic->name . "\n";
+            if ($pic->title)  $picSection .= '• Jabatan: ' . $pic->title . "\n";
+            if ($pic->email)  $picSection .= '• Email: ' . $pic->email . "\n";
+            if ($pic->phone)  $picSection .= '• Phone: ' . $pic->phone . "\n";
+        } else {
+            $picSection = "👤 *PIC:* _Data tidak tersedia_\n";
+        }
+
+        $notesLine = '';
+        if (!empty($validated['notes'])) {
+            $notesLine = "\n📝 *Catatan:* " . $validated['notes'] . "\n";
+        }
+
+        $now = Carbon::now()->setTimezone('Asia/Jakarta')->format('d F Y, H:i') . ' WIB';
+
+        return implode('', [
+            "🏢 *SPONSOR CONTRACT UPDATE*\n",
+            "━━━━━━━━━━━━━━━━━━━━━\n",
+            "📋 *Djakarta Mining Club*\n",
+            "Berikut informasi renewal/update kontrak sponsor yang baru dicatat di sistem:\n\n",
+            "🏷️ *Detail Sponsor*\n",
+            '• Perusahaan: *' . $sponsor->name . "*\n",
+            '• Paket: *' . $packageLabel . " Sponsorship*\n",
+            '• Tipe: *' . $renewalType . "*\n",
+            '• Periode: *' . $periode . "*\n\n",
+            "💰 *Nilai Sponsorship*\n",
+            $amountLine,
+            "\n",
+            $picSection,
+            $notesLine,
+            "\n━━━━━━━━━━━━━━━━━━━━━\n",
+            "🕐 _Diperbarui: " . $now . "_\n\n",
+            "⚠️ _Jika pembayaran sudah diproses secara manual atau sponsor sudah melunasi, mohon abaikan pesan ini._\n\n",
+            "_— DMC Finance Notification System_",
+        ]);
+    }
+
+    /**
+     * Catat sponsor sebagai tidak renew di tahun/periode tertentu.
+     */
+    public function markNotRenewed(Request $request, $id)
+    {
+        $sponsor = Sponsor::findOrFail($id);
+
+        $validated = $request->validate([
+            'renewal_year'   => 'required|integer|min:2020|max:2100',
+            'contract_start' => 'required|date_format:Y-m',
+            'contract_end'   => 'required|date_format:Y-m',
+            'notes'          => 'nullable|string|max:1000',
+        ]);
+
+        $alreadyRecorded = SponsorRenewal::where('sponsor_id', $sponsor->id)
+            ->where('renewal_year', $validated['renewal_year'])
+            ->where('renewal_status', 'not_renewed')
+            ->exists();
+
+        if ($alreadyRecorded) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sponsor sudah tercatat tidak renew di tahun ' . $validated['renewal_year'] . '.',
+            ], 422);
+        }
+
+        SponsorRenewal::create([
+            'sponsor_id'     => $sponsor->id,
+            'renewal_year'   => $validated['renewal_year'],
+            'contract_start' => $validated['contract_start'],
+            'contract_end'   => $validated['contract_end'],
+            'package'        => $sponsor->package,
+            'renewal_status' => 'not_renewed',
+            'renewal_type'   => null,
+            'amount_usd'     => null,
+            'amount_idr'     => null,
+            'notes'          => $validated['notes'] ?? null,
+            'is_current'     => 0,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $sponsor->name . ' dicatat tidak renew untuk tahun ' . $validated['renewal_year'] . '.',
+        ]);
+    }
 
     public function register_sponsor(Request $request)
     {
@@ -609,5 +810,13 @@ class SponsorController extends Controller
         $filename .= '.xlsx';
 
         return Excel::download(new SponsorRenewalsExport($year, $state), $filename);
+    }
+
+    public function downloadAnnualReport(Request $request)
+    {
+        $year     = (int) $request->get('year', now()->year);
+        $filename = "DMC-Sponsors-Report-{$year}.xlsx";
+
+        return Excel::download(new SponsorAnnualReportExport($year), $filename);
     }
 }

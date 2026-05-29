@@ -12,86 +12,70 @@
             </div>
             <div class="section-body">
                 <h2 class="section-title">Sponsors</h2>
+                @php
+                    $monthShort = ['01'=>'Jan','02'=>'Feb','03'=>'Mar','04'=>'Apr','05'=>'May','06'=>'Jun',
+                                   '07'=>'Jul','08'=>'Aug','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Dec'];
+                @endphp
+
                 @if ($expiredSponsors->count() > 0)
-                    <!-- Notifikasi Alert untuk Expired Contracts -->
-                    <div class="alert alert-danger">
-                        <h4><i class="fas fa-exclamation-circle"></i> Expired Contracts</h4>
-                        <p>The following companies have passed their contract end date:</p>
-                        <ul>
-                            @foreach ($expiredSponsors as $sponsor)
-                                @php
-                                    $monthNames = [
-                                        '01' => 'Januari',
-                                        '02' => 'Februari',
-                                        '03' => 'Maret',
-                                        '04' => 'April',
-                                        '05' => 'Mei',
-                                        '06' => 'Juni',
-                                        '07' => 'Juli',
-                                        '08' => 'Agustus',
-                                        '09' => 'September',
-                                        '10' => 'Oktober',
-                                        '11' => 'November',
-                                        '12' => 'Desember',
-                                    ];
-                                    $parts = explode('-', $sponsor->contract_end);
-                                    $displayContractEnd = $monthNames[$parts[1]] . ' ' . $parts[0];
-                                @endphp
-                                <li>
-                                    {{ $sponsor->name }} (Contract End: {{ $displayContractEnd }})
-                                    <a href="#" class="btn btn-sm btn-info update-contract-btn"
-                                        data-sponsor-id="{{ $sponsor->id }}"
-                                        data-contract-start="{{ $sponsor->contract_start }}"
-                                        data-contract-end="{{ $sponsor->contract_end }}">
-                                        Update Contract
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
+                <div class="alert alert-danger py-2 mb-2">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <strong><i class="fas fa-exclamation-circle mr-1"></i> Expired Contracts ({{ $expiredSponsors->count() }})</strong>
                     </div>
+                    <div class="d-flex flex-wrap mt-2" style="gap:6px;">
+                        @foreach ($expiredSponsors as $sponsor)
+                            @php $p = explode('-', $sponsor->contract_end); @endphp
+                            <span class="badge badge-light border border-danger text-dark" style="font-size:12px;padding:5px 8px;font-weight:normal;">
+                                {{ $sponsor->name }}
+                                <span class="text-danger ml-1">{{ $monthShort[$p[1]] }} {{ $p[0] }}</span>
+                                <a href="#" class="update-contract-btn ml-1 text-info"
+                                   data-sponsor-id="{{ $sponsor->id }}"
+                                   data-contract-start="{{ $sponsor->contract_start }}"
+                                   data-contract-end="{{ $sponsor->contract_end }}"
+                                   data-package="{{ $sponsor->package }}"
+                                   title="Update Contract"><i class="fas fa-edit"></i></a>
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
                 @endif
 
-                <!-- Notifikasi Alert untuk Renewal Soon -->
                 @if ($renewalSponsors->count() > 0)
-                    <div class="alert alert-warning">
-                        <h4><i class="fas fa-exclamation-triangle"></i> Renewal Soon</h4>
-                        <p>The following companies will need to renew their contract within the next 1-2 months:</p>
-                        <ul>
-                            @foreach ($renewalSponsors as $sponsor)
-                                @php
-                                    $monthNames = [
-                                        '01' => 'Januari',
-                                        '02' => 'Februari',
-                                        '03' => 'Maret',
-                                        '04' => 'April',
-                                        '05' => 'Mei',
-                                        '06' => 'Juni',
-                                        '07' => 'Juli',
-                                        '08' => 'Agustus',
-                                        '09' => 'September',
-                                        '10' => 'Oktober',
-                                        '11' => 'November',
-                                        '12' => 'Desember',
-                                    ];
-                                    $parts = explode('-', $sponsor->contract_end);
-                                    $displayContractEnd = $monthNames[$parts[1]] . ' ' . $parts[0];
-                                    $endDate = \Carbon\Carbon::createFromFormat(
-                                        'Y-m',
-                                        $sponsor->contract_end,
-                                    )->endOfMonth();
-                                    $daysLeft = now()->diffInDays($endDate, false);
-                                @endphp
-                                <li>
-                                    {{ $sponsor->name }} (Contract End: {{ $displayContractEnd }}, in {{ $daysLeft }}
-                                    days)
-                                </li>
-                            @endforeach
-                        </ul>
+                <div class="alert alert-warning py-2 mb-2">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <strong><i class="fas fa-exclamation-triangle mr-1"></i> Renewal Soon ({{ $renewalSponsors->count() }})</strong>
                     </div>
+                    <div class="d-flex flex-wrap mt-2" style="gap:6px;">
+                        @foreach ($renewalSponsors as $sponsor)
+                            @php
+                                $p        = explode('-', $sponsor->contract_end);
+                                $endDate  = \Carbon\Carbon::createFromFormat('Y-m', $sponsor->contract_end)->endOfMonth();
+                                $daysLeft = (int) now()->diffInDays($endDate, false);
+                                $pill     = $daysLeft <= 30 ? 'danger' : 'warning';
+                            @endphp
+                            <span class="badge badge-light border text-dark" style="font-size:12px;padding:5px 8px;font-weight:normal;">
+                                {{ $sponsor->name }}
+                                <span class="badge badge-{{ $pill }} ml-1">{{ $daysLeft }}d</span>
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
                 @endif
 
 
-                <!-- Card Info Section (tetap sama seperti sebelumnya) -->
+                <!-- Card Info Section -->
+                @php
+                    $stateLabels = [
+                        'renewed'     => 'Renewed',
+                        'new_sponsor' => 'New Sponsor',
+                        'not_renewed' => 'Not Renewed',
+                    ];
+                    $activeState = request('renewal_state');
+                    $activeYear  = request('renewal_year');
+                    $cardSuffix  = ($activeYear || $activeState)
+                        ? ' ' . ($activeYear ?? '') . ($activeState ? ' · ' . ($stateLabels[$activeState] ?? '') : '')
+                        : '';
+                @endphp
                 <div class="row">
                     <!-- Card Platinum -->
                     <div class="col-lg-3 col-md-6 col-sm-12">
@@ -101,7 +85,7 @@
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>Platinum</h4>
+                                    <h4>Platinum{{ $cardSuffix }}</h4>
                                 </div>
                                 <div class="card-body">
                                     {{ $platinumCount ?? 0 }}
@@ -117,7 +101,7 @@
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>Gold</h4>
+                                    <h4>Gold{{ $cardSuffix }}</h4>
                                 </div>
                                 <div class="card-body">
                                     {{ $goldCount ?? 0 }}
@@ -133,7 +117,7 @@
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>Silver</h4>
+                                    <h4>Silver{{ $cardSuffix }}</h4>
                                 </div>
                                 <div class="card-body">
                                     {{ $silverCount ?? 0 }}
@@ -149,7 +133,7 @@
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>Total</h4>
+                                    <h4>Total{{ $cardSuffix }}</h4>
                                 </div>
                                 <div class="card-body">
                                     {{ $totalCount ?? 0 }}
@@ -362,6 +346,73 @@
                 </div>
             </div>
 
+            <!-- Sponsor Inquiry Widget -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-0"><i class="fas fa-envelope-open-text text-primary mr-2"></i>Recent Sponsor Inquiries</h4>
+                                <p class="text-muted mb-0" style="font-size:12px;">Members who reached out to sponsor representatives</p>
+                            </div>
+                            <span class="badge badge-primary" style="font-size:13px;">{{ $recentInquiries->count() }} records</span>
+                        </div>
+                        <div class="card-body p-0">
+                            @if ($recentInquiries->isEmpty())
+                                <div class="text-center py-4 text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-2"></i><br>No inquiries yet.
+                                </div>
+                            @else
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0" style="font-size:13px;">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th style="width:130px;">Date</th>
+                                                <th>Member</th>
+                                                <th>Company</th>
+                                                <th>Representative</th>
+                                                <th>Sponsor</th>
+                                                <th>Message</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($recentInquiries as $inq)
+                                                <tr>
+                                                    <td class="text-muted" style="white-space:nowrap;">
+                                                        {{ \Carbon\Carbon::parse($inq->created_at)->format('d M Y') }}<br>
+                                                        <small>{{ \Carbon\Carbon::parse($inq->created_at)->format('H:i') }}</small>
+                                                    </td>
+                                                    <td>
+                                                        <div style="font-weight:500;">{{ $inq->user_name ?? '-' }}</div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="text-muted">{{ $inq->company_name ?? '-' }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <div style="font-weight:500;">{{ $inq->rep_name }}</div>
+                                                        @if($inq->rep_title)
+                                                            <small class="text-muted">{{ $inq->rep_title }}</small>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge badge-light border">{{ $inq->sponsor_name }}</span>
+                                                    </td>
+                                                    <td style="max-width:220px;">
+                                                        <span title="{{ strip_tags($inq->message) }}" style="cursor:default;">
+                                                            {{ \Illuminate\Support\Str::limit(strip_tags($inq->message), 60) }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Table Section dengan Filter di dalam header card (Sponsor Management List) -->
             <div class="row">
                 <div class="col-lg-12">
@@ -416,6 +467,10 @@
                                             {{ request('renewal_state') == 'renewed' ? 'selected' : '' }}>
                                             Renewed
                                         </option>
+                                        <option value="new_sponsor"
+                                            {{ request('renewal_state') == 'new_sponsor' ? 'selected' : '' }}>
+                                            New Sponsor
+                                        </option>
                                         <option value="not_renewed"
                                             {{ request('renewal_state') == 'not_renewed' ? 'selected' : '' }}>
                                             Not Renewed
@@ -428,14 +483,12 @@
                                     'type' => request('type'),
                                     'status' => request('status'),
                                 ]) }}"
-                                    class="btn btn-success">
+                                    class="btn btn-success mr-1">
                                     <i class="fas fa-file-excel"></i> Export Renewal Data
                                 </a>
 
-                                @if (request('type') || request('status'))
-                                    <div class="input-group">
-                                        <a href="{{ route('sponsors.index') }}" class="btn btn-secondary">Reset</a>
-                                    </div>
+                                @if (request('type') || request('status') || request('renewal_year') || request('renewal_state'))
+                                    <a href="{{ route('sponsors.index') }}" class="btn btn-secondary">Reset</a>
                                 @endif
                             </form>
                         </div>
@@ -462,6 +515,21 @@
 
                             <div class="float-right">
                                 <div class="card-header-action mb-2">
+                                    <!-- Download Annual Report -->
+                                    <div class="input-group mr-1 d-inline-flex" style="width:auto;">
+                                        <select id="reportYearSelect" class="form-control form-control-sm">
+                                            @foreach($availableYears as $yr)
+                                                <option value="{{ $yr }}" {{ $yr == now()->year ? 'selected' : '' }}>{{ $yr }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="input-group-append">
+                                            <a id="downloadReportBtn"
+                                               href="{{ route('sponsors.downloadAnnualReport', ['year' => now()->year]) }}"
+                                               class="btn btn-sm btn-warning">
+                                                <i class="fas fa-download"></i> Annual Report
+                                            </a>
+                                        </div>
+                                    </div>
                                     <a href="{{ route('sponsors.export') }}" class="btn btn-success">
                                         <i class="fas fa-file-excel"></i> Export Data
                                     </a>
@@ -469,7 +537,6 @@
                                         <i class="fas fa-plus"></i> Add Sponsor
                                     </a>
                                 </div>
-
                             </div>
 
                             <div class="table-responsive">
@@ -489,7 +556,38 @@
                                         @foreach ($data as $post)
                                             <tr>
                                                 <td>{{ $no++ }}</td>
-                                                <td>{{ $post->name }}</td>
+                                                <td>
+                                                    <div class="font-weight-bold">{{ $post->name }}</div>
+                                                    @if ($post->firstPic)
+                                                        @php $pic = $post->firstPic; @endphp
+                                                        <div class="d-flex align-items-center mt-1" style="gap: 6px;">
+                                                            {{-- Avatar inisial --}}
+                                                            <div style="width:28px;height:28px;border-radius:50%;background:#6c757d;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                                                {{ strtoupper(substr($pic->name, 0, 1)) }}
+                                                            </div>
+                                                            <div style="line-height:1.3;">
+                                                                <div style="font-size:12px;font-weight:500;color:#333;">{{ $pic->name }}</div>
+                                                                @if($pic->title)
+                                                                    <div style="font-size:11px;color:#888;">{{ $pic->title }}</div>
+                                                                @endif
+                                                                <div class="d-flex mt-1" style="gap:8px;flex-wrap:wrap;">
+                                                                    @if($pic->email)
+                                                                        <a href="mailto:{{ $pic->email }}" style="font-size:11px;color:#007bff;" title="{{ $pic->email }}">
+                                                                            <i class="fas fa-envelope"></i> {{ Str::limit($pic->email, 22) }}
+                                                                        </a>
+                                                                    @endif
+                                                                    @if($pic->phone)
+                                                                        <a href="tel:{{ $pic->phone }}" style="font-size:11px;color:#28a745;" title="{{ $pic->phone }}">
+                                                                            <i class="fas fa-phone"></i> {{ $pic->phone }}
+                                                                        </a>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <div style="font-size:11px;color:#bbb;margin-top:3px;"><i class="fas fa-user-slash"></i> No PIC</div>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <span
                                                         class="badge
@@ -519,27 +617,45 @@
                                                     </div>
                                                 </td>
                                                 <td>
+                                                    @php
+                                                        $currentR = $post->renewals->where('is_current', 1)->first()
+                                                            ?? $post->renewals->sortByDesc('contract_start')->first();
+                                                        $typeLabels = [
+                                                            'renewal'    => 'Renewal',
+                                                            'upgrade'    => 'Upgrade',
+                                                            'new'        => 'New Sponsor',
+                                                            'new_member' => 'New Member',
+                                                        ];
+                                                    @endphp
                                                     @if (request('renewal_year'))
                                                         @php
-                                                            $hasRenewed =
-                                                                $post->renewals
-                                                                    ->where(
-                                                                        'renewal_year',
-                                                                        (int) request('renewal_year'),
-                                                                    )
-                                                                    ->where('renewal_status', 'renewed')
-                                                                    ->count() > 0;
+                                                            $renewalRecord = $post->renewals
+                                                                ->where('renewal_year', (int) request('renewal_year'))
+                                                                ->where('renewal_status', 'renewed')
+                                                                ->first();
+                                                            $notRenewedRecord = $post->renewals
+                                                                ->where('renewal_year', (int) request('renewal_year'))
+                                                                ->where('renewal_status', 'not_renewed')
+                                                                ->first();
                                                         @endphp
-
-                                                        @if ($hasRenewed)
-                                                            <span class="badge badge-success">Renewed
-                                                                {{ request('renewal_year') }}</span>
+                                                        @if ($renewalRecord)
+                                                            <span class="badge badge-success">{{ $typeLabels[$renewalRecord->renewal_type] ?? 'Renewed' }}</span>
+                                                        @elseif($notRenewedRecord)
+                                                            <span class="badge badge-danger">Not Renewed</span>
                                                         @else
-                                                            <span class="badge badge-danger">Not Renewed
-                                                                {{ request('renewal_year') }}</span>
+                                                            <span class="badge badge-secondary">No Record</span>
+                                                        @endif
+                                                    @elseif($currentR)
+                                                        @if($currentR->renewal_status === 'renewed')
+                                                            <small class="text-muted">{{ $currentR->contract_start }} s/d {{ $currentR->contract_end }}</small><br>
+                                                            <span class="badge badge-{{ $currentR->renewal_type === 'upgrade' ? 'info' : 'success' }}">
+                                                                {{ $typeLabels[$currentR->renewal_type] ?? 'Renewed' }}
+                                                            </span>
+                                                        @else
+                                                            <span class="badge badge-secondary">No Active Contract</span>
                                                         @endif
                                                     @else
-                                                        <span class="badge badge-secondary">No Year Selected</span>
+                                                        <span class="badge badge-secondary">No Record</span>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -586,6 +702,17 @@
                                                             <i class="fas fa-pencil-alt"></i>
                                                         </a>
 
+                                                        <!-- Not Renewed -->
+                                                        <button class="btn btn-icon btn-sm btn-warning not-renewed-btn"
+                                                            data-id="{{ $post->id }}"
+                                                            data-name="{{ $post->name }}"
+                                                            data-contract-start="{{ $post->contract_start }}"
+                                                            data-contract-end="{{ $post->contract_end }}"
+                                                            data-toggle="tooltip"
+                                                            title="Mark Not Renewed">
+                                                            <i class="fas fa-times-circle"></i>
+                                                        </button>
+
                                                         <!-- Hapus Data -->
                                                         <button class="btn btn-icon btn-sm btn-danger delete-sponsor"
                                                             data-id="{{ $post->id }}" data-toggle="tooltip"
@@ -618,36 +745,139 @@
             $('#laravel_crud').DataTable();
         });
     </script>
-    <!-- Modal Update Contract -->
+    <!-- Modal Update Contract / Renewal -->
     <div class="modal fade" id="updateContractModal" tabindex="-1" role="dialog"
         aria-labelledby="updateContractModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <form id="updateContractForm">
                     @csrf
                     @method('POST')
                     <div class="modal-header">
-                        <h5 class="modal-title" id="updateContractModalLabel">Update Contract</h5>
+                        <h5 class="modal-title" id="updateContractModalLabel">Update Contract / Renewal</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="modalSponsorId" name="sponsor_id" value="">
-                        <div class="form-group">
-                            <label for="modalContractStart">Contract Start</label>
-                            <input type="month" name="contract_start" id="modalContractStart" class="form-control"
-                                required>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Contract Start <span class="text-danger">*</span></label>
+                                    <input type="month" name="contract_start" id="modalContractStart" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Contract End <span class="text-danger">*</span></label>
+                                    <input type="month" name="contract_end" id="modalContractEnd" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Renewal Type <span class="text-danger">*</span></label>
+                                    <select name="renewal_type" id="modalRenewalType" class="form-control" required>
+                                        <option value="renewal">Renewal</option>
+                                        <option value="upgrade">Renewal - Upgrade</option>
+                                        <option value="new">New Sponsor</option>
+                                        <option value="new_member">New Member</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Package <span class="text-danger">*</span></label>
+                                    <select name="package" id="modalPackage" class="form-control" required>
+                                        <option value="platinum">Platinum / Major</option>
+                                        <option value="gold">Gold</option>
+                                        <option value="silver">Silver</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Amount USD</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text">USD</span></div>
+                                        <input type="number" name="amount_usd" id="modalAmountUsd" class="form-control" step="0.01" min="0" placeholder="e.g. 2500">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Amount IDR</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
+                                        <input type="number" name="amount_idr" id="modalAmountIdr" class="form-control" step="0.01" min="0" placeholder="e.g. 39000000">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="modalContractEnd">Contract End</label>
-                            <input type="month" name="contract_end" id="modalContractEnd" class="form-control"
-                                required>
+                            <label>Notes / Final Confirmation</label>
+                            <textarea name="notes" id="modalNotes" class="form-control" rows="2" placeholder="e.g. Confirmed - Gold Sponsorship USD 3.500"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Update Contract</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Contract</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Not Renewed -->
+    <div class="modal fade" id="notRenewedModal" tabindex="-1" role="dialog"
+        aria-labelledby="notRenewedModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="notRenewedForm">
+                    @csrf
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title" id="notRenewedModalLabel">
+                            <i class="fas fa-times-circle"></i> Mark as Not Renewed
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted mb-3">Catat sponsor <strong id="notRenewedSponsorName"></strong> sebagai tidak renew.</p>
+                        <input type="hidden" id="notRenewedSponsorId" value="">
+                        <div class="form-group">
+                            <label>Tahun Tidak Renew <span class="text-danger">*</span></label>
+                            <input type="number" name="renewal_year" id="notRenewedYear" class="form-control"
+                                min="2020" max="2100" value="{{ now()->year }}" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Periode Kontrak Terakhir (Start)</label>
+                                    <input type="month" name="contract_start" id="notRenewedContractStart" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Periode Kontrak Terakhir (End)</label>
+                                    <input type="month" name="contract_end" id="notRenewedContractEnd" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Alasan Tidak Renew</label>
+                            <textarea name="notes" id="notRenewedNotes" class="form-control" rows="3"
+                                placeholder="e.g. Budget is limited, they will focus on other priorities..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning"><i class="fas fa-times-circle"></i> Confirm Not Renewed</button>
                     </div>
                 </form>
             </div>
@@ -734,17 +964,28 @@
         });
     </script>
     <script>
-        // Trigger modal update contract pada tombol quick action
+        // Update download report link saat year select berubah
+        $('#reportYearSelect').on('change', function() {
+            let year = $(this).val();
+            $('#downloadReportBtn').attr('href', '{{ route("sponsors.downloadAnnualReport") }}?year=' + year);
+        });
+
+        // Trigger modal update contract (dari alert expired contract)
         $(document).on('click', '.update-contract-btn', function(e) {
             e.preventDefault();
-            let sponsorId = $(this).data('sponsor-id');
+            let sponsorId    = $(this).data('sponsor-id');
             let contractStart = $(this).data('contract-start');
-            let contractEnd = $(this).data('contract-end');
-            // Set data ke modal
+            let contractEnd   = $(this).data('contract-end');
+            let package_      = $(this).data('package') || 'silver';
+
             $('#modalSponsorId').val(sponsorId);
             $('#modalContractStart').val(contractStart);
             $('#modalContractEnd').val(contractEnd);
-            // Tampilkan modal
+            $('#modalPackage').val(package_);
+            $('#modalRenewalType').val('renewal');
+            $('#modalAmountUsd').val('');
+            $('#modalAmountIdr').val('');
+            $('#modalNotes').val('');
             $('#updateContractModal').modal('show');
         });
 
@@ -761,22 +1002,64 @@
                 data: formData,
                 success: function(response) {
                     if (response.success) {
-                        toastr.success(response.message, 'Success', {
-                            "positionClass": "toast-top-right"
-                        });
+                        toastr.success(response.message, 'Success', { "positionClass": "toast-top-right" });
                         $('#updateContractModal').modal('hide');
-                        // Reload halaman atau update bagian contract pada dashboard
                         location.reload();
                     } else {
-                        toastr.error(response.message, 'Error', {
-                            "positionClass": "toast-top-right"
-                        });
+                        toastr.error(response.message, 'Error', { "positionClass": "toast-top-right" });
                     }
                 },
                 error: function(xhr) {
-                    toastr.error('An error occurred while updating the contract.', 'Error', {
-                        "positionClass": "toast-top-right"
-                    });
+                    let msg = xhr.responseJSON?.message ?? 'An error occurred while updating the contract.';
+                    toastr.error(msg, 'Error', { "positionClass": "toast-top-right" });
+                }
+            });
+        });
+
+        // Trigger modal Not Renewed
+        $(document).on('click', '.not-renewed-btn', function() {
+            let sponsorId     = $(this).data('id');
+            let sponsorName   = $(this).data('name');
+            let contractStart = $(this).data('contract-start');
+            let contractEnd   = $(this).data('contract-end');
+
+            $('#notRenewedSponsorId').val(sponsorId);
+            $('#notRenewedSponsorName').text(sponsorName);
+            $('#notRenewedContractStart').val(contractStart);
+            $('#notRenewedContractEnd').val(contractEnd);
+            $('#notRenewedYear').val(new Date().getFullYear());
+            $('#notRenewedNotes').val('');
+            $('#notRenewedModal').modal('show');
+        });
+
+        // Submit Not Renewed via AJAX
+        $('#notRenewedForm').on('submit', function(e) {
+            e.preventDefault();
+            let sponsorId = $('#notRenewedSponsorId').val();
+            let url = '/admin/sponsors/' + sponsorId + '/mark-not-renewed';
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    renewal_year:   $('#notRenewedYear').val(),
+                    contract_start: $('#notRenewedContractStart').val(),
+                    contract_end:   $('#notRenewedContractEnd').val(),
+                    notes:          $('#notRenewedNotes').val(),
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message, 'Success', { "positionClass": "toast-top-right" });
+                        $('#notRenewedModal').modal('hide');
+                        location.reload();
+                    } else {
+                        toastr.error(response.message, 'Error', { "positionClass": "toast-top-right" });
+                    }
+                },
+                error: function(xhr) {
+                    let msg = xhr.responseJSON?.message ?? 'Terjadi kesalahan.';
+                    toastr.error(msg, 'Error', { "positionClass": "toast-top-right" });
                 }
             });
         });

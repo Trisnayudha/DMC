@@ -22,11 +22,13 @@ class SponsorAdvertisementApiController extends Controller
 
             // Mengambil data dengan join ke tabel sponsors dan kondisi pencarian
             $advertisings = SponsorAdvertising::join('sponsors', 'sponsors.id', '=', 'sponsors_advertising.sponsor_id')
+                ->where('sponsors.status', 'publish')
                 ->select(
                     'sponsors_advertising.id',
                     'sponsors_advertising.name as title',
                     'sponsors_advertising.image',
                     'sponsors.name as company',
+                    'sponsors.package as sponsor_package',
                     'sponsors_advertising.date',
                     'sponsors_advertising.file_size',
                     'sponsors_advertising.link as download'
@@ -37,6 +39,7 @@ class SponsorAdvertisementApiController extends Controller
                             ->orWhere('sponsors.name', 'like', '%' . $search . '%');
                     });
                 })
+                ->orderByRaw("FIELD(sponsors.package, 'platinum', 'gold', 'silver')")
                 ->orderBy('sponsors_advertising.date', $sortOrder)
                 ->paginate($limit);
 
@@ -113,11 +116,13 @@ class SponsorAdvertisementApiController extends Controller
 
             $advertisings = SponsorAdvertising::join('sponsors', 'sponsors.id', '=', 'sponsors_advertising.sponsor_id')
                 ->where('sponsors_advertising.sponsor_id', $sponsorId)
+                ->where('sponsors.status', 'publish')
                 ->select(
                     'sponsors_advertising.id',
                     'sponsors_advertising.name as title',
                     'sponsors_advertising.image',
                     'sponsors.name as company',
+                    'sponsors.package as sponsor_package',
                     'sponsors_advertising.date',
                     'sponsors_advertising.file_size',
                     'sponsors_advertising.link as download'
@@ -128,6 +133,7 @@ class SponsorAdvertisementApiController extends Controller
                             ->orWhere('sponsors.name', 'like', '%' . $search . '%');
                     });
                 })
+                ->orderByRaw("FIELD(sponsors.package, 'platinum', 'gold', 'silver')")
                 ->orderBy('sponsors_advertising.date', $sortOrder)
                 ->paginate($limit);
 

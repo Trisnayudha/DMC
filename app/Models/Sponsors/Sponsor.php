@@ -52,4 +52,9 @@ class Sponsor extends Model
         return $this->hasOne(\App\Models\Sponsors\SponsorRenewal::class, 'sponsor_id')
             ->where('is_current', 1);
     }
+
+    public function firstPic()
+    {
+        return $this->hasOne(SponsorPic::class)->oldest('id');
+    }
 }

@@ -14,7 +14,8 @@ class SponsorBenefitUsage extends Model
         'sponsor_id',
         'benefit_id',
         'status',
-        'used_at'
+        'used_at',
+        'period',
     ];
     protected $casts = [
         'used_at' => 'datetime',
