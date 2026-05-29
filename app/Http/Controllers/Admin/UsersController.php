@@ -80,7 +80,15 @@ class UsersController extends Controller
             } elseif ($statusMember === 'pending') {
                 $query->where(function ($q) {
                     $q->whereNull('users.status_member')
-                        ->orWhere('users.status_member', '!=', 'active');
+                        ->orWhere('users.status_member', 'pending');
+                });
+            } elseif ($filter === 'declined') {
+                $query->where('users.status_member', 'declined');
+            } else {
+                // Default "All": exclude declined
+                $query->where(function ($q) {
+                    $q->whereNull('users.status_member')
+                        ->orWhere('users.status_member', '!=', 'declined');
                 });
             }
 
@@ -133,8 +141,12 @@ class UsersController extends Controller
         $countPendingMember = User::whereNotNull('isStatus')
             ->where(function ($q) {
                 $q->whereNull('status_member')
-                    ->orWhere('status_member', '!=', 'active');
+                    ->orWhere('status_member', 'pending');
             })
+            ->count();
+
+        $countDeclined = User::whereNotNull('isStatus')
+            ->where('status_member', 'declined')
             ->count();
 
         $countNewThisMonth = User::whereNotNull('isStatus')
@@ -171,6 +183,7 @@ class UsersController extends Controller
             'list'               => $list,
             'countActiveMember'  => $countActiveMember,
             'countPendingMember' => $countPendingMember,
+            'countDeclined'      => $countDeclined,
             'countNewThisMonth'  => $countNewThisMonth,
             'countUnRegistered'  => $countUnRegistered,
             'countVerifyEmail'   => $countVerifyEmail,
@@ -239,6 +252,26 @@ class UsersController extends Controller
     public function verifyMember(Request $request, $id)
     {
         $user = User::findOrFail($id);
+
+        if ($request->filled('name') || $request->filled('email') || $request->filled('job_title') || $request->filled('phone')) {
+            if ($request->filled('name')) {
+                $user->name = trim($request->input('name'));
+            }
+            if ($request->filled('email')) {
+                $user->email = trim($request->input('email'));
+            }
+            if ($request->filled('job_title') || $request->filled('phone')) {
+                $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
+                if ($request->filled('job_title')) {
+                    $profile->job_title = trim($request->input('job_title'));
+                }
+                if ($request->filled('phone')) {
+                    $profile->phone = trim($request->input('phone'));
+                }
+                $profile->save();
+            }
+        }
+
         $verifiedAt = now();
 
         $user->status_member = 'active';
@@ -342,6 +375,39 @@ class UsersController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Member verified dan data telah diimport ke Mailchimp.',
+        ]);
+    }
+
+    public function declineMember(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $user->status_member = 'declined';
+        $user->save();
+
+        $email = strtolower(trim($user->email ?? ''));
+
+        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            try {
+                $send = new EmailSender();
+                $send->subject = 'Update on Your Djakarta Mining Club Membership Application';
+                $send->template = 'email.membership-declined';
+                $send->data = [
+                    'users_name' => $user->name ?? 'Applicant',
+                ];
+                $send->name         = $user->name ?? 'Applicant';
+                $send->from         = env('EMAIL_SENDER');
+                $send->name_sender  = env('EMAIL_NAME');
+                $send->to           = $email;
+                $send->sendEmail();
+            } catch (\Throwable $e) {
+                Log::warning('declineMember: decline email failed for user ' . $id . ': ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Membership application declined dan email notifikasi telah dikirim.',
         ]);
     }
 
