@@ -352,7 +352,7 @@ class UsersController extends Controller
                 $loginUrl = (string) config('dmc.post_reset_password_redirect_url', 'https://www.djakarta-miningclub.com?modalloginopen=true');
 
                 $send = new EmailSender();
-                $send->subject = 'Welcome! Your Membership Is Approved (ID: ' . $memberId . ')';
+                $send->subject = 'Djakarta Mining Club – Membership Approval Confirmation (ID: ' . $memberId . ')';
                 $send->template = 'email.membership-approved';
                 $send->data = [
                     'users_name' => $user->name ?? 'Member',
