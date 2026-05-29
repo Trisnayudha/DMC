@@ -42,11 +42,14 @@ class ResetPasswordController extends Controller
             return response()->json(['message' => trans($response)], 200);
         }
 
-        $redirectUrl = (string) config(
+        $baseUrl = rtrim((string) config(
             'dmc.post_reset_password_redirect_url',
-            'https://www.djakarta-miningclub.com?modalloginopen=true'
-        );
+            'https://www.djakarta-miningclub.com'
+        ), '?');
 
-        return redirect()->away($redirectUrl);
+        // Strip any existing query string so we can append our own
+        $baseUrl = strtok($baseUrl, '?');
+
+        return redirect()->away($baseUrl . '?password_set=success');
     }
 }
