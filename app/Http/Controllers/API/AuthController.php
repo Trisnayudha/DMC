@@ -475,6 +475,134 @@ Your verification code (OTP) ' . $otp;
         }
     }
 
+    /**
+     * New web registration flow: no password, no OTP.
+     * Directly creates User + Profile + Company with status_member = pending.
+     */
+    public function registerWeb(Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'name'       => ['required', 'string', 'max:255'],
+            'email'      => ['required', 'string', 'email', 'max:255'],
+            'phone'      => ['required', 'string', 'max:30'],
+            'city'       => ['required', 'string', 'max:255'],
+            'country'    => ['required', 'string', 'max:255'],
+            'newsletter' => ['required', 'string'],
+        ], [
+            'name.required'       => 'Full name is required',
+            'email.required'      => 'Email is required',
+            'phone.required'      => 'Phone number is required',
+            'city.required'       => 'City is required',
+            'country.required'    => 'Country is required',
+            'newsletter.required' => 'Newsletter consent is required',
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'status'  => 401,
+                'message' => $validate->errors()->first(),
+                'payload' => null,
+            ]);
+        }
+
+        $email    = strtolower(trim($request->email));
+        $phone    = $request->phone;
+        $fullphone = ($request->country_phone ?? '') . $phone;
+
+        // Check uniqueness
+        $userByEmail = User::where('email', $email)->first();
+        if ($userByEmail && !$this->isProvisionalUser($userByEmail)) {
+            return response()->json([
+                'status'  => 422,
+                'message' => 'This email is already registered.',
+                'payload' => ['field' => 'email'],
+            ]);
+        }
+
+        $profileByPhone = ProfileModel::where(function ($q) use ($phone, $fullphone) {
+            $q->where('phone', $phone)->orWhere('fullphone', $fullphone);
+        })->first();
+        if ($profileByPhone && !is_null(optional($profileByPhone->user)->verify_phone)) {
+            return response()->json([
+                'status'  => 422,
+                'message' => 'This phone number is already registered.',
+                'payload' => ['field' => 'phone'],
+            ]);
+        }
+
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'name'          => $request->name,
+                'email'         => $email,
+                'password'      => null,
+                'isStatus'      => 'Active',
+                'status_member' => 'pending',
+                'source'        => $request->source ?? 'web',
+            ]);
+
+            $user->assignRole('guest');
+
+            $company = CompanyModel::create([
+                'company_name'         => $request->company_name,
+                'company_website'      => $request->company_website,
+                'company_category'     => $request->company_category,
+                'company_other'        => $request->company_other,
+                'city'                 => $request->city,
+                'country'              => $request->country,
+                'portal_code'          => $request->portal_code,
+                'prefix_office_number' => $request->country_phone_office,
+                'office_number'        => $request->office_number,
+                'full_office_number'   => ($request->country_phone_office ?? '') . ($request->office_number ?? ''),
+                'explore'              => $request->explore ?? '',
+                'users_id'             => $user->id,
+            ]);
+
+            ProfileModel::create([
+                'prefix_phone' => $request->country_phone,
+                'phone'        => $phone,
+                'fullphone'    => $fullphone,
+                'job_title'    => $request->job_title,
+                'newsletter'   => $request->newsletter ?? '',
+                'wa_updates'   => $request->wa_updates ?? '',
+                'users_id'     => $user->id,
+                'company_id'   => $company->id,
+            ]);
+
+            DB::commit();
+
+            try {
+                $send = new EmailSender();
+                $send->subject    = 'Thank You for Registering – Your Membership Application Is Under Review';
+                $send->template   = 'email.waiting-approval';
+                $send->data       = [
+                    'users_name'  => $user->name,
+                    'events_name' => 'Djakarta Mining Club Membership',
+                ];
+                $send->name       = $user->name;
+                $send->from       = env('EMAIL_SENDER');
+                $send->name_sender = env('EMAIL_NAME');
+                $send->to         = $email;
+                $send->sendEmail();
+            } catch (\Throwable $e) {
+                Log::warning('registerWeb: confirmation email failed for ' . $email . ': ' . $e->getMessage());
+            }
+
+            return response()->json([
+                'status'  => 200,
+                'message' => 'Registration submitted successfully. Your application is under review.',
+                'payload' => ['email' => $email, 'phone' => $fullphone],
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'  => 500,
+                'message' => 'Registration failed. Please try again.',
+                'payload' => null,
+            ]);
+        }
+    }
+
     public function requestOtp(Request $request)
     {
         $otp = rand(10000, 99999);

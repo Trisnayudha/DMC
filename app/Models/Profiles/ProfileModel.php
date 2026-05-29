@@ -19,6 +19,8 @@ class ProfileModel extends Model
         'fullphone',
         'image',
         'job_title',
+        'newsletter',
+        'wa_updates',
         'company_id',
         'users_id',
     ];

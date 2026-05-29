@@ -72,6 +72,7 @@ Route::post('/signin-qr', [AuthController::class, 'signin_qr']);
 
 Route::post('/check-signup', [AuthController::class, 'check']);
 Route::post('/signup', [AuthController::class, 'signup']);
+Route::post('/register-web', [AuthController::class, 'registerWeb']);
 
 Route::any('request_otp', [AuthController::class, 'requestOtp']);
 Route::post('verify_otp', [AuthController::class, 'verifyOtp']);
