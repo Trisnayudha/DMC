@@ -105,6 +105,14 @@
                             <label for="file">File</label>
                             <input type="file" name="file" id="file" class="form-control"
                                 accept="image/*,video/*">
+                            <small class="form-text text-muted mt-1">
+                                <i class="fas fa-info-circle text-warning"></i>
+                                <strong>Untuk file video</strong>, pastikan ukuran file <strong>&lt;10MB</strong> sebelum diupload.
+                                Gunakan tools berikut untuk compress video:
+                                <a href="https://www.compress2go.com/compress-video" target="_blank" rel="noopener noreferrer">
+                                    compress2go.com/compress-video
+                                </a>
+                            </small>
                         </div>
 
                         <div class="form-group">
