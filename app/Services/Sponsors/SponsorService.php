@@ -9,6 +9,9 @@ class SponsorService extends Sponsor
 
     public static function getSponsorType($type)
     {
-        return Sponsor::where('package', $type)->where('status', 'publish')->orderby('sort', 'asc')->get();
+        return Sponsor::where('package', $type)
+            ->where('status', 'publish')
+            ->select('id', 'name', 'slug', 'description', 'image')
+            ->orderby('sort', 'asc')->get();
     }
 }

@@ -23,6 +23,13 @@ class SponsorsController extends Controller
         $gold = SponsorService::getSponsorType('gold');
         $silver = SponsorService::getSponsorType('silver');
 
+        foreach ([$platinum, $gold, $silver] as $collection) {
+            $collection->transform(function ($item) {
+                $item->description = strip_tags($item->description);
+                return $item;
+            });
+        }
+
         $data = [
             [
                 'name' => 'PLATINUM SPONSORS',
