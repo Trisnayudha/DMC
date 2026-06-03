@@ -47,7 +47,7 @@ class SponsorExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
                         'sponsor_period'  => $period,
                         'company'         => $sponsor->name,
                         'name_pic'        => $pic->name,
-                        'position_pic'    => $pic->job_title,
+                        'position_pic'    => $pic->title,
                         'email_pic'       => $pic->email,
                         'mobile_phone'    => $pic->phone,
                         'address'         => $sponsor->address,
