@@ -282,8 +282,8 @@ Your verification code (OTP) ' . $otp;
             // Already verified
             return response()->json([
                 'status' => 422,
-                'message' => 'Email is already in use',
-                'payload' => ['email' => 'Email is already in use']
+                'message' => 'This email is already registered as a member.',
+                'payload' => ['email' => 'This email is already registered as a member.']
             ]);
         }
 
@@ -300,8 +300,8 @@ Your verification code (OTP) ' . $otp;
 
             return response()->json([
                 'status' => 422,
-                'message' => 'Phone number is already registered',
-                'payload' => ['fullphone' => 'Phone number is already registered']
+                'message' => 'This phone number is already registered as a member.',
+                'payload' => ['fullphone' => 'This phone number is already registered as a member.']
             ]);
         }
 
