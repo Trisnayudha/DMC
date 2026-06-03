@@ -43,17 +43,16 @@
         <div class="content">
             <p>Dear {{ $users_name }},</p>
             <p>Thank you for your membership registration.</p>
-            <p>Your application is currently under review. This process will take up to
-                <strong>48 hours (2 x 24 hours)</strong>. Once completed, we will notify you via email
-                regarding the status of your application.
+            <p>We have received your application and it is currently under review. The verification process may take up
+                to <strong>48 hours</strong>. Once completed, we will notify you of the outcome via email.
             </p>
-            <p>Should you have any questions, please reply to this email or contact us via
-                WhatsApp at <strong>+62 811-1937-399</strong>.
+            <p>If you have any questions, please reply to this email or contact us via WhatsApp at <strong>+62
+                    811-1937-399</strong>.
             </p>
             <p>
                 Best regards,<br>
                 <strong>Membership Team</strong><br>
-                Djakarta Mining Club
+                <strong>Djakarta Mining Club</strong>
             </p>
         </div>
         <div class="footer">

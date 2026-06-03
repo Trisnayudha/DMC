@@ -582,7 +582,7 @@ Your verification code (OTP) ' . $otp;
 
             try {
                 $send = new EmailSender();
-                $send->subject    = 'Thank You for Registering – Your Membership Application Is Under Review';
+                $send->subject    = 'Thank You for Registering with Djakarta Mining Club – Your Application Is Under Review';
                 $send->template   = 'email.waiting-approval';
                 $send->data       = [
                     'users_name'  => $user->name,
