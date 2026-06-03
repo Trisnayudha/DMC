@@ -532,42 +532,51 @@ Your verification code (OTP) ' . $otp;
 
         DB::beginTransaction();
         try {
-            $user = User::create([
+            $userData = [
                 'name'          => $request->name,
-                'email'         => $email,
-                'password'      => null,
                 'isStatus'      => 'Active',
                 'status_member' => 'pending',
                 'source'        => $request->source ?? 'web',
-            ]);
+            ];
 
-            $user->assignRole('guest');
+            if ($userByEmail && $this->isProvisionalUser($userByEmail)) {
+                // Email sudah ada tapi provisional → update, jangan create baru
+                $user = $userByEmail;
+                $user->update($userData);
+            } else {
+                $user = User::create(array_merge($userData, ['email' => $email, 'password' => null]));
+                $user->assignRole('guest');
+            }
 
-            $company = CompanyModel::create([
-                'company_name'         => $request->company_name,
-                'company_website'      => $request->company_website,
-                'company_category'     => $request->company_category,
-                'company_other'        => $request->company_other,
-                'city'                 => $request->city,
-                'country'              => $request->country,
-                'portal_code'          => $request->portal_code,
-                'prefix_office_number' => $request->country_phone_office,
-                'office_number'        => $request->office_number,
-                'full_office_number'   => ($request->country_phone_office ?? '') . ($request->office_number ?? ''),
-                'explore'              => $request->explore ?? '',
-                'users_id'             => $user->id,
-            ]);
+            $company = CompanyModel::updateOrCreate(
+                ['users_id' => $user->id],
+                [
+                    'company_name'         => $request->company_name,
+                    'company_website'      => $request->company_website,
+                    'company_category'     => $request->company_category,
+                    'company_other'        => $request->company_other,
+                    'city'                 => $request->city,
+                    'country'              => $request->country,
+                    'portal_code'          => $request->portal_code,
+                    'prefix_office_number' => $request->country_phone_office,
+                    'office_number'        => $request->office_number,
+                    'full_office_number'   => ($request->country_phone_office ?? '') . ($request->office_number ?? ''),
+                    'explore'              => $request->explore ?? '',
+                ]
+            );
 
-            ProfileModel::create([
-                'prefix_phone' => $request->country_phone,
-                'phone'        => $phone,
-                'fullphone'    => $fullphone,
-                'job_title'    => $request->job_title,
-                'newsletter'   => $request->newsletter ?? '',
-                'wa_updates'   => $request->wa_updates ?? '',
-                'users_id'     => $user->id,
-                'company_id'   => $company->id,
-            ]);
+            ProfileModel::updateOrCreate(
+                ['users_id' => $user->id],
+                [
+                    'prefix_phone' => $request->country_phone,
+                    'phone'        => $phone,
+                    'fullphone'    => $fullphone,
+                    'job_title'    => $request->job_title,
+                    'newsletter'   => $request->newsletter ?? '',
+                    'wa_updates'   => $request->wa_updates ?? '',
+                    'company_id'   => $company->id,
+                ]
+            );
 
             DB::commit();
 
