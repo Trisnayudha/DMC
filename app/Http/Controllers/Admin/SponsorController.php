@@ -11,7 +11,6 @@ use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\SocialMediaEngagement;
 use App\Models\Sponsors\Sponsor;
-use App\Models\Sponsors\SponsorBenefitUsage;
 use App\Models\Sponsors\SponsorPic;
 use App\Models\Sponsors\SponsorRenewal;
 use App\Models\User;
@@ -110,20 +109,19 @@ class SponsorController extends Controller
             ->limit(5)
             ->get();
 
-        // Benefit usage summary
-        $totalBenefitsAssigned = SponsorBenefitUsage::whereHas('sponsor', function ($q) {
-            $q->where('status', 'publish');
-        })->count();
+        // Benefit usage summary — hanya period aktif per sponsor
+        $activePeriodExpr = "IF(LEFT(s.contract_start,4) = LEFT(s.contract_end,4), LEFT(s.contract_start,4), CONCAT(LEFT(s.contract_start,4),'-',LEFT(s.contract_end,4)))";
 
-        $totalBenefitsUsed = SponsorBenefitUsage::where('status', 'used')
-            ->whereHas('sponsor', function ($q) {
-                $q->where('status', 'publish');
-            })->count();
+        $benefitBase = DB::table('sponsor_benefit_usage as sbu')
+            ->join('sponsors as s', 's.id', '=', 'sbu.sponsor_id')
+            ->where('s.status', 'publish')
+            ->whereNotNull('s.contract_start')
+            ->whereNotNull('s.contract_end')
+            ->whereRaw("sbu.period = ({$activePeriodExpr})");
 
-        $totalBenefitsUnused = SponsorBenefitUsage::where('status', 'unused')
-            ->whereHas('sponsor', function ($q) {
-                $q->where('status', 'publish');
-            })->count();
+        $totalBenefitsAssigned = (clone $benefitBase)->count();
+        $totalBenefitsUsed     = (clone $benefitBase)->where('sbu.status', 'used')->count();
+        $totalBenefitsUnused   = (clone $benefitBase)->where('sbu.status', 'unused')->count();
 
         $benefitUsageRate = $totalBenefitsAssigned > 0
             ? round(($totalBenefitsUsed / $totalBenefitsAssigned) * 100)
