@@ -14,15 +14,17 @@ class SocialMediaEngagementController extends Controller
     public function index(Request $request)
     {
         // Ambil filter platform dan tahun dari request, dengan default untuk tahun sekarang
-        $platform = $request->get('platform', ''); // Jika kosong, ambil semua
-        $year = $request->get('year', Carbon::now()->format('Y'));
+        $platform = $request->get('platform', '');
+        $year = $request->get('year', '');
 
         // Query untuk mengambil data engagement dengan relasi sponsor
         $query = SocialMediaEngagement::with('sponsor');
         if ($platform) {
             $query->where('platform', $platform);
         }
-        $query->whereYear('activity_date', $year);
+        if ($year) {
+            $query->whereYear('activity_date', $year);
+        }
         $engagements = $query->orderBy('activity_date', 'desc')->get();
 
         // Statistik engagement per jenis aktivitas

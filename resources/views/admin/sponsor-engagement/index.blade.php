@@ -28,7 +28,7 @@
                             <div class="form-group mr-2">
                                 <label for="year" class="mr-2">Year:</label>
                                 <input type="number" name="year" id="year" class="form-control"
-                                    value="{{ request('year', now()->format('Y')) }}" min="2000" max="2099">
+                                    value="{{ request('year') }}" placeholder="{{ now()->format('Y') }}" min="2000" max="2099">
                             </div>
                             <button type="submit" class="btn btn-primary">Filter</button>
                         </form>
