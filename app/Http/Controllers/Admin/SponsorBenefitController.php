@@ -20,7 +20,11 @@ class SponsorBenefitController extends Controller
         // Ambil semua record penggunaan benefit untuk tahun tersebut
         // Karena field 'period' disimpan dengan format "YYYY-MM", kita gunakan LIKE untuk filter tahun
         $usageRecords = SponsorBenefitUsage::with('benefit', 'sponsor')
-            ->where('period', 'LIKE', $year . '-%')
+            ->where(function ($q) use ($year) {
+                $q->where('period', $year)
+                  ->orWhere('period', 'LIKE', $year . '-%')
+                  ->orWhere('period', 'LIKE', '%-' . $year);
+            })
             ->get();
 
         // Summary global
@@ -92,10 +96,16 @@ class SponsorBenefitController extends Controller
             ->where('status', 'publish')
             ->firstOrFail();
 
-        // Ambil detail penggunaan benefit untuk sponsor ini, diurutkan berdasarkan periode
+        // Hitung period aktif berdasarkan kontrak sponsor
+        $startYear = Carbon::createFromFormat('Y-m', $sponsor->contract_start)->year;
+        $endYear   = Carbon::createFromFormat('Y-m', $sponsor->contract_end)->year;
+        $activePeriod = $startYear === $endYear ? (string) $startYear : "{$startYear}-{$endYear}";
+
+        // Ambil detail penggunaan benefit untuk sponsor ini, hanya period aktif
         $benefitDetails = SponsorBenefitUsage::with('benefit')
             ->where('sponsor_id', $sponsor->id)
-            ->orderBy('period')
+            ->where('period', $activePeriod)
+            ->orderBy('benefit_id')
             ->get();
 
         // Hitung total dan used benefit untuk sponsor ini

@@ -21,10 +21,10 @@ class SponsorBenefitService
             return 0;
         }
 
-        $start = Carbon::createFromFormat('Y-m', $sponsor->contract_start)->startOfMonth();
-        $end   = Carbon::createFromFormat('Y-m', $sponsor->contract_end)->startOfMonth();
+        $startYear = Carbon::createFromFormat('Y-m', $sponsor->contract_start)->year;
+        $endYear   = Carbon::createFromFormat('Y-m', $sponsor->contract_end)->year;
 
-        if ($end->lt($start)) {
+        if ($endYear < $startYear) {
             return 0;
         }
 
@@ -33,31 +33,32 @@ class SponsorBenefitService
             return 0;
         }
 
+        $periodStr = $startYear === $endYear ? (string) $startYear : "{$startYear}-{$endYear}";
+
+        // Hapus record unused dengan period lama (saat renew/update kontrak)
+        SponsorBenefitUsage::where('sponsor_id', $sponsor->id)
+            ->where('status', 'unused')
+            ->where('period', '!=', $periodStr)
+            ->delete();
+
         $created = 0;
-        $period  = $start->copy();
 
-        while ($period->lte($end)) {
-            $periodStr = $period->format('Y-m');
+        foreach ($packageBenefits as $pb) {
+            $new = SponsorBenefitUsage::firstOrCreate(
+                [
+                    'sponsor_id' => $sponsor->id,
+                    'benefit_id' => $pb->benefit_id,
+                    'period'     => $periodStr,
+                ],
+                [
+                    'status'  => 'unused',
+                    'used_at' => null,
+                ]
+            );
 
-            foreach ($packageBenefits as $pb) {
-                $new = SponsorBenefitUsage::firstOrCreate(
-                    [
-                        'sponsor_id' => $sponsor->id,
-                        'benefit_id' => $pb->benefit_id,
-                        'period'     => $periodStr,
-                    ],
-                    [
-                        'status'  => 'unused',
-                        'used_at' => null,
-                    ]
-                );
-
-                if ($new->wasRecentlyCreated) {
-                    $created++;
-                }
+            if ($new->wasRecentlyCreated) {
+                $created++;
             }
-
-            $period->addMonth();
         }
 
         return $created;
