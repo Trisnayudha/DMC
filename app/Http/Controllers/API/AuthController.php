@@ -598,7 +598,11 @@ Your verification code (OTP) ' . $otp;
             return response()->json([
                 'status'  => 500,
                 'message' => 'Registration failed. Please try again.',
-                'payload' => null,
+                'payload' => [
+                    'error'   => $e->getMessage(),
+                    'file'    => $e->getFile(),
+                    'line'    => $e->getLine(),
+                ],
             ]);
         }
     }
