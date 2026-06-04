@@ -492,3 +492,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     });
 });
 Route::get('blast', [WhatsappBlastingController::class, 'sendWhatsAppMessagesAsync']);
+
+Route::get('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'show'])->name('newsletter.show');
+Route::post('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
