@@ -303,6 +303,9 @@ class CompanyDatabaseController extends Controller
         $normalizedName = strtolower(trim((string) $data['normalized_name']));
         $sample = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [$normalizedName])->first();
         if (!$sample) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Company tidak ditemukan.'], 422);
+            }
             return back()->with('error', 'Company tidak ditemukan.');
         }
 
@@ -319,6 +322,9 @@ class CompanyDatabaseController extends Controller
         }
 
         if (empty($payload)) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada data yang diubah.'], 422);
+            }
             return back()->with('error', 'Tidak ada data yang diubah.');
         }
 
@@ -327,10 +333,12 @@ class CompanyDatabaseController extends Controller
 
         $updatedRows = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [$normalizedName])->update($payload);
 
-        return back()->with(
-            'success',
-            "Update & sync berhasil untuk {$sample->company_name}. {$updatedRows} record company diperbarui."
-        );
+        $message = "Update & sync berhasil untuk {$sample->company_name}. {$updatedRows} record company diperbarui.";
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+        return back()->with('success', $message);
     }
 
     private function buildCompanyGroups(string $search = ''): Collection

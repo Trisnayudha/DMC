@@ -240,6 +240,7 @@
         $.ajax({
             url: '{{ route('admin.company_database.update') }}',
             method: 'POST',
+            headers: { 'Accept': 'application/json' },
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content'),
                 normalized_name:      $('#vm-normalized-name').val(),

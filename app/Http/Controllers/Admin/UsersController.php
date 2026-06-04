@@ -307,11 +307,11 @@ class UsersController extends Controller
 
                 if ($apiKey && $server && $listId) {
                     $merge = [];
-                    if (!empty($user->name))                  $merge['FNAME']   = $user->name;
-                    if (!empty($company->company_name))       $merge['MMERGE5'] = $company->company_name;
-                    if (!empty($company->company_category))   $merge['MMERGE6'] = $company->company_category === 'other' ? ($company->company_other ?? 'other') : $company->company_category;
-                    if (!empty($company->company_website))    $merge['MMERGE13'] = $company->company_website;
-                    $merge['MMERGE10'] = now()->toDateTimeString();
+                    if (!empty($user->name))               $merge['FNAME']    = $user->name;
+                    if (!empty($company->company_name))    $merge['MMERGE5']  = $company->company_name;
+                    if (!empty($profile->job_title))       $merge['MMERGE7']  = $profile->job_title;
+                    if (!empty($company->company_website)) $merge['MMERGE13'] = $company->company_website;
+                    $merge['MMERGE11'] = now()->format('m/d/Y');
 
                     $phone = $profile->fullphone ?? $profile->phone ?? null;
                     if ($phone && preg_match('/^\+\d[\d\s\-\(\)]{5,}$/', trim((string) $phone))) {
@@ -1066,12 +1066,12 @@ class UsersController extends Controller
             : ProfileModel::where('email', $email)->first();
 
         $merge = [];
-        if (!empty($user->name))                $merge['FNAME']    = $user->name;
-        if (!empty($company->company_name))     $merge['MMERGE5']  = $company->company_name;
-        if (!empty($company->company_category)) $merge['MMERGE6']  = $company->company_category === 'other' ? ($company->company_other ?? 'other') : $company->company_category;
+        if (!empty($user->name))               $merge['FNAME']    = $user->name;
+        if (!empty($company->company_name))    $merge['MMERGE5']  = $company->company_name;
+        if (!empty($profile->job_title))       $merge['MMERGE7']  = $profile->job_title;
         if (!empty($company->explore ?? $company->cci)) $merge['MMERGE12'] = $company->explore ?? $company->cci;
-        if (!empty($company->company_website))  $merge['MMERGE13'] = $company->company_website;
-        $merge['MMERGE10'] = now()->toDateTimeString();
+        if (!empty($company->company_website)) $merge['MMERGE13'] = $company->company_website;
+        $merge['MMERGE11'] = now()->format('m/d/Y');
 
         $phone = is_string($profile->fullphone ?? $profile->phone ?? null) ? trim($profile->fullphone ?? $profile->phone) : null;
         if ($phone && preg_match('/^\+\d[\d\s\-\(\)]{5,}$/', $phone)) {
