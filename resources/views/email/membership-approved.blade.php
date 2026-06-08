@@ -50,6 +50,7 @@
 
 <body>
     <div class="card">
+        <img src="{{ asset('image/header-banner.png') }}" alt="Djakarta Mining Club" style="width:100%;display:block;">
         <div class="content">
             <p>Dear {{ $users_name }},</p>
             <p>We are pleased to inform you that your membership has been successfully approved.</p>
@@ -69,7 +70,8 @@
                 </p>
                 <p>Please note that this password setup link is valid for <strong>48 hours (2 x 24 hours)</strong>.</p>
             @else
-                <p>Your account password is already active. You can log in directly using your registered email and existing password.</p>
+                <p>Your account password is already active. You can log in directly using your registered email and
+                    existing password.</p>
                 @if (!empty($login_url))
                     <p>
                         <a href="{{ $login_url }}" class="button" target="_blank" rel="noopener noreferrer">
@@ -82,7 +84,8 @@
             <p>Once your account is activated, we encourage you to:</p>
             <ul>
                 <li>Set up and complete your profile, and keep your personal details updated.</li>
-                <li>Ensure our emails are delivered to your inbox and avoid the spam folder by adding us to your safe sender list.</li>
+                <li>Ensure our emails are delivered to your inbox and avoid the spam folder by adding us to your safe
+                    sender list.</li>
                 <li>Regularly check our programs and register for those relevant to your interests.</li>
                 <li>Stay informed by reading our weekly newsletters and industry insights.</li>
                 <li>Share your ideas, feedback, or program suggestions with our Membership Team.</li>
@@ -96,7 +99,7 @@
             <p>
                 Best regards,<br>
                 <strong>Membership Team</strong><br>
-                Djakarta Mining Club
+                <strong>Djakarta Mining Club</strong>
             </p>
 
             @if (!empty($set_password_url))
