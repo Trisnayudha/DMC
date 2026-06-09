@@ -48,9 +48,14 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
-                            <div class="card-header">
-                                <h4>Representative Event Attendance — {{ $year }}</h4>
-                                <small class="text-muted">Active sponsors only</small>
+                            <div class="card-header d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">Representative Event Attendance — {{ $year }}</h4>
+                                    <small class="text-muted">Active sponsors only</small>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addToEventModal">
+                                    <i class="fas fa-calendar-plus"></i> Add Member to Event
+                                </button>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -306,10 +311,149 @@
     </div>
 @endsection
 
+<!-- Modal: Add Sponsor Member to Event -->
+<div class="modal fade" id="addToEventModal" tabindex="-1" role="dialog" aria-labelledby="addToEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addToEventModalLabel">
+                    <i class="fas fa-calendar-plus"></i> Register Sponsor Member to Event
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="font-weight-bold">Sponsor <span class="text-danger">*</span></label>
+                    <select id="ateSponsorSelect" class="form-control" required>
+                        <option value="">— Select Sponsor —</option>
+                        @foreach ($allSponsorsWithMembers as $s)
+                            <option value="{{ $s->id }}">{{ $s->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">Member <span class="text-danger">*</span></label>
+                    <select id="ateMemberSelect" class="form-control" required disabled>
+                        <option value="">— Select Sponsor first —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">Event <span class="text-danger">*</span></label>
+                    <select id="ateEventId" class="form-control" required>
+                        <option value="">— Select Event —</option>
+                        @foreach ($events as $event)
+                            <option value="{{ $event->id }}">
+                                {{ $event->name }} ({{ \Carbon\Carbon::parse($event->start_date)->format('M Y') }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="ateSendEmail" checked>
+                        <label class="custom-control-label" for="ateSendEmail">
+                            Send email confirmation + ticket PDF to member
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="ateSubmitBtn" class="btn btn-primary">
+                    <i class="fas fa-calendar-check"></i> Register to Event
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('bottom')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#laravel_crud').DataTable();
+        });
+
+        // Sponsor members map (preloaded from PHP)
+        var sponsorMembersMap = @json($sponsorMembersMap);
+
+        // Reset modal when it opens
+        $('#addToEventModal').on('show.bs.modal', function() {
+            $('#ateSponsorSelect').val('');
+            $('#ateMemberSelect').html('<option value="">— Select Sponsor first —</option>').prop('disabled', true);
+            $('#ateEventId').val('');
+            $('#ateSendEmail').prop('checked', true);
+        });
+
+        // Populate members when sponsor changes
+        $('#ateSponsorSelect').on('change', function() {
+            var sponsorId = $(this).val();
+            var $memberSelect = $('#ateMemberSelect');
+            $memberSelect.html('<option value="">— Select Member —</option>');
+
+            if (sponsorId && sponsorMembersMap[sponsorId] && sponsorMembersMap[sponsorId].length > 0) {
+                $.each(sponsorMembersMap[sponsorId], function(i, member) {
+                    $memberSelect.append('<option value="' + member.id + '">' + member.name + '</option>');
+                });
+                $memberSelect.prop('disabled', false);
+            } else if (sponsorId) {
+                $memberSelect.html('<option value="">— No members found —</option>').prop('disabled', true);
+            } else {
+                $memberSelect.html('<option value="">— Select Sponsor first —</option>').prop('disabled', true);
+            }
+        });
+
+        // Submit Add to Event
+        $('#ateSubmitBtn').on('click', function() {
+            var sponsorId = $('#ateSponsorSelect').val();
+            var userId    = $('#ateMemberSelect').val();
+            var eventId   = $('#ateEventId').val();
+
+            if (!sponsorId) {
+                toastr.warning('Please select a sponsor.', '', { positionClass: 'toast-top-right' });
+                return;
+            }
+            if (!userId) {
+                toastr.warning('Please select a member.', '', { positionClass: 'toast-top-right' });
+                return;
+            }
+            if (!eventId) {
+                toastr.warning('Please select an event.', '', { positionClass: 'toast-top-right' });
+                return;
+            }
+
+            var btn = $(this);
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Registering...');
+
+            $.ajax({
+                url: '{{ route("sponsors.representative.add_to_event") }}',
+                method: 'POST',
+                data: {
+                    _token:     '{{ csrf_token() }}',
+                    user_id:    userId,
+                    event_id:   eventId,
+                    sponsor_id: sponsorId,
+                    send_email: $('#ateSendEmail').is(':checked') ? 1 : '',
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message, 'Success', { positionClass: 'toast-top-right' });
+                        $('#addToEventModal').modal('hide');
+                    } else {
+                        toastr.error(response.message, 'Error', { positionClass: 'toast-top-right' });
+                    }
+                },
+                error: function(xhr) {
+                    var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'An error occurred.';
+                    toastr.error(msg, 'Error', { positionClass: 'toast-top-right' });
+                },
+                complete: function() {
+                    btn.prop('disabled', false).html('<i class="fas fa-calendar-check"></i> Register to Event');
+                }
+            });
         });
     </script>
 @endpush
