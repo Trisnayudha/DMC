@@ -9,6 +9,11 @@
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
                     <div class="breadcrumb-item active">Company Database</div>
                 </div>
+                <div class="section-header-button ml-auto">
+                    <a href="{{ route('admin.company_database.logs') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-history"></i> Activity Log
+                    </a>
+                </div>
             </div>
 
             <div class="section-body">

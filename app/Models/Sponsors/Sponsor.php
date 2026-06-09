@@ -57,4 +57,17 @@ class Sponsor extends Model
     {
         return $this->hasOne(SponsorPic::class)->oldest('id');
     }
+
+    public function representatives()
+    {
+        return $this->hasMany(SponsorRepresentative::class, 'sponsor_id');
+    }
+
+    public function members()
+    {
+        return $this->belongsToMany(\App\Models\User::class, 'payment', 'sponsor_id', 'member_id')
+            ->select(['users.id', 'users.name', 'users.email', 'users.status_member', 'profiles.fullphone'])
+            ->leftJoin('profiles', 'profiles.users_id', '=', 'users.id')
+            ->distinct();
+    }
 }

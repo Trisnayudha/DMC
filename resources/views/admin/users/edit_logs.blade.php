@@ -113,7 +113,7 @@
                                         @php
                                             $isSelfEdit = is_null($log->admin_id);
                                             $criticalFields = ['company_name', 'company_category', 'company_other', 'prefix'];
-                                            $changes = json_decode($log->changes, true) ?: [];
+                                            $changes = is_array($log->changes) ? $log->changes : (json_decode($log->changes, true) ?: []);
                                         @endphp
                                         @foreach ($changes as $field => $diff)
                                             @php $isCritical = in_array($field, $criticalFields); @endphp

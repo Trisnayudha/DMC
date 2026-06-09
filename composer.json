@@ -26,6 +26,7 @@
         "phpoffice/phpspreadsheet": "^1.25",
         "realrashid/sweet-alert": "^5.1",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "spatie/laravel-activitylog": "^3.17",
         "spatie/laravel-newsletter": "^4.11",
         "spatie/laravel-permission": "^5.5",
         "wildbit/postmark-php": "^4.0",

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Models\Activity;
 
 class CompanyDatabaseController extends Controller
 {
@@ -53,6 +54,28 @@ class CompanyDatabaseController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    public function logs(Request $request)
+    {
+        $search = trim((string) $request->query('search', ''));
+        $action = trim((string) $request->query('action', ''));
+
+        $query = Activity::with('causer')
+            ->where('log_name', 'company_database')
+            ->latest();
+
+        if ($action !== '') {
+            $query->where('description', $action);
+        }
+
+        if ($search !== '') {
+            $query->where('properties->company_name', 'like', '%' . $search . '%');
+        }
+
+        $logs = $query->paginate(25)->withQueryString();
+
+        return view('admin.company_database.logs', compact('logs', 'search', 'action'));
     }
 
     public function index(Request $request)
@@ -251,6 +274,15 @@ class CompanyDatabaseController extends Controller
 
         $result = CompanyModel::syncByName((string) $sample->company_name, true);
 
+        activity('company_database')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'company_name'    => $sample->company_name,
+                'updated_records' => $result['updated_records'],
+                'total_records'   => $result['total_records'],
+            ])
+            ->log('sync');
+
         return back()->with(
             'success',
             "Sync berhasil untuk {$sample->company_name}. Record diperbarui: {$result['updated_records']} dari {$result['total_records']} record."
@@ -275,6 +307,16 @@ class CompanyDatabaseController extends Controller
                 $syncedCompanies++;
             }
         }
+
+        activity('company_database')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'scope'            => $scope,
+                'search'           => $search ?: null,
+                'synced_companies' => $syncedCompanies,
+                'updated_rows'     => $updatedRows,
+            ])
+            ->log('sync_all');
 
         return back()->with(
             'success',
@@ -331,7 +373,29 @@ class CompanyDatabaseController extends Controller
         $payload['is_verified'] = true;
         $payload['verified_at'] = now();
 
+        $before = collect($payload)->keys()
+            ->filter(fn($k) => $k !== 'is_verified' && $k !== 'verified_at')
+            ->mapWithKeys(fn($k) => [$k => $sample->{$k}])
+            ->toArray();
+
         $updatedRows = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [$normalizedName])->update($payload);
+
+        $changes = [];
+        foreach ($before as $field => $oldValue) {
+            $newValue = $payload[$field] ?? null;
+            if ($oldValue !== $newValue) {
+                $changes[$field] = ['before' => $oldValue, 'after' => $newValue];
+            }
+        }
+
+        activity('company_database')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'company_name'    => $sample->company_name,
+                'updated_records' => $updatedRows,
+                'changes'         => $changes,
+            ])
+            ->log('update');
 
         $message = "Update & sync berhasil untuk {$sample->company_name}. {$updatedRows} record company diperbarui.";
 

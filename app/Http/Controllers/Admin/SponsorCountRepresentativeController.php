@@ -19,7 +19,7 @@ class SponsorCountRepresentativeController extends Controller
         $filterSponsor = $request->get('company', '');
 
         // Dapatkan daftar sponsor untuk dropdown filter
-        $sponsorList = Sponsor::orderBy('name')->get();
+        $sponsorList = Sponsor::where('status', 'publish')->orderBy('name')->get();
 
         /*
          |---------------------------------------------------------------------------------
@@ -40,8 +40,8 @@ class SponsorCountRepresentativeController extends Controller
                 $join->on('users_event.payment_id', '=', 'payment.id')
                     ->on('users_event.users_id', '=', 'users.id');
             })
+            ->where('sponsors.status', 'publish')
             ->whereYear('payment.created_at', $year)
-            // Hanya menampilkan data yang benar-benar attend
             ->whereNotNull('users_event.present');
 
         // Jika filter sponsor dipilih, tambahkan kondisi
@@ -59,18 +59,22 @@ class SponsorCountRepresentativeController extends Controller
          | Ambil Data Sponsor yang Representativenya Tidak Pernah Attend
          |---------------------------------------------------------------------------------
          */
-        $nonAttendSponsors = Sponsor::select('sponsors.name as company')
-            ->leftJoin('payment', function ($join) use ($year) {
-                $join->on('sponsors.id', '=', 'payment.sponsor_id')
-                    ->whereYear('payment.created_at', $year);
-            })
-            ->leftJoin('users_event', function ($join) {
+        // Sponsor IDs yang sudah ada attend di tahun ini
+        $attendedSponsorIds = \Illuminate\Support\Facades\DB::table('payment')
+            ->join('users_event', function ($join) {
                 $join->on('users_event.payment_id', '=', 'payment.id')
                     ->on('users_event.users_id', '=', 'payment.member_id');
             })
-            ->groupBy('sponsors.id', 'sponsors.name')
-            // Pastikan tidak ada data dengan present != NULL
-            ->havingRaw('COALESCE(SUM(CASE WHEN users_event.present IS NOT NULL THEN 1 ELSE 0 END), 0) = 0')
+            ->whereYear('payment.created_at', $year)
+            ->whereNotNull('users_event.present')
+            ->whereNotNull('payment.sponsor_id')
+            ->pluck('payment.sponsor_id')
+            ->unique();
+
+        $nonAttendSponsors = Sponsor::with(['pics', 'representatives', 'members'])
+            ->where('status', 'publish')
+            ->whereNotIn('id', $attendedSponsorIds)
+            ->orderBy('name')
             ->get();
 
         return view('admin.sponsor.representative.index', [

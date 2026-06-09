@@ -4,47 +4,53 @@
     <div class="content-wrapper">
         <section class="section">
             <div class="section-header">
-                <h1>Sponsors Representative Count Management</h1>
+                <h1>Sponsor Representative Attendance</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active"><a href="#">Sponsors Representative Count Management</a></div>
+                    <div class="breadcrumb-item"><a href="{{ route('sponsors.index') }}">Sponsors Management</a></div>
+                    <div class="breadcrumb-item active">Representative Attendance</div>
                 </div>
             </div>
+
             <div class="section-body">
-                <h2 class="section-title">Sponsors Representative Count</h2>
 
-                <!-- Form Filter Tahun & Company -->
-                <div class="mb-3">
-                    <form method="GET" action="{{ route('sponsors.representative.index') }}" class="form-inline">
+                <!-- Filter -->
+                <div class="card mb-3">
+                    <div class="card-body py-2">
+                        <form method="GET" action="{{ route('sponsors.representative.index') }}"
+                            class="form-inline flex-wrap" style="gap:8px">
+                            <label class="mb-0 mr-1">Year:</label>
+                            <input type="number" name="year" class="form-control form-control-sm"
+                                value="{{ $year }}" min="2000" max="{{ now()->year }}" style="width:90px">
 
-                        {{-- Filter Tahun --}}
-                        <label for="year" class="mr-2">Filter Tahun:</label>
-                        <input type="number" name="year" id="year" class="form-control mr-2"
-                            value="{{ $year }}" min="2000" max="{{ now()->year }}">
+                            <label class="mb-0 mr-1 ml-2">Sponsor:</label>
+                            <select name="company" class="form-control form-control-sm" style="min-width:200px">
+                                <option value="">— All Sponsors —</option>
+                                @foreach ($sponsorList as $sponsor)
+                                    <option value="{{ $sponsor->name }}"
+                                        {{ $filterSponsor == $sponsor->name ? 'selected' : '' }}>
+                                        {{ $sponsor->name }}
+                                    </option>
+                                @endforeach
+                            </select>
 
-                        {{-- Filter Sponsor --}}
-                        <label for="company" class="mr-2">Sponsor:</label>
-                        <select name="company" id="company" class="form-control mr-2">
-                            <option value="">-- All Sponsor --</option>
-                            @foreach ($sponsorList as $sponsor)
-                                <option value="{{ $sponsor->name }}"
-                                    {{ $filterSponsor == $sponsor->name ? 'selected' : '' }}>
-                                    {{ $sponsor->name }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <button type="submit" class="btn btn-primary">Filter</button>
-                    </form>
+                            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i>
+                                Filter</button>
+                            @if ($filterSponsor || $year != now()->year)
+                                <a href="{{ route('sponsors.representative.index') }}"
+                                    class="btn btn-light btn-sm">Reset</a>
+                            @endif
+                        </form>
+                    </div>
                 </div>
-                <!-- End Filter Tahun & Company -->
 
-                <!-- Tabel Detail Representative & Event Attendance -->
+                <!-- Attendance Table -->
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Detail Representative & Event Attendance (Tahun: {{ $year }})</h4>
+                                <h4>Representative Event Attendance — {{ $year }}</h4>
+                                <small class="text-muted">Active sponsors only</small>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -53,10 +59,10 @@
                                             <tr>
                                                 <th>No</th>
                                                 <th>Name</th>
-                                                <th>Company</th>
+                                                <th>Sponsor</th>
                                                 <th>Attend Time</th>
                                                 <th>Event</th>
-                                                <th>Present</th>
+                                                <th>Check-in</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -65,22 +71,23 @@
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>{{ $rep->representative_name }}</td>
                                                     <td>{{ $rep->company }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($rep->attend_time)->format('d-m-Y H:i') }}
+                                                    <td>{{ \Carbon\Carbon::parse($rep->attend_time)->format('d M Y H:i') }}
                                                     </td>
                                                     <td>{{ $rep->event_name }}</td>
                                                     <td>
                                                         @if ($rep->present)
-                                                            Hadir pada
-                                                            {{ \Carbon\Carbon::parse($rep->present)->format('d-m-Y H:i') }}
+                                                            <span class="badge badge-success">Present</span>
+                                                            <small
+                                                                class="text-muted ml-1">{{ \Carbon\Carbon::parse($rep->present)->format('d M Y H:i') }}</small>
                                                         @else
-                                                            Tidak Hadir
+                                                            <span class="badge badge-secondary">Not Present</span>
                                                         @endif
                                                     </td>
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="6" class="text-center">Tidak ada data representative.
-                                                    </td>
+                                                    <td colspan="6" class="text-center text-muted py-3">No attendance
+                                                        records found.</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>
@@ -91,36 +98,204 @@
                     </div>
                 </div>
 
-                <!-- Tabel Sponsor yang Representativenya Tidak Pernah Attend -->
-                <div class="row mt-4">
+                <!-- Non-Attend Sponsors Table -->
+                <div class="row mt-2">
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Sponsor yang Representativenya Tidak Pernah Attend (Tahun: {{ $year }})</h4>
+                                <h4>
+                                    Sponsors with No Representative Attendance — {{ $year }}
+                                    <span class="badge badge-warning ml-1">{{ $nonAttendSponsors->count() }}</span>
+                                </h4>
+                                <small class="text-muted">Active sponsors with no event attendance this year — contact info
+                                    shown for follow-up</small>
                             </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table id="laravel_crud_non_attend" class="table table-bordered table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Company</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($nonAttendSponsors as $index => $sponsor)
+                            <div class="card-body p-0">
+                                @if ($nonAttendSponsors->isEmpty())
+                                    <div class="text-center text-muted py-4">
+                                        <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
+                                        All active sponsors have attendance records this year.
+                                    </div>
+                                @else
+                                    <div class="table-responsive">
+                                        <table id="laravel_crud_non_attend" class="table table-bordered table-hover mb-0"
+                                            style="font-size:13px">
+                                            <thead class="thead-light">
                                                 <tr>
-                                                    <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $sponsor->company }}</td>
+                                                    <th style="width:40px">No</th>
+                                                    <th style="width:160px">Sponsor</th>
+                                                    <th>PIC <small class="text-muted font-weight-normal">(Primary
+                                                            contact)</small></th>
+                                                    <th>Representatives</th>
+                                                    <th>Members</th>
                                                 </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="2" class="text-center">Tidak ada data sponsor.</td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($nonAttendSponsors as $index => $sponsor)
+                                                    <tr style="vertical-align:top">
+                                                        <td>{{ $index + 1 }}</td>
+                                                        <td>
+                                                            <div class="font-weight-bold">{{ $sponsor->name }}</div>
+                                                            <span
+                                                                class="badge badge-{{ $sponsor->package === 'platinum' ? 'primary' : ($sponsor->package === 'gold' ? 'warning' : 'secondary') }} mt-1">
+                                                                {{ ucfirst($sponsor->package) }}
+                                                            </span>
+                                                        </td>
+
+                                                        {{-- PICs (sponsors_pic) --}}
+                                                        <td>
+                                                            @if ($sponsor->pics->isEmpty())
+                                                                <span class="text-muted" style="font-size:12px"><i
+                                                                        class="fas fa-user-slash"></i> No PIC</span>
+                                                            @else
+                                                                @foreach ($sponsor->pics as $pic)
+                                                                    <div class="d-flex align-items-start mb-2"
+                                                                        style="gap:8px">
+                                                                        <div
+                                                                            style="width:30px;height:30px;border-radius:50%;background:#6c757d;color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                                                            {{ strtoupper(substr($pic->name, 0, 1)) }}
+                                                                        </div>
+                                                                        <div style="line-height:1.4">
+                                                                            <div class="font-weight-bold">
+                                                                                {{ $pic->name }}</div>
+                                                                            @if ($pic->title)
+                                                                                <div class="text-muted"
+                                                                                    style="font-size:11px">
+                                                                                    {{ $pic->title }}</div>
+                                                                            @endif
+                                                                            <div class="d-flex flex-wrap mt-1"
+                                                                                style="gap:8px">
+                                                                                @if ($pic->email)
+                                                                                    <a href="mailto:{{ $pic->email }}"
+                                                                                        style="font-size:11px"
+                                                                                        class="text-primary">
+                                                                                        <i class="fas fa-envelope"></i>
+                                                                                        {{ $pic->email }}
+                                                                                    </a>
+                                                                                @endif
+                                                                                @if ($pic->phone)
+                                                                                    <a href="tel:{{ $pic->phone }}"
+                                                                                        style="font-size:11px"
+                                                                                        class="text-success">
+                                                                                        <i class="fas fa-phone"></i>
+                                                                                        {{ $pic->phone }}
+                                                                                    </a>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            @endif
+                                                        </td>
+
+                                                        {{-- Representatives (sponsors_representative) --}}
+                                                        <td>
+                                                            @if ($sponsor->representatives->isEmpty())
+                                                                <span class="text-muted" style="font-size:12px"><i
+                                                                        class="fas fa-user-slash"></i> No
+                                                                    representatives</span>
+                                                            @else
+                                                                @foreach ($sponsor->representatives as $rep)
+                                                                    <div class="d-flex align-items-start mb-2"
+                                                                        style="gap:8px">
+                                                                        <div
+                                                                            style="width:30px;height:30px;border-radius:50%;background:#007bff;color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                                                            {{ strtoupper(substr($rep->name, 0, 1)) }}
+                                                                        </div>
+                                                                        <div style="line-height:1.4">
+                                                                            <div class="font-weight-bold">
+                                                                                {{ $rep->name }}</div>
+                                                                            @if ($rep->job_title)
+                                                                                <div class="text-muted"
+                                                                                    style="font-size:11px">
+                                                                                    {{ $rep->job_title }}</div>
+                                                                            @endif
+                                                                            <div class="d-flex flex-wrap mt-1"
+                                                                                style="gap:8px">
+                                                                                @if ($rep->email)
+                                                                                    <a href="mailto:{{ $rep->email }}"
+                                                                                        style="font-size:11px"
+                                                                                        class="text-primary">
+                                                                                        <i class="fas fa-envelope"></i>
+                                                                                        {{ $rep->email }}
+                                                                                    </a>
+                                                                                @endif
+                                                                                @if ($rep->instagram)
+                                                                                    <a href="https://instagram.com/{{ ltrim($rep->instagram, '@') }}"
+                                                                                        target="_blank"
+                                                                                        style="font-size:11px"
+                                                                                        class="text-danger">
+                                                                                        <i class="fab fa-instagram"></i>
+                                                                                        {{ $rep->instagram }}
+                                                                                    </a>
+                                                                                @endif
+                                                                                @if ($rep->linkedin)
+                                                                                    <a href="{{ $rep->linkedin }}"
+                                                                                        target="_blank"
+                                                                                        style="font-size:11px"
+                                                                                        class="text-info">
+                                                                                        <i class="fab fa-linkedin"></i>
+                                                                                        LinkedIn
+                                                                                    </a>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            @endif
+                                                        </td>
+
+                                                        {{-- Members (users via payment.sponsor_id) --}}
+                                                        <td>
+                                                            @if ($sponsor->members->isEmpty())
+                                                                <span class="text-muted" style="font-size:12px"><i
+                                                                        class="fas fa-user-slash"></i> No members</span>
+                                                            @else
+                                                                @foreach ($sponsor->members as $member)
+                                                                    <div class="d-flex align-items-start mb-2"
+                                                                        style="gap:8px">
+                                                                        <div
+                                                                            style="width:30px;height:30px;border-radius:50%;background:#28a745;color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                                                            {{ strtoupper(substr($member->name, 0, 1)) }}
+                                                                        </div>
+                                                                        <div style="line-height:1.4">
+                                                                            <div class="font-weight-bold">
+                                                                                {{ $member->name }}</div>
+                                                                            @if ($member->status_member)
+                                                                                <div class="text-muted"
+                                                                                    style="font-size:11px">
+                                                                                    {{ $member->status_member }}</div>
+                                                                            @endif
+                                                                            <div class="d-flex flex-wrap mt-1"
+                                                                                style="gap:8px">
+                                                                                @if ($member->email)
+                                                                                    <a href="mailto:{{ $member->email }}"
+                                                                                        style="font-size:11px"
+                                                                                        class="text-primary">
+                                                                                        <i class="fas fa-envelope"></i>
+                                                                                        {{ $member->email }}
+                                                                                    </a>
+                                                                                @endif
+                                                                                @if ($member->fullphone)
+                                                                                    <a href="tel:{{ $member->fullphone }}"
+                                                                                        style="font-size:11px"
+                                                                                        class="text-success">
+                                                                                        <i class="fas fa-phone"></i>
+                                                                                        {{ $member->fullphone }}
+                                                                                    </a>
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -135,7 +310,6 @@
     <script>
         $(document).ready(function() {
             $('#laravel_crud').DataTable();
-            $('#laravel_crud_non_attend').DataTable();
         });
     </script>
 @endpush

@@ -43,19 +43,24 @@
                 @if ($renewalSponsors->count() > 0)
                 <div class="alert alert-warning py-2 mb-2">
                     <div class="d-flex align-items-center justify-content-between">
-                        <strong><i class="fas fa-exclamation-triangle mr-1"></i> Renewal Soon ({{ $renewalSponsors->count() }})</strong>
+                        <strong><i class="fas fa-exclamation-triangle mr-1"></i> Renewal Soon — {{ $renewalSponsors->count() }} sponsor{{ $renewalSponsors->count() === 1 ? '' : 's' }} expiring within 3 months</strong>
                     </div>
                     <div class="d-flex flex-wrap mt-2" style="gap:6px;">
                         @foreach ($renewalSponsors as $sponsor)
                             @php
-                                $p        = explode('-', $sponsor->contract_end);
                                 $endDate  = \Carbon\Carbon::createFromFormat('Y-m', $sponsor->contract_end)->endOfMonth();
                                 $daysLeft = (int) now()->diffInDays($endDate, false);
-                                $pill     = $daysLeft <= 30 ? 'danger' : 'warning';
+                                $pill     = $daysLeft <= 30 ? 'danger' : ($daysLeft <= 60 ? 'warning' : 'secondary');
                             @endphp
                             <span class="badge badge-light border text-dark" style="font-size:12px;padding:5px 8px;font-weight:normal;">
                                 {{ $sponsor->name }}
                                 <span class="badge badge-{{ $pill }} ml-1">{{ $daysLeft }}d</span>
+                                <a href="#" class="update-contract-btn ml-1 text-info"
+                                   data-sponsor-id="{{ $sponsor->id }}"
+                                   data-contract-start="{{ $sponsor->contract_start }}"
+                                   data-contract-end="{{ $sponsor->contract_end }}"
+                                   data-package="{{ $sponsor->package }}"
+                                   title="Update Contract / Renewal"><i class="fas fa-edit"></i></a>
                             </span>
                         @endforeach
                     </div>
@@ -289,58 +294,96 @@
                 <!-- Near End Period Sponsors -->
                 <div class="col-lg-12">
                     <div class="card">
-                        <div class="card-header">
-                            <h4>5 Companies Nearing Contract End</h4>
-                            <p class="text-muted">Sponsors with contract end date within the next 3 months</p>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Company</th>
-                                            <th>Contract End</th>
-                                            <th>Time Left</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($nearEndSponsors as $sponsor)
-                                            @php
-                                                // Konversi contract_end (format "YYYY-MM") ke tanggal dengan endOfMonth()
-                                                $endDate = \Carbon\Carbon::createFromFormat(
-                                                    'Y-m',
-                                                    $sponsor->contract_end,
-                                                )->endOfMonth();
-                                                // Hitung sisa hari dari hari ini sampai akhir bulan kontrak
-                                                $daysLeft = now()->diffInDays($endDate, false);
-                                                // Tentukan badge warna dan label berdasarkan sisa hari
-                                                if ($daysLeft <= 30) {
-                                                    $badgeColor = 'danger';
-                                                    $urgencyText = 'Urgent';
-                                                } elseif ($daysLeft <= 60) {
-                                                    $badgeColor = 'warning';
-                                                    $urgencyText = 'Moderate';
-                                                } else {
-                                                    $badgeColor = 'success';
-                                                    $urgencyText = 'Safe';
-                                                }
-                                            @endphp
-                                            <tr>
-                                                <td>{{ $sponsor->name }}</td>
-                                                <td>{{ $sponsor->contract_end }}</td>
-                                                <td>
-                                                    {{ $daysLeft }} days
-                                                    <span
-                                                        class="badge badge-{{ $badgeColor }}">{{ $urgencyText }}</span>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <div>
+                                <h4 class="mb-0">
+                                    <i class="fas fa-hourglass-half text-warning mr-2"></i>
+                                    Nearing Contract End
+                                    <span class="badge badge-warning ml-1">{{ $nearEndSponsors->count() }}</span>
+                                </h4>
+                                <small class="text-muted">Sorted by most urgent — contracts ending within 3 months</small>
                             </div>
                         </div>
-                        <div class="card-footer text-right">
-                            <a href="{{ route('sponsors.benefit.index') }}" class="btn btn-info">Show More</a>
+                        <div class="card-body p-0">
+                            @if($nearEndSponsors->isEmpty())
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
+                                    No contracts ending soon.
+                                </div>
+                            @else
+                            <table class="table table-hover mb-0" style="font-size:13px">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="width:8px; padding:0"></th>
+                                        <th>Sponsor</th>
+                                        <th style="width:95px">Package</th>
+                                        <th style="width:120px">Contract End</th>
+                                        <th style="width:180px">Time Left</th>
+                                        <th style="width:110px; text-align:center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($nearEndSponsors as $sponsor)
+                                        @php
+                                            $endDate  = \Carbon\Carbon::createFromFormat('Y-m', $sponsor->contract_end)->endOfMonth();
+                                            $daysLeft = (int) now()->diffInDays($endDate, false);
+                                            if ($daysLeft <= 30) {
+                                                $rowColor    = '#dc3545';
+                                                $badgeColor  = 'danger';
+                                                $urgencyText = 'Urgent';
+                                            } elseif ($daysLeft <= 60) {
+                                                $rowColor    = '#ffc107';
+                                                $badgeColor  = 'warning';
+                                                $urgencyText = 'Moderate';
+                                            } else {
+                                                $rowColor    = '#17a2b8';
+                                                $badgeColor  = 'info';
+                                                $urgencyText = 'Upcoming';
+                                            }
+                                            $endFormatted = \Carbon\Carbon::createFromFormat('Y-m', $sponsor->contract_end)->format('M Y');
+                                        @endphp
+                                        <tr>
+                                            <td style="padding:0; background:{{ $rowColor }}; width:4px"></td>
+                                            <td class="font-weight-bold">{{ $sponsor->name }}</td>
+                                            <td>
+                                                <span class="badge
+                                                    @if($sponsor->package === 'platinum') badge-primary
+                                                    @elseif($sponsor->package === 'gold') badge-warning
+                                                    @else badge-secondary @endif">
+                                                    {{ ucfirst($sponsor->package) }}
+                                                </span>
+                                            </td>
+                                            <td class="text-muted">{{ $endFormatted }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center" style="gap:8px">
+                                                    <span class="badge badge-{{ $badgeColor }}">{{ $urgencyText }}</span>
+                                                    <span class="text-muted" style="font-size:12px">{{ $daysLeft }} days left</span>
+                                                </div>
+                                                <div class="progress mt-1" style="height:4px; border-radius:2px">
+                                                    @php $pct = max(0, min(100, round((90 - $daysLeft) / 90 * 100))); @endphp
+                                                    <div class="progress-bar bg-{{ $badgeColor }}" style="width:{{ $pct }}%"></div>
+                                                </div>
+                                            </td>
+                                            <td style="text-align:center">
+                                                <a href="#" class="btn btn-sm btn-primary update-contract-btn"
+                                                   data-sponsor-id="{{ $sponsor->id }}"
+                                                   data-contract-start="{{ $sponsor->contract_start }}"
+                                                   data-contract-end="{{ $sponsor->contract_end }}"
+                                                   data-package="{{ $sponsor->package }}"
+                                                   title="Renew / Update Contract">
+                                                    <i class="fas fa-sync-alt"></i> Renew
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @endif
+                        </div>
+                        <div class="card-footer text-right py-2">
+                            <a href="{{ route('sponsors.nearing-contract') }}" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-hourglass-half"></i> View All Nearing Contract
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -423,7 +466,7 @@
                                 <div class="input-group mr-2">
                                     <select name="type" id="filterType" class="form-control"
                                         onchange="this.form.submit()">
-                                        <option value="">Semua Package</option>
+                                        <option value="">All Packages</option>
                                         <option value="platinum" {{ request('type') == 'platinum' ? 'selected' : '' }}>
                                             Platinum
                                         </option>
@@ -439,7 +482,7 @@
                                 <div class="input-group mr-2">
                                     <select name="status" id="filterStatus" class="form-control"
                                         onchange="this.form.submit()">
-                                        <option value="">Semua Status</option>
+                                        <option value="">All Status</option>
                                         <option value="publish" {{ request('status') == 'publish' ? 'selected' : '' }}>
                                             Active
                                         </option>
@@ -450,7 +493,7 @@
                                 </div>
                                 <div class="input-group mr-2">
                                     <select name="renewal_year" class="form-control" onchange="this.form.submit()">
-                                        <option value="">Semua Tahun</option>
+                                        <option value="">All Years</option>
                                         @foreach ($availableYears as $year)
                                             <option value="{{ $year }}"
                                                 {{ request('renewal_year') == $year ? 'selected' : '' }}>
@@ -462,7 +505,7 @@
 
                                 <div class="input-group mr-2">
                                     <select name="renewal_state" class="form-control" onchange="this.form.submit()">
-                                        <option value="">Semua Renewal</option>
+                                        <option value="">All Renewal Status</option>
                                         <option value="renewed"
                                             {{ request('renewal_state') == 'renewed' ? 'selected' : '' }}>
                                             Renewed
@@ -548,7 +591,7 @@
                                             <th>Package</th>
                                             <th>Status Display</th>
                                             <th>Renewal Info</th>
-                                            <th width="15%">Aksi</th>
+                                            <th width="15%">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -674,10 +717,10 @@
                                                             <i class="fas fa-user-friends"></i>
                                                         </a>
 
-                                                        <!-- Alamat Sponsor -->
+                                                        <!-- Sponsor Address -->
                                                         <a href="{{ route('sponsors-address.show', $post->id) }}"
                                                             class="btn btn-icon btn-sm btn-info" data-toggle="tooltip"
-                                                            title="Alamat Sponsor">
+                                                            title="Sponsor Address">
                                                             <i class="fas fa-map-marker-alt"></i>
                                                         </a>
 
@@ -713,10 +756,10 @@
                                                             <i class="fas fa-times-circle"></i>
                                                         </button>
 
-                                                        <!-- Hapus Data -->
+                                                        <!-- Delete -->
                                                         <button class="btn btn-icon btn-sm btn-danger delete-sponsor"
                                                             data-id="{{ $post->id }}" data-toggle="tooltip"
-                                                            title="Hapus Data">
+                                                            title="Delete Sponsor">
                                                             <i class="fas fa-trash-alt"></i>
                                                         </button>
                                                     </div>
@@ -848,29 +891,29 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p class="text-muted mb-3">Catat sponsor <strong id="notRenewedSponsorName"></strong> sebagai tidak renew.</p>
+                        <p class="text-muted mb-3">Record <strong id="notRenewedSponsorName"></strong> as not renewed.</p>
                         <input type="hidden" id="notRenewedSponsorId" value="">
                         <div class="form-group">
-                            <label>Tahun Tidak Renew <span class="text-danger">*</span></label>
+                            <label>Year of Non-Renewal <span class="text-danger">*</span></label>
                             <input type="number" name="renewal_year" id="notRenewedYear" class="form-control"
                                 min="2020" max="2100" value="{{ now()->year }}" required>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Periode Kontrak Terakhir (Start)</label>
+                                    <label>Last Contract Period (Start)</label>
                                     <input type="month" name="contract_start" id="notRenewedContractStart" class="form-control" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Periode Kontrak Terakhir (End)</label>
+                                    <label>Last Contract Period (End)</label>
                                     <input type="month" name="contract_end" id="notRenewedContractEnd" class="form-control" required>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Alasan Tidak Renew</label>
+                            <label>Reason for Not Renewing</label>
                             <textarea name="notes" id="notRenewedNotes" class="form-control" rows="3"
                                 placeholder="e.g. Budget is limited, they will focus on other priorities..."></textarea>
                         </div>
@@ -898,17 +941,17 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            toastr.success('Status berhasil diperbarui', 'Sukses', {
+                            toastr.success('Status updated successfully', 'Success', {
                                 "positionClass": "toast-top-right"
                             });
                         } else {
-                            toastr.error('Gagal memperbarui status', 'Error', {
+                            toastr.error('Failed to update status', 'Error', {
                                 "positionClass": "toast-top-right"
                             });
                         }
                     },
                     error: function(xhr) {
-                        console.error('Terjadi kesalahan Ajax');
+                        console.error('Ajax error occurred');
                     }
                 });
             });
@@ -919,12 +962,12 @@
                 let sponsorId = $(this).data('id');
 
                 Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data sponsor akan dihapus!",
+                    title: 'Are you sure?',
+                    text: "This sponsor will be deleted!",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: 'Yes, delete!',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -936,24 +979,24 @@
                             success: function(response) {
                                 if (response.success) {
                                     Swal.fire({
-                                        title: 'Sukses!',
-                                        text: 'Data sponsor berhasil dihapus.',
+                                        title: 'Deleted!',
+                                        text: 'Sponsor deleted successfully.',
                                         icon: 'success'
                                     }).then((result) => {
                                         window.location.reload();
                                     });
                                 } else {
                                     Swal.fire({
-                                        title: 'Gagal!',
-                                        text: 'Terjadi kesalahan saat menghapus data sponsor.',
+                                        title: 'Failed!',
+                                        text: 'An error occurred while deleting the sponsor.',
                                         icon: 'error'
                                     });
                                 }
                             },
                             error: function(xhr) {
                                 Swal.fire({
-                                    title: 'Gagal!',
-                                    text: 'Terjadi kesalahan saat menghapus data sponsor.',
+                                    title: 'Failed!',
+                                    text: 'An error occurred while deleting the sponsor.',
                                     icon: 'error'
                                 });
                             }
@@ -1058,7 +1101,7 @@
                     }
                 },
                 error: function(xhr) {
-                    let msg = xhr.responseJSON?.message ?? 'Terjadi kesalahan.';
+                    let msg = xhr.responseJSON?.message ?? 'An error occurred.';
                     toastr.error(msg, 'Error', { "positionClass": "toast-top-right" });
                 }
             });

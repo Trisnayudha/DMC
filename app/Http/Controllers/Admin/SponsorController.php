@@ -129,8 +129,9 @@ class SponsorController extends Controller
 
         $nearEndSponsors = Sponsor::where('status', 'publish')
             ->whereNotNull('contract_end')
-            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [Carbon::now()->format('Y-m-01')])
-            ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') DESC")
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') >= ?", [Carbon::now()->format('Y-m-01')])
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [Carbon::now()->addMonths(3)->format('Y-m-01')])
+            ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') ASC")
             ->limit(5)
             ->get();
 
@@ -155,10 +156,9 @@ class SponsorController extends Controller
 
         $renewalSponsors = Sponsor::where('status', 'publish')
             ->whereNotNull('contract_end')
-            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') BETWEEN ? AND ?", [
-                Carbon::now()->addMonth()->format('Y-m-01'),
-                Carbon::now()->addMonths(2)->format('Y-m-01')
-            ])
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') >= ?", [Carbon::now()->format('Y-m-01')])
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [Carbon::now()->addMonths(3)->format('Y-m-01')])
+            ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') ASC")
             ->get();
 
         // Recent sponsor inquiries
@@ -204,6 +204,24 @@ class SponsorController extends Controller
             'availableYears',
             'recentInquiries'
         ));
+    }
+
+    public function nearingContract(Request $request)
+    {
+        $type   = $request->get('type');
+        $search = trim((string) $request->get('search', ''));
+
+        $data = Sponsor::with(['renewals', 'currentRenewal', 'firstPic'])
+            ->where('status', 'publish')
+            ->whereNotNull('contract_end')
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') >= ?", [Carbon::now()->format('Y-m-01')])
+            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [Carbon::now()->addMonths(3)->format('Y-m-01')])
+            ->when($type, fn($q) => $q->where('package', $type))
+            ->when($search, fn($q) => $q->where('name', 'like', '%' . $search . '%'))
+            ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') ASC")
+            ->get();
+
+        return view('admin.sponsor.nearing_contract', compact('data', 'type', 'search'));
     }
 
     public function create()
