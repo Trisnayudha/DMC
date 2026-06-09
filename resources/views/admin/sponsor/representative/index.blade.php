@@ -10,6 +10,11 @@
                     <div class="breadcrumb-item"><a href="{{ route('sponsors.index') }}">Sponsors Management</a></div>
                     <div class="breadcrumb-item active">Representative Attendance</div>
                 </div>
+                <div class="section-header-action">
+                    <a href="{{ route('sponsors.contact-directory') }}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-address-book"></i> Contact Directory
+                    </a>
+                </div>
             </div>
 
             <div class="section-body">

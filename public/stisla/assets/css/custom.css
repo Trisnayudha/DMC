@@ -9,3 +9,12 @@
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
     border: none !important;
 }
+
+/* Fix card-statistic-1 icon centering (override line-height trick with flex) */
+.card.card-statistic-1 .card-icon,
+.card.card-statistic-2 .card-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: normal !important;
+}

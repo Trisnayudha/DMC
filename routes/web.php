@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorAddressController;
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
 use App\Http\Controllers\Admin\SponsorBenefitController;
+use App\Http\Controllers\Admin\SponsorContactDirectoryController;
 use App\Http\Controllers\Admin\SponsorController;
 use App\Http\Controllers\Admin\SponsorCountRepresentativeController;
 use App\Http\Controllers\Admin\SponsorRepresentativeController;
@@ -221,6 +222,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('sponsors.downloadAnnualReport');
     Route::get('sponsors/nearing-contract', [SponsorController::class, 'nearingContract'])
         ->name('sponsors.nearing-contract');
+    Route::get('sponsors/contact-directory', [SponsorContactDirectoryController::class, 'index'])
+        ->name('sponsors.contact-directory');
     Route::resource('sponsors', SponsorController::class);
     Route::get('admin/sponsors/export', [SponsorExportController::class, 'export'])->name('sponsors.export');
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');

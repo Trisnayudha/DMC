@@ -13,6 +13,22 @@
             <div class="section-body">
                 <h2 class="section-title">Sponsors</h2>
 
+                {{-- Quick navigation shortcuts --}}
+                <div class="d-flex flex-wrap mb-3" style="gap:8px">
+                    <a href="{{ route('sponsors.contact-directory') }}"
+                       class="btn btn-info">
+                        <i class="fas fa-address-book mr-1"></i> Contact Directory
+                    </a>
+                    <a href="{{ route('sponsors.representative.index') }}"
+                       class="btn btn-light border">
+                        <i class="fas fa-calendar-check mr-1"></i> Representative Attendance
+                    </a>
+                    <a href="{{ route('sponsors.nearing-contract') }}"
+                       class="btn btn-light border">
+                        <i class="fas fa-hourglass-half mr-1 text-warning"></i> Nearing Contract
+                    </a>
+                </div>
+
                 {{-- Expired & Renewal Soon alerts --}}
                 @include('admin.sponsor.partials._alerts')
 
