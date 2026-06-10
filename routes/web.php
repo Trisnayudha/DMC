@@ -228,6 +228,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('sponsors.contact-directory');
     Route::get('sponsors/kmk-rate', [SponsorController::class, 'getKmkRate'])
         ->name('sponsors.kmk-rate');
+    Route::get('sponsors/export-renewals', [SponsorController::class, 'exportRenewals'])
+        ->name('sponsors.exportRenewals');
     Route::resource('sponsors', SponsorController::class);
     Route::get('admin/sponsors/export', [SponsorExportController::class, 'export'])->name('sponsors.export');
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');
@@ -238,8 +240,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('sponsors.edit-contract');
     Route::post('sponsors/{sponsor}/update-contract', [SponsorController::class, 'updateContract'])
         ->name('sponsors.update-contract');
-    Route::get('sponsors/export-renewals', [SponsorController::class, 'exportRenewals'])
-        ->name('sponsors.exportRenewals');
     Route::post('sponsors/{sponsor}/mark-not-renewed', [SponsorController::class, 'markNotRenewed'])
         ->name('sponsors.markNotRenewed');
 

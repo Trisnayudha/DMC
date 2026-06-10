@@ -10,15 +10,7 @@
                     <a href="{{ route('sponsors.annual-report') }}" class="btn btn-sm btn-warning">
                         <i class="fas fa-chart-bar"></i> Annual Report
                     </a>
-                    <a href="{{ route('sponsors.exportRenewals', [
-                        'renewal_year'  => request('renewal_year'),
-                        'renewal_state' => request('renewal_state'),
-                        'type'          => request('type'),
-                        'status'        => request('status'),
-                    ]) }}" class="btn btn-sm btn-success">
-                        <i class="fas fa-file-excel"></i> Export Renewal
-                    </a>
-                    <a href="{{ route('sponsors.export') }}" class="btn btn-sm btn-success">
+<a href="{{ route('sponsors.export') }}" class="btn btn-sm btn-success">
                         <i class="fas fa-file-excel"></i> Export Data
                     </a>
                     <a href="{{ route('sponsors.create') }}" class="btn btn-sm btn-primary">
