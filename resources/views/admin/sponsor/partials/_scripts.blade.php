@@ -12,6 +12,57 @@
             justify-content: center;
             flex-shrink: 0;
         }
+
+        /* Filter panel */
+        .sponsor-filter-panel {
+            padding: 14px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+
+        /* Active filter chips */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: opacity .15s;
+            color: #fff;
+        }
+        .filter-chip:hover { opacity: .75; color: #fff; text-decoration: none; }
+        .chip-primary { background: #007bff; }
+        .chip-success { background: #28a745; }
+        .chip-info    { background: #17a2b8; }
+        .chip-warning { background: #e0a800; color: #212529; }
+        .chip-warning:hover { color: #212529; }
+        .filter-chip-clear {
+            font-size: 12px;
+            color: #dc3545;
+            text-decoration: none;
+            margin-left: 2px;
+        }
+        .filter-chip-clear:hover { color: #a71d2a; text-decoration: none; }
     </style>
 
     <script>

@@ -2,55 +2,158 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Sponsors Management</h4>
-                <form method="GET" action="{{ route('sponsors.index') }}" class="form-inline">
-                    <div class="input-group mr-2">
-                        <select name="type" id="filterType" class="form-control" onchange="this.form.submit()">
-                            <option value="">All Packages</option>
-                            <option value="platinum" {{ request('type') == 'platinum' ? 'selected' : '' }}>Platinum</option>
-                            <option value="gold"     {{ request('type') == 'gold'     ? 'selected' : '' }}>Gold</option>
-                            <option value="silver"   {{ request('type') == 'silver'   ? 'selected' : '' }}>Silver</option>
-                        </select>
-                    </div>
-                    <div class="input-group mr-2">
-                        <select name="status" id="filterStatus" class="form-control" onchange="this.form.submit()">
-                            <option value="">All Status</option>
-                            <option value="publish" {{ request('status') == 'publish' ? 'selected' : '' }}>Active</option>
-                            <option value="draft"   {{ request('status') == 'draft'   ? 'selected' : '' }}>Inactive</option>
-                        </select>
-                    </div>
-                    <div class="input-group mr-2">
-                        <select name="renewal_year" class="form-control" onchange="this.form.submit()">
-                            <option value="">All Years</option>
-                            @foreach ($availableYears as $year)
-                                <option value="{{ $year }}" {{ request('renewal_year') == $year ? 'selected' : '' }}>
-                                    {{ $year }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="input-group mr-2">
-                        <select name="renewal_state" class="form-control" onchange="this.form.submit()">
-                            <option value="">All Renewal Status</option>
-                            <option value="renewed"     {{ request('renewal_state') == 'renewed'     ? 'selected' : '' }}>Renewed</option>
-                            <option value="new_sponsor" {{ request('renewal_state') == 'new_sponsor' ? 'selected' : '' }}>New Sponsor</option>
-                            <option value="not_renewed" {{ request('renewal_state') == 'not_renewed' ? 'selected' : '' }}>Not Renewed</option>
-                        </select>
-                    </div>
+
+            {{-- Card Header: title + action buttons --}}
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:8px">
+                <h4 class="mb-0">Sponsors Management</h4>
+                <div class="d-flex flex-wrap" style="gap:6px">
+                    <a href="{{ route('sponsors.annual-report') }}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-chart-bar"></i> Annual Report
+                    </a>
                     <a href="{{ route('sponsors.exportRenewals', [
                         'renewal_year'  => request('renewal_year'),
                         'renewal_state' => request('renewal_state'),
                         'type'          => request('type'),
                         'status'        => request('status'),
-                    ]) }}" class="btn btn-success mr-1">
-                        <i class="fas fa-file-excel"></i> Export Renewal Data
+                    ]) }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-file-excel"></i> Export Renewal
                     </a>
-                    @if (request('type') || request('status') || request('renewal_year') || request('renewal_state'))
-                        <a href="{{ route('sponsors.index') }}" class="btn btn-secondary">Reset</a>
-                    @endif
-                </form>
+                    <a href="{{ route('sponsors.export') }}" class="btn btn-sm btn-success">
+                        <i class="fas fa-file-excel"></i> Export Data
+                    </a>
+                    <a href="{{ route('sponsors.create') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Add Sponsor
+                    </a>
+                </div>
             </div>
+
+            {{-- Filter Panel --}}
+            <div class="sponsor-filter-panel">
+                <form method="GET" action="{{ route('sponsors.index') }}" id="filterForm">
+                    <div class="d-flex flex-wrap align-items-end" style="gap:16px">
+
+                        {{-- Package --}}
+                        <div class="filter-group">
+                            <label class="filter-label">Package</label>
+                            <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-outline-secondary {{ !request('type') ? 'active' : '' }}">
+                                    <input type="radio" name="type" value="" autocomplete="off" {{ !request('type') ? 'checked' : '' }}> All
+                                </label>
+                                <label class="btn btn-outline-primary {{ request('type') == 'platinum' ? 'active' : '' }}">
+                                    <input type="radio" name="type" value="platinum" autocomplete="off" {{ request('type') == 'platinum' ? 'checked' : '' }}> Platinum
+                                </label>
+                                <label class="btn btn-outline-warning {{ request('type') == 'gold' ? 'active' : '' }}">
+                                    <input type="radio" name="type" value="gold" autocomplete="off" {{ request('type') == 'gold' ? 'checked' : '' }}> Gold
+                                </label>
+                                <label class="btn btn-outline-secondary {{ request('type') == 'silver' ? 'active' : '' }}">
+                                    <input type="radio" name="type" value="silver" autocomplete="off" {{ request('type') == 'silver' ? 'checked' : '' }}> Silver
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- Status --}}
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-outline-secondary {{ !request('status') ? 'active' : '' }}">
+                                    <input type="radio" name="status" value="" autocomplete="off" {{ !request('status') ? 'checked' : '' }}> All
+                                </label>
+                                <label class="btn btn-outline-success {{ request('status') == 'publish' ? 'active' : '' }}">
+                                    <input type="radio" name="status" value="publish" autocomplete="off" {{ request('status') == 'publish' ? 'checked' : '' }}> Active
+                                </label>
+                                <label class="btn btn-outline-danger {{ request('status') == 'draft' ? 'active' : '' }}">
+                                    <input type="radio" name="status" value="draft" autocomplete="off" {{ request('status') == 'draft' ? 'checked' : '' }}> Inactive
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- Renewal Year --}}
+                        <div class="filter-group">
+                            <label class="filter-label">Year</label>
+                            <select name="renewal_year" class="form-control form-control-sm" style="min-width:110px">
+                                <option value="">All Years</option>
+                                @foreach ($availableYears as $year)
+                                    <option value="{{ $year }}" {{ request('renewal_year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Renewal State --}}
+                        <div class="filter-group">
+                            <label class="filter-label">Renewal Status</label>
+                            <div class="btn-group btn-group-sm btn-group-toggle" data-toggle="buttons">
+                                <label class="btn btn-outline-secondary {{ !request('renewal_state') ? 'active' : '' }}">
+                                    <input type="radio" name="renewal_state" value="" autocomplete="off" {{ !request('renewal_state') ? 'checked' : '' }}> All
+                                </label>
+                                <label class="btn btn-outline-success {{ request('renewal_state') == 'renewed' ? 'active' : '' }}">
+                                    <input type="radio" name="renewal_state" value="renewed" autocomplete="off" {{ request('renewal_state') == 'renewed' ? 'checked' : '' }}> Renewed
+                                </label>
+                                <label class="btn btn-outline-info {{ request('renewal_state') == 'new_sponsor' ? 'active' : '' }}">
+                                    <input type="radio" name="renewal_state" value="new_sponsor" autocomplete="off" {{ request('renewal_state') == 'new_sponsor' ? 'checked' : '' }}> New Sponsor
+                                </label>
+                                <label class="btn btn-outline-danger {{ request('renewal_state') == 'not_renewed' ? 'active' : '' }}">
+                                    <input type="radio" name="renewal_state" value="not_renewed" autocomplete="off" {{ request('renewal_state') == 'not_renewed' ? 'checked' : '' }}> Not Renewed
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- Apply / Reset --}}
+                        <div class="filter-group">
+                            <label class="filter-label">&nbsp;</label>
+                            <div class="d-flex" style="gap:6px">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-filter"></i> Apply
+                                </button>
+                                @if(request('type') || request('status') || request('renewal_year') || request('renewal_state'))
+                                    <a href="{{ route('sponsors.index') }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-times"></i> Reset
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+                {{-- Active filter chips --}}
+                @php
+                    $hasFilters  = request('type') || request('status') || request('renewal_year') || request('renewal_state');
+                    $stateLabels = ['renewed' => 'Renewed', 'new_sponsor' => 'New Sponsor', 'not_renewed' => 'Not Renewed'];
+                @endphp
+                @if($hasFilters)
+                    <div class="active-filters mt-2">
+                        <small class="text-muted mr-1"><i class="fas fa-filter"></i> Active:</small>
+                        @if(request('type'))
+                            <a href="{{ route('sponsors.index') }}?{{ http_build_query(array_filter(request()->except('type'))) }}"
+                               class="filter-chip chip-primary" title="Remove filter">
+                                Package: {{ ucfirst(request('type')) }} &times;
+                            </a>
+                        @endif
+                        @if(request('status'))
+                            <a href="{{ route('sponsors.index') }}?{{ http_build_query(array_filter(request()->except('status'))) }}"
+                               class="filter-chip chip-success" title="Remove filter">
+                                Status: {{ request('status') == 'publish' ? 'Active' : 'Inactive' }} &times;
+                            </a>
+                        @endif
+                        @if(request('renewal_year'))
+                            <a href="{{ route('sponsors.index') }}?{{ http_build_query(array_filter(request()->except('renewal_year'))) }}"
+                               class="filter-chip chip-info" title="Remove filter">
+                                Year: {{ request('renewal_year') }} &times;
+                            </a>
+                        @endif
+                        @if(request('renewal_state'))
+                            <a href="{{ route('sponsors.index') }}?{{ http_build_query(array_filter(request()->except('renewal_state'))) }}"
+                               class="filter-chip chip-warning" title="Remove filter">
+                                Renewal: {{ $stateLabels[request('renewal_state')] ?? request('renewal_state') }} &times;
+                            </a>
+                        @endif
+                        <a href="{{ route('sponsors.index') }}" class="filter-chip-clear">
+                            <i class="fas fa-times-circle"></i> Clear all
+                        </a>
+                    </div>
+                @endif
+            </div>
+
             <div class="card-body">
                 @if ($errors->any())
                     <div class="alert alert-warning">
@@ -71,20 +174,6 @@
                 @if (session('error'))
                     <div class="alert alert-danger">{{ session('error') }}</div>
                 @endif
-
-                <div class="float-right">
-                    <div class="card-header-action mb-2">
-                        <a href="{{ route('sponsors.annual-report') }}" class="btn btn-sm btn-warning">
-                            <i class="fas fa-chart-bar"></i> Annual Report
-                        </a>
-                        <a href="{{ route('sponsors.export') }}" class="btn btn-success">
-                            <i class="fas fa-file-excel"></i> Export Data
-                        </a>
-                        <a href="{{ route('sponsors.create') }}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add Sponsor
-                        </a>
-                    </div>
-                </div>
 
                 <div class="table-responsive">
                     <table id="laravel_crud" class="table table-bordered table-hover">
