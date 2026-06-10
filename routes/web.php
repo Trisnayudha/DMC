@@ -220,6 +220,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('/special-event', [SpecialEventController::class, 'request']);
     Route::get('sponsors/download-annual-report', [SponsorController::class, 'downloadAnnualReport'])
         ->name('sponsors.downloadAnnualReport');
+    Route::get('sponsors/annual-report', [SponsorController::class, 'annualReportPage'])
+        ->name('sponsors.annual-report');
     Route::get('sponsors/nearing-contract', [SponsorController::class, 'nearingContract'])
         ->name('sponsors.nearing-contract');
     Route::get('sponsors/contact-directory', [SponsorContactDirectoryController::class, 'index'])

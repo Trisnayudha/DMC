@@ -74,20 +74,9 @@
 
                 <div class="float-right">
                     <div class="card-header-action mb-2">
-                        <div class="input-group mr-1 d-inline-flex" style="width:auto;">
-                            <select id="reportYearSelect" class="form-control form-control-sm">
-                                @foreach($availableYears as $yr)
-                                    <option value="{{ $yr }}" {{ $yr == now()->year ? 'selected' : '' }}>{{ $yr }}</option>
-                                @endforeach
-                            </select>
-                            <div class="input-group-append">
-                                <a id="downloadReportBtn"
-                                   href="{{ route('sponsors.downloadAnnualReport', ['year' => now()->year]) }}"
-                                   class="btn btn-sm btn-warning">
-                                    <i class="fas fa-download"></i> Annual Report
-                                </a>
-                            </div>
-                        </div>
+                        <a href="{{ route('sponsors.annual-report') }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-chart-bar"></i> Annual Report
+                        </a>
                         <a href="{{ route('sponsors.export') }}" class="btn btn-success">
                             <i class="fas fa-file-excel"></i> Export Data
                         </a>

@@ -74,11 +74,6 @@
             });
         });
 
-        // Update annual report download link when year changes
-        $('#reportYearSelect').on('change', function() {
-            $('#downloadReportBtn').attr('href', '{{ route("sponsors.downloadAnnualReport") }}?year=' + $(this).val());
-        });
-
         // Open Update Contract modal
         $(document).on('click', '.update-contract-btn', function(e) {
             e.preventDefault();

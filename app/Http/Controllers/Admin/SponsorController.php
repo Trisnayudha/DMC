@@ -830,6 +830,97 @@ class SponsorController extends Controller
         return Excel::download(new SponsorRenewalsExport($year, $state), $filename);
     }
 
+    public function annualReportPage(Request $request)
+    {
+        $year        = (int) $request->get('year', now()->year);
+        $package     = $request->get('package');
+        $search      = $request->get('search');
+        $renewalType = $request->get('renewal_type');
+
+        $availableYears = SponsorRenewal::select('renewal_year')
+            ->distinct()
+            ->orderByDesc('renewal_year')
+            ->pluck('renewal_year');
+
+        if ($availableYears->isEmpty()) {
+            $availableYears = collect([now()->year]);
+        }
+
+        // Summary counts
+        $renewedCount    = SponsorRenewal::where('renewal_year', $year)->where('renewal_status', 'renewed')->where('renewal_type', 'renewal')->count();
+        $upgradeCount    = SponsorRenewal::where('renewal_year', $year)->where('renewal_status', 'renewed')->where('renewal_type', 'upgrade')->count();
+        $newCount        = SponsorRenewal::where('renewal_year', $year)->where('renewal_status', 'renewed')->whereIn('renewal_type', ['new', 'new_member'])->count();
+        $notRenewedCount = SponsorRenewal::where('renewal_year', $year)->where('renewal_status', 'not_renewed')->count();
+
+        // Monthly statistics
+        $monthlyStats = array_fill(1, 12, ['renewal' => 0, 'upgrade' => 0, 'new' => 0, 'not_renewed' => 0]);
+        SponsorRenewal::where('renewal_year', $year)->get()->each(function ($r) use (&$monthlyStats) {
+            $date = $r->contract_start ?? ($r->created_at ? Carbon::parse($r->created_at)->format('Y-m-d') : null);
+            if (!$date) {
+                return;
+            }
+            $month = (int) Carbon::parse($date)->format('n');
+            if ($r->renewal_status === 'renewed') {
+                if ($r->renewal_type === 'upgrade') {
+                    $monthlyStats[$month]['upgrade']++;
+                } elseif (in_array($r->renewal_type, ['new', 'new_member'])) {
+                    $monthlyStats[$month]['new']++;
+                } else {
+                    $monthlyStats[$month]['renewal']++;
+                }
+            } else {
+                $monthlyStats[$month]['not_renewed']++;
+            }
+        });
+
+        // Renewed sponsors
+        $renewedSponsors = SponsorRenewal::with(['sponsor', 'sponsor.firstPic'])
+            ->where('renewal_year', $year)
+            ->where('renewal_status', 'renewed')
+            ->when($package, fn ($q) => $q->where('package', $package))
+            ->when($renewalType && $renewalType !== 'not_renewed', fn ($q) => $q->where('renewal_type', $renewalType))
+            ->when($search, fn ($q) => $q->whereHas('sponsor', fn ($sq) => $sq->where('name', 'like', "%{$search}%")))
+            ->orderBy('contract_start')
+            ->get();
+
+        // Not renewed sponsors
+        $notRenewedSponsors = SponsorRenewal::with(['sponsor', 'sponsor.firstPic'])
+            ->where('renewal_year', $year)
+            ->where('renewal_status', 'not_renewed')
+            ->when($package, fn ($q) => $q->where('package', $package))
+            ->when($search, fn ($q) => $q->whereHas('sponsor', fn ($sq) => $sq->where('name', 'like', "%{$search}%")))
+            ->orderBy('created_at')
+            ->get();
+
+        if ($renewalType === 'not_renewed') {
+            $renewedSponsors = collect();
+        }
+
+        // Contract expiry forecast: contracts whose contract_end falls within the selected year
+        // Grouped by month so management can see which months need the most follow-up
+        $expiryForecast = SponsorRenewal::with(['sponsor', 'sponsor.firstPic'])
+            ->where('renewal_status', 'renewed')
+            ->where('contract_end', 'like', $year . '-%')
+            ->whereNotNull('contract_end')
+            ->orderBy('contract_end')
+            ->get()
+            ->groupBy(function ($r) {
+                return (int) substr($r->contract_end, 5, 2);
+            });
+
+        // Peak expiry month (for highlighting)
+        $peakExpiryMonth = $expiryForecast->isNotEmpty()
+            ? $expiryForecast->sortByDesc(fn ($g) => $g->count())->keys()->first()
+            : null;
+
+        return view('admin.sponsor.annual-report', compact(
+            'year', 'availableYears', 'package', 'search', 'renewalType',
+            'renewedCount', 'upgradeCount', 'newCount', 'notRenewedCount',
+            'monthlyStats', 'renewedSponsors', 'notRenewedSponsors',
+            'expiryForecast', 'peakExpiryMonth'
+        ));
+    }
+
     public function downloadAnnualReport(Request $request)
     {
         $year     = (int) $request->get('year', now()->year);

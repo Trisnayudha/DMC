@@ -27,6 +27,10 @@
                        class="btn btn-light border">
                         <i class="fas fa-hourglass-half mr-1 text-warning"></i> Nearing Contract
                     </a>
+                    <a href="{{ route('sponsors.annual-report') }}"
+                       class="btn btn-warning">
+                        <i class="fas fa-chart-bar mr-1"></i> Annual Report
+                    </a>
                 </div>
 
                 {{-- Expired & Renewal Soon alerts --}}
