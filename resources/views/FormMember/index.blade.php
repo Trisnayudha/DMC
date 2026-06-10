@@ -107,7 +107,7 @@
 
                 <div class="col-md-12 col-lg-12">
                     <h4 class="mb-3">* Required information</h4>
-                    <form action="{{ url('/membership') }}" method="POST" class="needs-validation" novalidate>
+                    <form action="{{ url('/membership') }}" method="POST" class="needs-validation" novalidate autocomplete="off">
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
@@ -162,8 +162,9 @@
                             <div class="col-sm-6">
                                 <label for="phone" class="form-label">Mobile number <span
                                         style="color: red">*</span></label>
-                                <input type="tel" class="form-control" name="phone"id="phone" placeholder=""
-                                    value="+62" required>
+                                <input type="hidden" name="country_phone" value="62">
+                                <input type="tel" class="form-control" name="phone" id="phone"
+                                    placeholder="e.g. 812 3456 7890" value="{{ old('phone') }}" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
                                 </div>
@@ -207,10 +208,11 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="office_number" class="form-label">Office Number</label>
-                                <input type="tel" class="form-control" name="office_number"id="office_number"
-                                    placeholder="" value="+62">
+                                <input type="hidden" name="country_phone_office" value="62">
+                                <input type="tel" class="form-control" name="office_number" id="office_number"
+                                    placeholder="e.g. 21 5000 1234" value="{{ old('office_number') }}">
                                 <div class="invalid-feedback">
-                                    Please provide a Mobile Number
+                                    Please provide an Office Number
                                 </div>
                             </div>
                             <div class="col-sm-3">
@@ -221,9 +223,9 @@
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" name="city" placeholder="">
-                                <div class="invalid-feedback" {{ old('city') }}>
+                                <label for="city" class="form-label">City <span style="color:red">*</span></label>
+                                <input type="text" class="form-control" name="city" placeholder="" required value="{{ old('city') }}">
+                                <div class="invalid-feedback">
                                     Please provide a City
                                 </div>
                             </div>
@@ -277,16 +279,56 @@
                         </div>
                         <hr class="my-4">
 
+                        <hr class="my-4">
+
+                        {{-- Source --}}
+                        <div class="mb-3">
+                            <label for="source" class="form-label">How did you hear about us?</label>
+                            <select class="form-control" name="source" id="source">
+                                <option value="Website"                    {{ old('source') == 'Website'                    ? 'selected' : '' }}>Website</option>
+                                <option value="Linkedin"                   {{ old('source') == 'Linkedin'                   ? 'selected' : '' }}>LinkedIn</option>
+                                <option value="Instagram"                  {{ old('source') == 'Instagram'                  ? 'selected' : '' }}>Instagram</option>
+                                <option value="Event Mining Balikpapan"    {{ old('source') == 'Event Mining Balikpapan'    ? 'selected' : '' }}>Event Mining Balikpapan</option>
+                                <option value="Other"                      {{ old('source') == 'Other'                      ? 'selected' : '' }}>Other</option>
+                            </select>
+                        </div>
+
+                        {{-- Newsletter consent (required) --}}
+                        <div class="my-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter"
+                                    value="agree" required {{ old('newsletter') == 'agree' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="newsletter">
+                                    I agree to receive newsletters and program updates via email.
+                                    <span style="color:red">*</span>
+                                </label>
+                                <div class="invalid-feedback">Please agree to receive newsletters to continue.</div>
+                            </div>
+                        </div>
+
+                        {{-- WhatsApp updates (optional) --}}
+                        <div class="my-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="wa_updates" name="wa_updates"
+                                    value="agree" {{ old('wa_updates') == 'agree' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="wa_updates">
+                                    I agree to receive updates via WhatsApp.
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- Sponsorship interest (optional) --}}
                         <div class="my-3">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="explore" name="explore"
-                                    value="true">
-                                <label class="form-check-label" for="explore">I am also interested in exploring
-                                    sponsorship or collaboration opportunities with Djakarta Mining Club.</label>
+                                    value="agree" {{ old('explore') == 'agree' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="explore">
+                                    I would like to receive information about corporate sponsorship opportunities.
+                                </label>
                             </div>
-                            <div class="invalid-feedback">
-                                Field is Required
-                            </div>
+                            <small class="text-muted ml-4 d-block mt-1">
+                                <em>Djakarta Mining Club reserves the right to cancel any member registration if the individual is found to be not related to the industry.</em>
+                            </small>
                         </div>
 
                         <hr class="my-4">
