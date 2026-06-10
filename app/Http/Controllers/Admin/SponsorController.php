@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\WhatsappApi;
+use App\Helpers\ScrapeHelper;
 use App\Services\Sponsors\SponsorBenefitService;
 use App\Support\QrCode;
 use Maatwebsite\Excel\Facades\Excel;
@@ -512,6 +513,16 @@ class SponsorController extends Controller
         return view('admin.sponsor.edit-contract', compact('sponsor'));
     }
 
+    public function getKmkRate()
+    {
+        try {
+            $rate = ScrapeHelper::scrapeExchangeRate();
+            return response()->json(['success' => true, 'rate' => $rate]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'rate' => null, 'message' => 'Failed to fetch KMK rate.']);
+        }
+    }
+
     /**
      * Memproses update contract / renewal sponsor.
      */
@@ -571,7 +582,9 @@ class SponsorController extends Controller
         // Kirim notifikasi WhatsApp ke group finance
         try {
             $pic     = $sponsor->firstPic;
-            $message = $this->buildContractUpdateMessage($sponsor, $validated, $pic);
+            $kmkRate = null;
+            try { $kmkRate = ScrapeHelper::scrapeExchangeRate(); } catch (\Throwable $e) {}
+            $message = $this->buildContractUpdateMessage($sponsor, $validated, $pic, $kmkRate);
             $wa = new WhatsappApi();
             $wa->phone   = '120363429723388586@g.us';
             $wa->message = $message;
@@ -586,7 +599,7 @@ class SponsorController extends Controller
         ]);
     }
 
-    private function buildContractUpdateMessage($sponsor, array $validated, $pic): string
+    private function buildContractUpdateMessage($sponsor, array $validated, $pic, ?int $kmkRate = null): string
     {
         $months = [
             '01' => 'January',
@@ -626,6 +639,9 @@ class SponsorController extends Controller
         $amountLine = '';
         if (!empty($validated['amount_usd'])) {
             $amountLine .= '• USD: *USD ' . number_format($validated['amount_usd'], 0, '.', '.') . "*\n";
+            if ($kmkRate) {
+                $amountLine .= '• KMK Rate: *IDR ' . number_format($kmkRate, 0, '.', '.') . "/USD*\n";
+            }
         }
         if (!empty($validated['amount_idr'])) {
             $amountLine .= '• IDR: *IDR ' . number_format($validated['amount_idr'], 0, '.', '.') . "*\n";

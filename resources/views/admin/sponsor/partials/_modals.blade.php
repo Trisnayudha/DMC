@@ -54,6 +54,23 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
+                                <label>KMK Rate (USD/IDR)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
+                                    <input type="number" id="modalKmkRate" class="form-control" readonly placeholder="Loading...">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary" id="btnRefreshKmkRate" title="Refresh rate">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <small class="text-muted">KMK Pajak — auto-fetched</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <label>Amount USD</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">USD</span></div>
@@ -63,10 +80,11 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Amount IDR</label>
+                                <label>Amount IDR <small class="text-muted">(auto dari USD × KMK, bisa diubah)</small></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
-                                    <input type="number" name="amount_idr" id="modalAmountIdr" class="form-control" step="0.01" min="0" placeholder="e.g. 39000000">
+                                    <input type="text" id="modalAmountIdrDisplay" class="form-control" placeholder="e.g. 39.000.000">
+                                    <input type="hidden" name="amount_idr" id="modalAmountIdr">
                                 </div>
                             </div>
                         </div>

@@ -290,6 +290,23 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label>KMK Rate (USD/IDR)</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
+                                        <input type="number" id="modalKmkRate" class="form-control" readonly placeholder="Loading...">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary" id="btnRefreshKmkRate" title="Refresh rate">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">KMK Pajak — auto-fetched</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label>Amount USD</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend"><span class="input-group-text">USD</span></div>
@@ -299,10 +316,11 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Amount IDR</label>
+                                    <label>Amount IDR <small class="text-muted">(auto dari USD × KMK, bisa diubah)</small></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
-                                        <input type="number" name="amount_idr" id="modalAmountIdr" class="form-control" step="0.01" min="0">
+                                        <input type="text" id="modalAmountIdrDisplay" class="form-control" placeholder="e.g. 39.000.000">
+                                        <input type="hidden" name="amount_idr" id="modalAmountIdr">
                                     </div>
                                 </div>
                             </div>
@@ -388,6 +406,55 @@
                 });
             });
 
+            function fetchKmkRate() {
+                $('#modalKmkRate').val('').attr('placeholder', 'Loading...');
+                $.get('/admin/sponsors/kmk-rate', function(res) {
+                    if (res.success && res.rate) {
+                        $('#modalKmkRate').val(res.rate);
+                        autoFillIdr();
+                    } else {
+                        $('#modalKmkRate').attr('placeholder', 'Gagal fetch');
+                    }
+                }).fail(function() {
+                    $('#modalKmkRate').attr('placeholder', 'Gagal fetch');
+                });
+            }
+
+            function setIdrValue(raw) {
+                let num = Math.round(parseFloat(raw));
+                if (!isNaN(num) && num > 0) {
+                    $('#modalAmountIdr').val(num);
+                    $('#modalAmountIdrDisplay').val(num.toLocaleString('id-ID'));
+                } else {
+                    $('#modalAmountIdr').val('');
+                    $('#modalAmountIdrDisplay').val('');
+                }
+            }
+
+            function autoFillIdr() {
+                let usd = parseFloat($('#modalAmountUsd').val());
+                let rate = parseFloat($('#modalKmkRate').val());
+                if (!isNaN(usd) && usd > 0 && !isNaN(rate) && rate > 0) {
+                    setIdrValue(usd * rate);
+                }
+            }
+
+            $('#modalAmountIdrDisplay').on('input', function() {
+                let raw = $(this).val().replace(/\./g, '').replace(/,/g, '');
+                $('#modalAmountIdr').val(raw);
+            }).on('blur', function() {
+                let raw = $(this).val().replace(/\./g, '').replace(/,/g, '');
+                let num = parseInt(raw, 10);
+                if (!isNaN(num) && num > 0) {
+                    $(this).val(num.toLocaleString('id-ID'));
+                    $('#modalAmountIdr').val(num);
+                }
+            });
+
+            $('#modalAmountUsd').on('input', autoFillIdr);
+            $('#modalKmkRate').on('change', autoFillIdr);
+            $('#btnRefreshKmkRate').on('click', fetchKmkRate);
+
             // Open update contract modal
             $(document).on('click', '.update-contract-btn', function(e) {
                 e.preventDefault();
@@ -396,8 +463,9 @@
                 $('#modalContractEnd').val($(this).data('contract-end'));
                 $('#modalPackage').val($(this).data('package') || 'silver');
                 $('#modalRenewalType').val('renewal');
-                $('#modalAmountUsd, #modalAmountIdr, #modalNotes').val('');
+                $('#modalAmountUsd, #modalAmountIdr, #modalAmountIdrDisplay, #modalNotes').val('');
                 $('#updateContractModal').modal('show');
+                fetchKmkRate();
             });
 
             // Submit update contract

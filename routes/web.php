@@ -226,6 +226,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('sponsors.nearing-contract');
     Route::get('sponsors/contact-directory', [SponsorContactDirectoryController::class, 'index'])
         ->name('sponsors.contact-directory');
+    Route::get('sponsors/kmk-rate', [SponsorController::class, 'getKmkRate'])
+        ->name('sponsors.kmk-rate');
     Route::resource('sponsors', SponsorController::class);
     Route::get('admin/sponsors/export', [SponsorExportController::class, 'export'])->name('sponsors.export');
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');

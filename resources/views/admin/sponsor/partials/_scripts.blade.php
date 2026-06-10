@@ -74,6 +74,55 @@
             });
         });
 
+        function fetchKmkRate() {
+            $('#modalKmkRate').val('').attr('placeholder', 'Loading...');
+            $.get('/admin/sponsors/kmk-rate', function(res) {
+                if (res.success && res.rate) {
+                    $('#modalKmkRate').val(res.rate);
+                    autoFillIdr();
+                } else {
+                    $('#modalKmkRate').attr('placeholder', 'Gagal fetch');
+                }
+            }).fail(function() {
+                $('#modalKmkRate').attr('placeholder', 'Gagal fetch');
+            });
+        }
+
+        function setIdrValue(raw) {
+            let num = Math.round(parseFloat(raw));
+            if (!isNaN(num) && num > 0) {
+                $('#modalAmountIdr').val(num);
+                $('#modalAmountIdrDisplay').val(num.toLocaleString('id-ID'));
+            } else {
+                $('#modalAmountIdr').val('');
+                $('#modalAmountIdrDisplay').val('');
+            }
+        }
+
+        function autoFillIdr() {
+            let usd = parseFloat($('#modalAmountUsd').val());
+            let rate = parseFloat($('#modalKmkRate').val());
+            if (!isNaN(usd) && usd > 0 && !isNaN(rate) && rate > 0) {
+                setIdrValue(usd * rate);
+            }
+        }
+
+        $('#modalAmountIdrDisplay').on('input', function() {
+            let raw = $(this).val().replace(/\./g, '').replace(/,/g, '');
+            $('#modalAmountIdr').val(raw);
+        }).on('blur', function() {
+            let raw = $(this).val().replace(/\./g, '').replace(/,/g, '');
+            let num = parseInt(raw, 10);
+            if (!isNaN(num) && num > 0) {
+                $(this).val(num.toLocaleString('id-ID'));
+                $('#modalAmountIdr').val(num);
+            }
+        });
+
+        $('#modalAmountUsd').on('input', autoFillIdr);
+        $('#modalKmkRate').on('change', autoFillIdr);
+        $('#btnRefreshKmkRate').on('click', fetchKmkRate);
+
         // Open Update Contract modal
         $(document).on('click', '.update-contract-btn', function(e) {
             e.preventDefault();
@@ -84,8 +133,10 @@
             $('#modalRenewalType').val('renewal');
             $('#modalAmountUsd').val('');
             $('#modalAmountIdr').val('');
+            $('#modalAmountIdrDisplay').val('');
             $('#modalNotes').val('');
             $('#updateContractModal').modal('show');
+            fetchKmkRate();
         });
 
         // Submit Update Contract
