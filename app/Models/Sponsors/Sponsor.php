@@ -10,6 +10,7 @@ class Sponsor extends Model
     use HasFactory;
     protected $fillable = [
         'name',
+        'branding_name',
         'image',
         'description',
         'address',

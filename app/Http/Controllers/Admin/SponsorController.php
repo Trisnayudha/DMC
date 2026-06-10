@@ -263,6 +263,7 @@ class SponsorController extends Controller
         // Simpan data sponsor dan ambil model yang baru dibuat
         $sponsor = Sponsor::create([
             'name' => $request->input('name'),
+            'branding_name' => $request->input('branding_name'),
             'email' => $request->input('email'),
             'company_website' => $request->input('website'),
             'address' => $request->input('address'),
@@ -357,6 +358,7 @@ class SponsorController extends Controller
 
         // Update data sponsor
         $sponsor->name = $request->input('name');
+        $sponsor->branding_name = $request->input('branding_name');
         $sponsor->email = $request->input('email');
         $sponsor->company_website = $request->input('company_website');
         $sponsor->address = $request->input('address');

@@ -213,32 +213,32 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="d-flex flex-wrap" style="gap:4px; max-width:150px;">
+                                        <div class="d-flex flex-wrap align-items-center" style="gap:4px;">
                                             <a href="{{ route('sponsors-advertising.show', $post->id) }}"
-                                                class="btn btn-icon btn-sm btn-primary" data-toggle="tooltip" title="Advertisement/Brochure">
+                                                class="btn btn-sm btn-primary action-icon-btn" data-toggle="tooltip" title="Advertisement/Brochure">
                                                 <i class="fas fa-bullhorn"></i>
                                             </a>
                                             <a href="{{ route('sponsors-representative.show', $post->id) }}"
-                                                class="btn btn-icon btn-sm btn-warning" data-toggle="tooltip" title="Sponsor Representative">
+                                                class="btn btn-sm btn-warning action-icon-btn" data-toggle="tooltip" title="Sponsor Representative">
                                                 <i class="fas fa-user-friends"></i>
                                             </a>
                                             <a href="{{ route('sponsors-address.show', $post->id) }}"
-                                                class="btn btn-icon btn-sm btn-info" data-toggle="tooltip" title="Sponsor Address">
+                                                class="btn btn-sm btn-info action-icon-btn" data-toggle="tooltip" title="Sponsor Address">
                                                 <i class="fas fa-map-marker-alt"></i>
                                             </a>
                                             <a href="{{ route('photos-videos-activity.show', $post->id) }}"
-                                                class="btn btn-icon btn-sm btn-secondary" data-toggle="tooltip" title="Photos/Videos Activity">
+                                                class="btn btn-sm btn-secondary action-icon-btn" data-toggle="tooltip" title="Photos/Videos Activity">
                                                 <i class="fas fa-camera"></i>
                                             </a>
                                             <a href="{{ route('sponsors.benefit.detail', $post->id) }}"
-                                                class="btn btn-icon btn-sm btn-info" data-toggle="tooltip" title="Sponsor Benefit Management">
+                                                class="btn btn-sm btn-info action-icon-btn" data-toggle="tooltip" title="Sponsor Benefit Management">
                                                 <i class="fas fa-chart-bar"></i>
                                             </a>
                                             <a href="{{ route('sponsors.edit', $post->id) }}"
-                                                class="btn btn-icon btn-sm btn-success" data-toggle="tooltip" title="Edit Data">
+                                                class="btn btn-sm btn-success action-icon-btn" data-toggle="tooltip" title="Edit Data">
                                                 <i class="fas fa-pencil-alt"></i>
                                             </a>
-                                            <button class="btn btn-icon btn-sm btn-warning not-renewed-btn"
+                                            <button class="btn btn-sm btn-warning action-icon-btn not-renewed-btn"
                                                 data-id="{{ $post->id }}"
                                                 data-name="{{ $post->name }}"
                                                 data-contract-start="{{ $post->contract_start }}"
@@ -246,7 +246,7 @@
                                                 data-toggle="tooltip" title="Mark Not Renewed">
                                                 <i class="fas fa-times-circle"></i>
                                             </button>
-                                            <button class="btn btn-icon btn-sm btn-danger delete-sponsor"
+                                            <button class="btn btn-sm btn-danger action-icon-btn delete-sponsor"
                                                 data-id="{{ $post->id }}" data-toggle="tooltip" title="Delete Sponsor">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>

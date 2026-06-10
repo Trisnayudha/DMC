@@ -28,16 +28,33 @@
                                 'url' => 'admin/sponsors',
                                 'enctype' => 'multipart/form-data',
                             ]) !!}
-                            <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
-                                {!! Form::label('Name') !!}
-                                {!! Form::text('name', old('name'), ['class' => 'form-control', 'placeholder' => 'Name']) !!}
-                                @if ($errors->has('name'))
-                                    <span class="help-block">
-                                        <strong style="color:red">{{ $errors->first('name') }}</strong>
-                                    </span>
-                                @endif
+                            <div class="row">
+                                <div class="col-7">
+                                    <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                        {!! Form::label('Company Name') !!}
+                                        <small class="text-muted d-block mb-1">Official company name — used for invoicing</small>
+                                        {!! Form::text('name', old('name'), ['class' => 'form-control', 'placeholder' => 'e.g. Weir Minerals']) !!}
+                                        @if ($errors->has('name'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('name') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <div class="form-group{{ $errors->has('branding_name') ? ' has-error' : '' }}">
+                                        {!! Form::label('Branding Name') !!}
+                                        <small class="text-muted d-block mb-1">For Website / Marketing / Event</small>
+                                        {!! Form::text('branding_name', old('branding_name'), ['class' => 'form-control', 'placeholder' => 'e.g. Weir']) !!}
+                                        @if ($errors->has('branding_name'))
+                                            <span class="help-block">
+                                                <strong style="color:red">{{ $errors->first('branding_name') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                            <!-- Field lainnya (email, founded, location_office, website, video, employees) -->
+                            <!-- Additional fields: email, founded, location_office, website, video, employees -->
                             <div class="row">
                                 <div class="col-6">
                                     <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
@@ -62,7 +79,7 @@
                                             </div>
                                             {!! Form::text('founded', null, [
                                                 'class' => 'form-control datepicker',
-                                                'placeholder' => 'Tanggal lahir company',
+                                                'placeholder' => 'Company founding date',
                                             ]) !!}
                                         </div>
                                         @if ($errors->has('founded'))
@@ -75,7 +92,7 @@
                                         {!! Form::label('Location Office') !!}
                                         {!! Form::number('location_office', null, [
                                             'class' => 'form-control',
-                                            'placeholder' => 'Jumlah lokasi office (1/2/3/4/5 dst)',
+                                            'placeholder' => 'Number of office locations (1/2/3/4/5, etc.)',
                                             'min' => 1,
                                             'max' => 5,
                                             'step' => 1,
@@ -116,7 +133,7 @@
                                         {!! Form::label('Employees') !!}
                                         {!! Form::number('employees', null, [
                                             'class' => 'form-control',
-                                            'placeholder' => 'Jumlah karyawan (100/5000/70000)',
+                                            'placeholder' => 'Number of employees (e.g. 100, 5000, 70000)',
                                         ]) !!}
                                         @if ($errors->has('employees'))
                                             <span class="help-block">
@@ -130,7 +147,7 @@
                                         {!! Form::label('Company Category') !!}
                                         {!! Form::text('company_category', null, [
                                             'class' => 'form-control',
-                                            'placeholder' => 'Industri apa?',
+                                            'placeholder' => 'e.g. Mining, Energy, Technology',
                                         ]) !!}
                                         @if ($errors->has('company_category'))
                                             <span class="help-block">
@@ -222,7 +239,7 @@
                                 @endif
                             </div>
                             <div class="form-group{{ $errors->has('description') ? ' has-error' : '' }}">
-                                {!! Form::label('Deskripsi') !!}
+                                {!! Form::label('Description') !!}
                                 {!! Form::textarea('description', old('description'), [
                                     'id' => 'my-editor',
                                     'class' => 'form-control my-editor',
