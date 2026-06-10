@@ -143,7 +143,7 @@
                             </div>
                             <div class="col-sm-4">
                                 <label for="company_name" class="form-label" style="color: white">. </label>
-                                <input type="text" class="form-control" name="company_name"
+                                <input type="text" class="form-control" name="company_name" autocomplete="off"
                                     placeholder="Your company name" value="{{ old('company_name') }}" required>
                                 <div class="invalid-feedback">
                                     Valid company name is required.
@@ -153,7 +153,7 @@
                             <div class="col-sm-6">
                                 <label for="name" class="form-label">Full name <span
                                         style="color: red">*</span></label>
-                                <input type="text" class="form-control" name="name" placeholder=""
+                                <input type="text" class="form-control" name="name" autocomplete="off" placeholder=""
                                     value="{{ old('name') }}" required>
                                 <div class="invalid-feedback">
                                     Valid name is required.
@@ -163,7 +163,7 @@
                                 <label for="phone" class="form-label">Mobile number <span
                                         style="color: red">*</span></label>
                                 <input type="hidden" name="country_phone" value="62">
-                                <input type="tel" class="form-control" name="phone" id="phone"
+                                <input type="tel" class="form-control" name="phone" id="phone" autocomplete="off"
                                     placeholder="e.g. 812 3456 7890" value="{{ old('phone') }}" required>
                                 <div class="invalid-feedback">
                                     Please provide a Mobile Number
@@ -172,7 +172,7 @@
                             <div class="col-sm-6">
                                 <label for="job_title" class="form-label">Job Title <span
                                         style="color: red">*</span></label>
-                                <input type="text" class="form-control" name="job_title" placeholder="" required
+                                <input type="text" class="form-control" name="job_title" autocomplete="off" placeholder="" required
                                     value="{{ old('job_title') }}">
                                 <div class="invalid-feedback">
                                     Please enter your Job Title.
@@ -181,7 +181,7 @@
                             <div class="col-sm-6">
                                 <label for="email" class="form-label">Email Address <span
                                         style="color: red">*</span><span class="text-muted"></span></label>
-                                <input type="email" class="form-control" name="email"
+                                <input type="email" class="form-control" name="email" autocomplete="new-password"
                                     placeholder="Your work email" required value="{{ old('email') }}">
                                 <div class="invalid-feedback">
                                     Please enter a valid email address.
@@ -191,7 +191,7 @@
                             <div class="col-sm-6">
                                 <label for="company_website" class="form-label">Company Website<span
                                         class="text-muted"></span></label>
-                                <input type="text" class="form-control" name="company_website"
+                                <input type="text" class="form-control" name="company_website" autocomplete="off"
                                     value="{{ old('company_website') }}" placeholder="www.yourcompany.com">
                                 <div class="invalid-feedback">
                                     Please enter a valid company website .
@@ -201,7 +201,7 @@
 
                             <div class="col-sm-12">
                                 <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" name="address" placeholder="">
+                                <input type="text" class="form-control" name="address" autocomplete="off" placeholder="">
                                 <div class="invalid-feedback" {{ old('address') }}>
                                     Please provide a Mobile Number
                                 </div>
@@ -209,7 +209,7 @@
                             <div class="col-sm-6">
                                 <label for="office_number" class="form-label">Office Number</label>
                                 <input type="hidden" name="country_phone_office" value="62">
-                                <input type="tel" class="form-control" name="office_number" id="office_number"
+                                <input type="tel" class="form-control" name="office_number" id="office_number" autocomplete="off"
                                     placeholder="e.g. 21 5000 1234" value="{{ old('office_number') }}">
                                 <div class="invalid-feedback">
                                     Please provide an Office Number
@@ -217,14 +217,14 @@
                             </div>
                             <div class="col-sm-3">
                                 <label for="portal_code" class="form-label">Postal Code</label>
-                                <input type="number" class="form-control" name="portal_code" placeholder="">
+                                <input type="number" class="form-control" name="portal_code" autocomplete="off" placeholder="">
                                 <div class="invalid-feedback" {{ old('portal_code') }}>
                                     Please provide a Postal Code
                                 </div>
                             </div>
                             <div class="col-sm-3">
                                 <label for="city" class="form-label">City <span style="color:red">*</span></label>
-                                <input type="text" class="form-control" name="city" placeholder="" required value="{{ old('city') }}">
+                                <input type="text" class="form-control" name="city" autocomplete="off" placeholder="" required value="{{ old('city') }}">
                                 <div class="invalid-feedback">
                                     Please provide a City
                                 </div>
@@ -269,7 +269,7 @@
                             <div class="col-md-12 mb-6">
                                 <div class="myDiv">
                                     <label for="company_other" class="form-label">Company Other *</label>
-                                    <input type="text" class="form-control" name="company_other" placeholder="">
+                                    <input type="text" class="form-control" name="company_other" autocomplete="off" placeholder="">
                                     <div class="invalid-feedback">
                                         Please enter your Company Other
                                     </div>
