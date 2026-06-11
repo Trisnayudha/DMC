@@ -418,18 +418,13 @@
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <label>Prefix Office Number</label>
-                                <input type="text" name="prefix_office_number" id="edit_prefix_office_number" class="form-control">
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label>Office Number</label>
-                                <input type="text" name="office_number" id="edit_office_number" class="form-control">
-                            </div>
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-12">
                                 <label>Full Office Number</label>
-                                <input type="text" name="full_office_number" id="edit_full_office_number" class="form-control">
+                                <input type="text" name="full_office_number" id="edit_full_office_number" class="form-control" placeholder="e.g. +62 21 12345678">
+                                <small class="text-muted">Awali dengan kode negara (mis. <code>+62</code>) agar prefix terdeteksi otomatis.</small>
                             </div>
+                            <input type="hidden" name="prefix_office_number" id="edit_prefix_office_number">
+                            <input type="hidden" name="office_number" id="edit_office_number">
                         </div>
 
                     </div>
@@ -655,9 +650,11 @@
                 $('#edit_city').val(parsed.city || '');
                 $('#edit_portal_code').val(parsed.portal_code || '');
                 $('#edit_country').val(parsed.country || '');
-                $('#edit_prefix_office_number').val(parsed.prefix_office_number || '');
-                $('#edit_office_number').val(parsed.office_number || '');
-                $('#edit_full_office_number').val(parsed.full_office_number || '');
+                var fullOffice = parsed.full_office_number || '';
+                $('#edit_full_office_number').val(fullOffice);
+                var officeParsed = parseOfficeNumber(fullOffice);
+                $('#edit_prefix_office_number').val(parsed.prefix_office_number || officeParsed.prefix);
+                $('#edit_office_number').val(parsed.office_number || officeParsed.office);
                 $('#edit_company_category').trigger('change');
                 $('#company-suggestions').hide().empty();
             });
@@ -716,6 +713,21 @@
                 }
             });
 
+            function parseOfficeNumber(full) {
+                var trimmed = (full || '').trim();
+                var match = trimmed.match(/^(\+\d+)\s*(.*)$/);
+                if (match) {
+                    return { prefix: match[1], office: match[2].trim() };
+                }
+                return { prefix: '', office: trimmed };
+            }
+
+            $('#edit_full_office_number').on('input', function() {
+                var parsed = parseOfficeNumber($(this).val());
+                $('#edit_prefix_office_number').val(parsed.prefix);
+                $('#edit_office_number').val(parsed.office);
+            });
+
             function fillFromVerified(company) {
                 $('#edit_company_name_input').val(company.company_name || '');
                 $('#edit_prefix').val(company.prefix || '').trigger('change');
@@ -726,9 +738,11 @@
                 $('#edit_city').val(company.city || '');
                 $('#edit_portal_code').val(company.portal_code || '');
                 $('#edit_country').val(company.country || '');
-                $('#edit_prefix_office_number').val(company.prefix_office_number || '');
-                $('#edit_office_number').val(company.office_number || '');
-                $('#edit_full_office_number').val(company.full_office_number || '');
+                var fullOfficeV = company.full_office_number || '';
+                $('#edit_full_office_number').val(fullOfficeV);
+                var officeParsedV = parseOfficeNumber(fullOfficeV);
+                $('#edit_prefix_office_number').val(company.prefix_office_number || officeParsedV.prefix);
+                $('#edit_office_number').val(company.office_number || officeParsedV.office);
             }
 
             // ---- Category other toggle ----

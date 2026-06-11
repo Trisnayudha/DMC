@@ -116,18 +116,13 @@
                     </div>
 
                     <div class="form-row mb-0">
-                        <div class="form-group col-md-4">
-                            <label class="small font-weight-bold">Prefix Office Number</label>
-                            <input type="text" id="eu-prefix-office-number" class="form-control">
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label class="small font-weight-bold">Office Number</label>
-                            <input type="text" id="eu-office-number" class="form-control">
-                        </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-12">
                             <label class="small font-weight-bold">Full Office Number</label>
-                            <input type="text" id="eu-full-office-number" class="form-control">
+                            <input type="text" id="eu-full-office-number" class="form-control" placeholder="e.g. +62 21 12345678">
+                            <small class="text-muted">Awali dengan kode negara (mis. <code>+62</code>) agar prefix terdeteksi otomatis.</small>
                         </div>
+                        <input type="hidden" id="eu-prefix-office-number">
+                        <input type="hidden" id="eu-office-number">
                     </div>
                 </div>
 

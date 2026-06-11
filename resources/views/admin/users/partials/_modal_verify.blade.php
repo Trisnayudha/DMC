@@ -154,18 +154,13 @@
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <label>Prefix Office Number</label>
-                                <input type="text" id="vm-prefix-office-number" class="form-control">
-                            </div>
-                            <div class="form-group col-md-4">
-                                <label>Office Number</label>
-                                <input type="text" id="vm-office-number" class="form-control">
-                            </div>
-                            <div class="form-group col-md-4">
+                            <div class="form-group col-md-12">
                                 <label>Full Office Number</label>
-                                <input type="text" id="vm-full-office-number" class="form-control">
+                                <input type="text" id="vm-full-office-number" class="form-control" placeholder="e.g. +62 21 12345678">
+                                <small class="text-muted">Awali dengan kode negara (mis. <code>+62</code>) agar prefix terdeteksi otomatis.</small>
                             </div>
+                            <input type="hidden" id="vm-prefix-office-number">
+                            <input type="hidden" id="vm-office-number">
                         </div>
                     </div>{{-- /vm-company-form-section --}}
 

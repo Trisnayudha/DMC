@@ -7,6 +7,13 @@
 
     $('[data-toggle="tooltip"]').tooltip();
 
+    function parseOfficeNumber(full) {
+        var trimmed = (full || '').trim();
+        var match = trimmed.match(/^(\+\d+)\s*(.*)$/);
+        if (match) { return { prefix: match[1], office: match[2].trim() }; }
+        return { prefix: '', office: trimmed };
+    }
+
     // Helper: alert di atas tabel
     function showAlert(type, message) {
         $('#alert-area').html(
@@ -47,9 +54,11 @@
         $('#vm-city').val(p.city || '');
         $('#vm-portal-code').val(p.portal_code || '');
         $('#vm-country').val(p.country || '');
-        $('#vm-prefix-office-number').val(p.prefix_office_number || '');
-        $('#vm-office-number').val(p.office_number || '');
-        $('#vm-full-office-number').val(p.full_office_number || '');
+        var vmFullOffice = p.full_office_number || '';
+        $('#vm-full-office-number').val(vmFullOffice);
+        var vmParsed = parseOfficeNumber(vmFullOffice);
+        $('#vm-prefix-office-number').val(p.prefix_office_number || vmParsed.prefix);
+        $('#vm-office-number').val(p.office_number || vmParsed.office);
         if ((p.company_category || '') === 'other') {
             $('.vm-company-other-wrap').show();
         } else {
@@ -181,6 +190,12 @@
     // Step 2 verify button
     $(document).on('click', '#vm-btn-verify-member', function() {
         vmDoVerifyMember($(this).data('verify-url'), $vmSourceBtn);
+    });
+
+    $(document).on('input', '#vm-full-office-number', function() {
+        var p = parseOfficeNumber($(this).val());
+        $('#vm-prefix-office-number').val(p.prefix);
+        $('#vm-office-number').val(p.office);
     });
 
     // Autocomplete company name
@@ -426,10 +441,18 @@
         $('#eu-city').val(company.city || '');
         $('#eu-portal-code').val(company.portal_code || '');
         $('#eu-country').val(company.country || '');
-        $('#eu-prefix-office-number').val(company.prefix_office_number || '');
-        $('#eu-office-number').val(company.office_number || '');
-        $('#eu-full-office-number').val(company.full_office_number || '');
+        var euFullOffice = company.full_office_number || '';
+        $('#eu-full-office-number').val(euFullOffice);
+        var euParsed = parseOfficeNumber(euFullOffice);
+        $('#eu-prefix-office-number').val(company.prefix_office_number || euParsed.prefix);
+        $('#eu-office-number').val(company.office_number || euParsed.office);
     }
+
+    $(document).on('input', '#eu-full-office-number', function() {
+        var p = parseOfficeNumber($(this).val());
+        $('#eu-prefix-office-number').val(p.prefix);
+        $('#eu-office-number').val(p.office);
+    });
 
     var euSuggestTimeout = null;
     $(document).on('input', '#eu-company-name', function() {
