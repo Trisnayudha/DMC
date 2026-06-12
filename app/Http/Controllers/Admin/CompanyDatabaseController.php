@@ -45,8 +45,6 @@ class CompanyDatabaseController extends Controller
         'address',
         'city',
         'portal_code',
-        'prefix_office_number',
-        'office_number',
         'full_office_number',
         'country',
     ];

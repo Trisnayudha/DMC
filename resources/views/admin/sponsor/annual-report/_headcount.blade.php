@@ -27,16 +27,17 @@
             </div>
         </div>
         <div class="card-body pb-3">
-            {{-- Bridge: last year → lost → new → now --}}
+            {{-- Bridge "hasil duluan" dengan Previous di paling akhir (permintaan manajemen),
+                 tetap valid dibaca sebagai persamaan: 41 = (−9) + (+6) + 44 --}}
             <div class="d-flex align-items-stretch flex-wrap" style="gap:8px;">
                 <div class="flex-fill text-center"
-                    style="background:#f8f9fc;border:2px solid #e4e6fc;border-radius:10px;padding:12px 8px;min-width:130px;">
+                    style="background:{{ $achieved ? '#47c363' : 'linear-gradient(135deg,#6777ef 0%,#5263d8 100%)' }};border-radius:10px;padding:12px 8px;min-width:130px;">
                     <div
-                        style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;">
-                        Sponsors {{ $h['prevYear'] }}</div>
-                    <div style="font-size:24px;font-weight:800;color:#2d3748;">{{ $h['lastYearCount'] }}</div>
+                        style="font-size:10px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.4px;">
+                        Active Sponsors {{ $year }}</div>
+                    <div style="font-size:24px;font-weight:800;color:#fff;">{{ $h['currentCount'] }}</div>
                 </div>
-                <div class="d-flex align-items-center" style="color:#ccc;"><i class="fas fa-chevron-right"></i></div>
+                <div class="d-flex align-items-center" style="color:#b7bdc8;font-size:20px;font-weight:800;">=</div>
                 <div class="flex-fill text-center"
                     style="background:#fde8e8;border:2px solid #fcc;border-radius:10px;padding:12px 8px;min-width:130px;">
                     <div
@@ -45,7 +46,7 @@
                     </div>
                     <div style="font-size:24px;font-weight:800;color:#fc544b;">−{{ $h['lostCount'] }}</div>
                 </div>
-                <div class="d-flex align-items-center" style="color:#ccc;"><i class="fas fa-chevron-right"></i></div>
+                <div class="d-flex align-items-center" style="color:#b7bdc8;font-size:20px;font-weight:800;">+</div>
                 <div class="flex-fill text-center"
                     style="background:#eafaf0;border:2px solid #bfe8cc;border-radius:10px;padding:12px 8px;min-width:130px;">
                     <div
@@ -54,21 +55,21 @@
                     </div>
                     <div style="font-size:24px;font-weight:800;color:#47c363;">+{{ $h['newCount'] }}</div>
                 </div>
-                <div class="d-flex align-items-center" style="color:#ccc;"><i class="fas fa-chevron-right"></i></div>
+                <div class="d-flex align-items-center" style="color:#b7bdc8;font-size:20px;font-weight:800;">+</div>
                 <div class="flex-fill text-center"
-                    style="background:{{ $achieved ? '#47c363' : 'linear-gradient(135deg,#6777ef 0%,#5263d8 100%)' }};border-radius:10px;padding:12px 8px;min-width:130px;">
+                    style="background:#f8f9fc;border:2px solid #e4e6fc;border-radius:10px;padding:12px 8px;min-width:130px;">
                     <div
-                        style="font-size:10px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.4px;">
-                        Active Sponsors {{ $year }}</div>
-                    <div style="font-size:24px;font-weight:800;color:#fff;">{{ $h['currentCount'] }}</div>
+                        style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;">
+                        Previous Sponsors {{ $h['prevYear'] }}</div>
+                    <div style="font-size:24px;font-weight:800;color:#2d3748;">{{ $h['lastYearCount'] }}</div>
                 </div>
             </div>
 
             {{-- Formula helper: biar pembaca tidak perlu menghitung sendiri --}}
             <div class="text-center mt-2" style="font-size:12px;color:#888;">
                 <i class="fas fa-calculator mr-1" style="opacity:.5;"></i>
-                {{ $h['lastYearCount'] }} − {{ $h['lostCount'] }} + {{ $h['newCount'] }} =
-                <strong style="color:#2d3748;">{{ $h['currentCount'] }} active sponsors</strong>
+                <strong style="color:#2d3748;">{{ $h['currentCount'] }} active sponsors</strong> =
+                {{ $h['lastYearCount'] }} − {{ $h['lostCount'] }} + {{ $h['newCount'] }}
             </div>
 
             {{-- Reminder sisa renewal --}}
