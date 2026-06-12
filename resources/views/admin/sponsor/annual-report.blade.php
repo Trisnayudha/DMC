@@ -97,3 +97,7 @@
     </section>
 </div>
 @endsection
+
+{{-- Modal Update Contract / Not Renewed / Follow-up + JS-nya (dipakai tab Pending Renewal) --}}
+@include('admin.sponsor.partials._modals')
+@include('admin.sponsor.partials._contract_scripts')

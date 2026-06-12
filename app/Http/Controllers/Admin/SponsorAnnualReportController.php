@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\SponsorAnnualReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Sponsors\Sponsor;
+use App\Models\Sponsors\SponsorFollowup;
 use App\Models\Sponsors\SponsorRenewal;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class SponsorAnnualReportController extends Controller
             'packageBreakdown'   => $this->packageBreakdown($year),
             'expiryForecast'     => $expiryForecast,
             'peakExpiryMonth'    => $this->peakExpiryMonth($expiryForecast),
-            'pendingRenewals'    => $this->pendingRenewals($expiryForecast, $package, $search),
+            'pendingRenewals'    => $this->pendingRenewals($expiryForecast, $package, $search, $year),
             'headcount'          => $this->sponsorHeadcount($year),
         ] + $this->summaryCounts($year));
     }
@@ -312,15 +313,33 @@ class SponsorAnnualReportController extends Controller
     }
 
     /**
-     * Pipeline follow-up: kontrak expiring yang masih berstatus pending.
+     * Pipeline follow-up: kontrak expiring yang masih berstatus pending,
+     * dilengkapi jejak follow-up (Not Contacted = belum pernah dihubungi,
+     * Prosit = sudah ada follow-up tercatat).
      */
-    private function pendingRenewals(Collection $expiryForecast, ?string $package, ?string $search): Collection
+    private function pendingRenewals(Collection $expiryForecast, ?string $package, ?string $search, int $year): Collection
     {
-        return $expiryForecast->flatten()
+        $pending = $expiryForecast->flatten()
             ->filter(fn ($er) => $er->followup_status === 'pending')
             ->when($package, fn ($c) => $c->where('package', $package))
             ->when($search, fn ($c) => $c->filter(fn ($er) => $er->sponsor && stripos($er->sponsor->name, $search) !== false))
             ->sortBy('contract_end')
             ->values();
+
+        $followups = SponsorFollowup::whereIn('sponsor_id', $pending->pluck('sponsor_id')->unique())
+            ->where('renewal_year', $year)
+            ->with('creator:id,name')
+            ->orderBy('followed_up_at')
+            ->orderBy('id')
+            ->get()
+            ->groupBy('sponsor_id');
+
+        $pending->each(function ($p) use ($followups) {
+            $f = $followups->get($p->sponsor_id, collect());
+            $p->followup_count = $f->count();
+            $p->last_followup  = $f->last();
+        });
+
+        return $pending;
     }
 }

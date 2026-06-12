@@ -103,6 +103,85 @@
     </div>
 </div>
 
+<!-- Modal: Renewal Follow-up (riwayat + form bukti wajib) -->
+<div class="modal fade" id="followupModal" tabindex="-1" role="dialog"
+    aria-labelledby="followupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#fffbf0;border-bottom:2px solid #f39c12;">
+                <h5 class="modal-title" id="followupModalLabel">
+                    <i class="fas fa-phone-volume mr-1" style="color:#f39c12;"></i>
+                    Renewal Follow-up — <span id="followupSponsorName"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{-- Riwayat follow-up --}}
+                <div class="mb-3">
+                    <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
+                        <i class="fas fa-history mr-1"></i> Follow-up History
+                    </div>
+                    <div id="followupTimeline" class="border rounded p-2" style="max-height:220px;overflow-y:auto;background:#fafbfc;"></div>
+                </div>
+
+                {{-- Form follow-up baru --}}
+                <form id="followupForm" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" id="followupSponsorId" value="">
+                    <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
+                        <i class="fas fa-plus-circle mr-1"></i> Record New Follow-up
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Renewal Year <span class="text-danger">*</span></label>
+                                <input type="number" name="renewal_year" id="followupYear" class="form-control"
+                                    min="2020" max="2100" value="{{ now()->year }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Follow-up Date <span class="text-danger">*</span></label>
+                                <input type="date" name="followed_up_at" id="followupDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Channel</label>
+                                <select name="channel" id="followupChannel" class="form-control">
+                                    <option value="whatsapp">WhatsApp</option>
+                                    <option value="email">Email</option>
+                                    <option value="call">Phone Call</option>
+                                    <option value="meeting">Meeting</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea name="notes" id="followupNotes" class="form-control" rows="2"
+                            placeholder="e.g. Sudah dihubungi via WA, menunggu konfirmasi internal mereka..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Proof / Bukti Follow-up <span class="text-danger">*</span></label>
+                        <input type="file" name="proof" id="followupProof" class="form-control-file" accept=".jpg,.jpeg,.png,.pdf" required>
+                        <small class="text-muted">Wajib — screenshot chat/email atau dokumen (JPG/PNG/PDF, max 5 MB)</small>
+                    </div>
+                    <div class="text-right">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn" style="background:#f39c12;color:#fff;" id="followupSubmitBtn">
+                            <i class="fas fa-save mr-1"></i> Save Follow-up
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Not Renewed -->
 <div class="modal fade" id="notRenewedModal" tabindex="-1" role="dialog"
     aria-labelledby="notRenewedModalLabel" aria-hidden="true">

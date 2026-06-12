@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\SocialMediaEngagementController;
 use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorAddressController;
 use App\Http\Controllers\Admin\SponsorAnnualReportController;
+use App\Http\Controllers\Admin\SponsorFollowupController;
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
 use App\Http\Controllers\Admin\SponsorBenefitController;
 use App\Http\Controllers\Admin\SponsorContactDirectoryController;
@@ -239,6 +240,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
     Route::get('sponsors/{sponsor}/edit-contract', [SponsorController::class, 'editContract'])
         ->name('sponsors.edit-contract');
+    Route::get('sponsors/{sponsor}/followups', [SponsorFollowupController::class, 'index'])
+        ->name('sponsors.followups.index');
+    Route::post('sponsors/{sponsor}/followups', [SponsorFollowupController::class, 'store'])
+        ->name('sponsors.followups.store');
     Route::post('sponsors/{sponsor}/update-contract', [SponsorController::class, 'updateContract'])
         ->name('sponsors.update-contract');
     Route::post('sponsors/{sponsor}/mark-not-renewed', [SponsorController::class, 'markNotRenewed'])

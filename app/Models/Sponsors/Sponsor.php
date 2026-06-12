@@ -54,6 +54,12 @@ class Sponsor extends Model
             ->where('is_current', 1);
     }
 
+    public function followups()
+    {
+        return $this->hasMany(\App\Models\Sponsors\SponsorFollowup::class, 'sponsor_id')
+            ->orderBy('followed_up_at');
+    }
+
     public function firstPic()
     {
         return $this->hasOne(SponsorPic::class)->oldest('id');

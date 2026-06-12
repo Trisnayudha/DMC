@@ -19,6 +19,7 @@
                                     <strong style="color:#fc544b;">Pending</strong> — the contract has already passed without confirmation (overdue, follow up immediately).
                                     <br><strong style="color:#e67e22;">Awaiting</strong> — the contract ends this month; a decision is expected now.
                                     <br><strong style="color:#6c757d;">Upcoming</strong> — the contract ends in a later month; on the radar, not urgent yet.
+                                    <br><strong style="color:#3abaf4;">Prosit</strong> — follow-up is already in progress (with proof recorded), while <strong style="color:#6c757d;">Not Contacted</strong> means no follow-up has been made yet.
                                 </div>
                                 <div class="d-flex flex-wrap mt-2" style="gap:8px;">
                                     @if(($stageCounts['pending'] ?? 0) > 0)
@@ -50,8 +51,10 @@
                                         <th style="min-width:190px;">Current Period</th>
                                         <th style="width:140px;">Contract End</th>
                                         <th style="width:130px;">Status</th>
+                                        <th style="width:150px;">Follow-up</th>
                                         <th style="width:110px;">Type</th>
                                         <th style="min-width:200px;">PIC Contact</th>
+                                        <th style="width:120px;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -115,6 +118,22 @@
                                             @include('admin.sponsor.annual-report._pending-stage-badge', ['stage' => $p->pending_stage ?? 'upcoming'])
                                         </td>
                                         <td style="padding:12px 16px;">
+                                            @if(($p->followup_count ?? 0) > 0)
+                                                <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:#3abaf4;">
+                                                    <i class="fas fa-phone-volume" style="font-size:10px;"></i> Prosit · {{ $p->followup_count }}×
+                                                </span>
+                                                @if($p->last_followup)
+                                                    <div style="font-size:10px;color:#888;margin-top:3px;">
+                                                        Last: {{ $p->last_followup->followed_up_at->format('d M') }}{{ $p->last_followup->creator ? ' by ' . $p->last_followup->creator->name : '' }}
+                                                    </div>
+                                                @endif
+                                            @else
+                                                <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#6c757d;background:#f0f1f5;">
+                                                    <i class="fas fa-user-slash" style="font-size:10px;"></i> Not Contacted
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td style="padding:12px 16px;">
                                             <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff;background:{{ $typeInfo['bg'] }};">
                                                 <i class="{{ $typeInfo['icon'] }}" style="font-size:10px;"></i>
                                                 {{ $typeInfo['label'] }}
@@ -123,10 +142,41 @@
                                         <td style="padding:12px 16px;">
                                             @include('admin.sponsor.annual-report._pic-contact', ['pic' => $pic, 'color' => '#f39c12'])
                                         </td>
+                                        <td style="padding:12px 16px;">
+                                            @php
+                                                $nextStart = $p->contract_end ? \Carbon\Carbon::createFromFormat('Y-m', $p->contract_end)->addMonth()->format('Y-m') : '';
+                                                $nextEnd   = $p->contract_end ? \Carbon\Carbon::createFromFormat('Y-m', $p->contract_end)->addMonths(12)->format('Y-m') : '';
+                                            @endphp
+                                            <div class="d-flex" style="gap:4px;">
+                                                <button class="btn btn-sm action-icon-btn followup-btn"
+                                                    style="background:#f39c12;color:#fff;"
+                                                    data-id="{{ $p->sponsor_id }}"
+                                                    data-name="{{ $p->sponsor ? $p->sponsor->name : '' }}"
+                                                    data-toggle="tooltip" title="Renewal Follow-up">
+                                                    <i class="fas fa-phone-volume"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-primary action-icon-btn update-contract-btn"
+                                                    data-sponsor-id="{{ $p->sponsor_id }}"
+                                                    data-contract-start="{{ $nextStart }}"
+                                                    data-contract-end="{{ $nextEnd }}"
+                                                    data-package="{{ $p->package }}"
+                                                    data-toggle="tooltip" title="Confirm Renewal / Update Contract">
+                                                    <i class="fas fa-file-signature"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-warning action-icon-btn not-renewed-btn"
+                                                    data-id="{{ $p->sponsor_id }}"
+                                                    data-name="{{ $p->sponsor ? $p->sponsor->name : '' }}"
+                                                    data-contract-start="{{ $p->contract_start }}"
+                                                    data-contract-end="{{ $p->contract_end }}"
+                                                    data-toggle="tooltip" title="Mark Not Renewed">
+                                                    <i class="fas fa-times-circle"></i>
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="8" class="text-center py-5 text-muted">
+                                        <td colspan="10" class="text-center py-5 text-muted">
                                             <i class="fas fa-check-circle fa-2x mb-3 d-block" style="opacity:.3;color:#47c363;"></i>
                                             All expiring contracts in {{ $year }} have been followed up — nothing pending.
                                         </td>

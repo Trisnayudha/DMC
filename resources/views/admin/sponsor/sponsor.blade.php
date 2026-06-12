@@ -63,3 +63,4 @@
 
 {{-- All inline JS (wrapped in @push) --}}
 @include('admin.sponsor.partials._scripts')
+@include('admin.sponsor.partials._contract_scripts')

@@ -308,6 +308,13 @@
                                                 class="btn btn-sm btn-success action-icon-btn" data-toggle="tooltip" title="Edit Data">
                                                 <i class="fas fa-pencil-alt"></i>
                                             </a>
+                                            <button class="btn btn-sm action-icon-btn followup-btn"
+                                                style="background:#f39c12;color:#fff;"
+                                                data-id="{{ $post->id }}"
+                                                data-name="{{ $post->name }}"
+                                                data-toggle="tooltip" title="Renewal Follow-up">
+                                                <i class="fas fa-phone-volume"></i>
+                                            </button>
                                             <button class="btn btn-sm btn-warning action-icon-btn not-renewed-btn"
                                                 data-id="{{ $post->id }}"
                                                 data-name="{{ $post->name }}"
