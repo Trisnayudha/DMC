@@ -1,0 +1,251 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Exports\SponsorAnnualReportExport;
+use App\Http\Controllers\Controller;
+use App\Models\Sponsors\SponsorRenewal;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Facades\Excel;
+
+/**
+ * Halaman Sponsors Annual Report: summary cards, statistik bulanan,
+ * contract expiry forecast (dengan follow-up status), dan tab daftar sponsor.
+ */
+class SponsorAnnualReportController extends Controller
+{
+    public function index(Request $request)
+    {
+        $year        = (int) $request->get('year', now()->year);
+        $package     = $request->get('package');
+        $search      = $request->get('search');
+        $renewalType = $request->get('renewal_type');
+
+        $renewedSponsors = $this->renewedSponsors($year, $package, $renewalType, $search);
+        if ($renewalType === 'not_renewed') {
+            $renewedSponsors = collect();
+        }
+
+        $expiryForecast = $this->expiryForecast($year);
+        $this->applyFollowUpStatus($expiryForecast);
+
+        return view('admin.sponsor.annual-report', [
+            'year'               => $year,
+            'package'            => $package,
+            'search'             => $search,
+            'renewalType'        => $renewalType,
+            'availableYears'     => $this->availableYears(),
+            'renewedSponsors'    => $renewedSponsors,
+            'notRenewedSponsors' => $this->notRenewedSponsors($year, $package, $search),
+            'monthlyStats'       => $this->monthlyStats($year),
+            'packageBreakdown'   => $this->packageBreakdown($year),
+            'expiryForecast'     => $expiryForecast,
+            'peakExpiryMonth'    => $this->peakExpiryMonth($expiryForecast),
+            'pendingRenewals'    => $this->pendingRenewals($expiryForecast, $package, $search),
+        ] + $this->summaryCounts($year));
+    }
+
+    public function download(Request $request)
+    {
+        $year     = (int) $request->get('year', now()->year);
+        $filename = "DMC-Sponsors-Report-{$year}.xlsx";
+
+        return Excel::download(new SponsorAnnualReportExport($year), $filename);
+    }
+
+    private function availableYears(): Collection
+    {
+        $years = SponsorRenewal::select('renewal_year')
+            ->distinct()
+            ->orderByDesc('renewal_year')
+            ->pluck('renewal_year');
+
+        return $years->isEmpty() ? collect([now()->year]) : $years;
+    }
+
+    /**
+     * Angka untuk summary cards: renewal / upgrade / new / not renewed.
+     */
+    private function summaryCounts(int $year): array
+    {
+        $base = fn () => SponsorRenewal::where('renewal_year', $year);
+
+        return [
+            'renewedCount'    => $base()->where('renewal_status', 'renewed')->where('renewal_type', 'renewal')->count(),
+            'upgradeCount'    => $base()->where('renewal_status', 'renewed')->where('renewal_type', 'upgrade')->count(),
+            'newCount'        => $base()->where('renewal_status', 'renewed')->whereIn('renewal_type', ['new', 'new_member'])->count(),
+            'notRenewedCount' => $base()->where('renewal_status', 'not_renewed')->count(),
+        ];
+    }
+
+    /**
+     * Breakdown platinum/gold/silver per kategori summary.
+     * Kategorinya harus sama persis dengan definisi di summaryCounts().
+     */
+    private function packageBreakdown(int $year): array
+    {
+        $breakdown = [
+            'renewal'     => ['platinum' => 0, 'gold' => 0, 'silver' => 0],
+            'upgrade'     => ['platinum' => 0, 'gold' => 0, 'silver' => 0],
+            'new'         => ['platinum' => 0, 'gold' => 0, 'silver' => 0],
+            'not_renewed' => ['platinum' => 0, 'gold' => 0, 'silver' => 0],
+        ];
+
+        SponsorRenewal::where('renewal_year', $year)
+            ->selectRaw("CASE
+                    WHEN renewal_status = 'not_renewed' THEN 'not_renewed'
+                    WHEN renewal_status = 'renewed' AND renewal_type = 'upgrade' THEN 'upgrade'
+                    WHEN renewal_status = 'renewed' AND renewal_type IN ('new', 'new_member') THEN 'new'
+                    WHEN renewal_status = 'renewed' AND renewal_type = 'renewal' THEN 'renewal'
+                END as category, package, COUNT(*) as total")
+            ->groupBy('category', 'package')
+            ->get()
+            ->each(function ($row) use (&$breakdown) {
+                if (isset($breakdown[$row->category][$row->package])) {
+                    $breakdown[$row->category][$row->package] += (int) $row->total;
+                }
+            });
+
+        return $breakdown;
+    }
+
+    /**
+     * Distribusi aktivitas per bulan (1-12) berdasarkan contract_start.
+     */
+    private function monthlyStats(int $year): array
+    {
+        $stats = array_fill(1, 12, ['renewal' => 0, 'upgrade' => 0, 'new' => 0, 'not_renewed' => 0]);
+
+        SponsorRenewal::where('renewal_year', $year)->get()->each(function ($r) use (&$stats) {
+            $date = $r->contract_start ?? ($r->created_at ? Carbon::parse($r->created_at)->format('Y-m-d') : null);
+            if (!$date) {
+                return;
+            }
+            $month = (int) Carbon::parse($date)->format('n');
+            if ($r->renewal_status === 'renewed') {
+                if ($r->renewal_type === 'upgrade') {
+                    $stats[$month]['upgrade']++;
+                } elseif (in_array($r->renewal_type, ['new', 'new_member'])) {
+                    $stats[$month]['new']++;
+                } else {
+                    $stats[$month]['renewal']++;
+                }
+            } else {
+                $stats[$month]['not_renewed']++;
+            }
+        });
+
+        return $stats;
+    }
+
+    private function renewedSponsors(int $year, ?string $package, ?string $renewalType, ?string $search): Collection
+    {
+        return SponsorRenewal::with(['sponsor', 'sponsor.firstPic'])
+            ->where('renewal_year', $year)
+            ->where('renewal_status', 'renewed')
+            ->when($package, fn ($q) => $q->where('package', $package))
+            ->when($renewalType && $renewalType !== 'not_renewed', fn ($q) => $q->where('renewal_type', $renewalType))
+            ->when($search, fn ($q) => $q->whereHas('sponsor', fn ($sq) => $sq->where('name', 'like', "%{$search}%")))
+            ->orderBy('contract_start')
+            ->get();
+    }
+
+    private function notRenewedSponsors(int $year, ?string $package, ?string $search): Collection
+    {
+        return SponsorRenewal::with(['sponsor', 'sponsor.firstPic'])
+            ->where('renewal_year', $year)
+            ->where('renewal_status', 'not_renewed')
+            ->when($package, fn ($q) => $q->where('package', $package))
+            ->when($search, fn ($q) => $q->whereHas('sponsor', fn ($sq) => $sq->where('name', 'like', "%{$search}%")))
+            ->orderBy('created_at')
+            ->get();
+    }
+
+    /**
+     * Kontrak yang habis di tahun terpilih, dikelompokkan per bulan (1-12).
+     */
+    private function expiryForecast(int $year): Collection
+    {
+        return SponsorRenewal::with(['sponsor', 'sponsor.firstPic'])
+            ->where('renewal_status', 'renewed')
+            ->where('contract_end', 'like', $year . '-%')
+            ->whereNotNull('contract_end')
+            ->orderBy('contract_end')
+            ->get()
+            ->groupBy(fn ($r) => (int) substr($r->contract_end, 5, 2));
+    }
+
+    /**
+     * Tandai tiap kontrak expiring dengan followup_status + followup_record:
+     * - renewed/upgraded : ada record 'renewed' baru yang mulai setelah kontrak ini habis
+     * - stopped          : ada record 'not_renewed' untuk tahun tsb / setelahnya
+     * - pending          : belum ada kabar
+     *
+     * Untuk yang masih pending, pending_stage memberi penamaan urgensi
+     * (istilah dari manajemen):
+     * - pending  : kontrak sudah kelewatan (bulan habisnya sudah lewat)
+     * - awaiting : habis di bulan berjalan
+     * - upcoming : habis di bulan-bulan berikutnya
+     */
+    private function applyFollowUpStatus(Collection $expiryForecast): void
+    {
+        $sponsorIds = $expiryForecast->flatten()->pluck('sponsor_id')->unique();
+        $records    = SponsorRenewal::whereIn('sponsor_id', $sponsorIds)
+            ->get()
+            ->groupBy('sponsor_id');
+        $nowYm = now()->format('Y-m');
+
+        $expiryForecast->each(function ($group) use ($records, $nowYm) {
+            $group->each(function ($er) use ($records, $nowYm) {
+                $sponsorRecords = $records->get($er->sponsor_id, collect());
+
+                $next = $sponsorRecords
+                    ->filter(fn ($r) => $r->id !== $er->id
+                        && $r->renewal_status === 'renewed'
+                        && $r->contract_start
+                        && $r->contract_start > $er->contract_end)
+                    ->sortBy('contract_start')
+                    ->first();
+
+                $stopped = $sponsorRecords->first(fn ($r) => $r->renewal_status === 'not_renewed'
+                    && $r->renewal_year >= (int) substr($er->contract_end, 0, 4));
+
+                if ($next) {
+                    $er->followup_status = $next->renewal_type === 'upgrade' ? 'upgraded' : 'renewed';
+                    $er->followup_record = $next;
+                } elseif ($stopped) {
+                    $er->followup_status = 'stopped';
+                    $er->followup_record = $stopped;
+                } else {
+                    $er->followup_status = 'pending';
+                    $er->followup_record = null;
+                    $er->pending_stage   = $er->contract_end < $nowYm
+                        ? 'pending'
+                        : ($er->contract_end === $nowYm ? 'awaiting' : 'upcoming');
+                }
+            });
+        });
+    }
+
+    private function peakExpiryMonth(Collection $expiryForecast): ?int
+    {
+        return $expiryForecast->isNotEmpty()
+            ? $expiryForecast->sortByDesc(fn ($g) => $g->count())->keys()->first()
+            : null;
+    }
+
+    /**
+     * Pipeline follow-up: kontrak expiring yang masih berstatus pending.
+     */
+    private function pendingRenewals(Collection $expiryForecast, ?string $package, ?string $search): Collection
+    {
+        return $expiryForecast->flatten()
+            ->filter(fn ($er) => $er->followup_status === 'pending')
+            ->when($package, fn ($c) => $c->where('package', $package))
+            ->when($search, fn ($c) => $c->filter(fn ($er) => $er->sponsor && stripos($er->sponsor->name, $search) !== false))
+            ->sortBy('contract_end')
+            ->values();
+    }
+}

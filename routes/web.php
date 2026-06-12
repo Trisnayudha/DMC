@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\ScholarshipController as AdminScholarshipControll
 use App\Http\Controllers\Admin\SocialMediaEngagementController;
 use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorAddressController;
+use App\Http\Controllers\Admin\SponsorAnnualReportController;
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
 use App\Http\Controllers\Admin\SponsorBenefitController;
 use App\Http\Controllers\Admin\SponsorContactDirectoryController;
@@ -218,9 +219,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/special-event', [SpecialEventController::class, 'index'])->name('special-event');
     Route::post('/special-event', [SpecialEventController::class, 'request']);
-    Route::get('sponsors/download-annual-report', [SponsorController::class, 'downloadAnnualReport'])
+    Route::get('sponsors/download-annual-report', [SponsorAnnualReportController::class, 'download'])
         ->name('sponsors.downloadAnnualReport');
-    Route::get('sponsors/annual-report', [SponsorController::class, 'annualReportPage'])
+    Route::get('sponsors/annual-report', [SponsorAnnualReportController::class, 'index'])
         ->name('sponsors.annual-report');
     Route::get('sponsors/nearing-contract', [SponsorController::class, 'nearingContract'])
         ->name('sponsors.nearing-contract');
