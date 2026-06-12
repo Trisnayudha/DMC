@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\SponsorAnnualReportExport;
 use App\Http\Controllers\Controller;
+use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorRenewal;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -31,6 +32,8 @@ class SponsorAnnualReportController extends Controller
         $expiryForecast = $this->expiryForecast($year);
         $this->applyFollowUpStatus($expiryForecast);
 
+        [$monthlyStats, $monthlyDetails] = $this->monthlyActivity($year);
+
         return view('admin.sponsor.annual-report', [
             'year'               => $year,
             'package'            => $package,
@@ -39,11 +42,13 @@ class SponsorAnnualReportController extends Controller
             'availableYears'     => $this->availableYears(),
             'renewedSponsors'    => $renewedSponsors,
             'notRenewedSponsors' => $this->notRenewedSponsors($year, $package, $search),
-            'monthlyStats'       => $this->monthlyStats($year),
+            'monthlyStats'       => $monthlyStats,
+            'monthlyDetails'     => $monthlyDetails,
             'packageBreakdown'   => $this->packageBreakdown($year),
             'expiryForecast'     => $expiryForecast,
             'peakExpiryMonth'    => $this->peakExpiryMonth($expiryForecast),
             'pendingRenewals'    => $this->pendingRenewals($expiryForecast, $package, $search),
+            'headcount'          => $this->sponsorHeadcount($year),
         ] + $this->summaryCounts($year));
     }
 
@@ -53,6 +58,68 @@ class SponsorAnnualReportController extends Controller
         $filename = "DMC-Sponsors-Report-{$year}.xlsx";
 
         return Excel::download(new SponsorAnnualReportExport($year), $filename);
+    }
+
+    /**
+     * Headcount sponsor per PERUSAHAAN (bukan per kontrak/transaksi) — menjawab
+     * "tahun ini jumlah sponsor kita berapa, achieved atau tidak vs tahun lalu".
+     *
+     * Hanya dihitung untuk tahun berjalan karena memakai snapshot status publish
+     * hari ini; untuk tahun lain section-nya disembunyikan (return null).
+     *
+     * "Tahun lalu" = sponsor yang punya kontrak aktif selama tahun sebelumnya DAN
+     * masih publish sekarang atau resmi dicatat not_renewed — sponsor lama yang
+     * nonaktif diam-diam tanpa catatan tidak ikut dihitung, supaya angkanya cocok
+     * dengan hitungan manajemen.
+     */
+    private function sponsorHeadcount(int $year): ?array
+    {
+        if ($year !== (int) now()->year) {
+            return null;
+        }
+
+        $prevYear = $year - 1;
+
+        $activeLastYear = SponsorRenewal::where('renewal_status', 'renewed')
+            ->whereNotNull('contract_start')
+            ->whereNotNull('contract_end')
+            ->where('contract_start', '<=', $prevYear . '-12')
+            ->where('contract_end', '>=', $prevYear . '-01')
+            ->pluck('sponsor_id')
+            ->unique();
+
+        $currentIds = Sponsor::where('status', 'publish')->pluck('id');
+        $lostIds    = SponsorRenewal::where('renewal_year', $year)
+            ->where('renewal_status', 'not_renewed')
+            ->pluck('sponsor_id')
+            ->unique();
+
+        // Sponsor lama bisa lanjut lewat BARIS sponsor baru (contoh: Berlian Cranserco
+        // Silver ID 27 upgrade ke Gold sebagai ID 80, baris lama ditinggal draft).
+        // Penentu new vs lanjutan adalah renewal_type-nya, bukan identitas baris:
+        // baris baru ber-record renewal/upgrade = kelanjutan sponsor tahun lalu.
+        $renewingIds = SponsorRenewal::where('renewal_year', $year)
+            ->where('renewal_status', 'renewed')
+            ->whereIn('renewal_type', ['renewal', 'upgrade'])
+            ->pluck('sponsor_id')
+            ->unique();
+
+        $newRows        = $currentIds->diff($activeLastYear);
+        $continuedCount = $newRows->intersect($renewingIds)->count();
+
+        $lastYearCount = $activeLastYear->intersect($currentIds->merge($lostIds))->count() + $continuedCount;
+        $lostCount     = $activeLastYear->intersect($lostIds)->count();
+        $newCount      = $newRows->count() - $continuedCount;
+        $currentCount  = $currentIds->count();
+
+        return [
+            'prevYear'      => $prevYear,
+            'lastYearCount' => $lastYearCount,
+            'lostCount'     => $lostCount,
+            'newCount'      => $newCount,
+            'currentCount'  => $currentCount,
+            'netChange'     => $currentCount - $lastYearCount,
+        ];
     }
 
     private function availableYears(): Collection
@@ -112,32 +179,40 @@ class SponsorAnnualReportController extends Controller
     }
 
     /**
-     * Distribusi aktivitas per bulan (1-12) berdasarkan contract_start.
+     * Distribusi aktivitas per bulan (1-12, Januari-Desember) berdasarkan contract_start.
+     * Mengembalikan [counts, details]: counts untuk bar chart, details berisi record
+     * per bulan+kategori untuk daftar sponsor yang muncul saat bar-nya diklik.
      */
-    private function monthlyStats(int $year): array
+    private function monthlyActivity(int $year): array
     {
-        $stats = array_fill(1, 12, ['renewal' => 0, 'upgrade' => 0, 'new' => 0, 'not_renewed' => 0]);
+        $stats   = array_fill(1, 12, ['renewal' => 0, 'upgrade' => 0, 'new' => 0, 'not_renewed' => 0]);
+        $details = array_fill(1, 12, ['renewal' => [], 'upgrade' => [], 'new' => [], 'not_renewed' => []]);
 
-        SponsorRenewal::where('renewal_year', $year)->get()->each(function ($r) use (&$stats) {
-            $date = $r->contract_start ?? ($r->created_at ? Carbon::parse($r->created_at)->format('Y-m-d') : null);
-            if (!$date) {
-                return;
-            }
-            $month = (int) Carbon::parse($date)->format('n');
-            if ($r->renewal_status === 'renewed') {
-                if ($r->renewal_type === 'upgrade') {
-                    $stats[$month]['upgrade']++;
-                } elseif (in_array($r->renewal_type, ['new', 'new_member'])) {
-                    $stats[$month]['new']++;
-                } else {
-                    $stats[$month]['renewal']++;
+        SponsorRenewal::with(['sponsor', 'sponsor.firstPic'])
+            ->where('renewal_year', $year)
+            ->get()
+            ->each(function ($r) use (&$stats, &$details) {
+                $date = $r->contract_start ?? ($r->created_at ? Carbon::parse($r->created_at)->format('Y-m-d') : null);
+                if (!$date) {
+                    return;
                 }
-            } else {
-                $stats[$month]['not_renewed']++;
-            }
-        });
+                $month = (int) Carbon::parse($date)->format('n');
+                if ($r->renewal_status === 'renewed') {
+                    if ($r->renewal_type === 'upgrade') {
+                        $category = 'upgrade';
+                    } elseif (in_array($r->renewal_type, ['new', 'new_member'])) {
+                        $category = 'new';
+                    } else {
+                        $category = 'renewal';
+                    }
+                } else {
+                    $category = 'not_renewed';
+                }
+                $stats[$month][$category]++;
+                $details[$month][$category][] = $r;
+            });
 
-        return $stats;
+        return [$stats, $details];
     }
 
     private function renewedSponsors(int $year, ?string $package, ?string $renewalType, ?string $search): Collection

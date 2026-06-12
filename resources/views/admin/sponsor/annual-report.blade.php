@@ -37,6 +37,9 @@
             {{-- Filter: year / package / type / search --}}
             @include('admin.sponsor.annual-report._filters')
 
+            {{-- Headcount per perusahaan: jumlah sponsor vs tahun lalu (achieved/tidak) --}}
+            @include('admin.sponsor.annual-report._headcount')
+
             {{-- Summary cards: renewal / upgrade / new / not renewed / total, dengan breakdown package --}}
             @include('admin.sponsor.annual-report._summary-cards')
 
