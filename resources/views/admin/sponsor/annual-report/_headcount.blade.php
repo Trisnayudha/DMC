@@ -59,9 +59,16 @@
                     style="background:{{ $achieved ? '#47c363' : 'linear-gradient(135deg,#6777ef 0%,#5263d8 100%)' }};border-radius:10px;padding:12px 8px;min-width:130px;">
                     <div
                         style="font-size:10px;font-weight:700;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.4px;">
-                        Current Sponsors {{ $year }}</div>
+                        Active Sponsors {{ $year }}</div>
                     <div style="font-size:24px;font-weight:800;color:#fff;">{{ $h['currentCount'] }}</div>
                 </div>
+            </div>
+
+            {{-- Formula helper: biar pembaca tidak perlu menghitung sendiri --}}
+            <div class="text-center mt-2" style="font-size:12px;color:#888;">
+                <i class="fas fa-calculator mr-1" style="opacity:.5;"></i>
+                {{ $h['lastYearCount'] }} − {{ $h['lostCount'] }} + {{ $h['newCount'] }} =
+                <strong style="color:#2d3748;">{{ $h['currentCount'] }} active sponsors</strong>
             </div>
 
             {{-- Reminder sisa renewal --}}
