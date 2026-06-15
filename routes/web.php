@@ -228,6 +228,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('sponsors.nearing-contract');
     Route::get('sponsors/contact-directory', [SponsorContactDirectoryController::class, 'index'])
         ->name('sponsors.contact-directory');
+    Route::get('sponsors/contact-directory/export', [SponsorContactDirectoryController::class, 'export'])
+        ->name('sponsors.contact-directory.export');
     Route::get('sponsors/kmk-rate', [SponsorController::class, 'getKmkRate'])
         ->name('sponsors.kmk-rate');
     Route::get('sponsors/export-renewals', [SponsorController::class, 'exportRenewals'])
@@ -236,6 +238,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('admin/sponsors/export', [SponsorExportController::class, 'export'])->name('sponsors.export');
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');
     Route::post('sponsors-representative-count/add-to-event', [SponsorCountRepresentativeController::class, 'addMemberToEvent'])->name('sponsors.representative.add_to_event');
+    Route::post('sponsors-representative-count/add-new-person', [SponsorCountRepresentativeController::class, 'addNewPersonToEvent'])->name('sponsors.representative.add_new_person');
     Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
     Route::get('sponsors/{sponsor}/edit-contract', [SponsorController::class, 'editContract'])

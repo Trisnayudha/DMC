@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
 use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
+use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
 use App\Models\User;
+use App\Services\Sponsors\SponsorContactRowBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -85,19 +88,30 @@ class SponsorCountRepresentativeController extends Controller
             ->whereYear('start_date', '>=', now()->year - 2)
             ->get(['id', 'name', 'slug', 'start_date']);
 
-        // All publish sponsors with their members for the modal selector
-        $allSponsorsWithMembers = Sponsor::with('members')
+        // All publish sponsors with their contacts (member + PIC + rep + billing,
+        // dedup by email, data user diutamakan) for the modal selector
+        $allSponsorsWithMembers = Sponsor::with(['members', 'pics', 'representatives', 'billings'])
             ->where('status', 'publish')
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get();
 
-        $sponsorMembersMap = [];
+        $builder = new SponsorContactRowBuilder();
+        $sponsorContactsMap = [];
         foreach ($allSponsorsWithMembers as $s) {
-            $members = [];
-            foreach ($s->members as $m) {
-                $members[] = ['id' => $m->id, 'name' => $m->name];
-            }
-            $sponsorMembersMap[$s->id] = $members;
+            $sponsorContactsMap[$s->id] = $builder->build($s)
+                // user yang sudah punya akun tampil duluan di dropdown
+                ->sortByDesc(function ($row) { return $row['user_id'] !== null; })
+                ->map(function ($row) {
+                    return [
+                        'user_id' => $row['user_id'],
+                        'name'    => $row['name'],
+                        'email'   => $row['email'],
+                        'phone'   => $row['phone'],
+                        'title'   => $row['title'],
+                        'role'    => $row['role'],
+                    ];
+                })
+                ->values();
         }
 
         return view('admin.sponsor.representative.index', [
@@ -108,7 +122,7 @@ class SponsorCountRepresentativeController extends Controller
             'nonAttendSponsors'     => $nonAttendSponsors,
             'events'                => $events,
             'allSponsorsWithMembers' => $allSponsorsWithMembers,
-            'sponsorMembersMap'     => $sponsorMembersMap,
+            'sponsorContactsMap'    => $sponsorContactsMap,
         ]);
     }
 
@@ -200,6 +214,202 @@ class SponsorCountRepresentativeController extends Controller
             return response()->json(['success' => true, 'message' => 'Member successfully registered to ' . $findEvent->name . '.']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Daftarkan orang yang belum ada di table users: buat/cari user by email,
+     * upsert company + profile, lalu register ke event dengan payment.sponsor_id
+     * terisi sehingga otomatis ter-tagging sebagai member sponsor tersebut.
+     */
+    public function addNewPersonToEvent(Request $request)
+    {
+        $request->validate([
+            'sponsor_id' => 'required|exists:sponsors,id',
+            'event_id'   => 'required|exists:events,id',
+            'name'       => 'required|string|max:255',
+            'email'      => 'required|email',
+        ]);
+
+        try {
+            $findEvent = Events::find($request->event_id);
+            $user      = $this->upsertPerson($request);
+
+            $existing = Payment::where('member_id', $user->id)
+                ->where('events_id', $findEvent->id)
+                ->first();
+            if ($existing) {
+                return response()->json(['success' => false, 'message' => 'This email is already registered for this event.'], 409);
+            }
+
+            $ticket = $request->input('ticket', 'sponsor');
+
+            if (in_array($ticket, ['free', 'sponsor'])) {
+                $this->registerPaidOff($request, $user, $findEvent, $ticket);
+                $message = $user->name . ' successfully registered to ' . $findEvent->name . '.';
+            } else {
+                $this->registerWithInvoice($request, $user, $findEvent, $ticket);
+                $message = $user->name . ' registered to ' . $findEvent->name . '. Payment invoice created.';
+            }
+
+            return response()->json(['success' => true, 'message' => $message]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    // Buat/cari user by email lalu lengkapi company + profile (pola add_invitation)
+    private function upsertPerson(Request $request): User
+    {
+        $user = User::firstOrNew(['email' => $request->email]);
+        $user->name   = $request->name;
+        $user->email  = $request->email;
+        $user->source = $user->exists ? $user->source : 'Event';
+        $user->save();
+
+        $company = CompanyModel::firstOrNew(['users_id' => $user->id]);
+        $company->prefix           = $request->prefix;
+        $company->company_name     = $request->company_name;
+        $company->company_website  = $request->company_website;
+        $company->company_category = $request->company_category;
+        $company->company_other    = $request->company_other;
+        $company->address          = $request->address;
+        $company->office_number    = $request->office_number;
+        $company->country          = $request->country;
+        $company->users_id         = $user->id;
+        $company->save();
+
+        if (!empty($request->company_name)) {
+            CompanyModel::syncByName($request->company_name);
+        }
+
+        $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
+        $profile->phone      = $request->phone;
+        $profile->job_title  = $request->job_title;
+        $profile->users_id   = $user->id;
+        $profile->company_id = $company->id;
+        $profile->save();
+
+        return $user;
+    }
+
+    // Tiket free/sponsor: langsung Paid Off + QR + users_event (pola addMemberToEvent)
+    private function registerPaidOff(Request $request, User $user, Events $findEvent, string $ticket): void
+    {
+        $codePayment = strtoupper(Str::random(7));
+        $image       = QrCode::format('png')->size(200)->errorCorrection('H')->generate($codePayment);
+        $outputFile  = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+        $dbPath      = '/storage/uploads/payment/qr-code/img-' . time() . '.png';
+        Storage::disk('local')->put($outputFile, $image);
+
+        $payment                      = new Payment();
+        $payment->member_id           = $user->id;
+        $payment->events_id           = $findEvent->id;
+        $payment->sponsor_id          = $request->sponsor_id;
+        $payment->package             = $ticket;
+        $payment->tickets_id          = 6;
+        $payment->code_payment        = $codePayment;
+        $payment->qr_code             = $dbPath;
+        $payment->status_registration = 'Paid Off';
+        $payment->pic_id              = Auth::id();
+        $payment->save();
+
+        $register             = new UserRegister();
+        $register->users_id   = $user->id;
+        $register->events_id  = $findEvent->id;
+        $register->payment_id = $payment->id;
+        $register->save();
+
+        if (!empty($request->send_email)) {
+            $data = [
+                'code_payment'    => $codePayment,
+                'create_date'     => date('d, M Y H:i'),
+                'users_name'      => $user->name,
+                'users_email'     => $user->email,
+                'phone'           => $request->phone,
+                'job_title'       => $request->job_title,
+                'company_name'    => $request->company_name,
+                'company_address' => $request->address,
+                'events_name'     => $findEvent->name,
+                'start_date'      => $findEvent->start_date,
+                'end_date'        => $findEvent->end_date,
+                'start_time'      => $findEvent->start_time,
+                'end_time'        => $findEvent->end_time,
+                'image'           => $dbPath,
+            ];
+
+            ini_set('max_execution_time', 300);
+            $pdf   = Pdf::setOptions(['isRemoteEnabled' => true])->loadView('email.ticket', $data);
+            $email = $user->email;
+            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
+                $message->from(env('EMAIL_SENDER'));
+                $message->to($email);
+                $message->subject($codePayment . ' - Your registration is approved for ' . $findEvent->name);
+                $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
+            });
+        }
+    }
+
+    // Tiket berbayar: invoice Xendit + status Waiting (pola add_invitation)
+    private function registerWithInvoice(Request $request, User $user, Events $findEvent, string $ticket): void
+    {
+        $prices    = ['member' => 900000, 'nonmember' => 1000000, 'onsite' => 1250000];
+        $ticketIds = ['member' => 1, 'nonmember' => 2, 'onsite' => 9];
+
+        $totalPrice  = $prices[$ticket] ?? 0;
+        $codePayment = strtoupper(Str::random(7));
+
+        $secretKey = env('XENDIT_ISPROD') ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
+        \Xendit\Xendit::setApiKey($secretKey);
+        $createInvoice = \Xendit\Invoice::create([
+            'external_id'          => $codePayment,
+            'payer_email'          => $user->email,
+            'description'          => 'Invoice Event DMC',
+            'amount'               => $totalPrice,
+            'success_redirect_url' => 'https://djakarta-miningclub.com',
+            'failure_redirect_url' => url('/'),
+        ]);
+        $linkPay = $createInvoice['invoice_url'];
+
+        $payment                      = new Payment();
+        $payment->member_id           = $user->id;
+        $payment->events_id           = $findEvent->id;
+        $payment->sponsor_id          = $request->sponsor_id;
+        $payment->package             = $ticket;
+        $payment->tickets_id          = $ticketIds[$ticket] ?? 6;
+        $payment->code_payment        = $codePayment;
+        $payment->payment_method      = 'Credit Card';
+        $payment->status_registration = 'Waiting';
+        $payment->link                = $linkPay;
+        $payment->pic_id              = Auth::id();
+        $payment->save();
+
+        if (!empty($request->send_email)) {
+            $date = date('d-m-Y H:i:s');
+            $data = [
+                'code_payment'    => $codePayment,
+                'create_date'     => date('d, M Y H:i'),
+                'due_date'        => date('d, M Y H:i', strtotime($date . ' +1 day')),
+                'users_name'      => $user->name,
+                'users_email'     => $user->email,
+                'phone'           => $request->phone,
+                'job_title'       => $request->job_title,
+                'company_name'    => $request->company_name,
+                'company_address' => $request->address,
+                'status'          => 'WAITING',
+                'events_name'     => $findEvent->name,
+                'price'           => number_format($totalPrice, 0, ',', '.'),
+                'voucher_price'   => 0,
+                'total_price'     => number_format($totalPrice, 0, ',', '.'),
+                'link'            => $linkPay,
+            ];
+
+            $email = $user->email;
+            Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent) {
+                $message->from(env('EMAIL_SENDER'));
+                $message->to($email);
+                $message->subject('Invoice - Waiting for Payment: ' . $findEvent->name);
+            });
         }
     }
 }

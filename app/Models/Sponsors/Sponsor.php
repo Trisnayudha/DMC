@@ -70,6 +70,11 @@ class Sponsor extends Model
         return $this->hasMany(SponsorRepresentative::class, 'sponsor_id');
     }
 
+    public function billings()
+    {
+        return $this->hasMany(SponsorBilling::class, 'sponsor_id');
+    }
+
     public function members()
     {
         return $this->belongsToMany(\App\Models\User::class, 'payment', 'sponsor_id', 'member_id')

@@ -10,6 +10,7 @@ use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\SocialMediaEngagement;
 use App\Models\Sponsors\Sponsor;
+use App\Models\Sponsors\SponsorBilling;
 use App\Models\Sponsors\SponsorPic;
 use App\Models\Sponsors\SponsorRenewal;
 use App\Models\User;
@@ -318,7 +319,79 @@ class SponsorController extends Controller
             }
         }
 
+        $this->storeBillings($request, $sponsor);
+
         return redirect()->route('sponsors.index')->with('success', 'Sponsor berhasil disimpan');
+    }
+
+    // Simpan data billing baru (dipakai saat create sponsor)
+    private function storeBillings(Request $request, Sponsor $sponsor)
+    {
+        if (!$request->has('billing') || !is_array($request->input('billing.name'))) {
+            return;
+        }
+
+        $billingTitles = $request->input('billing.title');
+        $billingEmails = $request->input('billing.email');
+        $billingPhones = $request->input('billing.phone');
+
+        foreach ($request->input('billing.name') as $index => $billingName) {
+            if (!empty($billingName)) {
+                SponsorBilling::create([
+                    'sponsor_id' => $sponsor->id,
+                    'name'  => $billingName,
+                    'title' => $billingTitles[$index] ?? null,
+                    'email' => $billingEmails[$index] ?? null,
+                    'phone' => $billingPhones[$index] ?? null,
+                ]);
+            }
+        }
+    }
+
+    // Update/tambah/hapus billing mengikuti isi form edit (pola sama dengan PIC)
+    private function syncBillings(Request $request, Sponsor $sponsor)
+    {
+        if (!$request->has('billing') || !is_array($request->input('billing.name'))) {
+            SponsorBilling::where('sponsor_id', $sponsor->id)->delete();
+            return;
+        }
+
+        $oldBillingIds = $sponsor->billings()->pluck('id')->toArray();
+
+        $billingTitles = $request->input('billing.title');
+        $billingEmails = $request->input('billing.email');
+        $billingPhones = $request->input('billing.phone');
+        $billingIds    = $request->input('billing.id', []);
+
+        $submittedIds = [];
+        foreach ($request->input('billing.name') as $index => $billingName) {
+            if (empty($billingName)) {
+                continue;
+            }
+
+            $data = [
+                'name'  => $billingName,
+                'title' => $billingTitles[$index] ?? null,
+                'email' => $billingEmails[$index] ?? null,
+                'phone' => $billingPhones[$index] ?? null,
+            ];
+
+            $billing = isset($billingIds[$index]) && !empty($billingIds[$index])
+                ? SponsorBilling::find($billingIds[$index])
+                : null;
+
+            if ($billing) {
+                $billing->update($data);
+            } else {
+                $billing = SponsorBilling::create($data + ['sponsor_id' => $sponsor->id]);
+            }
+            $submittedIds[] = $billing->id;
+        }
+
+        $toDelete = array_diff($oldBillingIds, $submittedIds);
+        if (!empty($toDelete)) {
+            SponsorBilling::whereIn('id', $toDelete)->delete();
+        }
     }
 
 
@@ -445,6 +518,8 @@ class SponsorController extends Controller
             // Jika tidak ada input PIC, hapus semua PIC untuk sponsor ini
             SponsorPic::where('sponsor_id', $sponsor->id)->delete();
         }
+
+        $this->syncBillings($request, $sponsor);
 
         return redirect()->route('sponsors.index')->with('success', 'Sponsor berhasil diperbarui');
     }

@@ -320,6 +320,77 @@
                             </div>
                             <!-- End Section Sponsor PIC -->
 
+                            <!-- Section Sponsor Billing -->
+                            <div class="card mt-4">
+                                <div class="card-header">
+                                    <h4>Sponsor Billing Information</h4>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered" id="billingTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Title</th>
+                                                <th>Email</th>
+                                                <th>Phone</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if ($sponsor->billings && $sponsor->billings->count() > 0)
+                                                @foreach ($sponsor->billings as $billing)
+                                                    <tr>
+                                                        <td>
+                                                            <input type="text" name="billing[name][]"
+                                                                value="{{ $billing->name }}" class="form-control">
+                                                            <input type="hidden" name="billing[id][]"
+                                                                value="{{ $billing->id }}">
+                                                        </td>
+                                                        <td><input type="text" name="billing[title][]"
+                                                                value="{{ $billing->title }}" class="form-control"></td>
+                                                        <td><input type="email" name="billing[email][]"
+                                                                value="{{ $billing->email }}" class="form-control"></td>
+                                                        <td><input type="text" name="billing[phone][]"
+                                                                value="{{ $billing->phone }}" class="form-control"></td>
+                                                        <td><button type="button"
+                                                                class="btn btn-danger remove-billing">Remove</button></td>
+                                                    </tr>
+                                                @endforeach
+                                            @elseif(old('billing'))
+                                                @foreach (old('billing.name') as $index => $billingName)
+                                                    <tr>
+                                                        <td>
+                                                            <input type="text" name="billing[name][]"
+                                                                value="{{ old('billing.name')[$index] }}"
+                                                                class="form-control">
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="billing[title][]"
+                                                                value="{{ old('billing.title')[$index] }}"
+                                                                class="form-control">
+                                                        </td>
+                                                        <td>
+                                                            <input type="email" name="billing[email][]"
+                                                                value="{{ old('billing.email')[$index] }}"
+                                                                class="form-control">
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" name="billing[phone][]"
+                                                                value="{{ old('billing.phone')[$index] }}"
+                                                                class="form-control">
+                                                        </td>
+                                                        <td><button type="button"
+                                                                class="btn btn-danger remove-billing">Remove</button></td>
+                                                    </tr>
+                                                @endforeach
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                    <button type="button" class="btn btn-primary" id="addBilling">Add Billing</button>
+                                </div>
+                            </div>
+                            <!-- End Section Sponsor Billing -->
+
                         </div>
                     </div>
                 </div>
@@ -410,6 +481,19 @@
                     $('#picTable tbody').append(row);
                 });
                 $(document).on('click', '.remove-pic', function() {
+                    $(this).closest('tr').remove();
+                });
+                $('#addBilling').click(function() {
+                    var row = `<tr>
+                        <td><input type="text" name="billing[name][]" class="form-control"></td>
+                        <td><input type="text" name="billing[title][]" class="form-control"></td>
+                        <td><input type="email" name="billing[email][]" class="form-control"></td>
+                        <td><input type="text" name="billing[phone][]" class="form-control"></td>
+                        <td><button type="button" class="btn btn-danger remove-billing">Remove</button></td>
+                    </tr>`;
+                    $('#billingTable tbody').append(row);
+                });
+                $(document).on('click', '.remove-billing', function() {
                     $(this).closest('tr').remove();
                 });
             });
