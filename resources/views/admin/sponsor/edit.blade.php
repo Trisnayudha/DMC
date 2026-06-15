@@ -31,7 +31,7 @@
                             <div class="row">
                                 <div class="col-7">
                                     <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
-                                        {!! Form::label('Company Name') !!}
+                                        {!! Form::label('Legal Name') !!}
                                         <small class="text-muted d-block mb-1">Official company name — used for invoicing</small>
                                         {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => 'e.g. Weir Minerals']) !!}
                                         @if ($errors->has('name'))
