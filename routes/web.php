@@ -268,6 +268,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     Route::post('admin/sponsors/benefits/{benefitUsage}/mark-used', [SponsorBenefitController::class, 'markUsed'])
         ->name('sponsors.benefit.markUsed');
+    Route::post('sponsors/benefits/{usageId}/marks', [SponsorBenefitController::class, 'addMark'])
+        ->name('sponsors.benefit.addMark');
+    Route::delete('sponsors/benefits/marks/{markId}', [SponsorBenefitController::class, 'removeMark'])
+        ->name('sponsors.benefit.removeMark');
 
     Route::resource('sponsors-address', SponsorAddressController::class);
     Route::get('sponsors-representative/{$id}', [SponsorRepresentativeController::class, 'show'])->name('sponsors-representative.show');

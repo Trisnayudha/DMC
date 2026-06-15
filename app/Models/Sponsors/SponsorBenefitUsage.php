@@ -32,4 +32,10 @@ class SponsorBenefitUsage extends Model
     {
         return $this->belongsTo(Sponsor::class);
     }
+
+    public function marks()
+    {
+        return $this->hasMany(SponsorBenefitUsageMark::class, 'sponsor_benefit_usage_id')
+            ->orderBy('marked_at', 'desc');
+    }
 }
