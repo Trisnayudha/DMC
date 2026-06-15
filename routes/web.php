@@ -239,6 +239,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');
     Route::post('sponsors-representative-count/add-to-event', [SponsorCountRepresentativeController::class, 'addMemberToEvent'])->name('sponsors.representative.add_to_event');
     Route::post('sponsors-representative-count/add-new-person', [SponsorCountRepresentativeController::class, 'addNewPersonToEvent'])->name('sponsors.representative.add_new_person');
+    Route::post('sponsors-representative-count/{paymentId}/resend-ticket', [SponsorCountRepresentativeController::class, 'resendTicket'])->name('sponsors.representative.resend_ticket');
     Route::resource('advertisement', AdvertisementController::class);
     Route::post('sponsors/update-status/{id}', [SponsorController::class, 'updateStatus']);
     Route::get('sponsors/{sponsor}/edit-contract', [SponsorController::class, 'editContract'])

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
@@ -11,6 +12,7 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
 use App\Models\User;
 use App\Services\Sponsors\SponsorContactRowBuilder;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,15 +37,29 @@ class SponsorCountRepresentativeController extends Controller
          |---------------------------------------------------------------------------------
          */
         $representativesQuery = Payment::select(
+            'payment.id as payment_id',
+            'payment.code_payment',
+            'payment.qr_code',
             'users.name as representative_name',
+            'users.email as representative_email',
+            'profiles.phone as representative_phone',
+            'profiles.job_title as representative_job_title',
+            'company.company_name as representative_company',
+            'company.address as representative_address',
             'sponsors.name as company',
             'payment.created_at as attend_time',
             'events.name as event_name',
+            'events.start_date',
+            'events.end_date',
+            'events.start_time',
+            'events.end_time',
             'users_event.present as present'
         )
             ->join('users', 'payment.member_id', '=', 'users.id')
             ->join('sponsors', 'payment.sponsor_id', '=', 'sponsors.id')
             ->join('events', 'payment.events_id', '=', 'events.id')
+            ->leftJoin('profiles', 'profiles.users_id', '=', 'users.id')
+            ->leftJoin('company', 'company.users_id', '=', 'users.id')
             ->leftJoin('users_event', function ($join) {
                 $join->on('users_event.payment_id', '=', 'payment.id')
                     ->on('users_event.users_id', '=', 'users.id');
@@ -215,6 +231,117 @@ class SponsorCountRepresentativeController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Resend e-ticket via email dan/atau WA dengan pesan yang bisa dikustomisasi.
+     * Data asli (payment, user) tidak diubah.
+     */
+    public function resendTicket(Request $request, int $paymentId)
+    {
+        $request->validate([
+            'send_email'    => 'nullable',
+            'send_wa'       => 'nullable',
+            'email_subject' => 'nullable|string|max:255',
+            'email_body'    => 'nullable|string',
+            'wa_message'    => 'nullable|string',
+        ]);
+
+        $payment = Payment::join('users', 'payment.member_id', '=', 'users.id')
+            ->join('events', 'payment.events_id', '=', 'events.id')
+            ->leftJoin('profiles', 'profiles.users_id', '=', 'users.id')
+            ->leftJoin('company', 'company.users_id', '=', 'users.id')
+            ->where('payment.id', $paymentId)
+            ->select(
+                'payment.id', 'payment.code_payment', 'payment.qr_code',
+                'users.name', 'users.email',
+                'profiles.phone', 'profiles.job_title',
+                'company.company_name', 'company.address',
+                'events.name as event_name',
+                'events.start_date', 'events.end_date',
+                'events.start_time', 'events.end_time'
+            )
+            ->first();
+
+        if (!$payment) {
+            return response()->json(['success' => false, 'message' => 'Payment not found.'], 404);
+        }
+
+        $sent = [];
+
+        if ($request->send_email) {
+            try {
+                $data = [
+                    'code_payment'    => $payment->code_payment,
+                    'create_date'     => date('d, M Y H:i'),
+                    'users_name'      => $payment->name,
+                    'users_email'     => $payment->email,
+                    'phone'           => $payment->phone,
+                    'job_title'       => $payment->job_title,
+                    'company_name'    => $payment->company_name,
+                    'company_address' => $payment->address,
+                    'events_name'     => $payment->event_name,
+                    'start_date'      => $payment->start_date,
+                    'end_date'        => $payment->end_date,
+                    'start_time'      => $payment->start_time,
+                    'end_time'        => $payment->end_time,
+                    'image'           => $payment->qr_code,
+                    'custom_body'     => $request->email_body ?: null,
+                ];
+
+                ini_set('max_execution_time', 300);
+                $pdf     = Pdf::setOptions(['isRemoteEnabled' => true])->loadView('email.ticket', $data);
+                $email   = $payment->email;
+                $subject = $request->email_subject ?: ($payment->code_payment . ' - Your registration is approved for ' . $payment->event_name);
+
+                \Illuminate\Support\Facades\Mail::send(
+                    'email.approval-event',
+                    $data,
+                    function ($message) use ($email, $pdf, $subject, $payment) {
+                        $message->from(env('EMAIL_SENDER'));
+                        $message->to($email);
+                        $message->subject($subject);
+                        $message->attachData($pdf->output(), $payment->code_payment . '-ticket.pdf');
+                    }
+                );
+                $sent[] = 'email';
+            } catch (\Exception $e) {
+                return response()->json(['success' => false, 'message' => 'Email failed: ' . $e->getMessage()], 500);
+            }
+        }
+
+        if ($request->send_wa) {
+            $phone = preg_replace('/[^0-9]/', '', $payment->phone ?? '');
+            if (empty($phone)) {
+                return response()->json(['success' => false, 'message' => 'No phone number on record for this contact.'], 422);
+            }
+
+            try {
+                $wa          = new WhatsappApi();
+                $wa->phone   = $phone;
+                $wa->message = $request->wa_message ?: $this->defaultWaMessage($payment);
+                $result      = $wa->WhatsappMessage();
+
+                if ($result !== 'valid') {
+                    return response()->json(['success' => false, 'message' => 'WA failed: ' . $result], 500);
+                }
+                $sent[] = 'WhatsApp';
+            } catch (\Exception $e) {
+                return response()->json(['success' => false, 'message' => 'WA failed: ' . $e->getMessage()], 500);
+            }
+        }
+
+        if (empty($sent)) {
+            return response()->json(['success' => false, 'message' => 'Please select at least one channel (Email or WA).'], 422);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Ticket resent via ' . implode(' & ', $sent) . '.']);
+    }
+
+    private function defaultWaMessage($payment): string
+    {
+        $date = $payment->start_date ? \Carbon\Carbon::parse($payment->start_date)->format('d M Y') : '-';
+        return "Hi {$payment->name},\n\nYour e-ticket for *{$payment->event_name}* ({$date}) is ready.\n\nTicket Code: *{$payment->code_payment}*\n\nPlease show this code at the registration desk.\n\nThank you,\nDMC Team";
     }
 
     /**

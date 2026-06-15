@@ -73,6 +73,7 @@
                                                 <th>Attend Time</th>
                                                 <th>Event</th>
                                                 <th>Check-in</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -81,23 +82,35 @@
                                                     <td>{{ $index + 1 }}</td>
                                                     <td>{{ $rep->representative_name }}</td>
                                                     <td>{{ $rep->company }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($rep->attend_time)->format('d M Y H:i') }}
-                                                    </td>
+                                                    <td>{{ \Carbon\Carbon::parse($rep->attend_time)->format('d M Y H:i') }}</td>
                                                     <td>{{ $rep->event_name }}</td>
                                                     <td>
                                                         @if ($rep->present)
                                                             <span class="badge badge-success">Present</span>
-                                                            <small
-                                                                class="text-muted ml-1">{{ \Carbon\Carbon::parse($rep->present)->format('d M Y H:i') }}</small>
+                                                            <small class="text-muted ml-1">{{ \Carbon\Carbon::parse($rep->present)->format('d M Y H:i') }}</small>
                                                         @else
                                                             <span class="badge badge-secondary">Not Present</span>
                                                         @endif
                                                     </td>
+                                                    <td>
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-outline-info btn-resend"
+                                                            data-payment-id="{{ $rep->payment_id }}"
+                                                            data-name="{{ $rep->representative_name }}"
+                                                            data-email="{{ $rep->representative_email }}"
+                                                            data-phone="{{ $rep->representative_phone }}"
+                                                            data-code="{{ $rep->code_payment }}"
+                                                            data-event="{{ $rep->event_name }}"
+                                                            data-date="{{ $rep->start_date ? \Carbon\Carbon::parse($rep->start_date)->format('d M Y') : '' }}"
+                                                            data-toggle="modal"
+                                                            data-target="#resendTicketModal">
+                                                            <i class="fas fa-paper-plane"></i>
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="6" class="text-center text-muted py-3">No attendance
-                                                        records found.</td>
+                                                    <td colspan="7" class="text-center text-muted py-3">No attendance records found.</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>
@@ -316,63 +329,8 @@
     </div>
 @endsection
 
-<!-- Modal: Add Sponsor Member to Event -->
-<div class="modal fade" id="addToEventModal" tabindex="-1" role="dialog" aria-labelledby="addToEventModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="addToEventModalLabel">
-                    <i class="fas fa-calendar-plus"></i> Register Sponsor Member to Event
-                </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="font-weight-bold">Sponsor <span class="text-danger">*</span></label>
-                    <select id="ateSponsorSelect" class="form-control" required>
-                        <option value="">— Select Sponsor —</option>
-                        @foreach ($allSponsorsWithMembers as $s)
-                            <option value="{{ $s->id }}">{{ $s->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="font-weight-bold">Member <span class="text-danger">*</span></label>
-                    <select id="ateMemberSelect" class="form-control" required disabled>
-                        <option value="">— Select Sponsor first —</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="font-weight-bold">Event <span class="text-danger">*</span></label>
-                    <select id="ateEventId" class="form-control" required>
-                        <option value="">— Select Event —</option>
-                        @foreach ($events as $event)
-                            <option value="{{ $event->id }}">
-                                {{ $event->name }} ({{ \Carbon\Carbon::parse($event->start_date)->format('M Y') }})
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group">
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="ateSendEmail" checked>
-                        <label class="custom-control-label" for="ateSendEmail">
-                            Send email confirmation + ticket PDF to member
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" id="ateSubmitBtn" class="btn btn-primary">
-                    <i class="fas fa-calendar-check"></i> Register to Event
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+@include('admin.sponsor.representative._add_to_event_modal')
+@include('admin.sponsor.representative._resend_ticket_modal')
 
 @push('bottom')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -382,83 +340,279 @@
             $('#laravel_crud').DataTable();
         });
 
-        // Sponsor members map (preloaded from PHP)
-        var sponsorMembersMap = @json($sponsorMembersMap);
+        // ── Resend ticket ──────────────────────────────────────────────────
+        var resendPaymentId = null;
 
-        // Reset modal when it opens
-        $('#addToEventModal').on('show.bs.modal', function() {
-            $('#ateSponsorSelect').val('');
-            $('#ateMemberSelect').html('<option value="">— Select Sponsor first —</option>').prop('disabled', true);
-            $('#ateEventId').val('');
-            $('#ateSendEmail').prop('checked', true);
+        // Populate modal saat tombol resend diklik
+        $(document).on('click', '.btn-resend', function() {
+            var btn   = $(this);
+            resendPaymentId = btn.data('payment-id');
+            var name  = btn.data('name');
+            var email = btn.data('email') || '';
+            var phone = btn.data('phone') || '';
+            var code  = btn.data('code')  || '';
+            var event = btn.data('event') || '';
+            var date  = btn.data('date')  || '';
+
+            $('#resendRecipientLabel').text('— ' + name);
+            $('#resendEmailTo').val(email);
+            $('#resendEmailSubject').val(code + ' - Your registration is approved for ' + event);
+            $('#resendEmailBody').val('');
+            $('#resendWaPhone').val(phone);
+            $('#resendWaMessage').val(
+                'Hi ' + name + ',\n\n' +
+                'Your e-ticket for *' + event + '* (' + date + ') is ready.\n\n' +
+                'Ticket Code: *' + code + '*\n\n' +
+                'Please show this code at the registration desk.\n\n' +
+                'Thank you,\nDMC Team'
+            );
         });
 
-        // Populate members when sponsor changes
-        $('#ateSponsorSelect').on('change', function() {
-            var sponsorId = $(this).val();
-            var $memberSelect = $('#ateMemberSelect');
-            $memberSelect.html('<option value="">— Select Member —</option>');
-
-            if (sponsorId && sponsorMembersMap[sponsorId] && sponsorMembersMap[sponsorId].length > 0) {
-                $.each(sponsorMembersMap[sponsorId], function(i, member) {
-                    $memberSelect.append('<option value="' + member.id + '">' + member.name + '</option>');
-                });
-                $memberSelect.prop('disabled', false);
-            } else if (sponsorId) {
-                $memberSelect.html('<option value="">— No members found —</option>').prop('disabled', true);
-            } else {
-                $memberSelect.html('<option value="">— Select Sponsor first —</option>').prop('disabled', true);
-            }
+        // Show/hide email & WA sections
+        $('#resendViaEmail').on('change', function() {
+            $('#resendEmailSection').toggle(this.checked);
+        });
+        $('#resendViaWa').on('change', function() {
+            $('#resendWaSection').toggle(this.checked);
         });
 
-        // Submit Add to Event
-        $('#ateSubmitBtn').on('click', function() {
-            var sponsorId = $('#ateSponsorSelect').val();
-            var userId    = $('#ateMemberSelect').val();
-            var eventId   = $('#ateEventId').val();
+        // Reset modal saat ditutup
+        $('#resendTicketModal').on('hidden.bs.modal', function() {
+            resendPaymentId = null;
+            $('#resendViaEmail').prop('checked', true);
+            $('#resendViaWa').prop('checked', false);
+            $('#resendEmailSection').show();
+            $('#resendWaSection').hide();
+        });
 
-            if (!sponsorId) {
-                toastr.warning('Please select a sponsor.', '', { positionClass: 'toast-top-right' });
-                return;
-            }
-            if (!userId) {
-                toastr.warning('Please select a member.', '', { positionClass: 'toast-top-right' });
-                return;
-            }
-            if (!eventId) {
-                toastr.warning('Please select an event.', '', { positionClass: 'toast-top-right' });
+        // Submit resend
+        $('#resendSubmitBtn').on('click', function() {
+            if (!resendPaymentId) return;
+
+            var sendEmail = $('#resendViaEmail').is(':checked');
+            var sendWa    = $('#resendViaWa').is(':checked');
+
+            if (!sendEmail && !sendWa) {
+                toastr.warning('Please select at least one channel.', '', {positionClass:'toast-top-right'});
                 return;
             }
 
             var btn = $(this);
-            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Registering...');
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
 
             $.ajax({
-                url: '{{ route("sponsors.representative.add_to_event") }}',
+                url:    '/admin/sponsors-representative-count/' + resendPaymentId + '/resend-ticket',
                 method: 'POST',
                 data: {
-                    _token:     '{{ csrf_token() }}',
-                    user_id:    userId,
-                    event_id:   eventId,
-                    sponsor_id: sponsorId,
-                    send_email: $('#ateSendEmail').is(':checked') ? 1 : '',
+                    _token:        '{{ csrf_token() }}',
+                    send_email:    sendEmail ? 1 : '',
+                    send_wa:       sendWa    ? 1 : '',
+                    email_subject: $('#resendEmailSubject').val(),
+                    email_body:    $('#resendEmailBody').val(),
+                    wa_message:    $('#resendWaMessage').val(),
                 },
-                success: function(response) {
-                    if (response.success) {
-                        toastr.success(response.message, 'Success', { positionClass: 'toast-top-right' });
-                        $('#addToEventModal').modal('hide');
+                success:  function(r) {
+                    if (r.success) {
+                        toastr.success(r.message, 'Sent', {positionClass:'toast-top-right'});
+                        $('#resendTicketModal').modal('hide');
                     } else {
-                        toastr.error(response.message, 'Error', { positionClass: 'toast-top-right' });
+                        toastr.error(r.message, 'Error', {positionClass:'toast-top-right'});
                     }
                 },
                 error: function(xhr) {
-                    var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'An error occurred.';
-                    toastr.error(msg, 'Error', { positionClass: 'toast-top-right' });
+                    var msg = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred.';
+                    toastr.error(msg, 'Error', {positionClass:'toast-top-right'});
                 },
                 complete: function() {
-                    btn.prop('disabled', false).html('<i class="fas fa-calendar-check"></i> Register to Event');
+                    btn.prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Send');
                 }
             });
+        });
+
+        var sponsorContactsMap = @json($sponsorContactsMap);
+        var selectedContact    = null; // contact object yg sedang dipilih
+
+        // ── Helpers ──────────────────────────────────────────────────────────
+        function roleLabel(role) {
+            if (role === 'pic')     return '<span class="badge badge-primary ml-1">PIC</span>';
+            if (role === 'billing') return '<span class="badge badge-warning ml-1">Billing</span>';
+            return '<span class="badge badge-secondary ml-1">Rep</span>';
+        }
+
+        function resetModal() {
+            $('#ateSponsorSelect').val('');
+            $('#ateContactSelect').html('<option value="">— Select Sponsor first —</option>').prop('disabled', true);
+            $('#ateEventId').val('');
+            $('#ateSendEmail').prop('checked', true);
+            selectedContact = null;
+            setMode('existing');
+            clearNewPersonForm();
+        }
+
+        function setMode(mode) {
+            if (mode === 'existing') {
+                $('#ateModeExistingBtn').addClass('active');
+                $('#ateModeNewBtn').removeClass('active');
+                $('input[name="ateMode"][value="existing"]').prop('checked', true);
+                $('#ateContactGroup').show();
+                $('#ateNewPersonForm').hide();
+            } else {
+                $('#ateModeNewBtn').addClass('active');
+                $('#ateModeExistingBtn').removeClass('active');
+                $('input[name="ateMode"][value="new"]').prop('checked', true);
+                $('#ateContactGroup').hide();
+                $('#ateNewPersonForm').show();
+            }
+        }
+
+        function clearNewPersonForm() {
+            $('#atePrefix').val('PT');
+            $('#ateName,#ateCompanyWebsite,#ateJobTitle,#ateCompanyName,#ateEmail,#atePhone,#ateAddress,#ateOfficeNumber,#ateCompanyOther').val('');
+            $('#ateCountry').val('Indonesia');
+            $('#ateCompanyCategory').val('');
+            $('#ateCompanyOtherGroup').hide();
+            $('#ateTicket').val('sponsor');
+        }
+
+        function prefillNewPersonForm(contact) {
+            $('#ateName').val(contact.name || '');
+            $('#ateEmail').val(contact.email || '');
+            $('#atePhone').val(contact.phone || '');
+            $('#ateJobTitle').val(contact.title || '');
+        }
+
+        // ── Reset on open ────────────────────────────────────────────────────
+        $('#addToEventModal').on('show.bs.modal', function() { resetModal(); });
+
+        // ── Mode toggle ──────────────────────────────────────────────────────
+        $('#ateModeExistingBtn').on('click', function() { setMode('existing'); });
+        $('#ateModeNewBtn').on('click',      function() { setMode('new'); clearNewPersonForm(); });
+
+        // ── Sponsor change → populate contacts ───────────────────────────────
+        $('#ateSponsorSelect').on('change', function() {
+            var sponsorId = $(this).val();
+            var $sel      = $('#ateContactSelect');
+            selectedContact = null;
+            $sel.html('<option value="">— Select Contact —</option>');
+
+            if (sponsorId && sponsorContactsMap[sponsorId] && sponsorContactsMap[sponsorId].length > 0) {
+                $.each(sponsorContactsMap[sponsorId], function(i, c) {
+                    var label = c.name + (c.email ? ' (' + c.email + ')' : '') + (c.user_id ? ' ✓' : ' [no account]');
+                    $sel.append('<option value="' + i + '">' + label + '</option>');
+                });
+                $sel.prop('disabled', false);
+            } else if (sponsorId) {
+                $sel.html('<option value="">— No contacts found —</option>').prop('disabled', true);
+            } else {
+                $sel.html('<option value="">— Select Sponsor first —</option>').prop('disabled', true);
+            }
+        });
+
+        // ── Contact change → existing user atau prefill new person ───────────
+        $('#ateContactSelect').on('change', function() {
+            var sponsorId = $('#ateSponsorSelect').val();
+            var idx       = $(this).val();
+            if (!sponsorId || idx === '') { selectedContact = null; return; }
+
+            selectedContact = sponsorContactsMap[sponsorId][idx];
+
+            if (!selectedContact.user_id) {
+                // Belum punya akun → pindah ke mode new person, prefill dari data contact
+                setMode('new');
+                prefillNewPersonForm(selectedContact);
+            } else {
+                setMode('existing');
+            }
+        });
+
+        // ── Company Other toggle ─────────────────────────────────────────────
+        $('#ateCompanyCategory').on('change', function() {
+            if ($(this).val() === 'other') {
+                $('#ateCompanyOtherGroup').show();
+            } else {
+                $('#ateCompanyOtherGroup').hide();
+                $('#ateCompanyOther').val('');
+            }
+        });
+
+        // ── Submit ───────────────────────────────────────────────────────────
+        $('#ateSubmitBtn').on('click', function() {
+            var sponsorId = $('#ateSponsorSelect').val();
+            var eventId   = $('#ateEventId').val();
+            var mode      = $('input[name="ateMode"]:checked').val();
+            var btn       = $(this);
+
+            if (!sponsorId) { toastr.warning('Please select a sponsor.', '', {positionClass:'toast-top-right'}); return; }
+            if (!eventId)   { toastr.warning('Please select an event.', '',   {positionClass:'toast-top-right'}); return; }
+
+            if (mode === 'existing') {
+                if (!selectedContact || !selectedContact.user_id) {
+                    toastr.warning('Please select a contact with a user account, or switch to New Person.', '', {positionClass:'toast-top-right'});
+                    return;
+                }
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Registering...');
+                $.ajax({
+                    url:    '{{ route("sponsors.representative.add_to_event") }}',
+                    method: 'POST',
+                    data: {
+                        _token:     '{{ csrf_token() }}',
+                        user_id:    selectedContact.user_id,
+                        event_id:   eventId,
+                        sponsor_id: sponsorId,
+                        send_email: $('#ateSendEmail').is(':checked') ? 1 : '',
+                    },
+                    success:  function(r) {
+                        if (r.success) { toastr.success(r.message, 'Success', {positionClass:'toast-top-right'}); $('#addToEventModal').modal('hide'); }
+                        else           { toastr.error(r.message, 'Error',   {positionClass:'toast-top-right'}); }
+                    },
+                    error:    function(xhr) {
+                        var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'An error occurred.';
+                        toastr.error(msg, 'Error', {positionClass:'toast-top-right'});
+                    },
+                    complete: function() { btn.prop('disabled', false).html('<i class="fas fa-calendar-check"></i> Register to Event'); }
+                });
+
+            } else {
+                // New person
+                var name  = $.trim($('#ateName').val());
+                var email = $.trim($('#ateEmail').val());
+                if (!name)  { toastr.warning('Name is required.', '', {positionClass:'toast-top-right'}); return; }
+                if (!email) { toastr.warning('Email is required.', '', {positionClass:'toast-top-right'}); return; }
+
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Registering...');
+                $.ajax({
+                    url:    '{{ route("sponsors.representative.add_new_person") }}',
+                    method: 'POST',
+                    data: {
+                        _token:           '{{ csrf_token() }}',
+                        sponsor_id:       sponsorId,
+                        event_id:         eventId,
+                        send_email:       $('#ateSendEmail').is(':checked') ? 1 : '',
+                        prefix:           $('#atePrefix').val(),
+                        name:             name,
+                        email:            email,
+                        phone:            $('#atePhone').val(),
+                        job_title:        $('#ateJobTitle').val(),
+                        company_name:     $('#ateCompanyName').val(),
+                        company_website:  $('#ateCompanyWebsite').val(),
+                        company_category: $('#ateCompanyCategory').val(),
+                        company_other:    $('#ateCompanyOther').val(),
+                        address:          $('#ateAddress').val(),
+                        office_number:    $('#ateOfficeNumber').val(),
+                        country:          $('#ateCountry').val(),
+                        ticket:           $('#ateTicket').val(),
+                    },
+                    success:  function(r) {
+                        if (r.success) { toastr.success(r.message, 'Success', {positionClass:'toast-top-right'}); $('#addToEventModal').modal('hide'); }
+                        else           { toastr.error(r.message, 'Error',   {positionClass:'toast-top-right'}); }
+                    },
+                    error:    function(xhr) {
+                        var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'An error occurred.';
+                        toastr.error(msg, 'Error', {positionClass:'toast-top-right'});
+                    },
+                    complete: function() { btn.prop('disabled', false).html('<i class="fas fa-calendar-check"></i> Register to Event'); }
+                });
+            }
         });
     </script>
 @endpush
