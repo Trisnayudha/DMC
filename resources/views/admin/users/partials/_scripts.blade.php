@@ -654,6 +654,51 @@
             });
     })();
 
+    // =========================================================
+    // DEACTIVATE / REACTIVATE MEMBER
+    // =========================================================
+    $(document).on('click', '.btn-deactivate-member', function() {
+        var btn  = $(this);
+        var name = btn.data('name');
+        if (!confirm('Deactivate "' + name + '"? Member tidak bisa login dan mendapat harga nonmember.')) return;
+
+        $.ajax({
+            url: btn.data('url'),
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}' },
+            success: function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    location.reload();
+                } else {
+                    toastr.error(res.message || 'Gagal deactivate.');
+                }
+            },
+            error: function() { toastr.error('Terjadi kesalahan.'); }
+        });
+    });
+
+    $(document).on('click', '.btn-reactivate-member', function() {
+        var btn  = $(this);
+        var name = btn.data('name');
+        if (!confirm('Reactivate "' + name + '"? Member akan kembali aktif.')) return;
+
+        $.ajax({
+            url: btn.data('url'),
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}' },
+            success: function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    location.reload();
+                } else {
+                    toastr.error(res.message || 'Gagal reactivate.');
+                }
+            },
+            error: function() { toastr.error('Terjadi kesalahan.'); }
+        });
+    });
+
     // DataTable
     $(document).ready(function() {
         $('#laravel_crud').DataTable({

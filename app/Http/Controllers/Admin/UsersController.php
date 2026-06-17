@@ -80,13 +80,14 @@ class UsersController extends Controller
                     $q->whereNull('users.status_member')
                         ->orWhere('users.status_member', 'pending');
                 });
-            } elseif ($filter === 'declined') {
+            } elseif ($statusMember === 'declined') {
                 $query->where('users.status_member', 'declined');
+            } elseif ($statusMember === 'deactivated') {
+                $query->where('users.status_member', 'deactivated');
             } else {
-                // Default "All": exclude declined
                 $query->where(function ($q) {
                     $q->whereNull('users.status_member')
-                        ->orWhere('users.status_member', '!=', 'declined');
+                        ->orWhereNotIn('users.status_member', ['declined', 'deactivated']);
                 });
             }
 
@@ -147,6 +148,10 @@ class UsersController extends Controller
             ->where('status_member', 'declined')
             ->count();
 
+        $countDeactivated = User::whereNotNull('isStatus')
+            ->where('status_member', 'deactivated')
+            ->count();
+
         $countNewThisMonth = User::whereNotNull('isStatus')
             ->whereBetween('created_at', [
                 Carbon::now()->startOfMonth(),
@@ -182,6 +187,7 @@ class UsersController extends Controller
             'countActiveMember'  => $countActiveMember,
             'countPendingMember' => $countPendingMember,
             'countDeclined'      => $countDeclined,
+            'countDeactivated'   => $countDeactivated,
             'countNewThisMonth'  => $countNewThisMonth,
             'countUnRegistered'  => $countUnRegistered,
             'countVerifyEmail'   => $countVerifyEmail,
@@ -404,6 +410,30 @@ class UsersController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Membership application declined dan email notifikasi telah dikirim.',
+        ]);
+    }
+
+    public function deactivateMember(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $user->status_member = 'deactivated';
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => $user->name . ' berhasil di-deactivate.',
+        ]);
+    }
+
+    public function reactivateMember(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $user->status_member = 'active';
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => $user->name . ' berhasil di-reactivate.',
         ]);
     }
 

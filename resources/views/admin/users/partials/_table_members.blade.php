@@ -33,10 +33,11 @@
         <?php $no = 1; ?>
         @foreach ($list as $post)
             @php
-                $memberStatus = strtolower($post->status_member ?? '');
-                $isActive     = $memberStatus === 'active';
-                $isDeclined   = $memberStatus === 'declined';
-                $rowBg = $isActive ? '' : ($isDeclined ? 'background-color:#fff5f5;' : 'background-color:#fffbee;');
+                $memberStatus  = strtolower($post->status_member ?? '');
+                $isActive      = $memberStatus === 'active';
+                $isDeclined    = $memberStatus === 'declined';
+                $isDeactivated = $memberStatus === 'deactivated';
+                $rowBg = $isActive ? '' : ($isDeclined ? 'background-color:#fff5f5;' : ($isDeactivated ? 'background-color:#f0f0f0;' : 'background-color:#fffbee;'));
             @endphp
             <tr id="row_{{ $post->user_id }}" style="{{ $rowBg }}">
 
@@ -79,7 +80,18 @@
                 {{-- STATUS MEMBER --}}
                 <td>
                     <div class="d-flex flex-column align-items-start" style="gap:4px;">
-                        @if ($isActive)
+                        @if ($isDeactivated)
+                            <span class="badge badge-secondary member-status-badge">
+                                <i class="fas fa-user-slash mr-1"></i>Deactivated
+                            </span>
+                            <button type="button"
+                                class="btn btn-xs btn-outline-success btn-reactivate-member"
+                                data-url="{{ route('users.reactivate', $post->user_id) }}"
+                                data-name="{{ $post->name }}"
+                                title="Reactivate member ini">
+                                <i class="fas fa-undo"></i> Reactivate
+                            </button>
+                        @elseif ($isActive)
                             <span class="badge badge-success member-status-badge">
                                 <i class="fas fa-check mr-1"></i>Active
                             </span>
@@ -88,6 +100,13 @@
                                 data-url="{{ route('users.verify', $post->user_id) }}"
                                 disabled>
                                 <i class="fas fa-check"></i> Verified
+                            </button>
+                            <button type="button"
+                                class="btn btn-xs btn-outline-secondary btn-deactivate-member"
+                                data-url="{{ route('users.deactivate', $post->user_id) }}"
+                                data-name="{{ $post->name }}"
+                                title="Deactivate member ini">
+                                <i class="fas fa-user-slash"></i> Deactivate
                             </button>
                         @elseif ($isDeclined)
                             @php

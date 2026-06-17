@@ -14,8 +14,10 @@
                 <span class="text-warning"><i class="fas fa-user-edit mr-1"></i>Self-Edited by User</span>
             @elseif (request('filter') === 'password_null')
                 <span class="text-warning"><i class="fas fa-key mr-1"></i>Active Members Without Password</span>
-            @elseif (request('filter') === 'declined')
+            @elseif (request('status_member') === 'declined')
                 <span class="text-danger"><i class="fas fa-times-circle mr-1"></i>Declined Applications</span>
+            @elseif (request('status_member') === 'deactivated')
+                <span class="text-secondary"><i class="fas fa-user-slash mr-1"></i>Deactivated Members</span>
             @else
                 <i class="fas fa-users mr-1"></i>All Members
             @endif
@@ -84,13 +86,22 @@
                             class="badge {{ request('filter') === 'password_null' ? 'badge-light' : 'badge-warning' }} ml-1">{{ $countActiveWithoutPassword }}</span>
                     @endif
                 </a>
-                <a href="{{ url('admin/users?filter=declined') }}"
-                    class="btn btn-sm {{ request('filter') === 'declined' ? 'btn-danger' : 'btn-outline-danger' }}"
+                <a href="{{ url('admin/users?status_member=declined') }}"
+                    class="btn btn-sm {{ request('status_member') === 'declined' ? 'btn-danger' : 'btn-outline-danger' }}"
                     title="Applicant yang sudah di-decline">
                     <i class="fas fa-times-circle mr-1"></i> Declined
                     @if (($countDeclined ?? 0) > 0)
                         <span
-                            class="badge {{ request('filter') === 'declined' ? 'badge-light' : 'badge-danger' }} ml-1">{{ $countDeclined }}</span>
+                            class="badge {{ request('status_member') === 'declined' ? 'badge-light' : 'badge-danger' }} ml-1">{{ $countDeclined }}</span>
+                    @endif
+                </a>
+                <a href="{{ url('admin/users?status_member=deactivated') }}"
+                    class="btn btn-sm {{ request('status_member') === 'deactivated' ? 'btn-secondary' : 'btn-outline-secondary' }}"
+                    title="Member yang di-deactivate (akun testing, meninggal, dll)">
+                    <i class="fas fa-user-slash mr-1"></i> Deactivated
+                    @if (($countDeactivated ?? 0) > 0)
+                        <span
+                            class="badge {{ request('status_member') === 'deactivated' ? 'badge-light' : 'badge-secondary' }} ml-1">{{ $countDeactivated }}</span>
                     @endif
                 </a>
             </div>
