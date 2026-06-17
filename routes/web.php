@@ -497,6 +497,10 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('admin.master_database.index');
     Route::get('/company-database', [CompanyDatabaseController::class, 'index'])
         ->name('admin.company_database.index');
+    Route::get('/company-database/export', [CompanyDatabaseController::class, 'export'])
+        ->name('admin.company_database.export');
+    Route::post('/company-database/import', [CompanyDatabaseController::class, 'import'])
+        ->name('admin.company_database.import');
     Route::post('/company-database/sync', [CompanyDatabaseController::class, 'sync'])
         ->name('admin.company_database.sync');
     Route::post('/company-database/update', [CompanyDatabaseController::class, 'update'])

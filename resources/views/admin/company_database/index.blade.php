@@ -35,6 +35,20 @@
                     </div>
                 @endif
 
+                @if (session('import_errors'))
+                    <div class="alert alert-warning alert-dismissible show fade">
+                        <div class="alert-body">
+                            <button class="close" data-dismiss="alert"><span>×</span></button>
+                            <strong>Import warnings:</strong>
+                            <ul class="mb-0 mt-1" style="font-size:12px;">
+                                @foreach (session('import_errors') as $err)
+                                    <li>{{ $err }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="row mb-3">
 
                     {{-- 1. Trend chart --}}
@@ -191,15 +205,26 @@
                             </div>
                         </form>
 
-                        <form method="POST" action="{{ route('admin.company_database.sync_all') }}" class="mb-3">
-                            @csrf
-                            <input type="hidden" name="search" value="{{ $search }}">
-                            <input type="hidden" name="scope" value="{{ $scope }}">
-                            <button type="submit" class="btn btn-warning"
-                                onclick="return confirm('Sync semua company sesuai filter saat ini?')">
-                                <i class="fas fa-sync"></i> Sync Semua Sesuai Filter
+                        <div class="d-flex mb-3" style="gap:8px; flex-wrap:wrap;">
+                            <form method="POST" action="{{ route('admin.company_database.sync_all') }}">
+                                @csrf
+                                <input type="hidden" name="search" value="{{ $search }}">
+                                <input type="hidden" name="scope" value="{{ $scope }}">
+                                <button type="submit" class="btn btn-warning"
+                                    onclick="return confirm('Sync semua company sesuai filter saat ini?')">
+                                    <i class="fas fa-sync"></i> Sync Semua Sesuai Filter
+                                </button>
+                            </form>
+
+                            <a href="{{ route('admin.company_database.export', ['search' => $search, 'scope' => $scope]) }}"
+                                class="btn btn-success">
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </a>
+
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#importModal">
+                                <i class="fas fa-file-upload"></i> Import Excel
                             </button>
-                        </form>
+                        </div>
 
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover" id="company-database-table">
@@ -480,6 +505,48 @@
                         <i class="fas fa-sync"></i> Sync Now
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal: Import Excel --}}
+    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('admin.company_database.import') }}" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-file-upload mr-2"></i>Import Company Rename/Merge</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-light" style="font-size:12px;">
+                            <strong>Format Excel:</strong>
+                            <table class="table table-sm table-bordered mt-2 mb-0" style="font-size:11px;">
+                                <thead><tr><th>prefix</th><th>company_name</th><th>old_company_name</th></tr></thead>
+                                <tbody>
+                                    <tr><td>PT</td><td>Inter Delta PERSADA</td><td>PT. INTER DELTA PERSADA</td></tr>
+                                    <tr><td>PT</td><td>Media Mitrakarya</td><td>MMI</td></tr>
+                                    <tr><td></td><td></td><td>PT Media Mitrakarya</td></tr>
+                                </tbody>
+                            </table>
+                            <div class="mt-2 text-muted">
+                                Row tanpa prefix/company_name akan menggunakan target dari row di atasnya (merge).
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="small font-weight-bold">File Excel (.xlsx, .xls, .csv)</label>
+                            <input type="file" name="file" class="form-control-file" accept=".xlsx,.xls,.csv" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-info"
+                            onclick="return confirm('Import akan me-rename company yang ada di database. Lanjutkan?')">
+                            <i class="fas fa-upload mr-1"></i> Import
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\CompanyDatabaseExport;
 use App\Http\Controllers\Controller;
+use App\Imports\CompanyDatabaseImport;
 use App\Models\Company\CompanyModel;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Activitylog\Models\Activity;
 
 class CompanyDatabaseController extends Controller
@@ -52,6 +55,48 @@ class CompanyDatabaseController extends Controller
     public function __construct()
     {
         // auth handled by cms_auth route middleware
+    }
+
+    public function export(Request $request)
+    {
+        $search = trim((string) $request->query('search', ''));
+        $scope  = $this->normalizeScope((string) $request->query('scope', 'all'));
+
+        $groups = $this->applyScope($this->buildCompanyGroups($search), $scope);
+
+        $filename = 'company-database-' . $scope . '-' . date('Y-m-d') . '.xlsx';
+
+        return Excel::download(new CompanyDatabaseExport($groups), $filename);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $import = new CompanyDatabaseImport();
+        Excel::import($import, $request->file('file'));
+
+        $message = "Import selesai. {$import->getUpdated()} record diupdate.";
+        if ($import->getSkipped() > 0) {
+            $message .= " {$import->getSkipped()} row dilewati.";
+        }
+
+        activity('company_database')
+            ->causedBy(auth()->user())
+            ->withProperties([
+                'updated_records' => $import->getUpdated(),
+                'skipped'         => $import->getSkipped(),
+                'errors'          => $import->getErrors(),
+            ])
+            ->log('import');
+
+        if (!empty($import->getErrors())) {
+            return back()->with('success', $message)->with('import_errors', $import->getErrors());
+        }
+
+        return back()->with('success', $message);
     }
 
     public function logs(Request $request)
