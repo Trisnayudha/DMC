@@ -12,29 +12,38 @@ class QuickSearchController extends Controller
     public function search(Request $request)
     {
         $q = trim($request->input('q', ''));
+        $category = trim($request->input('category', ''));
 
-        if (strlen($q) < 2) {
+        if (strlen($q) < 2 && $category === '') {
             return response()->json(['results' => []]);
         }
 
         $users = User::query()
             ->leftJoin('profiles', 'profiles.users_id', '=', 'users.id')
             ->leftJoin('company', 'company.users_id', '=', 'users.id')
-            ->where(function ($query) use ($q) {
-                $query->where('users.name', 'LIKE', "%{$q}%")
-                    ->orWhere('users.email', 'LIKE', "%{$q}%")
-                    ->orWhere('company.company_name', 'LIKE', "%{$q}%");
+            ->when(strlen($q) >= 2, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('users.name', 'LIKE', "%{$q}%")
+                        ->orWhere('users.email', 'LIKE', "%{$q}%")
+                        ->orWhere('company.company_name', 'LIKE', "%{$q}%");
+                });
+            })
+            ->when($category !== '', function ($query) use ($category) {
+                $query->where('company.company_category', $category);
             })
             ->select([
                 'users.id',
                 'users.name',
                 'users.email',
                 'users.status_member',
+                'profiles.phone',
                 'profiles.fullphone',
                 'profiles.job_title',
                 'company.company_name',
+                'company.is_verified',
             ])
-            ->limit(10)
+            ->limit($request->input('limit', 10))
+            ->offset($request->input('offset', 0))
             ->get();
 
         $results = $users->map(function ($user) {
@@ -66,10 +75,11 @@ class QuickSearchController extends Controller
                 'id'           => $user->id,
                 'name'         => $user->name,
                 'email'        => $user->email,
-                'phone'        => $user->fullphone,
+                'phone'        => $user->fullphone ?: $user->phone,
                 'job_title'    => $user->job_title,
                 'company_name' => $user->company_name,
-                'status_member' => $user->status_member ?? 'pending',
+                'status_member'    => $user->status_member ?? 'pending',
+                'company_verified' => (bool) $user->is_verified,
                 'history'      => $history,
             ];
         });

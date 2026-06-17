@@ -148,6 +148,12 @@
     </div>
     <div class="qs-search-wrap">
         <input type="text" id="qs-input" placeholder="Search by name, email, or company..." autocomplete="off">
+        <select id="qs-category" style="width:100%;margin-top:8px;border:1.5px solid #e0e0e0;border-radius:8px;padding:7px 10px;font-size:12px;outline:none;">
+            <option value="">All Categories</option>
+            @foreach(\App\Models\Company\CompanyCategory::where('is_active', true)->orderBy('sort_order')->get() as $cat)
+                <option value="{{ $cat->name }}">{{ $cat->name }}</option>
+            @endforeach
+        </select>
     </div>
     <div id="qs-body">
         <div class="qs-empty" id="qs-hint">Type at least 2 characters to search.</div>
@@ -165,7 +171,10 @@
     var results = document.getElementById('qs-results');
     var spinner = document.getElementById('qs-spinner');
     var hint    = document.getElementById('qs-hint');
+    var catSel  = document.getElementById('qs-category');
     var timer   = null;
+    var currentOffset = 0;
+    var pageSize = 10;
 
     toggle.addEventListener('click', function() {
         panel.classList.add('open');
@@ -177,39 +186,74 @@
         toggle.classList.remove('hidden');
     });
 
-    input.addEventListener('input', function() {
+    function doSearch(append) {
         clearTimeout(timer);
-        var q = this.value.trim();
-        if (q.length < 2) {
+        var q = input.value.trim();
+        var cat = catSel.value;
+        if (q.length < 2 && !cat) {
             results.innerHTML = '';
             spinner.style.display = 'none';
             hint.style.display = 'block';
+            currentOffset = 0;
+            removeShowMore();
             return;
+        }
+        if (!append) {
+            currentOffset = 0;
+            results.innerHTML = '';
+            removeShowMore();
         }
         hint.style.display = 'none';
         spinner.style.display = 'block';
-        results.innerHTML = '';
 
         timer = setTimeout(function() {
+            var url = '{{ route("admin.quick_search") }}?q=' + encodeURIComponent(q)
+                + '&limit=' + pageSize + '&offset=' + currentOffset;
+            if (cat) url += '&category=' + encodeURIComponent(cat);
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', '{{ route("admin.quick_search") }}?q=' + encodeURIComponent(q));
+            xhr.open('GET', url);
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             xhr.onload = function() {
                 spinner.style.display = 'none';
                 if (xhr.status === 200) {
                     var data = JSON.parse(xhr.responseText);
-                    renderResults(data.results || []);
+                    var items = data.results || [];
+                    renderResults(items, append);
+                    if (items.length >= pageSize) {
+                        currentOffset += pageSize;
+                        addShowMore();
+                    } else {
+                        removeShowMore();
+                    }
                 } else {
-                    results.innerHTML = '<div class="qs-empty">Failed to load results.</div>';
+                    results.innerHTML += '<div class="qs-empty">Failed to load results.</div>';
                 }
             };
             xhr.onerror = function() {
                 spinner.style.display = 'none';
-                results.innerHTML = '<div class="qs-empty">Network error.</div>';
+                results.innerHTML += '<div class="qs-empty">Network error.</div>';
             };
             xhr.send();
-        }, 400);
-    });
+        }, append ? 0 : 400);
+    }
+
+    function addShowMore() {
+        removeShowMore();
+        var btn = document.createElement('button');
+        btn.id = 'qs-show-more';
+        btn.style.cssText = 'width:100%;padding:10px;border:1px dashed #ccc;background:#fafbfc;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#6777ef;margin-top:8px;';
+        btn.textContent = 'Show More...';
+        btn.addEventListener('click', function() { doSearch(true); });
+        results.parentNode.appendChild(btn);
+    }
+
+    function removeShowMore() {
+        var old = document.getElementById('qs-show-more');
+        if (old) old.remove();
+    }
+
+    input.addEventListener('input', function() { doSearch(false); });
+    catSel.addEventListener('change', function() { doSearch(false); });
 
     function statusClass(s) {
         s = (s || '').toLowerCase();
@@ -219,8 +263,8 @@
         return 'qs-status-other';
     }
 
-    function renderResults(data) {
-        if (!data.length) {
+    function renderResults(data, append) {
+        if (!data.length && !append) {
             results.innerHTML = '<div class="qs-empty">No results found.</div>';
             return;
         }
@@ -229,8 +273,14 @@
         for (var i = 0; i < data.length; i++) {
             var u = data[i];
             var st = (u.status_member || 'pending').toLowerCase();
-            var stClass = 'qs-st-' + (st === 'active' || st === 'pending' || st === 'declined' || st === 'deactivated' ? st : 'pending');
-            var memberBadge = '<span class="qs-badge-status ' + stClass + '">' + esc(st) + '</span>';
+            var stMap = {
+                'active':      { cls: 'qs-st-active',      icon: '&#10003;', label: 'Active' },
+                'pending':     { cls: 'qs-st-pending',      icon: '&#9679;',  label: 'Pending' },
+                'declined':    { cls: 'qs-st-declined',     icon: '&#10007;', label: 'Declined' },
+                'deactivated': { cls: 'qs-st-deactivated',  icon: '&#9888;',  label: 'Deactivated' }
+            };
+            var stInfo = stMap[st] || stMap['pending'];
+            var memberBadge = '<span class="qs-badge-status ' + stInfo.cls + '">' + stInfo.icon + ' ' + stInfo.label + '</span>';
 
             var eventsHtml = '';
             if (u.history && u.history.length) {
@@ -248,15 +298,21 @@
 
             var evtCount = u.history ? u.history.length : 0;
 
+            var companyVal = esc(u.company_name || '-');
+            if (u.company_verified) {
+                companyVal += ' <span style="color:#28a745;font-size:11px;" title="Verified Company">&#10003;</span>';
+            }
+
             html += '<div class="qs-card">'
                 + '<div class="qs-card-head">'
-                + '<div class="qs-name">' + esc(u.name) + ' ' + memberBadge + '</div>'
+                + '<div class="qs-name">' + esc(u.name) + '</div>'
                 + '<div class="qs-meta">' + esc(u.email) + '</div>'
                 + '</div>'
                 + '<div class="qs-fields">'
                 + field('Phone', u.phone)
                 + field('Job Title', u.job_title)
-                + field('Company', u.company_name)
+                + fieldRaw('Company', companyVal)
+                + fieldRaw('Member', memberBadge)
                 + '</div>'
                 + '<button class="qs-events-toggle" onclick="this.classList.toggle(\'open\');this.nextElementSibling.classList.toggle(\'open\');">'
                 + 'Events Attended (' + evtCount + ') <span class="arrow">&#9660;</span>'
@@ -264,11 +320,19 @@
                 + '<div class="qs-events-list">' + eventsHtml + '</div>'
                 + '</div>';
         }
-        results.innerHTML = html;
+        if (append) {
+            results.innerHTML += html;
+        } else {
+            results.innerHTML = html;
+        }
     }
 
     function field(label, val) {
         return '<div class="qs-field"><div class="qs-field-label">' + label + '</div><div class="qs-field-value">' + esc(val || '-') + '</div></div>';
+    }
+
+    function fieldRaw(label, html) {
+        return '<div class="qs-field"><div class="qs-field-label">' + label + '</div><div class="qs-field-value">' + html + '</div></div>';
     }
 
     function esc(s) {
