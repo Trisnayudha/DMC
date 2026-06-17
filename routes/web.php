@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\SponsorAdvertisingController;
 use App\Http\Controllers\Admin\SponsorBenefitController;
 use App\Http\Controllers\Admin\SponsorContactDirectoryController;
 use App\Http\Controllers\Admin\SponsorController;
+use App\Http\Controllers\Admin\SponsorRenewalFormController;
 use App\Http\Controllers\Admin\SponsorCountRepresentativeController;
 use App\Http\Controllers\Admin\SponsorRepresentativeController;
 use App\Http\Controllers\Admin\UsersController;
@@ -232,8 +233,14 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('sponsors.contact-directory.export');
     Route::get('sponsors/kmk-rate', [SponsorController::class, 'getKmkRate'])
         ->name('sponsors.kmk-rate');
+    Route::get('sponsors/next-quotation-number', [SponsorController::class, 'getNextQuotationNumber'])
+        ->name('sponsors.next-quotation-number');
     Route::get('sponsors/export-renewals', [SponsorController::class, 'exportRenewals'])
         ->name('sponsors.exportRenewals');
+    Route::get('sponsors/{sponsor}/renewal-form/preview', [SponsorRenewalFormController::class, 'preview'])
+        ->name('sponsors.renewal-form.preview');
+    Route::get('sponsors/{sponsor}/renewal-form', [SponsorRenewalFormController::class, 'generate'])
+        ->name('sponsors.renewal-form');
     Route::resource('sponsors', SponsorController::class);
     Route::get('admin/sponsors/export', [SponsorExportController::class, 'export'])->name('sponsors.export');
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');

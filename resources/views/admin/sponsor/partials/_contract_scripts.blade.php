@@ -70,6 +70,7 @@
         // Open Update Contract modal
         $(document).on('click', '.update-contract-btn', function(e) {
             e.preventDefault();
+            var year = new Date().getFullYear();
             $('#modalSponsorId').val($(this).data('sponsor-id'));
             $('#modalContractStart').val($(this).data('contract-start'));
             $('#modalContractEnd').val($(this).data('contract-end'));
@@ -79,8 +80,19 @@
             $('#modalAmountIdr').val('');
             $('#modalAmountIdrDisplay').val('');
             $('#modalNotes').val('');
+            $('#modalQuotationNumber').val('').attr('placeholder', 'Loading...');
+            $('#quotationNumberHint').text('');
             $('#updateContractModal').modal('show');
             fetchKmkRate();
+            // Fetch suggested quotation number
+            $.get('/admin/sponsors/next-quotation-number', { year: year }, function(res) {
+                if (res.next) {
+                    $('#modalQuotationNumber').attr('placeholder', res.next);
+                    $('#quotationNumberHint').text('Suggested: ' + res.next + ' (kosongkan untuk auto)');
+                }
+            }).fail(function() {
+                $('#modalQuotationNumber').attr('placeholder', 'e.g. ' + year + 'DMC14');
+            });
         });
 
         // Submit Update Contract

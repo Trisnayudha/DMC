@@ -20,10 +20,24 @@ class SponsorRenewal extends Model
         'amount_idr',
         'is_current',
         'notes',
+        'quotation_number',
+        'quotation_date',
+    ];
+
+    protected $casts = [
+        'quotation_date' => 'date',
     ];
 
     public function sponsor()
     {
         return $this->belongsTo(Sponsor::class, 'sponsor_id');
+    }
+
+    public static function generateQuotationNumber(int $year): string
+    {
+        $count = self::whereNotNull('quotation_number')
+            ->where('quotation_number', 'LIKE', $year . 'DMC%')
+            ->count();
+        return $year . 'DMC' . ($count + 1);
     }
 }

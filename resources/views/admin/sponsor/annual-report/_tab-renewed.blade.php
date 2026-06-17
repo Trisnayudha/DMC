@@ -12,6 +12,7 @@
                                         <th style="width:110px;">Type</th>
                                         <th style="min-width:200px;">PIC Contact</th>
                                         <th>Confirmation / Notes</th>
+                                        <th style="width:80px;"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -77,10 +78,21 @@
                                         <td style="padding:12px 16px; font-size:12px; color:#555; max-width:260px;">
                                             {{ $confirmation }}
                                         </td>
+                                        <td style="padding:10px 12px;">
+                                            @if($r->sponsor)
+                                            <a href="{{ route('sponsors.renewal-form.preview', $r->sponsor_id) }}"
+                                               target="_blank"
+                                               class="btn btn-sm btn-outline-secondary"
+                                               title="Generate Renewal Form PDF"
+                                               style="white-space:nowrap;font-size:11px;">
+                                                <i class="fas fa-file-pdf"></i> Form
+                                            </a>
+                                            @endif
+                                        </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="7" class="text-center py-5 text-muted">
+                                        <td colspan="8" class="text-center py-5 text-muted">
                                             <i class="fas fa-inbox fa-2x mb-3 d-block" style="opacity:.3;"></i>
                                             No confirmed sponsors found for the selected filters.
                                         </td>

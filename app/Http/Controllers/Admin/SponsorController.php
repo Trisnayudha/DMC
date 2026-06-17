@@ -597,6 +597,12 @@ class SponsorController extends Controller
         }
     }
 
+    public function getNextQuotationNumber(Request $request)
+    {
+        $year = (int) $request->get('year', now()->year);
+        return response()->json(['next' => SponsorRenewal::generateQuotationNumber($year)]);
+    }
+
     /**
      * Memproses update contract / renewal sponsor.
      */
@@ -605,13 +611,14 @@ class SponsorController extends Controller
         $sponsor = Sponsor::findOrFail($id);
 
         $validated = $request->validate([
-            'contract_start' => 'required|date_format:Y-m',
-            'contract_end'   => 'required|date_format:Y-m',
-            'renewal_type'   => 'required|in:renewal,upgrade,new,new_member',
-            'package'        => 'required|in:platinum,gold,silver',
-            'amount_usd'     => 'nullable|numeric|min:0',
-            'amount_idr'     => 'nullable|numeric|min:0',
-            'notes'          => 'nullable|string|max:1000',
+            'contract_start'    => 'required|date_format:Y-m',
+            'contract_end'      => 'required|date_format:Y-m',
+            'renewal_type'      => 'required|in:renewal,upgrade,new,new_member',
+            'package'           => 'required|in:platinum,gold,silver',
+            'amount_usd'        => 'nullable|numeric|min:0',
+            'amount_idr'        => 'nullable|numeric|min:0',
+            'notes'             => 'nullable|string|max:1000',
+            'quotation_number'  => 'nullable|string|max:30|unique:sponsor_renewals,quotation_number',
         ]);
 
         $start = Carbon::createFromFormat('Y-m', $validated['contract_start']);
@@ -624,23 +631,29 @@ class SponsorController extends Controller
             ], 422);
         }
 
-        DB::transaction(function () use ($sponsor, $validated, $start) {
+        $quotationNumber = !empty($validated['quotation_number'])
+            ? $validated['quotation_number']
+            : SponsorRenewal::generateQuotationNumber($start->year);
+
+        DB::transaction(function () use ($sponsor, $validated, $start, $quotationNumber) {
             SponsorRenewal::where('sponsor_id', $sponsor->id)
                 ->where('is_current', 1)
                 ->update(['is_current' => 0]);
 
             SponsorRenewal::create([
-                'sponsor_id'      => $sponsor->id,
-                'renewal_year'    => $start->year,
-                'contract_start'  => $validated['contract_start'],
-                'contract_end'    => $validated['contract_end'],
-                'package'         => $validated['package'],
-                'renewal_type'    => $validated['renewal_type'],
-                'renewal_status'  => 'renewed',
-                'amount_usd'      => $validated['amount_usd'] ?? null,
-                'amount_idr'      => $validated['amount_idr'] ?? null,
-                'notes'           => $validated['notes'] ?? null,
-                'is_current'      => 1,
+                'sponsor_id'       => $sponsor->id,
+                'renewal_year'     => $start->year,
+                'contract_start'   => $validated['contract_start'],
+                'contract_end'     => $validated['contract_end'],
+                'package'          => $validated['package'],
+                'renewal_type'     => $validated['renewal_type'],
+                'renewal_status'   => 'renewed',
+                'amount_usd'       => $validated['amount_usd'] ?? null,
+                'amount_idr'       => $validated['amount_idr'] ?? null,
+                'notes'            => $validated['notes'] ?? null,
+                'is_current'       => 1,
+                'quotation_number' => $quotationNumber,
+                'quotation_date'   => now()->toDateString(),
             ]);
 
             $sponsor->contract_start = $validated['contract_start'];
@@ -655,10 +668,12 @@ class SponsorController extends Controller
 
         // Kirim notifikasi WhatsApp ke group finance
         try {
+            $sponsor->refresh();
             $pic     = $sponsor->firstPic;
             $kmkRate = null;
             try { $kmkRate = ScrapeHelper::scrapeExchangeRate(); } catch (\Throwable $e) {}
-            $message = $this->buildContractUpdateMessage($sponsor, $validated, $pic, $kmkRate);
+            $formUrl = config('app.url') . '/admin/sponsors/' . $sponsor->id . '/renewal-form/preview';
+            $message = $this->buildContractUpdateMessage($sponsor, $validated, $pic, $kmkRate, $quotationNumber, $formUrl);
             $wa = new WhatsappApi();
             $wa->phone   = '120363429723388586@g.us';
             $wa->message = $message;
@@ -673,7 +688,7 @@ class SponsorController extends Controller
         ]);
     }
 
-    private function buildContractUpdateMessage($sponsor, array $validated, $pic, ?int $kmkRate = null): string
+    private function buildContractUpdateMessage($sponsor, array $validated, $pic, ?int $kmkRate = null, ?string $quotationNumber = null, ?string $formUrl = null): string
     {
         $months = [
             '01' => 'January',
@@ -742,6 +757,9 @@ class SponsorController extends Controller
 
         $now = Carbon::now()->setTimezone('Asia/Jakarta')->format('d F Y, H:i') . ' WIB';
 
+        $quotLine = $quotationNumber ? '• Quotation No: *' . $quotationNumber . "*\n" : '';
+        $formLine = $formUrl ? "\n📄 *Renewal Form:*\n" . $formUrl . "\n" : '';
+
         return implode('', [
             "🏢 *SPONSOR CONTRACT UPDATE*\n",
             "━━━━━━━━━━━━━━━━━━━━━\n",
@@ -751,12 +769,15 @@ class SponsorController extends Controller
             '• Perusahaan: *' . $sponsor->name . "*\n",
             '• Paket: *' . $packageLabel . " Sponsorship*\n",
             '• Tipe: *' . $renewalType . "*\n",
-            '• Periode: *' . $periode . "*\n\n",
+            '• Periode: *' . $periode . "*\n",
+            $quotLine,
+            "\n",
             "💰 *Nilai Sponsorship*\n",
             $amountLine,
             "\n",
             $picSection,
             $notesLine,
+            $formLine,
             "\n━━━━━━━━━━━━━━━━━━━━━\n",
             "🕐 _Diperbarui: " . $now . "_\n\n",
             "⚠️ _Jika pembayaran sudah diproses secara manual atau sponsor sudah melunasi, mohon abaikan pesan ini._\n\n",

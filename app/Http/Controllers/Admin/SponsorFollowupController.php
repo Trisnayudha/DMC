@@ -108,6 +108,9 @@ class SponsorFollowupController extends Controller
                 $lines[] = 'Notes: ' . $followup->notes;
             }
             $lines[] = '';
+            $lines[] = '📄 *Renewal Form (proposal):*';
+            $lines[] = config('app.url') . '/admin/sponsors/' . $sponsor->id . '/renewal-form/preview';
+            $lines[] = '';
             $lines[] = '_Status: menunggu keputusan sponsor (renew / not renew)._';
 
             $wa = new WhatsappApi();

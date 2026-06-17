@@ -89,6 +89,19 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Quotation Number
+                                    <small class="text-muted font-weight-normal">(auto-generated, bisa diubah)</small>
+                                </label>
+                                <input type="text" name="quotation_number" id="modalQuotationNumber"
+                                    class="form-control" placeholder="e.g. 2026DMC14"
+                                    style="font-family:monospace;">
+                                <small class="text-muted" id="quotationNumberHint"></small>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label>Notes / Final Confirmation</label>
                         <textarea name="notes" id="modalNotes" class="form-control" rows="2" placeholder="e.g. Confirmed - Gold Sponsorship USD 3.500"></textarea>
