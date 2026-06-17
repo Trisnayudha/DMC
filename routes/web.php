@@ -73,7 +73,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/test/email', [TestController::class, 'testEmail'])->middleware(['auth', 'admin']);
+Route::get('/test/email', [TestController::class, 'testEmail'])->middleware(['cms_auth']);
 
 Route::get('web-view-sponsor', function () {
     return view('maps');
@@ -120,9 +120,9 @@ Route::get('collect', function () {
 //     return $controller->collectAndStoreExhibitorData($ids);
 // });
 
-Route::get('/fetch-contacts', [TestController::class, 'fetchAndStoreContactData'])->middleware(['auth', 'admin']);
+Route::get('/fetch-contacts', [TestController::class, 'fetchAndStoreContactData'])->middleware(['cms_auth']);
 
-Route::get('/save-invoice', [TestController::class, 'saveInvoice'])->middleware(['auth', 'admin']);
+Route::get('/save-invoice', [TestController::class, 'saveInvoice'])->middleware(['cms_auth']);
 Route::get('/register', function () {
     return view('register_event.register');
 });
@@ -136,11 +136,11 @@ Route::post('/scan/request', [PrintController::class, 'request']);
 Route::get('/', [FormMemberController::class, 'index']);
 Route::post('/membership', [FormMemberController::class, 'store']);
 Route::get('/test', [TestController::class, 'test']);
-Route::get('/mining-indo', [TestController::class, 'miningIndoData'])->middleware(['auth', 'admin']);
-Route::post('/exhibitors/import', [TestController::class, 'importExhibitor'])->middleware(['auth', 'admin']);
-Route::post('/exhibitors/import-batch', [TestController::class, 'importExhibitorBatch'])->middleware(['auth', 'admin']);
-Route::get('/test/data', [TestController::class, 'getData'])->middleware(['auth', 'admin']);
-Route::post('/test/upload', [TestController::class, 'upload'])->middleware(['auth', 'admin']);
+Route::get('/mining-indo', [TestController::class, 'miningIndoData'])->middleware(['cms_auth']);
+Route::post('/exhibitors/import', [TestController::class, 'importExhibitor'])->middleware(['cms_auth']);
+Route::post('/exhibitors/import-batch', [TestController::class, 'importExhibitorBatch'])->middleware(['cms_auth']);
+Route::get('/test/data', [TestController::class, 'getData'])->middleware(['cms_auth']);
+Route::post('/test/upload', [TestController::class, 'upload'])->middleware(['cms_auth']);
 Route::get('/privacy', function () {
     return view('privacy-policy');
 });
@@ -198,13 +198,22 @@ Route::post('imc-scholarship-form', [ScholarshipController::class, 'store'])->na
 Route::post('checkMember/{email}', [UsersController::class, 'checkMember'])->withoutMiddleware('auth');
 
 Auth::routes([
-    'register' => false, // Registration Routes...
-    'reset' => true, // Password Reset Routes...
-    'verify' => false, // Email Verification Routes...
+    'login'    => false, // Disabled — admin login via /admin/login
+    'register' => false,
+    'reset' => true,
+    'verify' => false,
 ]);
 
+Route::get('login', function () {
+    return redirect()->route('cms.login');
+})->name('login');
 
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+// CMS Login (separate from user login)
+Route::get('admin/login', [\App\Http\Controllers\Auth\CmsLoginController::class, 'showLoginForm'])->name('cms.login');
+Route::post('admin/login', [\App\Http\Controllers\Auth\CmsLoginController::class, 'login'])->name('cms.login.submit');
+Route::post('admin/logout', [\App\Http\Controllers\Auth\CmsLoginController::class, 'logout'])->name('cms.logout');
+
+Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     //Notification
     Route::get('notification', [NotificationController::class, 'index'])->name('notification');
     Route::post('notification/add', [NotificationController::class, 'store']);
@@ -467,10 +476,12 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('users/edit-logs', [UsersController::class, 'editLogs'])->name('admin.user_edit_logs');
     Route::get('users/mailchimp-count', [UsersController::class, 'mailchimpContactCount'])->name('users.mailchimp.count');
 
-    // CMS Users (admin role management)
+    // CMS Users
     Route::get('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'index'])->name('admin.cms_users.index');
-    Route::post('cms-users/assign', [App\Http\Controllers\Admin\CmsUsersController::class, 'assign'])->name('admin.cms_users.assign');
-    Route::post('cms-users/{id}/revoke', [App\Http\Controllers\Admin\CmsUsersController::class, 'revoke'])->name('admin.cms_users.revoke');
+    Route::post('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'store'])->name('admin.cms_users.store');
+    Route::post('cms-users/{id}/update', [App\Http\Controllers\Admin\CmsUsersController::class, 'update'])->name('admin.cms_users.update');
+    Route::post('cms-users/{id}/toggle', [App\Http\Controllers\Admin\CmsUsersController::class, 'toggleActive'])->name('admin.cms_users.toggle');
+    Route::delete('cms-users/{id}', [App\Http\Controllers\Admin\CmsUsersController::class, 'destroy'])->name('admin.cms_users.destroy');
     Route::post('users/{id}/update', [UsersController::class, 'updateUser'])->name('users.update');
     Route::get('users/{id}/logs', [UsersController::class, 'userLogs'])->name('users.logs');
     Route::get('member', [UsersController::class, 'member'])->name('members');

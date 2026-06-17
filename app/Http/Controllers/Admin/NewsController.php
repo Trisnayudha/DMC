@@ -17,7 +17,7 @@ class NewsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except('share');
+        // auth handled by cms_auth route middleware
     }
 
     public function index()

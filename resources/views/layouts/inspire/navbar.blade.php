@@ -23,12 +23,12 @@
                 </a>
 
                 <div class="dropdown-divider"></div>
-                <a href="{{ route('logout') }}" class="dropdown-item has-icon text-danger"
+                <a href="{{ route('cms.logout') }}" class="dropdown-item has-icon text-danger"
                     onclick="event.preventDefault();
         document.getElementById('logout-form').submit();">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                <form id="logout-form" action="{{ route('cms.logout') }}" method="POST" class="d-none">
                     @csrf
                 </form>
             </div>

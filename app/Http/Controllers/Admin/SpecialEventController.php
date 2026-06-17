@@ -19,7 +19,7 @@ class SpecialEventController extends Controller
 
     public function index()
     {
-        $this->middleware('auth');
+        // auth handled by cms_auth route middleware
         $list = SpecialEvent::orderby('id', 'desc')->get();
         $data = [
             'list' => $list

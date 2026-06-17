@@ -10,7 +10,7 @@ class NgrokController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        // auth handled by cms_auth route middleware
     }
 
     public function index()
