@@ -13,34 +13,50 @@ class CompanyDatabaseImport implements ToCollection, WithHeadingRow
     private $skipped = 0;
     private $errors = [];
 
+    private $updatableFields = [
+        'prefix',
+        'company_name',
+        'company_website',
+        'company_category',
+        'address',
+        'city',
+        'portal_code',
+        'full_office_number',
+        'country',
+    ];
+
     public function collection(Collection $rows)
     {
-        $currentPrefix = null;
-        $currentName   = null;
+        $currentTarget = [];
 
         foreach ($rows as $i => $row) {
             $rowNum = $i + 2;
 
-            $prefix      = trim($row['prefix'] ?? '');
-            $companyName = trim($row['company_name'] ?? '');
-            $oldName     = trim($row['old_company_name'] ?? '');
+            $oldName = trim($row['old_company_name'] ?? '');
 
-            if ($prefix !== '' || $companyName !== '') {
-                $currentPrefix = $prefix;
-                $currentName   = $companyName;
+            $rowData = [];
+            foreach ($this->updatableFields as $field) {
+                $val = trim($row[$field] ?? '');
+                if ($val !== '') {
+                    $rowData[$field] = $val;
+                }
+            }
+
+            if (!empty($rowData)) {
+                $currentTarget = array_merge($currentTarget, $rowData);
             }
 
             if ($oldName === '') {
                 continue;
             }
 
-            if ($currentName === null || $currentName === '') {
-                $this->errors[] = "Row {$rowNum}: no target company_name defined yet.";
+            if (empty($currentTarget)) {
+                $this->errors[] = "Row {$rowNum}: no target data defined yet.";
                 $this->skipped++;
                 continue;
             }
 
-            $affected = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [strtolower(trim($oldName))])
+            $affected = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [strtolower($oldName)])
                 ->count();
 
             if ($affected === 0) {
@@ -49,13 +65,8 @@ class CompanyDatabaseImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            $updateData = ['company_name' => $currentName];
-            if ($currentPrefix !== '') {
-                $updateData['prefix'] = $currentPrefix;
-            }
-
-            CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [strtolower(trim($oldName))])
-                ->update($updateData);
+            CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [strtolower($oldName)])
+                ->update($currentTarget);
 
             $this->updated += $affected;
         }

@@ -521,22 +521,18 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-light" style="font-size:12px;">
-                            <strong>Format Excel:</strong>
-                            <table class="table table-sm table-bordered mt-2 mb-0" style="font-size:11px;">
-                                <thead><tr><th>prefix</th><th>company_name</th><th>old_company_name</th></tr></thead>
-                                <tbody>
-                                    <tr><td>PT</td><td>Inter Delta PERSADA</td><td>PT. INTER DELTA PERSADA</td></tr>
-                                    <tr><td>PT</td><td>Media Mitrakarya</td><td>MMI</td></tr>
-                                    <tr><td></td><td></td><td>PT Media Mitrakarya</td></tr>
-                                </tbody>
-                            </table>
-                            <div class="mt-2 text-muted">
-                                Row tanpa prefix/company_name akan menggunakan target dari row di atasnya (merge).
+                            <strong>Format Excel:</strong> <code>old_company_name</code> (wajib, untuk matching), lalu kolom data yang ingin diupdate:
+                            <code>prefix, company_name, company_website, company_category, address, city, portal_code, full_office_number, country</code>.
+                            <div class="mt-1 text-muted">
+                                Kolom kosong = tidak diubah. Row tanpa data field = pakai target dari row di atas (merge).
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="small font-weight-bold">File Excel (.xlsx, .xls, .csv)</label>
                             <input type="file" name="file" class="form-control-file" accept=".xlsx,.xls,.csv" required>
+                            <a href="{{ route('admin.company_database.import_template') }}" class="small mt-1 d-inline-block">
+                                <i class="fas fa-download"></i> Download template
+                            </a>
                         </div>
                     </div>
                     <div class="modal-footer">

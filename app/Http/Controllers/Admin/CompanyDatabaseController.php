@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\CompanyDatabaseExport;
+use App\Exports\CompanyImportTemplate;
 use App\Http\Controllers\Controller;
 use App\Imports\CompanyDatabaseImport;
 use App\Models\Company\CompanyModel;
@@ -67,6 +68,11 @@ class CompanyDatabaseController extends Controller
         $filename = 'company-database-' . $scope . '-' . date('Y-m-d') . '.xlsx';
 
         return Excel::download(new CompanyDatabaseExport($groups), $filename);
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new CompanyImportTemplate(), 'template-import-company.xlsx');
     }
 
     public function import(Request $request)

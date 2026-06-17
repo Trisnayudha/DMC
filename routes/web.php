@@ -501,6 +501,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('admin.company_database.export');
     Route::post('/company-database/import', [CompanyDatabaseController::class, 'import'])
         ->name('admin.company_database.import');
+    Route::get('/company-database/import-template', [CompanyDatabaseController::class, 'downloadTemplate'])
+        ->name('admin.company_database.import_template');
     Route::post('/company-database/sync', [CompanyDatabaseController::class, 'sync'])
         ->name('admin.company_database.sync');
     Route::post('/company-database/update', [CompanyDatabaseController::class, 'update'])
