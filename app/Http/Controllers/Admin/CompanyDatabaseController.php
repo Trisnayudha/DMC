@@ -259,6 +259,50 @@ class CompanyDatabaseController extends Controller
         return response()->json($users);
     }
 
+    public function incompleteDetail(Request $request)
+    {
+        $normalizedName = strtolower(trim((string) $request->query('normalized_name', '')));
+        if ($normalizedName === '') {
+            return response()->json([]);
+        }
+
+        $rows = DB::table('company as c')
+            ->leftJoin('users as u', 'u.id', '=', 'c.users_id')
+            ->whereRaw('LOWER(TRIM(c.company_name)) = ?', [$normalizedName])
+            ->select(array_merge(
+                ['c.id', 'u.name as user_name', 'u.email as user_email'],
+                array_map(function ($f) { return 'c.' . $f; }, $this->completenessFields)
+            ))
+            ->orderBy('c.id')
+            ->get();
+
+        $fields = $this->completenessFields;
+
+        $records = $rows->map(function ($row) use ($fields) {
+            $fieldStatus = [];
+            $filled = 0;
+            foreach ($fields as $f) {
+                $val = $row->{$f};
+                $ok = !is_null($val) && (is_string($val) ? trim($val) !== '' : true);
+                $fieldStatus[$f] = $ok;
+                if ($ok) $filled++;
+            }
+            return [
+                'id'           => $row->id,
+                'user_name'    => $row->user_name,
+                'user_email'   => $row->user_email,
+                'fields'       => $fieldStatus,
+                'filled'       => $filled,
+                'total'        => count($fields),
+            ];
+        });
+
+        return response()->json([
+            'fields'  => $fields,
+            'records' => $records,
+        ]);
+    }
+
     public function sync(Request $request)
     {
         $data = $request->validate([

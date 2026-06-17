@@ -231,7 +231,13 @@
                                             <td>{{ $item->total_records }}</td>
                                             <td>
                                                 @if ($item->incomplete_records > 0)
-                                                    <span class="badge badge-warning">{{ $item->incomplete_records }}</span>
+                                                    <span class="badge badge-warning js-view-incomplete"
+                                                        style="cursor:pointer;"
+                                                        data-normalized-name="{{ $item->normalized_name }}"
+                                                        data-company-name="{{ $item->company_name }}"
+                                                        title="Click to see detail">
+                                                        {{ $item->incomplete_records }}
+                                                    </span>
                                                 @else
                                                     <span class="badge badge-success">0</span>
                                                 @endif
@@ -439,6 +445,56 @@
             </div>
         </div>
     </div>
+    {{-- Modal: Incomplete Detail per Record --}}
+    <div class="modal fade" id="incompleteDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Incomplete Records — <span id="incomplete_company_name">-</span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="incomplete_loading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Memuat data...</p>
+                    </div>
+                    <div id="incomplete_content" style="display:none;">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-0" style="font-size:12px;">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th style="width:40px">#</th>
+                                        <th>User</th>
+                                        <th style="width:60px">Score</th>
+                                        <th id="incomplete_field_headers"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="incomplete_tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="p-3" style="font-size:11px;color:#888;">
+                            <span style="display:inline-block;width:12px;height:12px;background:#d4edda;border:1px solid #c3e6cb;border-radius:2px;"></span> Filled
+                            &nbsp;&nbsp;
+                            <span style="display:inline-block;width:12px;height:12px;background:#f8d7da;border:1px solid #f5c6cb;border-radius:2px;"></span> Empty
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <form method="POST" action="{{ route('admin.company_database.sync') }}" id="incompleteSyncForm" style="display:inline;">
+                        @csrf
+                        <input type="hidden" name="normalized_name" id="incomplete_sync_name">
+                    </form>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-success" id="btnSyncFromIncomplete"
+                        onclick="if(confirm('Sync semua record dari best data (overwrite)?')) document.getElementById('incompleteSyncForm').submit();">
+                        <i class="fas fa-sync"></i> Sync Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('bottom')
@@ -575,6 +631,72 @@
                     });
                 }
                 loadChart();
+            });
+
+            // ---- Incomplete Detail modal ----
+            var fieldLabels = {
+                'company_name': 'Name',
+                'prefix': 'Prefix',
+                'company_website': 'Website',
+                'company_category': 'Category',
+                'address': 'Address',
+                'city': 'City',
+                'portal_code': 'Postal',
+                'full_office_number': 'Office No',
+                'country': 'Country'
+            };
+
+            $(document).on('click', '.js-view-incomplete', function() {
+                var normalizedName = $(this).data('normalized-name');
+                var companyName = $(this).data('company-name');
+
+                $('#incomplete_company_name').text(companyName);
+                $('#incomplete_sync_name').val(normalizedName);
+                $('#incomplete_loading').show();
+                $('#incomplete_content').hide();
+                $('#incomplete_tbody').empty();
+                $('#incompleteDetailModal').modal('show');
+
+                $.ajax({
+                    url: '{{ route("admin.company_database.incomplete_detail") }}',
+                    data: { normalized_name: normalizedName },
+                    success: function(res) {
+                        $('#incomplete_loading').hide();
+                        if (!res.records || !res.records.length) return;
+
+                        // Build dynamic field headers
+                        var headerHtml = '';
+                        res.fields.forEach(function(f) {
+                            headerHtml += '<th style="text-align:center;font-size:10px;white-space:nowrap;">' + (fieldLabels[f] || f) + '</th>';
+                        });
+                        $('#incomplete_field_headers').replaceWith(headerHtml);
+
+                        // Build rows
+                        res.records.forEach(function(rec, i) {
+                            var row = '<tr>';
+                            row += '<td>' + (i + 1) + '</td>';
+                            row += '<td style="white-space:nowrap;">';
+                            row += '<small><strong>' + $('<span>').text(rec.user_name || '-').html() + '</strong><br>';
+                            row += $('<span>').text(rec.user_email || '-').html() + '</small>';
+                            row += '<br><span class="text-muted" style="font-size:10px;">ID ' + rec.id + '</span>';
+                            row += '</td>';
+                            row += '<td class="text-center"><span class="badge ' + (rec.filled === rec.total ? 'badge-success' : 'badge-warning') + '">' + rec.filled + '/' + rec.total + '</span></td>';
+                            res.fields.forEach(function(f) {
+                                var ok = rec.fields[f];
+                                row += '<td style="text-align:center;background:' + (ok ? '#d4edda' : '#f8d7da') + ';">';
+                                row += ok ? '<i class="fas fa-check" style="color:#28a745;font-size:10px;"></i>' : '<i class="fas fa-times" style="color:#dc3545;font-size:10px;"></i>';
+                                row += '</td>';
+                            });
+                            row += '</tr>';
+                            $('#incomplete_tbody').append(row);
+                        });
+
+                        $('#incomplete_content').show();
+                    },
+                    error: function() {
+                        $('#incomplete_loading').hide();
+                    }
+                });
             });
 
             // ---- View Users modal ----

@@ -491,6 +491,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         ->name('admin.company_database.company_users');
     Route::get('/company-database/chart-data', [CompanyDatabaseController::class, 'chartData'])
         ->name('admin.company_database.chart_data');
+    Route::get('/company-database/incomplete-detail', [CompanyDatabaseController::class, 'incompleteDetail'])
+        ->name('admin.company_database.incomplete_detail');
     Route::get('/company-database/logs', [CompanyDatabaseController::class, 'logs'])
         ->name('admin.company_database.logs');
     Route::get('/interview-schedule/sponsor', [AdminSponsorInterviewScheduleController::class, 'index'])
