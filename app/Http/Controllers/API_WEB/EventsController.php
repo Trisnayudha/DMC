@@ -81,7 +81,7 @@ class EventsController extends Controller
                 'link' => $findEvent->link,
                 'status_event' => $findEvent->status_event,
                 'quota' => $findEvent->quota,
-                'status_member' => $id != null ? 'member' : 'nonmember',
+                'status_member' => ($id && auth('sanctum')->user()->status_member === 'active') ? 'member' : 'nonmember',
             ];
             $findTicket = EventsTicket::where('events_id', $findEvent->id)->where('status_ticket', '=', 'on')->orderby('price_rupiah', 'asc')->get();
             $findUser = UserRegister::where('users_id', '=', $id)->where('events_id', '=', $findEvent->id)->first();
@@ -364,13 +364,16 @@ class EventsController extends Controller
                 $response['message'] = 'Email already registered in event!';
                 $response['status'] = 409; // Conflict
             } else {
-                // Jika user adalah member dan belum melakukan pembayaran, ambil ticket untuk Member
+                $isMember = $user->status_member === 'active';
+                $ticketTitle = $isMember ? 'Member' : 'Non Member';
                 $ticket = EventsTicket::where('events_id', $events_id)
-                    ->where('title', 'Member')
+                    ->where('title', $ticketTitle)
                     ->first();
-                $response['message'] = 'Email is available and can be used for registration';
+                $response['message'] = $isMember
+                    ? 'Email is available and can be used for registration'
+                    : 'Membership not yet approved, registered as Non Member';
                 if ($ticket) {
-                    $response['status'] = 200; // success
+                    $response['status'] = 200;
                     $response['payload']['email'] = $email;
                     $response['payload']['price'] = $ticket->price_rupiah;
                     $response['payload']['price_dollar'] = $ticket->price_dollar;

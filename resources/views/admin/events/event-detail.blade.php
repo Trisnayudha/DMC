@@ -141,8 +141,9 @@
                                                         required>
                                                         <option value="">Default</option>
                                                         @foreach ($users as $value)
-                                                            <option value="{{ $value->id }}">{{ $value->name }} -
-                                                                {{ $value->email }}
+                                                            <option value="{{ $value->id }}"
+                                                                data-status="{{ $value->status_member ?? '' }}">
+                                                                {{ $value->name }} - {{ $value->email }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -668,7 +669,7 @@
 
                         </div>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button class="btn btn-primary">Add peserta</button>
+                        <button class="btn btn-primary btn-add-invitation">Add peserta</button>
                     </form>
                 </div>
             </div>
@@ -997,19 +998,43 @@
             });
 
             //validasi
+            $(".btn-add-invitation").click(function(e) {
+                var form = $(this).closest('form');
+                var ticket = form.find('select[name="ticket"]').val();
+                if (ticket === 'member') {
+                    if (!confirm('Warning: User baru ini belum terdaftar sebagai member. Yakin ingin daftarkan sebagai Member?')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            });
+
             $(".add-user").click(function(e) {
+                var form = $(this).closest('form');
+                var selectedUser = form.find('#nama option:selected');
+                var ticket = form.find('select[name="ticket"]').val();
+                var status = selectedUser.data('status') || '';
+
+                if ((ticket === 'member') && status !== 'active') {
+                    var statusLabel = status || 'unknown';
+                    if (!confirm('Warning: User ini status membership-nya "' + statusLabel + '" (belum approved). Yakin ingin daftarkan sebagai Member?')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+
                 // Validasi formulir
                 var isValid = true;
-                $("form").find(":required").each(function() {
-                    if ($(this).is("select")) { // Periksa apakah elemen adalah <select>
+                form.find(":required").each(function() {
+                    if ($(this).is("select")) {
                         if ($(this).val() === '' || $(this).val() === null) {
                             isValid = false;
-                            return false; // Menghentikan iterasi jika ada input yang kosong
+                            return false;
                         }
                     } else {
                         if ($(this).val().trim() === '') {
                             isValid = false;
-                            return false; // Menghentikan iterasi jika ada input yang kosong
+                            return false;
                         }
                     }
                 });
