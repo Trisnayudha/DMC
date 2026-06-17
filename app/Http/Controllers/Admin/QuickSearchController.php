@@ -69,7 +69,7 @@ class QuickSearchController extends Controller
                 'phone'        => $user->fullphone,
                 'job_title'    => $user->job_title,
                 'company_name' => $user->company_name,
-                'is_member'    => $user->status_member === 'active',
+                'status_member' => $user->status_member ?? 'pending',
                 'history'      => $history,
             ];
         });

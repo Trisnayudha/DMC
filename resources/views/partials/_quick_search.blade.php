@@ -37,6 +37,7 @@
         border-left: 3px solid #6777ef;
     }
     #qs-panel.open { right: 0; }
+    #qs-toggle.hidden { display: none; }
 
     #qs-panel .qs-header {
         background: #6777ef;
@@ -92,9 +93,11 @@
     .qs-field-label { width: 90px; color: #999; flex-shrink: 0; }
     .qs-field-value { color: #333; flex: 1; word-break: break-word; }
 
-    .qs-badge-member { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
-    .qs-badge-yes { background: #d4edda; color: #1a6630; }
-    .qs-badge-no  { background: #f8d7da; color: #721c24; }
+    .qs-badge-status { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; text-transform: capitalize; }
+    .qs-st-active      { background: #d4edda; color: #155724; }
+    .qs-st-pending     { background: #fff3cd; color: #856404; }
+    .qs-st-declined    { background: #f8d7da; color: #721c24; }
+    .qs-st-deactivated { background: #e2e3e5; color: #383d41; }
 
     .qs-events-toggle {
         width: 100%;
@@ -165,11 +168,13 @@
     var timer   = null;
 
     toggle.addEventListener('click', function() {
-        panel.classList.toggle('open');
-        if (panel.classList.contains('open')) input.focus();
+        panel.classList.add('open');
+        toggle.classList.add('hidden');
+        input.focus();
     });
     closeBtn.addEventListener('click', function() {
         panel.classList.remove('open');
+        toggle.classList.remove('hidden');
     });
 
     input.addEventListener('input', function() {
@@ -223,9 +228,9 @@
         var html = '';
         for (var i = 0; i < data.length; i++) {
             var u = data[i];
-            var memberBadge = u.is_member
-                ? '<span class="qs-badge-member qs-badge-yes">Yes</span>'
-                : '<span class="qs-badge-member qs-badge-no">No</span>';
+            var st = (u.status_member || 'pending').toLowerCase();
+            var stClass = 'qs-st-' + (st === 'active' || st === 'pending' || st === 'declined' || st === 'deactivated' ? st : 'pending');
+            var memberBadge = '<span class="qs-badge-status ' + stClass + '">' + esc(st) + '</span>';
 
             var eventsHtml = '';
             if (u.history && u.history.length) {
