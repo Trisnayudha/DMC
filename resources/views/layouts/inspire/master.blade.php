@@ -128,6 +128,7 @@
         });
     </script>
 
+    @include('partials._quick_search')
     @yield('client_scripts')
     @stack('bottom')
 </body>

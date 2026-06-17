@@ -478,6 +478,10 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('users/edit-logs', [UsersController::class, 'editLogs'])->name('admin.user_edit_logs');
     Route::get('users/mailchimp-count', [UsersController::class, 'mailchimpContactCount'])->name('users.mailchimp.count');
 
+    // Quick Search
+    Route::get('quick-search', [App\Http\Controllers\Admin\QuickSearchController::class, 'search'])
+        ->name('admin.quick_search');
+
     // Company Categories
     Route::get('company-categories', [App\Http\Controllers\Admin\CompanyCategoryController::class, 'index'])->name('admin.company_categories.index');
     Route::post('company-categories', [App\Http\Controllers\Admin\CompanyCategoryController::class, 'store'])->name('admin.company_categories.store');
