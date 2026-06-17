@@ -113,19 +113,7 @@
                             <div class="form-group">
                                 <label>Company Category <span class="text-danger">*</span></label>
                                 <select class="form-control" id="ateCompanyCategory">
-                                    <option value="">--Select--</option>
-                                    <option value="Coal Mining">Coal Mining</option>
-                                    <option value="Minerals Producer">Minerals Producer</option>
-                                    <option value="Supplier/Distributor/Manufacturer">Supplier/Distributor/Manufacturer</option>
-                                    <option value="Contrator">Contrator</option>
-                                    <option value="Association / Organization / Government">Association / Organization / Government</option>
-                                    <option value="Financial Services">Financial Services</option>
-                                    <option value="Technology">Technology</option>
-                                    <option value="Investors">Investors</option>
-                                    <option value="Logistics and Shipping">Logistics and Shipping</option>
-                                    <option value="Media">Media</option>
-                                    <option value="Consultant">Consultant</option>
-                                    <option value="other">Other</option>
+                                    @include('partials._company_category_options')
                                 </select>
                             </div>
                             <div class="form-group" id="ateCompanyOtherGroup" style="display:none">

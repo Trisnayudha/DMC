@@ -1,0 +1,17 @@
+<option value="">--Select--</option>
+<option value="Coal Mining">Coal Mining</option>
+<option value="Minerals Producers">Minerals Producers</option>
+<option value="Power Plant">Power Plant</option>
+<option value="Smelter">Smelter</option>
+<option value="Mining Contractor">Mining Contractor</option>
+<option value="Coal & Minerals Trading">Coal & Minerals Trading</option>
+<option value="Supplier/Distributor/Manufacturer">Supplier/Distributor/Manufacturer</option>
+<option value="Technology">Technology</option>
+<option value="Services/Logistics/Shipping/Facilities Management">Services/Logistics/Shipping/Facilities Management</option>
+<option value="Media">Media</option>
+<option value="Association/Organization/Government/Academic">Association/Organization/Government/Academic</option>
+<option value="Consultants">Consultants</option>
+<option value="Investor">Investor</option>
+<option value="Financial Services">Financial Services</option>
+<option value="Law Firm">Law Firm</option>
+<option value="other">Others</option>
