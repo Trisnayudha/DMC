@@ -476,6 +476,13 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('users/edit-logs', [UsersController::class, 'editLogs'])->name('admin.user_edit_logs');
     Route::get('users/mailchimp-count', [UsersController::class, 'mailchimpContactCount'])->name('users.mailchimp.count');
 
+    // Company Categories
+    Route::get('company-categories', [App\Http\Controllers\Admin\CompanyCategoryController::class, 'index'])->name('admin.company_categories.index');
+    Route::post('company-categories', [App\Http\Controllers\Admin\CompanyCategoryController::class, 'store'])->name('admin.company_categories.store');
+    Route::post('company-categories/{id}/update', [App\Http\Controllers\Admin\CompanyCategoryController::class, 'update'])->name('admin.company_categories.update');
+    Route::post('company-categories/{id}/toggle', [App\Http\Controllers\Admin\CompanyCategoryController::class, 'toggleActive'])->name('admin.company_categories.toggle');
+    Route::post('company-categories/reorder', [App\Http\Controllers\Admin\CompanyCategoryController::class, 'reorder'])->name('admin.company_categories.reorder');
+
     // CMS Users
     Route::get('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'index'])->name('admin.cms_users.index');
     Route::post('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'store'])->name('admin.cms_users.store');

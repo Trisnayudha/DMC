@@ -51,6 +51,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/company-categories', function () {
+    return \App\Models\Company\CompanyCategory::where('is_active', true)
+        ->orderBy('sort_order')
+        ->get(['id', 'name']);
+});
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
