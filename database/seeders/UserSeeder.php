@@ -26,12 +26,12 @@ class UserSeeder extends Seeder
         // }
 
 
-        $user = User::create([
-            'name' => 'Dian',
-            'email' => 'dian@indonesiaminer.com',
-            'password' => bcrypt('DMC2026')
-        ]);
-        $user->assignRole('admin');
+        // $user = User::create([
+        //     'name' => 'Dian',
+        //     'email' => 'dian@indonesiaminer.com',
+        //     'password' => bcrypt('DMC2026')
+        // ]);
+        // $user->assignRole('admin');
 
         // $damun = User::create([
         //     'name' => 'Damun',
