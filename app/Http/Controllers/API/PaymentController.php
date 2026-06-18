@@ -228,8 +228,34 @@ Terima kasih.
                 $notif->message = 'Your wait is over! Your Virtual Account is now up and running, ready for smooth transactions.';
                 $notif->NotifApp();
 
-                //notif email
-
+                try {
+                    $findEvent = Events::find($events_id);
+                    $dataEmail = [
+                        'code_payment'    => $codePayment,
+                        'create_date'     => Carbon::now()->format('d M Y H:i'),
+                        'due_date'        => Carbon::now()->addDay(1)->format('d M Y H:i'),
+                        'users_name'      => $findUsers->name,
+                        'users_email'     => $findUsers->email,
+                        'phone'           => $profileModel->phone ?? '-',
+                        'company_name'    => $companyModel->company_name ?? '-',
+                        'company_address' => $companyModel->address ?? '-',
+                        'status'          => 'WAITING',
+                        'events_name'     => $findEvent->name ?? '-',
+                        'price'           => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                        'voucher_price'   => 0,
+                        'total_price'     => number_format($createVA['expected_amount'], 0, ',', '.'),
+                        'link'            => null,
+                        'fva'             => $createVA['account_number'] ?? null,
+                        'payment_method'  => 'Virtual Account ' . $payment_method,
+                    ];
+                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($findUsers, $findEvent) {
+                        $message->from(env('EMAIL_SENDER'));
+                        $message->to($findUsers->email);
+                        $message->subject('Invoice - Waiting for Payment: ' . ($findEvent->name ?? 'DMC Event'));
+                    });
+                } catch (\Exception $e) {
+                    Log::error('Payment email error: ' . $e->getMessage());
+                }
 
             }
             $free = [
@@ -256,7 +282,6 @@ Terima kasih.
         $payment_method = $request->payment_method;
         $createVA = null;
         $codePayment = strtoupper(Str::random(7));
-        $package = $type == 'paid' ? 'Premium' : 'free';
         $payment_method = $payment_method == 'other' ? 'Free-pass Apps' : $payment_method;
 
         $date = date('d-m-Y H:i:s');
@@ -266,6 +291,7 @@ Terima kasih.
         $profileModel = ProfileModel::where('users_id', $findUsers->id)->first();
         $companyModel = CompanyModel::where('users_id', $findUsers->id)->first();
         $findTicket = EventsTicket::where('id', '=', $tickets_id)->first();
+        $package = $type == 'paid' ? ($findTicket && $findTicket->title == 'Member' ? 'member' : 'nonmember') : 'free';
 
         $Serv = env('APP_NAME');
         if ($Serv == 'Server') {
@@ -354,8 +380,34 @@ Terima kasih.
                 $notif->message = 'Invoice ' . $codePayment . ' created succesfully';
                 $notif->NotifApp();
 
-                //notif email
-
+                try {
+                    $findEvent = Events::find($events_id);
+                    $dataEmail = [
+                        'code_payment'    => $codePayment,
+                        'create_date'     => Carbon::now()->format('d M Y H:i'),
+                        'due_date'        => Carbon::now()->addDay(1)->format('d M Y H:i'),
+                        'users_name'      => $findUsers->name,
+                        'users_email'     => $findUsers->email,
+                        'phone'           => $profileModel->phone ?? '-',
+                        'company_name'    => $companyModel->company_name ?? '-',
+                        'company_address' => $companyModel->address ?? '-',
+                        'status'          => 'WAITING',
+                        'events_name'     => $findEvent->name ?? '-',
+                        'price'           => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                        'voucher_price'   => 0,
+                        'total_price'     => number_format($findTicket->price_rupiah, 0, ',', '.'),
+                        'link'            => $linkPay,
+                        'fva'             => null,
+                        'payment_method'  => 'Credit Card / Online Payment',
+                    ];
+                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($findUsers, $findEvent) {
+                        $message->from(env('EMAIL_SENDER'));
+                        $message->to($findUsers->email);
+                        $message->subject('Invoice - Waiting for Payment: ' . ($findEvent->name ?? 'DMC Event'));
+                    });
+                } catch (\Exception $e) {
+                    Log::error('CreditCard email error: ' . $e->getMessage());
+                }
 
                 $response['status'] = 200;
                 $response['message'] = 'success';
