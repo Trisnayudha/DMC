@@ -245,23 +245,51 @@ class HomeController extends Controller
             ->get();
 
         // =========================
-        // Company Category Chart
+        // Company Category Tier Chart
         // =========================
-        $companyCategoryStats = DB::table('users as u')
+        $categoryTierMap = [
+            'Coal Mining'            => 'Category 1',
+            'Minerals Producers'     => 'Category 1',
+            'Power Plant'            => 'Category 1',
+            'Smelter'                => 'Category 1',
+            'Mining Contractor'      => 'Category 1',
+            'Coal & Minerals Trading'=> 'Category 1',
+            'Supplier/Distributor/Manufacturer' => 'Category 2',
+            'Technology'             => 'Category 2',
+            'Services/Logistics/Shipping/Facilities Management' => 'Category 3',
+            'Media'                  => 'Category 4',
+            'Association/Organization/Government/Academic' => 'Category 4',
+            'Consultants'            => 'Category 5',
+            'Investor'               => 'Category 5',
+            'Financial Services'     => 'Category 5',
+            'Law Firm'               => 'Category 5',
+            'Others'                 => 'Category 5',
+            'other'                  => 'Category 5',
+        ];
+
+        $companyCategoryRaw = DB::table('users as u')
             ->join('company as c', 'c.users_id', '=', 'u.id')
             ->selectRaw("
-            CASE
-                WHEN c.company_category IS NULL OR c.company_category = '' THEN 'Uncategorized'
-                ELSE c.company_category
-            END as category,
-            COUNT(DISTINCT u.id) as total
-        ")
+                CASE
+                    WHEN c.company_category IS NULL OR c.company_category = '' THEN 'Uncategorized'
+                    ELSE c.company_category
+                END as category,
+                COUNT(DISTINCT u.id) as total
+            ")
             ->groupBy('category')
-            ->orderByDesc('total')
             ->get();
 
-        $companyCategoryLabels = $companyCategoryStats->pluck('category')->values();
-        $companyCategoryData   = $companyCategoryStats->pluck('total')->map(fn($v) => (int) $v)->values();
+        $tierTotals = ['Category 1' => 0, 'Category 2' => 0, 'Category 3' => 0, 'Category 4' => 0, 'Category 5' => 0, 'Uncategorized' => 0];
+        foreach ($companyCategoryRaw as $row) {
+            $tier = $categoryTierMap[$row->category] ?? 'Uncategorized';
+            $tierTotals[$tier] += (int) $row->total;
+        }
+        if ($tierTotals['Uncategorized'] === 0) {
+            unset($tierTotals['Uncategorized']);
+        }
+
+        $companyCategoryLabels = collect(array_keys($tierTotals));
+        $companyCategoryData   = collect(array_values($tierTotals));
 
         // =========================
         // Job Title Tier Chart

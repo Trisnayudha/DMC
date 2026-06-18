@@ -59,7 +59,21 @@
     <div class="col-lg-4 col-md-12 col-12">
         <div class="card">
             <div class="card-header">
-                <h4>Company Category Distribution</h4>
+                @php
+                    $catTierTooltip = implode('<br>', [
+                        '<b>Category 1:</b> Coal Mining, Minerals Producers, Power Plant, Smelter, Mining Contractor, Coal & Minerals Trading',
+                        '<b>Category 2:</b> Supplier/Distributor/Manufacturer, Technology',
+                        '<b>Category 3:</b> Services/Logistics/Shipping/Facilities Management',
+                        '<b>Category 4:</b> Media, Association/Organization/Government/Academic',
+                        '<b>Category 5:</b> Consultants, Investor, Financial Services, Law Firm, Others',
+                    ]);
+                @endphp
+                <h4>
+                    Company Category Distribution
+                    <i class="fas fa-info-circle text-muted ml-1" style="font-size:13px;cursor:help;"
+                        data-toggle="tooltip" data-html="true" data-placement="bottom"
+                        title="{!! $catTierTooltip !!}"></i>
+                </h4>
             </div>
             <div class="card-body">
                 <canvas id="companyCategoryChart" height="220"></canvas>
