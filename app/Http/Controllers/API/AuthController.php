@@ -62,7 +62,11 @@ class AuthController extends Controller
         } else {
             $phone = $request->phone;
             $findUser = ProfileModel::where([['fullphone', '=', $phone], ['users.verify_phone', '=', 'verified']])->join('users', 'users.id', 'profiles.users_id')->first();
-            if (!empty($findUser)) {
+            if (!empty($findUser) && $findUser->status_member === 'deactivated') {
+                $response['status'] = 403;
+                $response['message'] = 'Your account has been deactivated. Please contact admin for further information.';
+                $response['payload'] = null;
+            } elseif (!empty($findUser)) {
                 $otp = rand(10000, 99999);
                 Log::info("otp = " . $otp);
                 User::where('id', '=', $findUser->users_id)->update(['otp' => $otp]);
@@ -117,19 +121,25 @@ Your verification code (OTP) ' . $otp;
             if (!empty($findUser)) {
                 User::where('id', '=', $findUser->users_id)->update(['otp' => null]);
                 $user = User::where('id', '=', $findUser->id)->first();
-                $role = $this->user->checkrole($findUser->id);
-                $data = [
-                    'id' => $findUser->id,
-                    'name' => $findUser->name,
-                    'email' => $findUser->email,
-                    'role' => $role[0]->name ?? 'guest',
-                    'token' => $user->createToken('token-name')->plainTextToken,
-                    'verify_email' => $findUser->verify_email,
-                    'verify_phone' => $findUser->verify_phone
-                ];
-                $response['status'] = 200;
-                $response['message'] = 'Successfully Login';
-                $response['payload'] = $data;
+                if ($user && $user->status_member === 'deactivated') {
+                    $response['status'] = 403;
+                    $response['message'] = 'Your account has been deactivated. Please contact admin for further information.';
+                    $response['payload'] = null;
+                } else {
+                    $role = $this->user->checkrole($findUser->id);
+                    $data = [
+                        'id' => $findUser->id,
+                        'name' => $findUser->name,
+                        'email' => $findUser->email,
+                        'role' => $role[0]->name ?? 'guest',
+                        'token' => $user->createToken('token-name')->plainTextToken,
+                        'verify_email' => $findUser->verify_email,
+                        'verify_phone' => $findUser->verify_phone
+                    ];
+                    $response['status'] = 200;
+                    $response['message'] = 'Successfully Login';
+                    $response['payload'] = $data;
+                }
             } else {
                 $data = [
                     'otp' => 'Invalid OTP'
@@ -164,19 +174,26 @@ Your verification code (OTP) ' . $otp;
             $response['payload'] = $data;
         } else if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
-            $role = $this->user->checkrole($user->id);
-            $data = [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => isset($role[0]->name) ? $role[0]->name : 'guest',
-                'token' => $user->createToken('token-name')->plainTextToken,
-                'verify_email' => $user->verify_email,
-                'verify_phone' => $user->verify_phone
-            ];
-            $response['status'] = 200;
-            $response['message'] = 'Successfully Login';
-            $response['payload'] = $data;
+            if ($user->status_member === 'deactivated') {
+                Auth::logout();
+                $response['status'] = 403;
+                $response['message'] = 'Your account has been deactivated. Please contact admin for further information.';
+                $response['payload'] = null;
+            } else {
+                $role = $this->user->checkrole($user->id);
+                $data = [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => isset($role[0]->name) ? $role[0]->name : 'guest',
+                    'token' => $user->createToken('token-name')->plainTextToken,
+                    'verify_email' => $user->verify_email,
+                    'verify_phone' => $user->verify_phone
+                ];
+                $response['status'] = 200;
+                $response['message'] = 'Successfully Login';
+                $response['payload'] = $data;
+            }
         } else {
             $data = [
                 'password' => 'Password was wrong'
@@ -369,7 +386,13 @@ Your verification code (OTP) ' . $otp;
                 ->orWhere('fullphone', $fullphone);
         })->first();
 
-        // 4) If conflict verified → reject
+        // 4) If deactivated → treat as provisional so they can re-register
+        if ($userByEmail && $userByEmail->status_member === 'deactivated') {
+            $userByEmail->status_member = 'pending';
+            $userByEmail->save();
+        }
+
+        // If conflict verified → reject
         if ($userByEmail && !$this->isProvisionalUser($userByEmail)) {
             return response()->json([
                 'status'  => 422,
@@ -511,6 +534,10 @@ Your verification code (OTP) ' . $otp;
 
         // Check uniqueness
         $userByEmail = User::where('email', $email)->first();
+        if ($userByEmail && $userByEmail->status_member === 'deactivated') {
+            $userByEmail->status_member = 'pending';
+            $userByEmail->save();
+        }
         if ($userByEmail && !$this->isProvisionalUser($userByEmail)) {
             return response()->json([
                 'status'  => 422,
