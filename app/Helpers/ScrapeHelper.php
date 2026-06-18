@@ -30,6 +30,6 @@ class ScrapeHelper
         $intValue = (int) round($floatValue);
 
         // Mengembalikan nilai tukar dalam format integer
-        return 17968;
+        return 18037;
     }
 }
