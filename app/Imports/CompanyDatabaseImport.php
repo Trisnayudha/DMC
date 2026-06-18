@@ -65,6 +65,9 @@ class CompanyDatabaseImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
+            $currentTarget['is_verified'] = true;
+            $currentTarget['verified_at'] = now();
+
             CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [strtolower($oldName)])
                 ->update($currentTarget);
 
