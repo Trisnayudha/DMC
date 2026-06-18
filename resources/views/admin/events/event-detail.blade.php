@@ -96,7 +96,21 @@
                                         <div class="col-12 col-md-6 col-lg-6">
                                             <div class="card">
                                                 <div class="card-header">
-                                                    <h4>Category Company</h4>
+                                                    @php
+                                                        $evtCatTooltip = implode('<br>', [
+                                                            '<b>Cat 1:</b> Coal Mining, Minerals Producers, Power Plant, Smelter, Mining Contractor, Coal & Minerals Trading',
+                                                            '<b>Cat 2:</b> Supplier/Distributor/Manufacturer, Technology',
+                                                            '<b>Cat 3:</b> Services/Logistics/Shipping/Facilities Mgmt',
+                                                            '<b>Cat 4:</b> Media, Association/Org/Gov/Academic',
+                                                            '<b>Cat 5:</b> Consultants, Investor, Financial Services, Law Firm, Others',
+                                                        ]);
+                                                    @endphp
+                                                    <h4>
+                                                        Category Company
+                                                        <i class="fas fa-info-circle text-muted ml-1" style="font-size:13px;cursor:help;"
+                                                            data-toggle="tooltip" data-html="true" data-placement="bottom"
+                                                            title="{!! $evtCatTooltip !!}"></i>
+                                                    </h4>
                                                 </div>
                                                 <div class="card-body">
                                                     <canvas id="chartCategory" width="400" height="400"></canvas>

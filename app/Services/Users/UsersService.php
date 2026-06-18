@@ -54,36 +54,29 @@ class UsersService extends User
     private static function mapCategory($category, $otherCategory)
     {
         $categoryMap = [
-            'Coal Mining' => 'Category 1',
-            'Minerals Producer' => 'Category 1',
-            'Contractor' => 'Category 1',
+            'Coal Mining'            => 'Category 1',
+            'Minerals Producers'     => 'Category 1',
+            'Power Plant'            => 'Category 1',
+            'Smelter'                => 'Category 1',
+            'Mining Contractor'      => 'Category 1',
+            'Coal & Minerals Trading'=> 'Category 1',
             'Supplier/Distributor/Manufacturer' => 'Category 2',
-            'Consultant' => 'Category 3',
-            'Association / Organization / Government' => 'Consultan/Association/Organization/Goverment',
-            'Logistics and Shipping' => 'Category 4',
-            'Financial Services' => 'Category 4',
-            'Investors' => 'Category 4',
-            'Media' => 'Category 4',
-            'other' => 'Category 5',
+            'Technology'             => 'Category 2',
+            'Services/Logistics/Shipping/Facilities Management' => 'Category 3',
+            'Media'                  => 'Category 4',
+            'Association/Organization/Government/Academic' => 'Category 4',
+            'Consultants'            => 'Category 5',
+            'Investor'               => 'Category 5',
+            'Financial Services'     => 'Category 5',
+            'Law Firm'               => 'Category 5',
+            'Others'                 => 'Category 5',
+            'other'                  => 'Category 5',
         ];
-        // $categoryMap = [
-        //     'Coal Mining' => 'Coal Mining/Minerals producer/Contractor',
-        //     'Minerals Producer' => 'Coal Mining/Minerals producer/Contractor',
-        //     'Contractor' => 'Coal Mining/Minerals producer/Contractor',
-        //     'Supplier/Distributor/Manufacturer' => 'Supplier/Distributor/Manufaturer/Technology',
-        //     'Consultant' => 'Consultan/Association/Organization/Goverment',
-        //     'Association / Organization / Government' => 'Consultan/Association/Organization/Goverment',
-        //     'Logistics and Shipping' => 'Service/Logistic/Shipping',
-        //     'Financial Services' => 'Service/Logistic/Shipping',
-        //     'Investors' => 'Service/Logistic/Shipping',
-        //     'Media' => 'Service/Logistic/Shipping',
-        //     'other' => 'Other',
-        // ];
+
         if (isset($categoryMap[$category])) {
             return $categoryMap[$category];
-        } elseif ($category === 'Other' || empty($otherCategory)) {
-            return 'Category 5';
         }
+        return 'Category 5';
     }
 
     private static function generateColorPalette($count, $colorPalette)
