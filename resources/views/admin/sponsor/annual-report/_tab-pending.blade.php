@@ -171,6 +171,12 @@
                                                     data-toggle="tooltip" title="Mark Not Renewed">
                                                     <i class="fas fa-times-circle"></i>
                                                 </button>
+                                                <a href="{{ route('sponsors.renewal-form.preview', $p->sponsor_id) }}"
+                                                    target="_blank"
+                                                    class="btn btn-sm btn-outline-secondary action-icon-btn"
+                                                    data-toggle="tooltip" title="Preview Renewal Form">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
