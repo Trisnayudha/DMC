@@ -36,9 +36,9 @@ class EventsDetailParticipantController extends Controller
                 $join->on('users_event.users_id', '=', 'payment.member_id')
                     ->where('users_event.events_id', '=', $findEvent->id);
             })
-            ->leftJoin('users as users_present', 'users_present.id', '=', 'users_event.pic_id_present')
-            ->leftJoin('users as users_reminder', 'users_reminder.id', '=', 'users_event.pic_id_reminder')
-            ->leftJoin('users as users_reminder_wa', 'users_reminder_wa.id', '=', 'users_event.pic_id_reminder_wa')
+            ->leftJoin('cms_users as users_present', 'users_present.id', '=', 'users_event.pic_id_present')
+            ->leftJoin('cms_users as users_reminder', 'users_reminder.id', '=', 'users_event.pic_id_reminder')
+            ->leftJoin('cms_users as users_reminder_wa', 'users_reminder_wa.id', '=', 'users_event.pic_id_reminder_wa')
             ->where([
                 ['payment.events_id', $findEvent->id],
                 ['payment.status_registration', 'Paid Off']

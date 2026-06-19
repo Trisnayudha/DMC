@@ -12,7 +12,7 @@ class PaymentService extends Payment
         $query = Payment::join('users as member_users', 'member_users.id', '=', 'payment.member_id')
             ->leftJoin('company', 'company.users_id', '=', 'member_users.id')
             ->leftJoin('profiles', 'profiles.users_id', '=', 'member_users.id')
-            ->leftJoin('users as pic_users', 'pic_users.id', '=', 'payment.pic_id')
+            ->leftJoin('cms_users as pic_users', 'pic_users.id', '=', 'payment.pic_id')
             ->leftJoin('event_sponsors', 'event_sponsors.code_access', 'payment.sponsor_code')
             ->leftJoin('sponsors', 'sponsors.id', 'event_sponsors.sponsors_id')
             ->where('payment.events_id', $events_id)
