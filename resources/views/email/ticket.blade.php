@@ -18,22 +18,23 @@
         }
 
         .header-email {
-            padding: 25px 40px 12px;
+            padding: 0 0 12px;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
             text-align: center;
         }
 
         .header-email img {
-            max-height: 70px;
+            width: 100%;
             display: block;
-            margin: 0 auto 10px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
         }
 
         .header-email h1 {
             font-size: 15px;
             color: #222;
-            margin: 0 0 3px;
+            margin: 10px 0 3px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
@@ -223,9 +224,6 @@
                 <b>The Djakarta Mining Club Team</b></p>
         </div>
 
-        <div class="footer-email">
-            Do not reply to this email address. This email is sent automatically by our system.
-        </div>
     </div>
 
 </body>
