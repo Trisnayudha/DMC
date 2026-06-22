@@ -179,7 +179,7 @@
             </table>
 
             <p>You can view the latest event program by clicking here:
-                (https://www.djakarta-miningclub.com/events/the-13th-anniversary-of-djakarta-mining-club)
+                (https://www.djakarta-miningclub.com/events/the-71st-djakarta-mining-club-networking-event)
             </p>
 
             <br>

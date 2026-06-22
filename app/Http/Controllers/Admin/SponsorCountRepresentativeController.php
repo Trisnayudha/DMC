@@ -13,7 +13,6 @@ use App\Models\Sponsors\Sponsor;
 use App\Models\User;
 use App\Services\Sponsors\SponsorContactRowBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
