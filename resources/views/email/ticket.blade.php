@@ -18,102 +18,126 @@
         }
 
         .header-email {
-            padding: 60px;
-            padding-bottom: 20px;
-            border-bottom-right-radius: 33%;
+            padding: 40px 60px 20px;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
+            text-align: center;
+        }
+
+        .header-email img {
+            max-height: 100px;
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        .header-email h1 {
+            font-size: 18px;
+            color: #222;
+            margin: 0 0 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-email h2 {
+            font-size: 14px;
+            color: #555;
+            margin: 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .body-email {
-            padding: 20px 40px;
+            padding: 25px 40px;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #222;
+            margin: 20px 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .detail-table {
+            border-collapse: collapse;
+            border: none;
+            margin: 5px 0;
+        }
+
+        .detail-table td {
+            font-size: 13px;
+            color: #333;
+            padding: 3px 0;
+            border: none;
+            vertical-align: top;
+        }
+
+        .detail-table .label {
+            font-weight: bold;
+            color: #222;
+            white-space: nowrap;
+            width: 1%;
+            padding-right: 0;
+        }
+
+        .detail-table .colon {
+            font-weight: bold;
+            color: #222;
+            width: 1%;
+            padding: 3px 4px;
+        }
+
+        .qr-section {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .qr-section img {
+            width: 150px;
+            height: 150px;
+        }
+
+        .qr-section p {
+            font-size: 12px;
+            color: #555;
+            margin: 8px 0 0;
+            font-weight: 600;
+        }
+
+        .info-list {
+            margin: 10px 0;
+            padding-left: 20px;
             font-size: 13px;
             color: #333;
         }
 
+        .info-list li {
+            margin: 4px 0;
+        }
+
         .footer-email {
             border-top: 1px solid #E5E5E5;
-            padding: 20px;
+            padding: 15px 40px;
             font-size: 11px;
-            color: #333;
-            font-weight: bold;
-        }
-
-
-        .flex-code {
-            display: flex;
-            margin: 4% auto;
-        }
-
-        .flex-code .code {
-            /*width: 50px;*/
-            /*height: 50px;*/
-            border-radius: 10px;
-            background: #F6F7F7;
-            margin-right: 10px;
-            /*display: flex;*/
-            /*align-items: center;*/
-            /*justify-content: center;*/
-            font-weight: bold;
-            padding: 20px 25px;
-        }
-
-        .link-confirm {
-            background: #F6F7F7;
-            margin: 4% auto;
-            padding: 15px 15px;
-            border-radius: 7px;
-            border: 1px dotted #E5E5E5;
-        }
-
-        .btn-link-confirm {
-            text-decoration: none;
-            background: #F1B22C;
-            color: #FFF;
-            padding: 17px 16px;
+            color: #888;
             text-align: center;
-            display: block;
-            margin: 5% auto;
-            width: 20%;
-            border-radius: 25px;
-            font-weight: bold;
-            box-shadow: 2px 1px 3px #ddd;
         }
 
-        .img-logo {
-            height: 100px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+        .divider {
+            border: none;
+            border-top: 1px solid #E5E5E5;
+            margin: 15px 0;
         }
 
         @media only screen and (max-device-width: 601px) {
             body {
                 margin: 5% 5%;
             }
-
-            .btn-link-confirm {
-                width: 40%;
-            }
-        }
-
-        .table {
-            border-collapse: collapse;
-            width: 100%;
-            max-width: 100%;
-            margin-bottom: 0.75rem;
-            background-color: transparent;
-            color: #555;
-        }
-
-        .table td,
-        .table th {
-            font-size: 13px;
-            border-top-width: 0;
-            border-bottom: 1px solid;
-            border-color: transparent !important;
-            padding: .50rem;
-            text-align: left;
         }
     </style>
 </head>
@@ -122,60 +146,93 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/banner71_revisi2.png') }}" alt="Image" class="img-logo">
+            <img src="{{ asset('image/banner71_revisi2.png') }}" alt="DMC Logo">
+            <h1>{{ $events_name }}</h1>
+            <h2>Official Event E-Ticket / Entry Pass</h2>
         </div>
+
         <div class="body-email">
-            <p>Dear {{ $users_name }},</p>
-            <p>This is your e-ticket to attend {{ $events_name }}, Your e-ticket is attached.</p>
+            <hr class="divider">
 
-            <table class="table">
+            <div class="section-title">Attendee Details</div>
+            <table class="detail-table">
                 <tr>
-                    <th colspan="3">
-                        REGISTRATION DETAILS
-                    </th>
+                    <td class="label">Name</td>
+                    <td class="colon">:</td>
+                    <td>{{ $users_name }}</td>
                 </tr>
                 <tr>
-                    <th style="width: 130px;">Name</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">{{ $users_name }}</td>
+                    <td class="label">Position</td>
+                    <td class="colon">:</td>
+                    <td>{{ $job_title }}</td>
                 </tr>
                 <tr>
-                    <th style="width: 130px;">Position</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">{{ $job_title }}</td>
+                    <td class="label">Company</td>
+                    <td class="colon">:</td>
+                    <td>{{ $company_name }}</td>
                 </tr>
                 <tr>
-                    <th style="width: 130px;">Company</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">{{ $company_name }}</td>
+                    <td class="label">Email</td>
+                    <td class="colon">:</td>
+                    <td>{{ $users_email }}</td>
                 </tr>
                 <tr>
-                    <th style="width: 130px;">Email</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">{{ $users_email }}</td>
+                    <td class="label">Mobile</td>
+                    <td class="colon">:</td>
+                    <td>{{ $phone }}</td>
                 </tr>
-                <tr>
-                    <th style="width: 130px;">Mobile Number</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">{{ $phone }}</td>
-                </tr>
-
             </table>
 
-            <p>Below is your QR code. Please use it to check in and collect your delegate badge. You must present this
-                document along with your business card at the registration table at the venue.
-            </p>
+            <hr class="divider">
 
-            {{-- <a href="{{ $events_link }}" class="btn-link-confirm">Join Event</a> --}}
+            <div class="section-title">Event Details</div>
+            <table class="detail-table">
+                <tr>
+                    <td class="label">Event</td>
+                    <td class="colon">:</td>
+                    <td>{{ $events_name }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Date</td>
+                    <td class="colon">:</td>
+                    <td>{{ date('l', strtotime($start_date)) . ' - ' . date('j F Y', strtotime($end_date)) }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Time</td>
+                    <td class="colon">:</td>
+                    <td>{{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}</td>
+                </tr>
+            </table>
 
-            <img src="https://quickchart.io/qr?text={{ $code_payment }}" alt="qr_code">
-            {{-- {!! QrCode::size(100)->generate('ABC') !!} --}}
-            <br />
-            <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
-                1937 300.</p>
+            <hr class="divider">
 
-            <p>Yours Sincerely,</p>
-            <span>The Djakarta Mining Club Team</span>
+            <div class="section-title">QR Code</div>
+            <div class="qr-section">
+                <img src="https://quickchart.io/qr?text={{ $code_payment }}&size=300" alt="QR Code">
+                <p>Scan this QR code for event check-in and badge collection</p>
+            </div>
+
+            <hr class="divider">
+
+            <div class="section-title">Important Information</div>
+            <ul class="info-list">
+                <li>Please present this e-ticket (printed or digital) upon arrival.</li>
+                <li>A valid business card is required for registration verification.</li>
+                <li>This ticket is valid for one (1) attendee only.</li>
+                <li>Entry will be granted upon successful QR code scanning.</li>
+            </ul>
+
+            <hr class="divider">
+
+            <p>Should you require any assistance, please contact us at
+                <b>secretariat@djakarta-miningclub.com</b> or <b>+62 811 1937 300</b>.</p>
+
+            <p>Yours Sincerely,<br>
+                <b>The Djakarta Mining Club Team</b></p>
+        </div>
+
+        <div class="footer-email">
+            Do not reply to this email address. This email is sent automatically by our system.
         </div>
     </div>
 
