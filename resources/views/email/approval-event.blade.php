@@ -114,7 +114,7 @@
             border-top-width: 0;
             border-bottom: 1px solid;
             border-color: transparent !important;
-            padding: .75rem !important;
+            padding: .75rem;
             text-align: left;
         }
     </style>

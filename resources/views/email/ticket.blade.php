@@ -112,7 +112,7 @@
             border-top-width: 0;
             border-bottom: 1px solid;
             border-color: transparent !important;
-            padding: .50rem !important;
+            padding: .50rem;
             text-align: left;
         }
     </style>
