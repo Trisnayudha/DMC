@@ -163,6 +163,19 @@ Route::get('/share/events/{slug}', function ($slug) {
     ];
     return view('admin.events.event-share', $data);
 });
+// SEO-friendly share link: /events-{tahun}-{nomor urut tahun ini}-{slug_topic}
+// contoh: /events-2026-2-ambition-to-action. Tahun & nomor bersifat kosmetik,
+// event di-resolve berdasarkan slug_topic (fallback ke slug), jadi link lama tetap jalan.
+Route::get('/events-{year}-{number}-{topic}', function ($year, $number, $topic) {
+    $event = DB::table('events')
+        ->where('slug_topic', $topic)
+        ->orWhere('slug', $topic)
+        ->first();
+    $data = [
+        'event' => $event
+    ];
+    return view('admin.events.event-share', $data);
+})->where(['year' => '[0-9]{4}', 'number' => '[0-9]+', 'topic' => '[A-Za-z0-9\-]+']);
 
 Route::get('/visit', [FormMemberController::class, 'visit']);
 Route::post('/visit', [FormMemberController::class, 'visitStore']);

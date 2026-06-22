@@ -41,6 +41,16 @@
                                     </span>
                                 @endif
                             </div>
+                            <div class="form-group{{ $errors->has('topic') ? ' has-error' : '' }}">
+                                {!! Form::label('Topic (untuk share link)') !!}
+                                {!! Form::text('topic', old('topic'), ['class' => 'form-control', 'placeholder' => 'Contoh: Ambition to Action']) !!}
+                                <small class="form-text text-muted">Dipakai pada share link, contoh: /events-2026-2-ambition-to-action</small>
+                                @if ($errors->has('topic'))
+                                    <span class="help-block">
+                                        <strong style="color:red">{{ $errors->first('topic') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
                             <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
                                 {!! Form::label('Location *') !!}
                                 {!! Form::text('location', old('title'), ['class' => 'form-control', 'placeholder' => 'Tempat Kegiatan']) !!}

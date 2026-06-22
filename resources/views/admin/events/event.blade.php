@@ -82,7 +82,7 @@
                                                             <span>Ticket</span></a>
                                                         <a href="javascript:void(0)" class="btn btn-success btn-share"
                                                             data-slug="{{ $post->slug }}"
-                                                            data-url="{{ url('share/events/' . $post->slug) }}">
+                                                            data-url="{{ $post->share_url }}">
                                                             <span>Share</span>
                                                         </a>
 

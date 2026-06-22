@@ -43,6 +43,9 @@ class EventController extends Controller
     public function index()
     {
         $list = EventsService::showAll();
+        foreach ($list as $item) {
+            $item->share_url = EventsService::buildShareUrl($item);
+        }
 
         $data = [
             'list' => $list
@@ -85,6 +88,8 @@ class EventController extends Controller
         $findEvent->end_time = $request->end_time;
         $findEvent->status = $request->status;
         $findEvent->slug = Str::slug($request->name);
+        $findEvent->topic = $request->topic;
+        $findEvent->slug_topic = Str::slug($request->topic);
         $findEvent->link = $request->link;
         $findEvent->status_event = $request->status_event;
         $findEvent->maps = $request->maps;
@@ -120,6 +125,8 @@ class EventController extends Controller
         $save->status = $request->status;
         $save->event_type = $request->event_type;
         $save->slug = Str::slug($request->name);
+        $save->topic = $request->topic;
+        $save->slug_topic = Str::slug($request->topic);
         $save->link = $request->link;
         $save->status_event = $request->status_event;
         $save->maps = $request->maps;
