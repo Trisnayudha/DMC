@@ -8,7 +8,7 @@
         body {
             font-family: sans-serif;
             background: linear-gradient(72.03deg, #FBFBFB 0%, #F6F7F7 99.18%);
-            margin: 5% 25%;
+            margin: 3% 25%;
         }
 
         .body {
@@ -18,61 +18,59 @@
         }
 
         .header-email {
-            padding: 40px 60px 20px;
+            padding: 25px 40px 12px;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
             text-align: center;
         }
 
         .header-email img {
-            max-height: 100px;
+            max-height: 70px;
             display: block;
-            margin: 0 auto 20px;
+            margin: 0 auto 10px;
         }
 
         .header-email h1 {
-            font-size: 18px;
+            font-size: 15px;
             color: #222;
-            margin: 0 0 5px;
+            margin: 0 0 3px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
         .header-email h2 {
-            font-size: 14px;
+            font-size: 12px;
             color: #555;
             margin: 0;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
 
         .body-email {
-            padding: 25px 40px;
-            font-size: 13px;
+            padding: 10px 30px 15px;
+            font-size: 12px;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .section-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             color: #222;
-            margin: 20px 0 8px;
+            margin: 8px 0 4px;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
         }
 
         .detail-table {
             border-collapse: collapse;
             border: none;
-            margin: 5px 0;
+            margin: 2px 0;
         }
 
         .detail-table td {
-            font-size: 13px;
+            font-size: 12px;
             color: #333;
-            padding: 3px 0;
+            padding: 2px 0;
             border: none;
             vertical-align: top;
         }
@@ -89,41 +87,41 @@
             font-weight: bold;
             color: #222;
             width: 1%;
-            padding: 3px 4px;
+            padding: 2px 4px;
         }
 
         .qr-section {
-            margin: 20px 0;
+            margin: 6px 0;
             text-align: center;
         }
 
         .qr-section img {
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
         }
 
         .qr-section p {
-            font-size: 12px;
+            font-size: 11px;
             color: #555;
-            margin: 8px 0 0;
+            margin: 4px 0 0;
             font-weight: 600;
         }
 
         .info-list {
-            margin: 10px 0;
-            padding-left: 20px;
-            font-size: 13px;
+            margin: 4px 0;
+            padding-left: 18px;
+            font-size: 12px;
             color: #333;
         }
 
         .info-list li {
-            margin: 4px 0;
+            margin: 1px 0;
         }
 
         .footer-email {
             border-top: 1px solid #E5E5E5;
-            padding: 15px 40px;
-            font-size: 11px;
+            padding: 10px 30px;
+            font-size: 10px;
             color: #888;
             text-align: center;
         }
@@ -131,12 +129,16 @@
         .divider {
             border: none;
             border-top: 1px solid #E5E5E5;
-            margin: 15px 0;
+            margin: 8px 0;
+        }
+
+        .body-email p {
+            margin: 3px 0;
         }
 
         @media only screen and (max-device-width: 601px) {
             body {
-                margin: 5% 5%;
+                margin: 3% 5%;
             }
         }
     </style>
