@@ -135,28 +135,28 @@
                     </th>
                 </tr>
                 <tr>
-                    <th>Name</th>
-                    <th>:</th>
+                    <th style="width: 130px;">Name</th>
+                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
                     <td>{{ $users_name }}</td>
                 </tr>
                 <tr>
-                    <th>Position</th>
-                    <th>:</th>
+                    <th style="width: 130px;">Position</th>
+                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
                     <td>{{ $job_title }}</td>
                 </tr>
                 <tr>
-                    <th>Company</th>
-                    <th>:</th>
+                    <th style="width: 130px;">Company</th>
+                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
                     <td>{{ $company_name }}</td>
                 </tr>
                 <tr>
-                    <th>Email</th>
-                    <th>:</th>
+                    <th style="width: 130px;">Email</th>
+                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
                     <td>{{ $users_email }}</td>
                 </tr>
                 <tr>
-                    <th>Mobile Number</th>
-                    <th>:</th>
+                    <th style="width: 130px;">Mobile Number</th>
+                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
                     <td>{{ $phone }}</td>
                 </tr>
 
