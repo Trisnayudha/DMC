@@ -154,8 +154,6 @@
         </div>
 
         <div class="body-email">
-            <hr class="divider">
-
             <div class="section-title">Attendee Details</div>
             <table class="detail-table">
                 <tr>
@@ -185,8 +183,6 @@
                 </tr>
             </table>
 
-            <hr class="divider">
-
             <div class="section-title">Event Details</div>
             <table class="detail-table">
                 <tr>
@@ -206,15 +202,11 @@
                 </tr>
             </table>
 
-            <hr class="divider">
-
             <div class="section-title">QR Code</div>
             <div class="qr-section">
                 <img src="https://quickchart.io/qr?text={{ $code_payment }}&size=300" alt="QR Code">
                 <p>Scan this QR code for event check-in and badge collection</p>
             </div>
-
-            <hr class="divider">
 
             <div class="section-title">Important Information</div>
             <ul class="info-list">
@@ -224,10 +216,8 @@
                 <li>Entry will be granted upon successful QR code scanning.</li>
             </ul>
 
-            <hr class="divider">
-
-            <p>Should you require any assistance, please contact us at
-                <b>secretariat@djakarta-miningclub.com</b> or <b>+62 811 1937 300</b>.</p>
+            <p style="margin-top: 10px;">Should you require any assistance, please contact us at
+                <b>secretariat@djakarta-miningclub.com</b> or <b style="white-space: nowrap;">+62 811 1937 300</b>.</p>
 
             <p>Yours Sincerely,<br>
                 <b>The Djakarta Mining Club Team</b></p>
