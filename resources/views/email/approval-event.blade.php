@@ -155,14 +155,14 @@
                     <td>{{ $events_name }}</td>
                 </tr> --}}
                 <tr>
-                    <th>Date</th>
-                    <th>:</th>
-                    <td>{{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} </td>
+                    <th style="width: 130px;">Date</th>
+                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
+                    <td style="padding-left: 4px;">{{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} </td>
                 </tr>
                 <tr>
-                    <th>Time</th>
-                    <th>:</th>
-                    <td>
+                    <th style="width: 130px;">Time</th>
+                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
+                    <td style="padding-left: 4px;">
                         {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
                         (Followed
                         by Networking Dinner & Drinks)
@@ -170,9 +170,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>Venue</th>
-                    <th>:</th>
-                    <td>The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
+                    <th style="width: 130px;">Venue</th>
+                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
+                    <td style="padding-left: 4px;">The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
                         Kebayoran Baru, 12160, Indonesia)</td>
                     {{-- <td>Le Grande Ballroom 10th Floor, Grand Jatra Hotel Balikpapan</td> --}}
                 </tr>

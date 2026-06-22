@@ -136,28 +136,28 @@
                 </tr>
                 <tr>
                     <th style="width: 130px;">Name</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
-                    <td>{{ $users_name }}</td>
+                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
+                    <td style="padding-left: 4px;">{{ $users_name }}</td>
                 </tr>
                 <tr>
                     <th style="width: 130px;">Position</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
-                    <td>{{ $job_title }}</td>
+                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
+                    <td style="padding-left: 4px;">{{ $job_title }}</td>
                 </tr>
                 <tr>
                     <th style="width: 130px;">Company</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
-                    <td>{{ $company_name }}</td>
+                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
+                    <td style="padding-left: 4px;">{{ $company_name }}</td>
                 </tr>
                 <tr>
                     <th style="width: 130px;">Email</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
-                    <td>{{ $users_email }}</td>
+                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
+                    <td style="padding-left: 4px;">{{ $users_email }}</td>
                 </tr>
                 <tr>
                     <th style="width: 130px;">Mobile Number</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 4px;">:</th>
-                    <td>{{ $phone }}</td>
+                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
+                    <td style="padding-left: 4px;">{{ $phone }}</td>
                 </tr>
 
             </table>
