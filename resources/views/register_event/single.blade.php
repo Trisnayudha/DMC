@@ -625,114 +625,60 @@
                         <input type="hidden" name="slug" value="{{ $slug }}">
                         <input type="hidden" name="paymentMethod" value="free">
 
-                        <!-- Personal Information -->
+                        <!-- Information Details -->
                         <div class="form-section">
-                            <div class="form-section-title">Personal Information</div>
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Full Name *</label>
-                                        <input type="text" class="form-control" name="name"
-                                            value="{{ old('name') }}" required>
-                                        <div class="invalid-feedback">Valid name is required.</div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Job Title *</label>
-                                        <input type="text" class="form-control" name="job_title"
-                                            value="{{ old('job_title') }}" required>
-                                        <div class="invalid-feedback">Please enter your Job Title.</div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Email Address *</label>
-                                        <input type="email" class="form-control" name="email" id="email"
-                                            placeholder="Your work email" value="{{ old('email') }}" required>
-                                        <div class="invalid-feedback">Please enter a valid email address.</div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Mobile Number *</label>
-                                        <input type="tel" class="form-control" name="phone" id="phone"
-                                            value="{{ old('phone') ? old('phone') : '+62' }}" required>
-                                        <div class="invalid-feedback">Please provide a Mobile Number.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Company Information -->
-                        <div class="form-section">
-                            <div class="form-section-title">Company Information</div>
-                            <div class="row">
-                                <div class="col-md-3 col-sm-4">
-                                    <div class="form-group">
-                                        <label class="form-label">Prefix *</label>
-                                        <select class="custom-select d-block w-100" id="prefix" name="prefix"
-                                            required>
-                                            <option value="PT">PT</option>
-                                            <option value="CV">CV</option>
-                                            <option value="Ltd">Ltd</option>
-                                            <option value="GmbH">GmbH</option>
-                                            <option value="Limited">Limited</option>
-                                            <option value="Llc">Llc</option>
-                                            <option value="Corp">Corp</option>
-                                            <option value="Pte Ltd">Pte Ltd</option>
-                                            <option value="Assosiation">Association</option>
-                                            <option value="Government">Government</option>
-                                            <option value="Pty Ltd">Pty Ltd</option>
-                                            <option value="">Other</option>
-                                        </select>
-                                        <div class="invalid-feedback">Please select a valid prefix.</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-9 col-sm-8">
-                                    <div class="form-group">
-                                        <label class="form-label">Company Name *</label>
-                                        <input type="text" class="form-control" name="company_name"
-                                            placeholder="Your company name" value="{{ old('company_name') }}"
-                                            required>
-                                        <div class="invalid-feedback">Valid company name is required.</div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Address *</label>
-                                        <input type="text" class="form-control" name="address" id="address"
-                                            value="{{ old('address') }}" required>
-                                        <div class="invalid-feedback">Address is required.</div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Country *</label>
-                                        <select class="form-control js-example-basic-single" name="country"
-                                            id="country" required>
-                                            <option value="Indonesia" selected>Indonesia</option>
-                                        </select>
-                                        <div class="invalid-feedback">Please provide a valid Country.</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class="form-label">Company Category *</label>
-                                        <select class="form-control js-example-basic-single d-block w-100"
-                                            name="company_category" id="company_category" required>
-                                            <option value="">-- Select --</option>
-                                            @include('partials._company_category_options')
-                                        </select>
-                                        <div class="invalid-feedback">Please select a Company Category.</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 myDiv">
-                                    <div class="form-group">
-                                        <label class="form-label">Company Other *</label>
-                                        <input type="text" class="form-control" name="company_other"
-                                            placeholder="">
-                                        <div class="invalid-feedback">Please enter your Company Other.</div>
+                            <div class="form-section-title" style="font-style: italic; font-size: 1.3rem;">Information Details</div>
+                            <div id="delegates-wrapper">
+                                <div class="delegate-block" data-index="0">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Name</label>
+                                                <input type="text" class="form-control" name="name"
+                                                    placeholder="Name" value="{{ old('name') }}" required>
+                                                <div class="invalid-feedback">Valid name is required.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Company</label>
+                                                <input type="text" class="form-control" name="company_name"
+                                                    placeholder="Company" value="{{ old('company_name') }}" required>
+                                                <div class="invalid-feedback">Valid company name is required.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Job Title</label>
+                                                <input type="text" class="form-control" name="job_title"
+                                                    placeholder="Job Title" value="{{ old('job_title') }}" required>
+                                                <div class="invalid-feedback">Please enter your Job Title.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Office Address</label>
+                                                <input type="text" class="form-control" name="address"
+                                                    placeholder="Office Address" value="{{ old('address') }}" required>
+                                                <div class="invalid-feedback">Address is required.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" name="email" id="email"
+                                                    placeholder="Email" value="{{ old('email') }}" required>
+                                                <div class="invalid-feedback">Please enter a valid email address.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Phone Number</label>
+                                                <input type="tel" class="form-control" name="phone" id="phone"
+                                                    placeholder="+62" value="{{ old('phone') ? old('phone') : '+62' }}" required>
+                                                <div class="invalid-feedback">Please provide a Phone Number.</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -802,22 +748,6 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
-    <script>
-        $(document).ready(function() {
-            $('.js-example-basic-single').select2();
-        });
-
-        $(document).ready(function() {
-            $('#company_category').on('change', function() {
-                if ($(this).val() == 'other') {
-                    $('.myDiv').css('display', 'grid');
-                } else {
-                    $('.myDiv').css('display', 'none');
-                }
-            });
-        });
-    </script>
-
     <script src="{{ asset('new-zoom/form-validation.js') }}"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
@@ -833,43 +763,15 @@
                 icon: "error"
             });
         @endif
-
-        const xhttp = new XMLHttpRequest();
-        const select = document.getElementById("country");
-
-        let country;
-
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                country = JSON.parse(xhttp.responseText);
-                assignValues();
-                handleCountryChange();
-            }
-        };
-        xhttp.open("GET", "https://restcountries.com/v3.1/all?fields=name", true);
-        xhttp.send();
-
-        function assignValues() {
-            country.forEach(c => {
-                const option = document.createElement("option");
-                option.value = c.name.common;
-                option.textContent = c.name.common;
-                select.appendChild(option);
-            });
-        }
-
-        function handleCountryChange() {
-            const countryData = country.find(c => select.value === c.name.common);
-        }
-
-        select.addEventListener("change", handleCountryChange.bind(this));
     </script>
 
     <script>
         var input = document.querySelector("#phone");
-        window.intlTelInput(input, {
-            initialCountry: "id",
-        });
+        if (input && window.intlTelInput) {
+            window.intlTelInput(input, {
+                initialCountry: "id",
+            });
+        }
     </script>
 
 </body>
