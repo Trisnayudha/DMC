@@ -188,7 +188,7 @@ Best Regards Bot DMC Website
                     $send->data = $data;
                     $send->subject = 'Waiting for Approval – ' . $findEvent->subject_name;
                     // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
-                    $send->template = 'email.waiting-approval';
+                    $send->template = 'email.waiting-event';
                     $send->sendEmail();
                     return redirect()->back()->with('alert', 'Register Successfully, you`ll be notified by email when your registration has been approved.');
                     // return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
@@ -228,7 +228,7 @@ Best Regards Bot DMC Website
                         $send->data = $data;
                         $send->subject = 'Waiting for Approval – ' . $findEvent->subject_name;
                         // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
-                        $send->template = 'email.waiting-approval';
+                        $send->template = 'email.waiting-event';
                         $send->sendEmail();
                         return redirect()->back()->with('alert', 'Registration successful. You’ll be notified by email once your registration has been approved.');
                         // return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
