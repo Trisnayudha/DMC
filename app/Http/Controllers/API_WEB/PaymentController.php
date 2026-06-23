@@ -397,6 +397,8 @@ Total Bayar: Rp. " . number_format($totalPrice, 0, ',', '.') . "
 Terima kasih.
 ";
             $send->WhatsappMessageGroup();
+            $send->phone = '120363429723388586';
+            $send->WhatsappMessageGroup();
         } else {
             $data = [
                 'code_payment' => $codePayment[0],

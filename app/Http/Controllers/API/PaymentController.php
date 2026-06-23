@@ -223,6 +223,8 @@ Total Bayar: Rp. " . number_format($createVA['expected_amount'], 0, ',', '.') . 
 Terima kasih.
 ";
                 $send->WhatsappMessageGroup();
+                $send->phone = '120363429723388586';
+                $send->WhatsappMessageGroup();
                 $notif = new Notification();
                 $notif->id = $id;
                 $notif->message = 'Your wait is over! Your Virtual Account is now up and running, ready for smooth transactions.';
@@ -374,6 +376,8 @@ Total Bayar: Rp. " . number_format($findTicket->price_rupiah, 0, ',', '.') . "
 Terima kasih.
 ";
                 $send->WhatsappMessage();
+                $send->phone = '120363429723388586';
+                $send->WhatsappMessageGroup();
                 $notif = new Notification();
                 $notif->id = $id;
                 $notif->message = 'Invoice ' . $codePayment . ' created succesfully';
@@ -694,6 +698,8 @@ Total Bayar: Rp. " . number_format($finalPrice, 0, ',', '.') . "
 Terima kasih.
 ";
                     $send->WhatsappMessageGroup();
+                    $send->phone = '120363429723388586';
+                    $send->WhatsappMessageGroup();
                 } catch (\Exception $e) {
                     Log::error('Whatsapp send error (paid): ' . $e->getMessage());
                 }
@@ -740,6 +746,8 @@ Terima kasih.
     Best Regards Bot DMC Website
     ";
                     $send->WhatsappMessage();
+                    $send->phone = '120363429723388586';
+                    $send->WhatsappMessageGroup();
                 } catch (\Exception $e) {
                     Log::error('Whatsapp send error (free): ' . $e->getMessage());
                 }

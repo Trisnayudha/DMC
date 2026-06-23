@@ -206,7 +206,8 @@ Thank you
 Best Regards Bot DMC
                                                 ';
                         $send->WhatsappMessageGroup();
-
+                        $send->phone = '120363429723388586';
+                        $send->WhatsappMessageGroup();
                         $notif = new Notification();
                         $notif->id = $check->member_id;
                         $notif->message = 'Payment successfully Web';
@@ -306,6 +307,8 @@ Thank you
 Best Regards Bot DMC
                                                 ';
                         $send->WhatsappMessageGroup();
+                        $send->phone = '120363429723388586';
+                        $send->WhatsappMessageGroup();
                     } else {
                         $image = QrCode::format('png')
                             ->size(200)->errorCorrection('H')
@@ -387,6 +390,8 @@ Thank you
 Best Regards Bot DMC
 ';
                         $send->WhatsappMessageGroup();
+                        $send->phone = '120363429723388586';
+                        $send->WhatsappMessageGroup();
                     }
 
                     $res['api_status'] = 1;
@@ -412,6 +417,8 @@ Tolong di kontak kembali , takutnya ada kesulitan payment
 Thank you
 Best Regards Bot DMC
 ';
+                    $send->WhatsappMessageGroup();
+                    $send->phone = '120363429723388586';
                     $send->WhatsappMessageGroup();
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Expired';
@@ -541,6 +548,8 @@ Company : ' . $findUser->company_name . '
 Thank you
 Best Regards Bot DMC
 ';
+                $send->WhatsappMessageGroup();
+                $send->phone = '120363429723388586';
                 $send->WhatsappMessageGroup();
                 $notif = new Notification();
                 $notif->id = $findPayment->member_id;

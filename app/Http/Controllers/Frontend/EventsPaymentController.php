@@ -416,6 +416,8 @@ Thank you
 Best Regards Bot DMC Website
 ";
             $send->WhatsappMessageGroup();
+            $send->phone = '120363429723388586';
+            $send->WhatsappMessageGroup();
             $linkPay = null;
             $isProd = env('XENDIT_ISPROD');
             $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
