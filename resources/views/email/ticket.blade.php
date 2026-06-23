@@ -18,7 +18,7 @@
         }
 
         .header-email {
-            padding: 0 0 12px;
+            padding: 15px 30px 12px;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
             text-align: center;
@@ -27,8 +27,7 @@
         .header-email img {
             width: 100%;
             display: block;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
+            border-radius: 4px;
         }
 
         .header-email h1 {
@@ -58,7 +57,7 @@
             font-size: 12px;
             font-weight: bold;
             color: #222;
-            margin: 8px 0 4px;
+            margin: 14px 0 4px;
             text-transform: uppercase;
         }
 
@@ -80,7 +79,7 @@
             font-weight: bold;
             color: #222;
             white-space: nowrap;
-            width: 1%;
+            width: 70px;
             padding-right: 0;
         }
 
@@ -93,7 +92,7 @@
 
         .qr-section {
             margin: 6px 0;
-            text-align: center;
+            text-align: left;
         }
 
         .qr-section img {
@@ -218,7 +217,7 @@
             </ul>
 
             <p style="margin-top: 10px;">Should you require any assistance, please contact us at
-                <b>secretariat@djakarta-miningclub.com</b> or <b style="white-space: nowrap;">+62 811 1937 300</b>.</p>
+                <b>register@djakarta-miningclub.com</b> or <b style="white-space: nowrap;">+62 811-1937-399</b>.</p>
 
             <p>Yours Sincerely,<br>
                 <b>The Djakarta Mining Club Team</b></p>
