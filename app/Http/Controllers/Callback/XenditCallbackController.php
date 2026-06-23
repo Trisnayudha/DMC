@@ -367,7 +367,7 @@ Best Regards Bot DMC
                         Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($findUser->email);
-                            $message->subject($findUser->code_payment . ' - Your registration is approved for ' . $findEvent->name);
+                            $message->subject('[Ticket #' . $findUser->code_payment . '] Entry Confirmation – ' . $findEvent->subject_name);
                             $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
                         });
                         $send = new WhatsappApi();
@@ -522,7 +522,7 @@ Best Regards Bot DMC
                 Mail::send('email.approval-event', $data, function ($message) use ($pdf, $findUser, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($findUser->email);
-                    $message->subject($findUser->code_payment . ' - Your registration is approved for ' . $findEvent->name);
+                    $message->subject('[Ticket #' . $findUser->code_payment . '] Entry Confirmation – ' . $findEvent->subject_name);
                     $message->attachData($pdf->output(), $findUser->code_payment . '-' . time() . '.pdf');
                 });
 

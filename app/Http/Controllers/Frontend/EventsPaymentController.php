@@ -194,10 +194,10 @@ Best Regards Bot DMC Website
                     // return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
                 } else {
                     $pdf = Pdf::loadView('email.invoice-new', $data);
-                    Mail::send('email.confirm_payment', $data, function ($message) use ($inputData, $pdf) {
+                    Mail::send('email.confirm_payment', $data, function ($message) use ($inputData, $pdf, $codePayment, $findEvent) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($inputData['email']);
-                        $message->subject('Invoice - Waiting for Payment');
+                        $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . $findEvent->subject_name);
                         $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
                     });
 

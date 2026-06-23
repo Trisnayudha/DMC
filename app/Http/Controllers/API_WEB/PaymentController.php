@@ -368,10 +368,11 @@ Code Payment: ' . $payment->code_payment;
 
             $recipientEmail = $emails[0];
 
-            Mail::send('email.confirm_payment', $data, function ($message) use ($recipientEmail, $findEvent) {
+            $subjectCode = $codePayment[0];
+            Mail::send('email.confirm_payment', $data, function ($message) use ($recipientEmail, $findEvent, $subjectCode) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($recipientEmail);
-                $message->subject('Invoice - Waiting for Payment: ' . $findEvent->name);
+                $message->subject('[Ticket #' . $subjectCode . '] Waiting for Payment – ' . $findEvent->subject_name);
             });
 
             // WhatsApp notification for PAID registration - show all participants

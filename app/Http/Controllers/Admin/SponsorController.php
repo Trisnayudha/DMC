@@ -913,7 +913,7 @@ class SponsorController extends Controller
                 Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject($codePayment . ' - Your registration is approved for ' . $findEvent->name);
+                    $message->subject('[Ticket #' . $codePayment . '] Entry Confirmation – ' . $findEvent->subject_name);
                     $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
                 });
             }

@@ -167,7 +167,7 @@ class EventsDetailController extends Controller
                 Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
+                    $message->subject('[Ticket #' . $code_payment . '] Entry Confirmation – ' . $findEvent->subject_name);
                     // $message->subject($code_payment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
                     $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
                 });
@@ -355,7 +355,7 @@ class EventsDetailController extends Controller
                         Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($email);
-                            $message->subject($codePayment . ' - Your registration is approved for ' . $findEvent->name);
+                            $message->subject('[Ticket #' . $codePayment . '] Entry Confirmation – ' . $findEvent->subject_name);
                             // $message->subject($codePayment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
                             $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
                         });
@@ -366,10 +366,10 @@ class EventsDetailController extends Controller
                 } else {
                     // $pdf = Pdf::loadView('email.invoice-new', $data);
                     try {
-                        Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent) {
+                        Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent, $codePayment) {
                             $message->from(env('EMAIL_SENDER'));
                             $message->to($email);
-                            $message->subject('Invoice - Waiting for Payment: ' . $findEvent->name);
+                            $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . $findEvent->subject_name);
                             // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
                         });
                     } catch (\Exception $e) {
@@ -484,7 +484,7 @@ class EventsDetailController extends Controller
             Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $code_payment, $findEvent) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject($code_payment . ' - Your registration is approved for ' . $findEvent->name);
+                $message->subject('[Ticket #' . $code_payment . '] Entry Confirmation – ' . $findEvent->subject_name);
                 $message->attachData($pdf->output(), $code_payment . '-' . time() . '.pdf');
             });
             return redirect()->route('events-details', ['slug' => $findEvent->slug])
@@ -498,7 +498,7 @@ class EventsDetailController extends Controller
             $send->to      = $email;
             $send->data    = $data;
             $send->name    = $check->name;
-            $send->subject = $code_payment . ' - Registration Cancellation for ' . $findEvent->name;
+            $send->subject = '[Ticket #' . $code_payment . '] Cancellation Confirmation – ' . $findEvent->subject_name;
             $send->template = 'email.cancel-event';
             $send->sendEmail();
 
@@ -512,7 +512,7 @@ class EventsDetailController extends Controller
         $send->from    = env('EMAIL_SENDER');
         $send->to      = $email;
         $send->data    = $data;
-        $send->subject = '[FULLY BOOKED] ' . $findEvent->name;
+        $send->subject = 'Registration Closed – ' . $findEvent->subject_name . ' is Fully Booked';
         $send->name    = $check->name;
         $send->template = 'email.reject-event';
         $send->sendEmail();
@@ -791,9 +791,20 @@ class EventsDetailController extends Controller
         }
 
         $fields = [
-            'prefix', 'company_name', 'company_website', 'company_category', 'company_other',
-            'address', 'city', 'portal_code', 'prefix_office_number',
-            'office_number', 'full_office_number', 'country', 'cci', 'explore',
+            'prefix',
+            'company_name',
+            'company_website',
+            'company_category',
+            'company_other',
+            'address',
+            'city',
+            'portal_code',
+            'prefix_office_number',
+            'office_number',
+            'full_office_number',
+            'country',
+            'cci',
+            'explore',
         ];
 
         $companies = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [strtolower($name)])->get();

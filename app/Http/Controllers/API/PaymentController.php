@@ -215,7 +215,7 @@ Email: $findUsers->email
 Phone: $profileModel->phone
 Company: $companyModel->company_name
 Job Title: $profileModel->job_title" .
-($request->referral ? "\nReferral: {$request->referral}" : "") . "
+                    ($request->referral ? "\nReferral: {$request->referral}" : "") . "
 
 Code Payment: $codePayment
 Total Bayar: Rp. " . number_format($createVA['expected_amount'], 0, ',', '.') . "
@@ -248,15 +248,14 @@ Terima kasih.
                         'fva'             => $createVA['account_number'] ?? null,
                         'payment_method'  => 'Virtual Account ' . $payment_method,
                     ];
-                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($findUsers, $findEvent) {
+                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($findUsers, $findEvent, $codePayment) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($findUsers->email);
-                        $message->subject('Invoice - Waiting for Payment: ' . ($findEvent->name ?? 'DMC Event'));
+                        $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . ($findEvent->subject_name ?? 'DMC Event'));
                     });
                 } catch (\Exception $e) {
                     Log::error('Payment email error: ' . $e->getMessage());
                 }
-
             }
             $free = [
                 'code_payment' => $codePayment,
@@ -367,7 +366,7 @@ Email: $findUsers->email
 Phone: $profileModel->phone
 Company: $companyModel->company_name
 Job Title: $profileModel->job_title" .
-($request->referral ? "\nReferral: {$request->referral}" : "") . "
+                    ($request->referral ? "\nReferral: {$request->referral}" : "") . "
 
 Code Payment: $codePayment
 Total Bayar: Rp. " . number_format($findTicket->price_rupiah, 0, ',', '.') . "
@@ -400,10 +399,10 @@ Terima kasih.
                         'fva'             => null,
                         'payment_method'  => 'Credit Card / Online Payment',
                     ];
-                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($findUsers, $findEvent) {
+                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($findUsers, $findEvent, $codePayment) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($findUsers->email);
-                        $message->subject('Invoice - Waiting for Payment: ' . ($findEvent->name ?? 'DMC Event'));
+                        $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . ($findEvent->subject_name ?? 'DMC Event'));
                     });
                 } catch (\Exception $e) {
                     Log::error('CreditCard email error: ' . $e->getMessage());
@@ -659,10 +658,10 @@ Terima kasih.
                         'fva' => $save_va->account_number ?? null,
                         'payment_method' => $paymentMethodLabel,
                     ];
-                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($email, $findEvent) {
+                    Mail::send('email.confirm_payment', $dataEmail, function ($message) use ($email, $findEvent, $codePayment) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($email);
-                        $message->subject('Invoice - Waiting for Payment: ' . $findEvent->name);
+                        $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . $findEvent->subject_name);
                     });
                 } catch (\Exception $e) {
                     // Kalau email gagal, kita log tapi tidak kita rollback transaksinya,

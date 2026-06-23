@@ -129,7 +129,8 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Thank you for your registration. We regret to inform you that <b>{{ $events_name }} </b> is now fully
+            <p>Thank you for your registration. We regret to inform you that <b>{{ $events_name }} | PwC's 2026 Mine
+                    Report: Ambition to Action</b> is now fully
                 booked.</p>
             {{-- <p>We are able to add your details to a waiting list and notify you should a place become available. If you
                 would like to be added to the waiting list for this event, please email

@@ -61,7 +61,8 @@
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
 
-            <p>We regret to inform you that your registration for <b>{{ $events_name }}</b> has been cancelled.
+            <p>We regret to inform you that your registration for <b>{{ $events_name }} | PwC's 2026 Mine Report:
+                    Ambition to Action</b> has been cancelled.
                 {{-- Your seat will be offered to participants on the waiting list. --}}
             </p>
 

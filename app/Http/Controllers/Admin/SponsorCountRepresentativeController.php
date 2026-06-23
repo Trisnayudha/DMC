@@ -115,7 +115,9 @@ class SponsorCountRepresentativeController extends Controller
         foreach ($allSponsorsWithMembers as $s) {
             $sponsorContactsMap[$s->id] = $builder->build($s)
                 // user yang sudah punya akun tampil duluan di dropdown
-                ->sortByDesc(function ($row) { return $row['user_id'] !== null; })
+                ->sortByDesc(function ($row) {
+                    return $row['user_id'] !== null;
+                })
                 ->map(function ($row) {
                     return [
                         'user_id' => $row['user_id'],
@@ -221,7 +223,7 @@ class SponsorCountRepresentativeController extends Controller
                 Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
                     $message->from(env('EMAIL_SENDER'));
                     $message->to($email);
-                    $message->subject($codePayment . ' - Your registration is approved for ' . $findEvent->name);
+                    $message->subject('[Ticket #' . $codePayment . '] Entry Confirmation – ' . $findEvent->subject_name);
                     $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
                 });
             }
@@ -252,13 +254,20 @@ class SponsorCountRepresentativeController extends Controller
             ->leftJoin('company', 'company.users_id', '=', 'users.id')
             ->where('payment.id', $paymentId)
             ->select(
-                'payment.id', 'payment.code_payment', 'payment.qr_code',
-                'users.name', 'users.email',
-                'profiles.phone', 'profiles.job_title',
-                'company.company_name', 'company.address',
+                'payment.id',
+                'payment.code_payment',
+                'payment.qr_code',
+                'users.name',
+                'users.email',
+                'profiles.phone',
+                'profiles.job_title',
+                'company.company_name',
+                'company.address',
                 'events.name as event_name',
-                'events.start_date', 'events.end_date',
-                'events.start_time', 'events.end_time'
+                'events.start_date',
+                'events.end_date',
+                'events.start_time',
+                'events.end_time'
             )
             ->first();
 
@@ -291,7 +300,7 @@ class SponsorCountRepresentativeController extends Controller
                 ini_set('max_execution_time', 300);
                 $pdf     = Pdf::setOptions(['isRemoteEnabled' => true])->loadView('email.ticket', $data);
                 $email   = $payment->email;
-                $subject = $request->email_subject ?: ($payment->code_payment . ' - Your registration is approved for ' . $payment->event_name);
+                $subject = $request->email_subject ?: ('[Ticket #' . $payment->code_payment . '] Entry Confirmation – ' . preg_replace('/^The\s+/i', '', $payment->event_name));
 
                 \Illuminate\Support\Facades\Mail::send(
                     'email.approval-event',
@@ -470,7 +479,7 @@ class SponsorCountRepresentativeController extends Controller
             Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject($codePayment . ' - Your registration is approved for ' . $findEvent->name);
+                $message->subject('[Ticket #' . $codePayment . '] Entry Confirmation – ' . $findEvent->subject_name);
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
             });
         }
@@ -531,10 +540,10 @@ class SponsorCountRepresentativeController extends Controller
             ];
 
             $email = $user->email;
-            Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent) {
+            Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent, $codePayment) {
                 $message->from(env('EMAIL_SENDER'));
                 $message->to($email);
-                $message->subject('Invoice - Waiting for Payment: ' . $findEvent->name);
+                $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . $findEvent->subject_name);
             });
         }
     }

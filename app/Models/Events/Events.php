@@ -25,4 +25,9 @@ class Events extends Model
         'maps',
         'image_banner'
     ];
+
+    public function getSubjectNameAttribute()
+    {
+        return preg_replace('/^The\s+/i', '', $this->name);
+    }
 }

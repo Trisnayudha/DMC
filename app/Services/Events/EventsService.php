@@ -52,6 +52,6 @@ class EventsService extends Events
             })
             ->count();
 
-        return url('events/' . $year . '/' . $number . '/' . $event->slug_topic);
+        return 'https://www.djakarta-miningclub.com/events/' . $year . '/' . $number . '/' . $event->slug_topic;
     }
 }

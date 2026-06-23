@@ -99,6 +99,8 @@ class Events extends EventsEvents
 
     public static function findEvent($slug)
     {
-        return EventsEvents::where('slug', $slug)->first();
+        return EventsEvents::where('slug', $slug)
+            ->orWhere('slug_topic', $slug)
+            ->first();
     }
 }

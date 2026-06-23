@@ -129,7 +129,8 @@
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Your registration for {{ $events_name }} has been approved. Your registration
+            <p>Your registration for {{ $events_name }} | PwC's 2026 Mine Report: Ambition to Action has been approved.
+                Your registration
                 number is
                 <b
                     style="background-color: #F1B22C;
@@ -180,7 +181,7 @@
             </table>
 
             <p>You can view the latest event program by clicking here:
-                (https://www.djakarta-miningclub.com/events/the-71st-djakarta-mining-club-networking-event)
+                (https://membership.djakarta-miningclub.com/events/2026/2/ambition-to-action)</p>
             </p>
 
             <br>

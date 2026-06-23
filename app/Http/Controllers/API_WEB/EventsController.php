@@ -67,6 +67,7 @@ class EventsController extends Controller
 
             $mappedEvent = [
                 'id' => $findEvent->id,
+                'slug' => $findEvent->slug,
                 'name' => $findEvent->name,
                 'details' => $findEvent->description,
                 'event_type' => $findEvent->event_type,
