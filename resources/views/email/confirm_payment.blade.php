@@ -126,7 +126,7 @@
                     <td>
                         <strong>{{ $users_name }}</strong><br>
                         {{ $users_email }}<br>
-                        +{{ $phone }}
+                        {{ $phone }}
                     </td>
                     <td align="right">
                         {{ $company_name }}<br>

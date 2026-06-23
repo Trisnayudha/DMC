@@ -566,11 +566,9 @@
                     </button>
                 </div>
                 <div class="modal-body">
-
                     <form action="{{ Route('events.add.invitation') }}" method="post">
                         @csrf
                         <div class="row">
-
                             <div class="col-6">
                                 <div class="form-group">
                                     <input type="hidden" name="event" value="{{ $slug }}">
@@ -613,14 +611,12 @@
                                         Please provide a valid Country
                                     </div>
                                 </div>
-
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="company_name"> Company Name</label>
                                     <input type="text" class="form-control" name="company_name" id="company_name">
                                 </div>
-
                                 <div class="form-group">
                                     <label for="email"> Email</label>
                                     <input type="text" class="form-control" name="email" id="email">
@@ -637,7 +633,6 @@
                                     <label for="office_number">Office Number</label>
                                     <input type="text" class="form-control" name="office_number" id="office_number">
                                 </div>
-
                             </div>
                             <div class="col-12">
                                 <div class="form-group">
@@ -647,16 +642,122 @@
                                         @include('partials._company_category_options')
                                     </select>
                                 </div>
-                                <div class="form-group company_other_edit">
-                                    <label for="company_other" class="form-label">Company Other *</label>
-                                    <input type="text" class="form-control" name="company_other_edit"
-                                        id="company_other_edit" placeholder="">
-                                    <div class="invalid-feedback">
-                                        Please enter your Company Other
+                                <div class="form-group">
+                                    <label for="name">Ticket</label>
+                                    <select name="package" id="package" class="form-control">
+                                        <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
+                                        <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
+                                        <option value="member">Membership ( Rp. 900.000 )</option>
+                                        <option value="nonmember">Non Member ( Rp. 1.000.000 )</option>
+                                        <option value="onsite">On Site ( Rp. 1.250.000 )</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary">Tambah peserta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="edit">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit peserta</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url('admin/events/update/user') }}" method="post">
+                        @csrf
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>PT</label>
+                                    <select class="form-control" id="prefix_edit" name="prefix_edit">
+                                        <option value="PT">PT</option>
+                                        <option value="CV">CV</option>
+                                        <option value="Ltd">Ltd</option>
+                                        <option value="GmbH">GmbH</option>
+                                        <option value="Limited">Limited</option>
+                                        <option value="Llc">Llc</option>
+                                        <option value="Corp">Corp</option>
+                                        <option value="Pte Ltd">Pte Ltd</option>
+                                        <option value="Assosiation">Assosiation</option>
+                                        <option value="Government">Government</option>
+                                        <option value="Pty Ltd">Pty Ltd</option>
+                                        <option value="">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" class="form-control" name="name_edit" id="name_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label>Company Website</label>
+                                    <input type="text" class="form-control" name="company_website_edit"
+                                        id="company_website_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label>Job Title</label>
+                                    <input type="text" class="form-control" name="job_title_edit" id="job_title_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label>Country</label>
+                                    <select class="form-control js-example-basic-single country_edit" name="country_edit">
+                                        <option value="Indonesia" selected>Indonesia</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>Company Name</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="company_name_edit" id="company_name_edit">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-info" id="btn-auto-sync" title="Auto sync from database">
+                                                <i class="fas fa-sync-alt" id="sync-icon"></i>
+                                                <i class="fas fa-spinner fa-spin d-none" id="sync-spinner"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="name">Ticket</label>
+                                    <label>Email</label>
+                                    <input type="text" class="form-control" name="email_edit" id="email_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone number</label>
+                                    <input type="text" class="form-control" name="phone_edit" id="phone_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <input type="text" class="form-control" name="address_edit" id="address_edit">
+                                </div>
+                                <div class="form-group">
+                                    <label>Office Number</label>
+                                    <input type="text" class="form-control" name="office_number_edit" id="office_number_edit">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label>Company Category</label>
+                                    <select class="form-control js-example-basic-single d-block w-100"
+                                        name="company_category_edit" id="company_category_edit">
+                                        @include('partials._company_category_options')
+                                    </select>
+                                </div>
+                                <div class="form-group company_other_edit">
+                                    <label>Company Other</label>
+                                    <input type="text" class="form-control" name="company_other_edit"
+                                        id="company_other_edit" placeholder="">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ticket</label>
                                     <select name="package_edit" id="package_edit" class="form-control">
                                         <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
                                         <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
@@ -666,13 +767,12 @@
                                     </select>
                                 </div>
                             </div>
-
                         </div>
                         <input type="hidden" name="code_payment_edit" id="code_payment_edit">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button class="btn btn-warning">Update peserta</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
