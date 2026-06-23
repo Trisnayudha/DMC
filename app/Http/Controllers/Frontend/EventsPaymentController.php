@@ -186,7 +186,7 @@ Best Regards Bot DMC Website
                     $send->to = $inputData['email'];
                     $send->from = env('EMAIL_SENDER');
                     $send->data = $data;
-                    $send->subject = 'Thank you for registering ' . $findEvent->name;
+                    $send->subject = 'Waiting for Approval – ' . $findEvent->subject_name;
                     // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
                     $send->template = 'email.waiting-approval';
                     $send->sendEmail();
@@ -226,7 +226,7 @@ Best Regards Bot DMC Website
                         $send->to = $inputData['email'];
                         $send->from = env('EMAIL_SENDER');
                         $send->data = $data;
-                        $send->subject = 'Thank you for registering ' . $findEvent->name;
+                        $send->subject = 'Waiting for Approval – ' . $findEvent->subject_name;
                         // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
                         $send->template = 'email.waiting-approval';
                         $send->sendEmail();

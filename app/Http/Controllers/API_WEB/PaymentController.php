@@ -417,7 +417,7 @@ Terima kasih.
                 if ($findEvent->quota == 'Fully') {
                     $send->subject = 'Confirmation of Waiting List – ' . $findEvent->name;
                 } else {
-                    $send->subject = 'Thank you for registering ' . $findEvent->name;
+                    $send->subject = 'Waiting for Approval – ' . $findEvent->subject_name;
                 }
 
                 $send->to = $key['email'];

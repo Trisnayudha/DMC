@@ -715,7 +715,7 @@ Terima kasih.
                     if ($findEvent->quota == 'Fully') {
                         $subject = 'Confirmation of Waiting List – ' . $findEvent->name;
                     } else {
-                        $subject = 'Thank you for registering ' . $findEvent->name;
+                        $subject = 'Waiting for Approval – ' . $findEvent->subject_name;
                     }
                     Mail::send('email.waiting-approval', $dataEmail, function ($message) use ($email, $findEvent, $subject) {
                         $message->from(env('EMAIL_SENDER'));

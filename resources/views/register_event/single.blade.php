@@ -584,7 +584,8 @@
                                                     @endif
                                                     <div class="speaker-info">
                                                         <div class="name">{{ $speaker['name'] }}</div>
-                                                        <div class="title">{{ $speaker['job_title'] }}@if (!empty($speaker['company']))
+                                                        <div class="title">{{ $speaker['job_title'] }}
+                                                            @if (!empty($speaker['company']))
                                                                 , {{ $speaker['company'] }}
                                                             @endif
                                                         </div>
@@ -627,7 +628,8 @@
 
                         <!-- Information Details -->
                         <div class="form-section">
-                            <div class="form-section-title" style="font-style: italic; font-size: 1.3rem;">Information Details</div>
+                            <div class="form-section-title" style="font-style: italic; font-size: 1.3rem;">Information
+                                Details</div>
                             <div id="delegates-wrapper">
                                 <div class="delegate-block" data-index="0">
                                     <div class="row">
@@ -659,23 +661,26 @@
                                             <div class="form-group">
                                                 <label class="form-label">Office Address</label>
                                                 <input type="text" class="form-control" name="address"
-                                                    placeholder="Office Address" value="{{ old('address') }}" required>
+                                                    placeholder="Office Address" value="{{ old('address') }}"
+                                                    required>
                                                 <div class="invalid-feedback">Address is required.</div>
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label class="form-label">Email</label>
-                                                <input type="email" class="form-control" name="email" id="email"
-                                                    placeholder="Email" value="{{ old('email') }}" required>
+                                                <input type="email" class="form-control" name="email"
+                                                    id="email" placeholder="Email" value="{{ old('email') }}"
+                                                    required>
                                                 <div class="invalid-feedback">Please enter a valid email address.</div>
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label class="form-label">Phone Number</label>
-                                                <input type="tel" class="form-control" name="phone" id="phone"
-                                                    placeholder="+62" value="{{ old('phone') ? old('phone') : '+62' }}" required>
+                                                <input type="tel" class="form-control" name="phone"
+                                                    id="phone" placeholder="+62"
+                                                    value="{{ old('phone') ? old('phone') : '+62' }}" required>
                                                 <div class="invalid-feedback">Please provide a Phone Number.</div>
                                             </div>
                                         </div>
