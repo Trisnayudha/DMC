@@ -163,7 +163,7 @@
                                 <select name="company" id="company"
                                     class="form-control js-example-basic-single d-block w-100">
                                     @foreach ($company as $value)
-                                        <option value="{{ $value->id }}">{{ $value->name }}</option>
+                                        <option value="{{ $value->id }}">{{ $value->branding_name ?: $value->name }}</option>
                                     @endforeach
                                 </select>
                             </div>

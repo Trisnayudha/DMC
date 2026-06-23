@@ -34,7 +34,7 @@
                                 @foreach ($sponsorList as $sponsor)
                                     <option value="{{ $sponsor->name }}"
                                         {{ $filterSponsor == $sponsor->name ? 'selected' : '' }}>
-                                        {{ $sponsor->name }}
+                                        {{ $sponsor->branding_name ?: $sponsor->name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -158,7 +158,7 @@
                                                     <tr style="vertical-align:top">
                                                         <td>{{ $index + 1 }}</td>
                                                         <td>
-                                                            <div class="font-weight-bold">{{ $sponsor->name }}</div>
+                                                            <div class="font-weight-bold">{{ $sponsor->branding_name ?: $sponsor->name }}</div>
                                                             <span
                                                                 class="badge badge-{{ $sponsor->package === 'platinum' ? 'primary' : ($sponsor->package === 'gold' ? 'warning' : 'secondary') }} mt-1">
                                                                 {{ ucfirst($sponsor->package) }}

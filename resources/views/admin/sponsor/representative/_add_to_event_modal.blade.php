@@ -17,7 +17,7 @@
                     <select id="ateSponsorSelect" class="form-control" required>
                         <option value="">— Select Sponsor —</option>
                         @foreach ($allSponsorsWithMembers as $s)
-                            <option value="{{ $s->id }}" data-name="{{ $s->name }}">{{ $s->name }}</option>
+                            <option value="{{ $s->id }}" data-name="{{ $s->branding_name ?: $s->name }}">{{ $s->branding_name ?: $s->name }}</option>
                         @endforeach
                     </select>
                 </div>
