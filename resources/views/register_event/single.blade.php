@@ -640,10 +640,11 @@
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
-                                            <div class="form-group">
+                                            <div class="form-group" style="position:relative;">
                                                 <label class="form-label">Company</label>
-                                                <input type="text" class="form-control" name="company_name"
-                                                    placeholder="Company" value="{{ old('company_name') }}" required>
+                                                <input type="text" class="form-control" name="company_name" id="company_name"
+                                                    placeholder="Company" value="{{ old('company_name') }}" required autocomplete="off">
+                                                <div id="company-suggestions" style="display:none;position:absolute;z-index:999;width:100%;max-height:200px;overflow-y:auto;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.1);"></div>
                                                 <div class="invalid-feedback">Valid company name is required.</div>
                                             </div>
                                         </div>
@@ -745,11 +746,9 @@
     </script>
 
     <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="{{ asset('new-zoom/form-validation.js') }}"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
@@ -775,6 +774,48 @@
                 initialCountry: "id",
             });
         }
+    </script>
+
+    <script>
+        $(function() {
+            var timer = null;
+            var $input = $('#company_name');
+            var $box = $('#company-suggestions');
+
+            $input.on('input', function() {
+                var q = $(this).val().trim();
+                clearTimeout(timer);
+                if (q.length < 2) { $box.hide().empty(); return; }
+                timer = setTimeout(function() {
+                    $.getJSON("{{ url('/api/company-suggest') }}", { q: q }, function(data) {
+                        $box.empty();
+                        if (!data.length) { $box.hide(); return; }
+                        data.forEach(function(c) {
+                            var item = $('<div style="padding:8px 12px;cursor:pointer;font-size:.88rem;border-bottom:1px solid #f0f0f0;"></div>');
+                            item.text(c.company_name);
+                            if (c.address) {
+                                item.append($('<div style="font-size:.75rem;color:#888;"></div>').text(c.address));
+                            }
+                            item.on('click', function() {
+                                $input.val(c.company_name);
+                                if (c.address) $('input[name="address"]').val(c.address);
+                                $box.hide().empty();
+                            });
+                            item.on('mouseenter', function() { $(this).css('background', '#f5f5f5'); });
+                            item.on('mouseleave', function() { $(this).css('background', '#fff'); });
+                            $box.append(item);
+                        });
+                        $box.show();
+                    });
+                }, 300);
+            });
+
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#company_name, #company-suggestions').length) {
+                    $box.hide().empty();
+                }
+            });
+        });
     </script>
 
 </body>

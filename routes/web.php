@@ -191,6 +191,30 @@ Route::get('/anniversary/exclusive-registration', function () {
 Route::get('/{slug}/exclusive-invitation', [EventsRegisterController::class, 'single']);
 Route::get('/{slug}/invitation/{type}', [EventsRegisterController::class, 'sponsor']);
 Route::post('/payment-personal', [EventsPaymentController::class, 'payment_personal']);
+Route::get('/api/company-suggest', function (\Illuminate\Http\Request $request) {
+    $q = trim((string) $request->query('q', ''));
+    if (strlen($q) < 2) {
+        return response()->json([]);
+    }
+    $results = \App\Models\Company\CompanyModel::query()
+        ->select(['company_name', 'address'])
+        ->where('is_verified', true)
+        ->whereNotNull('company_name')
+        ->whereRaw("TRIM(company_name) <> ''")
+        ->where('company_name', 'like', '%' . $q . '%')
+        ->orderBy('company_name')
+        ->limit(10)
+        ->get();
+    $seen = [];
+    $companies = [];
+    foreach ($results as $row) {
+        $key = strtolower(trim($row->company_name));
+        if (isset($seen[$key])) continue;
+        $seen[$key] = true;
+        $companies[] = ['company_name' => $row->company_name, 'address' => $row->address];
+    }
+    return response()->json($companies);
+});
 
 Route::get('/{slug}/register-event', [EventsRegisterController::class, 'multiple']);
 Route::post('/payment-multiple', [EventsPaymentController::class, 'payment_multiple']);
