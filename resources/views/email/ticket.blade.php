@@ -220,7 +220,7 @@
             <p style="margin-top: 10px;">Should you require any assistance, please contact us at
                 <b>register@djakarta-miningclub.com</b> or <b style="white-space: nowrap;">+62 811-1937-399</b>.</p>
 
-            <p>Yours Sincerely,<br>
+            <p style="margin-top: 25px;">Yours Sincerely,<br>
                 <b>The Djakarta Mining Club Team</b></p>
         </div>
 
