@@ -221,8 +221,8 @@
             Jalan Letjen TB Simatupang No. 47, Jakarta Selatan<br><br>
 
             Do not reply to this email.<br>
-            For assistance: secretariat@djakarta-miningclub.com<br>
-            WhatsApp: +62811 1937 300
+            For assistance: register@djakarta-miningclub.com<br>
+            WhatsApp: +62 811-1937-399
         </div>
 
     </div>
