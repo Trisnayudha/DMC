@@ -584,8 +584,7 @@
                                                     @endif
                                                     <div class="speaker-info">
                                                         <div class="name">{{ $speaker['name'] }}</div>
-                                                        <div class="title">{{ $speaker['job_title'] }}
-                                                            @if (!empty($speaker['company']))
+                                                        <div class="title">{{ $speaker['job_title'] }}@if (!empty($speaker['company']))
                                                                 , {{ $speaker['company'] }}
                                                             @endif
                                                         </div>
