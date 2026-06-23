@@ -154,8 +154,10 @@
         </div>
 
         <div class="body-email">
-            <div class="section-title">Attendee Details</div>
             <table class="detail-table">
+                <tr>
+                    <td class="section-title" colspan="3" style="padding-top: 10px;">Attendee Details</td>
+                </tr>
                 <tr>
                     <td class="label">Name</td>
                     <td class="colon">:</td>
@@ -181,10 +183,9 @@
                     <td class="colon">:</td>
                     <td>{{ $phone }}</td>
                 </tr>
-            </table>
-
-            <div class="section-title">Event Details</div>
-            <table class="detail-table">
+                <tr>
+                    <td class="section-title" colspan="3" style="padding-top: 14px;">Event Details</td>
+                </tr>
                 <tr>
                     <td class="label">Event</td>
                     <td class="colon">:</td>
