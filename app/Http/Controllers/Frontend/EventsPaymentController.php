@@ -174,9 +174,10 @@ Hai ada pendaftaran GRATIS dari ' . $inputData['name'] . '
 Detail Informasinya:
 Nama: ' . $inputData['name'] . '
 Company: ' . $inputData['company_name'] . '
+Job Title: ' . $inputData['job_title'] . '
 Email: ' . $inputData['email'] . '
 Phone: ' . $inputData['phone'] . '
-Category Company: ' . ($inputData['company_category'] == 'other' ? $inputData['company_other'] : $inputData['company_category']) . '
+Address: ' . $inputData['address'] . '
 
 Thank you
 Best Regards Bot DMC Website
