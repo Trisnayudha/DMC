@@ -187,7 +187,7 @@ Best Regards Bot DMC Website
                     $send->to = $inputData['email'];
                     $send->from = env('EMAIL_SENDER');
                     $send->data = $data;
-                    $send->subject = 'Waiting for Approval – ' . $findEvent->subject_name;
+                    $send->subject = 'Waiting for Approval - ' . $findEvent->subject_name;
                     // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
                     $send->template = 'email.waiting-event';
                     $send->sendEmail();
@@ -198,7 +198,7 @@ Best Regards Bot DMC Website
                     Mail::send('email.confirm_payment', $data, function ($message) use ($inputData, $pdf, $codePayment, $findEvent) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($inputData['email']);
-                        $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . $findEvent->subject_name);
+                        $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment - ' . $findEvent->subject_name);
                         $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
                     });
 
@@ -223,15 +223,35 @@ Best Regards Bot DMC Website
                         $payment->sponsor_code = $typeSponsor;
                         $payment->save();
 
+                        $send = new WhatsappApi();
+                        $send->phone = '120363422942310672';
+                        $send->message = '
+Registration Notification,
+
+Hai ada pendaftaran GRATIS dari ' . $inputData['name'] . '
+Detail Informasinya:
+Nama: ' . $inputData['name'] . '
+Company: ' . $inputData['company_name'] . '
+Job Title: ' . $inputData['job_title'] . '
+Email: ' . $inputData['email'] . '
+Phone: ' . $inputData['phone'] . '
+Address: ' . $inputData['address'] . '
+
+Thank you
+Best Regards Bot DMC Website
+';
+                        $send->WhatsappMessageGroup();
+                        $send->phone = '120363429723388586';
+                        $send->WhatsappMessageGroup();
+
                         $send = new EmailSender();
                         $send->to = $inputData['email'];
                         $send->from = env('EMAIL_SENDER');
                         $send->data = $data;
-                        $send->subject = 'Waiting for Approval – ' . $findEvent->subject_name;
-                        // $send->subject = 'Terima kasih atas registrasi anda untuk ' . $findEvent->name;
+                        $send->subject = 'Waiting for Approval - ' . $findEvent->subject_name;
                         $send->template = 'email.waiting-event';
                         $send->sendEmail();
-                        return redirect()->back()->with('alert', 'Registration successful. You’ll be notified by email once your registration has been approved.');
+                        return redirect()->back()->with('alert', 'Registration successful. You will be notified by email once your registration has been approved.');
                         // return redirect()->back()->with('alert', 'Pendaftaran Berhasil, Anda akan diberitahu melalui email ketika pendaftaran Anda disetujui.');
                     }
                 }
