@@ -136,8 +136,8 @@
                 Secretariat@djakartaminingclub.com or call +628111937300</p> --}}
             <p>We can add your details to the waiting list and notify you should a place become available.
             </p>
-            <p>If you have any question or information, please contact us at email Secretariat@djakartaminingclub.com or
-                WhatsApp +628111937300.
+            <p>If you have any question or information, please contact us at email register@djakartaminingclub.com or
+                WhatsApp +62 811-1937-399.
             </p>
             <br>
             <p>Yours Sincerely,</p>

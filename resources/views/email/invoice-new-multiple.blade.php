@@ -258,7 +258,7 @@
 
         <div style="font-family:Helvetica, sans-serif;font-size:10px;line-height:25px;text-align:center;color:#7187A5;">
             <p>Do not reply to this email address. This email is sent automatically by our system. If you need further
-                assistance, please contact secretariat@djakarta-miningclub.com or WhatsApp at +62811 1937 300. </p>
+                assistance, please contact register@djakarta-miningclub.com or WhatsApp at +62 811-1937-399. </p>
         </div>
     </div>
 </body>

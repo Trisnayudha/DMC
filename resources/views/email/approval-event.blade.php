@@ -157,7 +157,8 @@
                 <tr>
                     <th style="width: 130px;">Date</th>
                     <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">{{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} </td>
+                    <td style="padding-left: 4px;">
+                        {{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} </td>
                 </tr>
                 <tr>
                     <th style="width: 130px;">Time</th>
@@ -202,8 +203,8 @@
             </p>
             <p><b>IMPORTANT:</b> If you are unable to attend, please contact our team for a substitution. If no
                 replacement is provided, we may offer your spot to the next registrant on the waitlist.</p>
-            <p>Should you require any assistance, please contact us at secretariat@djakarta-miningclub.com or +62 811
-                1937 300.</p>
+            <p>Should you require any assistance, please contact us at register@djakarta-miningclub.com or +62
+                811-1937-399.</p>
             <p>
                 We look forward to meeting you in person. Thank you.</p>
             <br>
