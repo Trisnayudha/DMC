@@ -166,7 +166,7 @@ Route::get('/share/events/{slug}', function ($slug) {
 // SEO-friendly share link: /events-{tahun}-{nomor urut tahun ini}-{slug_topic}
 // contoh: /events-2026-2-ambition-to-action. Tahun & nomor bersifat kosmetik,
 // event di-resolve berdasarkan slug_topic (fallback ke slug), jadi link lama tetap jalan.
-Route::get('/events-{year}-{number}-{topic}', function ($year, $number, $topic) {
+Route::get('/events/{year}/{number}/{topic}', function ($year, $number, $topic) {
     $event = DB::table('events')
         ->where('slug_topic', $topic)
         ->orWhere('slug', $topic)

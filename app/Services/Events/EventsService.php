@@ -27,7 +27,7 @@ class EventsService extends Events
     const SHARE_NUMBERED_TYPES = ['DMC Event', 'DMC Partnership Event'];
 
     /**
-     * Bangun URL share SEO-friendly: /events-{tahun}-{nomor}-{slug_topic}.
+     * Bangun URL share SEO-friendly: /events/{tahun}/{nomor}/{slug_topic}.
      * Nomor = urutan event pada tahun yang sama (berdasarkan start_date)
      * di antara event ber-type DMC Event / DMC Partnership Event.
      * Bagian topik diambil dari slug_topic (hasil slugify field topic).
@@ -52,6 +52,6 @@ class EventsService extends Events
             })
             ->count();
 
-        return url('events-' . $year . '-' . $number . '-' . $event->slug_topic);
+        return url('events/' . $year . '/' . $number . '/' . $event->slug_topic);
     }
 }
