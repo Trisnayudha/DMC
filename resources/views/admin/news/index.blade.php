@@ -73,12 +73,30 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
-                                <div class="float-right">
-                                    <a href="{{ Route('news.create') }}"
-                                        class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
-                                        id="addNewCategory">
-                                        <i class="fas fa-plus-circle"></i>
-                                        Add News</a>
+                                <div class="row align-items-end mb-3">
+                                    <div class="col-md-4 col-12 mb-2 mb-md-0">
+                                        <form method="GET" action="{{ route('news') }}"
+                                            class="form-inline" id="typeFilterForm">
+                                            <label class="mr-2 mb-0" for="typeFilter">Filter Type</label>
+                                            <select name="type" id="typeFilter" class="form-control"
+                                                onchange="document.getElementById('typeFilterForm').submit();">
+                                                <option value="">All Types</option>
+                                                @foreach ($types as $t)
+                                                    <option value="{{ $t }}"
+                                                        {{ $selectedType === $t ? 'selected' : '' }}>
+                                                        {{ ucfirst($t) }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-8 col-12 text-md-right">
+                                        <a href="{{ Route('news.create') }}"
+                                            class="btn btn-icon icon-left btn-success btn-filter"
+                                            id="addNewCategory">
+                                            <i class="fas fa-plus-circle"></i>
+                                            Add News</a>
+                                    </div>
                                 </div>
 
                                 <div class="table-responsive">
@@ -89,6 +107,7 @@
                                                 <th>Date News</th>
                                                 <th>Image</th>
                                                 <th>Title</th>
+                                                <th>Type</th>
                                                 <th>Views</th>
                                                 <th>Share</th>
                                                 <th>Status</th>
@@ -106,6 +125,21 @@
                                                             class="rounded-circle" width="35" data-toggle="tooltip">
                                                     </td>
                                                     <td>{{ $post->title }}</td>
+                                                    <td>
+                                                        @php
+                                                            $typeBadge = [
+                                                                'default' => 'badge badge-secondary',
+                                                                'partnership' => 'badge badge-info',
+                                                                'sponsor' => 'badge badge-success',
+                                                            ];
+                                                            $typeClass = isset($typeBadge[$post->type])
+                                                                ? $typeBadge[$post->type]
+                                                                : 'badge badge-secondary';
+                                                        @endphp
+                                                        <span class="{{ $typeClass }}">
+                                                            {{ ucfirst($post->type) }}
+                                                        </span>
+                                                    </td>
                                                     <td>{{ $post->views != null ? $post->views : '0' }}</td>
                                                     <td>{{ $post->share != null ? $post->share : '0' }}</td>
                                                     <td>
@@ -174,20 +208,7 @@
 @push('bottom')
     <script>
         $(document).ready(function() {
-            $('#laravel_crud').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5',
-                    'pdfHtml5'
-                ]
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            // DataTables (biarkan punyamu yang lama)
+            // DataTables (init sekali saja)
             $('#laravel_crud').DataTable({
                 dom: 'Bfrtip',
                 buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5']

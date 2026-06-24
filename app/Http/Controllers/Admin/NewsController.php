@@ -20,9 +20,21 @@ class NewsController extends Controller
         // auth handled by cms_auth route middleware
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $list = News::orderBy('id', 'desc')->get();
+        $types = ['default', 'partnership', 'sponsor'];
+
+        $type = $request->query('type');
+        if (!in_array($type, $types, true)) {
+            $type = null;
+        }
+
+        $query = News::orderBy('id', 'desc');
+        if ($type !== null) {
+            $query->where('type', $type);
+        }
+        $list = $query->get();
+
         $currentMonth = Carbon::now()->month;
 
         $countView = News::whereMonth('created_at', $currentMonth)->sum('views');
@@ -31,7 +43,9 @@ class NewsController extends Controller
         return view('admin.news.index', [
             'totalView' => $totalView,
             'countView' => $countView,
-            'list' => $list
+            'list' => $list,
+            'types' => $types,
+            'selectedType' => $type,
         ]);
     }
 
