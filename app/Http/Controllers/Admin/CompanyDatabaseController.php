@@ -320,6 +320,10 @@ class CompanyDatabaseController extends Controller
         $rows = DB::table('company as c')
             ->leftJoin('users as u', 'u.id', '=', 'c.users_id')
             ->whereRaw('LOWER(TRIM(c.company_name)) = ?', [$normalizedName])
+            ->where(function ($q) {
+                $q->whereNull('u.status_member')
+                    ->orWhereNotIn('u.status_member', ['deactivated', 'declined']);
+            })
             ->select(array_merge(
                 ['c.id', 'u.name as user_name', 'u.email as user_email'],
                 array_map(function ($f) { return 'c.' . $f; }, $this->completenessFields)
@@ -501,16 +505,21 @@ class CompanyDatabaseController extends Controller
     private function buildCompanyGroups(string $search = ''): Collection
     {
         $query = CompanyModel::query()
-            ->select(['id', 'users_id', 'is_verified', 'company_name', 'updated_at', ...$this->syncFields])
-            ->whereNotNull('company_name')
-            ->whereRaw("TRIM(company_name) <> ''");
+            ->select(['company.id', 'company.users_id', 'company.is_verified', 'company.company_name', 'company.updated_at', ...array_map(function ($f) { return 'company.' . $f; }, $this->syncFields)])
+            ->leftJoin('users', 'users.id', '=', 'company.users_id')
+            ->where(function ($q) {
+                $q->whereNull('users.status_member')
+                    ->orWhereNotIn('users.status_member', ['deactivated', 'declined']);
+            })
+            ->whereNotNull('company.company_name')
+            ->whereRaw("TRIM(company.company_name) <> ''");
 
         if ($search !== '') {
-            $query->where('company_name', 'like', '%' . $search . '%');
+            $query->where('company.company_name', 'like', '%' . $search . '%');
         }
 
         /** @var EloquentCollection<int, CompanyModel> $rows */
-        $rows = $query->orderByDesc('updated_at')->get();
+        $rows = $query->orderByDesc('company.updated_at')->get();
 
         return $rows
             ->groupBy(function ($row) {
