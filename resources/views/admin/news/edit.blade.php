@@ -391,11 +391,57 @@
                 return button.render();
             }
 
+            // Custom button: jadikan gambar terpilih sebagai link (popover gambar)
+            function makeImageLinkButton(context) {
+                const ui = $.summernote.ui;
+                const $editable = context.layoutInfo.editable;
+
+                // simpan gambar terakhir yang diklik di editor ini
+                $editable.off('mousedown.imglink').on('mousedown.imglink', 'img', function() {
+                    $editable.data('imglink-target', this);
+                });
+
+                const button = ui.button({
+                    contents: '<i class="fas fa-link"></i>',
+                    tooltip: 'Tambah / edit link pada gambar',
+                    click: function() {
+                        const img = $editable.data('imglink-target');
+                        if (!img) return;
+                        const $img = $(img);
+                        const $parentA = $img.parent('a');
+                        const current = $parentA.length ? $parentA.attr('href') : '';
+                        const url = window.prompt(
+                            'URL link untuk gambar (kosongkan untuk hapus link):',
+                            current || 'https://'
+                        );
+                        if (url === null) return; // batal
+
+                        context.invoke('editor.beforeCommand');
+                        if (url.trim() === '') {
+                            if ($parentA.length) $img.unwrap(); // hapus link
+                        } else {
+                            if ($parentA.length) {
+                                $parentA.attr('href', url).attr('target', '_blank').attr('rel', 'noopener');
+                            } else {
+                                const a = document.createElement('a');
+                                a.setAttribute('href', url);
+                                a.setAttribute('target', '_blank');
+                                a.setAttribute('rel', 'noopener');
+                                $img.wrap(a);
+                            }
+                        }
+                        context.invoke('editor.afterCommand');
+                    }
+                });
+                return button.render();
+            }
+
             $('#my-editor, #my-editor2').summernote({
                 dialogsInBody: true,
                 minHeight: 250,
                 buttons: {
-                    spacing: makeSpacingButton
+                    spacing: makeSpacingButton,
+                    imageLink: makeImageLinkButton
                 },
                 toolbar: [
                     ['style', ['style']],
@@ -408,7 +454,15 @@
                     ['table', ['table']],
                     ['insert', ['link', 'picture', 'video', 'hr']],
                     ['view', ['fullscreen', 'codeview', 'undo', 'redo', 'help']]
-                ]
+                ],
+                popover: {
+                    image: [
+                        ['imagesize', ['imageSize100', 'imageSize50', 'imageSize25']],
+                        ['float', ['floatLeft', 'floatRight', 'floatNone']],
+                        ['link', ['imageLink']],
+                        ['remove', ['removeMedia']]
+                    ]
+                }
             });
 
             $(document).on('shown.bs.modal', '.note-image-dialog', function() {
