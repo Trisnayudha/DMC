@@ -345,15 +345,78 @@
             bsCustomFileInput.init();
 
             // Inisialisasi 2 editor
+            // Custom button: spasi atas/bawah paragraf (margin)
+            function makeSpacingButton(context) {
+                const ui = $.summernote.ui;
+                const opts = [
+                    { label: 'None', val: '0' },
+                    { label: 'Kecil (6px)', val: '6px' },
+                    { label: 'Sedang (12px)', val: '12px' },
+                    { label: 'Besar (24px)', val: '24px' }
+                ];
+
+                function applySpacing(val) {
+                    context.invoke('editor.focus');
+                    const rng = context.invoke('editor.createRange');
+                    if (!rng) return;
+                    let node = rng.sc;
+                    if (node && node.nodeType === 3) node = node.parentNode; // text -> parent
+                    let $block = $(node).closest('p,div,h1,h2,h3,h4,h5,h6,li,blockquote', context.layoutInfo.editable[0]);
+                    if (!$block.length) {
+                        document.execCommand('formatBlock', false, 'p');
+                        const rng2 = context.invoke('editor.createRange');
+                        let n2 = rng2 ? rng2.sc : null;
+                        if (n2 && n2.nodeType === 3) n2 = n2.parentNode;
+                        $block = $(n2).closest('p,div,h1,h2,h3,h4,h5,h6,li,blockquote', context.layoutInfo.editable[0]);
+                    }
+                    if (!$block.length) return;
+                    $block.css({ marginTop: val, marginBottom: val });
+                    context.invoke('editor.afterCommand');
+                }
+
+                const items = opts.map(function(o) {
+                    return '<a class="dropdown-item" href="#" data-val="' + o.val + '">Spasi: ' + o.label + '</a>';
+                }).join('');
+
+                const button = ui.buttonGroup([
+                    ui.button({
+                        className: 'dropdown-toggle',
+                        contents: '<i class="fas fa-arrows-alt-v"></i>',
+                        tooltip: 'Spasi atas/bawah paragraf',
+                        data: { toggle: 'dropdown' }
+                    }),
+                    ui.dropdown({
+                        className: 'dropdown-menu',
+                        contents: items,
+                        callback: function($dropdown) {
+                            $dropdown.find('a.dropdown-item').on('click', function(e) {
+                                e.preventDefault();
+                                applySpacing($(this).data('val'));
+                            });
+                        }
+                    })
+                ]);
+
+                return button.render();
+            }
+
             $('#my-editor, #my-editor2').summernote({
                 dialogsInBody: true,
-                minHeight: 150,
+                minHeight: 250,
+                buttons: {
+                    spacing: makeSpacingButton
+                },
                 toolbar: [
-                    ['style', ['bold', 'italic', 'underline', 'clear', 'link', 'picture', 'video',
-                        'undo'
-                    ]],
-                    ['font', ['strikethrough']],
-                    ['para', ['paragraph']]
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height', 'spacing']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video', 'hr']],
+                    ['view', ['fullscreen', 'codeview', 'undo', 'redo', 'help']]
                 ]
             });
 
