@@ -72,7 +72,7 @@ class SponsorCountRepresentativeController extends Controller
         }
 
         $representatives = $representativesQuery
-            ->orderBy('sponsors.name')
+            ->orderBy('events.start_date', 'desc')
             ->orderBy('payment.created_at', 'desc')
             ->get();
 
