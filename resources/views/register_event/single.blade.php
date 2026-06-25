@@ -72,6 +72,14 @@
             max-width: 180px;
         }
 
+        .page-header img.img-logo {
+            max-width: 100%;
+            width: 100%;
+            height: auto;
+            margin-top: 16px;
+            border-radius: 8px;
+        }
+
         .page-title {
             font-size: 1.45rem;
             font-weight: 700;
@@ -518,6 +526,8 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}" alt="DMC Logo">
                 <h1 class="page-title">Event <span>Registration</span></h1>
+                <img src="https://membership.djakarta-miningclub.com/image/banner71_revisi2.png" alt="Image"
+                    class="img-logo">
             </div>
 
             <!-- EVENT DETAILS -->
