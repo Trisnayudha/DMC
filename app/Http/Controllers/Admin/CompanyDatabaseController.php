@@ -534,7 +534,15 @@ class CompanyDatabaseController extends Controller
         $query = CompanyModel::query()
             ->select(['id', 'users_id', 'is_verified', 'company_name', 'updated_at', ...$this->syncFields])
             ->whereNotNull('company_name')
-            ->whereRaw("TRIM(company_name) <> ''");
+            ->whereRaw("TRIM(company_name) <> ''")
+            // Hanya company yang user-nya benar-benar ada. Kalau users_id menunjuk ke
+            // user yang sudah terhapus (atau null), company-nya tidak ditampilkan —
+            // mencegah company "hantu" tanpa user muncul di list.
+            ->whereExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('users')
+                    ->whereColumn('users.id', 'company.users_id');
+            });
 
         // Company yang punya minimal satu member deactivated/declined di-hide SELURUHNYA,
         // meskipun ada member lain yang masih aktif atau baru daftar/verify.
