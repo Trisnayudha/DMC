@@ -502,24 +502,53 @@ class CompanyDatabaseController extends Controller
         return back()->with('success', $message);
     }
 
+    /**
+     * Nama company (ter-normalisasi) yang punya minimal satu member dengan status
+     * deactivated/declined. Seluruh company dengan nama ini di-hide dari database —
+     * sekali ada member yang di-deactivate/decline, company-nya tidak ditampilkan
+     * lagi walau ada member lain yang masih aktif atau baru daftar/verify.
+     *
+     * @return string[]
+     */
+    private function taintedCompanyNames(): array
+    {
+        return CompanyModel::query()
+            ->leftJoin('users', 'users.id', '=', 'company.users_id')
+            ->whereIn('users.status_member', ['deactivated', 'declined'])
+            ->whereNotNull('company.company_name')
+            ->whereRaw("TRIM(company.company_name) <> ''")
+            ->pluck('company.company_name')
+            ->map(function ($n) {
+                return Str::lower(trim((string) $n));
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     private function buildCompanyGroups(string $search = ''): Collection
     {
+        $taintedNames = $this->taintedCompanyNames();
+
         $query = CompanyModel::query()
-            ->select(['company.id', 'company.users_id', 'company.is_verified', 'company.company_name', 'company.updated_at', ...array_map(function ($f) { return 'company.' . $f; }, $this->syncFields)])
-            ->leftJoin('users', 'users.id', '=', 'company.users_id')
-            ->where(function ($q) {
-                $q->whereNull('users.status_member')
-                    ->orWhereNotIn('users.status_member', ['deactivated', 'declined']);
-            })
-            ->whereNotNull('company.company_name')
-            ->whereRaw("TRIM(company.company_name) <> ''");
+            ->select(['id', 'users_id', 'is_verified', 'company_name', 'updated_at', ...$this->syncFields])
+            ->whereNotNull('company_name')
+            ->whereRaw("TRIM(company_name) <> ''");
+
+        // Company yang punya minimal satu member deactivated/declined di-hide SELURUHNYA,
+        // meskipun ada member lain yang masih aktif atau baru daftar/verify.
+        if (!empty($taintedNames)) {
+            $placeholders = implode(',', array_fill(0, count($taintedNames), '?'));
+            $query->whereRaw("LOWER(TRIM(company_name)) NOT IN ($placeholders)", $taintedNames);
+        }
 
         if ($search !== '') {
-            $query->where('company.company_name', 'like', '%' . $search . '%');
+            $query->where('company_name', 'like', '%' . $search . '%');
         }
 
         /** @var EloquentCollection<int, CompanyModel> $rows */
-        $rows = $query->orderByDesc('company.updated_at')->get();
+        $rows = $query->orderByDesc('updated_at')->get();
 
         return $rows
             ->groupBy(function ($row) {
