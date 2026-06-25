@@ -15,6 +15,7 @@ class SponsorFollowup extends Model
         'followed_up_at',
         'channel',
         'notes',
+        'kmk_rate',
         'proof_path',
         'created_by',
     ];

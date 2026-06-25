@@ -6,6 +6,7 @@ use App\Helpers\ScrapeHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Sponsors\PackageBenefit;
 use App\Models\Sponsors\Sponsor;
+use App\Models\Sponsors\SponsorFollowup;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class SponsorRenewalFormController extends Controller
@@ -21,11 +22,20 @@ class SponsorRenewalFormController extends Controller
                 return $pb->benefit->category ?? 'Other';
             });
 
-        $kursRate = null;
-        try {
-            $kursRate = ScrapeHelper::scrapeExchangeRate();
-        } catch (\Exception $e) {
-            // silently fallback to null
+        // Pakai KMK rate yang diinput admin saat follow-up pertama (sesuai kurs yang
+        // dipakai waktu proposal dikirim). Kalau belum ada, fallback ke kurs live.
+        $kursRate = SponsorFollowup::where('sponsor_id', $sponsor->id)
+            ->whereNotNull('kmk_rate')
+            ->orderBy('followed_up_at')
+            ->orderBy('id')
+            ->value('kmk_rate');
+
+        if (!$kursRate) {
+            try {
+                $kursRate = ScrapeHelper::scrapeExchangeRate();
+            } catch (\Exception $e) {
+                // silently fallback to null
+            }
         }
 
         return [

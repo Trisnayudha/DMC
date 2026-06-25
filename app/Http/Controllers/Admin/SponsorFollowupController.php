@@ -37,6 +37,7 @@ class SponsorFollowupController extends Controller
                 'followed_up_at' => $f->followed_up_at->format('d M Y'),
                 'channel'        => $f->channel,
                 'notes'          => $f->notes,
+                'kmk_rate'       => $f->kmk_rate,
                 'proof_url'      => asset('storage/' . $f->proof_path),
                 'created_by'     => $f->creator ? $f->creator->name : null,
             ]);
@@ -48,16 +49,25 @@ class SponsorFollowupController extends Controller
     {
         $sponsor = Sponsor::findOrFail($sponsorId);
 
+        // Tentukan urutan follow-up dulu: KMK rate hanya wajib di follow-up PERTAMA
+        // (saat renewal form di-generate). Follow-up berikutnya tidak perlu input KMK.
+        $renewalYear = (int) $request->input('renewal_year');
+        $isFirst = SponsorFollowup::where('sponsor_id', $sponsor->id)
+            ->where('renewal_year', $renewalYear)
+            ->count() === 0;
+
         $validated = $request->validate([
             'renewal_year'   => 'required|integer|min:2020|max:2100',
             'followed_up_at' => 'required|date',
             'channel'        => 'nullable|in:whatsapp,email,call,meeting,other',
             'notes'          => 'nullable|string|max:1000',
+            'kmk_rate'       => ($isFirst ? 'required' : 'nullable') . '|integer|min:1',
             'proof'          => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
-            'proof.required' => 'Bukti follow-up wajib diupload.',
-            'proof.mimes'    => 'Bukti harus berupa JPG, PNG, atau PDF.',
-            'proof.max'      => 'Ukuran bukti maksimal 5 MB.',
+            'kmk_rate.required' => 'KMK rate wajib diisi pada follow-up pertama (saat generate renewal form).',
+            'proof.required'    => 'Bukti follow-up wajib diupload.',
+            'proof.mimes'       => 'Bukti harus berupa JPG, PNG, atau PDF.',
+            'proof.max'         => 'Ukuran bukti maksimal 5 MB.',
         ]);
 
         $sequence = SponsorFollowup::where('sponsor_id', $sponsor->id)
@@ -72,6 +82,7 @@ class SponsorFollowupController extends Controller
             'followed_up_at' => $validated['followed_up_at'],
             'channel'        => $validated['channel'] ?? null,
             'notes'          => $validated['notes'] ?? null,
+            'kmk_rate'       => $validated['kmk_rate'] ?? null,
             'proof_path'     => $proofPath,
             'created_by'     => auth()->id(),
         ]);
@@ -104,6 +115,9 @@ class SponsorFollowupController extends Controller
                     . ($followup->channel ? ' via ' . ucfirst($followup->channel) : ''),
                 'Oleh: ' . (auth()->user()->name ?? '-'),
             ];
+            if ($followup->kmk_rate) {
+                $lines[] = 'KMK Rate: IDR ' . number_format($followup->kmk_rate, 0, '.', '.') . '/USD';
+            }
             if ($followup->notes) {
                 $lines[] = 'Notes: ' . $followup->notes;
             }

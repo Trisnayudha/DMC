@@ -22,12 +22,12 @@
                     ->sum(fn ($g) => $g->where('followup_status', 'pending')->count());
             @endphp
 
-            <div class="card" style="border-top: 3px solid #f39c12;">
+            <div class="card" id="priorityContracts" style="border-top: 3px solid #f39c12;">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div>
                         <h4 class="mb-0">
                             <i class="fas fa-calendar-times mr-2" style="color:#f39c12;"></i>
-                            Contract Expiry Forecast — {{ $year }}
+                            30-Day Priority Contracts — {{ $year }}
                         </h4>
                         <small class="text-muted">Contracts that expire during {{ $year }} — these sponsors will need follow-up for renewal</small>
                     </div>
@@ -150,6 +150,7 @@
                                     <th style="width:110px;">Renewal Type</th>
                                     <th style="min-width:160px;">Follow-up Status</th>
                                     <th>PIC Contact</th>
+                                    <th style="width:140px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -236,10 +237,74 @@
                                             @endif
                                         @else
                                             @include('admin.sponsor.annual-report._pending-stage-badge', ['stage' => $er->pending_stage ?? 'upcoming'])
+                                            {{-- Alur follow-up: Renewal Form Submitted → Follow Up N → tanggal | PIC --}}
+                                            @if(($er->followup_count ?? 0) > 0)
+                                                <div style="margin-top:6px;border-left:2px solid #e9ecef;padding-left:8px;">
+                                                    <div style="font-size:10px;font-weight:700;color:#47c363;">
+                                                        <i class="fas fa-file-signature mr-1"></i>Renewal Form Submitted
+                                                    </div>
+                                                    @if($er->first_followup)
+                                                        <div style="font-size:10px;color:#aaa;">{{ $er->first_followup->followed_up_at->format('d M Y') }}</div>
+                                                    @endif
+                                                    <div style="font-size:11px;font-weight:600;color:#3a7bd5;margin-top:2px;">
+                                                        <i class="fas fa-phone-volume mr-1" style="font-size:9px;"></i>Follow Up {{ $er->followup_count }}
+                                                    </div>
+                                                    @if($er->last_followup)
+                                                        <div style="font-size:10px;color:#888;">
+                                                            {{ $er->last_followup->followed_up_at->format('d M Y') }}{{ $er->last_followup->creator ? ' | ' . $er->last_followup->creator->name : '' }}
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <div style="margin-top:6px;font-size:10px;color:#aaa;">
+                                                    <i class="fas fa-user-slash mr-1"></i>Belum ada follow-up
+                                                </div>
+                                            @endif
                                         @endif
                                     </td>
                                     <td style="padding:10px 16px;">
                                         @include('admin.sponsor.annual-report._pic-contact', ['pic' => $ePic, 'color' => '#f39c12'])
+                                    </td>
+                                    <td style="padding:10px 16px;">
+                                        @if($fu === 'pending')
+                                            @php
+                                                $exNextStart = $er->contract_end ? \Carbon\Carbon::createFromFormat('Y-m', $er->contract_end)->addMonth()->format('Y-m') : '';
+                                                $exNextEnd   = $er->contract_end ? \Carbon\Carbon::createFromFormat('Y-m', $er->contract_end)->addMonths(12)->format('Y-m') : '';
+                                            @endphp
+                                            <div class="d-flex" style="gap:4px;">
+                                                <button class="btn btn-sm action-icon-btn followup-btn"
+                                                    style="background:#f39c12;color:#fff;"
+                                                    data-id="{{ $er->sponsor_id }}"
+                                                    data-name="{{ $er->sponsor ? $er->sponsor->name : '' }}"
+                                                    data-toggle="tooltip" title="Renewal Follow-up">
+                                                    <i class="fas fa-phone-volume"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-primary action-icon-btn update-contract-btn"
+                                                    data-sponsor-id="{{ $er->sponsor_id }}"
+                                                    data-contract-start="{{ $exNextStart }}"
+                                                    data-contract-end="{{ $exNextEnd }}"
+                                                    data-package="{{ $er->package }}"
+                                                    data-toggle="tooltip" title="Confirm Renewal / Update Contract">
+                                                    <i class="fas fa-file-signature"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-warning action-icon-btn not-renewed-btn"
+                                                    data-id="{{ $er->sponsor_id }}"
+                                                    data-name="{{ $er->sponsor ? $er->sponsor->name : '' }}"
+                                                    data-contract-start="{{ $er->contract_start }}"
+                                                    data-contract-end="{{ $er->contract_end }}"
+                                                    data-toggle="tooltip" title="Mark Not Renewed">
+                                                    <i class="fas fa-times-circle"></i>
+                                                </button>
+                                                <a href="{{ route('sponsors.renewal-form.preview', $er->sponsor_id) }}"
+                                                    target="_blank"
+                                                    class="btn btn-sm btn-outline-secondary action-icon-btn"
+                                                    data-toggle="tooltip" title="Preview Renewal Form">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
+                                            </div>
+                                        @else
+                                            <span class="text-muted" style="font-size:11px;">—</span>
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach

@@ -32,8 +32,11 @@ class SponsorAnnualReportController extends Controller
 
         $expiryForecast = $this->expiryForecast($year);
         $this->applyFollowUpStatus($expiryForecast);
+        $this->attachFollowupLog($expiryForecast, $year);
 
         [$monthlyStats, $monthlyDetails] = $this->monthlyActivity($year);
+
+        $pendingRenewals = $this->pendingRenewals($expiryForecast, $package, $search, $year);
 
         return view('admin.sponsor.annual-report', [
             'year'               => $year,
@@ -48,8 +51,10 @@ class SponsorAnnualReportController extends Controller
             'packageBreakdown'   => $this->packageBreakdown($year),
             'expiryForecast'     => $expiryForecast,
             'peakExpiryMonth'    => $this->peakExpiryMonth($expiryForecast),
-            'pendingRenewals'    => $this->pendingRenewals($expiryForecast, $package, $search, $year),
+            'pendingRenewals'    => $pendingRenewals,
             'headcount'          => $this->sponsorHeadcount($year),
+            'dashboardCards'     => $this->dashboardCards($year, $expiryForecast, $pendingRenewals),
+            'chartData'          => $this->chartData($year),
         ] + $this->summaryCounts($year));
     }
 
@@ -305,6 +310,36 @@ class SponsorAnnualReportController extends Controller
         });
     }
 
+    /**
+     * Tempelkan jejak follow-up log (SponsorFollowup) ke tiap kontrak expiring untuk
+     * siklus renewal tahun ini, supaya kolom Follow-up Status bisa menampilkan alur:
+     * Renewal Form Submitted → Follow Up 1/2/3 → (tanggal) | (nama PIC).
+     */
+    private function attachFollowupLog(Collection $expiryForecast, int $year): void
+    {
+        $sponsorIds = $expiryForecast->flatten()->pluck('sponsor_id')->unique();
+        if ($sponsorIds->isEmpty()) {
+            return;
+        }
+
+        $logs = SponsorFollowup::whereIn('sponsor_id', $sponsorIds)
+            ->where('renewal_year', $year)
+            ->with('creator:id,name')
+            ->orderBy('followed_up_at')
+            ->orderBy('id')
+            ->get()
+            ->groupBy('sponsor_id');
+
+        $expiryForecast->each(function ($group) use ($logs) {
+            $group->each(function ($er) use ($logs) {
+                $f = $logs->get($er->sponsor_id, collect());
+                $er->followup_count  = $f->count();
+                $er->first_followup  = $f->first();
+                $er->last_followup   = $f->last();
+            });
+        });
+    }
+
     private function peakExpiryMonth(Collection $expiryForecast): ?int
     {
         return $expiryForecast->isNotEmpty()
@@ -320,7 +355,12 @@ class SponsorAnnualReportController extends Controller
     private function pendingRenewals(Collection $expiryForecast, ?string $package, ?string $search, int $year): Collection
     {
         $pending = $expiryForecast->flatten()
-            ->filter(fn ($er) => $er->followup_status === 'pending')
+            // Sponsor yang kontraknya sudah dibilling untuk tahun berjalan (renewal_year
+            // sama dengan tahun ini, mis. kontrak Jan–Des 2026 yang sudah confirm di
+            // Januari) tidak dihitung pending lagi — 1 sponsor = 1 penagihan per tahun.
+            // Kontraknya memang berakhir tahun ini, tapi renewal-nya untuk tahun depan,
+            // jadi cukup tampil di 30-Day Priority Contracts, bukan di tab Pending.
+            ->filter(fn ($er) => $er->followup_status === 'pending' && (int) $er->renewal_year < $year)
             ->when($package, fn ($c) => $c->where('package', $package))
             ->when($search, fn ($c) => $c->filter(fn ($er) => $er->sponsor && stripos($er->sponsor->name, $search) !== false))
             ->sortBy('contract_end')
@@ -341,5 +381,95 @@ class SponsorAnnualReportController extends Controller
         });
 
         return $pending;
+    }
+
+    private function chartData(int $year): array
+    {
+        $confirmed = SponsorRenewal::where('renewal_status', 'renewed')
+            ->whereNotNull('contract_start')
+            ->get();
+
+        $buildMonthly = function ($rows) {
+            $data = array_fill(1, 12, 0);
+            foreach ($rows as $r) {
+                $m = (int) substr($r->contract_start, 5, 2);
+                $data[$m]++;
+            }
+            return array_values($data);
+        };
+
+        $buildMonthlyIdr = function ($rows) {
+            $data = array_fill(1, 12, 0);
+            foreach ($rows as $r) {
+                $m = (int) substr($r->contract_start, 5, 2);
+                $data[$m] += (int) $r->amount_idr;
+            }
+            return array_values($data);
+        };
+
+        $buildPackageMonthly = function ($rows) {
+            $pkgs = ['platinum' => array_fill(1, 12, 0), 'gold' => array_fill(1, 12, 0), 'silver' => array_fill(1, 12, 0)];
+            foreach ($rows as $r) {
+                $m = (int) substr($r->contract_start, 5, 2);
+                $pkg = strtolower($r->package);
+                if (isset($pkgs[$pkg])) {
+                    $pkgs[$pkg][$m]++;
+                }
+            }
+            return array_map('array_values', $pkgs);
+        };
+
+        $years = $confirmed->pluck('renewal_year')->unique()->sort()->values()->toArray();
+
+        $sponsorYoy = [];
+        $packageYoy = [];
+        $priceYoy = [];
+        foreach ($years as $y) {
+            $yRows = $confirmed->where('renewal_year', $y);
+            $sponsorYoy[$y] = $buildMonthly($yRows);
+            $packageYoy[$y] = $buildPackageMonthly($yRows);
+            $priceYoy[$y] = $buildMonthlyIdr($yRows);
+        }
+
+        return [
+            'years'      => $years,
+            'sponsorYoy' => $sponsorYoy,
+            'packageYoy' => $packageYoy,
+            'priceYoy'   => $priceYoy,
+            'target'     => 168000000,
+        ];
+    }
+
+    private function dashboardCards(int $year, Collection $expiryForecast, Collection $pendingRenewals): array
+    {
+        $totalSponsor = Sponsor::where('status', 'publish')->count();
+
+        $thisYearConfirmed = SponsorRenewal::where('renewal_year', $year)
+            ->where('renewal_status', 'renewed')
+            ->count();
+
+        $pendingRenewalCount = $pendingRenewals->count();
+
+        // Kadaluarsa = kontrak pending yang sudah jatuh tempo: berakhir bulan ini ATAU
+        // bulan-bulan sebelumnya, tapi belum ada keputusan confirm/not-renew.
+        $nowYm = now()->format('Y-m');
+        $expiredCount = $expiryForecast->flatten()
+            ->filter(function ($er) use ($nowYm) {
+                return $er->followup_status === 'pending'
+                    && $er->contract_end <= $nowYm;
+            })
+            ->count();
+
+        $notRenewCount = SponsorRenewal::where('renewal_year', $year)
+            ->where('renewal_status', 'not_renewed')
+            ->count();
+
+        return [
+            'totalSponsor'        => $totalSponsor,
+            'thisYearConfirmed'   => $thisYearConfirmed,
+            'pendingRenewalCount' => $pendingRenewalCount,
+            'expiredCount'        => $expiredCount,
+            'notRenewCount'       => $notRenewCount,
+        ];
     }
 }

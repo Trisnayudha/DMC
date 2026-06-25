@@ -173,6 +173,20 @@
                             </div>
                         </div>
                     </div>
+                    {{-- KMK rate: hanya muncul & wajib di follow-up PERTAMA (saat generate renewal form) --}}
+                    <div class="form-group" id="followupKmkGroup" style="display:none;">
+                        <label>KMK Rate (USD/IDR) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="number" name="kmk_rate" id="followupKmkRate" class="form-control"
+                                min="1" placeholder="Loading...">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary" id="btnRefreshFollowupKmk" title="Refresh rate">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <small class="text-muted">KMK Pajak — auto-fetched, bisa diubah. Dipakai untuk nilai kontrak di renewal form.</small>
+                    </div>
                     <div class="form-group">
                         <label>Notes</label>
                         <textarea name="notes" id="followupNotes" class="form-control" rows="2"
