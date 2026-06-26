@@ -195,7 +195,7 @@
                                             </td>
                                             <td style="font-size:.83rem;">{{ $post->job_title }}</td>
                                             <td style="font-size:.83rem;">
-                                                {{ $post->company_name . ($post->prefix ? ', ' . $post->prefix : '') }}
+                                                {{ $post->company_name }}
                                             </td>
                                             <td style="font-size:.83rem;">
                                                 {{ $post->prefix_phone != null ? $post->fullphone : $post->phone }}

@@ -107,8 +107,9 @@
                                                     @endphp
                                                     <h4>
                                                         Category Company
-                                                        <i class="fas fa-info-circle text-muted ml-1" style="font-size:13px;cursor:help;"
-                                                            data-toggle="tooltip" data-html="true" data-placement="bottom"
+                                                        <i class="fas fa-info-circle text-muted ml-1"
+                                                            style="font-size:13px;cursor:help;" data-toggle="tooltip"
+                                                            data-html="true" data-placement="bottom"
                                                             title="{!! $evtCatTooltip !!}"></i>
                                                     </h4>
                                                 </div>
@@ -358,7 +359,7 @@
                                                         {{ $post->name }}
                                                     </td>
                                                     <td>{{ $post->job_title }}</td>
-                                                    <td>{{ $post->company_name . ($post->prefix ? ', ' . $post->prefix : '') }}
+                                                    <td>{{ $post->company_name }}
                                                     </td>
                                                     <td>{{ $post->email }}</td>
                                                     <td>{{ $post->phone }}</td>
@@ -704,7 +705,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Job Title</label>
-                                    <input type="text" class="form-control" name="job_title_edit" id="job_title_edit">
+                                    <input type="text" class="form-control" name="job_title_edit"
+                                        id="job_title_edit">
                                 </div>
                                 <div class="form-group">
                                     <label>Country</label>
@@ -717,9 +719,11 @@
                                 <div class="form-group">
                                     <label>Company Name</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="company_name_edit" id="company_name_edit">
+                                        <input type="text" class="form-control" name="company_name_edit"
+                                            id="company_name_edit">
                                         <div class="input-group-append">
-                                            <button type="button" class="btn btn-outline-info" id="btn-auto-sync" title="Auto sync from database">
+                                            <button type="button" class="btn btn-outline-info" id="btn-auto-sync"
+                                                title="Auto sync from database">
                                                 <i class="fas fa-sync-alt" id="sync-icon"></i>
                                                 <i class="fas fa-spinner fa-spin d-none" id="sync-spinner"></i>
                                             </button>
@@ -740,7 +744,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Office Number</label>
-                                    <input type="text" class="form-control" name="office_number_edit" id="office_number_edit">
+                                    <input type="text" class="form-control" name="office_number_edit"
+                                        id="office_number_edit">
                                 </div>
                             </div>
                             <div class="col-12">
@@ -954,7 +959,9 @@
                 var form = $(this).closest('form');
                 var ticket = form.find('select[name="ticket"]').val();
                 if (ticket === 'member') {
-                    if (!confirm('Warning: User baru ini belum terdaftar sebagai member. Yakin ingin daftarkan sebagai Member?')) {
+                    if (!confirm(
+                            'Warning: User baru ini belum terdaftar sebagai member. Yakin ingin daftarkan sebagai Member?'
+                            )) {
                         e.preventDefault();
                         return false;
                     }
@@ -969,7 +976,8 @@
 
                 if ((ticket === 'member') && status !== 'active') {
                     var statusLabel = status || 'unknown';
-                    if (!confirm('Warning: User ini status membership-nya "' + statusLabel + '" (belum approved). Yakin ingin daftarkan sebagai Member?')) {
+                    if (!confirm('Warning: User ini status membership-nya "' + statusLabel +
+                            '" (belum approved). Yakin ingin daftarkan sebagai Member?')) {
                         e.preventDefault();
                         return false;
                     }
@@ -1148,7 +1156,12 @@
         $('#btn-auto-sync').on('click', function() {
             var companyName = $('#company_name_edit').val().trim();
             if (!companyName) {
-                Swal.fire({ icon: 'warning', title: 'Isi dulu nama company', timer: 1500, showConfirmButton: false });
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Isi dulu nama company',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
                 return;
             }
 
@@ -1160,25 +1173,43 @@
             $.ajax({
                 url: "{{ route('company.lookup') }}",
                 type: 'GET',
-                data: { name: companyName },
+                data: {
+                    name: companyName
+                },
                 success: function(res) {
                     if (!res.found) {
-                        Swal.fire({ icon: 'info', title: 'Data company tidak ditemukan di database', timer: 2000, showConfirmButton: false });
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Data company tidak ditemukan di database',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                         return;
                     }
 
-                    if (res.prefix)           $('#prefix_edit').val(res.prefix);
-                    if (res.company_website)  $('#company_website_edit').val(res.company_website);
-                    if (res.company_category) $('#company_category_edit').val(res.company_category).trigger('change');
-                    if (res.company_other)    $('#company_other_edit').val(res.company_other);
-                    if (res.address)          $('#address_edit').val(res.address);
-                    if (res.office_number)    $('#office_number_edit').val(res.office_number);
-                    if (res.country)          $('.country_edit').val(res.country);
+                    if (res.prefix) $('#prefix_edit').val(res.prefix);
+                    if (res.company_website) $('#company_website_edit').val(res.company_website);
+                    if (res.company_category) $('#company_category_edit').val(res.company_category)
+                        .trigger('change');
+                    if (res.company_other) $('#company_other_edit').val(res.company_other);
+                    if (res.address) $('#address_edit').val(res.address);
+                    if (res.office_number) $('#office_number_edit').val(res.office_number);
+                    if (res.country) $('.country_edit').val(res.country);
 
-                    Swal.fire({ icon: 'success', title: 'Data berhasil disync!', timer: 1500, showConfirmButton: false });
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Data berhasil disync!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                 },
                 error: function() {
-                    Swal.fire({ icon: 'error', title: 'Gagal mengambil data', timer: 1500, showConfirmButton: false });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal mengambil data',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                 },
                 complete: function() {
                     $('#sync-icon').removeClass('d-none');
