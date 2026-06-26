@@ -191,7 +191,7 @@
                 <td>{{ $post->company_name }}</td>
                 <td><a href="mailto:{{ $post->email }}">{{ $post->email }}</a></td>
                 <td class="text-nowrap">{{ $post->fullphone ?? $post->phone }}</td>
-                <td class="text-nowrap">{{ $post->office_number ?? $post->full_office_number }}</td>
+                <td class="text-nowrap">{{ $post->full_office_number }}</td>
                 <td>{{ $post->address }}</td>
                 <td>
                     @if ($post->company_website)
