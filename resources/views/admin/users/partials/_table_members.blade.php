@@ -196,7 +196,7 @@
                 <td>
                     @if ($post->company_website)
                         <a href="{{ $post->company_website }}" target="_blank" rel="noopener">
-                            <i class="fas fa-external-link-alt"></i>
+                            {{ $post->company_website }}
                         </a>
                     @endif
                 </td>
