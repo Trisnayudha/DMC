@@ -113,7 +113,7 @@ class SponsorCountRepresentativeController extends Controller
         $builder = new SponsorContactRowBuilder();
         $sponsorContactsMap = [];
         foreach ($allSponsorsWithMembers as $s) {
-            $sponsorContactsMap[$s->id] = $builder->build($s)
+            $contacts = $builder->build($s)
                 // user yang sudah punya akun tampil duluan di dropdown
                 ->sortByDesc(function ($row) {
                     return $row['user_id'] !== null;
@@ -129,6 +129,18 @@ class SponsorCountRepresentativeController extends Controller
                     ];
                 })
                 ->values();
+
+            // Sertakan info company/sponsor untuk prefill form New Contact
+            $sponsorContactsMap[$s->id] = [
+                'contacts'         => $contacts,
+                'company_name'     => $s->branding_name ?: $s->name,
+                'company_website'  => $s->website ?? '',
+                'company_category' => $s->company_category ?? '',
+                'address'          => $s->address ?? '',
+                'office_number'    => $s->office_number ?? '',
+                'country'          => $s->country ?? 'Indonesia',
+                'prefix'           => $s->prefix ?? 'PT',
+            ];
         }
 
         return view('admin.sponsor.representative.index', [
@@ -360,10 +372,11 @@ class SponsorCountRepresentativeController extends Controller
     public function addNewPersonToEvent(Request $request)
     {
         $request->validate([
-            'sponsor_id' => 'required|exists:sponsors,id',
-            'event_id'   => 'required|exists:events,id',
-            'name'       => 'required|string|max:255',
-            'email'      => 'required|email',
+            'sponsor_id'        => 'required|exists:sponsors,id',
+            'event_id'          => 'required|exists:events,id',
+            'name'              => 'required|string|max:255',
+            'email'             => 'required|email',
+            'register_as_member' => 'nullable',
         ]);
 
         try {
@@ -385,6 +398,38 @@ class SponsorCountRepresentativeController extends Controller
             } else {
                 $this->registerWithInvoice($request, $user, $findEvent, $ticket);
                 $message = $user->name . ' registered to ' . $findEvent->name . '. Payment invoice created.';
+            }
+
+            // Daftarkan sebagai member pending + kirim WA ke Mba Dira
+            if (!empty($request->register_as_member)) {
+                $user->status_member = 'pending';
+                $user->save();
+
+                $sponsor = Sponsor::find($request->sponsor_id);
+                $sponsorName = $sponsor ? ($sponsor->branding_name ?: $sponsor->name) : '-';
+
+                try {
+                    $wa          = new WhatsappApi();
+                    $wa->phone   = '6281385080008';
+                    $wa->message =
+                        "📋 *[Member Verification Request]*\n\n" .
+                        "Halo Mbak Dira, ada permintaan verifikasi member baru dari sistem DMC.\n\n" .
+                        "*Nama:* {$user->name}\n" .
+                        "*Email:* {$user->email}\n" .
+                        "*No. HP:* " . ($request->phone ?: '-') . "\n" .
+                        "*Job Title:* " . ($request->job_title ?: '-') . "\n" .
+                        "*Perusahaan:* {$sponsorName} *(Sponsor)*\n\n" .
+                        "Kontak ini baru saja didaftarkan sebagai peserta event *{$findEvent->name}* " .
+                        "dan belum pernah terdaftar sebagai member DMC sebelumnya.\n\n" .
+                        "Mohon dilakukan verifikasi & approval pada laporan mingguan member. " .
+                        "Status saat ini: *PENDING*\n\n" .
+                        "Terima kasih! 🙏";
+                    $wa->WhatsappMessage();
+                } catch (\Exception $e) {
+                    // WA gagal tidak boleh block proses registrasi
+                }
+
+                $message .= ' Member registration submitted (pending approval).';
             }
 
             return response()->json(['success' => true, 'message' => $message]);

@@ -456,12 +456,14 @@
                 $('input[name="ateMode"][value="existing"]').prop('checked', true);
                 $('#ateContactGroup').show();
                 $('#ateNewPersonForm').hide();
+                $('#ateRegisterMemberGroup').hide();
             } else {
                 $('#ateModeNewBtn').addClass('active');
                 $('#ateModeExistingBtn').removeClass('active');
                 $('input[name="ateMode"][value="new"]').prop('checked', true);
                 $('#ateContactGroup').hide();
                 $('#ateNewPersonForm').show();
+                $('#ateRegisterMemberGroup').show();
             }
         }
 
@@ -472,6 +474,21 @@
             $('#ateCompanyCategory').val('');
             $('#ateCompanyOtherGroup').hide();
             $('#ateTicket').val('sponsor');
+            $('#ateRegisterAsMember').prop('checked', false);
+        }
+
+        function prefillCompanyFromSponsor(sponsorId) {
+            if (!sponsorId || !sponsorContactsMap[sponsorId]) return;
+            var s = sponsorContactsMap[sponsorId];
+            if (s.company_name)     $('#ateCompanyName').val(s.company_name);
+            if (s.company_website)  $('#ateCompanyWebsite').val(s.company_website);
+            if (s.prefix)           $('#atePrefix').val(s.prefix);
+            if (s.country)          $('#ateCountry').val(s.country);
+            if (s.address)          $('#ateAddress').val(s.address);
+            if (s.office_number)    $('#ateOfficeNumber').val(s.office_number);
+            if (s.company_category) {
+                $('#ateCompanyCategory').val(s.company_category).trigger('change');
+            }
         }
 
         function prefillNewPersonForm(contact) {
@@ -486,17 +503,38 @@
 
         // ── Mode toggle ──────────────────────────────────────────────────────
         $('#ateModeExistingBtn').on('click', function() { setMode('existing'); });
-        $('#ateModeNewBtn').on('click',      function() { setMode('new'); clearNewPersonForm(); });
+        $('#ateModeNewBtn').on('click', function() {
+            setMode('new');
+            clearNewPersonForm();
+            // Auto-fill company fields dari sponsor yang sedang dipilih
+            var sponsorId = $('#ateSponsorSelect').val();
+            if (sponsorId) prefillCompanyFromSponsor(sponsorId);
+        });
 
         // ── Sponsor change → populate contacts ───────────────────────────────
         $('#ateSponsorSelect').on('change', function() {
             var sponsorId = $(this).val();
             var $sel      = $('#ateContactSelect');
+            var $newBtn   = $('#ateModeNewBtn');
             selectedContact = null;
             $sel.html('<option value="">— Select Contact —</option>');
 
-            if (sponsorId && sponsorContactsMap[sponsorId] && sponsorContactsMap[sponsorId].length > 0) {
-                $.each(sponsorContactsMap[sponsorId], function(i, c) {
+            // Enable / disable tombol "New Contact"
+            if (sponsorId) {
+                $newBtn.removeClass('disabled').css({opacity: '', 'pointer-events': ''}).attr('title', '');
+            } else {
+                $newBtn.addClass('disabled').css({opacity: '.45', 'pointer-events': 'none'}).attr('title', 'Pilih sponsor terlebih dahulu');
+                // Kalau sponsor di-reset, kembalikan ke mode existing
+                if ($('input[name="ateMode"]:checked').val() === 'new') {
+                    setMode('existing');
+                    clearNewPersonForm();
+                }
+            }
+
+            var contacts = (sponsorId && sponsorContactsMap[sponsorId]) ? sponsorContactsMap[sponsorId].contacts : [];
+
+            if (sponsorId && contacts && contacts.length > 0) {
+                $.each(contacts, function(i, c) {
                     var label = c.name + (c.email ? ' (' + c.email + ')' : '') + (c.user_id ? ' ✓' : ' [no account]');
                     $sel.append('<option value="' + i + '">' + label + '</option>');
                 });
@@ -506,20 +544,28 @@
             } else {
                 $sel.html('<option value="">— Select Sponsor first —</option>').prop('disabled', true);
             }
+
+            // Jika sedang dalam mode New Contact, prefill company dari sponsor
+            var mode = $('input[name="ateMode"]:checked').val();
+            if (mode === 'new' && sponsorId) {
+                prefillCompanyFromSponsor(sponsorId);
+            }
         });
 
-        // ── Contact change → existing user atau prefill new person ───────────
+        // ── Contact change → existing user atau prefill new contact ───────────
         $('#ateContactSelect').on('change', function() {
             var sponsorId = $('#ateSponsorSelect').val();
             var idx       = $(this).val();
             if (!sponsorId || idx === '') { selectedContact = null; return; }
 
-            selectedContact = sponsorContactsMap[sponsorId][idx];
+            var contacts = sponsorContactsMap[sponsorId] ? sponsorContactsMap[sponsorId].contacts : [];
+            selectedContact = contacts[idx];
 
             if (!selectedContact.user_id) {
-                // Belum punya akun → pindah ke mode new person, prefill dari data contact
+                // Belum punya akun → pindah ke mode New Contact, prefill dari data contact
                 setMode('new');
-                prefillNewPersonForm(selectedContact);
+                prefillCompanyFromSponsor(sponsorId);  // Isi company dari sponsor dulu
+                prefillNewPersonForm(selectedContact);  // Override name/email/phone/title
             } else {
                 setMode('existing');
             }
@@ -547,7 +593,7 @@
 
             if (mode === 'existing') {
                 if (!selectedContact || !selectedContact.user_id) {
-                    toastr.warning('Please select a contact with a user account, or switch to New Person.', '', {positionClass:'toast-top-right'});
+                    toastr.warning('Please select a contact with a user account, or switch to New Contact.', '', {positionClass:'toast-top-right'});
                     return;
                 }
                 btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Registering...');
@@ -584,23 +630,24 @@
                     url:    '{{ route("sponsors.representative.add_new_person") }}',
                     method: 'POST',
                     data: {
-                        _token:           '{{ csrf_token() }}',
-                        sponsor_id:       sponsorId,
-                        event_id:         eventId,
-                        send_email:       $('#ateSendEmail').is(':checked') ? 1 : '',
-                        prefix:           $('#atePrefix').val(),
-                        name:             name,
-                        email:            email,
-                        phone:            $('#atePhone').val(),
-                        job_title:        $('#ateJobTitle').val(),
-                        company_name:     $('#ateCompanyName').val(),
-                        company_website:  $('#ateCompanyWebsite').val(),
-                        company_category: $('#ateCompanyCategory').val(),
-                        company_other:    $('#ateCompanyOther').val(),
-                        address:          $('#ateAddress').val(),
-                        office_number:    $('#ateOfficeNumber').val(),
-                        country:          $('#ateCountry').val(),
-                        ticket:           $('#ateTicket').val(),
+                        _token:             '{{ csrf_token() }}',
+                        sponsor_id:         sponsorId,
+                        event_id:           eventId,
+                        send_email:         $('#ateSendEmail').is(':checked') ? 1 : '',
+                        register_as_member: $('#ateRegisterAsMember').is(':checked') ? 1 : '',
+                        prefix:             $('#atePrefix').val(),
+                        name:               name,
+                        email:              email,
+                        phone:              $('#atePhone').val(),
+                        job_title:          $('#ateJobTitle').val(),
+                        company_name:       $('#ateCompanyName').val(),
+                        company_website:    $('#ateCompanyWebsite').val(),
+                        company_category:   $('#ateCompanyCategory').val(),
+                        company_other:      $('#ateCompanyOther').val(),
+                        address:            $('#ateAddress').val(),
+                        office_number:      $('#ateOfficeNumber').val(),
+                        country:            $('#ateCountry').val(),
+                        ticket:             $('#ateTicket').val(),
                     },
                     success:  function(r) {
                         if (r.success) { toastr.success(r.message, 'Success', {positionClass:'toast-top-right'}); $('#addToEventModal').modal('hide'); }

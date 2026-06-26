@@ -1,5 +1,6 @@
 <!-- Modal: Add Sponsor Contact to Event -->
-<div class="modal fade" id="addToEventModal" tabindex="-1" role="dialog" aria-labelledby="addToEventModalLabel" aria-hidden="true">
+<div class="modal fade" id="addToEventModal" tabindex="-1" role="dialog" aria-labelledby="addToEventModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
@@ -17,7 +18,8 @@
                     <select id="ateSponsorSelect" class="form-control" required>
                         <option value="">— Select Sponsor —</option>
                         @foreach ($allSponsorsWithMembers as $s)
-                            <option value="{{ $s->id }}" data-name="{{ $s->branding_name ?: $s->name }}">{{ $s->branding_name ?: $s->name }}</option>
+                            <option value="{{ $s->id }}" data-name="{{ $s->branding_name ?: $s->name }}">
+                                {{ $s->branding_name ?: $s->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -28,8 +30,9 @@
                         <label class="btn btn-outline-primary active flex-fill" id="ateModeExistingBtn">
                             <input type="radio" name="ateMode" value="existing" checked> Existing Contact
                         </label>
-                        <label class="btn btn-outline-primary flex-fill" id="ateModeNewBtn">
-                            <input type="radio" name="ateMode" value="new"> New Person
+                        <label class="btn btn-outline-primary flex-fill disabled" id="ateModeNewBtn"
+                            style="opacity:.45;pointer-events:none" title="Pilih sponsor terlebih dahulu">
+                            <input type="radio" name="ateMode" value="new"> New Contact
                         </label>
                     </div>
                 </div>
@@ -46,81 +49,69 @@
                     </small>
                 </div>
 
-                {{-- New person form (isian sama dengan modal "Tambah peserta" di event detail) --}}
+                {{-- New Contact form — fokus ke 4 field utama --}}
                 <div id="ateNewPersonForm" style="display:none">
                     <hr>
                     <div class="row">
                         <div class="col-6">
                             <div class="form-group">
-                                <label>PT</label>
-                                <select class="form-control" id="atePrefix">
-                                    <option value="PT">PT</option>
-                                    <option value="CV">CV</option>
-                                    <option value="Ltd">Ltd</option>
-                                    <option value="GmbH">GmbH</option>
-                                    <option value="Limited">Limited</option>
-                                    <option value="Llc">Llc</option>
-                                    <option value="Corp">Corp</option>
-                                    <option value="Pte Ltd">Pte Ltd</option>
-                                    <option value="Assosiation">Assosiation</option>
-                                    <option value="Government">Government</option>
-                                    <option value="Pty Ltd">Pty Ltd</option>
-                                    <option value="">Other</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
                                 <label>Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="ateName">
-                            </div>
-                            <div class="form-group">
-                                <label>Company Website</label>
-                                <input type="text" class="form-control" id="ateCompanyWebsite">
-                            </div>
-                            <div class="form-group">
-                                <label>Job Title</label>
-                                <input type="text" class="form-control" id="ateJobTitle">
-                            </div>
-                            <div class="form-group">
-                                <label>Country <span class="text-danger">*</span></label>
-                                <select class="form-control" id="ateCountry">
-                                    <option value="Indonesia" selected>Indonesia</option>
-                                </select>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
-                                <label>Company Name</label>
-                                <input type="text" class="form-control" id="ateCompanyName">
-                            </div>
-                            <div class="form-group">
-                                <label>Email <span class="text-danger">*</span></label>
+                                <label>Email address <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control" id="ateEmail">
                             </div>
+                        </div>
+                        <div class="col-6">
                             <div class="form-group">
-                                <label>Phone number</label>
+                                <label>Mobile number</label>
                                 <input type="text" class="form-control" id="atePhone">
                             </div>
+                        </div>
+                        <div class="col-6">
                             <div class="form-group">
-                                <label>Address</label>
-                                <input type="text" class="form-control" id="ateAddress">
-                            </div>
-                            <div class="form-group">
-                                <label>Office Number</label>
-                                <input type="text" class="form-control" id="ateOfficeNumber">
+                                <label>Job Title</label>
+                                <input type="text" class="form-control" id="ateJobTitle">
                             </div>
                         </div>
+                    </div>
+
+                    {{-- Hidden fields — diisi otomatis dari data sponsor --}}
+                    <div style="display:none">
+                        <select id="atePrefix">
+                            <option value="PT">PT</option>
+                            <option value="CV">CV</option>
+                            <option value="Ltd">Ltd</option>
+                            <option value="GmbH">GmbH</option>
+                            <option value="Limited">Limited</option>
+                            <option value="Llc">Llc</option>
+                            <option value="Corp">Corp</option>
+                            <option value="Pte Ltd">Pte Ltd</option>
+                            <option value="Assosiation">Assosiation</option>
+                            <option value="Government">Government</option>
+                            <option value="Pty Ltd">Pty Ltd</option>
+                            <option value="">Other</option>
+                        </select>
+                        <input type="text" id="ateCompanyName">
+                        <input type="text" id="ateCompanyWebsite">
+                        <input type="text" id="ateAddress">
+                        <input type="text" id="ateOfficeNumber">
+                        <input type="text" id="ateCompanyOther">
+                        <select id="ateCountry">
+                            <option value="Indonesia" selected>Indonesia</option>
+                        </select>
+                        <select id="ateCompanyCategory">
+                            @include('partials._company_category_options')
+                        </select>
+                        <div id="ateCompanyOtherGroup"></div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-12">
-                            <div class="form-group">
-                                <label>Company Category <span class="text-danger">*</span></label>
-                                <select class="form-control" id="ateCompanyCategory">
-                                    @include('partials._company_category_options')
-                                </select>
-                            </div>
-                            <div class="form-group" id="ateCompanyOtherGroup" style="display:none">
-                                <label>Company Other <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="ateCompanyOther">
-                            </div>
-                            <div class="form-group">
+                            <div class="form-group mb-0">
                                 <label>Ticket</label>
                                 <select class="form-control" id="ateTicket">
                                     <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
@@ -145,6 +136,22 @@
                             </option>
                         @endforeach
                     </select>
+                </div>
+                <div class="form-group" id="ateRegisterMemberGroup" style="display:none">
+                    <div class="alert alert-warning py-2 mb-2" style="font-size:13px">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Perhatian:</strong> Kontak ini belum terdaftar sebagai member di sistem.
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="ateRegisterAsMember">
+                        <label class="custom-control-label" for="ateRegisterAsMember">
+                            <strong>Daftarkan sebagai member (status: <span
+                                    class="badge badge-warning">Pending</span>)</strong>
+                            <div class="text-muted" style="font-size:12px;font-weight:normal">
+                                Notifikasi WhatsApp akan dikirim ke tim membership untuk proses verifikasi.
+                            </div>
+                        </label>
+                    </div>
                 </div>
                 <div class="form-group">
                     <div class="custom-control custom-checkbox">
