@@ -2,8 +2,8 @@
 
 {{--
     Sponsors Annual Report.
-    Tiap section dipecah ke partial di resources/views/admin/sponsor/annual-report/
-    supaya mudah di-maintain. Data disiapkan oleh SponsorAnnualReportController.
+    Each section is split into partials under resources/views/admin/sponsor/annual-report/
+    for easier maintenance. Data is prepared by SponsorAnnualReportController.
 --}}
 
 @section('content')
@@ -37,16 +37,16 @@
             {{-- Filter: year / package / type / search --}}
             @include('admin.sponsor.annual-report._filters')
 
-            {{-- Headcount per perusahaan: jumlah sponsor vs tahun lalu (achieved/tidak) --}}
+            {{-- Headcount per company: number of sponsors vs. last year (achieved / not) --}}
             @include('admin.sponsor.annual-report._headcount')
 
-            {{-- Summary cards: renewal / upgrade / new / not renewed / total, dengan breakdown package --}}
+            {{-- Summary cards: renewal / upgrade / new / not renewed / total, with package breakdown --}}
             @include('admin.sponsor.annual-report._summary-cards')
 
-            {{-- Statistik aktivitas per bulan --}}
+            {{-- Monthly activity statistics --}}
             @include('admin.sponsor.annual-report._monthly-stats')
 
-            {{-- Contract expiry forecast: heatmap bulan + detail per bulan + follow-up status --}}
+            {{-- Contract expiry forecast: monthly heatmap + per-month detail + follow-up status --}}
             @include('admin.sponsor.annual-report._expiry-forecast')
 
             {{-- ═══ SPONSOR DATA TABLES (Tabs) ═══ --}}
@@ -98,6 +98,6 @@
 </div>
 @endsection
 
-{{-- Modal Update Contract / Not Renewed / Follow-up + JS-nya (dipakai tab Pending Renewal) --}}
+{{-- Modal: Update Contract / Not Renewed / Follow-up + JS handlers (used by Pending Renewal tab) --}}
 @include('admin.sponsor.partials._modals')
 @include('admin.sponsor.partials._contract_scripts')

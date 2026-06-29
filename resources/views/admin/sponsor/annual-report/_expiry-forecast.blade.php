@@ -115,7 +115,7 @@
                                 $fuConfirmed = $mSponsorsForSlot->whereIn('followup_status', ['renewed', 'upgraded'])->count();
                                 $fuStopped   = $mSponsorsForSlot->where('followup_status', 'stopped')->count();
                                 $fuOpen      = $mSponsorsForSlot->count() - $fuConfirmed - $fuStopped;
-                                // Penamaan urgensi mengikuti posisi bulan terhadap bulan berjalan
+                                // Urgency label based on the month position relative to the current month
                                 if ($m < $firstUpcomingMonth) {
                                     $fuOpenLabel = 'pending'; $fuOpenColor = '#fc544b'; $fuOpenBg = '#fde8e8'; $fuOpenIcon = 'fas fa-exclamation-triangle';
                                 } elseif ($m == $firstUpcomingMonth && $year == now()->year) {
@@ -257,7 +257,7 @@
                                                 </div>
                                             @else
                                                 <div style="margin-top:6px;font-size:10px;color:#aaa;">
-                                                    <i class="fas fa-user-slash mr-1"></i>Belum ada follow-up
+                                                    <i class="fas fa-user-slash mr-1"></i>No follow-up yet
                                                 </div>
                                             @endif
                                         @endif

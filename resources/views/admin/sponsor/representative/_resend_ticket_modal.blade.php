@@ -46,11 +46,11 @@
                         <input type="text" id="resendEmailSubject" class="form-control form-control-sm">
                     </div>
                     <div class="form-group">
-                        <label>Custom Note <span class="text-muted font-weight-normal">(optional — ditampilkan di atas body email template)</span></label>
+                        <label>Custom Note <span class="text-muted font-weight-normal">(optional — displayed above the email template body)</span></label>
                         <textarea id="resendEmailBody" class="form-control form-control-sm" rows="3"
-                            placeholder="Kosongkan untuk menggunakan body email default..."></textarea>
+                            placeholder="Leave blank to use the default email body..."></textarea>
                     </div>
-                    <small class="text-muted"><i class="fas fa-info-circle"></i> PDF ticket tetap dilampirkan secara otomatis.</small>
+                    <small class="text-muted"><i class="fas fa-info-circle"></i> PDF ticket is always attached automatically.</small>
                 </div>
 
                 {{-- WA section --}}

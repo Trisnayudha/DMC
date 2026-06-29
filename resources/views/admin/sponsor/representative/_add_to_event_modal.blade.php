@@ -31,7 +31,7 @@
                             <input type="radio" name="ateMode" value="existing" checked> Existing Contact
                         </label>
                         <label class="btn btn-outline-primary flex-fill disabled" id="ateModeNewBtn"
-                            style="opacity:.45;pointer-events:none" title="Pilih sponsor terlebih dahulu">
+                            style="opacity:.45;pointer-events:none" title="Select a sponsor first">
                             <input type="radio" name="ateMode" value="new"> New Contact
                         </label>
                     </div>
@@ -49,7 +49,7 @@
                     </small>
                 </div>
 
-                {{-- New Contact form — fokus ke 4 field utama --}}
+                {{-- New Contact form — focused on 4 main fields --}}
                 <div id="ateNewPersonForm" style="display:none">
                     <hr>
                     <div class="row">
@@ -79,7 +79,7 @@
                         </div>
                     </div>
 
-                    {{-- Hidden fields — diisi otomatis dari data sponsor --}}
+                    {{-- Hidden fields — auto-filled from sponsor data --}}
                     <div style="display:none">
                         <select id="atePrefix">
                             <option value="PT">PT</option>
@@ -140,15 +140,15 @@
                 <div class="form-group" id="ateRegisterMemberGroup" style="display:none">
                     <div class="alert alert-warning py-2 mb-2" style="font-size:13px">
                         <i class="fas fa-info-circle"></i>
-                        <strong>Perhatian:</strong> Kontak ini belum terdaftar sebagai member di sistem.
+                        <strong>Notice:</strong> This contact is not yet registered as a member in the system.
                     </div>
                     <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="ateRegisterAsMember">
                         <label class="custom-control-label" for="ateRegisterAsMember">
-                            <strong>Daftarkan sebagai member (status: <span
+                            <strong>Register as member (status: <span
                                     class="badge badge-warning">Pending</span>)</strong>
                             <div class="text-muted" style="font-size:12px;font-weight:normal">
-                                Notifikasi WhatsApp akan dikirim ke tim membership untuk proses verifikasi.
+                                A WhatsApp notification will be sent to the membership team for verification.
                             </div>
                         </label>
                     </div>

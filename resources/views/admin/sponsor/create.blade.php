@@ -198,7 +198,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <!-- Tambahan untuk Contract Start dan Contract End -->
+                                <!-- Additional fields: Contract Start & Contract End -->
                                 <div class="col-6">
                                     <div class="form-group{{ $errors->has('contract_start') ? ' has-error' : '' }}">
                                         {!! Form::label('Contract Start') !!}
@@ -421,7 +421,7 @@
                                 <div class="card-footer text-right">
                                     <div class="pull-right">
                                         <a href="{{ url('admin/sponsors') }}" class="btn btn-warning">Close</a>
-                                        <button type="submit" class="btn btn-primary">Simpan</button>
+                                        <button type="submit" class="btn btn-primary">Save</button>
                                     </div>
                                 </div>
                             </div>

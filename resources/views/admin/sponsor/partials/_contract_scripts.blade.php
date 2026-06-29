@@ -1,6 +1,6 @@
-{{-- JS & modal handler kontrak/renewal bersama: KMK rate, Update Contract,
-     Not Renewed, dan Renewal Follow-up. Dipakai oleh sponsor page dan
-     annual report — selalu sertakan bersama partials._modals. --}}
+{{-- JS & modal handlers for contract/renewal: KMK rate, Update Contract,
+     Not Renewed, and Renewal Follow-up. Used by the sponsor page and
+     annual report — always include alongside partials._modals. --}}
 @push('bottom')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -25,10 +25,10 @@
                     $('#modalKmkRate').val(res.rate);
                     autoFillIdr();
                 } else {
-                    $('#modalKmkRate').attr('placeholder', 'Gagal fetch');
+                    $('#modalKmkRate').attr('placeholder', 'Failed to fetch');
                 }
             }).fail(function() {
-                $('#modalKmkRate').attr('placeholder', 'Gagal fetch');
+                $('#modalKmkRate').attr('placeholder', 'Failed to fetch');
             });
         }
 
@@ -88,7 +88,7 @@
             $.get('/admin/sponsors/next-quotation-number', { year: year }, function(res) {
                 if (res.next) {
                     $('#modalQuotationNumber').attr('placeholder', res.next);
-                    $('#quotationNumberHint').text('Suggested: ' + res.next + ' (kosongkan untuk auto)');
+                    $('#quotationNumberHint').text('Suggested: ' + res.next + ' (leave blank for auto)');
                 }
             }).fail(function() {
                 $('#modalQuotationNumber').attr('placeholder', 'e.g. ' + year + 'DMC14');
@@ -161,17 +161,17 @@
         });
 
         // ── Renewal Follow-up ──
-        var followupData = []; // cache follow-up terakhir yang di-load (untuk deteksi follow-up pertama)
+        var followupData = []; // cache of last loaded follow-ups (used to detect the first follow-up)
 
         function renderFollowupTimeline(followups) {
-            // Kosong → siklus belum dimulai (belum generate renewal form / follow-up pertama)
+            // Empty → cycle not yet started (renewal form not yet generated / first follow-up not done)
             if (!followups || !followups.length) {
                 $('#followupTimeline').html(
                     '<div class="d-flex align-items-start py-2 px-2" style="gap:10px;">' +
                     '<span class="badge badge-secondary" style="border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-file-signature"></i></span>' +
                     '<div style="flex:1;min-width:0;">' +
-                    '<div style="font-size:13px;font-weight:600;color:#888;">Renewal Form belum di-submit</div>' +
-                    '<div class="text-muted" style="font-size:12px;">Follow-up pertama akan men-generate renewal form (wajib input KMK).</div>' +
+                    '<div style="font-size:13px;font-weight:600;color:#888;">Renewal Form not yet submitted</div>' +
+                    '<div class="text-muted" style="font-size:12px;">The first follow-up generates the renewal form (KMK rate required).</div>' +
                     '</div></div>');
                 return;
             }
@@ -189,7 +189,7 @@
                 ' <span class="badge badge-light border ml-1" style="font-size:10px;">' + first.renewal_year + '</span></div>' +
                 '</div></div>';
 
-            // Daftar follow-up: Follow Up 1 / 2 / 3 / dst — (Date) | (Nama PIC)
+            // Follow-up list: Follow Up 1 / 2 / 3 / etc — (Date) | (PIC Name)
             followups.forEach(function(f) {
                 html += '<div class="d-flex align-items-start py-2 px-2" style="gap:10px;border-bottom:1px dashed #eee;">' +
                     '<span class="badge" style="background:#f39c12;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + f.sequence + '</span>' +
@@ -219,7 +219,7 @@
             });
         }
 
-        // KMK rate hanya wajib di follow-up PERTAMA untuk tahun yang dipilih
+        // KMK rate is only required on the FIRST follow-up for the selected year
         function updateFollowupKmkField() {
             var year = parseInt($('#followupYear').val());
             var existing = followupData.filter(function(f) { return parseInt(f.renewal_year) === year; }).length;
@@ -241,10 +241,10 @@
                 if (res.success && res.rate) {
                     $('#followupKmkRate').val(res.rate);
                 } else {
-                    $('#followupKmkRate').attr('placeholder', 'Gagal fetch — isi manual');
+                    $('#followupKmkRate').attr('placeholder', 'Failed to fetch — enter manually');
                 }
             }).fail(function() {
-                $('#followupKmkRate').attr('placeholder', 'Gagal fetch — isi manual');
+                $('#followupKmkRate').attr('placeholder', 'Failed to fetch — enter manually');
             });
         }
 
@@ -285,7 +285,7 @@
                     loadFollowupTimeline(sponsorId);
                 },
                 error: function(xhr) {
-                    var msg = 'Gagal menyimpan follow-up.';
+                    var msg = 'Failed to save follow-up.';
                     if (xhr.responseJSON && xhr.responseJSON.errors) {
                         msg = Object.values(xhr.responseJSON.errors)[0][0];
                     } else if (xhr.responseJSON && xhr.responseJSON.message) {

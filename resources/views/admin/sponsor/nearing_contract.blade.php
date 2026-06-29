@@ -316,7 +316,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Amount IDR <small class="text-muted">(auto dari USD × KMK, bisa diubah)</small></label>
+                                    <label>Amount IDR <small class="text-muted">(auto-calculated from USD × KMK, editable)</small></label>
                                     <div class="input-group">
                                         <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
                                         <input type="text" id="modalAmountIdrDisplay" class="form-control" placeholder="e.g. 39.000.000">
@@ -413,10 +413,10 @@
                         $('#modalKmkRate').val(res.rate);
                         autoFillIdr();
                     } else {
-                        $('#modalKmkRate').attr('placeholder', 'Gagal fetch');
+                        $('#modalKmkRate').attr('placeholder', 'Failed to fetch');
                     }
                 }).fail(function() {
-                    $('#modalKmkRate').attr('placeholder', 'Gagal fetch');
+                    $('#modalKmkRate').attr('placeholder', 'Failed to fetch');
                 });
             }
 

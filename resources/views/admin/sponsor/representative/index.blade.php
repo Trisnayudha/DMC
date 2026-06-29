@@ -430,7 +430,7 @@
         });
 
         var sponsorContactsMap = @json($sponsorContactsMap);
-        var selectedContact    = null; // contact object yg sedang dipilih
+        var selectedContact    = null; // currently selected contact object
 
         // ── Helpers ──────────────────────────────────────────────────────────
         function roleLabel(role) {
@@ -506,7 +506,7 @@
         $('#ateModeNewBtn').on('click', function() {
             setMode('new');
             clearNewPersonForm();
-            // Auto-fill company fields dari sponsor yang sedang dipilih
+            // Auto-fill company fields from currently selected sponsor
             var sponsorId = $('#ateSponsorSelect').val();
             if (sponsorId) prefillCompanyFromSponsor(sponsorId);
         });
@@ -523,8 +523,8 @@
             if (sponsorId) {
                 $newBtn.removeClass('disabled').css({opacity: '', 'pointer-events': ''}).attr('title', '');
             } else {
-                $newBtn.addClass('disabled').css({opacity: '.45', 'pointer-events': 'none'}).attr('title', 'Pilih sponsor terlebih dahulu');
-                // Kalau sponsor di-reset, kembalikan ke mode existing
+                $newBtn.addClass('disabled').css({opacity: '.45', 'pointer-events': 'none'}).attr('title', 'Select a sponsor first');
+                // If sponsor is reset, revert to existing mode
                 if ($('input[name="ateMode"]:checked').val() === 'new') {
                     setMode('existing');
                     clearNewPersonForm();
@@ -545,7 +545,7 @@
                 $sel.html('<option value="">— Select Sponsor first —</option>').prop('disabled', true);
             }
 
-            // Jika sedang dalam mode New Contact, prefill company dari sponsor
+            // If in New Contact mode, prefill company from sponsor
             var mode = $('input[name="ateMode"]:checked').val();
             if (mode === 'new' && sponsorId) {
                 prefillCompanyFromSponsor(sponsorId);
@@ -562,9 +562,9 @@
             selectedContact = contacts[idx];
 
             if (!selectedContact.user_id) {
-                // Belum punya akun → pindah ke mode New Contact, prefill dari data contact
+                // No account yet → switch to New Contact mode, prefill from contact data
                 setMode('new');
-                prefillCompanyFromSponsor(sponsorId);  // Isi company dari sponsor dulu
+                prefillCompanyFromSponsor(sponsorId);  // Fill company from sponsor first
                 prefillNewPersonForm(selectedContact);  // Override name/email/phone/title
             } else {
                 setMode('existing');

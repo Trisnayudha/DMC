@@ -1,5 +1,5 @@
-{{-- Badge penamaan urgensi untuk kontrak yang belum ada konfirmasi.
-     Param: $stage ('pending' = sudah kelewatan, 'awaiting' = bulan ini, 'upcoming' = bulan berikutnya). --}}
+{{-- Badge for urgency labelling on contracts that have no confirmation yet.
+     Param: $stage ('pending' = already overdue, 'awaiting' = this month, 'upcoming' = future month). --}}
 @php $stage = $stage ?? 'upcoming'; @endphp
 @if($stage === 'pending')
     <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:#fc544b;">

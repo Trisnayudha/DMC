@@ -64,7 +64,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                <small class="text-muted">KMK Pajak — auto-fetched</small>
+                                <small class="text-muted">KMK Tax Rate — auto-fetched</small>
                             </div>
                         </div>
                     </div>
@@ -80,7 +80,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Amount IDR <small class="text-muted">(auto dari USD × KMK, bisa diubah)</small></label>
+                                <label>Amount IDR <small class="text-muted">(auto-calculated from USD × KMK, editable)</small></label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
                                     <input type="text" id="modalAmountIdrDisplay" class="form-control" placeholder="e.g. 39.000.000">
@@ -93,7 +93,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Quotation Number
-                                    <small class="text-muted font-weight-normal">(auto-generated, bisa diubah)</small>
+                                    <small class="text-muted font-weight-normal">(auto-generated, editable)</small>
                                 </label>
                                 <input type="text" name="quotation_number" id="modalQuotationNumber"
                                     class="form-control" placeholder="e.g. 2026DMC14"
@@ -116,7 +116,7 @@
     </div>
 </div>
 
-<!-- Modal: Renewal Follow-up (riwayat + form bukti wajib) -->
+<!-- Modal: Renewal Follow-up (history + new follow-up form with mandatory evidence upload) -->
 <div class="modal fade" id="followupModal" tabindex="-1" role="dialog"
     aria-labelledby="followupModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -131,7 +131,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                {{-- Riwayat follow-up --}}
+                {{-- Follow-up history --}}
                 <div class="mb-3">
                     <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
                         <i class="fas fa-history mr-1"></i> Follow-up History
@@ -139,7 +139,7 @@
                     <div id="followupTimeline" class="border rounded p-2" style="max-height:220px;overflow-y:auto;background:#fafbfc;"></div>
                 </div>
 
-                {{-- Form follow-up baru --}}
+                {{-- New follow-up form --}}
                 <form id="followupForm" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" id="followupSponsorId" value="">
@@ -173,7 +173,7 @@
                             </div>
                         </div>
                     </div>
-                    {{-- KMK rate: hanya muncul & wajib di follow-up PERTAMA (saat generate renewal form) --}}
+                    {{-- KMK rate: only shown & required on the FIRST follow-up of the year (when generating the renewal form) --}}
                     <div class="form-group" id="followupKmkGroup" style="display:none;">
                         <label>KMK Rate (USD/IDR) <span class="text-danger">*</span></label>
                         <div class="input-group">
@@ -185,17 +185,17 @@
                                 </button>
                             </div>
                         </div>
-                        <small class="text-muted">KMK Pajak — auto-fetched, bisa diubah. Dipakai untuk nilai kontrak di renewal form.</small>
+                        <small class="text-muted">KMK Tax Rate — auto-fetched, editable. Used as contract value in the renewal form.</small>
                     </div>
                     <div class="form-group">
                         <label>Notes</label>
                         <textarea name="notes" id="followupNotes" class="form-control" rows="2"
-                            placeholder="e.g. Sudah dihubungi via WA, menunggu konfirmasi internal mereka..."></textarea>
+                            placeholder="e.g. Contacted via WhatsApp, awaiting their internal confirmation..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Proof / Bukti Follow-up <span class="text-danger">*</span></label>
+                        <label>Proof / Evidence of Follow-up <span class="text-danger">*</span></label>
                         <input type="file" name="proof" id="followupProof" class="form-control-file" accept=".jpg,.jpeg,.png,.pdf" required>
-                        <small class="text-muted">Wajib — screenshot chat/email atau dokumen (JPG/PNG/PDF, max 5 MB)</small>
+                        <small class="text-muted">Required — chat/email screenshot or document (JPG/PNG/PDF, max 5 MB)</small>
                     </div>
                     <div class="text-right">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

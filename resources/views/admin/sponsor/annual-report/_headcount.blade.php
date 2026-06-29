@@ -1,5 +1,5 @@
 {{-- ═══ DASHBOARD CARDS ═══
-     5 card utama: Total Sponsor, This Year Sponsor, Pending Renewal, Kadaluarsa, Not Renew --}}
+     5 main cards: Total Sponsor, This Year Sponsor, Pending Renewal, Expired, Not Renewed --}}
 @if (isset($dashboardCards))
     @php $dc = $dashboardCards; @endphp
     <div class="row">
@@ -14,7 +14,7 @@
                         <div>
                             <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">Total Sponsor</div>
                             <div class="font-weight-700" style="font-size:28px;line-height:1.1;color:#2d3748;">{{ $dc['totalSponsor'] }}</div>
-                            <div style="font-size:10px;color:#888;">keseluruhan sponsor aktif</div>
+                            <div style="font-size:10px;color:#888;">all active sponsors</div>
                         </div>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                         <div>
                             <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">This Year Sponsor</div>
                             <div class="font-weight-700" style="font-size:28px;line-height:1.1;color:#2d3748;">{{ $dc['thisYearConfirmed'] }}</div>
-                            <div style="font-size:10px;color:#888;">confirmed di {{ $year }}</div>
+                            <div style="font-size:10px;color:#888;">confirmed in {{ $year }}</div>
                         </div>
                     </div>
                 </div>
@@ -52,14 +52,14 @@
                         <div>
                             <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">Pending Renewal</div>
                             <div class="font-weight-700" style="font-size:28px;line-height:1.1;color:#2d3748;">{{ $dc['pendingRenewalCount'] }}</div>
-                            <div style="font-size:10px;color:#888;">perlu di-follow up</div>
+                            <div style="font-size:10px;color:#888;">needs follow-up</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- 4. Kadaluarsa --}}
+        {{-- 4. Expired --}}
         <div class="col-lg col-md-6 col-sm-6 mb-4 d-flex">
             <div class="card mb-0 flex-fill" role="button" title="View 30-day priority contracts"
                  onclick="document.getElementById('priorityContracts').scrollIntoView({behavior:'smooth'});"
@@ -70,9 +70,9 @@
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div>
-                            <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">Kadaluarsa</div>
+                            <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">Expired</div>
                             <div class="font-weight-700" style="font-size:28px;line-height:1.1;color:#2d3748;">{{ $dc['expiredCount'] }}</div>
-                            <div style="font-size:10px;color:#888;">kontrak sudah lewat</div>
+                            <div style="font-size:10px;color:#888;">contract has expired</div>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                         <div>
                             <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">Not Renew</div>
                             <div class="font-weight-700" style="font-size:28px;line-height:1.1;color:#2d3748;">{{ $dc['notRenewCount'] }}</div>
-                            <div style="font-size:10px;color:#888;">tidak perpanjang {{ $year }}</div>
+                            <div style="font-size:10px;color:#888;">did not renew in {{ $year }}</div>
                         </div>
                     </div>
                 </div>
