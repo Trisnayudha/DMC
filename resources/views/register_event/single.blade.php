@@ -526,7 +526,7 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}" alt="DMC Logo">
                 <h1 class="page-title">Event <span>Registration</span></h1>
-                <img src="https://membership.djakarta-miningclub.com/image/banner71_revisi2.png" alt="Image"
+                <img src="https://membership.djakarta-miningclub.com/image/banner71_revisi3.png" alt="Image"
                     class="img-logo">
             </div>
 
@@ -629,7 +629,8 @@
                         </div>
                     @endif
 
-                    <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation" novalidate>
+                    <form action="{{ url('/payment-personal') }}" method="POST" class="needs-validation"
+                        novalidate>
                         @csrf
                         <input type="hidden" name="slug" value="{{ $slug }}">
                         <input type="hidden" name="paymentMethod" value="free">
@@ -652,9 +653,12 @@
                                         <div class="col-sm-6">
                                             <div class="form-group" style="position:relative;">
                                                 <label class="form-label">Company</label>
-                                                <input type="text" class="form-control" name="company_name" id="company_name"
-                                                    placeholder="Company" value="{{ old('company_name') }}" required autocomplete="off">
-                                                <div id="company-suggestions" style="display:none;position:absolute;z-index:999;width:100%;max-height:200px;overflow-y:auto;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.1);"></div>
+                                                <input type="text" class="form-control" name="company_name"
+                                                    id="company_name" placeholder="Company"
+                                                    value="{{ old('company_name') }}" required autocomplete="off">
+                                                <div id="company-suggestions"
+                                                    style="display:none;position:absolute;z-index:999;width:100%;max-height:200px;overflow-y:auto;background:#fff;border:1px solid #ddd;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.1);">
+                                                </div>
                                                 <div class="invalid-feedback">Valid company name is required.</div>
                                             </div>
                                         </div>
@@ -795,24 +799,41 @@
             $input.on('input', function() {
                 var q = $(this).val().trim();
                 clearTimeout(timer);
-                if (q.length < 2) { $box.hide().empty(); return; }
+                if (q.length < 2) {
+                    $box.hide().empty();
+                    return;
+                }
                 timer = setTimeout(function() {
-                    $.getJSON("{{ url('/api/company-suggest') }}", { q: q }, function(data) {
+                    $.getJSON("{{ url('/api/company-suggest') }}", {
+                        q: q
+                    }, function(data) {
                         $box.empty();
-                        if (!data.length) { $box.hide(); return; }
+                        if (!data.length) {
+                            $box.hide();
+                            return;
+                        }
                         data.forEach(function(c) {
-                            var item = $('<div style="padding:8px 12px;cursor:pointer;font-size:.88rem;border-bottom:1px solid #f0f0f0;"></div>');
+                            var item = $(
+                                '<div style="padding:8px 12px;cursor:pointer;font-size:.88rem;border-bottom:1px solid #f0f0f0;"></div>'
+                                );
                             item.text(c.company_name);
                             if (c.address) {
-                                item.append($('<div style="font-size:.75rem;color:#888;"></div>').text(c.address));
+                                item.append($(
+                                    '<div style="font-size:.75rem;color:#888;"></div>'
+                                    ).text(c.address));
                             }
                             item.on('click', function() {
                                 $input.val(c.company_name);
-                                if (c.address) $('input[name="address"]').val(c.address);
+                                if (c.address) $('input[name="address"]')
+                                    .val(c.address);
                                 $box.hide().empty();
                             });
-                            item.on('mouseenter', function() { $(this).css('background', '#f5f5f5'); });
-                            item.on('mouseleave', function() { $(this).css('background', '#fff'); });
+                            item.on('mouseenter', function() {
+                                $(this).css('background', '#f5f5f5');
+                            });
+                            item.on('mouseleave', function() {
+                                $(this).css('background', '#fff');
+                            });
                             $box.append(item);
                         });
                         $box.show();

@@ -94,7 +94,7 @@
     <div class="container">
         <main>
             <div class="py-2 text-center">
-                <img style="border-radius: 15px; margin-bottom: 19px; " src="{{ asset('image/banner71_revisi2.png') }}"
+                <img style="border-radius: 15px; margin-bottom: 19px; " src="{{ asset('image/banner71_revisi3.png') }}"
                     class="img-fluid" alt="">
                 <h2 style="text-transform: uppercase">REGISTER EVENT
                 </h2>
@@ -163,7 +163,8 @@
                                 <select name="company" id="company"
                                     class="form-control js-example-basic-single d-block w-100">
                                     @foreach ($company as $value)
-                                        <option value="{{ $value->id }}">{{ $value->branding_name ?: $value->name }}</option>
+                                        <option value="{{ $value->id }}">
+                                            {{ $value->branding_name ?: $value->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
