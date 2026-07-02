@@ -811,19 +811,30 @@ class SponsorController extends Controller
             ], 422);
         }
 
-        SponsorRenewal::create([
-            'sponsor_id'     => $sponsor->id,
-            'renewal_year'   => $validated['renewal_year'],
-            'contract_start' => $validated['contract_start'],
-            'contract_end'   => $validated['contract_end'],
-            'package'        => $sponsor->package,
-            'renewal_status' => 'not_renewed',
-            'renewal_type'   => null,
-            'amount_usd'     => null,
-            'amount_idr'     => null,
-            'notes'          => $validated['notes'] ?? null,
-            'is_current'     => 0,
-        ]);
+        DB::transaction(function () use ($sponsor, $validated) {
+            // Kontrak berjalan tidak lagi aktif karena sponsor berhenti.
+            SponsorRenewal::where('sponsor_id', $sponsor->id)
+                ->where('is_current', 1)
+                ->update(['is_current' => 0]);
+
+            SponsorRenewal::create([
+                'sponsor_id'     => $sponsor->id,
+                'renewal_year'   => $validated['renewal_year'],
+                'contract_start' => $validated['contract_start'],
+                'contract_end'   => $validated['contract_end'],
+                'package'        => $sponsor->package,
+                'renewal_status' => 'not_renewed',
+                'renewal_type'   => null,
+                'amount_usd'     => null,
+                'amount_idr'     => null,
+                'notes'          => $validated['notes'] ?? null,
+                'is_current'     => 0,
+            ]);
+
+            // Auto-draft: sembunyikan sponsor dari daftar aktif (status=publish).
+            $sponsor->status = 'draft';
+            $sponsor->save();
+        });
 
         return response()->json([
             'success' => true,
