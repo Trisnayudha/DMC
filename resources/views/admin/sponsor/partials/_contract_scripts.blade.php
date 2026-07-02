@@ -161,11 +161,47 @@
         });
 
         // ══ Renewal Process: Step 1 Generate Renewal Form → Step 2 Follow-up ══
-        var followupData    = []; // all follow-ups for the open sponsor
-        var renewalFormData = []; // all renewal forms for the open sponsor
+        var followupData        = []; // all follow-ups for the open sponsor
+        var renewalFormData     = []; // all renewal forms for the open sponsor
+        var sponsorOptionsData  = []; // {id, name, last_amount_usd, last_amount_idr}
+        var sponsorOptionsReady = false;
 
         function rfCurrentYear() {
             return parseInt($('#renewalYear').val(), 10);
+        }
+
+        // ── Sponsor picker (with last-paid USD for auto-fill) ──
+        function loadSponsorOptions(cb) {
+            if (sponsorOptionsReady) { if (cb) cb(); return; }
+            $.get('/admin/sponsors/renewal-form-options', function(res) {
+                sponsorOptionsData = res.sponsors || [];
+                var html = '<option value="">— Select sponsor —</option>';
+                sponsorOptionsData.forEach(function(s) {
+                    html += '<option value="' + s.id + '">' + $('<span>').text(s.name).html() + '</option>';
+                });
+                $('#rfSponsorSelect').html(html);
+                sponsorOptionsReady = true;
+                if (cb) cb();
+            }).fail(function() {
+                if (cb) cb();
+            });
+        }
+
+        // Pastikan sponsor tertentu ada & terpilih di dropdown (mis. saat dibuka dari baris)
+        function selectSponsorOption(id, name) {
+            if ($('#rfSponsorSelect option[value="' + id + '"]').length === 0) {
+                $('#rfSponsorSelect').append('<option value="' + id + '">' + $('<span>').text(name || '').html() + '</option>');
+            }
+            $('#rfSponsorSelect').val(String(id));
+        }
+
+        function lastUsdFor(id) {
+            for (var i = 0; i < sponsorOptionsData.length; i++) {
+                if (parseInt(sponsorOptionsData[i].id, 10) === parseInt(id, 10)) {
+                    return sponsorOptionsData[i].last_amount_usd;
+                }
+            }
+            return null;
         }
 
         function rfFormForYear(year) {
@@ -235,14 +271,22 @@
             });
         }
 
-        // Reset the empty Generate form for a fresh year (form number + KMK suggestions)
+        // Reset the empty Generate form for a fresh year (form number + KMK + auto USD)
         function prefillRenewalForm(year) {
-            $('#rfAmountUsd').val('');
+            // USD auto dari nominal terakhir sponsor ini bayar (history renewed terakhir).
+            var lastUsd = lastUsdFor($('#followupSponsorId').val());
+            if (lastUsd && parseFloat(lastUsd) > 0) {
+                $('#rfAmountUsd').val(parseFloat(lastUsd));
+                $('#rfUsdHint').text('Auto dari pembayaran terakhir: USD ' + Number(lastUsd).toLocaleString('id-ID') + ' (bisa diubah)');
+            } else {
+                $('#rfAmountUsd').val('');
+                $('#rfUsdHint').text('Belum ada history pembayaran — isi manual.');
+            }
             $('#rfAmountIdr').val('');
             $('#rfAmountIdrDisplay').val('');
             $('#rfNotes').val('');
             fetchNextFormNumber(year);
-            fetchRfKmkRate();
+            fetchRfKmkRate(); // IDR ter-recalc dari USD × KMK begitu rate masuk
         }
 
         function renderGeneratedBox(form) {
@@ -333,16 +377,32 @@
 
         $('#renewalYear').on('change', refreshRenewalUI);
 
+        // Ganti sponsor dari dropdown → muat ulang data & gating untuk sponsor terpilih
+        $('#rfSponsorSelect').on('change', function() {
+            var id = $(this).val();
+            if (!id) return;
+            var name = $(this).find('option:selected').text();
+            $('#followupSponsorId').val(id);
+            $('#followupSponsorName').text(name);
+            loadRenewalData(id);
+        });
+
         // Open Renewal Process modal
         $(document).on('click', '.followup-btn', function() {
-            $('#followupSponsorId').val($(this).data('id'));
-            $('#followupSponsorName').text($(this).data('name'));
+            var id   = $(this).data('id');
+            var name = $(this).data('name');
+            $('#followupSponsorId').val(id);
+            $('#followupSponsorName').text(name);
             $('#renewalYear').val(new Date().getFullYear());
             $('#followupDate').val(new Date().toISOString().slice(0, 10));
             $('#followupNotes').val('');
             $('#followupProof').val('');
-            loadRenewalData($(this).data('id'));
             $('#followupModal').modal('show');
+            // Muat daftar sponsor dulu (butuh last-paid USD), lalu pilih & muat datanya
+            loadSponsorOptions(function() {
+                selectSponsorOption(id, name);
+                loadRenewalData(id);
+            });
         });
 
         // Submit: Generate Renewal Form (Step 1)

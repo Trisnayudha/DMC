@@ -283,6 +283,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('sponsors.next-quotation-number');
     Route::get('sponsors/next-form-number', [SponsorRenewalFormController::class, 'getNextFormNumber'])
         ->name('sponsors.next-form-number');
+    Route::get('sponsors/renewal-form-options', [SponsorRenewalFormController::class, 'sponsorOptions'])
+        ->name('sponsors.renewal-form.options');
     Route::get('sponsors/export-renewals', [SponsorController::class, 'exportRenewals'])
         ->name('sponsors.exportRenewals');
     Route::get('sponsors/{sponsor}/renewal-form/preview', [SponsorRenewalFormController::class, 'preview'])

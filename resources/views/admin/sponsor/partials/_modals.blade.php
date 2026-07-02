@@ -133,6 +133,16 @@
             <div class="modal-body">
                 <input type="hidden" id="followupSponsorId" value="">
 
+                {{-- Sponsor picker: default ke sponsor baris yang diklik, bisa diganti --}}
+                <div class="form-group row align-items-center mb-2">
+                    <label class="col-sm-4 col-form-label font-weight-600 mb-0">Sponsor <span class="text-danger">*</span></label>
+                    <div class="col-sm-8">
+                        <select id="rfSponsorSelect" class="form-control">
+                            <option value="">Loading sponsors...</option>
+                        </select>
+                    </div>
+                </div>
+
                 {{-- Shared renewal year: drives both the renewal form & follow-up cycle --}}
                 <div class="form-group row align-items-center mb-3">
                     <label class="col-sm-4 col-form-label font-weight-600 mb-0">Renewal Year <span class="text-danger">*</span></label>
@@ -204,6 +214,7 @@
                                         <div class="input-group-prepend"><span class="input-group-text">USD</span></div>
                                         <input type="number" id="rfAmountUsd" class="form-control" step="0.01" min="0" placeholder="e.g. 3500">
                                     </div>
+                                    <small class="text-muted" id="rfUsdHint"></small>
                                 </div>
                             </div>
                             <div class="col-md-6">

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Sponsors\PackageBenefit;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorFollowup;
+use App\Models\Sponsors\SponsorRenewal;
 use App\Models\Sponsors\SponsorRenewalForm;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -103,6 +104,44 @@ class SponsorRenewalFormController extends Controller
         $year = (int) $request->get('year', now()->year);
 
         return response()->json(['next' => SponsorRenewalForm::generateFormNumber($year)]);
+    }
+
+    /**
+     * Daftar sponsor untuk dropdown di modal Generate Renewal Form, lengkap dengan
+     * nilai terakhir yang dibayar (amount_usd/idr dari kontrak renewed paling akhir)
+     * supaya USD bisa auto-terisi saat sponsor dipilih.
+     */
+    public function sponsorOptions()
+    {
+        // Nominal terakhir dibayar per sponsor = kontrak renewed paling akhir yang punya nilai.
+        $lastAmounts = SponsorRenewal::where('renewal_status', 'renewed')
+            ->where(function ($q) {
+                $q->whereNotNull('amount_usd')->orWhereNotNull('amount_idr');
+            })
+            ->orderBy('contract_start')
+            ->orderBy('id')
+            ->get(['sponsor_id', 'amount_usd', 'amount_idr'])
+            ->groupBy('sponsor_id')
+            ->map(function ($rows) {
+                return $rows->last();
+            });
+
+        $sponsors = Sponsor::where('status', 'publish')
+            ->orderBy('name')
+            ->get(['id', 'name', 'package'])
+            ->map(function ($s) use ($lastAmounts) {
+                $last = $lastAmounts->get($s->id);
+
+                return [
+                    'id'              => $s->id,
+                    'name'            => $s->name,
+                    'package'         => $s->package,
+                    'last_amount_usd' => $last ? $last->amount_usd : null,
+                    'last_amount_idr' => $last ? $last->amount_idr : null,
+                ];
+            });
+
+        return response()->json(['success' => true, 'sponsors' => $sponsors]);
     }
 
     /**
