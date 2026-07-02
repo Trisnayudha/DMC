@@ -2,25 +2,23 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\WhatsappApi;
 use App\Http\Controllers\Controller;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorFollowup;
-use Carbon\Carbon;
+use App\Models\Sponsors\SponsorRenewalForm;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
- * Pencatatan follow-up renewal sponsor: tiap follow-up wajib menyertakan bukti,
- * dan follow-up PERTAMA dalam satu siklus (sponsor+tahun) mengirim notifikasi
- * ke grup WhatsApp. Keputusan finalnya tetap lewat updateContract / markNotRenewed.
+ * Pencatatan follow-up renewal sponsor. Tiap follow-up wajib menyertakan bukti.
+ *
+ * Prasyarat: renewal form tahun bersangkutan HARUS sudah di-generate lebih dulu
+ * (lihat SponsorRenewalFormController). Keputusan finalnya tetap lewat
+ * updateContract / markNotRenewed.
  */
 class SponsorFollowupController extends Controller
 {
-    private const WA_GROUP = '120363429723388586@g.us';
-
     /**
-     * Riwayat follow-up sebuah sponsor (JSON, untuk timeline di modal).
+     * Riwayat follow-up + status renewal form sebuah sponsor (JSON, untuk modal).
      */
     public function index($sponsorId)
     {
@@ -33,42 +31,63 @@ class SponsorFollowupController extends Controller
             ->get()
             ->map(fn ($f, $i) => [
                 'sequence'       => $i + 1,
-                'renewal_year'   => $f->renewal_year,
+                'renewal_year'   => (int) $f->renewal_year,
                 'followed_up_at' => $f->followed_up_at->format('d M Y'),
                 'channel'        => $f->channel,
                 'notes'          => $f->notes,
-                'kmk_rate'       => $f->kmk_rate,
                 'proof_url'      => asset('storage/' . $f->proof_path),
                 'created_by'     => $f->creator ? $f->creator->name : null,
             ]);
 
-        return response()->json(['success' => true, 'followups' => $followups]);
+        $renewalForms = $sponsor->renewalForms()
+            ->with('creator:id,name')
+            ->orderBy('renewal_year')
+            ->get()
+            ->map(fn ($rf) => [
+                'renewal_year' => (int) $rf->renewal_year,
+                'form_number'  => $rf->form_number,
+                'kmk_rate'     => $rf->kmk_rate,
+                'amount_usd'   => $rf->amount_usd,
+                'amount_idr'   => $rf->amount_idr,
+                'notes'        => $rf->notes,
+                'generated_at' => $rf->generated_at ? $rf->generated_at->format('d M Y') : null,
+                'created_by'   => $rf->creator ? $rf->creator->name : null,
+            ]);
+
+        return response()->json([
+            'success'      => true,
+            'followups'    => $followups,
+            'renewalForms' => $renewalForms,
+        ]);
     }
 
     public function store(Request $request, $sponsorId)
     {
         $sponsor = Sponsor::findOrFail($sponsorId);
 
-        // Tentukan urutan follow-up dulu: KMK rate hanya wajib di follow-up PERTAMA
-        // (saat renewal form di-generate). Follow-up berikutnya tidak perlu input KMK.
-        $renewalYear = (int) $request->input('renewal_year');
-        $isFirst = SponsorFollowup::where('sponsor_id', $sponsor->id)
-            ->where('renewal_year', $renewalYear)
-            ->count() === 0;
-
         $validated = $request->validate([
             'renewal_year'   => 'required|integer|min:2020|max:2100',
             'followed_up_at' => 'required|date',
             'channel'        => 'nullable|in:whatsapp,email,call,meeting,other',
             'notes'          => 'nullable|string|max:1000',
-            'kmk_rate'       => ($isFirst ? 'required' : 'nullable') . '|integer|min:1',
             'proof'          => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
-            'kmk_rate.required' => 'KMK rate wajib diisi pada follow-up pertama (saat generate renewal form).',
-            'proof.required'    => 'Bukti follow-up wajib diupload.',
-            'proof.mimes'       => 'Bukti harus berupa JPG, PNG, atau PDF.',
-            'proof.max'         => 'Ukuran bukti maksimal 5 MB.',
+            'proof.required' => 'Bukti follow-up wajib diupload.',
+            'proof.mimes'    => 'Bukti harus berupa JPG, PNG, atau PDF.',
+            'proof.max'      => 'Ukuran bukti maksimal 5 MB.',
         ]);
+
+        // Gate: renewal form tahun tsb harus sudah di-generate lebih dulu.
+        $formExists = SponsorRenewalForm::where('sponsor_id', $sponsor->id)
+            ->where('renewal_year', $validated['renewal_year'])
+            ->exists();
+
+        if (!$formExists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Generate renewal form dulu untuk tahun ' . $validated['renewal_year'] . ' sebelum mencatat follow-up.',
+            ], 422);
+        }
 
         $sequence = SponsorFollowup::where('sponsor_id', $sponsor->id)
             ->where('renewal_year', $validated['renewal_year'])
@@ -76,63 +95,20 @@ class SponsorFollowupController extends Controller
 
         $proofPath = $request->file('proof')->store('sponsor-followups', 'public');
 
-        $followup = SponsorFollowup::create([
+        SponsorFollowup::create([
             'sponsor_id'     => $sponsor->id,
             'renewal_year'   => $validated['renewal_year'],
             'followed_up_at' => $validated['followed_up_at'],
             'channel'        => $validated['channel'] ?? null,
             'notes'          => $validated['notes'] ?? null,
-            'kmk_rate'       => $validated['kmk_rate'] ?? null,
             'proof_path'     => $proofPath,
             'created_by'     => auth()->id(),
         ]);
-
-        // Follow-up pertama dalam siklus ini → kabari grup bahwa pengejaran dimulai
-        if ($sequence === 1) {
-            $this->notifyFirstFollowup($sponsor, $followup);
-        }
 
         return response()->json([
             'success'  => true,
             'message'  => 'Follow-up #' . $sequence . ' untuk ' . $sponsor->name . ' tercatat.',
             'sequence' => $sequence,
         ]);
-    }
-
-    private function notifyFirstFollowup(Sponsor $sponsor, SponsorFollowup $followup): void
-    {
-        try {
-            $contractEnd = $sponsor->contract_end
-                ? Carbon::createFromFormat('Y-m', $sponsor->contract_end)->format('M Y')
-                : '-';
-
-            $lines = [
-                '📞 *RENEWAL FOLLOW-UP DIMULAI*',
-                '',
-                'Sponsor: *' . $sponsor->name . '* (' . ucfirst($sponsor->package ?? '-') . ')',
-                'Kontrak berakhir: ' . $contractEnd,
-                'Follow-up #1: ' . $followup->followed_up_at->format('d M Y')
-                    . ($followup->channel ? ' via ' . ucfirst($followup->channel) : ''),
-                'Oleh: ' . (auth()->user()->name ?? '-'),
-            ];
-            if ($followup->kmk_rate) {
-                $lines[] = 'KMK Rate: IDR ' . number_format($followup->kmk_rate, 0, '.', '.') . '/USD';
-            }
-            if ($followup->notes) {
-                $lines[] = 'Notes: ' . $followup->notes;
-            }
-            $lines[] = '';
-            $lines[] = '📄 *Renewal Form (proposal):*';
-            $lines[] = config('app.url') . '/admin/sponsors/' . $sponsor->id . '/renewal-form/preview';
-            $lines[] = '';
-            $lines[] = '_Status: menunggu keputusan sponsor (renew / not renew)._';
-
-            $wa = new WhatsappApi();
-            $wa->phone   = self::WA_GROUP;
-            $wa->message = implode("\n", $lines);
-            $wa->WhatsappMessageGroup();
-        } catch (\Exception $e) {
-            Log::warning('WA follow-up notification failed: ' . $e->getMessage());
-        }
     }
 }

@@ -281,12 +281,16 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('sponsors.kmk-rate');
     Route::get('sponsors/next-quotation-number', [SponsorController::class, 'getNextQuotationNumber'])
         ->name('sponsors.next-quotation-number');
+    Route::get('sponsors/next-form-number', [SponsorRenewalFormController::class, 'getNextFormNumber'])
+        ->name('sponsors.next-form-number');
     Route::get('sponsors/export-renewals', [SponsorController::class, 'exportRenewals'])
         ->name('sponsors.exportRenewals');
     Route::get('sponsors/{sponsor}/renewal-form/preview', [SponsorRenewalFormController::class, 'preview'])
         ->name('sponsors.renewal-form.preview');
     Route::get('sponsors/{sponsor}/renewal-form', [SponsorRenewalFormController::class, 'generate'])
         ->name('sponsors.renewal-form');
+    Route::post('sponsors/{sponsor}/renewal-form', [SponsorRenewalFormController::class, 'store'])
+        ->name('sponsors.renewal-form.store');
     Route::resource('sponsors', SponsorController::class);
     Route::get('admin/sponsors/export', [SponsorExportController::class, 'export'])->name('sponsors.export');
     Route::get('sponsors-representative-count', [SponsorCountRepresentativeController::class, 'index'])->name('sponsors.representative.index');

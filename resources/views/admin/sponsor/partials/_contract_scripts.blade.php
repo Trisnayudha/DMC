@@ -160,41 +160,130 @@
             });
         });
 
-        // ── Renewal Follow-up ──
-        var followupData = []; // cache of last loaded follow-ups (used to detect the first follow-up)
+        // ══ Renewal Process: Step 1 Generate Renewal Form → Step 2 Follow-up ══
+        var followupData    = []; // all follow-ups for the open sponsor
+        var renewalFormData = []; // all renewal forms for the open sponsor
 
-        function renderFollowupTimeline(followups) {
-            // Empty → cycle not yet started (renewal form not yet generated / first follow-up not done)
-            if (!followups || !followups.length) {
-                $('#followupTimeline').html(
-                    '<div class="d-flex align-items-start py-2 px-2" style="gap:10px;">' +
-                    '<span class="badge badge-secondary" style="border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-file-signature"></i></span>' +
+        function rfCurrentYear() {
+            return parseInt($('#renewalYear').val(), 10);
+        }
+
+        function rfFormForYear(year) {
+            for (var i = 0; i < renewalFormData.length; i++) {
+                if (parseInt(renewalFormData[i].renewal_year, 10) === year) return renewalFormData[i];
+            }
+            return null;
+        }
+
+        // ── USD/IDR auto-calc for the Generate Renewal Form fields ──
+        function rfSetIdr(raw) {
+            var num = Math.round(parseFloat(raw));
+            if (!isNaN(num) && num > 0) {
+                $('#rfAmountIdr').val(num);
+                $('#rfAmountIdrDisplay').val(num.toLocaleString('id-ID'));
+            } else {
+                $('#rfAmountIdr').val('');
+                $('#rfAmountIdrDisplay').val('');
+            }
+        }
+        function rfAutoFillIdr() {
+            var usd  = parseFloat($('#rfAmountUsd').val());
+            var rate = parseFloat($('#rfKmkRate').val());
+            if (!isNaN(usd) && usd > 0 && !isNaN(rate) && rate > 0) {
+                rfSetIdr(usd * rate);
+            }
+        }
+        $('#rfAmountUsd').on('input', rfAutoFillIdr);
+        $('#rfKmkRate').on('input', rfAutoFillIdr);
+        $('#rfAmountIdrDisplay').on('input', function() {
+            var raw = $(this).val().replace(/\./g, '').replace(/,/g, '');
+            $('#rfAmountIdr').val(raw);
+        }).on('blur', function() {
+            var raw = $(this).val().replace(/\./g, '').replace(/,/g, '');
+            var num = parseInt(raw, 10);
+            if (!isNaN(num) && num > 0) {
+                $(this).val(num.toLocaleString('id-ID'));
+                $('#rfAmountIdr').val(num);
+            }
+        });
+
+        function fetchRfKmkRate() {
+            $('#rfKmkRate').val('').attr('placeholder', 'Loading...');
+            $.get('/admin/sponsors/kmk-rate', function(res) {
+                if (res.success && res.rate) {
+                    $('#rfKmkRate').val(res.rate);
+                    rfAutoFillIdr();
+                } else {
+                    $('#rfKmkRate').attr('placeholder', 'Failed to fetch — enter manually');
+                }
+            }).fail(function() {
+                $('#rfKmkRate').attr('placeholder', 'Failed to fetch — enter manually');
+            });
+        }
+        $('#btnRefreshRfKmk').on('click', fetchRfKmkRate);
+
+        function fetchNextFormNumber(year) {
+            $('#rfFormNumber').val('').attr('placeholder', 'Loading...');
+            $('#rfFormNumberHint').text('');
+            $.get('/admin/sponsors/next-form-number', { year: year }, function(res) {
+                if (res.next) {
+                    $('#rfFormNumber').attr('placeholder', res.next);
+                    $('#rfFormNumberHint').text('Suggested: ' + res.next + ' (leave blank for auto)');
+                }
+            }).fail(function() {
+                $('#rfFormNumber').attr('placeholder', year + 'DMC1');
+            });
+        }
+
+        // Reset the empty Generate form for a fresh year (form number + KMK suggestions)
+        function prefillRenewalForm(year) {
+            $('#rfAmountUsd').val('');
+            $('#rfAmountIdr').val('');
+            $('#rfAmountIdrDisplay').val('');
+            $('#rfNotes').val('');
+            fetchNextFormNumber(year);
+            fetchRfKmkRate();
+        }
+
+        function renderGeneratedBox(form) {
+            var sponsorId = $('#followupSponsorId').val();
+            $('#rfGenNumber').text(form.form_number || '—');
+            $('#rfGenDate').text(form.generated_at || '—');
+            $('#rfGenBy').text(form.created_by ? ' · by ' + form.created_by : '');
+            $('#rfGenKmk').text(form.kmk_rate ? 'IDR ' + Number(form.kmk_rate).toLocaleString('id-ID') + '/USD' : '—');
+            var amt = [];
+            if (form.amount_usd) amt.push('USD ' + Number(form.amount_usd).toLocaleString('id-ID'));
+            if (form.amount_idr) amt.push('IDR ' + Number(form.amount_idr).toLocaleString('id-ID'));
+            $('#rfGenAmount').text(amt.length ? 'Value: ' + amt.join(' · ') : '');
+            $('#rfPreviewBtn').attr('href', '/admin/sponsors/' + sponsorId + '/renewal-form/preview');
+        }
+
+        function renderFollowupTimeline(followups, form) {
+            var html = '';
+
+            // Renewal form milestone (Step 1)
+            if (form) {
+                html += '<div class="d-flex align-items-start py-2 px-2" style="gap:10px;border-bottom:1px solid #e9ecef;background:#eafaf0;border-radius:6px;margin-bottom:4px;">' +
+                    '<span class="badge" style="background:#47c363;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-file-signature"></i></span>' +
                     '<div style="flex:1;min-width:0;">' +
-                    '<div style="font-size:13px;font-weight:600;color:#888;">Renewal Form not yet submitted</div>' +
-                    '<div class="text-muted" style="font-size:12px;">The first follow-up generates the renewal form (KMK rate required).</div>' +
-                    '</div></div>');
+                    '<div style="font-size:13px;font-weight:700;color:#2d3748;">Renewal Form ' + $('<span>').text(form.form_number || '').html() + '</div>' +
+                    '<div class="text-muted" style="font-size:12px;">' + (form.generated_at || '') +
+                    (form.kmk_rate ? ' &middot; KMK IDR ' + Number(form.kmk_rate).toLocaleString('id-ID') + '/USD' : '') + '</div>' +
+                    '</div></div>';
+            }
+
+            if (!followups || !followups.length) {
+                html += '<div class="text-muted text-center py-2" style="font-size:12px;">No follow-up recorded yet for this year.</div>';
+                $('#followupTimeline').html(html);
                 return;
             }
 
-            var html = '';
-
-            // Milestone awal: Renewal Form Submitted (ditandai dari follow-up pertama)
-            var first = followups[0];
-            html += '<div class="d-flex align-items-start py-2 px-2" style="gap:10px;border-bottom:1px solid #e9ecef;background:#eafaf0;border-radius:6px;margin-bottom:4px;">' +
-                '<span class="badge" style="background:#47c363;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-file-signature"></i></span>' +
-                '<div style="flex:1;min-width:0;">' +
-                '<div style="font-size:13px;font-weight:700;color:#2d3748;">Renewal Form Submitted</div>' +
-                '<div class="text-muted" style="font-size:12px;">' + first.followed_up_at +
-                (first.kmk_rate ? ' &middot; KMK IDR ' + Number(first.kmk_rate).toLocaleString('id-ID') + '/USD' : '') +
-                ' <span class="badge badge-light border ml-1" style="font-size:10px;">' + first.renewal_year + '</span></div>' +
-                '</div></div>';
-
-            // Follow-up list: Follow Up 1 / 2 / 3 / etc — (Date) | (PIC Name)
-            followups.forEach(function(f) {
+            // Follow-up list: Follow Up 1 / 2 / 3 — (Date) | (PIC Name)
+            followups.forEach(function(f, idx) {
                 html += '<div class="d-flex align-items-start py-2 px-2" style="gap:10px;border-bottom:1px dashed #eee;">' +
-                    '<span class="badge" style="background:#f39c12;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + f.sequence + '</span>' +
+                    '<span class="badge" style="background:#f39c12;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + (idx + 1) + '</span>' +
                     '<div style="flex:1;min-width:0;">' +
-                    '<div style="font-size:13px;font-weight:600;color:#333;">Follow Up ' + f.sequence + '</div>' +
+                    '<div style="font-size:13px;font-weight:600;color:#333;">Follow Up ' + (idx + 1) + '</div>' +
                     '<div style="font-size:12px;color:#555;">' + f.followed_up_at +
                     (f.created_by ? ' <span class="text-muted">| ' + $('<span>').text(f.created_by).html() + '</span>' : '') +
                     (f.channel ? ' <span class="text-muted">&middot; via ' + f.channel + '</span>' : '') + '</div>' +
@@ -207,69 +296,101 @@
             $('#followupTimeline').html(html);
         }
 
-        function loadFollowupTimeline(sponsorId) {
+        // Toggle Step 1 / Step 2 based on whether a renewal form exists for the year
+        function refreshRenewalUI() {
+            var year = rfCurrentYear();
+            var form = rfFormForYear(year);
+            var yearFollowups = followupData.filter(function(f) { return parseInt(f.renewal_year, 10) === year; });
+
+            if (form) {
+                renderGeneratedBox(form);
+                $('#renewalFormGenerated').show();
+                $('#renewalFormForm').hide();
+                $('#followupLocked').hide();
+                $('#followupContent').show();
+            } else {
+                $('#renewalFormGenerated').hide();
+                $('#renewalFormForm').show();
+                prefillRenewalForm(year);
+                $('#followupContent').hide();
+                $('#followupLocked').show();
+            }
+            renderFollowupTimeline(yearFollowups, form);
+        }
+
+        function loadRenewalData(sponsorId) {
             $('#followupTimeline').html('<div class="text-center text-muted py-3"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
             $.get('/admin/sponsors/' + sponsorId + '/followups', function(res) {
-                followupData = res.followups || [];
-                renderFollowupTimeline(followupData);
-                updateFollowupKmkField();
+                followupData    = res.followups || [];
+                renewalFormData = res.renewalForms || [];
+                refreshRenewalUI();
             }).fail(function() {
                 followupData = [];
-                $('#followupTimeline').html('<div class="text-center text-danger py-3" style="font-size:12px;">Failed to load follow-up history.</div>');
+                renewalFormData = [];
+                $('#followupTimeline').html('<div class="text-center text-danger py-3" style="font-size:12px;">Failed to load renewal data.</div>');
             });
         }
 
-        // KMK rate is only required on the FIRST follow-up for the selected year
-        function updateFollowupKmkField() {
-            var year = parseInt($('#followupYear').val());
-            var existing = followupData.filter(function(f) { return parseInt(f.renewal_year) === year; }).length;
-            if (existing === 0) {
-                $('#followupKmkGroup').show();
-                $('#followupKmkRate').prop('required', true);
-                if (!$('#followupKmkRate').val()) {
-                    fetchFollowupKmkRate();
-                }
-            } else {
-                $('#followupKmkGroup').hide();
-                $('#followupKmkRate').prop('required', false).val('');
-            }
-        }
+        $('#renewalYear').on('change', refreshRenewalUI);
 
-        function fetchFollowupKmkRate() {
-            $('#followupKmkRate').val('').attr('placeholder', 'Loading...');
-            $.get('/admin/sponsors/kmk-rate', function(res) {
-                if (res.success && res.rate) {
-                    $('#followupKmkRate').val(res.rate);
-                } else {
-                    $('#followupKmkRate').attr('placeholder', 'Failed to fetch — enter manually');
-                }
-            }).fail(function() {
-                $('#followupKmkRate').attr('placeholder', 'Failed to fetch — enter manually');
-            });
-        }
-
-        $('#btnRefreshFollowupKmk').on('click', fetchFollowupKmkRate);
-        $('#followupYear').on('change', updateFollowupKmkField);
-
-        // Open Follow-up modal
+        // Open Renewal Process modal
         $(document).on('click', '.followup-btn', function() {
             $('#followupSponsorId').val($(this).data('id'));
             $('#followupSponsorName').text($(this).data('name'));
+            $('#renewalYear').val(new Date().getFullYear());
             $('#followupDate').val(new Date().toISOString().slice(0, 10));
-            $('#followupYear').val(new Date().getFullYear());
             $('#followupNotes').val('');
             $('#followupProof').val('');
-            $('#followupKmkRate').val('');
-            $('#followupKmkGroup').hide();
-            loadFollowupTimeline($(this).data('id'));
+            loadRenewalData($(this).data('id'));
             $('#followupModal').modal('show');
         });
 
-        // Submit Follow-up (multipart karena ada upload bukti)
+        // Submit: Generate Renewal Form (Step 1)
+        $('#renewalFormForm').on('submit', function(e) {
+            e.preventDefault();
+            var sponsorId = $('#followupSponsorId').val();
+            $('#rfSubmitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Generating...');
+            $.ajax({
+                url: '/admin/sponsors/' + sponsorId + '/renewal-form',
+                method: 'POST',
+                data: {
+                    _token:       '{{ csrf_token() }}',
+                    renewal_year: $('#renewalYear').val(),
+                    form_number:  $('#rfFormNumber').val(),
+                    kmk_rate:     $('#rfKmkRate').val(),
+                    amount_usd:   $('#rfAmountUsd').val(),
+                    amount_idr:   $('#rfAmountIdr').val(),
+                    notes:        $('#rfNotes').val(),
+                },
+                success: function(response) {
+                    if (response.success) {
+                        toastr.success(response.message, 'Success', { positionClass: 'toast-top-right' });
+                        loadRenewalData(sponsorId);
+                    } else {
+                        toastr.error(response.message, 'Error', { positionClass: 'toast-top-right' });
+                    }
+                },
+                error: function(xhr) {
+                    var msg = 'Failed to generate renewal form.';
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        msg = Object.values(xhr.responseJSON.errors)[0][0];
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    toastr.error(msg, 'Error', { positionClass: 'toast-top-right' });
+                },
+                complete: function() {
+                    $('#rfSubmitBtn').prop('disabled', false).html('<i class="fas fa-file-signature mr-1"></i> Generate Renewal Form');
+                }
+            });
+        });
+
+        // Submit: Follow-up (Step 2, multipart — with proof upload)
         $('#followupForm').on('submit', function(e) {
             e.preventDefault();
             var sponsorId = $('#followupSponsorId').val();
             var formData = new FormData(this);
+            formData.append('renewal_year', $('#renewalYear').val());
             $('#followupSubmitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
             $.ajax({
                 url: '/admin/sponsors/' + sponsorId + '/followups',
@@ -281,8 +402,7 @@
                     toastr.success(response.message, 'Success', { positionClass: 'toast-top-right' });
                     $('#followupNotes').val('');
                     $('#followupProof').val('');
-                    $('#followupKmkRate').val('');
-                    loadFollowupTimeline(sponsorId);
+                    loadRenewalData(sponsorId);
                 },
                 error: function(xhr) {
                     var msg = 'Failed to save follow-up.';

@@ -48,6 +48,11 @@ class Sponsor extends Model
         return $this->hasMany(\App\Models\Sponsors\SponsorRenewal::class, 'sponsor_id');
     }
 
+    public function renewalForms()
+    {
+        return $this->hasMany(\App\Models\Sponsors\SponsorRenewalForm::class, 'sponsor_id');
+    }
+
     public function currentRenewal()
     {
         return $this->hasOne(\App\Models\Sponsors\SponsorRenewal::class, 'sponsor_id')

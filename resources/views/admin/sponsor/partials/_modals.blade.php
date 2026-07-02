@@ -116,94 +116,182 @@
     </div>
 </div>
 
-<!-- Modal: Renewal Follow-up (history + new follow-up form with mandatory evidence upload) -->
+<!-- Modal: Renewal Process (Step 1 Generate Renewal Form → Step 2 Follow-up) -->
 <div class="modal fade" id="followupModal" tabindex="-1" role="dialog"
     aria-labelledby="followupModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background:#fffbf0;border-bottom:2px solid #f39c12;">
                 <h5 class="modal-title" id="followupModalLabel">
-                    <i class="fas fa-phone-volume mr-1" style="color:#f39c12;"></i>
-                    Renewal Follow-up — <span id="followupSponsorName"></span>
+                    <i class="fas fa-redo-alt mr-1" style="color:#f39c12;"></i>
+                    Renewal Process — <span id="followupSponsorName"></span>
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                {{-- Follow-up history --}}
-                <div class="mb-3">
-                    <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
-                        <i class="fas fa-history mr-1"></i> Follow-up History
+                <input type="hidden" id="followupSponsorId" value="">
+
+                {{-- Shared renewal year: drives both the renewal form & follow-up cycle --}}
+                <div class="form-group row align-items-center mb-3">
+                    <label class="col-sm-4 col-form-label font-weight-600 mb-0">Renewal Year <span class="text-danger">*</span></label>
+                    <div class="col-sm-4">
+                        <input type="number" id="renewalYear" class="form-control" min="2020" max="2100" value="{{ now()->year }}">
                     </div>
-                    <div id="followupTimeline" class="border rounded p-2" style="max-height:220px;overflow-y:auto;background:#fafbfc;"></div>
                 </div>
 
-                {{-- New follow-up form --}}
-                <form id="followupForm" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" id="followupSponsorId" value="">
+                {{-- ═══ STEP 1 — Renewal Form ═══ --}}
+                <div class="mb-4">
                     <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
-                        <i class="fas fa-plus-circle mr-1"></i> Record New Follow-up
+                        <i class="fas fa-file-signature mr-1"></i> Step 1 — Generate Renewal Form
                     </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Renewal Year <span class="text-danger">*</span></label>
-                                <input type="number" name="renewal_year" id="followupYear" class="form-control"
-                                    min="2020" max="2100" value="{{ now()->year }}" required>
+
+                    {{-- Already generated → summary + preview --}}
+                    <div id="renewalFormGenerated" class="border rounded p-3" style="display:none;background:#eafaf0;border-color:#b7e4c7!important;">
+                        <div class="d-flex justify-content-between align-items-start" style="gap:10px;">
+                            <div style="min-width:0;">
+                                <div class="font-weight-700" style="color:#1e7e45;">
+                                    <i class="fas fa-check-circle mr-1"></i> Renewal Form <span id="rfGenNumber"></span>
+                                </div>
+                                <div class="text-muted" style="font-size:12.5px;line-height:1.7;margin-top:3px;">
+                                    Generated: <span id="rfGenDate">—</span><span id="rfGenBy"></span><br>
+                                    KMK Rate: <span id="rfGenKmk">—</span><br>
+                                    <span id="rfGenAmount"></span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Follow-up Date <span class="text-danger">*</span></label>
-                                <input type="date" name="followed_up_at" id="followupDate" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Channel</label>
-                                <select name="channel" id="followupChannel" class="form-control">
-                                    <option value="whatsapp">WhatsApp</option>
-                                    <option value="email">Email</option>
-                                    <option value="call">Phone Call</option>
-                                    <option value="meeting">Meeting</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
+                            <a href="#" target="_blank" id="rfPreviewBtn" class="btn btn-sm btn-light border flex-shrink-0">
+                                <i class="fas fa-file-pdf mr-1"></i> Preview Form
+                            </a>
                         </div>
                     </div>
-                    {{-- KMK rate: only shown & required on the FIRST follow-up of the year (when generating the renewal form) --}}
-                    <div class="form-group" id="followupKmkGroup" style="display:none;">
-                        <label>KMK Rate (USD/IDR) <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <input type="number" name="kmk_rate" id="followupKmkRate" class="form-control"
-                                min="1" placeholder="Loading...">
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-outline-secondary" id="btnRefreshFollowupKmk" title="Refresh rate">
-                                    <i class="fas fa-sync-alt"></i>
+
+                    {{-- Not generated yet → the generate form --}}
+                    <form id="renewalFormForm" style="display:none;">
+                        @csrf
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Renewal Form Number
+                                        <small class="text-muted font-weight-normal">(auto-generated, editable)</small>
+                                    </label>
+                                    <input type="text" id="rfFormNumber" class="form-control"
+                                        placeholder="Loading..." style="font-family:monospace;">
+                                    <small class="text-muted" id="rfFormNumberHint"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>KMK Rate (USD/IDR) <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
+                                        <input type="number" id="rfKmkRate" class="form-control" min="1" placeholder="Loading...">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary" id="btnRefreshRfKmk" title="Refresh rate">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">KMK Tax Rate — auto-fetched, editable.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Amount USD</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text">USD</span></div>
+                                        <input type="number" id="rfAmountUsd" class="form-control" step="0.01" min="0" placeholder="e.g. 3500">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Amount IDR <small class="text-muted">(auto from USD × KMK, editable)</small></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
+                                        <input type="text" id="rfAmountIdrDisplay" class="form-control" placeholder="e.g. 54.000.000">
+                                        <input type="hidden" id="rfAmountIdr">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Notes</label>
+                            <textarea id="rfNotes" class="form-control" rows="2"
+                                placeholder="e.g. Proposal Gold Sponsorship 2026, dikirim via email ke PIC..."></textarea>
+                        </div>
+                        <div class="text-right">
+                            <button type="submit" class="btn" style="background:#47c363;color:#fff;" id="rfSubmitBtn">
+                                <i class="fas fa-file-signature mr-1"></i> Generate Renewal Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {{-- ═══ STEP 2 — Follow-up ═══ --}}
+                <div>
+                    <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
+                        <i class="fas fa-phone-volume mr-1"></i> Step 2 — Follow-up
+                    </div>
+
+                    {{-- Locked until the renewal form exists for the selected year --}}
+                    <div id="followupLocked" class="border rounded p-3 text-center text-muted" style="display:none;background:#fafbfc;">
+                        <i class="fas fa-lock mb-1 d-block" style="opacity:.4;"></i>
+                        <span style="font-size:12.5px;">Generate the renewal form first before recording follow-ups.</span>
+                    </div>
+
+                    <div id="followupContent" style="display:none;">
+                        {{-- Follow-up history --}}
+                        <div class="mb-3">
+                            <div id="followupTimeline" class="border rounded p-2" style="max-height:200px;overflow-y:auto;background:#fafbfc;"></div>
+                        </div>
+
+                        {{-- New follow-up form --}}
+                        <form id="followupForm" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Follow-up Date <span class="text-danger">*</span></label>
+                                        <input type="date" name="followed_up_at" id="followupDate" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Channel</label>
+                                        <select name="channel" id="followupChannel" class="form-control">
+                                            <option value="whatsapp">WhatsApp</option>
+                                            <option value="email">Email</option>
+                                            <option value="call">Phone Call</option>
+                                            <option value="meeting">Meeting</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Notes</label>
+                                <textarea name="notes" id="followupNotes" class="form-control" rows="2"
+                                    placeholder="e.g. Contacted via WhatsApp, awaiting their internal confirmation..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Proof / Evidence of Follow-up <span class="text-danger">*</span></label>
+                                <input type="file" name="proof" id="followupProof" class="form-control-file" accept=".jpg,.jpeg,.png,.pdf" required>
+                                <small class="text-muted">Required — chat/email screenshot or document (JPG/PNG/PDF, max 5 MB)</small>
+                            </div>
+                            <div class="text-right">
+                                <button type="submit" class="btn" style="background:#f39c12;color:#fff;" id="followupSubmitBtn">
+                                    <i class="fas fa-save mr-1"></i> Save Follow-up
                                 </button>
                             </div>
-                        </div>
-                        <small class="text-muted">KMK Tax Rate — auto-fetched, editable. Used as contract value in the renewal form.</small>
+                        </form>
                     </div>
-                    <div class="form-group">
-                        <label>Notes</label>
-                        <textarea name="notes" id="followupNotes" class="form-control" rows="2"
-                            placeholder="e.g. Contacted via WhatsApp, awaiting their internal confirmation..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Proof / Evidence of Follow-up <span class="text-danger">*</span></label>
-                        <input type="file" name="proof" id="followupProof" class="form-control-file" accept=".jpg,.jpeg,.png,.pdf" required>
-                        <small class="text-muted">Required — chat/email screenshot or document (JPG/PNG/PDF, max 5 MB)</small>
-                    </div>
-                    <div class="text-right">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn" style="background:#f39c12;color:#fff;" id="followupSubmitBtn">
-                            <i class="fas fa-save mr-1"></i> Save Follow-up
-                        </button>
-                    </div>
-                </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

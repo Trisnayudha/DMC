@@ -117,10 +117,26 @@
         '09'=>'September','10'=>'October','11'=>'November','12'=>'December',
     ];
 
-    $quotNo   = $renewal ? ($renewal->quotation_number ?? '—') : '—';
-    $quotDate = $renewal && $renewal->quotation_date
-                    ? $renewal->quotation_date->format('l, d F Y')
-                    : now()->format('l, d F Y');
+    // Nomor & tanggal: utamakan renewal form (proposal), fallback ke quotation kontrak.
+    $renewalForm = $renewalForm ?? null;
+    $quotNo = $renewalForm && $renewalForm->form_number
+                    ? $renewalForm->form_number
+                    : ($renewal ? ($renewal->quotation_number ?? '—') : '—');
+    if ($renewalForm && $renewalForm->generated_at) {
+        $quotDate = $renewalForm->generated_at->format('l, d F Y');
+    } elseif ($renewal && $renewal->quotation_date) {
+        $quotDate = $renewal->quotation_date->format('l, d F Y');
+    } else {
+        $quotDate = now()->format('l, d F Y');
+    }
+
+    // Nilai proposal: utamakan renewal form, fallback ke kontrak berjalan.
+    $amountUsd = $renewalForm && $renewalForm->amount_usd !== null
+                    ? $renewalForm->amount_usd
+                    : ($renewal ? $renewal->amount_usd : null);
+    $amountIdr = $renewalForm && $renewalForm->amount_idr !== null
+                    ? $renewalForm->amount_idr
+                    : ($renewal ? $renewal->amount_idr : null);
 
     $periodLabel = '—';
     if ($renewal && $renewal->contract_start && $renewal->contract_end) {
@@ -224,12 +240,12 @@
                 <td class="text-center val-middle font-bold">1 YEAR</td>
                 <td class="val-middle font-bold">
                     <div class="currency-flex">
-                        @if($renewal && $renewal->amount_usd)
+                        @if($amountUsd)
                             <span>USD</span>
-                            <span>{{ number_format($renewal->amount_usd, 0, '.', '.') }}</span>
-                        @elseif($renewal && $renewal->amount_idr)
+                            <span>{{ number_format($amountUsd, 0, '.', '.') }}</span>
+                        @elseif($amountIdr)
                             <span>IDR</span>
-                            <span>{{ number_format($renewal->amount_idr, 0, '.', '.') }}</span>
+                            <span>{{ number_format($amountIdr, 0, '.', '.') }}</span>
                         @else
                             <span>—</span><span></span>
                         @endif
@@ -248,7 +264,7 @@
                 <td class="val-middle font-bold">
                     <div class="currency-flex">
                         <span>USD</span>
-                        <span>{{ $renewal && $renewal->amount_usd ? number_format($renewal->amount_usd, 0, '.', '.') : '—' }}</span>
+                        <span>{{ $amountUsd ? number_format($amountUsd, 0, '.', '.') : '—' }}</span>
                     </div>
                 </td>
             </tr>
@@ -263,10 +279,10 @@
                     <div class="currency-flex">
                         <span>IDR</span>
                         <span>
-                            @if($renewal && $renewal->amount_idr)
-                                {{ number_format($renewal->amount_idr, 0, '.', '.') }}
-                            @elseif($renewal && $renewal->amount_usd && $kursRate)
-                                {{ number_format($renewal->amount_usd * $kursRate, 0, '.', '.') }}
+                            @if($amountIdr)
+                                {{ number_format($amountIdr, 0, '.', '.') }}
+                            @elseif($amountUsd && $kursRate)
+                                {{ number_format($amountUsd * $kursRate, 0, '.', '.') }}
                             @else
                                 —
                             @endif
