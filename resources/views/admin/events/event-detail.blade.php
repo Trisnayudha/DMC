@@ -616,7 +616,16 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="company_name"> Company Name</label>
-                                    <input type="text" class="form-control" name="company_name" id="company_name">
+                                    <div class="position-relative">
+                                        <input type="text" class="form-control" name="company_name" id="company_name"
+                                            autocomplete="off"
+                                            placeholder="Ketik nama company atau pilih dari verified...">
+                                        <div id="inv-company-suggestions" class="list-group position-absolute w-100"
+                                            style="z-index:9999; display:none; max-height:180px; overflow-y:auto; top:100%; left:0; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Ketik untuk saran dari company yang sudah
+                                        verified.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="email"> Email</label>
@@ -1217,6 +1226,71 @@
                     $btn.prop('disabled', false);
                 }
             });
+        });
+
+        // =========================================================
+        // Autocomplete Company Name (Add Invitation)
+        // Saran dari company yang sudah verified — sama seperti verifikasi member
+        // =========================================================
+        var invSuggestTimeout = null;
+
+        function invFillCompanyFields(c) {
+            $('#company_name').val(c.company_name || '');
+            $('#prefix').val(c.prefix || '').trigger('change');
+            $('#company_website').val(c.company_website || '');
+            $('#address').val(c.address || '');
+            $('#office_number').val(c.office_number || c.full_office_number || '');
+            if (c.country && $('#country option[value="' + c.country + '"]').length) {
+                $('#country').val(c.country).trigger('change');
+            }
+            if (c.company_category && $('#company_category option[value="' + c.company_category + '"]').length) {
+                $('#company_category').val(c.company_category).trigger('change');
+            }
+        }
+
+        $(document).on('input', '#company_name', function() {
+            var q = $(this).val().trim();
+            clearTimeout(invSuggestTimeout);
+            $('#inv-company-suggestions').hide().empty();
+            if (q.length < 2) return;
+
+            invSuggestTimeout = setTimeout(function() {
+                $.ajax({
+                    url: '{{ route('admin.company_database.verified_companies') }}',
+                    data: {
+                        q: q
+                    },
+                    success: function(data) {
+                        var $box = $('#inv-company-suggestions');
+                        $box.empty();
+                        if (!data || data.length === 0) {
+                            $box.hide();
+                            return;
+                        }
+                        $.each(data, function(i, c) {
+                            var $item = $(
+                                '<button type="button" class="list-group-item list-group-item-action"></button>'
+                            );
+                            $item.html(
+                                '<span class="badge badge-success badge-sm mr-1"><i class="fas fa-check-circle"></i> Verified</span> <strong>' +
+                                $('<span>').text(c.company_name).html() + '</strong>'
+                            );
+                            $item.on('click', function() {
+                                invFillCompanyFields(c);
+                                $box.hide().empty();
+                            });
+                            $box.append($item);
+                        });
+                        $box.show();
+                    }
+                });
+            }, 300);
+        });
+
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#company_name, #inv-company-suggestions').length) {
+                $('#inv-company-suggestions').hide().empty();
+            }
         });
     </script>
 @endpush
