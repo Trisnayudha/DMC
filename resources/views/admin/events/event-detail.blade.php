@@ -645,7 +645,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="name">Ticket</label>
-                                    <select name="package" id="package" class="form-control">
+                                    <select name="ticket" id="package" class="form-control">
                                         <option value="free">Invitation ( Free No Cost Non Sponsor )</option>
                                         <option value="sponsor">Invitation ( Free No Cost Sponsor)</option>
                                         <option value="member">Membership ( Rp. 900.000 )</option>
