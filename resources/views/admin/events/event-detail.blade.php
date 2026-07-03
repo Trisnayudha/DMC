@@ -362,7 +362,7 @@
                                                     <td>{{ $post->company_name }}
                                                     </td>
                                                     <td>{{ $post->email }}</td>
-                                                    <td>{{ $post->phone }}</td>
+                                                    <td>{{ $post->fullphone ?? $post->phone }}</td>
                                                     <td>{{ $post->full_office_number }}</td>
                                                     <td>
                                                         {{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
@@ -922,7 +922,7 @@
                         $('#company_website_edit').val(response.payload.company_website);
                         $('#address_edit').val(response.payload.address);
                         $('.country_edit').val(response.payload.country);
-                        $('#office_number_edit').val(response.payload.office_number);
+                        $('#office_number_edit').val(response.payload.full_office_number);
                         $('#company_category_edit').val(response.payload.company_category);
                         $('#name_edit').val(response.payload.name);
                         $('#job_title_edit').val(response.payload.job_title);
