@@ -142,6 +142,7 @@ class EventsController extends Controller
                 $speakerItem['job_title'] = $speaker->job_title;
                 $speakerItem['image'] = $speaker->image;
                 $speakerItem['company'] = $speaker->company;
+                $speakerItem['is_moderator'] = (bool) $speaker->is_moderator;
                 $item['speakers'][] = $speakerItem;
             }
 

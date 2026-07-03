@@ -42,6 +42,8 @@ class EventsRundownController extends Controller
             'events_id' => ['required', 'integer', Rule::exists('events', 'id')],
             'speakers'  => ['array'],
             'speakers.*' => ['integer', Rule::exists('events_speakers', 'id')],
+            'moderators'  => ['array'],
+            'moderators.*' => ['integer', Rule::exists('events_speakers', 'id')],
         ]);
 
         // Upsert rundown
@@ -51,8 +53,17 @@ class EventsRundownController extends Controller
         $eventsRundown->events_id = $validated['events_id'];
         $eventsRundown->save();
 
-        // Sync speakers (boleh kosong)
-        $eventsRundown->speakers()->sync($validated['speakers'] ?? []);
+        // Sync speakers (boleh kosong) beserta flag moderator per speaker
+        $speakerIds   = $validated['speakers'] ?? [];
+        $moderatorIds = $validated['moderators'] ?? [];
+
+        $syncData = [];
+        foreach ($speakerIds as $speakerId) {
+            $syncData[$speakerId] = [
+                'is_moderator' => in_array($speakerId, $moderatorIds) ? 1 : 0,
+            ];
+        }
+        $eventsRundown->speakers()->sync($syncData);
 
         return response()->json([
             'ok' => true,
@@ -79,13 +90,18 @@ class EventsRundownController extends Controller
             }
         }
 
+        $moderatorIds = $rundown->speakers->filter(function ($speaker) {
+            return (int) ($speaker->pivot->is_moderator ?? 0) === 1;
+        })->pluck('id')->values();
+
         return response()->json([
-            'id'           => $rundown->id,
-            'name'         => $rundown->name,
-            'date'         => $dateForInput, // <-- penting
-            'events_id'    => $rundown->events_id,
-            'speakers_ids' => $rundown->speakers->pluck('id'),
-            'speakers'     => $rundown->speakers,
+            'id'            => $rundown->id,
+            'name'          => $rundown->name,
+            'date'          => $dateForInput, // <-- penting
+            'events_id'     => $rundown->events_id,
+            'speakers_ids'  => $rundown->speakers->pluck('id'),
+            'moderator_ids' => $moderatorIds,
+            'speakers'      => $rundown->speakers,
         ]);
     }
 

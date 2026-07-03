@@ -70,7 +70,13 @@
                                                     <td>{{ $post->event_name }}</td>
                                                     <td>
                                                         @if (isset($post->speakers) && $post->speakers->count())
-                                                            {{ $post->speakers->pluck('name')->implode(', ') }}
+                                                            @foreach ($post->speakers as $speaker)
+                                                                <span class="d-inline-block me-1">
+                                                                    {{ $speaker->name }}@if ($speaker->pivot->is_moderator)
+                                                                        <span class="badge badge-info">Moderator</span>
+                                                                    @endif @if (!$loop->last),@endif
+                                                                </span>
+                                                            @endforeach
                                                         @else
                                                             —
                                                         @endif
@@ -135,6 +141,16 @@
                             <small class="text-muted d-block mt-1">Pilih lebih dari satu jika diperlukan.</small>
                         </div>
 
+                        <div class="form-group mb-3">
+                            <label class="mb-1">Moderator</label>
+                            <div id="moderator-list" class="border rounded p-2"
+                                style="max-height: 180px; overflow-y: auto;">
+                                <small class="text-muted">Pilih speaker terlebih dahulu.</small>
+                            </div>
+                            <small class="text-muted d-block mt-1">Centang speaker yang bertindak sebagai
+                                moderator.</small>
+                        </div>
+
                         <div class="form-group mb-4">
                             <label for="events_id" class="mb-1">Event</label>
                             <select name="events_id" id="events_id" class="form-control">
@@ -184,6 +200,44 @@
                 }
             });
 
+            // Render daftar moderator berdasarkan speaker yang dipilih.
+            // Moderator hanya bisa dipilih dari speaker yang sudah ada di rundown.
+            function renderModeratorList(preselected) {
+                var selected = $('#speakers_id').val() || [];
+
+                // Jika preselected tidak diberikan, pertahankan centang yang sedang aktif.
+                var checkedIds = preselected !== undefined ?
+                    (preselected || []).map(String) :
+                    $('#moderator-list input:checked').map(function() {
+                        return String($(this).val());
+                    }).get();
+
+                var $list = $('#moderator-list').empty();
+
+                if (selected.length === 0) {
+                    $list.html('<small class="text-muted">Pilih speaker terlebih dahulu.</small>');
+                    return;
+                }
+
+                selected.forEach(function(id) {
+                    var label = $('#speakers_id option[value="' + id + '"]').text().trim();
+                    var isChecked = checkedIds.indexOf(String(id)) !== -1;
+                    $list.append(
+                        '<div class="form-check">' +
+                        '<input class="form-check-input" type="checkbox" name="moderators[]" value="' +
+                        id + '" id="mod_' + id + '"' + (isChecked ? ' checked' : '') + '>' +
+                        '<label class="form-check-label" for="mod_' + id + '">' + label +
+                        '</label>' +
+                        '</div>'
+                    );
+                });
+            }
+
+            // Perbarui daftar moderator setiap kali pilihan speaker berubah.
+            $('#speakers_id').on('change', function() {
+                renderModeratorList();
+            });
+
             // CSRF
             $.ajaxSetup({
                 headers: {
@@ -195,6 +249,7 @@
             $('#addNewCategory').on('click', function() {
                 $('#addEditCategoryForm').trigger('reset');
                 $('#speakers_id').val(null).trigger('change');
+                renderModeratorList([]);
                 $('#ajaxCategoryModel').text('Add Rundown');
                 $('#id').val('');
                 $('#btn-save').val('create');
@@ -224,6 +279,11 @@
                         $('#date').val(res.date || ''); // must be Y-m-dTH:i
                         $('#events_id').val(res.events_id || '').trigger('change');
                         $('#speakers_id').val(speakersIds).trigger('change');
+
+                        // Tandai moderator sesuai data (harus setelah speaker terisi).
+                        var moderatorIds = res.moderator_ids ?
+                            res.moderator_ids.map(String) : [];
+                        renderModeratorList(moderatorIds);
 
                         $('#btn-save').val('update');
                     },
@@ -277,6 +337,10 @@
                 var selectedSpeakers = $('#speakers_id').val() || [];
                 selectedSpeakers.forEach(function(v) {
                     formData.append('speakers[]', v);
+                });
+
+                $('#moderator-list input:checked').each(function() {
+                    formData.append('moderators[]', $(this).val());
                 });
 
                 $("#btn-save").html('Please Wait...').prop("disabled", true);

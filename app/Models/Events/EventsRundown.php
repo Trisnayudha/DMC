@@ -26,7 +26,7 @@ class EventsRundown extends Model
             'events_speakers_rundown', // pivot table
             'events_rundown_id',       // foreign key ke rundown
             'events_speakers_id'       // foreign key ke speakers
-        )->withTimestamps();
+        )->withPivot('is_moderator')->withTimestamps();
     }
 
 
