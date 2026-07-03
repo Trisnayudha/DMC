@@ -363,7 +363,7 @@
                                                     </td>
                                                     <td>{{ $post->email }}</td>
                                                     <td>{{ $post->phone }}</td>
-                                                    <td>{{ $post->office_number }}</td>
+                                                    <td>{{ $post->full_office_number }}</td>
                                                     <td>
                                                         {{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
                                                     </td>
@@ -961,7 +961,7 @@
                 if (ticket === 'member') {
                     if (!confirm(
                             'Warning: User baru ini belum terdaftar sebagai member. Yakin ingin daftarkan sebagai Member?'
-                            )) {
+                        )) {
                         e.preventDefault();
                         return false;
                     }
