@@ -208,7 +208,7 @@
                                                     {{ $post->company_category != 'other' ? $post->company_category : $post->company_other }}
                                                 </td>
                                                 <td style="font-size:.83rem;">{{ $post->country }}</td>
-                                                <td style="font-size:.83rem;">{{ $post->office_number }}</td>
+                                                <td style="font-size:.83rem;">{{ $post->full_office_number }}</td>
                                             @endif
 
                                             @if ($post->end_date >= date('Y-m-d'))
