@@ -40,7 +40,7 @@
 
 <body>
     <div class="card">
-        <img src="{{ asset('image/banner71_revisi3.png') }}" alt="Djakarta Mining Club" style="width:100%;display:block;">
+        <img src="{{ asset('image/banner71_revisi4.png') }}" alt="Djakarta Mining Club" style="width:100%;display:block;">
         <div class="content">
             <p>Dear {{ $users_name }},</p>
             <p>Thank you for registering for {{ $events_name }} | PwC's 2026 Mine Report: Ambition to Action.

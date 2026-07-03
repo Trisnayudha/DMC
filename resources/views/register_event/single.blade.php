@@ -526,7 +526,7 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}" alt="DMC Logo">
                 <h1 class="page-title">Event <span>Registration</span></h1>
-                <img src="https://membership.djakarta-miningclub.com/image/banner71_revisi3.png" alt="Image"
+                <img src="https://membership.djakarta-miningclub.com/image/banner71_revisi4.png" alt="Image"
                     class="img-logo">
             </div>
 
@@ -815,12 +815,12 @@
                         data.forEach(function(c) {
                             var item = $(
                                 '<div style="padding:8px 12px;cursor:pointer;font-size:.88rem;border-bottom:1px solid #f0f0f0;"></div>'
-                                );
+                            );
                             item.text(c.company_name);
                             if (c.address) {
                                 item.append($(
                                     '<div style="font-size:.75rem;color:#888;"></div>'
-                                    ).text(c.address));
+                                ).text(c.address));
                             }
                             item.on('click', function() {
                                 $input.val(c.company_name);

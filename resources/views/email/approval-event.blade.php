@@ -124,7 +124,7 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="https://membership.djakarta-miningclub.com/image/banner71_revisi3.png" alt="Image"
+            <img src="https://membership.djakarta-miningclub.com/image/banner71_revisi4.png" alt="Image"
                 class="img-logo">
         </div>
         <div class="body-email">
