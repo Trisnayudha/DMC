@@ -52,6 +52,20 @@ class CompanyModel extends Model
     }
 
     /**
+     * Subcategory yang dipilih company ini (many-to-many via pivot).
+     * company_category (string) tetap sebagai kategori utama — ini tambahan multi-value.
+     */
+    public function subcategories()
+    {
+        return $this->belongsToMany(
+            \App\Models\Company\CompanySubcategory::class,
+            'company_subcategory_company',
+            'company_id',
+            'company_subcategory_id'
+        );
+    }
+
+    /**
      * Sync semua record di tabel company yang punya company_name sama.
      * Cari record paling lengkap (paling banyak field terisi),
      * lalu update semua record lain dengan data tersebut.

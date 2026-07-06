@@ -57,6 +57,21 @@ Route::get('/company-categories', function () {
         ->get(['id', 'name']);
 });
 
+// Subcategory aktif untuk sebuah kategori (dropdown dinamis).
+// Terima ?category_id= (id) atau ?category= (nama, mengikuti company.company_category).
+Route::get('/company-subcategories', function (Request $request) {
+    $query = \App\Models\Company\CompanySubcategory::where('is_active', true);
+
+    if ($request->filled('category_id')) {
+        $query->where('company_category_id', $request->category_id);
+    } elseif ($request->filled('category')) {
+        $categoryId = \App\Models\Company\CompanyCategory::where('name', $request->category)->value('id');
+        $query->where('company_category_id', $categoryId);
+    }
+
+    return $query->orderBy('sort_order')->get(['id', 'company_category_id', 'name']);
+});
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

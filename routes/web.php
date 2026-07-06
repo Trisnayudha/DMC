@@ -532,6 +532,12 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('company-categories/{id}/toggle', [App\Http\Controllers\Admin\CompanyCategoryController::class, 'toggleActive'])->name('admin.company_categories.toggle');
     Route::post('company-categories/reorder', [App\Http\Controllers\Admin\CompanyCategoryController::class, 'reorder'])->name('admin.company_categories.reorder');
 
+    // Company Subcategories (hierarki di bawah Company Categories)
+    Route::get('company-subcategories', [App\Http\Controllers\Admin\CompanySubcategoryController::class, 'index'])->name('admin.company_subcategories.index');
+    Route::post('company-subcategories', [App\Http\Controllers\Admin\CompanySubcategoryController::class, 'store'])->name('admin.company_subcategories.store');
+    Route::post('company-subcategories/{id}/update', [App\Http\Controllers\Admin\CompanySubcategoryController::class, 'update'])->name('admin.company_subcategories.update');
+    Route::post('company-subcategories/{id}/toggle', [App\Http\Controllers\Admin\CompanySubcategoryController::class, 'toggleActive'])->name('admin.company_subcategories.toggle');
+
     // CMS Users
     Route::get('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'index'])->name('admin.cms_users.index');
     Route::post('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'store'])->name('admin.cms_users.store');

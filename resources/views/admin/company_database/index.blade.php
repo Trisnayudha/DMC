@@ -416,6 +416,15 @@
                             </div>
                         </div>
 
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label>Subcategory <small class="text-muted">(opsional, bisa pilih lebih dari satu)</small></label>
+                                <select name="subcategory_ids[]" id="edit_subcategories" class="form-control" multiple></select>
+                                <input type="hidden" name="subcategory_ids_present" value="1">
+                                <small class="text-muted">Pilihan mengikuti <strong>Company Category</strong> di atas. Mengganti category akan memuat ulang daftar subcategory.</small>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label>Address</label>
                             <textarea name="address" id="edit_address" rows="2" class="form-control"></textarea>
@@ -522,9 +531,12 @@
                     <div class="modal-body">
                         <div class="alert alert-light" style="font-size:12px;">
                             <strong>Format Excel:</strong> <code>old_company_name</code> (wajib, untuk matching), lalu kolom data yang ingin diupdate:
-                            <code>prefix, company_name, company_website, company_category, address, city, portal_code, full_office_number, country</code>.
+                            <code>prefix, company_name, company_website, company_category, company_subcategory, address, city, portal_code, full_office_number, country</code>.
                             <div class="mt-1 text-muted">
                                 Kolom kosong = tidak diubah. Row tanpa data field = pakai target dari row di atas (merge).
+                            </div>
+                            <div class="mt-1 text-muted">
+                                <strong>company_subcategory</strong>: opsional, boleh lebih dari satu &mdash; pisahkan dengan koma (mis. <code>Open Pit, Underground</code>). Harus sudah terdaftar di master subcategory untuk category tsb; yang belum terdaftar akan <strong>dilewati &amp; dilaporkan</strong>.
                             </div>
                         </div>
                         <div class="form-group">
@@ -556,6 +568,12 @@
                     dropdownParent: $('#editCompanyModal'),
                     width: '100%',
                     placeholder: 'Select Prefix',
+                    allowClear: true
+                });
+                $('#edit_subcategories').select2({
+                    dropdownParent: $('#editCompanyModal'),
+                    width: '100%',
+                    placeholder: 'Pilih subcategory (opsional)',
                     allowClear: true
                 });
             }
@@ -802,6 +820,8 @@
             });
 
             // ---- Edit & Sync modal populate ----
+            var pendingSubcatIds = [];
+
             $(document).on('click', '.js-edit-company', function() {
                 var payload = $(this).attr('data-payload') || '{}';
                 var parsed = {};
@@ -811,6 +831,8 @@
                 } catch (e) {
                     parsed = {};
                 }
+
+                pendingSubcatIds = parsed.subcategory_ids || [];
 
                 $('#edit_company_label').text($(this).data('company-name') || '-');
                 $('#edit_normalized_name').val($(this).data('normalized-name') || '');
@@ -918,7 +940,34 @@
                 $('#edit_office_number').val(company.office_number || officeParsedV.office);
             }
 
-            // ---- Category other toggle ----
+            // Muat opsi subcategory sesuai category terpilih, pre-select id yang diminta.
+            function loadSubcategories(categoryName, selectedIds) {
+                var $sel = $('#edit_subcategories');
+                var wanted = (selectedIds || []).map(String);
+
+                if (!categoryName) {
+                    $sel.empty().trigger('change');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/api/company-subcategories',
+                    data: { category: categoryName },
+                    success: function(list) {
+                        $sel.empty();
+                        $.each(list || [], function(i, sub) {
+                            var opt = new Option(sub.name, sub.id, false, wanted.indexOf(String(sub.id)) !== -1);
+                            $sel.append(opt);
+                        });
+                        $sel.trigger('change');
+                    },
+                    error: function() {
+                        $sel.empty().trigger('change');
+                    }
+                });
+            }
+
+            // ---- Category other toggle + load subcategory ----
             $('#edit_company_category').on('change', function() {
                 if ($(this).val() === 'other') {
                     $('.company_other_edit').css('display', 'block');
@@ -926,6 +975,10 @@
                     $('.company_other_edit').css('display', 'none');
                     $('#edit_company_other').val('');
                 }
+
+                var preselect = pendingSubcatIds;
+                pendingSubcatIds = [];
+                loadSubcategories($(this).val(), preselect);
             });
         });
     </script>

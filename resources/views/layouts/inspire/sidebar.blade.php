@@ -61,6 +61,13 @@
             </a>
         </li>
 
+        <li class="{{ request()->is('admin/company-subcategories*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.company_subcategories.index') }}">
+                <i class="fas fa-sitemap"></i>
+                <span>Company Subcategories</span>
+            </a>
+        </li>
+
         <li class="{{ request()->is('admin/interview-schedule*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('admin.interview-schedule.sponsor.index') }}">
                 <i class="fas fa-microphone-alt"></i>

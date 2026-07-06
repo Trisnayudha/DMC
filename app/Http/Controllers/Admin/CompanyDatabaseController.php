@@ -437,6 +437,8 @@ class CompanyDatabaseController extends Controller
             'office_number' => 'nullable|string|max:255',
             'full_office_number' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
+            'subcategory_ids' => 'nullable|array',
+            'subcategory_ids.*' => 'integer|exists:company_subcategories,id',
         ]);
 
         $normalizedName = strtolower(trim((string) $data['normalized_name']));
@@ -460,7 +462,16 @@ class CompanyDatabaseController extends Controller
             $payload[$field] = $this->normalizeNullableString($data[$field]);
         }
 
-        if (empty($payload)) {
+        // Subcategory hanya diproses jika modal memang mengirim field ini (hidden marker),
+        // supaya edit dari sumber lain tidak sengaja menghapus pivot yang sudah ada.
+        $hasSubcategoryInput = $request->has('subcategory_ids_present');
+        $subcategoryIds = collect($data['subcategory_ids'] ?? [])
+            ->map(fn($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values();
+
+        if (empty($payload) && !$hasSubcategoryInput) {
             if ($request->ajax()) {
                 return response()->json(['success' => false, 'message' => 'Tidak ada data yang diubah.'], 422);
             }
@@ -475,7 +486,13 @@ class CompanyDatabaseController extends Controller
             ->mapWithKeys(fn($k) => [$k => $sample->{$k}])
             ->toArray();
 
+        $companyIds = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [$normalizedName])->pluck('id');
+
         $updatedRows = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [$normalizedName])->update($payload);
+
+        if ($hasSubcategoryInput) {
+            $this->syncSubcategories($companyIds, $subcategoryIds);
+        }
 
         $changes = [];
         foreach ($before as $field => $oldValue) {
@@ -491,6 +508,7 @@ class CompanyDatabaseController extends Controller
                 'company_name'    => $sample->company_name,
                 'updated_records' => $updatedRows,
                 'changes'         => $changes,
+                'subcategory_count' => $hasSubcategoryInput ? $subcategoryIds->count() : null,
             ])
             ->log('update');
 
@@ -500,6 +518,41 @@ class CompanyDatabaseController extends Controller
             return response()->json(['success' => true, 'message' => $message]);
         }
         return back()->with('success', $message);
+    }
+
+    /**
+     * Set subcategory (pivot) untuk semua record company dengan nama sama.
+     * Hapus pivot lama lalu insert sesuai pilihan — konsisten dengan update bulk-by-name.
+     */
+    private function syncSubcategories($companyIds, $subcategoryIds): void
+    {
+        $companyIds = collect($companyIds)->filter()->unique()->values();
+        if ($companyIds->isEmpty()) {
+            return;
+        }
+
+        $now = now();
+        $pivotRows = [];
+        foreach ($companyIds as $companyId) {
+            foreach ($subcategoryIds as $subcategoryId) {
+                $pivotRows[] = [
+                    'company_id'             => $companyId,
+                    'company_subcategory_id' => $subcategoryId,
+                    'created_at'             => $now,
+                    'updated_at'             => $now,
+                ];
+            }
+        }
+
+        DB::transaction(function () use ($companyIds, $pivotRows) {
+            DB::table('company_subcategory_company')
+                ->whereIn('company_id', $companyIds->all())
+                ->delete();
+
+            if (!empty($pivotRows)) {
+                DB::table('company_subcategory_company')->insert($pivotRows);
+            }
+        });
     }
 
     /**
@@ -558,11 +611,17 @@ class CompanyDatabaseController extends Controller
         /** @var EloquentCollection<int, CompanyModel> $rows */
         $rows = $query->orderByDesc('updated_at')->get();
 
+        // Preload subcategory pivot untuk semua company id sekaligus (hindari N+1).
+        $subcatByCompany = DB::table('company_subcategory_company')
+            ->whereIn('company_id', $rows->pluck('id')->all())
+            ->get()
+            ->groupBy('company_id');
+
         return $rows
             ->groupBy(function ($row) {
                 return Str::lower(trim((string) $row->company_name));
             })
-            ->map(function (Collection $companies, string $normalizedName) {
+            ->map(function (Collection $companies, string $normalizedName) use ($subcatByCompany) {
                 $scored = $companies->sortByDesc(function ($row) {
                     return $this->completenessScore($row);
                 })->values();
@@ -571,6 +630,17 @@ class CompanyDatabaseController extends Controller
                 $maxScore = count($this->completenessFields);
 
                 $isVerified = $companies->contains(fn($row) => (bool) $row->is_verified);
+
+                // Gabungan subcategory dari semua record company senama (pivot per company_id).
+                $subcategoryIds = collect();
+                foreach ($companies as $row) {
+                    if ($subcatByCompany->has($row->id)) {
+                        $subcategoryIds = $subcategoryIds->merge(
+                            $subcatByCompany->get($row->id)->pluck('company_subcategory_id')
+                        );
+                    }
+                }
+                $subcategoryIds = $subcategoryIds->map(fn($id) => (int) $id)->unique()->values()->all();
 
                 return (object) [
                     'normalized_name' => $normalizedName,
@@ -596,6 +666,7 @@ class CompanyDatabaseController extends Controller
                         'office_number' => $best ? $best->office_number : null,
                         'full_office_number' => $best ? $best->full_office_number : null,
                         'country' => $best ? $best->country : null,
+                        'subcategory_ids' => $subcategoryIds,
                     ],
                     'user_ids' => $companies->pluck('users_id')->filter()->unique()->take(5)->implode(', '),
                     'updated_at' => $best ? $best->updated_at : null,
