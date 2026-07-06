@@ -40,6 +40,7 @@ class CompanyDatabaseExport implements FromCollection, WithHeadings, WithMapping
             'Prefix',
             'Website',
             'Category',
+            'Subcategories',
             'Address',
             'City',
             'Postal Code',
@@ -53,26 +54,17 @@ class CompanyDatabaseExport implements FromCollection, WithHeadings, WithMapping
 
     public function map($row): array
     {
-        $category = $row->best_values['company_category'] ?? '';
         $subcategories = collect($row->best_values['subcategory_ids'] ?? [])
             ->map(fn($id) => $this->subcategoryNames->get($id))
             ->filter()
             ->implode(', ');
 
-        // Gabung jadi "Category: sub1, sub2" bila ada subcategory, mis. "Minerals Producers: Gold, Nickel".
-        if ($subcategories !== '' && $category !== '') {
-            $categoryLabel = $category . ': ' . $subcategories;
-        } elseif ($subcategories !== '') {
-            $categoryLabel = $subcategories;
-        } else {
-            $categoryLabel = $category;
-        }
-
         return [
             $row->best_values['company_name'] ?? $row->company_name,
             $row->best_values['prefix'] ?? '',
             $row->best_values['company_website'] ?? '',
-            $categoryLabel,
+            $row->best_values['company_category'] ?? '',
+            $subcategories,
             $row->best_values['address'] ?? '',
             $row->best_values['city'] ?? '',
             $row->best_values['portal_code'] ?? '',
