@@ -107,6 +107,38 @@ class SponsorRenewalFormController extends Controller
     }
 
     /**
+     * Renewal form yang sudah di-generate untuk sponsor + tahun tertentu — dipakai
+     * untuk auto-prefill modal Update Contract (KMK, amount, quotation) supaya admin
+     * tidak perlu input ulang. Nilai tetap bisa diedit (mis. bila ada penggantian).
+     */
+    public function latest(Request $request, int $sponsorId)
+    {
+        $year = (int) $request->get('year', now()->year);
+
+        $form = SponsorRenewalForm::where('sponsor_id', $sponsorId)
+            ->where('renewal_year', $year)
+            ->orderByDesc('generated_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$form) {
+            return response()->json(['success' => true, 'form' => null]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'form'    => [
+                'form_number' => $form->form_number,
+                'kmk_rate'    => $form->kmk_rate,
+                'kmk_number'  => $form->kmk_number,
+                'amount_usd'  => $form->amount_usd,
+                'amount_idr'  => $form->amount_idr,
+                'notes'       => $form->notes,
+            ],
+        ]);
+    }
+
+    /**
      * Daftar sponsor untuk dropdown di modal Generate Renewal Form, lengkap dengan
      * nilai terakhir yang dibayar (amount_usd/idr dari kontrak renewed paling akhir)
      * supaya USD bisa auto-terisi saat sponsor dipilih.

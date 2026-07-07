@@ -148,6 +148,10 @@
     $packageLabel = strtoupper($sponsor->package ?? 'GOLD');
     $pkgMap = ['platinum' => 'PLATINUM / MAJOR', 'gold' => 'GOLD', 'silver' => 'SILVER'];
     $pkgDisplay = $pkgMap[$sponsor->package] ?? $packageLabel;
+
+    // Warna banner header per paket: Gold = emas, Silver & Platinum/Major = abu (sama).
+    $pkgColorMap = ['platinum' => '#a6a6a6', 'gold' => '#fdb813', 'silver' => '#a6a6a6'];
+    $pkgColor = $pkgColorMap[$sponsor->package] ?? '#fdb813';
 @endphp
 
 <div class="page-container">
@@ -197,7 +201,7 @@
             </table>
         </div>
         <div class="title-box-side">
-            <div class="orange-title-box">
+            <div class="orange-title-box" style="background-color: {{ $pkgColor }};">
                 <div class="title-main">RENEWAL FORM</div>
                 <div class="title-sub">DMC {{ $pkgDisplay }} SPONSORSHIP</div>
             </div>

@@ -71,7 +71,8 @@
         $(document).on('click', '.update-contract-btn', function(e) {
             e.preventDefault();
             var year = new Date().getFullYear();
-            $('#modalSponsorId').val($(this).data('sponsor-id'));
+            var sponsorId = $(this).data('sponsor-id');
+            $('#modalSponsorId').val(sponsorId);
             $('#modalContractStart').val($(this).data('contract-start'));
             $('#modalContractEnd').val($(this).data('contract-end'));
             $('#modalPackage').val($(this).data('package') || 'silver');
@@ -82,16 +83,45 @@
             $('#modalNotes').val('');
             $('#modalQuotationNumber').val('').attr('placeholder', 'Loading...');
             $('#quotationNumberHint').text('');
+            $('#modalKmkRate').val('').attr('placeholder', 'Loading...');
             $('#updateContractModal').modal('show');
-            fetchKmkRate();
-            // Fetch suggested quotation number
+
+            // Fetch suggested quotation number (placeholder saja)
             $.get('/admin/sponsors/next-quotation-number', { year: year }, function(res) {
                 if (res.next) {
                     $('#modalQuotationNumber').attr('placeholder', res.next);
-                    $('#quotationNumberHint').text('Suggested: ' + res.next + ' (leave blank for auto)');
+                    if (!$('#quotationNumberHint').text()) {
+                        $('#quotationNumberHint').text('Suggested: ' + res.next + ' (leave blank for auto)');
+                    }
                 }
             }).fail(function() {
                 $('#modalQuotationNumber').attr('placeholder', 'e.g. ' + year + 'DMC14');
+            });
+
+            // Auto-prefill dari renewal form yang sudah di-generate (biar tidak double input).
+            // Nilai tetap bisa diedit kalau ada penggantian. KMK dari form diutamakan;
+            // kalau belum ada form, baru pakai kurs live.
+            $.get('/admin/sponsors/' + sponsorId + '/renewal-form/latest', { year: year }, function(res) {
+                var f = res.form;
+                if (f && f.kmk_rate) {
+                    $('#modalKmkRate').val(f.kmk_rate).attr('placeholder', '');
+                } else {
+                    fetchKmkRate();
+                }
+                if (f) {
+                    if (f.amount_usd) $('#modalAmountUsd').val(parseFloat(f.amount_usd));
+                    if (f.amount_idr) {
+                        setIdrValue(f.amount_idr);
+                    } else {
+                        autoFillIdr();
+                    }
+                    if (f.form_number) {
+                        $('#modalQuotationNumber').val(f.form_number);
+                        $('#quotationNumberHint').text('Dari renewal form ' + f.form_number + ' (bisa diubah)');
+                    }
+                }
+            }).fail(function() {
+                fetchKmkRate();
             });
         });
 

@@ -287,6 +287,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('sponsors.renewal-form.options');
     Route::get('sponsors/export-renewals', [SponsorController::class, 'exportRenewals'])
         ->name('sponsors.exportRenewals');
+    Route::get('sponsors/{sponsor}/renewal-form/latest', [SponsorRenewalFormController::class, 'latest'])
+        ->name('sponsors.renewal-form.latest');
     Route::get('sponsors/{sponsor}/renewal-form/preview', [SponsorRenewalFormController::class, 'preview'])
         ->name('sponsors.renewal-form.preview');
     Route::get('sponsors/{sponsor}/renewal-form', [SponsorRenewalFormController::class, 'generate'])
