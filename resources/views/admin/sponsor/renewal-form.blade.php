@@ -270,7 +270,9 @@
             </tr>
             <tr>
                 <td colspan="2" class="val-middle">
-                    @if($kursRate)
+                    @if(!empty($renewalForm) && $renewalForm->kmk_number)
+                        KMK Nomor {{ $renewalForm->kmk_number }}
+                    @elseif($kursRate)
                         KMK Nomor {{ now()->format('Y') }}/MK/EF.2/{{ now()->format('Y') }}
                     @endif
                 </td>

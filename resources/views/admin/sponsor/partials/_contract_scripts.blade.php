@@ -284,6 +284,7 @@
             }
             $('#rfAmountIdr').val('');
             $('#rfAmountIdrDisplay').val('');
+            $('#rfKmkNumber').val('');
             $('#rfNotes').val('');
             fetchNextFormNumber(year);
             fetchRfKmkRate(); // IDR ter-recalc dari USD × KMK begitu rate masuk
@@ -295,6 +296,7 @@
             $('#rfGenDate').text(form.generated_at || '—');
             $('#rfGenBy').text(form.created_by ? ' · by ' + form.created_by : '');
             $('#rfGenKmk').text(form.kmk_rate ? 'IDR ' + Number(form.kmk_rate).toLocaleString('id-ID') + '/USD' : '—');
+            $('#rfGenKmkNumber').text(form.kmk_number || '—');
             var amt = [];
             if (form.amount_usd) amt.push('USD ' + Number(form.amount_usd).toLocaleString('id-ID'));
             if (form.amount_idr) amt.push('IDR ' + Number(form.amount_idr).toLocaleString('id-ID'));
@@ -418,6 +420,7 @@
                     renewal_year: $('#renewalYear').val(),
                     form_number:  $('#rfFormNumber').val(),
                     kmk_rate:     $('#rfKmkRate').val(),
+                    kmk_number:   $('#rfKmkNumber').val(),
                     amount_usd:   $('#rfAmountUsd').val(),
                     amount_idr:   $('#rfAmountIdr').val(),
                     notes:        $('#rfNotes').val(),

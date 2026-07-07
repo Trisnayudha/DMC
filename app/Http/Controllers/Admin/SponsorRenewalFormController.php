@@ -155,11 +155,13 @@ class SponsorRenewalFormController extends Controller
             'renewal_year' => 'required|integer|min:2020|max:2100',
             'form_number'  => 'nullable|string|max:30',
             'kmk_rate'     => 'required|integer|min:1',
+            'kmk_number'   => 'required|string|max:50',
             'amount_usd'   => 'nullable|numeric|min:0',
             'amount_idr'   => 'nullable|numeric|min:0',
             'notes'        => 'nullable|string|max:1000',
         ], [
-            'kmk_rate.required' => 'KMK rate wajib diisi saat generate renewal form.',
+            'kmk_rate.required'   => 'KMK rate wajib diisi saat generate renewal form.',
+            'kmk_number.required' => 'KMK Nomor wajib diisi (cek di fiskal.kemenkeu.go.id).',
         ]);
 
         // Satu form per sponsor per tahun.
@@ -190,6 +192,7 @@ class SponsorRenewalFormController extends Controller
             'renewal_year' => $validated['renewal_year'],
             'form_number'  => $formNumber,
             'kmk_rate'     => $validated['kmk_rate'],
+            'kmk_number'   => $validated['kmk_number'],
             'amount_usd'   => $validated['amount_usd'] ?? null,
             'amount_idr'   => $validated['amount_idr'] ?? null,
             'notes'        => $validated['notes'] ?? null,
@@ -227,6 +230,9 @@ class SponsorRenewalFormController extends Controller
             ];
             if ($form->kmk_rate) {
                 $lines[] = 'KMK Rate: IDR ' . number_format($form->kmk_rate, 0, '.', '.') . '/USD';
+            }
+            if ($form->kmk_number) {
+                $lines[] = 'KMK Nomor: ' . $form->kmk_number;
             }
             if ($form->amount_usd) {
                 $lines[] = 'Nilai: USD ' . number_format($form->amount_usd, 0, '.', '.');

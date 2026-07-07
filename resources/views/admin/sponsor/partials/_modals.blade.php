@@ -167,6 +167,7 @@
                                 <div class="text-muted" style="font-size:12.5px;line-height:1.7;margin-top:3px;">
                                     Generated: <span id="rfGenDate">—</span><span id="rfGenBy"></span><br>
                                     KMK Rate: <span id="rfGenKmk">—</span><br>
+                                    KMK Nomor: <span id="rfGenKmkNumber">—</span><br>
                                     <span id="rfGenAmount"></span>
                                 </div>
                             </div>
@@ -179,6 +180,15 @@
                     {{-- Not generated yet → the generate form --}}
                     <form id="renewalFormForm" style="display:none;">
                         @csrf
+                        {{-- Notice: ingatkan cek kurs & nomor KMK terbaru sebelum generate --}}
+                        <div class="alert alert-warning py-2 mb-3" style="font-size:12.5px;">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            <strong>Cek dulu kurs &amp; Nomor KMK terbaru</strong> di
+                            <a href="https://fiskal.kemenkeu.go.id/informasi-publik/kurs-pajak" target="_blank" rel="noopener">
+                                fiskal.kemenkeu.go.id/informasi-publik/kurs-pajak
+                            </a>.
+                            Isi <strong>KMK Rate</strong> dan <strong>KMK Nomor</strong> sesuai yang berlaku saat ini.
+                        </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -203,6 +213,16 @@
                                         </div>
                                     </div>
                                     <small class="text-muted">KMK Tax Rate — auto-fetched, editable.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>KMK Nomor <span class="text-danger">*</span></label>
+                                    <input type="text" id="rfKmkNumber" class="form-control"
+                                        placeholder="mis. 30/MK/EF.2/2026">
+                                    <small class="text-muted">Nomor KMK dari fiskal.kemenkeu.go.id — input manual.</small>
                                 </div>
                             </div>
                         </div>

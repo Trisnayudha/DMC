@@ -47,6 +47,7 @@ class SponsorFollowupController extends Controller
                 'renewal_year' => (int) $rf->renewal_year,
                 'form_number'  => $rf->form_number,
                 'kmk_rate'     => $rf->kmk_rate,
+                'kmk_number'   => $rf->kmk_number,
                 'amount_usd'   => $rf->amount_usd,
                 'amount_idr'   => $rf->amount_idr,
                 'notes'        => $rf->notes,
