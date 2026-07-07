@@ -57,14 +57,14 @@
                                 <label>KMK Rate (USD/IDR)</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
-                                    <input type="number" id="modalKmkRate" class="form-control" readonly placeholder="Loading...">
+                                    <input type="number" name="kmk_rate" id="modalKmkRate" class="form-control" min="1" placeholder="Loading...">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-outline-secondary" id="btnRefreshKmkRate" title="Refresh rate">
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
                                     </div>
                                 </div>
-                                <small class="text-muted">KMK Tax Rate — auto-fetched</small>
+                                <small class="text-muted">Dari renewal form (bisa diubah); tombol refresh = kurs live</small>
                             </div>
                         </div>
                     </div>

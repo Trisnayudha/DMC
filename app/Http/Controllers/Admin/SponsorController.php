@@ -617,6 +617,7 @@ class SponsorController extends Controller
             'package'           => 'required|in:platinum,gold,silver',
             'amount_usd'        => 'nullable|numeric|min:0',
             'amount_idr'        => 'nullable|numeric|min:0',
+            'kmk_rate'          => 'nullable|integer|min:1',
             'notes'             => 'nullable|string|max:1000',
             'quotation_number'  => 'nullable|string|max:30|unique:sponsor_renewals,quotation_number',
         ]);
@@ -670,8 +671,12 @@ class SponsorController extends Controller
         try {
             $sponsor->refresh();
             $pic     = $sponsor->firstPic;
-            $kmkRate = null;
-            try { $kmkRate = ScrapeHelper::scrapeExchangeRate(); } catch (\Throwable $e) {}
+            // Pakai KMK rate yang diinput di modal (dari renewal form). Fallback ke
+            // kurs live hanya kalau tidak ada — supaya WA konsisten dgn nilai kontrak.
+            $kmkRate = !empty($validated['kmk_rate']) ? (int) $validated['kmk_rate'] : null;
+            if (!$kmkRate) {
+                try { $kmkRate = ScrapeHelper::scrapeExchangeRate(); } catch (\Throwable $e) {}
+            }
             $formUrl = config('app.url') . '/admin/sponsors/' . $sponsor->id . '/renewal-form/preview';
             $message = $this->buildContractUpdateMessage($sponsor, $validated, $pic, $kmkRate, $quotationNumber, $formUrl);
             $wa = new WhatsappApi();

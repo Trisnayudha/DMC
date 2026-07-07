@@ -115,9 +115,12 @@
                     } else {
                         autoFillIdr();
                     }
+                    // Quotation Number TIDAK di-prefill dari nomor renewal form: nomor
+                    // quotation punya urutan unik sendiri di sponsor_renewals. Biarkan
+                    // kosong → backend auto-generate nomor unik berikutnya (hindari
+                    // "quotation number has already been taken").
                     if (f.form_number) {
-                        $('#modalQuotationNumber').val(f.form_number);
-                        $('#quotationNumberHint').text('Dari renewal form ' + f.form_number + ' (bisa diubah)');
+                        $('#quotationNumberHint').text('Renewal form: ' + f.form_number + ' · nomor quotation auto (unik)');
                     }
                 }
             }).fail(function() {
