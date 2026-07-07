@@ -76,7 +76,8 @@ class SponsorRenewalFormController extends Controller
 
     public function preview(int $sponsorId)
     {
-        return view('admin.sponsor.renewal-form', $this->buildData($sponsorId));
+        // isPreview = true → tampilkan tombol Download PDF (disembunyikan saat generate PDF)
+        return view('admin.sponsor.renewal-form', $this->buildData($sponsorId) + ['isPreview' => true]);
     }
 
     public function generate(int $sponsorId)

@@ -9,17 +9,42 @@
         font-family: Arial, Helvetica, sans-serif;
         margin: 0;
         padding: 40px 20px;
-        background-color: #f5f5f5;
+        background-color: #e9ecef;
         color: #000;
     }
     .page-container {
         width: 210mm;
+        min-height: 297mm;
         margin: 0 auto;
         background: #fff;
-        padding: 40px;
+        padding: 18mm 16mm;
         box-sizing: border-box;
-        box-shadow: 0 0 10px rgba(0,0,0,.1);
+        box-shadow: 0 2px 16px rgba(0,0,0,.18);
     }
+    /* Tombol aksi — hanya di layar (browser preview), tidak ikut ke PDF */
+    .preview-toolbar {
+        position: fixed;
+        top: 16px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        gap: 8px;
+    }
+    .preview-toolbar a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #6777ef;
+        color: #fff;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 9px 16px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(103,119,239,.4);
+    }
+    .preview-toolbar a.secondary { background: #495057; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+    @media print { .preview-toolbar { display: none !important; } }
 
     /* HEADER */
     .top-header {
@@ -153,6 +178,13 @@
     $pkgColorMap = ['platinum' => '#a6a6a6', 'gold' => '#fdb813', 'silver' => '#a6a6a6'];
     $pkgColor = $pkgColorMap[$sponsor->package] ?? '#fdb813';
 @endphp
+
+@if(!empty($isPreview))
+    <div class="preview-toolbar">
+        <a href="{{ route('sponsors.renewal-form', $sponsor->id) }}">&#128190; Download PDF</a>
+        <a href="javascript:window.print()" class="secondary">&#128424; Print</a>
+    </div>
+@endif
 
 <div class="page-container">
 
