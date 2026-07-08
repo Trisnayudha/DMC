@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\UsersExport;
 use App\Helpers\EmailSender;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Str;
 
@@ -28,101 +30,7 @@ class UsersController extends Controller
     }
     public function index(Request $request)
     {
-        $filter       = $request->filter;
-        $dateFrom     = $request->date_from;
-        $dateTo       = $request->date_to;
-        $month        = $request->month;
-        $year         = $request->year;
-        $statusMember = $request->status_member; // 'active' | 'pending' | ''
-
-        if ($filter == 'unregist') {
-            $query = MemberModel::whereNull('register_as');
-
-            if ($dateFrom) $query->whereDate('created_at', '>=', $dateFrom);
-            if ($dateTo)   $query->whereDate('created_at', '<=', $dateTo);
-            if ($month)    $query->whereMonth('created_at', $month);
-            if ($year)     $query->whereYear('created_at', $year);
-
-            if (!$dateFrom && !$dateTo && !$month && !$year) {
-                $query->where('created_at', '>=', Carbon::now()->startOfYear());
-            }
-
-            $list = $query->orderBy('id', 'desc')->get();
-        } else {
-            $query = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
-                ->leftJoin('company', 'company.id', 'profiles.company_id')
-                ->whereNotNull('users.isStatus');
-            if ($filter == 'this_month') {
-                $query->whereBetween('users.created_at', [
-                    Carbon::now()->startOfMonth(),
-                    Carbon::now()->endOfMonth(),
-                ]);
-            }
-
-            if ($filter == 'self_edited') {
-                $selfEditedIds = DB::table('user_edit_logs')
-                    ->whereNull('admin_id')
-                    ->pluck('user_id')
-                    ->unique()
-                    ->values()
-                    ->all();
-                $query->whereIn('users.id', $selfEditedIds);
-            }
-
-            if ($filter == 'password_null') {
-                $query->whereNull('users.password');
-            }
-
-            if ($statusMember === 'active') {
-                $query->where('users.status_member', 'active');
-            } elseif ($statusMember === 'pending') {
-                $query->where(function ($q) {
-                    $q->whereNull('users.status_member')
-                        ->orWhere('users.status_member', 'pending');
-                });
-            } elseif ($statusMember === 'declined') {
-                $query->where('users.status_member', 'declined');
-            } elseif ($statusMember === 'deactivated') {
-                $query->where('users.status_member', 'deactivated');
-            } else {
-                $query->where(function ($q) {
-                    $q->whereNull('users.status_member')
-                        ->orWhereNotIn('users.status_member', ['declined', 'deactivated']);
-                });
-            }
-
-            if ($dateFrom) $query->whereDate('users.created_at', '>=', $dateFrom);
-            if ($dateTo)   $query->whereDate('users.created_at', '<=', $dateTo);
-            if ($month)    $query->whereMonth('users.created_at', $month);
-            if ($year)     $query->whereYear('users.created_at', $year);
-
-            $list = $query->orderBy('users.id', 'desc')
-                ->select(
-                    'users.*',
-                    'users.created_at as user_created_at',
-                    'profiles.*',
-                    'company.*',
-                    'users.id as user_id'
-                )
-                ->get();
-
-            // Mapping manual: jika ada company lain dengan nama sama yang sudah verified,
-            // tandai row ini agar tombol verify bisa langsung biru.
-            $verifiedCompanyNameMap = CompanyModel::query()
-                ->where('is_verified', true)
-                ->whereNotNull('company_name')
-                ->whereRaw("TRIM(company_name) <> ''")
-                ->selectRaw('LOWER(TRIM(company_name)) as normalized_name')
-                ->distinct()
-                ->pluck('normalized_name')
-                ->flip();
-
-            $list = $list->map(function ($row) use ($verifiedCompanyNameMap) {
-                $normalizedName = Str::lower(trim((string) ($row->company_name ?? '')));
-                $row->has_verified_company_name = $normalizedName !== '' && $verifiedCompanyNameMap->has($normalizedName);
-                return $row;
-            });
-        }
+        $list = $this->buildFilteredMemberList($request);
 
         // Self-edit map: user_id => latest self-edit timestamp (single query)
         $selfEditMap = DB::table('user_edit_logs')
@@ -197,6 +105,124 @@ class UsersController extends Controller
             'countActiveWithoutPassword' => $countActiveWithoutPassword,
             'selfEditMap'        => $selfEditMap,
         ]);
+    }
+
+    /**
+     * Bangun daftar member sesuai filter aktif (dipakai bersama oleh index & export),
+     * supaya export selalu berisi baris yang sama persis dengan yang tampil di tabel.
+     */
+    private function buildFilteredMemberList(Request $request)
+    {
+        $filter       = $request->filter;
+        $dateFrom     = $request->date_from;
+        $dateTo       = $request->date_to;
+        $month        = $request->month;
+        $year         = $request->year;
+        $statusMember = $request->status_member; // 'active' | 'pending' | ''
+
+        if ($filter == 'unregist') {
+            $query = MemberModel::whereNull('register_as');
+
+            if ($dateFrom) $query->whereDate('created_at', '>=', $dateFrom);
+            if ($dateTo)   $query->whereDate('created_at', '<=', $dateTo);
+            if ($month)    $query->whereMonth('created_at', $month);
+            if ($year)     $query->whereYear('created_at', $year);
+
+            if (!$dateFrom && !$dateTo && !$month && !$year) {
+                $query->where('created_at', '>=', Carbon::now()->startOfYear());
+            }
+
+            return $query->orderBy('id', 'desc')->get();
+        }
+
+        $query = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftJoin('company', 'company.id', 'profiles.company_id')
+            ->whereNotNull('users.isStatus');
+        if ($filter == 'this_month') {
+            $query->whereBetween('users.created_at', [
+                Carbon::now()->startOfMonth(),
+                Carbon::now()->endOfMonth(),
+            ]);
+        }
+
+        if ($filter == 'self_edited') {
+            $selfEditedIds = DB::table('user_edit_logs')
+                ->whereNull('admin_id')
+                ->pluck('user_id')
+                ->unique()
+                ->values()
+                ->all();
+            $query->whereIn('users.id', $selfEditedIds);
+        }
+
+        if ($filter == 'password_null') {
+            $query->whereNull('users.password');
+        }
+
+        if ($statusMember === 'active') {
+            $query->where('users.status_member', 'active');
+        } elseif ($statusMember === 'pending') {
+            $query->where(function ($q) {
+                $q->whereNull('users.status_member')
+                    ->orWhere('users.status_member', 'pending');
+            });
+        } elseif ($statusMember === 'declined') {
+            $query->where('users.status_member', 'declined');
+        } elseif ($statusMember === 'deactivated') {
+            $query->where('users.status_member', 'deactivated');
+        } else {
+            $query->where(function ($q) {
+                $q->whereNull('users.status_member')
+                    ->orWhereNotIn('users.status_member', ['declined', 'deactivated']);
+            });
+        }
+
+        if ($dateFrom) $query->whereDate('users.created_at', '>=', $dateFrom);
+        if ($dateTo)   $query->whereDate('users.created_at', '<=', $dateTo);
+        if ($month)    $query->whereMonth('users.created_at', $month);
+        if ($year)     $query->whereYear('users.created_at', $year);
+
+        $list = $query->orderBy('users.id', 'desc')
+            ->select(
+                'users.*',
+                'users.created_at as user_created_at',
+                'profiles.*',
+                'company.*',
+                'users.id as user_id'
+            )
+            ->get();
+
+        // Mapping manual: jika ada company lain dengan nama sama yang sudah verified,
+        // tandai row ini agar tombol verify bisa langsung biru.
+        $verifiedCompanyNameMap = CompanyModel::query()
+            ->where('is_verified', true)
+            ->whereNotNull('company_name')
+            ->whereRaw("TRIM(company_name) <> ''")
+            ->selectRaw('LOWER(TRIM(company_name)) as normalized_name')
+            ->distinct()
+            ->pluck('normalized_name')
+            ->flip();
+
+        return $list->map(function ($row) use ($verifiedCompanyNameMap) {
+            $normalizedName = Str::lower(trim((string) ($row->company_name ?? '')));
+            $row->has_verified_company_name = $normalizedName !== '' && $verifiedCompanyNameMap->has($normalizedName);
+            return $row;
+        });
+    }
+
+    /**
+     * Export tabel Users ke Excel dengan value asli (bukan HTML tombol seperti
+     * export bawaan DataTables). Mengikuti filter yang sedang aktif di halaman.
+     */
+    public function exportExcel(Request $request)
+    {
+        $list       = $this->buildFilteredMemberList($request);
+        $isUnregist = $request->filter === 'unregist';
+
+        $filename = 'users-' . ($isUnregist ? 'unregistered' : 'members')
+            . '-' . date('Ymd-His') . '.xlsx';
+
+        return Excel::download(new UsersExport($list, $isUnregist), $filename);
     }
 
     public function store(Request $request)

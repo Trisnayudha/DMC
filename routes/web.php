@@ -510,6 +510,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
 
 
     Route::get('users', [UsersController::class, 'index'])->name('users');
+    Route::get('users/export', [UsersController::class, 'exportExcel'])->name('users.export.excel');
     Route::post('users', [UsersController::class, 'store'])->name('users.store');
     // routes/web.php (tambahin)
     Route::post('users/{id}/tier', [UsersController::class, 'updateTier'])

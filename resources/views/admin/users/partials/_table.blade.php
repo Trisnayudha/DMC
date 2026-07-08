@@ -161,6 +161,10 @@
                 </div>
             </form>
             <div class="mb-2">
+                <a href="{{ route('users.export.excel', request()->query()) }}"
+                    class="btn btn-sm btn-outline-success">
+                    <i class="fas fa-file-excel mr-1"></i> Export Excel
+                </a>
                 <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal"
                     data-target="#example">
                     <i class="fas fa-file-import mr-1"></i> Import Excel

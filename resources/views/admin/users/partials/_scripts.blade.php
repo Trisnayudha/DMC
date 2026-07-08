@@ -701,12 +701,12 @@
         });
     });
 
-    // DataTable
+    // DataTable — export dipindah ke tombol "Export Excel" (server-side) supaya
+    // value asli yang keluar, bukan HTML tombol/badge di dalam cell.
     $(document).ready(function() {
         $('#laravel_crud').DataTable({
-            dom: 'Bfrtip',
+            dom: 'frtip',
             pageLength: 25,
-            buttons: ['copyHtml5', 'excelHtml5', 'csvHtml5', 'pdfHtml5'],
             order: [[0, 'asc']],
         });
     });
