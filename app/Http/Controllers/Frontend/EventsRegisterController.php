@@ -29,10 +29,11 @@ class EventsRegisterController extends Controller
                 'timestamp' => Carbon::parse($item->date)->timestamp,
                 'speakers'  => $item->speakers->map(function ($s) {
                     return [
-                        'name'      => $s->name,
-                        'job_title' => $s->job_title,
-                        'company'   => $s->company,
-                        'image'     => $s->image,
+                        'name'         => $s->name,
+                        'job_title'    => $s->job_title,
+                        'company'      => $s->company,
+                        'image'        => $s->image,
+                        'is_moderator' => (bool) $s->pivot->is_moderator,
                     ];
                 })->toArray(),
             ];

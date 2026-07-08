@@ -305,6 +305,18 @@
             line-height: 1.2;
         }
 
+        .moderator-badge {
+            display: inline-block;
+            vertical-align: middle;
+            font-size: .6rem;
+            font-weight: 600;
+            color: #fff;
+            background: var(--dmc-red);
+            border-radius: 999px;
+            padding: 1px 7px;
+            margin-left: 4px;
+        }
+
         /* Card Shell */
         .card-shell {
             background: #fff;
@@ -593,7 +605,11 @@
                                                             {{ strtoupper(substr($speaker['name'], 0, 2)) }}</div>
                                                     @endif
                                                     <div class="speaker-info">
-                                                        <div class="name">{{ $speaker['name'] }}</div>
+                                                        <div class="name">{{ $speaker['name'] }}
+                                                            @if (!empty($speaker['is_moderator']))
+                                                                <span class="moderator-badge">Moderator</span>
+                                                            @endif
+                                                        </div>
                                                         <div class="title">{{ $speaker['job_title'] }},
                                                             {{ $speaker['company'] }}
                                                         </div>
