@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\EventParticipantsExport;
 use App\Helpers\EmailSender;
 use App\Http\Controllers\Controller;
 use App\Models\BookingContact\BookingContact;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Company\CompanyModel;
 use App\Models\Events\Events;
 use App\Models\Events\UserRegister;
@@ -73,6 +75,24 @@ class EventsDetailController extends Controller
             // Handle the exception here
             return $e->getMessage();
         }
+    }
+
+    /**
+     * Export peserta event ke Excel (custom, bukan export bawaan DataTables).
+     * Mengikuti filter tab (params) yang sedang aktif di halaman detail.
+     */
+    public function exportExcel($slug, Request $request)
+    {
+        $event = Events::where('slug', $slug)->first();
+        if (!$event) {
+            return redirect()->route('events-details', ['slug' => $slug])
+                ->with('error', 'Event tidak ditemukan.');
+        }
+
+        $rows = PaymentService::listPaymentRegister($event->id, $request->params);
+
+        $filename = 'peserta-' . $slug . '-' . date('Ymd-His') . '.xlsx';
+        return Excel::download(new EventParticipantsExport($rows), $filename);
     }
 
 

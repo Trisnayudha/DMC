@@ -376,6 +376,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('/events/delete', [EventController::class, 'destroy']);
     // Events Detail
     Route::get('/events/{slug}/detail', [EventsDetailController::class, 'detail'])->name('events-details');
+    Route::get('/events/{slug}/detail/export', [EventsDetailController::class, 'exportExcel'])->name('events-details-export');
     Route::post('/events/addUser', [EventsDetailController::class, 'add_user'])->name('events.add.user');
     Route::post('/events/addInvitation', [EventsDetailController::class, 'add_invitation'])->name('events.add.invitation');
     Route::post('/events/action', [EventsDetailController::class, 'action']);

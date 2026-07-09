@@ -295,6 +295,12 @@
                                     </a>
 
                                 </div>
+                                <div class="float-right ml-3">
+                                    <a href="{{ route('events-details-export', array_merge(['slug' => $slug], request()->only('params'))) }}"
+                                        class="btn btn-outline-success">
+                                        <i class="fas fa-file-excel"></i> Export Excel
+                                    </a>
+                                </div>
                                 <div class="float-right ml-3 dropdown">
                                     <a href="#" class="dropdown-toggle btn btn-primary" data-toggle="dropdown">Link
                                         Pendaftaran</a>
@@ -952,15 +958,9 @@
         });
 
         $(document).ready(function() {
-            //table
+            //table — export dipindah ke tombol "Export Excel" (server-side, custom kolom + subcategory)
             $('#laravel_crud').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5',
-                    'pdfHtml5'
-                ]
+                dom: 'frtip'
             });
 
             //validasi
