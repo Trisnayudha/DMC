@@ -49,7 +49,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         return [
             'No', 'Date Register', 'Name', 'Tier', 'Status Member', 'Job Title',
             'Company', 'Email', 'Phone', 'Office', 'Address', 'Website',
-            'Category', 'CCI', 'Open to Sponsorship', 'Password',
+            'Category', 'WA Updates', 'Open to Sponsorship', 'Password',
         ];
     }
 
@@ -86,7 +86,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             $row->address,
             $row->company_website,
             $this->category($row),
-            $row->cci ? 'Yes' : 'No',
+            strtolower(trim((string) $row->wa_updates)) === 'agree' ? 'Yes' : 'No',
             $row->explore ? 'Yes' : 'No',
             $row->password ? 'Set' : 'Not Set',
         ];

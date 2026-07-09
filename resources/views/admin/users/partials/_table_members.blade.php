@@ -21,9 +21,9 @@
             <th>Website</th>
             <th>Category</th>
             <th width="180px">
-                CCI &amp; Sponsorship
+                WA Updates &amp; Sponsorship
                 <i class="fas fa-info-circle text-muted ml-1"
-                    title="CCI: anggota CCI. Open to Sponsorship: member bersedia menerima penawaran paket sponsorship."
+                    title="WA Updates: member setuju menerima update via WhatsApp. Open to Sponsorship: member bersedia menerima penawaran paket sponsorship."
                     data-toggle="tooltip"></i>
             </th>
             <th width="100px">Password</th>
@@ -202,13 +202,16 @@
                 </td>
                 <td>{{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}</td>
 
-                {{-- CCI & Sponsorship --}}
+                {{-- WA Updates & Sponsorship --}}
                 <td>
                     <div class="d-flex flex-column align-items-start" style="gap:4px;">
-                        @if ($post->cci)
-                            <span class="badge badge-info"><i class="fas fa-building mr-1"></i>CCI</span>
+                        @if (strtolower(trim((string) $post->wa_updates)) === 'agree')
+                            <span class="badge badge-success"
+                                title="Member setuju menerima update via WhatsApp" data-toggle="tooltip">
+                                <i class="fab fa-whatsapp mr-1"></i>WA Updates
+                            </span>
                         @else
-                            <span class="badge badge-light text-muted" style="font-size:10px;">CCI: No</span>
+                            <span class="badge badge-light text-muted" style="font-size:10px;">WA Updates: No</span>
                         @endif
 
                         @if ($post->explore)
