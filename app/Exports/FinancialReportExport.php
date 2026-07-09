@@ -2,21 +2,32 @@
 
 namespace App\Exports;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 
-class FinancialReportExport implements FromCollection, WithHeadings
+/**
+ * Export Financial Report ke Excel.
+ *
+ * Menerima baris yang SUDAH diproses controller (group payment digabung +
+ * estimasi fee Xendit tertempel), supaya angka di Excel identik dengan tabel
+ * di layar & PDF — termasuk perlakuan 1 transaksi grup = 1 baris.
+ */
+class FinancialReportExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
 {
-    private int $eventId;
-    private array $filters;
+    /** @var Collection */
+    private $rows;
 
-    public function __construct(int $eventId, Request $request)
+    public function __construct($rows)
     {
-        $this->eventId = $eventId;
-        $this->filters = $request->only(['start_date', 'end_date', 'payment_method', 'keyword']);
+        $this->rows = $rows instanceof Collection ? $rows : collect($rows);
+    }
+
+    public function collection()
+    {
+        return $this->rows;
     }
 
     public function headings(): array
@@ -25,6 +36,7 @@ class FinancialReportExport implements FromCollection, WithHeadings
             'Paid At',
             'Code',
             'Payment Method',
+            'Participants',
             'Ticket',
             'Buyer Name',
             'Email',
@@ -33,57 +45,37 @@ class FinancialReportExport implements FromCollection, WithHeadings
             'Company',
             'Gross',
             'Discount',
-            'Net'
+            'Amount',
+            'Fee',
+            'VAT',
+            'Net Settlement',
         ];
     }
 
-    public function collection()
+    public function map($row): array
     {
-        $q = DB::table('payment as p')
-            ->leftJoin('events_tickets as et', 'et.id', '=', 'p.tickets_id')
-            ->leftJoin('users as u', 'u.id', '=', 'p.member_id')
-            ->leftJoin('profiles as pr', 'pr.users_id', '=', 'u.id')
-            ->leftJoin('company as c', 'c.id', '=', 'pr.company_id')
-            ->where('p.events_id', $this->eventId)
-            ->where('p.status_registration', 'Paid Off')
-            ->whereNotNull('p.payment_method')
-            ->where(function ($w) {
-                $w->where('et.price_rupiah', '>', 0)
-                    ->orWhere('et.price_dollar', '>', 0);
-            });
-
-        if (!empty($this->filters['start_date'])) $q->whereDate('p.created_at', '>=', $this->filters['start_date']);
-        if (!empty($this->filters['end_date'])) $q->whereDate('p.created_at', '<=', $this->filters['end_date']);
-        if (!empty($this->filters['payment_method'])) $q->where('p.payment_method', $this->filters['payment_method']);
-
-        if (!empty($this->filters['keyword'])) {
-            $kw = '%' . $this->filters['keyword'] . '%';
-            $q->where(function ($w) use ($kw) {
-                $w->where('u.name', 'like', $kw)
-                    ->orWhere('u.email', 'like', $kw)
-                    ->orWhere('c.company_name', 'like', $kw)
-                    ->orWhere('p.code_payment', 'like', $kw)
-                    ->orWhere('et.title', 'like', $kw);
-            });
+        $name = $row->name;
+        if (!empty($row->is_group) && (int) ($row->participant_count ?? 1) > 1) {
+            $name .= ' (+' . ((int) $row->participant_count - 1) . ' more)';
         }
 
-        $rows = $q->select([
-            DB::raw("DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i') as paid_at"),
-            'p.code_payment',
-            'p.payment_method',
-            'et.title as ticket_title',
-            'u.name',
-            'u.email',
-            'pr.job_title',
-            'pr.phone',
-            'c.company_name',
-            DB::raw("CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE et.price_dollar END as gross"),
-            DB::raw("IFNULL(p.discount,0) as discount"),
-            DB::raw("GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE et.price_dollar END) - IFNULL(p.discount,0),0) as net"),
-        ])
-            ->orderBy('p.created_at', 'desc')
-            ->get();
-
-        return new Collection($rows);
+        return [
+            $row->paid_at ? date('Y-m-d H:i', strtotime($row->paid_at)) : '',
+            $row->code_payment,
+            $row->payment_method,
+            !empty($row->is_group) ? (int) $row->participant_count : 1,
+            $row->ticket_title,
+            $name,
+            $row->email,
+            $row->job_title,
+            $row->phone,
+            $row->company_name,
+            (float) ($row->gross_amount ?? 0),
+            (float) ($row->discount ?? 0),
+            (float) ($row->net_amount ?? 0),
+            (float) ($row->x_fee ?? 0),
+            (float) ($row->x_vat ?? 0),
+            (float) ($row->net_after_fee ?? 0),
+        ];
     }
 }

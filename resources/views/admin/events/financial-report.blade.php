@@ -117,6 +117,28 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-danger"><i class="fas fa-hand-holding-usd"></i></div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Est. Xendit Fee <small class="text-muted">(+PPN)</small></h4>
+                                </div>
+                                <div class="card-body">{{ number_format($kpi->fee_total_est ?? 0, 0, ',', '.') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
+                            <div class="card-icon bg-dark"><i class="fas fa-piggy-bank"></i></div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Net Settlement <small class="text-muted">(after fee)</small></h4>
+                                </div>
+                                <div class="card-body">{{ number_format($kpi->net_settlement_est ?? 0, 0, ',', '.') }}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- CHARTS --}}
@@ -172,7 +194,10 @@
                                         <th>Method</th>
                                         <th class="text-right">Gross</th>
                                         <th class="text-right">Discount</th>
-                                        <th class="text-right">Net</th>
+                                        <th class="text-right">Amount</th>
+                                        <th class="text-right">Fee</th>
+                                        <th class="text-right">VAT</th>
+                                        <th class="text-right">Net Settlement</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -203,12 +228,26 @@
                                             <td><span class="badge badge-light">{{ $r->payment_method }}</span></td>
                                             <td class="text-right">{{ number_format($r->gross_amount ?? 0, 0, ',', '.') }}</td>
                                             <td class="text-right">{{ number_format($r->discount ?? 0, 0, ',', '.') }}</td>
+                                            <td class="text-right">{{ number_format($r->net_amount ?? 0, 0, ',', '.') }}</td>
+                                            <td class="text-right text-danger">{{ number_format($r->x_fee ?? 0, 0, ',', '.') }}</td>
+                                            <td class="text-right text-danger">{{ number_format($r->x_vat ?? 0, 0, ',', '.') }}</td>
                                             <td class="text-right">
-                                                <b>{{ number_format($r->net_amount ?? 0, 0, ',', '.') }}</b>
+                                                <b>{{ number_format($r->net_after_fee ?? 0, 0, ',', '.') }}</b>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
+                                <tfoot>
+                                    <tr class="font-weight-bold bg-light">
+                                        <td colspan="7" class="text-right">TOTAL</td>
+                                        <td class="text-right">{{ number_format($rows->sum('gross_amount'), 0, ',', '.') }}</td>
+                                        <td class="text-right">{{ number_format($rows->sum('discount'), 0, ',', '.') }}</td>
+                                        <td class="text-right">{{ number_format($rows->sum('net_amount'), 0, ',', '.') }}</td>
+                                        <td class="text-right text-danger">{{ number_format($rows->sum('x_fee'), 0, ',', '.') }}</td>
+                                        <td class="text-right text-danger">{{ number_format($rows->sum('x_vat'), 0, ',', '.') }}</td>
+                                        <td class="text-right">{{ number_format($rows->sum('net_after_fee'), 0, ',', '.') }}</td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
 

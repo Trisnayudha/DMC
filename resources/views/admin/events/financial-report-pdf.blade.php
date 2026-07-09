@@ -59,12 +59,16 @@
             <th>Gross</th>
             <th>Discount</th>
             <th>Net</th>
+            <th>Est. Fee (+PPN)</th>
+            <th>Net Settlement</th>
         </tr>
         <tr>
             <td>{{ $kpi->paid_trx ?? 0 }}</td>
             <td class="right">{{ number_format($kpi->gross_total ?? 0, 0, ',', '.') }}</td>
             <td class="right">{{ number_format($kpi->discount_total ?? 0, 0, ',', '.') }}</td>
-            <td class="right"><b>{{ number_format($kpi->net_total ?? 0, 0, ',', '.') }}</b></td>
+            <td class="right">{{ number_format($kpi->net_total ?? 0, 0, ',', '.') }}</td>
+            <td class="right">{{ number_format($kpi->fee_total_est ?? 0, 0, ',', '.') }}</td>
+            <td class="right"><b>{{ number_format($kpi->net_settlement_est ?? 0, 0, ',', '.') }}</b></td>
         </tr>
     </table>
 
@@ -80,7 +84,10 @@
                 <th>Method</th>
                 <th class="right">Gross</th>
                 <th class="right">Discount</th>
-                <th class="right">Net</th>
+                <th class="right">Amount</th>
+                <th class="right">Fee</th>
+                <th class="right">VAT</th>
+                <th class="right">Net Settlement</th>
             </tr>
         </thead>
         <tbody>
@@ -95,10 +102,24 @@
                     <td>{{ $r->payment_method }}</td>
                     <td class="right">{{ number_format($r->gross_amount ?? 0, 0, ',', '.') }}</td>
                     <td class="right">{{ number_format($r->discount ?? 0, 0, ',', '.') }}</td>
-                    <td class="right"><b>{{ number_format($r->net_amount ?? 0, 0, ',', '.') }}</b></td>
+                    <td class="right">{{ number_format($r->net_amount ?? 0, 0, ',', '.') }}</td>
+                    <td class="right">{{ number_format($r->x_fee ?? 0, 0, ',', '.') }}</td>
+                    <td class="right">{{ number_format($r->x_vat ?? 0, 0, ',', '.') }}</td>
+                    <td class="right"><b>{{ number_format($r->net_after_fee ?? 0, 0, ',', '.') }}</b></td>
                 </tr>
             @endforeach
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" class="right"><b>TOTAL</b></td>
+                <td class="right"><b>{{ number_format($rows->sum('gross_amount'), 0, ',', '.') }}</b></td>
+                <td class="right"><b>{{ number_format($rows->sum('discount'), 0, ',', '.') }}</b></td>
+                <td class="right"><b>{{ number_format($rows->sum('net_amount'), 0, ',', '.') }}</b></td>
+                <td class="right"><b>{{ number_format($rows->sum('x_fee'), 0, ',', '.') }}</b></td>
+                <td class="right"><b>{{ number_format($rows->sum('x_vat'), 0, ',', '.') }}</b></td>
+                <td class="right"><b>{{ number_format($rows->sum('net_after_fee'), 0, ',', '.') }}</b></td>
+            </tr>
+        </tfoot>
     </table>
 </body>
 

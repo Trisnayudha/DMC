@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Events\Events;
+use App\Support\XenditFee;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -75,6 +76,7 @@ class FinancialReportController extends Controller
             'p.payment_method',
             'p.discount',
             'p.package',
+            'p.member_id',
             'p.groupby_users_id',
             'p.booking_contact_id',
 
@@ -110,31 +112,6 @@ class FinancialReportController extends Controller
     }
 
     /**
-     * Fee estimation (config-based, no DB fields).
-     */
-    private function estimateFee($method, $amount)
-    {
-        $cfg = config('xendit_fee.methods')[$method] ?? config('xendit_fee.default');
-
-        $fee = 0.0;
-        if (($cfg['type'] ?? '') === 'fixed') {
-            $fee = (float) ($cfg['fixed'] ?? 0);
-        } elseif (($cfg['type'] ?? '') === 'percent') {
-            $fee = (float) $amount * (float) ($cfg['percent'] ?? 0);
-        } else { // percent_plus_fixed
-            $fee = ((float) $amount * (float) ($cfg['percent'] ?? 0)) + (float) ($cfg['fixed'] ?? 0);
-        }
-
-        $vat = (float) config('xendit_fee.vat_on_fee', 0) * $fee;
-
-        return [
-            'fee' => $fee,
-            'vat' => $vat,
-            'total_fee' => $fee + $vat
-        ];
-    }
-
-    /**
      * Collapse group-payment rows (same code_payment + groupby_users_id set) into one summary row.
      * Individual payments (groupby_users_id IS NULL) are kept as-is.
      */
@@ -145,7 +122,10 @@ class FinancialReportController extends Controller
 
         foreach ($rows as $row) {
             if (!empty($row->groupby_users_id)) {
-                $key = $row->code_payment;
+                // Group by owner (groupby_users_id): satu transaksi Xendit = satu grup,
+                // walaupun tiap peserta punya code_payment sendiri. Kalau di-key per
+                // code_payment, fee tetap (mis. Rp 2.000 kartu) kepotong berkali-kali.
+                $key = $row->groupby_users_id;
                 if (!isset($groups[$key])) {
                     $g = clone $row;
                     $g->gross_amount     = 0;
@@ -164,6 +144,16 @@ class FinancialReportController extends Controller
                 $groups[$key]->members[]          = $row->name . ' (' . $row->email . ')';
                 if ($row->ticket_title && !in_array($row->ticket_title, $groups[$key]->ticket_titles)) {
                     $groups[$key]->ticket_titles[] = $row->ticket_title;
+                }
+                // Jadikan owner (groupby_users_id) sebagai kontak utama grup:
+                // code_payment-nya = reference transaksi Xendit, plus identitasnya.
+                if ((string) $row->member_id === (string) $row->groupby_users_id) {
+                    $groups[$key]->code_payment = $row->code_payment;
+                    $groups[$key]->name         = $row->name;
+                    $groups[$key]->email        = $row->email;
+                    $groups[$key]->job_title    = $row->job_title;
+                    $groups[$key]->phone        = $row->phone;
+                    $groups[$key]->company_name = $row->company_name;
                 }
             } else {
                 $row->is_group = false;
@@ -190,12 +180,12 @@ class FinancialReportController extends Controller
         $feeTotal = 0.0;
 
         foreach ($rows as $r) {
-            $calc = $this->estimateFee($r->payment_method, $r->net_amount);
+            $calc = XenditFee::estimate($r->payment_method, $r->net_amount ?? 0);
 
             $r->x_fee = $calc['fee'];
             $r->x_vat = $calc['vat'];
             $r->x_total_fee = $calc['total_fee'];
-            $r->net_after_fee = max(($r->net_amount ?? 0) - $r->x_total_fee, 0);
+            $r->net_after_fee = $calc['net'];
 
             $feeTotal += $r->x_total_fee;
         }
@@ -209,24 +199,34 @@ class FinancialReportController extends Controller
         return [$rows, $kpi];
     }
 
-    public function index($slug, Request $request)
+    /**
+     * Bangun baris laporan lengkap (grouped + estimasi fee) beserta KPI.
+     * Dipakai bersama oleh index, exportPdf, dan exportExcel supaya angka konsisten.
+     */
+    private function buildReportRows($eventId, Request $request)
     {
-        $event = Events::where('slug', $slug)->firstOrFail();
-
-        // Rows for table
-        $rows = $this->selectColumns(
-            $this->baseQuery($event->id, $request)
-        )
+        $rows = $this->selectColumns($this->baseQuery($eventId, $request))
             ->orderBy('p.created_at', 'desc')
             ->get();
 
-        // KPI (gross/discount/net)
-        $kpi = $this->baseQuery($event->id, $request)
+        $kpi = $this->baseQuery($eventId, $request)
             ->selectRaw("COUNT(*) as paid_trx")
             ->selectRaw("SUM(CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) as gross_total")
             ->selectRaw("SUM(IFNULL(p.discount,0)) as discount_total")
             ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) - IFNULL(p.discount,0),0)) as net_total")
             ->first();
+
+        // Collapse group payments jadi satu baris, lalu tempel estimasi fee.
+        $rows = $this->groupRows($rows);
+        return $this->applyFeeEstimation($rows, $kpi);
+    }
+
+    public function index($slug, Request $request)
+    {
+        $event = Events::where('slug', $slug)->firstOrFail();
+
+        // Rows + KPI (grouped + fee estimation)
+        [$rows, $kpi] = $this->buildReportRows($event->id, $request);
 
         // Chart: net by day
         $chartDaily = $this->baseQuery($event->id, $request)
@@ -259,12 +259,6 @@ class FinancialReportController extends Controller
             ->orderBy('p.payment_method', 'asc')
             ->pluck('p.payment_method');
 
-        // Collapse group payments into single summary rows
-        $rows = $this->groupRows($rows);
-
-        // Fee estimation (attach to rows + KPI)
-        [$rows, $kpi] = $this->applyFeeEstimation($rows, $kpi);
-
         return view('admin.events.financial-report', [
             'slug' => $slug,
             'event' => $event,
@@ -281,31 +275,16 @@ class FinancialReportController extends Controller
     public function exportExcel($slug, Request $request)
     {
         $event = Events::where('slug', $slug)->firstOrFail();
-        return Excel::download(new FinancialReportExport($event->id, $request), 'financial-report-' . $slug . '.xlsx');
+        [$rows] = $this->buildReportRows($event->id, $request);
+        return Excel::download(new FinancialReportExport($rows), 'financial-report-' . $slug . '.xlsx');
     }
 
     public function exportPdf($slug, Request $request)
     {
         $event = Events::where('slug', $slug)->firstOrFail();
 
-        $rows = $this->selectColumns(
-            $this->baseQuery($event->id, $request)
-        )
-            ->orderBy('p.created_at', 'desc')
-            ->get();
-
-        $kpi = $this->baseQuery($event->id, $request)
-            ->selectRaw("COUNT(*) as paid_trx")
-            ->selectRaw("SUM(CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) as gross_total")
-            ->selectRaw("SUM(IFNULL(p.discount,0)) as discount_total")
-            ->selectRaw("SUM(GREATEST((CASE WHEN IFNULL(et.price_rupiah,0) > 0 THEN et.price_rupiah ELSE IFNULL(et.price_dollar,0) END) - IFNULL(p.discount,0),0)) as net_total")
-            ->first();
-
-        // Collapse group payments into single summary rows
-        $rows = $this->groupRows($rows);
-
-        // Fee estimation in PDF too
-        [$rows, $kpi] = $this->applyFeeEstimation($rows, $kpi);
+        // Rows + KPI (grouped + fee estimation)
+        [$rows, $kpi] = $this->buildReportRows($event->id, $request);
 
         $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
             ->loadView('admin.events.financial-report-pdf', [
