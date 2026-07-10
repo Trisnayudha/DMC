@@ -27,7 +27,14 @@ class PrintController extends Controller
         if (!empty($check)) {
             $findUsers = User::where('users.id', $check->member_id)
                 ->join('company', 'company.users_id', 'users.id')
-                ->select('users.name', 'company.company_name')
+                ->leftJoin('profiles', 'profiles.users_id', 'users.id')
+                ->select(
+                    'users.name',
+                    'users.email',
+                    'company.company_name',
+                    'profiles.phone',
+                    'profiles.fullphone'
+                )
                 ->first();
             $data = [
                 'name'          => $name ? $name : $findUsers->name,
@@ -37,6 +44,11 @@ class PrintController extends Controller
             if ($ngrok) {
                 $this->sendWebhook($ngrok, $data);
             }
+
+            // email & phone hanya untuk respons ke app (identifier cek membership),
+            // sengaja ditambahkan SETELAH webhook agar payload ngrok/print server tidak berubah
+            $data['email'] = $findUsers->email ?? null;
+            $data['phone'] = $findUsers->fullphone ?: ($findUsers->phone ?? null);
             if ($nosave == 'false') {
                 $save = UserRegister::where('payment_id', $check->id)->first();
                 if (empty($save)) {
