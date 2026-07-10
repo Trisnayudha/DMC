@@ -33,7 +33,7 @@
                         <div class="stat-icon"><i class="fas fa-id-badge"></i></div>
                         <div class="stat-info">
                             <div class="stat-number">{{ $memberCount }}</div>
-                            <div class="stat-label">Member</div>
+                            <div class="stat-label">Member (aktif)</div>
                         </div>
                     </div>
                     <div class="stat-card stat-amber">
@@ -84,13 +84,17 @@
                                 <i class="fas fa-user-tag mr-1"></i>Non Member
                                 <span class="pill-count">{{ $nonMemberCount }}</span>
                             </button>
+                            <button class="pill pill-paid" data-filter="paid">
+                                <i class="fas fa-money-bill-wave mr-1"></i>Berbayar
+                                <span class="pill-count">{{ $paidCount }}</span>
+                            </button>
+                            <button class="pill pill-free" data-filter="free">
+                                <i class="fas fa-gift mr-1"></i>Free/Undangan
+                                <span class="pill-count">{{ $freeCount }}</span>
+                            </button>
                             <button class="pill pill-sponsor" data-filter="sponsor">
                                 <i class="fas fa-star mr-1"></i>Sponsor
                                 <span class="pill-count">{{ $sponsorCount }}</span>
-                            </button>
-                            <button class="pill pill-free" data-filter="free">
-                                <i class="fas fa-star mr-1"></i>Invitation/Free
-                                <span class="pill-count">{{ $freeCount }}</span>
                             </button>
                         </div>
                     </div>
@@ -131,7 +135,7 @@
                                         <th width="40">#</th>
                                         <th>Tanggal Daftar</th>
                                         <th>Kode</th>
-                                        <th>Package</th>
+                                        <th>Package / Keanggotaan</th>
                                         <th>Nama</th>
                                         <th>Email</th>
                                         <th>Jabatan</th>
@@ -156,19 +160,31 @@
                                     @foreach ($list as $post)
                                         @php
                                             $pkg = strtolower($post->package ?? '');
-                                            if (str_contains($pkg, 'non')) {
-                                                $pkgClass = 'badge-nonmember';
-                                                $pkgIcon = 'fa-user-tag';
-                                            } elseif (str_contains($pkg, 'sponsor')) {
-                                                $pkgClass = 'badge-sponsor';
-                                                $pkgIcon = 'fa-star';
-                                            } elseif (in_array($pkg, ['member', 'premium'])) {
-                                                $pkgClass = 'badge-member';
-                                                $pkgIcon = 'fa-id-badge';
+
+                                            // Cara daftar (berbayar vs link gratis vs sponsor)
+                                            if (str_contains($pkg, 'sponsor')) {
+                                                $regLabel = 'Sponsor';
+                                                $regClass = 'reg-sponsor';
+                                                $regIcon = 'fa-star';
+                                            } elseif (str_contains($pkg, 'free')) {
+                                                $regLabel = 'Free/Undangan';
+                                                $regClass = 'reg-free';
+                                                $regIcon = 'fa-gift';
+                                            } elseif (in_array($pkg, ['member', 'nonmember', 'premium'])) {
+                                                $regLabel = 'Berbayar';
+                                                $regClass = 'reg-paid';
+                                                $regIcon = 'fa-money-bill-wave';
                                             } else {
-                                                $pkgClass = 'badge-member';
-                                                $pkgIcon = 'fa-id-badge';
+                                                $regLabel = $post->package ?: '-';
+                                                $regClass = 'reg-paid';
+                                                $regIcon = 'fa-ticket-alt';
                                             }
+
+                                            // Keanggotaan ASLI dari users.status_member
+                                            $isMember = strtolower($post->status_member ?? '') === 'active';
+                                            $mbrLabel = $isMember ? 'Member' : 'Non-Member';
+                                            $mbrClass = $isMember ? 'mbr-member' : 'mbr-nonmember';
+                                            $mbrIcon = $isMember ? 'fa-id-badge' : 'fa-user-tag';
                                         @endphp
                                         <tr id="row_{{ $post->id }}">
                                             <td class="text-muted" style="font-size:.8rem;">{{ $no++ }}</td>
@@ -183,10 +199,15 @@
                                                 <code
                                                     style="font-size:.78rem; color:#6366f1;">{{ $post->code_payment }}</code>
                                             </td>
-                                            <td data-pkg="{{ $pkg }}">
-                                                <span class="pkg-badge {{ $pkgClass }}">
-                                                    <i class="fas {{ $pkgIcon }} mr-1"></i>{{ $post->package }}
-                                                </span>
+                                            <td data-pkg="{{ $pkg }}" data-member="{{ $isMember ? '1' : '0' }}">
+                                                <div class="pkg-cell">
+                                                    <span class="pkg-badge {{ $regClass }}">
+                                                        <i class="fas {{ $regIcon }} mr-1"></i>{{ $regLabel }}
+                                                    </span>
+                                                    <span class="pkg-badge {{ $mbrClass }}">
+                                                        <i class="fas {{ $mbrIcon }} mr-1"></i>{{ $mbrLabel }}
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td class="fw-semibold">{{ $post->name }}</td>
                                             <td>
@@ -636,6 +657,11 @@
             color: #fff;
         }
 
+        .pill-paid.active {
+            background: #2563eb;
+            color: #fff;
+        }
+
         /* ── TABLE ── */
         .participant-table {
             border-collapse: separate;
@@ -672,6 +698,13 @@
         }
 
         /* ── PACKAGE BADGES ── */
+        .pkg-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-start;
+        }
+
         .pkg-badge {
             display: inline-flex;
             align-items: center;
@@ -696,6 +729,33 @@
         .badge-sponsor {
             background: #ede9fe;
             color: #5b21b6;
+        }
+
+        /* Cara daftar */
+        .reg-free {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .reg-paid {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .reg-sponsor {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        /* Keanggotaan asli */
+        .mbr-member {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .mbr-nonmember {
+            background: #f1f5f9;
+            color: #475569;
         }
 
         /* ── ACTION BUTTONS ── */
@@ -913,12 +973,16 @@
 
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
                 if (activeFilter === 'all') return true;
-                var row = table.row(dataIndex).node();
-                var pkg = $(row).find('td[data-pkg]').data('pkg') || '';
-                if (activeFilter === 'member') return pkg === 'member' || pkg === 'premium';
-                if (activeFilter === 'non-member') return pkg.indexOf('non') !== -1;
-                if (activeFilter === 'sponsor') return pkg.indexOf('sponsor') !== -1;
+                var $cell = $(table.row(dataIndex).node()).find('td[data-pkg]');
+                var pkg = ($cell.attr('data-pkg') || '').toString();
+                var isMember = ($cell.attr('data-member') || '') === '1';
+                // Member / Non-Member = keanggotaan ASLI (status_member)
+                if (activeFilter === 'member') return isMember;
+                if (activeFilter === 'non-member') return !isMember;
+                // Berbayar / Free / Sponsor = cara daftar (package)
+                if (activeFilter === 'paid') return pkg === 'member' || pkg === 'nonmember' || pkg === 'premium';
                 if (activeFilter === 'free') return pkg.indexOf('free') !== -1;
+                if (activeFilter === 'sponsor') return pkg.indexOf('sponsor') !== -1;
                 return true;
             });
 

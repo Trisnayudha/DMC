@@ -25,7 +25,8 @@ class PaymentService extends Payment
                 'payment.created_at as register',
                 'pic_users.name as pic_name',
                 'sponsors.name as sponsor_name',
-                'company.id as company_id_ref' // dipakai export untuk lookup subcategory
+                'company.id as company_id_ref', // dipakai export untuk lookup subcategory
+                'member_users.status_member as status_member' // keanggotaan ASLI (bukan cara daftar)
             )
             ->orderBy('payment.created_at', 'desc');
 

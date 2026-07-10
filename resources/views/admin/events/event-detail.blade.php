@@ -244,6 +244,17 @@
 
                                         </div>
                                     </div>
+
+                                    {{-- Filter keanggotaan ASLI (client-side, bisa digabung dgn tab Paid/Free/Sponsor) --}}
+                                    <div class="btn-group btn-group-sm d-inline mr-2" role="group"
+                                        aria-label="Filter keanggotaan">
+                                        <button type="button" class="btn btn-outline-secondary membership-filter active"
+                                            data-mfilter="all">Semua</button>
+                                        <button type="button" class="btn btn-outline-success membership-filter"
+                                            data-mfilter="member">Member</button>
+                                        <button type="button" class="btn btn-outline-warning membership-filter"
+                                            data-mfilter="nonmember">Non-Member</button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -346,14 +357,17 @@
                                                 <th>PIC</th>
                                                 <th>Sponsor</th>
                                                 <th class="text-center">Mining</th>
-                                                <th class="text-center">Prospek Member</th>
+                                                <th class="text-center">Potential Member</th>
                                                 <th>Referral</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach ($payment as $post)
-                                                <tr id="row_{{ $post->id }}">
+                                                @php
+                                                    $isMember = strtolower($post->status_member ?? '') === 'active';
+                                                @endphp
+                                                <tr id="row_{{ $post->id }}" data-member="{{ $isMember ? '1' : '0' }}">
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ date('d, F H:i', strtotime($post->register)) }}</td>
                                                     <td>{{ $post->code_payment }}</td>
@@ -361,6 +375,10 @@
                                                         @if ($post->mobile)
                                                             <small> Mobile</small>
                                                         @endif
+                                                        <br>
+                                                        <span class="badge badge-pill {{ $isMember ? 'badge-success' : 'badge-secondary' }}">
+                                                            {{ $isMember ? 'Member' : 'Non-Member' }}
+                                                        </span>
                                                     </td>
                                                     <td>
                                                         {{ $post->name }}
@@ -401,7 +419,7 @@
                                                             data-id="{{ $post->payment_id }}"
                                                             {{ $post->is_mining ? 'checked' : '' }}>
                                                     </td>
-                                                    <!-- Kolom Prospek Member -->
+                                                    <!-- Kolom Potential Member -->
                                                     <td class="text-center">
                                                         <input type="checkbox" class="prospect-checkbox"
                                                             data-id="{{ $post->payment_id }}"
@@ -966,8 +984,24 @@
 
         $(document).ready(function() {
             //table — export dipindah ke tombol "Export Excel" (server-side, custom kolom + subcategory)
-            $('#laravel_crud').DataTable({
+            var participantTable = $('#laravel_crud').DataTable({
                 dom: 'frtip'
+            });
+
+            // Filter keanggotaan ASLI (status_member), layer di atas tab Paid/Free/Sponsor
+            var membershipFilter = 'all';
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                if (settings.nTable.id !== 'laravel_crud') return true;
+                if (membershipFilter === 'all') return true;
+                var isMember = ($(participantTable.row(dataIndex).node()).attr('data-member') || '') === '1';
+                return membershipFilter === 'member' ? isMember : !isMember;
+            });
+
+            $('.membership-filter').on('click', function() {
+                $('.membership-filter').removeClass('active');
+                $(this).addClass('active');
+                membershipFilter = $(this).data('mfilter');
+                participantTable.draw();
             });
 
             //validasi

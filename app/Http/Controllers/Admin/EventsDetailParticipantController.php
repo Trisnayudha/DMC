@@ -47,6 +47,7 @@ class EventsDetailParticipantController extends Controller
                 'users.id as users_id',
                 'users.name',
                 'users.email',
+                'users.status_member',
                 'payment.code_payment',
                 'payment.package',
                 'profiles.job_title',
@@ -87,10 +88,15 @@ class EventsDetailParticipantController extends Controller
             ->whereNull('users_event.present')
             ->count();
 
-        $memberCount    = $findParticipant->filter(fn($p) => in_array(strtolower($p->package), ['member', 'premium']))->count();
-        $nonMemberCount = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package), 'non'))->count();
-        $sponsorCount   = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package), 'sponsor'))->count();
-        $freeCount      = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package), 'free'))->count();
+        // Keanggotaan ASLI = users.status_member ('active' = member), independen dari cara daftar.
+        $isActiveMember = fn($p) => strtolower($p->status_member ?? '') === 'active';
+
+        $memberCount    = $findParticipant->filter($isActiveMember)->count();
+        $nonMemberCount = $findParticipant->reject($isActiveMember)->count();
+        // Cara daftar (package): berbayar vs link gratis vs sponsor.
+        $sponsorCount   = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package ?? ''), 'sponsor'))->count();
+        $freeCount      = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package ?? ''), 'free'))->count();
+        $paidCount      = $findParticipant->filter(fn($p) => in_array(strtolower($p->package ?? ''), ['member', 'nonmember', 'premium']))->count();
 
         $data = [
             'list'           => $findParticipant,
@@ -101,6 +107,7 @@ class EventsDetailParticipantController extends Controller
             'nonMemberCount' => $nonMemberCount,
             'sponsorCount'   => $sponsorCount,
             'freeCount'      => $freeCount,
+            'paidCount'      => $paidCount,
         ];
         return view('admin.events.event-detail-participant', $data);
     }
