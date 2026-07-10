@@ -388,6 +388,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('/events/update/user', [EventsDetailController::class, 'editPeserta']);
     Route::post('/events/assign-sponsor', [EventsDetailController::class, 'assignSponsorRepresentative']);
     Route::post('/events/toggle-mining', [EventsDetailController::class, 'toggleMining']);
+    Route::post('/events/toggle-membership-prospect', [EventsDetailController::class, 'toggleMembershipProspect']);
     Route::get('/company/lookup', [EventsDetailController::class, 'companyLookup'])->name('company.lookup');
 
 

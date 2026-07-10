@@ -869,4 +869,23 @@ class EventsDetailController extends Controller
             ]);
         }
     }
+
+    public function toggleMembershipProspect(Request $request)
+    {
+        try {
+            $payment = Payment::where('id', $request->id)->firstOrFail();
+            $payment->is_membership_prospect = $request->value;
+            $payment->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => $request->value ? 'Marked as Membership Prospect' : 'Unmarked as Membership Prospect'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }

@@ -346,6 +346,7 @@
                                                 <th>PIC</th>
                                                 <th>Sponsor</th>
                                                 <th class="text-center">Mining</th>
+                                                <th class="text-center">Prospek Member</th>
                                                 <th>Referral</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
@@ -399,6 +400,12 @@
                                                         <input type="checkbox" class="mining-checkbox"
                                                             data-id="{{ $post->payment_id }}"
                                                             {{ $post->is_mining ? 'checked' : '' }}>
+                                                    </td>
+                                                    <!-- Kolom Prospek Member -->
+                                                    <td class="text-center">
+                                                        <input type="checkbox" class="prospect-checkbox"
+                                                            data-id="{{ $post->payment_id }}"
+                                                            {{ $post->is_membership_prospect ? 'checked' : '' }}>
                                                     </td>
 
                                                     <!-- Kolom Referral -->
@@ -1126,6 +1133,49 @@
 
             $.ajax({
                 url: "{{ url('admin/events/toggle-mining') }}",
+                type: "POST",
+                data: {
+                    id: paymentId,
+                    value: value,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function(response) {
+                    if (response.status) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        checkbox.prop('checked', !value);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function() {
+                    checkbox.prop('checked', !value);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Server error!'
+                    });
+                }
+            });
+        });
+
+        // Toggle Membership Prospect (mirror pola mining-checkbox)
+        $(document).on('change', '.prospect-checkbox', function() {
+            let checkbox = $(this);
+            let paymentId = checkbox.data('id');
+            let value = checkbox.is(':checked') ? 1 : 0;
+
+            $.ajax({
+                url: "{{ url('admin/events/toggle-membership-prospect') }}",
                 type: "POST",
                 data: {
                     id: paymentId,

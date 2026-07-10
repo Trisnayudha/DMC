@@ -49,6 +49,8 @@ class PrintController extends Controller
             // sengaja ditambahkan SETELAH webhook agar payload ngrok/print server tidak berubah
             $data['email'] = $findUsers->email ?? null;
             $data['phone'] = $findUsers->fullphone ?: ($findUsers->phone ?? null);
+            // penanda: peserta ini boleh ditawarkan membership saat check-in
+            $data['is_membership_prospect'] = (bool) ($check->is_membership_prospect ?? false);
             if ($nosave == 'false') {
                 $save = UserRegister::where('payment_id', $check->id)->first();
                 if (empty($save)) {

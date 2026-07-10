@@ -31,6 +31,7 @@ class Payment extends Model
         'groupby_users_id',
         'sponsor_code',
         'is_mining',
+        'is_membership_prospect',
         'referral',
     ];
 
