@@ -508,15 +508,13 @@ Your verification code (OTP) ' . $otp;
             'name'       => ['required', 'string', 'max:255'],
             'email'      => ['required', 'string', 'email', 'max:255'],
             'phone'      => ['required', 'string', 'max:30'],
-            'city'       => ['required', 'string', 'max:255'],
-            'country'    => ['required', 'string', 'max:255'],
+            'city'       => ['nullable', 'string', 'max:255'],
+            'country'    => ['nullable', 'string', 'max:255'],
             'newsletter' => ['required', 'string'],
         ], [
             'name.required'       => 'Full name is required',
             'email.required'      => 'Email is required',
             'phone.required'      => 'Phone number is required',
-            'city.required'       => 'City is required',
-            'country.required'    => 'Country is required',
             'newsletter.required' => 'Newsletter consent is required',
         ]);
 
@@ -575,37 +573,71 @@ Your verification code (OTP) ' . $otp;
                 $user->assignRole('guest');
             }
 
-            $company = CompanyModel::updateOrCreate(
+            // Ambil data company yang lama jika ada untuk mencegah overwrite data menjadi null
+            $existingCompany = \App\Models\CompanyModel::where('users_id', $user->id)->first();
+            $companyData = [
+                'company_name'         => $request->company_name ?? ($existingCompany->company_name ?? null),
+                'company_website'      => $request->company_website ?? ($existingCompany->company_website ?? null),
+                'company_category'     => $request->company_category ?? ($existingCompany->company_category ?? null),
+                'company_other'        => $request->company_other ?? ($existingCompany->company_other ?? null),
+                'city'                 => $request->city ?? ($existingCompany->city ?? null),
+                'country'              => $request->country ?? ($existingCompany->country ?? null),
+                'portal_code'          => $request->portal_code ?? ($existingCompany->portal_code ?? null),
+                'prefix_office_number' => $request->country_phone_office ?? ($existingCompany->prefix_office_number ?? null),
+                'office_number'        => $request->office_number ?? ($existingCompany->office_number ?? null),
+                'full_office_number'   => ($request->country_phone_office || $request->office_number) 
+                                            ? ($request->country_phone_office ?? '') . ($request->office_number ?? '') 
+                                            : ($existingCompany->full_office_number ?? null),
+                'explore'              => $request->explore ?? ($existingCompany->explore ?? ''),
+            ];
+
+            $company = \App\Models\CompanyModel::updateOrCreate(
                 ['users_id' => $user->id],
-                [
-                    'company_name'         => $request->company_name,
-                    'company_website'      => $request->company_website,
-                    'company_category'     => $request->company_category,
-                    'company_other'        => $request->company_other,
-                    'city'                 => $request->city,
-                    'country'              => $request->country,
-                    'portal_code'          => $request->portal_code,
-                    'prefix_office_number' => $request->country_phone_office,
-                    'office_number'        => $request->office_number,
-                    'full_office_number'   => ($request->country_phone_office ?? '') . ($request->office_number ?? ''),
-                    'explore'              => $request->explore ?? '',
-                ]
+                $companyData
             );
+
+            // Ambil data profile yang lama jika ada untuk mencegah overwrite data menjadi null
+            $existingProfile = ProfileModel::where('users_id', $user->id)->first();
+            $profileData = [
+                'prefix_phone' => $request->country_phone ?? ($existingProfile->prefix_phone ?? null),
+                'phone'        => $phone ?? ($existingProfile->phone ?? null),
+                'fullphone'    => $fullphone ?? ($existingProfile->fullphone ?? null),
+                'job_title'    => $request->job_title ?? ($existingProfile->job_title ?? null),
+                'newsletter'   => $request->newsletter ?? ($existingProfile->newsletter ?? ''),
+                'wa_updates'   => $request->wa_updates ?? ($existingProfile->wa_updates ?? ''),
+                'company_id'   => $company->id,
+            ];
 
             ProfileModel::updateOrCreate(
                 ['users_id' => $user->id],
-                [
-                    'prefix_phone' => $request->country_phone,
-                    'phone'        => $phone,
-                    'fullphone'    => $fullphone,
-                    'job_title'    => $request->job_title,
-                    'newsletter'   => $request->newsletter ?? '',
-                    'wa_updates'   => $request->wa_updates ?? '',
-                    'company_id'   => $company->id,
-                ]
+                $profileData
             );
 
             DB::commit();
+
+            // Kirim notifikasi WhatsApp ke grup pendaftaran membership
+            try {
+                $waNotif = new WhatsappApi();
+                $waNotif->phone = '120363426220126771@g.us';
+                
+                $source = $request->source ?? 'web';
+                if ($source === 'scanner' || $source === 'apps') {
+                    $sourceText = 'Check-in Scanner';
+                } else {
+                    $sourceText = ucfirst($source);
+                }
+
+                $waNotif->message = "🚨 *New Membership Registration (" . $sourceText . ")*\n\n" .
+                    "• *Name*: " . $user->name . "\n" .
+                    "• *Email*: " . $user->email . "\n" .
+                    "• *Phone*: " . $fullphone . "\n" .
+                    "• *Company*: " . ($company->company_name ?? '-') . "\n" .
+                    "• *Job Title*: " . ($profileData['job_title'] ?? '-') . "\n\n" .
+                    "Status: *Pending Review*";
+                $waNotif->WhatsappMessageGroup();
+            } catch (\Throwable $e) {
+                Log::warning('registerWeb: WhatsApp group notification failed: ' . $e->getMessage());
+            }
 
             try {
                 $send = new EmailSender();

@@ -38,10 +38,34 @@ class MemberDirectoryController extends Controller
             ->orderBy('users.name', 'asc')
             ->paginate($perPage, ['*'], 'page', $page);
 
+        $data->getCollection()->transform(function ($user) {
+            if (isset($user->email)) {
+                $user->email = $this->maskEmail($user->email);
+            }
+            return $user;
+        });
+
         return response()->json([
             'status'  => 200,
             'message' => 'OK',
             'payload'    => collect($data)->except('total')
         ]);
+    }
+
+    private function maskEmail($email)
+    {
+        if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $parts = explode('@', $email, 2);
+            if (count($parts) === 2) {
+                $first = $parts[0];
+                $domain = $parts[1];
+                $len = strlen($first);
+                if ($len <= 2) {
+                    return substr($first, 0, 1) . '**@' . $domain;
+                }
+                return substr($first, 0, 2) . '**' . substr($first, -1) . '@' . $domain;
+            }
+        }
+        return $email;
     }
 }
