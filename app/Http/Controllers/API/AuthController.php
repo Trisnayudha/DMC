@@ -574,7 +574,7 @@ Your verification code (OTP) ' . $otp;
             }
 
             // Ambil data company yang lama jika ada untuk mencegah overwrite data menjadi null
-            $existingCompany = \App\Models\CompanyModel::where('users_id', $user->id)->first();
+            $existingCompany = CompanyModel::where('users_id', $user->id)->first();
             $companyData = [
                 'company_name'         => $request->company_name ?? ($existingCompany->company_name ?? null),
                 'company_website'      => $request->company_website ?? ($existingCompany->company_website ?? null),
@@ -591,7 +591,7 @@ Your verification code (OTP) ' . $otp;
                 'explore'              => $request->explore ?? ($existingCompany->explore ?? ''),
             ];
 
-            $company = \App\Models\CompanyModel::updateOrCreate(
+            $company = CompanyModel::updateOrCreate(
                 ['users_id' => $user->id],
                 $companyData
             );
