@@ -22,6 +22,7 @@ class MemberDirectoryController extends Controller
             ->select(
                 'users.id',
                 'users.name',
+                'users.email',
                 'profiles.image',
                 'profiles.job_title'
             );
