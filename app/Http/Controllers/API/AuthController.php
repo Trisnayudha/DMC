@@ -585,9 +585,9 @@ Your verification code (OTP) ' . $otp;
                 'portal_code'          => $request->portal_code ?? ($existingCompany->portal_code ?? null),
                 'prefix_office_number' => $request->country_phone_office ?? ($existingCompany->prefix_office_number ?? null),
                 'office_number'        => $request->office_number ?? ($existingCompany->office_number ?? null),
-                'full_office_number'   => ($request->country_phone_office || $request->office_number) 
-                                            ? ($request->country_phone_office ?? '') . ($request->office_number ?? '') 
-                                            : ($existingCompany->full_office_number ?? null),
+                'full_office_number'   => ($request->country_phone_office || $request->office_number)
+                    ? ($request->country_phone_office ?? '') . ($request->office_number ?? '')
+                    : ($existingCompany->full_office_number ?? null),
                 'explore'              => $request->explore ?? ($existingCompany->explore ?? ''),
             ];
 
@@ -618,8 +618,8 @@ Your verification code (OTP) ' . $otp;
             // Kirim notifikasi WhatsApp ke grup pendaftaran membership
             try {
                 $waNotif = new WhatsappApi();
-                $waNotif->phone = '120363426220126771@g.us';
-                
+                $waNotif->phone = '120363426220126771';
+
                 $source = $request->source ?? 'web';
                 if ($source === 'scanner' || $source === 'apps') {
                     $sourceText = 'Check-in Scanner';
