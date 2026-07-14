@@ -265,7 +265,7 @@ Company : ' . $data->company_name . '
                         $data = [
                             'users_name' => $findUser->name,
                             'users_email' => $findUser->email,
-                            'phone' => $findUser->phone,
+                            'phone' => $findUser->fullphone ?? $findUser->phone,
                             'company_name' => $findUser->company_name,
                             'company_address' => $findUser->address,
                             'status' => 'Paid Off',
@@ -334,7 +334,7 @@ Best Regards Bot DMC
                         $data = [
                             'users_name' => $findUser->name,
                             'users_email' => $findUser->email,
-                            'phone' => $findUser->phone,
+                            'phone' => $findUser->fullphone ?? $findUser->phone,
                             'company_name' => $findUser->company_name,
                             'company_address' => $findUser->address,
                             'status' => 'Paid Off',
@@ -496,7 +496,7 @@ Best Regards Bot DMC
                 $data = [
                     'users_name' => $findUser->name,
                     'users_email' => $findUser->email,
-                    'phone' => $findUser->phone,
+                    'phone' => $findUser->fullphone ?? $findUser->phone,
                     'company_name' => $findUser->company_name,
                     'company_address' => $findUser->address,
                     'status' => 'Paid Off',
