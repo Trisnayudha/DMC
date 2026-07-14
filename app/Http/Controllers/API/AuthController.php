@@ -675,6 +675,54 @@ Your verification code (OTP) ' . $otp;
         }
     }
 
+    /**
+     * Notify membership group when a check-in visitor claims to already be a member.
+     * No DB write — just sends a WhatsApp notification for admin to review.
+     */
+    public function memberClaim(Request $request)
+    {
+        $validate = Validator::make($request->all(), [
+            'scan_name'       => ['nullable', 'string', 'max:255'],
+            'scan_email'      => ['nullable', 'string', 'max:255'],
+            'scan_phone'      => ['nullable', 'string', 'max:50'],
+            'member_name'     => ['required', 'string', 'max:255'],
+            'member_email'    => ['nullable', 'string', 'max:255'],
+            'member_job_title'=> ['nullable', 'string', 'max:255'],
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'status'  => 401,
+                'message' => $validate->errors()->first(),
+            ]);
+        }
+
+        try {
+            $waNotif = new WhatsappApi();
+            $waNotif->phone = '120363426220126771';
+            $waNotif->message =
+                "ℹ️ *Member Claim – Check-in Scanner*\n\n" .
+                "Peserta berikut melakukan check-in dan mengklaim sudah terdaftar sebagai member:\n\n" .
+                "*Peserta (dari scan):*\n" .
+                "• Nama  : " . ($request->scan_name  ?? '-') . "\n" .
+                "• Email : " . ($request->scan_email ?? '-') . "\n" .
+                "• Telp  : " . ($request->scan_phone ?? '-') . "\n\n" .
+                "*Member yang diklaim:*\n" .
+                "• Nama      : " . $request->member_name . "\n" .
+                "• Email     : " . ($request->member_email     ?? '-') . "\n" .
+                "• Job Title : " . ($request->member_job_title ?? '-') . "\n\n" .
+                "Mohon dicek & disesuaikan oleh admin. 🙏";
+            $waNotif->WhatsappMessageGroup();
+        } catch (\Throwable $e) {
+            Log::warning('memberClaim: WhatsApp notification failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Claim notification sent.',
+        ]);
+    }
+
     public function requestOtp(Request $request)
     {
         $otp = rand(10000, 99999);
