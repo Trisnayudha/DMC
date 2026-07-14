@@ -33,13 +33,15 @@ class PrintController extends Controller
                     'users.email',
                     'company.company_name',
                     'profiles.phone',
-                    'profiles.fullphone'
+                    'profiles.fullphone',
+                    'profiles.job_title'
                 )
                 ->first();
             $data = [
                 'name'          => $name ? $name : $findUsers->name,
                 'company_name'  => $company_name ? $company_name : $findUsers->company_name,
                 'package'       => $check->package,
+                'job_title'     => $findUsers->job_title ?? null,
             ];
             if ($ngrok) {
                 $this->sendWebhook($ngrok, $data);
