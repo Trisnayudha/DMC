@@ -193,9 +193,8 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}">
                 <div class="page-title">
-                    THE 13TH ANNIVERSARY OF DJAKARTA MINING CLUB<br>
-                    <span style="color: var(--dmc-red-dark)">Creating
-                        Lasting Value</span>
+                    THE 71ST DJAKARTA MINING CLUB NETWORKING EVENT<br>
+                    <span style="color: var(--dmc-red-dark)">Ambition to Action</span>
                 </div>
             </div>
 
@@ -212,7 +211,8 @@
                     <!-- INTRO TEXT -->
                     <div class="intro-text mb-4">
                         <p>
-                            <strong>Thank you for attending the 71st Djakarta Mining Club – Ambition to Action.</strong>
+                            <strong>Thank you for attending the 71st Djakarta Mining Club Networking Event – Ambition to
+                                Action.</strong>
                         </p>
                         <p>
                             We kindly invite you to take a few moments to complete our post-event survey.
