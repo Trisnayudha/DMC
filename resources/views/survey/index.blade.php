@@ -193,7 +193,7 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}">
                 <div class="page-title">
-                    THE 71ST DJAKARTA MINING CLUB NETWORKING EVENT<br>
+                    PwC's Mine Report: <br>
                     <span style="color: var(--dmc-red-dark)">Ambition to Action</span>
                 </div>
             </div>
@@ -211,7 +211,8 @@
                     <!-- INTRO TEXT -->
                     <div class="intro-text mb-4">
                         <p>
-                            <strong>Thank you for attending the 71st Djakarta Mining Club Networking Event – Ambition to
+                            <strong>Thank you for attending the 71st Djakarta Mining Club Networking Event – PwC's Mine
+                                Report: Ambition to
                                 Action.</strong>
                         </p>
                         <p>
