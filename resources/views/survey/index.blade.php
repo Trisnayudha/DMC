@@ -193,8 +193,8 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}">
                 <div class="page-title">
-                    PwC's Mine Report: <br>
-                    <span style="color: var(--dmc-red-dark)">Ambition to Action</span>
+                    The 71st Djakarta Mining Club Networking Event<br>
+                    <span style="color: var(--dmc-red-dark)"> PwC's Mine Report: Ambition to Action</span>
                 </div>
             </div>
 
