@@ -207,13 +207,12 @@
                         <small class="text-muted">* Required</small>
                     </div>
 
-                    <img src="{{ asset('image/the13banner-v2.png') }}" class="banner-img">
+                    <img src="{{ asset('image/the71banner.png') }}" class="banner-img">
 
                     <!-- INTRO TEXT -->
                     <div class="intro-text mb-4">
                         <p>
-                            <strong>Thank you for attending the 13th Anniversary of Djakarta Mining Club – Creating
-                                Lasting Value.</strong>
+                            <strong>Thank you for attending the 71st Djakarta Mining Club – Ambition to Action.</strong>
                         </p>
                         <p>
                             We kindly invite you to take a few moments to complete our post-event survey.

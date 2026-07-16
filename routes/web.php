@@ -79,7 +79,7 @@ Route::get('web-view-sponsor', function () {
     return view('maps');
 });
 
-Route::get('survey/the-13th-anniversary-of-djakarta-mining-club', function () {
+Route::get('survey/the-71st-djakarta-mining-club-networking-event', function () {
     // return redirect()->away('https://docs.google.com/forms/d/1QqFD5UTk-PQvoQucvscDZeqwIktAkhNRBivbgIVP8Ig');
     return view('survey.index');
 });
@@ -91,7 +91,7 @@ Route::get('survey-sponsor', function () {
     return view('survey.sponsor');
 });
 
-Route::post('/survey/the-13th-anniversary-of-djakarta-mining-club', [SurveyController::class, 'store'])->name('survey.store');
+Route::post('/survey/the-71st-djakarta-mining-club-networking-event', [SurveyController::class, 'store'])->name('survey.store');
 Route::post('/survey-member', [DmcMemberSurveyController::class, 'store'])->name('survey.dmc.store');
 // web.php
 Route::post('/survey/sponsor', [SponsorSurveyController::class, 'store'])->name('survey.dmc.store');
