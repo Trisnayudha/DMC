@@ -1150,19 +1150,10 @@
         });
 
         $(document).ready(function() {
-            // Menangani klik pada custom-switch-indicator
-            $('.custom-switch-indicator').click(function() {
-                // Mengambil status checked saat ini dari checkbox
-                var isChecked = $('#pilihan').is(':checked');
-                // Mengganti status checked
-                $('#pilihan').prop('checked', !isChecked);
-
-                // Memeriksa status baru dan menampilkan pesan yang sesuai
-                if ($('#pilihan').is(':checked')) {
-                    console.log('Checkbox dicentang');
-                } else {
-                    console.log('Checkbox tidak dicentang');
-                }
+            // Menangani klik pada custom-switch-indicator — generic untuk semua toggle
+            $(document).on('click', '.custom-switch-indicator', function() {
+                var $checkbox = $(this).prev('.custom-switch-input');
+                $checkbox.prop('checked', !$checkbox.is(':checked'));
             });
         });
 
