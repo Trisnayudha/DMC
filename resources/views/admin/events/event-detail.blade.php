@@ -693,6 +693,12 @@
                                         <option value="onsite">On Site ( Rp. 1.250.000 )</option>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <input type="checkbox" id="send_notif_invitation" name="send_notif"
+                                        class="custom-switch-input" checked>
+                                    <span class="custom-switch-indicator"></span>
+                                    <span class="custom-switch-description">Send Notification Email</span>
+                                </div>
                             </div>
                         </div>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -219,6 +219,7 @@ class EventsDetailController extends Controller
             $company_other = $request->company_other;
             $paymentMethod = $request->ticket;
             $slug = $request->event;
+            $sendNotif = $request->send_notif; // null jika toggle tidak dicentang
             $user = User::firstOrNew(['email' => $email]);
             $user->name = $name;
             $user->email = $email;
@@ -350,50 +351,49 @@ class EventsDetailController extends Controller
                 $payment->pic_id = $pic;
                 $payment->save();
                 if ($paymentMethod == 'free' || $paymentMethod == 'sponsor') {
-                    $data = [
-                        'code_payment' => $codePayment,
-                        'create_date' => date('d, M Y H:i'),
-                        'users_name' => $name,
-                        'users_email' => $email,
-                        'phone' => $phone,
-                        'company_name' => $company_name,
-                        'company_address' => $address,
-                        'job_title' => $job_title,
-                        'events_name' => $findEvent->name,
-                        'image' => $db,
-                        'start_date' => $findEvent->start_date,
-                        'end_date' => $findEvent->end_date,
-                        'start_time' => $findEvent->start_time,
-                        'end_time' => $findEvent->end_time,
-                    ];
-                    // dd("sukses");
-                    ini_set('max_execution_time', 300);
-                    // TODO bakal ada bug
-                    $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
-                        ->loadView('email.ticket', $data);
-                    try {
-                        Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
-                            $message->from(env('EMAIL_SENDER'));
-                            $message->to($email);
-                            $message->subject('[Ticket #' . $codePayment . '] Entry Confirmation – ' . $findEvent->subject_name);
-                            // $message->subject($codePayment . ' - Registrasi Anda Telah Disetujui: ' . $findEvent->name);
-                            $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
-                        });
-                    } catch (\Exception $e) {
-                        return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', 'An error occurred while sending email. Please try again later.')->withInput();
+                    if (!empty($sendNotif)) {
+                        $data = [
+                            'code_payment' => $codePayment,
+                            'create_date' => date('d, M Y H:i'),
+                            'users_name' => $name,
+                            'users_email' => $email,
+                            'phone' => $phone,
+                            'company_name' => $company_name,
+                            'company_address' => $address,
+                            'job_title' => $job_title,
+                            'events_name' => $findEvent->name,
+                            'image' => $db,
+                            'start_date' => $findEvent->start_date,
+                            'end_date' => $findEvent->end_date,
+                            'start_time' => $findEvent->start_time,
+                            'end_time' => $findEvent->end_time,
+                        ];
+                        ini_set('max_execution_time', 300);
+                        $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
+                            ->loadView('email.ticket', $data);
+                        try {
+                            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $findEvent) {
+                                $message->from(env('EMAIL_SENDER'));
+                                $message->to($email);
+                                $message->subject('[Ticket #' . $codePayment . '] Entry Confirmation – ' . $findEvent->subject_name);
+                                $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
+                            });
+                        } catch (\Exception $e) {
+                            return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', 'An error occurred while sending email. Please try again later.')->withInput();
+                        }
                     }
                     return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Register Successfully');
                 } else {
-                    // $pdf = Pdf::loadView('email.invoice-new', $data);
-                    try {
-                        Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent, $codePayment) {
-                            $message->from(env('EMAIL_SENDER'));
-                            $message->to($email);
-                            $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . $findEvent->subject_name);
-                            // $message->attachData($pdf->output(), 'DMC-' . time() . '.pdf');
-                        });
-                    } catch (\Exception $e) {
-                        return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', 'An error occurred while sending email. Please try again later.')->withInput();
+                    if (!empty($sendNotif)) {
+                        try {
+                            Mail::send('email.confirm_payment', $data, function ($message) use ($email, $findEvent, $codePayment) {
+                                $message->from(env('EMAIL_SENDER'));
+                                $message->to($email);
+                                $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . $findEvent->subject_name);
+                            });
+                        } catch (\Exception $e) {
+                            return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('error', 'An error occurred while sending email. Please try again later.')->withInput();
+                        }
                     }
                     return redirect()->route('events-details', ['slug' => $findEvent->slug])->with('success', 'Check your email for payment Invoice !!!');
                 }
