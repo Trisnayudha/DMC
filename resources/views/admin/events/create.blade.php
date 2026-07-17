@@ -473,6 +473,16 @@
             $(document).on('shown.bs.modal', '.note-image-dialog', function() {
                 $(this).find('.note-group-select-from-files').remove();
             });
+
+            // Sinkronkan isi codeview ke textarea sebelum submit
+            // (tanpa ini, save saat codeview masih terbuka mengirim isi lama)
+            $('#my-editor').closest('form').on('submit', function() {
+                var $ed = $('#my-editor');
+                if ($ed.summernote('codeview.isActivated')) {
+                    $ed.summernote('codeview.deactivate');
+                }
+                $ed.val($ed.summernote('code'));
+            });
         });
     </script>
 
