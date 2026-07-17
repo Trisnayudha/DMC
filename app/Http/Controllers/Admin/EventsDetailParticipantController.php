@@ -412,7 +412,7 @@ The Djakarta Mining Club Team';
         try {
             $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
                 ->loadView('email.ticket', $data);
-            Mail::send('email.approval-event', $data, function ($message) use ($email, $pdf, $codePayment, $event) {
+            Mail::send('email.reminder-event', $data, function ($message) use ($email, $pdf, $codePayment, $event) {
                 $message->from('register@djakarta-miningclub.com');
                 $message->to($email);
                 $message->subject($codePayment . ' - Confirmation Reminder for ' . $event);
@@ -437,23 +437,24 @@ The Djakarta Mining Club Team';
 
         $send = new WhatsappApi();
         $send->phone = $phone; // Menggunakan nomor telepon yang diterima dari parameter
-        $send->message = '📌"REMINDER to attend ' . $event->name . ': Creating Lasting Value"
+        $send->message = '📌 *Reminder to Attend ' . $event->name . ' – PwC\'s Mine Report: Ambition to Action.*
 
 Hi ' . $data['users_name'] . ',
 
-This is a confirmation that you are registered to attend our event on TODAY, 15 April 2026 at ' . $event->location . ', starting at ' . date('h.i a', strtotime($event->start_time)) . ' - ' . date('h.i a', strtotime($event->end_time)) . ' (WIB) and followed by Networking Dinner and Drinks.
+This is a confirmation that you are registered to attend our event on *TODAY*, ' . date('j F Y', strtotime($event->start_date)) . ' at *The Dharmawangsa Hotel Jakarta*, Indonesia, starting at *' . date('g:i A', strtotime($event->start_time)) . ' - ' . date('h:i A', strtotime($event->end_time)) . '* (WIB) and followed by Networking Dinner and Drinks.
 
-Please confirm your attendance by replying "YES" to this message. If you are unable to attend, kindly respond with "NO" so that we may offer your spot to someone on the waitlist.
+Kindly confirm your attendance by replying *"YES"*. If you are unable to attend, please reply *"NO"* so we can offer your seat to someone on the waitlist.
 
-Your E-Ticket here: ' . url($db) . '
+You can access your e-ticket here:
+' . url($db) . '
 
-For the event rundown and agenda, please visit our website at https://www.djakarta-miningclub.com/events/' . $event->slug . '
+You can view the event rundown and agenda here:
+https://www.djakarta-miningclub.com/events/' . $event->slug . '
 
-We look forward to seeing you there. Thank you 😊🙏🏻
+We look forward to seeing you there. Thank you. 😊🙏🏻
 
 Regards,
-The Djakarta Mining Club Team
-                ';
+The Djakarta Mining Club Team';
 
         $send->WhatsappMessage();
     }
