@@ -114,7 +114,8 @@
     <script src="{{ asset('stisla/plugins/jquery-sparkline/jquery.sparkline.min.js') }}"></script>
     <script src="{{ asset('stisla/plugins/chart.js/dist/Chart.min.js') }}"></script>
     <script src="{{ asset('stisla/plugins/owl.carousel/dist/owl.carousel.min.js') }}"></script>
-    <script src="{{ asset('stisla/plugins/summernote/dist/summernote-bs4.js') }}"></script>
+    {{-- Summernote 0.8.18 (versi lama stisla 0.8.12 bikin custom button news/events error & textarea tidak tersembunyi) --}}
+    <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
     <script src="{{ asset('stisla/plugins/chocolat/dist/js/jquery.chocolat.min.js') }}"></script>
     <script src="{{ asset('stisla/plugins/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
     <script src="{{ asset('stisla/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
