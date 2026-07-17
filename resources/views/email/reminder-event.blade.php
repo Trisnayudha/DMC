@@ -101,7 +101,6 @@
 
         .table {
             border-collapse: collapse;
-            width: 100%;
             max-width: 100%;
             margin-bottom: 1rem;
             background-color: transparent;
@@ -150,22 +149,22 @@
                     </th>
                 </tr>
                 <tr>
-                    <th style="width: 130px;">Date</th>
+                    <th style="width: 70px; white-space: nowrap;">Date</th>
                     <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
                     <td style="padding-left: 4px;">
                         {{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} </td>
                 </tr>
                 <tr>
-                    <th style="width: 130px;">Time</th>
+                    <th style="width: 70px; white-space: nowrap;">Time</th>
                     <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
                     <td style="padding-left: 4px;">
-                        {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        {{ date('h.i A', strtotime($start_time)) . ' - ' . date('h.i A', strtotime($end_time)) }}
                         (Followed
                         by Networking Dinner & Drinks)
                     </td>
                 </tr>
                 <tr>
-                    <th style="width: 130px;">Venue</th>
+                    <th style="width: 70px; white-space: nowrap;">Venue</th>
                     <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
                     <td style="padding-left: 4px;">The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
                         Kebayoran Baru, 12160, Indonesia)</td>
@@ -191,6 +190,7 @@
             </p>
             <p><b>IMPORTANT:</b> If you are unable to attend, please contact our team for a substitution. If no
                 replacement is provided, we may offer your spot to the next registrant on the waitlist.</p>
+            <br>
             <p>Should you require any assistance, please contact us at register@djakarta-miningclub.com or +62
                 811-1937-399.</p>
             <p>

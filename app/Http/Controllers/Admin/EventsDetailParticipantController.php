@@ -441,7 +441,7 @@ The Djakarta Mining Club Team';
 
 Hi ' . $data['users_name'] . ',
 
-This is a confirmation that you are registered to attend our event on *TODAY*, ' . date('j F Y', strtotime($event->start_date)) . ' at *The Dharmawangsa Hotel Jakarta*, Indonesia, starting at *' . date('g:i A', strtotime($event->start_time)) . ' - ' . date('h:i A', strtotime($event->end_time)) . '* (WIB) and followed by Networking Dinner and Drinks.
+This is a confirmation that you are registered to attend our event on *TODAY*, ' . date('j F Y', strtotime($event->start_date)) . ' at *The Dharmawangsa Hotel Jakarta*, Indonesia, starting at *' . date('g.i A', strtotime($event->start_time)) . ' - ' . date('h.i A', strtotime($event->end_time)) . '* (WIB) and followed by Networking Dinner and Drinks.
 
 Kindly confirm your attendance by replying *"YES"*. If you are unable to attend, please reply *"NO"* so we can offer your seat to someone on the waitlist.
 
