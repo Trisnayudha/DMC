@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Helpers\EmailSender;
 use App\Helpers\WhatsappApi;
+use App\Models\Payments\Payment;
+use App\Services\Membership\MemberVerificationService;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\MemberModel;
@@ -615,6 +617,24 @@ Your verification code (OTP) ' . $otp;
 
             DB::commit();
 
+            // Auto-verify khusus pendaftaran dari app scanner saat check-in.
+            // PENGAMAN: endpoint ini publik, jadi auto-verify HANYA dilakukan bila
+            // kode scan (code_payment) benar-benar ada DAN peserta sudah ditandai
+            // sebagai prospek membership oleh tim DMC di admin.
+            $autoVerified = false;
+            $scanCode = trim((string) $request->code);
+            if ($scanCode !== '') {
+                $payment = Payment::where('code_payment', $scanCode)->first();
+                if ($payment && (int) $payment->is_membership_prospect === 1) {
+                    try {
+                        app(MemberVerificationService::class)->verifyAndNotify($user);
+                        $autoVerified = true;
+                    } catch (\Throwable $e) {
+                        Log::warning('registerWeb: auto-verify failed for ' . $email . ': ' . $e->getMessage());
+                    }
+                }
+            }
+
             // Kirim notifikasi WhatsApp ke grup pendaftaran membership
             try {
                 $waNotif = new WhatsappApi();
@@ -633,33 +653,44 @@ Your verification code (OTP) ' . $otp;
                     "• *Phone*: " . $fullphone . "\n" .
                     "• *Company*: " . ($company->company_name ?? '-') . "\n" .
                     "• *Job Title*: " . ($profileData['job_title'] ?? '-') . "\n\n" .
-                    "Status: *Pending Review*";
+                    "Status: *" . ($autoVerified ? 'Auto-Verified (Member ID: ' . $user->uname . ')' : 'Pending Review') . "*";
                 $waNotif->WhatsappMessageGroup();
             } catch (\Throwable $e) {
                 Log::warning('registerWeb: WhatsApp group notification failed: ' . $e->getMessage());
             }
 
-            try {
-                $send = new EmailSender();
-                $send->subject    = 'Thank You for Registering with Djakarta Mining Club – Your Application Is Under Review';
-                $send->template   = 'email.waiting-approval';
-                $send->data       = [
-                    'users_name'  => $user->name,
-                    'events_name' => 'Djakarta Mining Club Membership',
-                ];
-                $send->name       = $user->name;
-                $send->from       = env('EMAIL_SENDER');
-                $send->name_sender = env('EMAIL_NAME');
-                $send->to         = $email;
-                $send->sendEmail();
-            } catch (\Throwable $e) {
-                Log::warning('registerWeb: confirmation email failed for ' . $email . ': ' . $e->getMessage());
+            // Kalau sudah auto-verified, email approval sudah dikirim oleh
+            // MemberVerificationService — jangan kirim email "under review".
+            if (!$autoVerified) {
+                try {
+                    $send = new EmailSender();
+                    $send->subject    = 'Thank You for Registering with Djakarta Mining Club – Your Application Is Under Review';
+                    $send->template   = 'email.waiting-approval';
+                    $send->data       = [
+                        'users_name'  => $user->name,
+                        'events_name' => 'Djakarta Mining Club Membership',
+                    ];
+                    $send->name       = $user->name;
+                    $send->from       = env('EMAIL_SENDER');
+                    $send->name_sender = env('EMAIL_NAME');
+                    $send->to         = $email;
+                    $send->sendEmail();
+                } catch (\Throwable $e) {
+                    Log::warning('registerWeb: confirmation email failed for ' . $email . ': ' . $e->getMessage());
+                }
             }
 
             return response()->json([
                 'status'  => 200,
-                'message' => 'Registration submitted successfully. Your application is under review.',
-                'payload' => ['email' => $email, 'phone' => $fullphone],
+                'message' => $autoVerified
+                    ? 'Welcome! You are now a verified DMC member. Please check your email for your membership details.'
+                    : 'Registration submitted successfully. Your application is under review.',
+                'payload' => [
+                    'email'         => $email,
+                    'phone'         => $fullphone,
+                    'auto_verified' => $autoVerified,
+                    'member_id'     => $autoVerified ? $user->uname : null,
+                ],
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
