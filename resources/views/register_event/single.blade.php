@@ -538,7 +538,7 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}" alt="DMC Logo">
                 <h1 class="page-title">Event <span>Registration</span></h1>
-                <img src="https://membership.djakarta-miningclub.com/image/banner71_revisi4.png" alt="Image"
+                <img src="https://membership.djakarta-miningclub.com/image/banner71_revisi5.png" alt="Image"
                     class="img-logo">
             </div>
 
