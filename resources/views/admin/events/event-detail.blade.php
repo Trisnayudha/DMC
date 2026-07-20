@@ -241,6 +241,11 @@
                                                 href="{{ route('events-details', ['slug' => $slug, 'params' => 'sponsor']) }}">Sponsor</a>
                                             <a class="dropdown-item"
                                                 href="{{ route('events-details', ['slug' => $slug, 'params' => 'free']) }}">Free</a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item"
+                                                href="{{ route('events-details', ['slug' => $slug, 'params' => 'potential_member']) }}">
+                                                <i class="fas fa-star text-warning mr-1"></i> Potential Member
+                                            </a>
 
                                         </div>
                                     </div>
@@ -308,8 +313,15 @@
                                 </div>
                                 <div class="float-right ml-3">
                                     <a href="{{ route('events-details-export', array_merge(['slug' => $slug], request()->only('params'))) }}"
-                                        class="btn btn-outline-success">
-                                        <i class="fas fa-file-excel"></i> Export Excel
+                                        class="btn {{ request('params') === 'potential_member' ? 'btn-warning' : 'btn-outline-success' }}">
+                                        <i class="fas fa-file-excel"></i>
+                                        @if(request('params') === 'potential_member')
+                                            Export Potential Member
+                                        @elseif(request('params'))
+                                            Export Excel ({{ ucfirst(request('params')) }})
+                                        @else
+                                            Export Excel
+                                        @endif
                                     </a>
                                 </div>
                                 <div class="float-right ml-3 dropdown">

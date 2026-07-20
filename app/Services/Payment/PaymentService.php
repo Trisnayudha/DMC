@@ -36,6 +36,8 @@ class PaymentService extends Payment
             $query->whereIn('payment.package', ['sponsor']);
         } elseif ($params === 'free') {
             $query->whereIn('payment.package', ['free']);
+        } elseif ($params === 'potential_member') {
+            $query->where('payment.is_membership_prospect', 1);
         }
 
         $payments = $query->get();
