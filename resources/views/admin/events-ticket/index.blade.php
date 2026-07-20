@@ -266,13 +266,14 @@
                         $('#ajaxCategoryModel').html("Edit Category");
                         $('#category-model').modal('show');
                         $('#id').val(res.id);
-                        $('#events_id').val(res.events_id);
+                        $('#events_id').val(res.events_id).trigger('change');
                         $('#title').val(res.title);
                         $('#price_rupiah').val(res.price_rupiah);
                         $('#price_dollar').val(res.price_dollar);
                         $('#status_ticket').val(res.status_ticket);
+                        $('#status_sold').val(res.status_sold);
                         $('#type').val(res.type);
-                        $('#description').val(res.description);
+                        $('#description').summernote('code', res.description);
                     }
                 });
             });
