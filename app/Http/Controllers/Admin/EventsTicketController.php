@@ -15,7 +15,10 @@ class EventsTicketController extends Controller
     }
     public function index()
     {
-        $list = EventsTicket::join('events', 'events.id', 'events_tickets.events_id')->orderBy('events_tickets.id', 'desc')->get();
+        $list = EventsTicket::join('events', 'events.id', 'events_tickets.events_id')
+            ->select('events_tickets.*', 'events.name')
+            ->orderBy('events_tickets.id', 'desc')
+            ->get();
         $events = Events::orderBy('id', 'desc')->get();
         // dd($list);
         $data = [
