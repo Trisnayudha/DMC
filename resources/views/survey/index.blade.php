@@ -212,7 +212,7 @@
                     <div class="intro-text mb-4">
                         <p>
                             <strong>Thank you for attending the 71st Djakarta Mining Club Networking Event – PwC's Mine
-                                Report: Ambition to
+                                2026: Ambition to
                                 Action.</strong>
                         </p>
                         <p>
