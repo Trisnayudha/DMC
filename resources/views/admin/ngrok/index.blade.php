@@ -39,7 +39,7 @@
                                 <td>
                                     <a href="{{ $item->link }}" target="_blank">{{ $item->link }}</a>
                                 </td>
-                                <td>{{ $item->created_at->format('d M Y, H:i') }}</td>
+                                <td>{{ $item->created_at ? $item->created_at->format('d M Y, H:i') : '-' }}</td>
                                 <td>
                                     <button class="btn btn-sm btn-warning btn-edit"
                                         data-id="{{ $item->id }}"
