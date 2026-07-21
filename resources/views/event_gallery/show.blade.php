@@ -79,6 +79,15 @@
             font-size: 15px;
         }
 
+        .eg-more-note {
+            text-align: center;
+            color: #232529;
+            font-size: 20px;
+            font-weight: 600;
+            font-style: italic;
+            margin: 32px 0 0;
+        }
+
         .eg-gallery-item {
             display: block;
             border-radius: 14px;

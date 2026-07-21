@@ -21,6 +21,8 @@
                 </a>
             @endforeach
         </div>
+
+        <p class="eg-more-note">There's more to see - come back and find more photos!</p>
     @endif
 </section>
 
