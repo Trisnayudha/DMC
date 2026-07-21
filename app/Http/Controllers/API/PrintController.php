@@ -50,7 +50,7 @@ class PrintController extends Controller
             // email & phone hanya untuk respons ke app (identifier cek membership),
             // sengaja ditambahkan SETELAH webhook agar payload ngrok/print server tidak berubah
             $data['email'] = $findUsers->email ?? null;
-            $data['phone'] = $findUsers->fullphone ?: ($findUsers->phone ?? null);
+            $data['phone'] = $findUsers->phone ?? null;
             // penanda: peserta ini boleh ditawarkan membership saat check-in
             $data['is_membership_prospect'] = (bool) ($check->is_membership_prospect ?? false);
             if ($nosave == 'false') {
