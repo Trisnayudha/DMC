@@ -135,7 +135,7 @@ class PrintController extends Controller
     {
         $limit = $request->limit ?? 5;
         $findUser = Payment::join('users', 'users.id', 'payment.member_id')
-            ->join('events_tickets', 'events_tickets.id', 'payment.tickets_id')
+            ->leftjoin('events_tickets', 'events_tickets.id', 'payment.tickets_id')
             ->join('profiles', 'profiles.users_id', 'users.id')
             ->join('company', 'company.users_id', 'users.id')
             ->whereIn('payment.status_registration', ['Paid Off', 'free'])
