@@ -220,8 +220,8 @@
                             Your feedback is invaluable in helping us enhance the quality of future events.
                         </p>
                         <p>
-                            Once the survey is completed, you will receive access to links for downloading
-                            the speakers’ presentation materials.
+                            Once you have completed the survey, you will receive links to download the speakers'
+                            presentation materials.
                         </p>
                     </div>
 
@@ -370,7 +370,7 @@
             }).then(function() {
 
                 window.open(
-                    "https://drive.google.com/drive/folders/1uSgSz_CICbvoRfNDnNLOillFmUkfrk7-?usp=sharing",
+                    "https://drive.google.com/drive/folders/1ZZD_PkGOV41hJRv2zxbddRVX4gRLH_ZO?usp=sharing",
                     "_blank"
                 );
 
