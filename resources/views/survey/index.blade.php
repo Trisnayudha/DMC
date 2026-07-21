@@ -362,7 +362,7 @@
         <script>
             swal({
                 title: "Thank You 🎉",
-                text: "Your feedback has been successfully submitted.",
+                text: "Your feedback has been submitted successfully.",
                 icon: "success",
                 button: "Open Presentation",
                 closeOnClickOutside: false,
