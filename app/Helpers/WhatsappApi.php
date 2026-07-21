@@ -12,7 +12,7 @@ class WhatsappApi
     public $caption;
 
     protected $baseUrl = 'https://wa-gateway.indonesiaminer.com/api';
-    protected $apiKey  = 'wg_8cdbbd2cf9818933e53792252a2892c70a2f5c1bc2c83e28';
+    protected $apiKey  = 'wg_ad714de4ed3317de4397c7c30a188ecaad53f9192d505f54';
 
     /**
      * Kirim pesan WA ke nomor biasa
