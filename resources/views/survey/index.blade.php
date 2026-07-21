@@ -194,7 +194,7 @@
                 <img src="{{ asset('image/dmc.png') }}">
                 <div class="page-title">
                     The 71st Djakarta Mining Club Networking Event<br>
-                    <span style="color: var(--dmc-red-dark)"> PwC's Mine Report: Ambition to Action</span>
+                    <span style="color: var(--dmc-red-dark)"> PwC's Mine 2026: Ambition to Action</span>
                 </div>
             </div>
 
