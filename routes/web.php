@@ -40,6 +40,7 @@ use App\Http\Controllers\Admin\WhatsappCampaignController;
 use App\Http\Controllers\Admin\WhatsappDBController;
 use App\Http\Controllers\Admin\WhatsappSenderController;
 use App\Http\Controllers\Admin\WhatsappTemplateController;
+use App\Http\Controllers\Frontend\EventGalleryController;
 use App\Http\Controllers\Frontend\EventsPaymentController;
 use App\Http\Controllers\Frontend\EventsRegisterController;
 use App\Http\Controllers\Frontend\EventsRegisterSponsorController;
@@ -176,6 +177,8 @@ Route::get('/events/{year}/{number}/{topic}', function ($year, $number, $topic) 
     ];
     return view('admin.events.event-share', $data);
 })->where(['year' => '[0-9]{4}', 'number' => '[0-9]+', 'topic' => '[A-Za-z0-9\-]+']);
+
+Route::get('/event-gallery/{slug}', [EventGalleryController::class, 'show']);
 
 Route::get('/visit', [FormMemberController::class, 'visit']);
 Route::post('/visit', [FormMemberController::class, 'visitStore']);
