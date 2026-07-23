@@ -14,7 +14,7 @@ class XenditFee
     /**
      * @param  string|null $method  nilai payment.payment_method
      * @param  float|int   $amount  nominal yang dibayar (net = gross - discount)
-     * @return array{fee: float, vat: float, total_fee: float, net: float}
+     * @return array{fee: float, vat: float, total_fee: float, pph23: float, net: float}
      */
     public static function estimate($method, $amount): array
     {
@@ -37,13 +37,19 @@ class XenditFee
         // Xendit membulatkan ke bawah (whole rupiah) untuk fee & PPN.
         $fee = floor($fee);
         $vat = floor((float) config('xendit_fee.vat_on_fee', 0) * $fee);
-        $totalFee = $fee + $vat;
+        $totalFee = $fee + $vat; // potongan otomatis dari settlement Xendit (fee + PPN)
+
+        // PPh 23: withholding 2% dari fee (DPP tidak termasuk PPN), disetor
+        // sendiri oleh DMC ke kantor pajak — bukan dipotong Xendit, tapi tetap
+        // mengurangi nilai yang DMC akhirnya "kantongi" dari transaksi ini.
+        $pph23 = floor((float) config('xendit_fee.pph23_on_fee', 0) * $fee);
 
         return [
             'fee'       => $fee,
             'vat'       => $vat,
             'total_fee' => $totalFee,
-            'net'       => max($amount - $totalFee, 0),
+            'pph23'     => $pph23,
+            'net'       => max($amount - $totalFee - $pph23, 0),
         ];
     }
 }

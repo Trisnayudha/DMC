@@ -48,6 +48,7 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithMapping
             'Amount',
             'Fee',
             'VAT',
+            'PPh 23',
             'Net Settlement',
         ];
     }
@@ -75,6 +76,7 @@ class FinancialReportExport implements FromCollection, WithHeadings, WithMapping
             (float) ($row->net_amount ?? 0),
             (float) ($row->x_fee ?? 0),
             (float) ($row->x_vat ?? 0),
+            (float) ($row->x_pph23 ?? 0),
             (float) ($row->net_after_fee ?? 0),
         ];
     }

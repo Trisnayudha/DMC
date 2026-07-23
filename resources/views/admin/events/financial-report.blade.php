@@ -130,10 +130,21 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-sm-6 col-12">
                         <div class="card card-statistic-1">
+                            <div class="card-icon bg-secondary"><i class="fas fa-file-invoice-dollar"></i></div>
+                            <div class="card-wrap">
+                                <div class="card-header">
+                                    <h4>Est. PPh 23 <small class="text-muted">(2% of fee)</small></h4>
+                                </div>
+                                <div class="card-body">{{ number_format($kpi->pph23_total_est ?? 0, 0, ',', '.') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                        <div class="card card-statistic-1">
                             <div class="card-icon bg-dark"><i class="fas fa-piggy-bank"></i></div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>Net Settlement <small class="text-muted">(after fee)</small></h4>
+                                    <h4>Net Settlement <small class="text-muted">(after fee & PPh 23)</small></h4>
                                 </div>
                                 <div class="card-body">{{ number_format($kpi->net_settlement_est ?? 0, 0, ',', '.') }}</div>
                             </div>
@@ -197,6 +208,7 @@
                                         <th class="text-right">Amount</th>
                                         <th class="text-right">Fee</th>
                                         <th class="text-right">VAT</th>
+                                        <th class="text-right">PPh 23</th>
                                         <th class="text-right">Net Settlement</th>
                                     </tr>
                                 </thead>
@@ -231,6 +243,7 @@
                                             <td class="text-right">{{ number_format($r->net_amount ?? 0, 0, ',', '.') }}</td>
                                             <td class="text-right text-danger">{{ number_format($r->x_fee ?? 0, 0, ',', '.') }}</td>
                                             <td class="text-right text-danger">{{ number_format($r->x_vat ?? 0, 0, ',', '.') }}</td>
+                                            <td class="text-right text-danger">{{ number_format($r->x_pph23 ?? 0, 0, ',', '.') }}</td>
                                             <td class="text-right">
                                                 <b>{{ number_format($r->net_after_fee ?? 0, 0, ',', '.') }}</b>
                                             </td>
@@ -245,6 +258,7 @@
                                         <td class="text-right">{{ number_format($rows->sum('net_amount'), 0, ',', '.') }}</td>
                                         <td class="text-right text-danger">{{ number_format($rows->sum('x_fee'), 0, ',', '.') }}</td>
                                         <td class="text-right text-danger">{{ number_format($rows->sum('x_vat'), 0, ',', '.') }}</td>
+                                        <td class="text-right text-danger">{{ number_format($rows->sum('x_pph23'), 0, ',', '.') }}</td>
                                         <td class="text-right">{{ number_format($rows->sum('net_after_fee'), 0, ',', '.') }}</td>
                                     </tr>
                                 </tfoot>

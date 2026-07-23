@@ -44,4 +44,9 @@ return [
 
     // PPN 11% di atas fee
     'vat_on_fee' => 0.11,
+
+    // PPh 23 2% dari fee (DPP tidak termasuk PPN) — withholding tax atas jasa
+    // Xendit yang wajib dipotong & disetor sendiri oleh DMC (bukti potong),
+    // bukan potongan otomatis dari settlement Xendit.
+    'pph23_on_fee' => 0.02,
 ];

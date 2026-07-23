@@ -60,6 +60,7 @@
             <th>Discount</th>
             <th>Net</th>
             <th>Est. Fee (+PPN)</th>
+            <th>Est. PPh 23</th>
             <th>Net Settlement</th>
         </tr>
         <tr>
@@ -68,6 +69,7 @@
             <td class="right">{{ number_format($kpi->discount_total ?? 0, 0, ',', '.') }}</td>
             <td class="right">{{ number_format($kpi->net_total ?? 0, 0, ',', '.') }}</td>
             <td class="right">{{ number_format($kpi->fee_total_est ?? 0, 0, ',', '.') }}</td>
+            <td class="right">{{ number_format($kpi->pph23_total_est ?? 0, 0, ',', '.') }}</td>
             <td class="right"><b>{{ number_format($kpi->net_settlement_est ?? 0, 0, ',', '.') }}</b></td>
         </tr>
     </table>
@@ -87,6 +89,7 @@
                 <th class="right">Amount</th>
                 <th class="right">Fee</th>
                 <th class="right">VAT</th>
+                <th class="right">PPh 23</th>
                 <th class="right">Net Settlement</th>
             </tr>
         </thead>
@@ -105,6 +108,7 @@
                     <td class="right">{{ number_format($r->net_amount ?? 0, 0, ',', '.') }}</td>
                     <td class="right">{{ number_format($r->x_fee ?? 0, 0, ',', '.') }}</td>
                     <td class="right">{{ number_format($r->x_vat ?? 0, 0, ',', '.') }}</td>
+                    <td class="right">{{ number_format($r->x_pph23 ?? 0, 0, ',', '.') }}</td>
                     <td class="right"><b>{{ number_format($r->net_after_fee ?? 0, 0, ',', '.') }}</b></td>
                 </tr>
             @endforeach
@@ -117,6 +121,7 @@
                 <td class="right"><b>{{ number_format($rows->sum('net_amount'), 0, ',', '.') }}</b></td>
                 <td class="right"><b>{{ number_format($rows->sum('x_fee'), 0, ',', '.') }}</b></td>
                 <td class="right"><b>{{ number_format($rows->sum('x_vat'), 0, ',', '.') }}</b></td>
+                <td class="right"><b>{{ number_format($rows->sum('x_pph23'), 0, ',', '.') }}</b></td>
                 <td class="right"><b>{{ number_format($rows->sum('net_after_fee'), 0, ',', '.') }}</b></td>
             </tr>
         </tfoot>

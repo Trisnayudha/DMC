@@ -178,6 +178,7 @@ class FinancialReportController extends Controller
     private function applyFeeEstimation($rows, $kpi)
     {
         $feeTotal = 0.0;
+        $pph23Total = 0.0;
 
         foreach ($rows as $r) {
             $calc = XenditFee::estimate($r->payment_method, $r->net_amount ?? 0);
@@ -185,15 +186,18 @@ class FinancialReportController extends Controller
             $r->x_fee = $calc['fee'];
             $r->x_vat = $calc['vat'];
             $r->x_total_fee = $calc['total_fee'];
+            $r->x_pph23 = $calc['pph23'];
             $r->net_after_fee = $calc['net'];
 
             $feeTotal += $r->x_total_fee;
+            $pph23Total += $r->x_pph23;
         }
 
         // attach extra KPI
         if ($kpi) {
             $kpi->fee_total_est = $feeTotal;
-            $kpi->net_settlement_est = max(($kpi->net_total ?? 0) - $feeTotal, 0);
+            $kpi->pph23_total_est = $pph23Total;
+            $kpi->net_settlement_est = max(($kpi->net_total ?? 0) - $feeTotal - $pph23Total, 0);
         }
 
         return [$rows, $kpi];
