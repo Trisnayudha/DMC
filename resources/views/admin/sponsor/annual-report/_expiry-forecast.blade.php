@@ -305,7 +305,7 @@
                                                     data-contract-start="{{ $exNextStart }}"
                                                     data-contract-end="{{ $exNextEnd }}"
                                                     data-package="{{ $er->package }}"
-                                                    data-toggle="tooltip" title="Confirm Renewal / Update Contract">
+                                                    data-toggle="tooltip" title="Confirm Renewal / Renew Contract">
                                                     <i class="fas fa-file-signature"></i>
                                                 </button>
                                                 <button class="btn btn-sm btn-warning action-icon-btn not-renewed-btn"
@@ -322,9 +322,12 @@
                                                     data-toggle="tooltip" title="Preview Renewal Form">
                                                     <i class="fas fa-file-pdf"></i>
                                                 </a>
+                                                @include('admin.sponsor.annual-report._edit-contract-btn', ['r' => $er])
                                             </div>
                                         @else
-                                            <span class="text-muted" style="font-size:11px;">—</span>
+                                            <div class="d-flex" style="gap:4px;">
+                                                @include('admin.sponsor.annual-report._edit-contract-btn', ['r' => $er])
+                                            </div>
                                         @endif
                                     </td>
                                 </tr>

@@ -101,3 +101,7 @@
 {{-- Modal: Update Contract / Not Renewed / Follow-up + JS handlers (used by Pending Renewal tab) --}}
 @include('admin.sponsor.partials._modals')
 @include('admin.sponsor.partials._contract_scripts')
+
+{{-- Modal: Edit Contract Record (same one used by the Contract History page) + JS handlers --}}
+@include('admin.sponsor.contract-history._edit-modal')
+@include('admin.sponsor.partials._contract_history_scripts')
