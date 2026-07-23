@@ -143,7 +143,7 @@ class SponsorAnnualReportController extends Controller
      */
     private function summaryCounts(int $year): array
     {
-        $base = fn () => SponsorRenewal::where('renewal_year', $year);
+        $base = fn() => SponsorRenewal::where('renewal_year', $year);
 
         return [
             'renewedCount'    => $base()->where('renewal_status', 'renewed')->where('renewal_type', 'renewal')->count(),
@@ -226,9 +226,9 @@ class SponsorAnnualReportController extends Controller
         return SponsorRenewal::with(['sponsor', 'sponsor.firstPic'])
             ->where('renewal_year', $year)
             ->where('renewal_status', 'renewed')
-            ->when($package, fn ($q) => $q->where('package', $package))
-            ->when($renewalType && $renewalType !== 'not_renewed', fn ($q) => $q->where('renewal_type', $renewalType))
-            ->when($search, fn ($q) => $q->whereHas('sponsor', fn ($sq) => $sq->where('name', 'like', "%{$search}%")))
+            ->when($package, fn($q) => $q->where('package', $package))
+            ->when($renewalType && $renewalType !== 'not_renewed', fn($q) => $q->where('renewal_type', $renewalType))
+            ->when($search, fn($q) => $q->whereHas('sponsor', fn($sq) => $sq->where('name', 'like', "%{$search}%")))
             ->orderBy('contract_start')
             ->get();
     }
@@ -238,8 +238,8 @@ class SponsorAnnualReportController extends Controller
         return SponsorRenewal::with(['sponsor', 'sponsor.firstPic'])
             ->where('renewal_year', $year)
             ->where('renewal_status', 'not_renewed')
-            ->when($package, fn ($q) => $q->where('package', $package))
-            ->when($search, fn ($q) => $q->whereHas('sponsor', fn ($sq) => $sq->where('name', 'like', "%{$search}%")))
+            ->when($package, fn($q) => $q->where('package', $package))
+            ->when($search, fn($q) => $q->whereHas('sponsor', fn($sq) => $sq->where('name', 'like', "%{$search}%")))
             ->orderBy('created_at')
             ->get();
     }
@@ -255,7 +255,7 @@ class SponsorAnnualReportController extends Controller
             ->whereNotNull('contract_end')
             ->orderBy('contract_end')
             ->get()
-            ->groupBy(fn ($r) => (int) substr($r->contract_end, 5, 2));
+            ->groupBy(fn($r) => (int) substr($r->contract_end, 5, 2));
     }
 
     /**
@@ -283,14 +283,14 @@ class SponsorAnnualReportController extends Controller
                 $sponsorRecords = $records->get($er->sponsor_id, collect());
 
                 $next = $sponsorRecords
-                    ->filter(fn ($r) => $r->id !== $er->id
+                    ->filter(fn($r) => $r->id !== $er->id
                         && $r->renewal_status === 'renewed'
                         && $r->contract_start
                         && $r->contract_start > $er->contract_end)
                     ->sortBy('contract_start')
                     ->first();
 
-                $stopped = $sponsorRecords->first(fn ($r) => $r->renewal_status === 'not_renewed'
+                $stopped = $sponsorRecords->first(fn($r) => $r->renewal_status === 'not_renewed'
                     && $r->renewal_year >= (int) substr($er->contract_end, 0, 4));
 
                 if ($next) {
@@ -343,7 +343,7 @@ class SponsorAnnualReportController extends Controller
     private function peakExpiryMonth(Collection $expiryForecast): ?int
     {
         return $expiryForecast->isNotEmpty()
-            ? $expiryForecast->sortByDesc(fn ($g) => $g->count())->keys()->first()
+            ? $expiryForecast->sortByDesc(fn($g) => $g->count())->keys()->first()
             : null;
     }
 
@@ -360,9 +360,9 @@ class SponsorAnnualReportController extends Controller
             // Januari) tidak dihitung pending lagi — 1 sponsor = 1 penagihan per tahun.
             // Kontraknya memang berakhir tahun ini, tapi renewal-nya untuk tahun depan,
             // jadi cukup tampil di 30-Day Priority Contracts, bukan di tab Pending.
-            ->filter(fn ($er) => $er->followup_status === 'pending' && (int) $er->renewal_year < $year)
-            ->when($package, fn ($c) => $c->where('package', $package))
-            ->when($search, fn ($c) => $c->filter(fn ($er) => $er->sponsor && stripos($er->sponsor->name, $search) !== false))
+            ->filter(fn($er) => $er->followup_status === 'pending' && (int) $er->renewal_year < $year)
+            ->when($package, fn($c) => $c->where('package', $package))
+            ->when($search, fn($c) => $c->filter(fn($er) => $er->sponsor && stripos($er->sponsor->name, $search) !== false))
             ->sortBy('contract_end')
             ->values();
 
