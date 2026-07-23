@@ -39,10 +39,10 @@ class XenditFee
         $vat = floor((float) config('xendit_fee.vat_on_fee', 0) * $fee);
         $totalFee = $fee + $vat; // potongan otomatis dari settlement Xendit (fee + PPN)
 
-        // PPh 23: withholding 2% dari fee (DPP tidak termasuk PPN), disetor
-        // sendiri oleh DMC ke kantor pajak — bukan dipotong Xendit, tapi tetap
-        // mengurangi nilai yang DMC akhirnya "kantongi" dari transaksi ini.
-        $pph23 = floor((float) config('xendit_fee.pph23_on_fee', 0) * $fee);
+        // PPh 23: withholding 2% dari amount (net_amount = gross - discount),
+        // disetor sendiri oleh DMC ke kantor pajak — bukan dipotong Xendit,
+        // tapi tetap mengurangi nilai yang DMC akhirnya "kantongi" dari transaksi ini.
+        $pph23 = floor((float) config('xendit_fee.pph23_on_amount', 0) * $amount);
 
         return [
             'fee'       => $fee,

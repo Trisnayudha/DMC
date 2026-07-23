@@ -133,7 +133,7 @@
                             <div class="card-icon bg-secondary"><i class="fas fa-file-invoice-dollar"></i></div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>Est. PPh 23 <small class="text-muted">(2% of fee)</small></h4>
+                                    <h4>Est. PPh 23 <small class="text-muted">(2% of amount)</small></h4>
                                 </div>
                                 <div class="card-body">{{ number_format($kpi->pph23_total_est ?? 0, 0, ',', '.') }}</div>
                             </div>
