@@ -160,7 +160,7 @@
                                                     data-contract-start="{{ $nextStart }}"
                                                     data-contract-end="{{ $nextEnd }}"
                                                     data-package="{{ $p->package }}"
-                                                    data-toggle="tooltip" title="Confirm Renewal / Update Contract">
+                                                    data-toggle="tooltip" title="Confirm Renewal / Renew Contract">
                                                     <i class="fas fa-file-signature"></i>
                                                 </button>
                                                 <button class="btn btn-sm btn-warning action-icon-btn not-renewed-btn"

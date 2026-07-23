@@ -31,6 +31,10 @@
                        class="btn btn-warning">
                         <i class="fas fa-chart-bar mr-1"></i> Annual Report
                     </a>
+                    <a href="{{ route('sponsors.contract-history') }}"
+                       class="btn btn-light border">
+                        <i class="fas fa-file-contract mr-1"></i> Contract History
+                    </a>
                 </div>
 
                 {{-- Expired & Renewal Soon alerts --}}

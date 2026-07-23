@@ -44,21 +44,30 @@ class SponsorFollowupController extends Controller
             ->orderBy('renewal_year')
             ->get()
             ->map(fn ($rf) => [
-                'renewal_year' => (int) $rf->renewal_year,
-                'form_number'  => $rf->form_number,
-                'kmk_rate'     => $rf->kmk_rate,
-                'kmk_number'   => $rf->kmk_number,
-                'amount_usd'   => $rf->amount_usd,
-                'amount_idr'   => $rf->amount_idr,
-                'notes'        => $rf->notes,
-                'generated_at' => $rf->generated_at ? $rf->generated_at->format('d M Y') : null,
-                'created_by'   => $rf->creator ? $rf->creator->name : null,
+                'renewal_year'     => (int) $rf->renewal_year,
+                'form_number'      => $rf->form_number,
+                'kmk_rate'         => $rf->kmk_rate,
+                'kmk_number'       => $rf->kmk_number,
+                'amount_usd'       => $rf->amount_usd,
+                'amount_idr'       => $rf->amount_idr,
+                'notes'            => $rf->notes,
+                'generated_at'     => $rf->generated_at ? $rf->generated_at->format('d M Y') : null,
+                'generated_at_iso' => $rf->generated_at ? $rf->generated_at->format('Y-m-d') : null,
+                'created_by'       => $rf->creator ? $rf->creator->name : null,
             ]);
+
+        $pic = $sponsor->firstPic;
 
         return response()->json([
             'success'      => true,
             'followups'    => $followups,
             'renewalForms' => $renewalForms,
+            'pic'          => $pic ? [
+                'name'  => $pic->name,
+                'title' => $pic->title,
+                'email' => $pic->email,
+                'phone' => $pic->phone,
+            ] : null,
         ]);
     }
 

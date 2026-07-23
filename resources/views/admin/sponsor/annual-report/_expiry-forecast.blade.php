@@ -129,7 +129,7 @@
                                     <span style="font-size:11px;font-weight:600;color:#47c363;background:#eafaf0;border-radius:10px;padding:2px 8px;"><i class="fas fa-check mr-1"></i>{{ $fuConfirmed }} confirmed</span>
                                 @endif
                                 @if($fuStopped > 0)
-                                    <span style="font-size:11px;font-weight:600;color:#fc544b;background:#fde8e8;border-radius:10px;padding:2px 8px;"><i class="fas fa-ban mr-1"></i>{{ $fuStopped }} stopped</span>
+                                    <span style="font-size:11px;font-weight:600;color:#fc544b;background:#fde8e8;border-radius:10px;padding:2px 8px;"><i class="fas fa-ban mr-1"></i>{{ $fuStopped }} not renewed</span>
                                 @endif
                                 @if($fuOpen > 0)
                                     <span style="font-size:11px;font-weight:600;color:{{ $fuOpenColor }};background:{{ $fuOpenBg }};border-radius:10px;padding:2px 8px;"><i class="{{ $fuOpenIcon }} mr-1"></i>{{ $fuOpen }} {{ $fuOpenLabel }}</span>
@@ -168,6 +168,10 @@
                                     $eType = $eTypeMap[$er->renewal_type] ?? ['label'=>ucfirst($er->renewal_type ?? '—'), 'bg'=>'#6c757d'];
                                     $endDate  = $er->contract_end ? \Carbon\Carbon::createFromFormat('Y-m', $er->contract_end)->endOfMonth() : null;
                                     $daysLeft = $endDate ? (int) now()->diffInDays($endDate, false) : null;
+                                    // Status sudah final (renewed/upgraded/stopped) — dipakai untuk
+                                    // menyembunyikan label Expired/Nd-left di kolom Contract End,
+                                    // yang cuma relevan selama kontrak ini masih pending.
+                                    $fu = $er->followup_status ?? 'pending';
                                 @endphp
                                 <tr>
                                     <td style="padding:10px 16px;color:#aaa;">{{ $ei+1 }}</td>
@@ -186,7 +190,7 @@
                                         <div style="font-size:12px;font-weight:600;color:#555;">
                                             {{ $er->contract_end ? \Carbon\Carbon::createFromFormat('Y-m', $er->contract_end)->format('M Y') : '—' }}
                                         </div>
-                                        @if($daysLeft !== null)
+                                        @if($daysLeft !== null && $fu === 'pending')
                                             @if($daysLeft < 0)
                                                 <div style="font-size:10px;color:#fc544b;font-weight:600;"><i class="fas fa-exclamation-circle"></i> Expired {{ abs($daysLeft) }}d ago</div>
                                             @elseif($daysLeft <= 30)
@@ -205,13 +209,20 @@
                                     </td>
                                     <td style="padding:10px 16px;">
                                         @php
-                                            $fu  = $er->followup_status ?? 'pending';
                                             $fuR = $er->followup_record ?? null;
                                             $fuPeriod = null;
                                             if ($fuR && $fuR->contract_start && $fuR->contract_end) {
                                                 $fuPeriod = \Carbon\Carbon::createFromFormat('Y-m', $fuR->contract_start)->format('M Y')
                                                     . ' – '
                                                     . \Carbon\Carbon::createFromFormat('Y-m', $fuR->contract_end)->format('M Y');
+                                            }
+                                            // Giliran pembayaran: invoice → paid, dihitung dari record renewal yang
+                                            // menyelesaikan expiry ini (kalau ada).
+                                            $fuTurnaround = null;
+                                            if ($fuR && $fuR->invoice_date) {
+                                                $fuTurnaround = $fuR->paid_date
+                                                    ? 'Paid in ' . $fuR->payment_turnaround_days . 'd'
+                                                    : 'Unpaid, ' . $fuR->payment_turnaround_days . 'd since invoice';
                                             }
                                         @endphp
                                         @if($fu === 'renewed')
@@ -221,6 +232,11 @@
                                             <div style="font-size:10px;color:#888;margin-top:3px;">
                                                 {{ ucfirst($fuR->package ?? '') }}{{ $fuPeriod ? ' · ' . $fuPeriod : '' }}
                                             </div>
+                                            @if($fuTurnaround)
+                                                <div style="font-size:10px;font-weight:600;margin-top:2px;color:{{ $fuR->paid_date ? '#47c363' : '#f39c12' }};">
+                                                    <i class="fas fa-money-check-alt" style="font-size:9px;"></i> {{ $fuTurnaround }}
+                                                </div>
+                                            @endif
                                         @elseif($fu === 'upgraded')
                                             <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:#6777ef;">
                                                 <i class="fas fa-arrow-up" style="font-size:10px;"></i> Upgraded
@@ -228,9 +244,14 @@
                                             <div style="font-size:10px;color:#888;margin-top:3px;">
                                                 {{ ucfirst($er->package ?? '?') }} → <strong>{{ ucfirst($fuR->package ?? '?') }}</strong>{{ $fuPeriod ? ' · ' . $fuPeriod : '' }}
                                             </div>
+                                            @if($fuTurnaround)
+                                                <div style="font-size:10px;font-weight:600;margin-top:2px;color:{{ $fuR->paid_date ? '#47c363' : '#f39c12' }};">
+                                                    <i class="fas fa-money-check-alt" style="font-size:9px;"></i> {{ $fuTurnaround }}
+                                                </div>
+                                            @endif
                                         @elseif($fu === 'stopped')
                                             <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:#fc544b;">
-                                                <i class="fas fa-ban" style="font-size:10px;"></i> Stopped
+                                                <i class="fas fa-ban" style="font-size:10px;"></i> Not Renew
                                             </span>
                                             @if($fuR && $fuR->notes)
                                                 <div style="font-size:10px;color:#888;margin-top:3px;max-width:180px;">{{ Str::limit($fuR->notes, 60) }}</div>

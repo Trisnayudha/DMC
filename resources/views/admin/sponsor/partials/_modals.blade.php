@@ -7,7 +7,7 @@
                 @csrf
                 @method('POST')
                 <div class="modal-header">
-                    <h5 class="modal-title" id="updateContractModalLabel">Update Contract / Renewal</h5>
+                    <h5 class="modal-title" id="updateContractModalLabel">Renew Contract</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -102,6 +102,31 @@
                             </div>
                         </div>
                     </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Invoice Date <span class="text-danger">*</span></label>
+                                <input type="date" name="invoice_date" id="modalInvoiceDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Invoice Number <span class="text-danger">*</span></label>
+                                <input type="text" name="invoice_number" id="modalInvoiceNumber"
+                                    class="form-control" placeholder="e.g. INV/2026/07/014" style="font-family:monospace;">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Paid Date
+                                    <small class="text-muted font-weight-normal">(opsional)</small>
+                                </label>
+                                <input type="date" name="paid_date" id="modalPaidDate" class="form-control">
+                                <small class="text-muted">Belum dibayar? Kosongkan — bisa diisi belakangan lewat Contract History.</small>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label>Notes / Final Confirmation</label>
                         <textarea name="notes" id="modalNotes" class="form-control" rows="2" placeholder="e.g. Confirmed - Gold Sponsorship USD 3.500"></textarea>
@@ -109,7 +134,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Contract</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Renew Contract</button>
                 </div>
             </form>
         </div>
@@ -171,9 +196,14 @@
                                     <span id="rfGenAmount"></span>
                                 </div>
                             </div>
-                            <a href="#" target="_blank" id="rfPreviewBtn" class="btn btn-sm btn-light border flex-shrink-0">
-                                <i class="fas fa-file-pdf mr-1"></i> Preview Form
-                            </a>
+                            <div class="flex-shrink-0" style="display:flex;gap:6px;">
+                                <a href="#" target="_blank" id="rfPreviewBtn" class="btn btn-sm btn-light border">
+                                    <i class="fas fa-file-pdf mr-1"></i> Preview Form
+                                </a>
+                                <button type="button" id="rfEditBtn" class="btn btn-sm btn-light border">
+                                    <i class="fas fa-pencil-alt mr-1"></i> Edit
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -225,6 +255,13 @@
                                     <small class="text-muted">Nomor KMK dari fiskal.kemenkeu.go.id — input manual.</small>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Quotation Date</label>
+                                    <input type="date" id="rfGeneratedAt" class="form-control">
+                                    <small class="text-muted">Default hari ini — bisa diubah sesuai kapan form ini dibuat.</small>
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -245,6 +282,39 @@
                                         <input type="text" id="rfAmountIdrDisplay" class="form-control" placeholder="e.g. 54.000.000">
                                         <input type="hidden" id="rfAmountIdr">
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
+                            <i class="fas fa-id-card mr-1"></i> PIC Contact
+                            <small class="text-muted font-weight-normal text-uppercase" style="letter-spacing:normal;">(bisa dibetulkan di sini)</small>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PIC Name</label>
+                                    <input type="text" id="rfPicName" class="form-control" placeholder="Nama PIC">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PIC Title</label>
+                                    <input type="text" id="rfPicTitle" class="form-control" placeholder="mis. Marketing Manager">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PIC Email</label>
+                                    <input type="email" id="rfPicEmail" class="form-control" placeholder="pic@company.com">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PIC Phone</label>
+                                    <input type="text" id="rfPicPhone" class="form-control" placeholder="mis. 0812xxxxxxx">
                                 </div>
                             </div>
                         </div>

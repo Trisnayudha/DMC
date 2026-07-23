@@ -81,6 +81,9 @@
             $('#modalAmountIdr').val('');
             $('#modalAmountIdrDisplay').val('');
             $('#modalNotes').val('');
+            $('#modalInvoiceDate').val(new Date().toISOString().slice(0, 10));
+            $('#modalInvoiceNumber').val('');
+            $('#modalPaidDate').val('');
             $('#modalQuotationNumber').val('').attr('placeholder', 'Loading...');
             $('#quotationNumberHint').text('');
             $('#modalKmkRate').val('').attr('placeholder', 'Loading...');
@@ -196,8 +199,10 @@
         // ══ Renewal Process: Step 1 Generate Renewal Form → Step 2 Follow-up ══
         var followupData        = []; // all follow-ups for the open sponsor
         var renewalFormData     = []; // all renewal forms for the open sponsor
+        var picData             = null; // current PIC {name, title, email, phone} for the open sponsor
         var sponsorOptionsData  = []; // {id, name, last_amount_usd, last_amount_idr}
         var sponsorOptionsReady = false;
+        var rfEditMode          = false; // true while the visible form is editing an already-generated renewal form
 
         function rfCurrentYear() {
             return parseInt($('#renewalYear').val(), 10);
@@ -304,8 +309,20 @@
             });
         }
 
+        // Isi ulang field PIC dari data sponsor yang sedang dibuka (baik saat generate
+        // baru maupun saat edit form yang sudah ada — PIC melekat ke sponsor, bukan form).
+        function fillPicFields() {
+            var p = picData || {};
+            $('#rfPicName').val(p.name || '');
+            $('#rfPicTitle').val(p.title || '');
+            $('#rfPicEmail').val(p.email || '');
+            $('#rfPicPhone').val(p.phone || '');
+        }
+
         // Reset the empty Generate form for a fresh year (form number + KMK + auto USD)
         function prefillRenewalForm(year) {
+            rfEditMode = false;
+            $('#rfSubmitBtn').html('<i class="fas fa-file-signature mr-1"></i> Generate Renewal Form');
             // USD auto dari nominal terakhir sponsor ini bayar (history renewed terakhir).
             var lastUsd = lastUsdFor($('#followupSponsorId').val());
             if (lastUsd && parseFloat(lastUsd) > 0) {
@@ -318,10 +335,39 @@
             $('#rfAmountIdr').val('');
             $('#rfAmountIdrDisplay').val('');
             $('#rfKmkNumber').val('');
+            $('#rfGeneratedAt').val(new Date().toISOString().slice(0, 10));
             $('#rfNotes').val('');
+            fillPicFields();
             fetchNextFormNumber(year);
             fetchRfKmkRate(); // IDR ter-recalc dari USD × KMK begitu rate masuk
         }
+
+        // Buka form Generate dalam mode edit, prefilled dari renewal form yang sudah
+        // ada untuk tahun terpilih — dipakai saat admin sadar ada input yang perlu
+        // dibetulkan (regenerate).
+        function enterRenewalFormEditMode() {
+            var year = rfCurrentYear();
+            var form = rfFormForYear(year);
+            if (!form) return;
+
+            rfEditMode = true;
+            $('#renewalFormGenerated').hide();
+            $('#renewalFormForm').show();
+
+            $('#rfFormNumber').val(form.form_number || '');
+            $('#rfFormNumberHint').text('');
+            $('#rfKmkRate').val(form.kmk_rate || '');
+            $('#rfKmkNumber').val(form.kmk_number || '');
+            $('#rfGeneratedAt').val(form.generated_at_iso || new Date().toISOString().slice(0, 10));
+            $('#rfAmountUsd').val(form.amount_usd || '');
+            rfSetIdr(form.amount_idr || '');
+            $('#rfUsdHint').text('');
+            $('#rfNotes').val(form.notes || '');
+            fillPicFields();
+            $('#rfSubmitBtn').html('<i class="fas fa-save mr-1"></i> Update Renewal Form');
+        }
+
+        $('#rfEditBtn').on('click', enterRenewalFormEditMode);
 
         function renderGeneratedBox(form) {
             var sponsorId = $('#followupSponsorId').val();
@@ -402,10 +448,12 @@
             $.get('/admin/sponsors/' + sponsorId + '/followups', function(res) {
                 followupData    = res.followups || [];
                 renewalFormData = res.renewalForms || [];
+                picData         = res.pic || null;
                 refreshRenewalUI();
             }).fail(function() {
                 followupData = [];
                 renewalFormData = [];
+                picData = null;
                 $('#followupTimeline').html('<div class="text-center text-danger py-3" style="font-size:12px;">Failed to load renewal data.</div>');
             });
         }
@@ -444,7 +492,7 @@
         $('#renewalFormForm').on('submit', function(e) {
             e.preventDefault();
             var sponsorId = $('#followupSponsorId').val();
-            $('#rfSubmitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Generating...');
+            $('#rfSubmitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> ' + (rfEditMode ? 'Updating...' : 'Generating...'));
             $.ajax({
                 url: '/admin/sponsors/' + sponsorId + '/renewal-form',
                 method: 'POST',
@@ -456,6 +504,11 @@
                     kmk_number:   $('#rfKmkNumber').val(),
                     amount_usd:   $('#rfAmountUsd').val(),
                     amount_idr:   $('#rfAmountIdr').val(),
+                    generated_at: $('#rfGeneratedAt').val(),
+                    pic_name:     $('#rfPicName').val(),
+                    pic_title:    $('#rfPicTitle').val(),
+                    pic_email:    $('#rfPicEmail').val(),
+                    pic_phone:    $('#rfPicPhone').val(),
                     notes:        $('#rfNotes').val(),
                 },
                 success: function(response) {
@@ -476,7 +529,9 @@
                     toastr.error(msg, 'Error', { positionClass: 'toast-top-right' });
                 },
                 complete: function() {
-                    $('#rfSubmitBtn').prop('disabled', false).html('<i class="fas fa-file-signature mr-1"></i> Generate Renewal Form');
+                    $('#rfSubmitBtn').prop('disabled', false).html(rfEditMode
+                        ? '<i class="fas fa-save mr-1"></i> Update Renewal Form'
+                        : '<i class="fas fa-file-signature mr-1"></i> Generate Renewal Form');
                 }
             });
         });

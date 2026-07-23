@@ -10,6 +10,9 @@
                     <a href="{{ route('sponsors.annual-report') }}" class="btn btn-sm btn-warning">
                         <i class="fas fa-chart-bar"></i> Annual Report
                     </a>
+                    <a href="{{ route('sponsors.contract-history') }}" class="btn btn-sm btn-light border">
+                        <i class="fas fa-file-contract"></i> Contract History
+                    </a>
 <a href="{{ route('sponsors.export') }}" class="btn btn-sm btn-success">
                         <i class="fas fa-file-excel"></i> Export Data
                     </a>

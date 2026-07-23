@@ -10,6 +10,8 @@
                                         <th style="width:90px;">Package</th>
                                         <th style="min-width:190px;">Period</th>
                                         <th style="width:110px;">Type</th>
+                                        <th style="min-width:120px;">Invoice Date</th>
+                                        <th style="min-width:140px;">Invoice Number</th>
                                         <th style="min-width:200px;">PIC Contact</th>
                                     </tr>
                                 </thead>
@@ -60,13 +62,19 @@
                                                 {{ $typeInfo['label'] }}
                                             </span>
                                         </td>
+                                        <td style="padding:12px 16px; color:#555; font-size:12px;">
+                                            {{ $r->invoice_date ? $r->invoice_date->format('d M Y') : '—' }}
+                                        </td>
+                                        <td style="padding:12px 16px; color:#555; font-size:12px; font-family:monospace;">
+                                            {{ $r->invoice_number ?? '—' }}
+                                        </td>
                                         <td style="padding:12px 16px;">
                                             @include('admin.sponsor.annual-report._pic-contact', ['pic' => $pic, 'color' => '#6777ef'])
                                         </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-5 text-muted">
+                                        <td colspan="8" class="text-center py-5 text-muted">
                                             <i class="fas fa-inbox fa-2x mb-3 d-block" style="opacity:.3;"></i>
                                             No confirmed sponsors found for the selected filters.
                                         </td>

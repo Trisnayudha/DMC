@@ -620,6 +620,9 @@ class SponsorController extends Controller
             'kmk_rate'          => 'nullable|integer|min:1',
             'notes'             => 'nullable|string|max:1000',
             'quotation_number'  => 'nullable|string|max:30|unique:sponsor_renewals,quotation_number',
+            'invoice_date'      => 'required|date',
+            'invoice_number'    => 'required|string|max:30|unique:sponsor_renewals,invoice_number',
+            'paid_date'         => 'nullable|date|after_or_equal:invoice_date',
         ]);
 
         $start = Carbon::createFromFormat('Y-m', $validated['contract_start']);
@@ -655,6 +658,9 @@ class SponsorController extends Controller
                 'is_current'       => 1,
                 'quotation_number' => $quotationNumber,
                 'quotation_date'   => now()->toDateString(),
+                'invoice_date'     => $validated['invoice_date'],
+                'invoice_number'   => $validated['invoice_number'],
+                'paid_date'        => $validated['paid_date'] ?? null,
             ]);
 
             $sponsor->contract_start = $validated['contract_start'];

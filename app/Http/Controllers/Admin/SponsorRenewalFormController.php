@@ -8,11 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Sponsors\PackageBenefit;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorFollowup;
+use App\Models\Sponsors\SponsorPic;
 use App\Models\Sponsors\SponsorRenewal;
 use App\Models\Sponsors\SponsorRenewalForm;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -178,11 +180,18 @@ class SponsorRenewalFormController extends Controller
     }
 
     /**
-     * Catat renewal form (langkah pertama sebelum follow-up).
+     * Catat renewal form (langkah pertama sebelum follow-up). Kalau form untuk
+     * sponsor+tahun ini sudah pernah dibuat, submit ulang akan meng-update
+     * record yang sama (regenerate) alih-alih ditolak — dipakai saat admin
+     * sadar ada input yang kurang/salah dan perlu dibetulkan.
      */
     public function store(Request $request, int $sponsorId)
     {
         $sponsor = Sponsor::findOrFail($sponsorId);
+
+        $existing = SponsorRenewalForm::where('sponsor_id', $sponsor->id)
+            ->where('renewal_year', $request->input('renewal_year'))
+            ->first();
 
         $validated = $request->validate([
             'renewal_year' => 'required|integer|min:2020|max:2100',
@@ -192,52 +201,70 @@ class SponsorRenewalFormController extends Controller
             'amount_usd'   => 'nullable|numeric|min:0',
             'amount_idr'   => 'nullable|numeric|min:0',
             'notes'        => 'nullable|string|max:1000',
+            'generated_at' => 'nullable|date',
+            'pic_name'     => 'nullable|string|max:255',
+            'pic_title'    => 'nullable|string|max:255',
+            'pic_email'    => 'nullable|email|max:255',
+            'pic_phone'    => 'nullable|string|max:50',
         ], [
             'kmk_rate.required'   => 'KMK rate wajib diisi saat generate renewal form.',
             'kmk_number.required' => 'KMK Nomor wajib diisi (cek di fiskal.kemenkeu.go.id).',
         ]);
 
-        // Satu form per sponsor per tahun.
-        $existing = SponsorRenewalForm::where('sponsor_id', $sponsor->id)
-            ->where('renewal_year', $validated['renewal_year'])
-            ->exists();
-
-        if ($existing) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Renewal form untuk tahun ' . $validated['renewal_year'] . ' sudah pernah di-generate.',
-            ], 422);
-        }
-
         $formNumber = !empty($validated['form_number'])
             ? $validated['form_number']
             : SponsorRenewalForm::generateFormNumber((int) $validated['renewal_year']);
 
-        if (SponsorRenewalForm::where('form_number', $formNumber)->exists()) {
+        $numberTaken = SponsorRenewalForm::where('form_number', $formNumber)
+            ->when($existing, fn ($q) => $q->where('id', '!=', $existing->id))
+            ->exists();
+
+        if ($numberTaken) {
             return response()->json([
                 'success' => false,
                 'message' => 'Nomor renewal form "' . $formNumber . '" sudah dipakai.',
             ], 422);
         }
 
-        $form = SponsorRenewalForm::create([
-            'sponsor_id'   => $sponsor->id,
-            'renewal_year' => $validated['renewal_year'],
-            'form_number'  => $formNumber,
-            'kmk_rate'     => $validated['kmk_rate'],
-            'kmk_number'   => $validated['kmk_number'],
-            'amount_usd'   => $validated['amount_usd'] ?? null,
-            'amount_idr'   => $validated['amount_idr'] ?? null,
-            'notes'        => $validated['notes'] ?? null,
-            'generated_at' => now()->toDateString(),
-            'created_by'   => auth()->id(),
-        ]);
+        $form = DB::transaction(function () use ($sponsor, $validated, $existing, $formNumber) {
+            $form = SponsorRenewalForm::updateOrCreate(
+                ['sponsor_id' => $sponsor->id, 'renewal_year' => $validated['renewal_year']],
+                [
+                    'form_number'  => $formNumber,
+                    'kmk_rate'     => $validated['kmk_rate'],
+                    'kmk_number'   => $validated['kmk_number'],
+                    'amount_usd'   => $validated['amount_usd'] ?? null,
+                    'amount_idr'   => $validated['amount_idr'] ?? null,
+                    'notes'        => $validated['notes'] ?? null,
+                    'generated_at' => $validated['generated_at'] ?? ($existing ? $existing->generated_at : now()->toDateString()),
+                    'created_by'   => $existing ? $existing->created_by : auth()->id(),
+                ]
+            );
 
-        $this->notifyRenewalFormGenerated($sponsor, $form);
+            if (!empty($validated['pic_name']) || !empty($validated['pic_title']) || !empty($validated['pic_email']) || !empty($validated['pic_phone'])) {
+                $pic = $sponsor->firstPic ?? new SponsorPic(['sponsor_id' => $sponsor->id]);
+                $pic->fill([
+                    'name'  => $validated['pic_name'] ?? $pic->name,
+                    'title' => $validated['pic_title'] ?? $pic->title,
+                    'email' => $validated['pic_email'] ?? $pic->email,
+                    'phone' => $validated['pic_phone'] ?? $pic->phone,
+                ]);
+                $pic->sponsor_id = $sponsor->id;
+                $pic->save();
+            }
+
+            return $form;
+        });
+
+        if (!$existing) {
+            $this->notifyRenewalFormGenerated($sponsor, $form);
+        }
 
         return response()->json([
             'success'     => true,
-            'message'     => 'Renewal form ' . $formNumber . ' untuk ' . $sponsor->name . ' berhasil di-generate.',
+            'message'     => $existing
+                ? 'Renewal form ' . $formNumber . ' untuk ' . $sponsor->name . ' berhasil di-update.'
+                : 'Renewal form ' . $formNumber . ' untuk ' . $sponsor->name . ' berhasil di-generate.',
             'form_number' => $formNumber,
         ]);
     }
