@@ -13,23 +13,28 @@
         }
 
         // Open Edit modal, prefilled from the row's data-* attributes.
+        // Reads each attribute individually (dash-case key, matching the
+        // pattern used by .update-contract-btn / .not-renewed-btn elsewhere
+        // in this app) rather than bulk $(this).data() — safer against any
+        // single attribute (e.g. free-text notes) tripping jQuery's
+        // automatic JSON/number coercion for the whole cached data object.
         $(document).on('click', '.edit-renewal-btn', function() {
-            var d = $(this).data();
-            $('#editRenewalId').val(d.id);
-            $('#editRenewalSponsorName').text(d.sponsorName || '');
-            $('#editContractStart').val(d.contractStart || '');
-            $('#editContractEnd').val(d.contractEnd || '');
-            $('#editPackage').val(d.package || '');
-            $('#editRenewalType').val(d.renewalType || '');
-            $('#editAmountUsd').val(d.amountUsd || '');
-            $('#editAmountIdr').val(d.amountIdr || '');
-            $('#editQuotationNumber').val(d.quotationNumber || '');
-            $('#editQuotationDate').val(d.quotationDate || '');
-            $('#editInvoiceNumber').val(d.invoiceNumber || '');
-            $('#editInvoiceDate').val(d.invoiceDate || '');
-            $('#editPaidDate').val(d.paidDate || '');
-            $('#editNotes').val(d.notes || '');
-            toggleEditRenewedFields(d.status);
+            var $btn = $(this);
+            $('#editRenewalId').val($btn.attr('data-id'));
+            $('#editRenewalSponsorName').text($btn.attr('data-sponsor-name') || '');
+            $('#editContractStart').val($btn.attr('data-contract-start') || '');
+            $('#editContractEnd').val($btn.attr('data-contract-end') || '');
+            $('#editPackage').val($btn.attr('data-package') || '');
+            $('#editRenewalType').val($btn.attr('data-renewal-type') || '');
+            $('#editAmountUsd').val($btn.attr('data-amount-usd') || '');
+            $('#editAmountIdr').val($btn.attr('data-amount-idr') || '');
+            $('#editQuotationNumber').val($btn.attr('data-quotation-number') || '');
+            $('#editQuotationDate').val($btn.attr('data-quotation-date') || '');
+            $('#editInvoiceNumber').val($btn.attr('data-invoice-number') || '');
+            $('#editInvoiceDate').val($btn.attr('data-invoice-date') || '');
+            $('#editPaidDate').val($btn.attr('data-paid-date') || '');
+            $('#editNotes').val($btn.attr('data-notes') || '');
+            toggleEditRenewedFields($btn.attr('data-status'));
             $('#editRenewalModal').modal('show');
         });
 

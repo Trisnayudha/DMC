@@ -9,7 +9,7 @@
     $progressCards = [
         ['key' => 'renewal', 'label' => 'Renewal',     'count' => $renewedCount, 'color' => '#3abaf4', 'icon' => 'fas fa-redo-alt'],
         ['key' => 'upgrade', 'label' => 'Upgrade',     'count' => $upgradeCount, 'color' => '#f39c12', 'icon' => 'fas fa-arrow-up'],
-        ['key' => 'new',     'label' => 'New Sponsor', 'count' => $newCount,     'color' => '#47c363', 'icon' => 'fas fa-star'],
+        ['key' => 'new',     'label' => 'New Sponsor', 'count' => $newCount,     'color' => '#47c363', 'icon' => 'fas fa-star', 'lastYear' => $lastYearNewCount ?? null],
     ];
     $confirmedTotal = $renewedCount + $upgradeCount + $newCount;
     $confirmedBreakdown = [];
@@ -49,6 +49,9 @@
                         <div>
                             <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">{{ $sc['label'] }}</div>
                             <div class="font-weight-700" style="font-size:24px;line-height:1.1;color:#2d3748;">{{ $sc['count'] }}</div>
+                            @if(array_key_exists('lastYear', $sc))
+                                @include('admin.sponsor.annual-report._yoy-delta', ['current' => $sc['count'], 'previous' => $sc['lastYear'], 'year' => $year, 'label' => 'new sponsors'])
+                            @endif
                         </div>
                     </div>
                     <div class="d-flex mt-3 pt-2" style="gap:6px;border-top:1px dashed #e4e6fc;">
@@ -141,6 +144,7 @@
                             <div class="text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;color:#c0392b;">Lost</div>
                             <div class="font-weight-700" style="font-size:24px;line-height:1.1;color:#a02622;">{{ $notRenewedCount }}</div>
                             <div style="font-size:9px;color:#c0392b;line-height:1.2;">did not renew this year</div>
+                            @include('admin.sponsor.annual-report._yoy-delta', ['current' => $notRenewedCount, 'previous' => $lastYearNotRenewedCount ?? null, 'year' => $year, 'label' => 'lost', 'invert' => true])
                         </div>
                     </div>
                     <div class="d-flex mt-2 pt-2" style="gap:6px;border-top:1px dashed #fcc;">

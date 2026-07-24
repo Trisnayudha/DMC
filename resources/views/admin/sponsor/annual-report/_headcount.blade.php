@@ -33,6 +33,7 @@
                             <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">This Year Sponsor</div>
                             <div class="font-weight-700" style="font-size:28px;line-height:1.1;color:#2d3748;">{{ $dc['thisYearConfirmed'] }}</div>
                             <div style="font-size:10px;color:#888;">confirmed in {{ $year }}</div>
+                            @include('admin.sponsor.annual-report._yoy-delta', ['current' => $dc['thisYearConfirmed'], 'previous' => $dc['lastYearConfirmed'] ?? null, 'year' => $year, 'label' => 'confirmed'])
                         </div>
                     </div>
                 </div>

@@ -148,7 +148,7 @@
                                     <th style="width:90px;">Package</th>
                                     <th style="width:140px;">Contract End</th>
                                     <th style="width:110px;">Renewal Type</th>
-                                    <th style="min-width:160px;">Follow-up Status</th>
+                                    <th style="min-width:160px;">Status</th>
                                     <th>PIC Contact</th>
                                     <th style="width:140px;">Action</th>
                                 </tr>
@@ -216,12 +216,18 @@
                                                     . ' – '
                                                     . \Carbon\Carbon::createFromFormat('Y-m', $fuR->contract_end)->format('M Y');
                                             }
+                                            // Invoice: nomor & tanggal invoice dari record renewal yang
+                                            // menyelesaikan expiry ini (kalau ada).
+                                            $fuInvoice = null;
+                                            if ($fuR && ($fuR->invoice_number || $fuR->invoice_date)) {
+                                                $fuInvoice = ($fuR->invoice_number ?? '—') . ' - ' . ($fuR->invoice_date ? $fuR->invoice_date->format('d M Y') : '—');
+                                            }
                                             // Giliran pembayaran: invoice → paid, dihitung dari record renewal yang
                                             // menyelesaikan expiry ini (kalau ada).
                                             $fuTurnaround = null;
                                             if ($fuR && $fuR->invoice_date) {
                                                 $fuTurnaround = $fuR->paid_date
-                                                    ? 'Paid in ' . $fuR->payment_turnaround_days . 'd'
+                                                    ? 'Paid on ' . $fuR->paid_date->format('d M Y') . ' (' . $fuR->payment_turnaround_days . 'd)'
                                                     : 'Unpaid, ' . $fuR->payment_turnaround_days . 'd since invoice';
                                             }
                                         @endphp
@@ -230,7 +236,7 @@
                                                 <i class="fas fa-check" style="font-size:10px;"></i> Renewed
                                             </span>
                                             <div style="font-size:10px;color:#888;margin-top:3px;">
-                                                {{ ucfirst($fuR->package ?? '') }}{{ $fuPeriod ? ' · ' . $fuPeriod : '' }}
+                                                {{ $fuInvoice ?? (ucfirst($fuR->package ?? '') . ($fuPeriod ? ' · ' . $fuPeriod : '')) }}
                                             </div>
                                             @if($fuTurnaround)
                                                 <div style="font-size:10px;font-weight:600;margin-top:2px;color:{{ $fuR->paid_date ? '#47c363' : '#f39c12' }};">
@@ -242,7 +248,7 @@
                                                 <i class="fas fa-arrow-up" style="font-size:10px;"></i> Upgraded
                                             </span>
                                             <div style="font-size:10px;color:#888;margin-top:3px;">
-                                                {{ ucfirst($er->package ?? '?') }} → <strong>{{ ucfirst($fuR->package ?? '?') }}</strong>{{ $fuPeriod ? ' · ' . $fuPeriod : '' }}
+                                                {{ $fuInvoice ?? (ucfirst($er->package ?? '?') . ' → ' . ucfirst($fuR->package ?? '?') . ($fuPeriod ? ' · ' . $fuPeriod : '')) }}
                                             </div>
                                             @if($fuTurnaround)
                                                 <div style="font-size:10px;font-weight:600;margin-top:2px;color:{{ $fuR->paid_date ? '#47c363' : '#f39c12' }};">

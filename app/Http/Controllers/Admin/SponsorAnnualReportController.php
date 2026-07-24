@@ -143,13 +143,16 @@ class SponsorAnnualReportController extends Controller
      */
     private function summaryCounts(int $year): array
     {
-        $base = fn() => SponsorRenewal::where('renewal_year', $year);
+        $base = fn(int $y) => SponsorRenewal::where('renewal_year', $y);
 
         return [
-            'renewedCount'    => $base()->where('renewal_status', 'renewed')->where('renewal_type', 'renewal')->count(),
-            'upgradeCount'    => $base()->where('renewal_status', 'renewed')->where('renewal_type', 'upgrade')->count(),
-            'newCount'        => $base()->where('renewal_status', 'renewed')->whereIn('renewal_type', ['new', 'new_member'])->count(),
-            'notRenewedCount' => $base()->where('renewal_status', 'not_renewed')->count(),
+            'renewedCount'    => $base($year)->where('renewal_status', 'renewed')->where('renewal_type', 'renewal')->count(),
+            'upgradeCount'    => $base($year)->where('renewal_status', 'renewed')->where('renewal_type', 'upgrade')->count(),
+            'newCount'        => $base($year)->where('renewal_status', 'renewed')->whereIn('renewal_type', ['new', 'new_member'])->count(),
+            'notRenewedCount' => $base($year)->where('renewal_status', 'not_renewed')->count(),
+            // Perbandingan year-over-year (final tahun lalu) untuk kartu New Sponsor & Lost.
+            'lastYearNewCount'        => $base($year - 1)->where('renewal_status', 'renewed')->whereIn('renewal_type', ['new', 'new_member'])->count(),
+            'lastYearNotRenewedCount' => $base($year - 1)->where('renewal_status', 'not_renewed')->count(),
         ];
     }
 
@@ -448,6 +451,11 @@ class SponsorAnnualReportController extends Controller
             ->where('renewal_status', 'renewed')
             ->count();
 
+        // Final tahun lalu, buat perbandingan year-over-year di kartu This Year Sponsor.
+        $lastYearConfirmed = SponsorRenewal::where('renewal_year', $year - 1)
+            ->where('renewal_status', 'renewed')
+            ->count();
+
         $pendingRenewalCount = $pendingRenewals->count();
 
         // Kadaluarsa = kontrak pending yang sudah jatuh tempo: berakhir bulan ini ATAU
@@ -467,6 +475,7 @@ class SponsorAnnualReportController extends Controller
         return [
             'totalSponsor'        => $totalSponsor,
             'thisYearConfirmed'   => $thisYearConfirmed,
+            'lastYearConfirmed'   => $lastYearConfirmed,
             'pendingRenewalCount' => $pendingRenewalCount,
             'expiredCount'        => $expiredCount,
             'notRenewCount'       => $notRenewCount,
