@@ -321,7 +321,7 @@ class SponsorController extends Controller
 
         $this->storeBillings($request, $sponsor);
 
-        return redirect()->route('sponsors.index')->with('success', 'Sponsor berhasil disimpan');
+        return redirect()->route('sponsors.index')->with('success', 'Sponsor saved successfully');
     }
 
     // Simpan data billing baru (dipakai saat create sponsor)
@@ -400,7 +400,7 @@ class SponsorController extends Controller
         $sponsor = Sponsor::find($id);
 
         if (!$sponsor) {
-            return redirect()->route('sponsors.index')->with('error', 'Sponsor tidak ditemukan');
+            return redirect()->route('sponsors.index')->with('error', 'Sponsor not found');
         }
 
         return view('admin.sponsor.edit', compact('sponsor'));
@@ -521,7 +521,7 @@ class SponsorController extends Controller
 
         $this->syncBillings($request, $sponsor);
 
-        return redirect()->route('sponsors.index')->with('success', 'Sponsor berhasil diperbarui');
+        return redirect()->route('sponsors.index')->with('success', 'Sponsor updated successfully');
     }
 
 
@@ -533,7 +533,7 @@ class SponsorController extends Controller
         $sponsor = Sponsor::find($id);
 
         if (!$sponsor) {
-            return response()->json(['success' => false, 'message' => 'Sponsor tidak ditemukan']);
+            return response()->json(['success' => false, 'message' => 'Sponsor not found']);
         }
 
         // Hapus gambar terkait jika ada (jika Anda menyimpan gambar dalam storage)
@@ -544,7 +544,7 @@ class SponsorController extends Controller
 
         $sponsor->delete();
 
-        return response()->json(['success' => true, 'message' => 'Sponsor berhasil dihapus']);
+        return response()->json(['success' => true, 'message' => 'Sponsor deleted successfully']);
     }
 
 
@@ -553,14 +553,14 @@ class SponsorController extends Controller
     {
         $sponsor = Sponsor::find($id);
         if (!$sponsor) {
-            return response()->json(['success' => false, 'message' => 'Sponsor tidak ditemukan']);
+            return response()->json(['success' => false, 'message' => 'Sponsor not found']);
         }
 
         $status = $request->input('status');
         $sponsor->status = $status;
         $sponsor->save();
 
-        return response()->json(['success' => true, 'message' => 'Status berhasil diperbarui']);
+        return response()->json(['success' => true, 'message' => 'Status updated successfully']);
     }
 
     public function sponsor($slug)
@@ -818,7 +818,7 @@ class SponsorController extends Controller
         if ($alreadyRecorded) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sponsor sudah tercatat tidak renew di tahun ' . $validated['renewal_year'] . '.',
+                'message' => 'Sponsor is already recorded as not renewed for year ' . $validated['renewal_year'] . '.',
             ], 422);
         }
 
@@ -849,7 +849,7 @@ class SponsorController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $sponsor->name . ' dicatat tidak renew untuk tahun ' . $validated['renewal_year'] . '.',
+            'message' => $sponsor->name . ' recorded as not renewed for year ' . $validated['renewal_year'] . '.',
         ]);
     }
 

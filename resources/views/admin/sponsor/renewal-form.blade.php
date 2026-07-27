@@ -293,7 +293,7 @@
             <tr>
                 <td colspan="2" class="val-middle">
                     @if($kursRate)
-                        <span style="display:inline-block;width:80px;">Kurs:</span> IDR {{ number_format($kursRate, 0, '.', '.') }}
+                        <span style="display:inline-block;width:80px;">Rate:</span> IDR {{ number_format($kursRate, 0, '.', '.') }}
                     @endif
                 </td>
                 <td class="bg-dark val-middle">Total In USD</td>
@@ -307,9 +307,9 @@
             <tr>
                 <td colspan="2" class="val-middle">
                     @if(!empty($renewalForm) && $renewalForm->kmk_number)
-                        KMK Nomor {{ $renewalForm->kmk_number }}
+                        KMK Number {{ $renewalForm->kmk_number }}
                     @elseif($kursRate)
-                        KMK Nomor {{ now()->format('Y') }}/MK/EF.2/{{ now()->format('Y') }}
+                        KMK Number {{ now()->format('Y') }}/MK/EF.2/{{ now()->format('Y') }}
                     @endif
                 </td>
                 <td class="bg-dark val-middle">Total In IDR</td>

@@ -116,7 +116,7 @@ class SponsorBenefitController extends Controller
             ->value('quantity') ?? 1;
 
         if ($usage->marks()->count() >= $quantity) {
-            return back()->with('error', 'Kuota benefit ini sudah penuh (' . $quantity . '/' . $quantity . ').');
+            return back()->with('error', 'This benefit quota is already full (' . $quantity . '/' . $quantity . ').');
         }
 
         $proofPath = null;
@@ -141,7 +141,7 @@ class SponsorBenefitController extends Controller
         $usage->used_at = $marksCount >= $quantity ? now() : null;
         $usage->save();
 
-        return back()->with('success', 'Mark berhasil ditambahkan.');
+        return back()->with('success', 'Mark added successfully.');
     }
 
     public function removeMark(int $markId)
@@ -165,7 +165,7 @@ class SponsorBenefitController extends Controller
         $usage->used_at = $marksCount >= $quantity ? now() : null;
         $usage->save();
 
-        return back()->with('success', 'Mark berhasil dihapus.');
+        return back()->with('success', 'Mark removed successfully.');
     }
 
     // Kept for backward compatibility — halaman lama yang masih pakai route ini
@@ -177,6 +177,6 @@ class SponsorBenefitController extends Controller
             $benefitUsage->used_at = Carbon::now();
             $benefitUsage->save();
         }
-        return redirect()->back()->with('success', 'Benefit telah ditandai sebagai digunakan.');
+        return redirect()->back()->with('success', 'Benefit has been marked as used.');
     }
 }

@@ -64,7 +64,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                <small class="text-muted">Dari renewal form (bisa diubah); tombol refresh = kurs live</small>
+                                <small class="text-muted">From renewal form (editable); refresh button = live rate</small>
                             </div>
                         </div>
                     </div>
@@ -120,10 +120,10 @@
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Paid Date
-                                    <small class="text-muted font-weight-normal">(opsional)</small>
+                                    <small class="text-muted font-weight-normal">(optional)</small>
                                 </label>
                                 <input type="date" name="paid_date" id="modalPaidDate" class="form-control">
-                                <small class="text-muted">Belum dibayar? Kosongkan — bisa diisi belakangan lewat Contract History.</small>
+                                <small class="text-muted">Not paid yet? Leave blank — it can be filled in later via Contract History.</small>
                             </div>
                         </div>
                     </div>
@@ -192,7 +192,7 @@
                                 <div class="text-muted" style="font-size:12.5px;line-height:1.7;margin-top:3px;">
                                     Generated: <span id="rfGenDate">—</span><span id="rfGenBy"></span><br>
                                     KMK Rate: <span id="rfGenKmk">—</span><br>
-                                    KMK Nomor: <span id="rfGenKmkNumber">—</span><br>
+                                    KMK Number: <span id="rfGenKmkNumber">—</span><br>
                                     <span id="rfGenAmount"></span>
                                 </div>
                             </div>
@@ -213,11 +213,11 @@
                         {{-- Notice: ingatkan cek kurs & nomor KMK terbaru sebelum generate --}}
                         <div class="alert alert-warning py-2 mb-3" style="font-size:12.5px;">
                             <i class="fas fa-exclamation-triangle mr-1"></i>
-                            <strong>Cek dulu kurs &amp; Nomor KMK terbaru</strong> di
+                            <strong>Check the latest exchange rate &amp; KMK Number first</strong> at
                             <a href="https://fiskal.kemenkeu.go.id/informasi-publik/kurs-pajak" target="_blank" rel="noopener">
                                 fiskal.kemenkeu.go.id/informasi-publik/kurs-pajak
                             </a>.
-                            Isi <strong>KMK Rate</strong> dan <strong>KMK Nomor</strong> sesuai yang berlaku saat ini.
+                            Fill in <strong>KMK Rate</strong> and <strong>KMK Number</strong> according to what's currently in effect.
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -249,17 +249,17 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>KMK Nomor <span class="text-danger">*</span></label>
+                                    <label>KMK Number <span class="text-danger">*</span></label>
                                     <input type="text" id="rfKmkNumber" class="form-control"
-                                        placeholder="mis. 30/MK/EF.2/2026">
-                                    <small class="text-muted">Nomor KMK dari fiskal.kemenkeu.go.id — input manual.</small>
+                                        placeholder="e.g. 30/MK/EF.2/2026">
+                                    <small class="text-muted">KMK Number from fiskal.kemenkeu.go.id — manual input.</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Quotation Date</label>
                                     <input type="date" id="rfGeneratedAt" class="form-control">
-                                    <small class="text-muted">Default hari ini — bisa diubah sesuai kapan form ini dibuat.</small>
+                                    <small class="text-muted">Defaults to today — can be changed to match when this form was actually made.</small>
                                 </div>
                             </div>
                         </div>
@@ -288,19 +288,19 @@
                         <hr>
                         <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
                             <i class="fas fa-id-card mr-1"></i> PIC Contact
-                            <small class="text-muted font-weight-normal text-uppercase" style="letter-spacing:normal;">(bisa dibetulkan di sini)</small>
+                            <small class="text-muted font-weight-normal text-uppercase" style="letter-spacing:normal;">(can be corrected here)</small>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>PIC Name</label>
-                                    <input type="text" id="rfPicName" class="form-control" placeholder="Nama PIC">
+                                    <input type="text" id="rfPicName" class="form-control" placeholder="PIC Name">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>PIC Title</label>
-                                    <input type="text" id="rfPicTitle" class="form-control" placeholder="mis. Marketing Manager">
+                                    <input type="text" id="rfPicTitle" class="form-control" placeholder="e.g. Marketing Manager">
                                 </div>
                             </div>
                         </div>
@@ -314,14 +314,14 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>PIC Phone</label>
-                                    <input type="text" id="rfPicPhone" class="form-control" placeholder="mis. 0812xxxxxxx">
+                                    <input type="text" id="rfPicPhone" class="form-control" placeholder="e.g. 0812xxxxxxx">
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Notes</label>
                             <textarea id="rfNotes" class="form-control" rows="2"
-                                placeholder="e.g. Proposal Gold Sponsorship 2026, dikirim via email ke PIC..."></textarea>
+                                placeholder="e.g. Proposal Gold Sponsorship 2026, sent via email to the PIC..."></textarea>
                         </div>
                         <div class="text-right">
                             <button type="submit" class="btn" style="background:#47c363;color:#fff;" id="rfSubmitBtn">

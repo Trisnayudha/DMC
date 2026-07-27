@@ -123,7 +123,7 @@
                     // di-confirm), backend akan menolak dan admin bisa ganti manual.
                     if (f.form_number) {
                         $('#modalQuotationNumber').val(f.form_number);
-                        $('#quotationNumberHint').text('Dari renewal form ' + f.form_number + ' (bisa diubah)');
+                        $('#quotationNumberHint').text('From renewal form ' + f.form_number + ' (editable)');
                     }
                 }
             }).fail(function() {
@@ -327,10 +327,10 @@
             var lastUsd = lastUsdFor($('#followupSponsorId').val());
             if (lastUsd && parseFloat(lastUsd) > 0) {
                 $('#rfAmountUsd').val(parseFloat(lastUsd));
-                $('#rfUsdHint').text('Auto dari pembayaran terakhir: USD ' + Number(lastUsd).toLocaleString('id-ID') + ' (bisa diubah)');
+                $('#rfUsdHint').text('Auto-filled from last payment: USD ' + Number(lastUsd).toLocaleString('id-ID') + ' (editable)');
             } else {
                 $('#rfAmountUsd').val('');
-                $('#rfUsdHint').text('Belum ada history pembayaran — isi manual.');
+                $('#rfUsdHint').text('No payment history yet — enter manually.');
             }
             $('#rfAmountIdr').val('');
             $('#rfAmountIdrDisplay').val('');

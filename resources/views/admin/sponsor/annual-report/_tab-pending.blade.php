@@ -19,7 +19,7 @@
                                     <strong style="color:#fc544b;">Pending</strong> — the contract has already passed without confirmation (overdue, follow up immediately).
                                     <br><strong style="color:#e67e22;">Awaiting</strong> — the contract ends this month; a decision is expected now.
                                     <br><strong style="color:#6c757d;">Upcoming</strong> — the contract ends in a later month; on the radar, not urgent yet.
-                                    <br><strong style="color:#3abaf4;">Prosit</strong> — follow-up is already in progress (with proof recorded), while <strong style="color:#6c757d;">Not Contacted</strong> means no follow-up has been made yet.
+                                    <br><strong style="color:#3abaf4;">Contacted</strong> — follow-up is already in progress (with proof recorded), while <strong style="color:#6c757d;">Not Contacted</strong> means no follow-up has been made yet.
                                 </div>
                                 <div class="d-flex flex-wrap mt-2" style="gap:8px;">
                                     @if(($stageCounts['pending'] ?? 0) > 0)
@@ -120,7 +120,7 @@
                                         <td style="padding:12px 16px;">
                                             @if(($p->followup_count ?? 0) > 0)
                                                 <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:#3abaf4;">
-                                                    <i class="fas fa-phone-volume" style="font-size:10px;"></i> Prosit · {{ $p->followup_count }}×
+                                                    <i class="fas fa-phone-volume" style="font-size:10px;"></i> Contacted · {{ $p->followup_count }}×
                                                 </span>
                                                 @if($p->last_followup)
                                                     <div style="font-size:10px;color:#888;margin-top:3px;">

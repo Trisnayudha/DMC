@@ -105,10 +105,10 @@ class SponsorAdvertisingController extends Controller
             // Hapus data dari database
             $advertising->delete();
 
-            return response()->json(['success' => true, 'message' => 'Data berhasil dihapus.']);
+            return response()->json(['success' => true, 'message' => 'Data deleted successfully.']);
         } catch (\Exception $e) {
             Log::error('Error deleting data: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat menghapus data.'], 500);
+            return response()->json(['success' => false, 'message' => 'An error occurred while deleting the data.'], 500);
         }
     }
 }

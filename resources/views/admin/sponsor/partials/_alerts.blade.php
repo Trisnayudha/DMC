@@ -19,7 +19,7 @@
                    data-contract-start="{{ $sponsor->contract_start }}"
                    data-contract-end="{{ $sponsor->contract_end }}"
                    data-package="{{ $sponsor->package }}"
-                   title="Update Contract"><i class="fas fa-edit"></i></a>
+                   title="Renew Contract"><i class="fas fa-edit"></i></a>
             </span>
         @endforeach
     </div>
@@ -46,7 +46,7 @@
                    data-contract-start="{{ $sponsor->contract_start }}"
                    data-contract-end="{{ $sponsor->contract_end }}"
                    data-package="{{ $sponsor->package }}"
-                   title="Update Contract / Renewal"><i class="fas fa-edit"></i></a>
+                   title="Renew Contract"><i class="fas fa-edit"></i></a>
             </span>
         @endforeach
     </div>

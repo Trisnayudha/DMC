@@ -81,7 +81,7 @@ class SponsorRepresentativeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Berhasil mengupdate data sponsor representative.',
+            'message' => 'Sponsor representative data updated successfully.',
             'data'    => $rep
         ]);
     }
@@ -96,7 +96,7 @@ class SponsorRepresentativeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Berhasil menghapus data sponsor representative.'
+            'message' => 'Sponsor representative data deleted successfully.'
         ]);
     }
 }

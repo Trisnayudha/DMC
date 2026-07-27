@@ -16,7 +16,7 @@
         <div class="d-flex align-items-center flex-wrap" style="gap:8px;">
             <div class="btn-group btn-group-sm" role="group">
                 <button type="button" class="btn btn-primary active" id="chartModeSponsors" onclick="switchChartMode('sponsors')">Sponsor</button>
-                <button type="button" class="btn btn-outline-primary" id="chartModePackage" onclick="switchChartMode('package')">Tipe Sponsor</button>
+                <button type="button" class="btn btn-outline-primary" id="chartModePackage" onclick="switchChartMode('package')">Sponsor Type</button>
                 <button type="button" class="btn btn-outline-primary" id="chartModePrice" onclick="switchChartMode('price')">Price (IDR)</button>
             </div>
             <span class="text-muted" style="font-size:11px;">vs</span>

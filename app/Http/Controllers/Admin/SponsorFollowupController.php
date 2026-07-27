@@ -82,9 +82,9 @@ class SponsorFollowupController extends Controller
             'notes'          => 'nullable|string|max:1000',
             'proof'          => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
-            'proof.required' => 'Bukti follow-up wajib diupload.',
-            'proof.mimes'    => 'Bukti harus berupa JPG, PNG, atau PDF.',
-            'proof.max'      => 'Ukuran bukti maksimal 5 MB.',
+            'proof.required' => 'Follow-up proof is required.',
+            'proof.mimes'    => 'Proof must be a JPG, PNG, or PDF.',
+            'proof.max'      => 'Proof file size must not exceed 5 MB.',
         ]);
 
         // Gate: renewal form tahun tsb harus sudah di-generate lebih dulu.
@@ -95,7 +95,7 @@ class SponsorFollowupController extends Controller
         if (!$formExists) {
             return response()->json([
                 'success' => false,
-                'message' => 'Generate renewal form dulu untuk tahun ' . $validated['renewal_year'] . ' sebelum mencatat follow-up.',
+                'message' => 'Generate the renewal form for year ' . $validated['renewal_year'] . ' first before recording a follow-up.',
             ], 422);
         }
 
@@ -117,7 +117,7 @@ class SponsorFollowupController extends Controller
 
         return response()->json([
             'success'  => true,
-            'message'  => 'Follow-up #' . $sequence . ' untuk ' . $sponsor->name . ' tercatat.',
+            'message'  => 'Follow-up #' . $sequence . ' for ' . $sponsor->name . ' recorded.',
             'sequence' => $sequence,
         ]);
     }

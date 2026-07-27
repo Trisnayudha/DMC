@@ -207,8 +207,8 @@ class SponsorRenewalFormController extends Controller
             'pic_email'    => 'nullable|email|max:255',
             'pic_phone'    => 'nullable|string|max:50',
         ], [
-            'kmk_rate.required'   => 'KMK rate wajib diisi saat generate renewal form.',
-            'kmk_number.required' => 'KMK Nomor wajib diisi (cek di fiskal.kemenkeu.go.id).',
+            'kmk_rate.required'   => 'KMK rate is required when generating the renewal form.',
+            'kmk_number.required' => 'KMK Number is required (check at fiskal.kemenkeu.go.id).',
         ]);
 
         $formNumber = !empty($validated['form_number'])
@@ -222,7 +222,7 @@ class SponsorRenewalFormController extends Controller
         if ($numberTaken) {
             return response()->json([
                 'success' => false,
-                'message' => 'Nomor renewal form "' . $formNumber . '" sudah dipakai.',
+                'message' => 'Renewal form number "' . $formNumber . '" is already in use.',
             ], 422);
         }
 
@@ -263,8 +263,8 @@ class SponsorRenewalFormController extends Controller
         return response()->json([
             'success'     => true,
             'message'     => $existing
-                ? 'Renewal form ' . $formNumber . ' untuk ' . $sponsor->name . ' berhasil di-update.'
-                : 'Renewal form ' . $formNumber . ' untuk ' . $sponsor->name . ' berhasil di-generate.',
+                ? 'Renewal form ' . $formNumber . ' for ' . $sponsor->name . ' updated successfully.'
+                : 'Renewal form ' . $formNumber . ' for ' . $sponsor->name . ' generated successfully.',
             'form_number' => $formNumber,
         ]);
     }

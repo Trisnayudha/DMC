@@ -50,7 +50,7 @@ class SponsorAnnualReportExport implements FromArray, WithEvents
         $rows[] = ['Renewed & New Sponsor', '', '', '', '', '', '', 'Not Renewed', '', '', ''];
 
         // Column headers
-        $rows[] = ['No.', 'Periode', 'Company', 'Status', 'Final Confirmation', '', '', 'No.', 'Periode', 'Company', 'Final Confirmation'];
+        $rows[] = ['No.', 'Period', 'Company', 'Status', 'Final Confirmation', '', '', 'No.', 'Period', 'Company', 'Final Confirmation'];
 
         $maxRows = max($renewed->count(), $notRenewed->count(), 1);
 

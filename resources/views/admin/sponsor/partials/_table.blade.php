@@ -274,7 +274,7 @@
                                             @endif
                                         @elseif($currentR)
                                             @if($currentR->renewal_status === 'renewed')
-                                                <small class="text-muted">{{ $currentR->contract_start }} s/d {{ $currentR->contract_end }}</small><br>
+                                                <small class="text-muted">{{ $currentR->contract_start }} to {{ $currentR->contract_end }}</small><br>
                                                 <span class="badge badge-{{ $currentR->renewal_type === 'upgrade' ? 'info' : 'success' }}">
                                                     {{ $typeLabels[$currentR->renewal_type] ?? 'Renewed' }}
                                                 </span>

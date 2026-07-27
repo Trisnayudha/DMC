@@ -102,7 +102,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Paid Date
-                                        <small class="text-muted font-weight-normal">(isi begitu sponsor sudah bayar)</small>
+                                        <small class="text-muted font-weight-normal">(fill in once the sponsor has paid)</small>
                                     </label>
                                     <input type="date" name="paid_date" id="editPaidDate" class="form-control">
                                 </div>

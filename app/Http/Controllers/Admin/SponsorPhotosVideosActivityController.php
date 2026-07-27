@@ -11,7 +11,7 @@ class SponsorPhotosVideosActivityController extends Controller
 {
     public function index()
     {
-        return 'Page ini tidak ada, coba pake ID Sponsor belakangnya';
+        return 'This page does not exist, try adding the Sponsor ID at the end';
     }
 
     public function show($id)
