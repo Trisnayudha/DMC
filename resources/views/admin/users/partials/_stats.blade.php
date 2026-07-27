@@ -121,12 +121,13 @@
 <div class="row">
     <div class="col-lg-5 col-md-12 col-12">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">
                     New Member Validation
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip" data-html="true"
-                        title="Mengukur kecepatan admin memvalidasi member baru sejak tanggal daftar (target: 48 jam). Data mulai tercatat sejak fitur ini aktif — member yang sudah aktif sebelumnya belum punya histori validasi."></i>
+                        title="Mengukur kecepatan admin memvalidasi member baru sejak tanggal daftar (target: 48 jam), untuk member yang daftar dalam 30 hari terakhir."></i>
                 </h4>
+                <span class="badge badge-primary">Last 30 Days</span>
             </div>
             <div class="card-body">
                 <canvas id="validate48hChart" height="180"></canvas>

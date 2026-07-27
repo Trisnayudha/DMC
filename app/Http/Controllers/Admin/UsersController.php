@@ -98,13 +98,17 @@ class UsersController extends Controller
             ->where('company.explore', 'agree')
             ->count();
 
-        // New Member Validation (48h): hanya menghitung member yang verified_at-nya
-        // sudah tercatat (mulai berjalan sejak kolom ini ditambahkan).
+        // New Member Validation (48h): rolling 30 hari terakhir (created_at) supaya
+        // mencerminkan performa terkini, bukan tumpukan histori all-time.
+        $validationWindowStart = Carbon::now()->subDays(30);
+
         $countValidatedWithin48h = User::whereNotNull('verified_at')
+            ->where('created_at', '>=', $validationWindowStart)
             ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, verified_at) <= 48')
             ->count();
 
         $countValidatedAfter48h = User::whereNotNull('verified_at')
+            ->where('created_at', '>=', $validationWindowStart)
             ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, verified_at) > 48')
             ->count();
 
