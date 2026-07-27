@@ -90,6 +90,24 @@ class UsersController extends Controller
             ->whereNull('password')
             ->count();
 
+        $countCompaniesVerified = CompanyModel::where('is_verified', true)->count();
+
+        $countProspecting = User::whereNotNull('users.isStatus')
+            ->join('profiles', 'profiles.users_id', 'users.id')
+            ->join('company', 'company.id', 'profiles.company_id')
+            ->where('company.explore', 'agree')
+            ->count();
+
+        // New Member Validation (48h): hanya menghitung member yang verified_at-nya
+        // sudah tercatat (mulai berjalan sejak kolom ini ditambahkan).
+        $countValidatedWithin48h = User::whereNotNull('verified_at')
+            ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, verified_at) <= 48')
+            ->count();
+
+        $countValidatedAfter48h = User::whereNotNull('verified_at')
+            ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, verified_at) > 48')
+            ->count();
+
         return view('admin.users.index', [
             'list'               => $list,
             'countActiveMember'  => $countActiveMember,
@@ -103,6 +121,10 @@ class UsersController extends Controller
             'countDoubleVerify'  => $countDoubleVerify,
             'countSelfEdited'    => $countSelfEdited,
             'countActiveWithoutPassword' => $countActiveWithoutPassword,
+            'countCompaniesVerified'     => $countCompaniesVerified,
+            'countProspecting'           => $countProspecting,
+            'countValidatedWithin48h'    => $countValidatedWithin48h,
+            'countValidatedAfter48h'     => $countValidatedAfter48h,
             'selfEditMap'        => $selfEditMap,
         ]);
     }
@@ -157,6 +179,14 @@ class UsersController extends Controller
 
         if ($filter == 'password_null') {
             $query->whereNull('users.password');
+        }
+
+        if ($filter == 'company_verified') {
+            $query->where('company.is_verified', true);
+        }
+
+        if ($filter == 'prospecting') {
+            $query->where('company.explore', 'agree');
         }
 
         if ($statusMember === 'active') {
@@ -306,6 +336,7 @@ class UsersController extends Controller
 
         $user->status_member = 'active';
         $user->uname = $this->generateVerificationMemberId($user, $verifiedAt);
+        $user->verified_at = $verifiedAt;
 
         try {
             $qrImage = QrCode::format('png')

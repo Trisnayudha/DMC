@@ -4,6 +4,12 @@
         <tr>
             <th width="10px">No</th>
             <th>Date Register</th>
+            <th width="120px">
+                Source
+                <i class="fas fa-info-circle text-muted ml-1"
+                    title="Channel pendaftaran member (website, apps, event, dll)."
+                    data-toggle="tooltip"></i>
+            </th>
             <th>Name</th>
             <th width="140px">Tier</th>
             <th width="150px">
@@ -31,6 +37,18 @@
     </thead>
     <tbody>
         <?php $no = 1; ?>
+        @php
+            // Warna tag per channel pendaftaran (Source). Key harus lowercase.
+            $sourceColorMap = [
+                'website'   => ['color' => '#4e73df', 'icon' => 'fas fa-globe'],
+                'apps'      => ['color' => '#1cc88a', 'icon' => 'fas fa-mobile-alt'],
+                'scanner'   => ['color' => '#858796', 'icon' => 'fas fa-qrcode'],
+                'linkedin'  => ['color' => '#0077b5', 'icon' => 'fab fa-linkedin-in'],
+                'instagram' => ['color' => '#e1306c', 'icon' => 'fab fa-instagram'],
+                'event'     => ['color' => '#f6a92f', 'icon' => 'fas fa-calendar-alt'],
+                'other'     => ['color' => '#6f42c1', 'icon' => 'fas fa-ellipsis-h'],
+            ];
+        @endphp
         @foreach ($list as $post)
             @php
                 $memberStatus  = strtolower($post->status_member ?? '');
@@ -38,6 +56,14 @@
                 $isDeclined    = $memberStatus === 'declined';
                 $isDeactivated = $memberStatus === 'deactivated';
                 $rowBg = $isActive ? '' : ($isDeclined ? 'background-color:#fff5f5;' : ($isDeactivated ? 'background-color:#f0f0f0;' : 'background-color:#fffbee;'));
+
+                $sourceRaw = trim((string) ($post->source ?? ''));
+                $sourceKey = strtolower($sourceRaw);
+                if ($sourceKey !== '' && !isset($sourceColorMap[$sourceKey]) && strpos($sourceKey, 'event') === 0) {
+                    $sourceKey = 'event';
+                }
+                $sourceStyle = $sourceColorMap[$sourceKey] ?? ['color' => '#adb5bd', 'icon' => 'fas fa-question'];
+                $sourceLabel = $sourceRaw !== '' ? $sourceRaw : 'Unknown';
             @endphp
             <tr id="row_{{ $post->user_id }}" style="{{ $rowBg }}">
 
@@ -46,6 +72,12 @@
                 <td class="text-nowrap">
                     {{ date('d M Y', strtotime($post->user_created_at ?? $post->created_at)) }}<br>
                     <small class="text-muted">{{ date('H:i', strtotime($post->user_created_at ?? $post->created_at)) }}</small>
+                </td>
+
+                <td class="text-nowrap">
+                    <span class="badge" style="background-color:{{ $sourceStyle['color'] }};color:#fff;">
+                        <i class="{{ $sourceStyle['icon'] }} mr-1"></i>{{ $sourceLabel }}
+                    </span>
                 </td>
 
                 <td>
@@ -127,7 +159,7 @@
                                 ];
                             @endphp
                             <span class="badge badge-danger member-status-badge">
-                                <i class="fas fa-times mr-1"></i>Declined
+                                <i class="fas fa-ban mr-1"></i>Disqualified
                             </span>
                             <button type="button"
                                 class="btn btn-xs btn-danger btn-verify-member"

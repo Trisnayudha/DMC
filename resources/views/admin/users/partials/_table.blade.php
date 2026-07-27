@@ -14,8 +14,12 @@
                 <span class="text-warning"><i class="fas fa-user-edit mr-1"></i>Self-Edited by User</span>
             @elseif (request('filter') === 'password_null')
                 <span class="text-warning"><i class="fas fa-key mr-1"></i>Active Members Without Password</span>
+            @elseif (request('filter') === 'company_verified')
+                <span class="text-info"><i class="fas fa-building mr-1"></i>Companies Verified</span>
+            @elseif (request('filter') === 'prospecting')
+                <span class="text-warning"><i class="fas fa-star mr-1"></i>Prospecting — Open to Sponsorship</span>
             @elseif (request('status_member') === 'declined')
-                <span class="text-danger"><i class="fas fa-times-circle mr-1"></i>Declined Applications</span>
+                <span class="text-danger"><i class="fas fa-ban mr-1"></i>Disqualified Applications</span>
             @elseif (request('status_member') === 'deactivated')
                 <span class="text-secondary"><i class="fas fa-user-slash mr-1"></i>Deactivated Members</span>
             @else
@@ -63,6 +67,16 @@
                     <i class="fas fa-calendar-alt mr-1"></i> New This Month
                     <span class="badge badge-light ml-1">{{ $countNewThisMonth }}</span>
                 </a>
+                <a href="{{ url('admin/users?filter=company_verified') }}"
+                    class="btn btn-sm {{ request('filter') === 'company_verified' ? 'btn-info' : 'btn-outline-info' }}">
+                    <i class="fas fa-building mr-1"></i> Companies Verified
+                    <span class="badge badge-light ml-1">{{ $countCompaniesVerified }}</span>
+                </a>
+                <a href="{{ url('admin/users?filter=prospecting') }}"
+                    class="btn btn-sm {{ request('filter') === 'prospecting' ? 'btn-warning' : 'btn-outline-warning' }}">
+                    <i class="fas fa-star mr-1"></i> Prospecting
+                    <span class="badge badge-light ml-1">{{ $countProspecting }}</span>
+                </a>
                 <a href="{{ url('admin/users?filter=unregist') }}"
                     class="btn btn-sm {{ request('filter') === 'unregist' ? 'btn-danger' : 'btn-outline-danger' }}">
                     <i class="fas fa-user-times mr-1"></i> Unregistered
@@ -89,7 +103,7 @@
                 <a href="{{ url('admin/users?status_member=declined') }}"
                     class="btn btn-sm {{ request('status_member') === 'declined' ? 'btn-danger' : 'btn-outline-danger' }}"
                     title="Applicant yang sudah di-decline">
-                    <i class="fas fa-times-circle mr-1"></i> Declined
+                    <i class="fas fa-ban mr-1"></i> Disqualified
                     @if (($countDeclined ?? 0) > 0)
                         <span
                             class="badge {{ request('status_member') === 'declined' ? 'badge-light' : 'badge-danger' }} ml-1">{{ $countDeclined }}</span>

@@ -335,10 +335,10 @@
                         const $td  = $vmSourceBtn.closest('td');
                         const $row = $vmSourceBtn.closest('tr');
                         $td.find('.member-status-badge').removeClass('badge-warning').addClass('badge-danger')
-                            .html('<i class="fas fa-times mr-1"></i>Declined');
+                            .html('<i class="fas fa-ban mr-1"></i>Disqualified');
                         $vmSourceBtn.removeClass('btn-warning').addClass('btn-danger')
                             .attr('disabled', true)
-                            .html('<i class="fas fa-times"></i> Declined');
+                            .html('<i class="fas fa-ban"></i> Disqualified');
                         $row.css('background-color', '#fff5f5');
                     }
                     $('#verifyMemberModal').modal('hide');

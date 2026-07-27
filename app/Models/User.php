@@ -26,6 +26,7 @@ class User extends Authenticatable
         'source',
         'status_member',
         'tier',
+        'verified_at',
     ];
 
     protected $hidden = [
@@ -35,6 +36,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'verified_at' => 'datetime',
     ];
 
     /**

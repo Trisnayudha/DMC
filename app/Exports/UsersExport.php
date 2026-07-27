@@ -47,7 +47,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         }
 
         return [
-            'No', 'Date Register', 'Name', 'Tier', 'Status Member', 'Job Title',
+            'No', 'Date Register', 'Source', 'Name', 'Tier', 'Status Member', 'Job Title',
             'Company', 'Email', 'Phone', 'Office', 'Address', 'Website',
             'Category', 'WA Updates', 'Open to Sponsorship', 'Password',
         ];
@@ -75,6 +75,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         return [
             $no,
             $this->formatDate($row->user_created_at ?? $row->created_at),
+            $row->source ?: 'Unknown',
             $row->name,
             $this->tierLabel($row->tier),
             $this->statusLabel($row->status_member),
@@ -117,7 +118,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     {
         $status = strtolower((string) ($status ?? ''));
         if ($status === 'active')      return 'Active';
-        if ($status === 'declined')    return 'Declined';
+        if ($status === 'declined')    return 'Disqualified';
         if ($status === 'deactivated') return 'Deactivated';
         return 'Pending';
     }
