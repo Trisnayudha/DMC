@@ -23,7 +23,7 @@
                     <div class="card-header">
                         <h4>Companies Verified
                             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                                title="Jumlah company (bukan member) dengan status is_verified = true."
+                                title="Jumlah company unik yang terverifikasi (dedup per nama company, sama seperti angka di halaman Company Database)."
                                 data-toggle="tooltip"></i>
                         </h4>
                     </div>

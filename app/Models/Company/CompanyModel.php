@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Profiles\ProfileModel;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CompanyModel extends Model
 {
@@ -63,6 +65,62 @@ class CompanyModel extends Model
             'company_id',
             'company_subcategory_id'
         );
+    }
+
+    /**
+     * Nama company (lowercase, trimmed) yang punya minimal satu member
+     * berstatus deactivated/declined. Dipakai untuk menyembunyikan company
+     * "tainted" dari Company Database & dari hitungan verified company,
+     * supaya company dengan member bermasalah tidak ikut ditampilkan/dihitung.
+     */
+    public static function taintedCompanyNames(): array
+    {
+        return static::query()
+            ->leftJoin('users', 'users.id', '=', 'company.users_id')
+            ->whereIn('users.status_member', ['deactivated', 'declined'])
+            ->whereNotNull('company.company_name')
+            ->whereRaw("TRIM(company.company_name) <> ''")
+            ->pluck('company.company_name')
+            ->map(function ($n) {
+                return Str::lower(trim((string) $n));
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Jumlah company terverifikasi, dedup per nama company (bukan per row).
+     * Satu company bisa punya banyak row di tabel `company` (satu per member/karyawan),
+     * jadi hitungan mentah where('is_verified', true)->count() akan overcount.
+     * Definisi ini disamakan dengan Company Database page: exclude company "hantu"
+     * (users_id tidak valid) dan company "tainted" (lihat taintedCompanyNames()).
+     */
+    public static function countVerifiedCompanies(): int
+    {
+        $tainted = static::taintedCompanyNames();
+
+        $query = static::query()
+            ->where('is_verified', true)
+            ->whereNotNull('company_name')
+            ->whereRaw("TRIM(company_name) <> ''")
+            ->whereExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('users')
+                    ->whereColumn('users.id', 'company.users_id');
+            });
+
+        if (!empty($tainted)) {
+            $placeholders = implode(',', array_fill(0, count($tainted), '?'));
+            $query->whereRaw("LOWER(TRIM(company_name)) NOT IN ($placeholders)", $tainted);
+        }
+
+        return $query
+            ->selectRaw('LOWER(TRIM(company_name)) as normalized_name')
+            ->distinct()
+            ->get()
+            ->count();
     }
 
     /**

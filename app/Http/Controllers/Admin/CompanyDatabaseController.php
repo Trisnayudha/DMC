@@ -563,26 +563,9 @@ class CompanyDatabaseController extends Controller
      *
      * @return string[]
      */
-    private function taintedCompanyNames(): array
-    {
-        return CompanyModel::query()
-            ->leftJoin('users', 'users.id', '=', 'company.users_id')
-            ->whereIn('users.status_member', ['deactivated', 'declined'])
-            ->whereNotNull('company.company_name')
-            ->whereRaw("TRIM(company.company_name) <> ''")
-            ->pluck('company.company_name')
-            ->map(function ($n) {
-                return Str::lower(trim((string) $n));
-            })
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-    }
-
     private function buildCompanyGroups(string $search = ''): Collection
     {
-        $taintedNames = $this->taintedCompanyNames();
+        $taintedNames = CompanyModel::taintedCompanyNames();
 
         $query = CompanyModel::query()
             ->select(['id', 'users_id', 'is_verified', 'company_name', 'updated_at', ...$this->syncFields])

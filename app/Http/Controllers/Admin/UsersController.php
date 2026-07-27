@@ -90,7 +90,7 @@ class UsersController extends Controller
             ->whereNull('password')
             ->count();
 
-        $countCompaniesVerified = CompanyModel::where('is_verified', true)->count();
+        $countCompaniesVerified = CompanyModel::countVerifiedCompanies();
 
         $countProspecting = User::whereNotNull('users.isStatus')
             ->join('profiles', 'profiles.users_id', 'users.id')
