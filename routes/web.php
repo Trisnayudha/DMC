@@ -35,6 +35,7 @@ use App\Http\Controllers\Admin\SponsorRenewalFormController;
 use App\Http\Controllers\Admin\SponsorCountRepresentativeController;
 use App\Http\Controllers\Admin\SponsorRepresentativeController;
 use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\Admin\MemberCompanyFollowUpController;
 use App\Http\Controllers\Admin\VideosController;
 use App\Http\Controllers\Admin\WhatsappBlastingController;
 use App\Http\Controllers\Admin\WhatsappCampaignController;
@@ -533,6 +534,10 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('users/{id}/reactivate', [UsersController::class, 'reactivateMember'])->name('users.reactivate');
     Route::get('users/edit-logs', [UsersController::class, 'editLogs'])->name('admin.user_edit_logs');
     Route::get('users/mailchimp-count', [UsersController::class, 'mailchimpContactCount'])->name('users.mailchimp.count');
+
+    Route::get('company-follow-ups', [MemberCompanyFollowUpController::class, 'index'])->name('admin.member_follow_ups.index');
+    Route::post('company-follow-ups', [MemberCompanyFollowUpController::class, 'store'])->name('admin.member_follow_ups.store');
+    Route::post('company-follow-ups/{id}/verify', [MemberCompanyFollowUpController::class, 'markVerified'])->name('admin.member_follow_ups.verify');
 
     // Quick Search
     Route::get('quick-search', [App\Http\Controllers\Admin\QuickSearchController::class, 'search'])

@@ -209,8 +209,11 @@
             </div>
         @endif
 
-        {{-- Tables --}}
-        <div class="table-responsive">
+        {{-- table-responsive stays only as a fallback safety net (very narrow
+             viewports) — the primary strategy is making every cell compact
+             enough that all columns fit without scrolling on a normal
+             desktop screen. --}}
+        <div class="table-responsive member-table-wrap">
 
             @if (request('filter') === 'unregist')
                 @include('admin.users.partials._table_unregistered')
@@ -222,3 +225,78 @@
 
     </div>
 </div>{{-- /card --}}
+
+<style>
+    /* Compact, modern look for #laravel_crud without touching other pages */
+    .member-table-wrap table.dataTable {
+        border-collapse: separate !important;
+        border: none;
+        table-layout: auto;
+    }
+    .member-table-wrap table.dataTable thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #f8f9fc;
+        border-top: none !important;
+        border-bottom: 2px solid #e3e6f0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        color: #6c757d;
+        white-space: nowrap;
+        vertical-align: middle;
+        padding: .4rem .5rem;
+    }
+    .member-table-wrap table.dataTable tbody td {
+        border-left: none !important;
+        border-right: none !important;
+        border-top: none !important;
+        border-bottom: 1px solid #eef0f4 !important;
+        vertical-align: middle;
+        font-size: 11.5px;
+        padding: .3rem .5rem;
+    }
+    .member-table-wrap table.dataTable tbody tr:hover {
+        background-color: #f7f9fc;
+    }
+
+    /* Icon-only action buttons — replaces stacked text buttons */
+    .member-table-wrap .btn-icon {
+        width: 22px;
+        height: 22px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        line-height: 1;
+        border-radius: 5px;
+    }
+    .member-table-wrap .btn-icon-group {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 3px;
+    }
+
+    /* Small pill badges (status, source, etc.) */
+    .member-table-wrap .mini-badge {
+        font-size: 9.5px;
+        padding: .2em .45em;
+        font-weight: 600;
+    }
+
+    /* Long free-text fields (email/address/website/company/job title) —
+       truncate with ellipsis, full value available via title="" on hover. */
+    .member-table-wrap .cell-truncate {
+        display: inline-block;
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+</style>

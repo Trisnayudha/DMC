@@ -4,10 +4,11 @@
     <div class="content-wrapper">
         <section class="section">
             <div class="section-header">
-                <h1>Users Management</h1>
+                <h1>Company Follow-Up</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active">Users Management</div>
+                    <div class="breadcrumb-item"><a href="{{ Route('users') }}">Members Management</a></div>
+                    <div class="breadcrumb-item active">Company Follow-Up</div>
                 </div>
             </div>
 
@@ -19,14 +20,6 @@
                         <div class="alert-body">
                             <button class="close" data-dismiss="alert"><span>×</span></button>
                             {{ session('success') }}
-                        </div>
-                    </div>
-                @endif
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible show fade">
-                        <div class="alert-body">
-                            <button class="close" data-dismiss="alert"><span>×</span></button>
-                            {{ session('error') }}
                         </div>
                     </div>
                 @endif
@@ -44,21 +37,15 @@
                     </div>
                 @endif
 
-                <div id="alert-area" class="mb-2"></div>
+                @include('admin.member_follow_ups.partials._stats')
 
-                @include('admin.users.partials._stats')
-
-                @include('admin.users.partials._table')
+                @include('admin.member_follow_ups.partials._table')
 
             </div>{{-- /section-body --}}
         </section>
     </div>
 
-    @include('admin.users.partials._modal_verify')
-    @include('admin.users.partials._modal_edit_user')
-    @include('admin.users.partials._modal_logs')
-    @include('admin.users.partials._modal_import')
     @include('admin.member_follow_ups.partials._modal_flag')
 @endsection
 
-@include('admin.users.partials._scripts')
+@include('admin.member_follow_ups.partials._scripts')

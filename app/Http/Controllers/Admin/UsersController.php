@@ -6,6 +6,7 @@ use App\Exports\UsersExport;
 use App\Helpers\EmailSender;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
+use App\Models\MemberCompanyFollowUp;
 use App\Models\MemberModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
@@ -39,6 +40,11 @@ class UsersController extends Controller
             ->groupBy('user_id')
             ->pluck('last_self_edit', 'user_id')
             ->all();
+
+        // Open company follow-up flags: user_id => MemberCompanyFollowUp (single query)
+        $followUpMap = MemberCompanyFollowUp::where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP)
+            ->get()
+            ->keyBy('user_id');
 
         // Stats
         $countActiveMember = User::whereNotNull('isStatus')
@@ -130,6 +136,12 @@ class UsersController extends Controller
             'countValidatedWithin48h'    => $countValidatedWithin48h,
             'countValidatedAfter48h'     => $countValidatedAfter48h,
             'selfEditMap'        => $selfEditMap,
+            'followUpMap'        => $followUpMap,
+            'companyNames'       => CompanyModel::whereNotNull('company_name')
+                ->whereRaw("TRIM(company_name) <> ''")
+                ->distinct()
+                ->orderBy('company_name')
+                ->pluck('company_name'),
         ]);
     }
 

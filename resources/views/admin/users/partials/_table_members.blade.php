@@ -3,21 +3,21 @@
     <thead class="thead-light">
         <tr>
             <th width="10px">No</th>
-            <th>Date Register</th>
-            <th width="120px">
+            <th>Register</th>
+            <th width="90px">
                 Source
                 <i class="fas fa-info-circle text-muted ml-1"
                     title="Channel pendaftaran member (website, apps, event, dll)."
                     data-toggle="tooltip"></i>
             </th>
             <th>Name</th>
-            <th width="140px">Tier</th>
-            <th width="150px">
-                Status Member
+            <th width="80px">
+                Status
                 <i class="fas fa-info-circle text-muted ml-1"
                     title="Active = sudah diverifikasi admin. Pending = belum diverifikasi."
                     data-toggle="tooltip"></i>
             </th>
+            <th width="70px">Actions</th>
             <th>Job Title</th>
             <th>Company</th>
             <th>Email</th>
@@ -26,13 +26,13 @@
             <th>Address</th>
             <th>Website</th>
             <th>Category</th>
-            <th width="180px">
-                WA Updates &amp; Sponsorship
+            <th width="60px">
+                WA/Spon.
                 <i class="fas fa-info-circle text-muted ml-1"
                     title="WA Updates: member setuju menerima update via WhatsApp. Open to Sponsorship: member bersedia menerima penawaran paket sponsorship."
                     data-toggle="tooltip"></i>
             </th>
-            <th width="100px">Password</th>
+            <th width="70px">Password</th>
         </tr>
     </thead>
     <tbody>
@@ -75,70 +75,58 @@
                 </td>
 
                 <td class="text-nowrap">
-                    <span class="badge" style="background-color:{{ $sourceStyle['color'] }};color:#fff;">
-                        <i class="{{ $sourceStyle['icon'] }} mr-1"></i>{{ $sourceLabel }}
+                    <span class="badge mini-badge" style="background-color:{{ $sourceStyle['color'] }};color:#fff;"
+                        title="{{ $sourceLabel }}" data-toggle="tooltip">
+                        <i class="{{ $sourceStyle['icon'] }}"></i>
                     </span>
                 </td>
 
                 <td>
                     {{ $post->name }}
                     @if (isset($selfEditMap[$post->user_id]))
-                        <br>
-                        <span class="badge badge-warning" style="font-size:10px; cursor:default;"
+                        <i class="fas fa-user-edit text-warning ml-1"
                             title="User mengubah data sendiri — {{ \Carbon\Carbon::parse($selfEditMap[$post->user_id])->format('d M Y H:i') }}"
-                            data-toggle="tooltip">
-                            <i class="fas fa-user-edit"></i> Self-edited
-                        </span>
+                            data-toggle="tooltip"></i>
                     @endif
                 </td>
 
-                {{-- TIER --}}
+                {{-- STATUS --}}
                 <td>
-                    <div class="d-flex align-items-center">
-                        <select class="form-control form-control-sm user-tier-select"
-                            data-url="{{ route('users.update.tier', $post->user_id) }}"
-                            style="max-width:110px;">
-                            @php
-                                $tier = strtolower((string) ($post->tier ?? 'reguler'));
-                                if (!in_array($tier, ['reguler', 'black'])) { $tier = 'reguler'; }
-                            @endphp
-                            <option value="reguler" {{ $tier === 'reguler' ? 'selected' : '' }}>Reguler</option>
-                            <option value="black" {{ $tier === 'black' ? 'selected' : '' }}>Black</option>
-                        </select>
-                        <span class="ml-1 badge badge-light tier-status" style="font-size:10px;">Saved</span>
-                    </div>
+                    @if ($isDeactivated)
+                        <span class="badge badge-secondary member-status-badge mini-badge">Deactivated</span>
+                    @elseif ($isActive)
+                        <span class="badge badge-success member-status-badge mini-badge">Active</span>
+                    @elseif ($isDeclined)
+                        <span class="badge badge-danger member-status-badge mini-badge">Disqualified</span>
+                    @else
+                        <span class="badge badge-warning member-status-badge mini-badge">Pending</span>
+                    @endif
                 </td>
 
-                {{-- STATUS MEMBER --}}
+                {{-- STATUS ACTIONS --}}
                 <td>
-                    <div class="d-flex flex-column align-items-start" style="gap:4px;">
+                    <div class="btn-icon-group">
                         @if ($isDeactivated)
-                            <span class="badge badge-secondary member-status-badge">
-                                <i class="fas fa-user-slash mr-1"></i>Deactivated
-                            </span>
                             <button type="button"
-                                class="btn btn-xs btn-outline-success btn-reactivate-member"
+                                class="btn btn-icon btn-outline-success btn-reactivate-member"
                                 data-url="{{ route('users.reactivate', $post->user_id) }}"
                                 data-name="{{ $post->name }}"
-                                title="Reactivate member ini">
-                                <i class="fas fa-undo"></i> Reactivate
+                                title="Reactivate member ini" data-toggle="tooltip">
+                                <i class="fas fa-undo"></i>
                             </button>
                         @elseif ($isActive)
-                            <span class="badge badge-success member-status-badge">
-                                <i class="fas fa-check mr-1"></i>Active
-                            </span>
                             <button type="button"
-                                class="btn btn-xs btn-success btn-verify-member"
+                                class="btn btn-icon btn-success btn-verify-member"
                                 data-url="{{ route('users.verify', $post->user_id) }}"
-                                disabled>
-                                <i class="fas fa-check"></i> Verified
+                                disabled title="Sudah verified" data-toggle="tooltip">
+                                <i class="fas fa-check"></i>
                             </button>
                             <button type="button"
-                                class="btn btn-xs btn-outline-secondary btn-deactivate-member"
+                                class="btn btn-icon btn-outline-secondary btn-deactivate-member"
                                 data-url="{{ route('users.deactivate', $post->user_id) }}"
                                 data-name="{{ $post->name }}"
-                                title="Deactivate member ini">
-                                <i class="fas fa-user-slash"></i> Deactivate
+                                title="Deactivate member ini" data-toggle="tooltip">
+                                <i class="fas fa-user-slash"></i>
                             </button>
                         @elseif ($isDeclined)
                             @php
@@ -158,11 +146,8 @@
                                     'country'              => $post->country,
                                 ];
                             @endphp
-                            <span class="badge badge-danger member-status-badge">
-                                <i class="fas fa-ban mr-1"></i>Disqualified
-                            </span>
                             <button type="button"
-                                class="btn btn-xs btn-danger btn-verify-member"
+                                class="btn btn-icon btn-danger btn-verify-member"
                                 data-url="{{ route('users.verify', $post->user_id) }}"
                                 data-company-verified="{{ $declinedCompanyVerified ? '1' : '0' }}"
                                 data-company-name="{{ $post->company_name }}"
@@ -172,13 +157,10 @@
                                 data-member-job-title="{{ $post->job_title }}"
                                 data-member-phone="{{ $post->fullphone ?? $post->phone }}"
                                 data-payload='@json($declinedPayload)'
-                                title="Aplikasi ini sudah di-decline — klik untuk re-review">
-                                <i class="fas fa-redo"></i> Re-review
+                                title="Aplikasi ini sudah di-decline — klik untuk re-review" data-toggle="tooltip">
+                                <i class="fas fa-redo"></i>
                             </button>
                         @else
-                            <span class="badge badge-warning member-status-badge">
-                                <i class="fas fa-clock mr-1"></i>Pending
-                            </span>
                             @php
                                 $companyVerified = !empty($post->is_verified) || !empty($post->has_verified_company_name);
                                 $companyPayload = [
@@ -197,7 +179,7 @@
                                 ];
                             @endphp
                             <button type="button"
-                                class="btn btn-xs btn-warning btn-verify-member"
+                                class="btn btn-icon btn-warning btn-verify-member"
                                 data-url="{{ route('users.verify', $post->user_id) }}"
                                 data-company-verified="{{ $companyVerified ? '1' : '0' }}"
                                 data-company-name="{{ $post->company_name }}"
@@ -207,81 +189,66 @@
                                 data-member-job-title="{{ $post->job_title }}"
                                 data-member-phone="{{ $post->fullphone ?? $post->phone }}"
                                 data-payload='@json($companyPayload)'
-                                title="{{ $companyVerified ? 'Verifikasi member' : 'Company belum verified — klik untuk selesaikan dulu' }}">
+                                title="{{ $companyVerified ? 'Verifikasi member' : 'Company belum verified — klik untuk selesaikan dulu' }}"
+                                data-toggle="tooltip">
                                 @if (!$companyVerified)
                                     <i class="fas fa-exclamation-triangle"></i>
                                 @else
                                     <i class="fas fa-shield-alt"></i>
                                 @endif
-                                Verify
                             </button>
                         @endif
                     </div>
                 </td>
 
-                <td>{{ $post->job_title }}</td>
-                <td>{{ $post->company_name }}</td>
-                <td><a href="mailto:{{ $post->email }}">{{ $post->email }}</a></td>
+                <td><span class="cell-truncate" title="{{ $post->job_title }}">{{ $post->job_title }}</span></td>
+                <td><span class="cell-truncate" title="{{ $post->company_name }}">{{ $post->company_name }}</span></td>
+                <td><a href="mailto:{{ $post->email }}" class="cell-truncate" title="{{ $post->email }}">{{ $post->email }}</a></td>
                 <td class="text-nowrap">{{ $post->fullphone ?? $post->phone }}</td>
                 <td class="text-nowrap">{{ $post->full_office_number }}</td>
-                <td>{{ $post->address }}</td>
+                <td><span class="cell-truncate" title="{{ $post->address }}">{{ $post->address }}</span></td>
                 <td>
                     @if ($post->company_website)
-                        <a href="{{ $post->company_website }}" target="_blank" rel="noopener">
+                        <a href="{{ $post->company_website }}" target="_blank" rel="noopener"
+                            class="cell-truncate" title="{{ $post->company_website }}">
                             {{ $post->company_website }}
                         </a>
                     @endif
                 </td>
-                <td>{{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}</td>
+                <td>
+                    @php $categoryLabel = $post->company_category == 'other' ? $post->company_other : $post->company_category; @endphp
+                    <span class="cell-truncate" title="{{ $categoryLabel }}">{{ $categoryLabel }}</span>
+                </td>
 
                 {{-- WA Updates & Sponsorship --}}
-                <td>
-                    <div class="d-flex flex-column align-items-start" style="gap:4px;">
-                        @if (strtolower(trim((string) $post->wa_updates)) === 'agree')
-                            <span class="badge badge-success"
-                                title="Member setuju menerima update via WhatsApp" data-toggle="tooltip">
-                                <i class="fab fa-whatsapp mr-1"></i>WA Updates
-                            </span>
-                        @else
-                            <span class="badge badge-light text-muted" style="font-size:10px;">WA Updates: No</span>
-                        @endif
-
-                        @if ($post->explore)
-                            <span class="badge badge-warning"
-                                title="Member bersedia menerima penawaran paket sponsorship"
-                                data-toggle="tooltip">
-                                <i class="fas fa-star mr-1"></i>Open to Sponsorship
-                            </span>
-                        @else
-                            <span class="badge badge-light text-muted" style="font-size:10px;">Sponsorship: No</span>
-                        @endif
-
+                <td class="text-center">
+                    <div class="btn-icon-group">
+                        <i class="fab fa-whatsapp {{ strtolower(trim((string) $post->wa_updates)) === 'agree' ? 'text-success' : 'text-muted' }}"
+                            title="WA Updates: {{ strtolower(trim((string) $post->wa_updates)) === 'agree' ? 'Yes' : 'No' }}"
+                            data-toggle="tooltip"></i>
+                        <i class="fas fa-star {{ $post->explore ? 'text-warning' : 'text-muted' }}"
+                            title="Open to Sponsorship: {{ $post->explore ? 'Yes' : 'No' }}"
+                            data-toggle="tooltip"></i>
                         <button type="button"
-                            class="btn btn-xs btn-outline-secondary mt-1 btn-import-mailchimp"
+                            class="btn btn-icon btn-outline-secondary btn-import-mailchimp"
                             data-url="{{ route('users.import.mailchimp') }}"
                             data-user-id="{{ $post->user_id }}"
                             data-email="{{ $post->email }}"
                             data-tags='["Register of Membership {{ now()->format('d M Y') }}"]'
-                            title="Re-sync data member ini ke Mailchimp">
-                            <i class="fas fa-sync-alt"></i> Re-sync MC
+                            title="Re-sync data member ini ke Mailchimp" data-toggle="tooltip">
+                            <i class="fas fa-sync-alt"></i>
                         </button>
                     </div>
                 </td>
 
-                {{-- PASSWORD STATUS --}}
-                <td class="text-center">
-                    @if ($post->password)
-                        <span class="badge badge-success" title="Password has been set" data-toggle="tooltip">
-                            <i class="fas fa-lock"></i> Set
-                        </span>
-                    @else
-                        <span class="badge badge-danger" title="Password not set yet" data-toggle="tooltip">
-                            <i class="fas fa-lock-open"></i> Not Set
-                        </span>
-                    @endif
-                    <div class="mt-1 d-flex flex-column" style="gap:3px;">
+                {{-- PASSWORD + ACTIONS --}}
+                <td>
+                    <div class="btn-icon-group">
+                        <i class="fas {{ $post->password ? 'fa-lock text-success' : 'fa-lock-open text-danger' }}"
+                            title="Password {{ $post->password ? 'has been set' : 'not set yet' }}"
+                            data-toggle="tooltip"></i>
                         <button type="button"
-                            class="btn btn-xs btn-outline-primary btn-edit-user"
+                            class="btn btn-icon btn-outline-primary btn-edit-user"
                             data-user-id="{{ $post->user_id }}"
                             data-name="{{ $post->name }}"
                             data-email="{{ $post->email }}"
@@ -302,16 +269,28 @@
                             data-status-member="{{ $post->status_member }}"
                             data-tier="{{ strtolower((string) ($post->tier ?? 'reguler')) }}"
                             data-update-url="{{ route('users.update', $post->user_id) }}"
-                            title="Edit data user">
-                            <i class="fas fa-edit"></i> Edit
+                            title="Edit data user" data-toggle="tooltip">
+                            <i class="fas fa-edit"></i>
                         </button>
                         <button type="button"
-                            class="btn btn-xs btn-outline-secondary btn-view-logs"
+                            class="btn btn-icon btn-outline-secondary btn-view-logs"
                             data-user-id="{{ $post->user_id }}"
                             data-name="{{ $post->name }}"
                             data-logs-url="{{ route('users.logs', $post->user_id) }}"
-                            title="Lihat riwayat perubahan">
-                            <i class="fas fa-history"></i> Log
+                            title="Lihat riwayat perubahan" data-toggle="tooltip">
+                            <i class="fas fa-history"></i>
+                        </button>
+                        @php $openFollowUp = $followUpMap[$post->user_id] ?? null; @endphp
+                        <button type="button"
+                            class="btn btn-icon {{ $openFollowUp ? 'btn-warning' : 'btn-outline-warning' }} btn-open-follow-up-modal"
+                            data-user-id="{{ $post->user_id }}"
+                            data-member-name="{{ $post->name }}"
+                            data-current-company="{{ $post->company_name }}"
+                            data-new-company="{{ $openFollowUp->new_company_name ?? '' }}"
+                            data-notes="{{ $openFollowUp->notes ?? '' }}"
+                            title="{{ $openFollowUp ? 'Follow-up pending — klik untuk edit' : 'Tandai member ini pindah company' }}"
+                            data-toggle="tooltip">
+                            <i class="fas fa-people-arrows"></i>
                         </button>
                     </div>
                 </td>

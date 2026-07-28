@@ -94,13 +94,13 @@
         .done(function(res) {
             if (res && res.success) {
                 if ($btn) {
-                    const $td  = $btn.closest('td');
                     const $row = $btn.closest('tr');
-                    $td.find('.member-status-badge').removeClass('badge-warning').addClass('badge-success')
-                        .html('<i class="fas fa-check mr-1"></i>Active');
-                    $btn.removeClass('btn-warning').addClass('btn-success')
+                    $row.find('.member-status-badge').removeClass('badge-warning badge-danger').addClass('badge-success')
+                        .text('Active');
+                    $btn.removeClass('btn-warning btn-danger').addClass('btn-success')
                         .attr('disabled', true)
-                        .html('<i class="fas fa-check"></i> Verified');
+                        .attr('title', 'Sudah verified')
+                        .html('<i class="fas fa-check"></i>');
                     $row.removeClass('table-warning').css('background-color', '');
                 }
                 $('#verifyMemberModal').modal('hide');
@@ -332,13 +332,12 @@
             .done(function(res) {
                 if (res && res.success) {
                     if ($vmSourceBtn) {
-                        const $td  = $vmSourceBtn.closest('td');
                         const $row = $vmSourceBtn.closest('tr');
-                        $td.find('.member-status-badge').removeClass('badge-warning').addClass('badge-danger')
-                            .html('<i class="fas fa-ban mr-1"></i>Disqualified');
+                        $row.find('.member-status-badge').removeClass('badge-warning').addClass('badge-danger')
+                            .text('Disqualified');
                         $vmSourceBtn.removeClass('btn-warning').addClass('btn-danger')
-                            .attr('disabled', true)
-                            .html('<i class="fas fa-ban"></i> Disqualified');
+                            .attr('title', 'Aplikasi ini sudah di-decline — klik untuk re-review')
+                            .html('<i class="fas fa-redo"></i>');
                         $row.css('background-color', '#fff5f5');
                     }
                     $('#verifyMemberModal').modal('hide');
@@ -376,12 +375,14 @@
         const original = $btn.html();
 
         $btn.prop('disabled', true)
-            .html('<span class="spinner-border spinner-border-sm mr-1" role="status" aria-hidden="true"></span> Syncing...');
+            .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
 
         $.ajax({ url, method: 'POST', dataType: 'json', data: { user_id: userId, email, tags } })
             .done(function(res) {
                 if (res && res.success) {
-                    $btn.html('<i class="fas fa-check"></i> Synced').addClass('btn-success').removeClass('btn-outline-secondary');
+                    $btn.html('<i class="fas fa-check"></i>')
+                        .attr('title', 'Synced ke Mailchimp')
+                        .addClass('btn-success').removeClass('btn-outline-secondary');
                     showAlert('success', res.message);
                 } else {
                     $btn.prop('disabled', false).html(original);
@@ -390,32 +391,6 @@
             })
             .fail(function(xhr) {
                 $btn.prop('disabled', false).html(original);
-                showAlert('danger', xhr.responseJSON?.message || 'Gagal menghubungi server.');
-            });
-    });
-
-    // =========================================================
-    // UPDATE TIER
-    // =========================================================
-    $(document).on('change', '.user-tier-select', function() {
-        const $select = $(this);
-        const url     = $select.data('url');
-        const tier    = $select.val();
-        const $badge  = $select.closest('td').find('.tier-status');
-
-        $badge.removeClass('badge-light badge-success badge-danger').addClass('badge-warning').text('Saving...');
-
-        $.ajax({ url, method: 'POST', dataType: 'json', data: { tier } })
-            .done(function(res) {
-                if (res && res.success) {
-                    $badge.removeClass('badge-warning').addClass('badge-success').text('Saved');
-                } else {
-                    $badge.removeClass('badge-warning').addClass('badge-danger').text('Failed');
-                    showAlert('warning', (res && res.message) || 'Gagal update tier.');
-                }
-            })
-            .fail(function(xhr) {
-                $badge.removeClass('badge-warning').addClass('badge-danger').text('Failed');
                 showAlert('danger', xhr.responseJSON?.message || 'Gagal menghubungi server.');
             });
     });
@@ -703,6 +678,9 @@
 
     // DataTable — export dipindah ke tombol "Export Excel" (server-side) supaya
     // value asli yang keluar, bukan HTML tombol/badge di dalam cell.
+    // Semua kolom tetap tampil (tidak collapse) — tabel dibuat compact lewat
+    // font/padding kecil + icon-only actions supaya muat tanpa scroll horizontal
+    // di layar desktop biasa.
     $(document).ready(function() {
         $('#laravel_crud').DataTable({
             dom: 'frtip',
