@@ -741,8 +741,17 @@ class UsersController extends Controller
 
     public function deactivateMember(Request $request, $id)
     {
-        $user = User::findOrFail($id);
-        $user->status_member = 'deactivated';
+        $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        $user  = User::findOrFail($id);
+        $admin = auth()->user();
+
+        $user->status_member       = 'deactivated';
+        $user->deactivation_reason = trim($request->input('reason'));
+        $user->deactivated_at      = now();
+        $user->deactivated_by      = $admin ? $admin->name : 'Staff';
         $user->save();
 
         return response()->json([
@@ -754,7 +763,10 @@ class UsersController extends Controller
     public function reactivateMember(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $user->status_member = 'active';
+        $user->status_member       = 'active';
+        $user->deactivation_reason = null;
+        $user->deactivated_at      = null;
+        $user->deactivated_by      = null;
         $user->save();
 
         return response()->json([

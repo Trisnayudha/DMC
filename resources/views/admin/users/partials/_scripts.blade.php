@@ -618,23 +618,46 @@
     // DEACTIVATE / REACTIVATE MEMBER
     // =========================================================
     $(document).on('click', '.btn-deactivate-member', function() {
-        var btn  = $(this);
-        var name = btn.data('name');
-        if (!confirm('Deactivate "' + name + '"? Member tidak bisa login dan mendapat harga nonmember.')) return;
+        var btn = $(this);
+        $('#dm-url').val(btn.data('url'));
+        $('#dm-member-name').text(btn.data('name') || '-');
+        $('#dm-reason').val('');
+        $('#deactivateMemberModal').modal('show');
+    });
+
+    $(document).on('shown.bs.modal', '#deactivateMemberModal', function() {
+        $('#dm-reason').trigger('focus');
+    });
+
+    $(document).on('click', '#dm-btn-submit', function() {
+        var reason = $('#dm-reason').val().trim();
+        if (!reason) {
+            toastr.error('Reason wajib diisi.');
+            return;
+        }
+
+        var btn = $(this);
+        btn.prop('disabled', true);
 
         $.ajax({
-            url: btn.data('url'),
+            url: $('#dm-url').val(),
             method: 'POST',
-            data: { _token: '{{ csrf_token() }}' },
+            data: { _token: '{{ csrf_token() }}', reason: reason },
             success: function(res) {
                 if (res.success) {
                     toastr.success(res.message);
+                    $('#deactivateMemberModal').modal('hide');
                     refreshMembersTable();
                 } else {
                     toastr.error(res.message || 'Gagal deactivate.');
                 }
+                btn.prop('disabled', false);
             },
-            error: function() { toastr.error('Terjadi kesalahan.'); }
+            error: function(xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Terjadi kesalahan.';
+                toastr.error(msg);
+                btn.prop('disabled', false);
+            }
         });
     });
 

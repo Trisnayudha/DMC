@@ -58,6 +58,7 @@
     @include('admin.users.partials._modal_edit_user')
     @include('admin.users.partials._modal_logs')
     @include('admin.users.partials._modal_import')
+    @include('admin.users.partials._modal_deactivate')
     @include('admin.member_follow_ups.partials._modal_flag')
 @endsection
 
