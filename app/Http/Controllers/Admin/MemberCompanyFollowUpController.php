@@ -132,9 +132,9 @@ class MemberCompanyFollowUpController extends Controller
             $oldCompany = CompanyModel::where('users_id', $oldUser->id)->first();
 
             // ── 2. Capture phone BEFORE null-out (to copy to new profile) ─
-            $oldPhone     = $oldProfile?->phone;
-            $oldFullPhone = $oldProfile?->fullphone;
-            $oldPrefixPhone = $oldProfile?->prefix_phone;
+            $oldPhone     = optional($oldProfile)->phone;
+            $oldFullPhone = optional($oldProfile)->fullphone;
+            $oldPrefixPhone = optional($oldProfile)->prefix_phone;
 
             // ── 2. Null-out phone on old profile FIRST (unique constraint) ─
             if ($oldProfile) {
@@ -183,10 +183,10 @@ class MemberCompanyFollowUpController extends Controller
             $newProfile->prefix_phone = $oldPrefixPhone;
             $newProfile->phone        = $oldPhone;          // transferred from old
             $newProfile->fullphone    = $oldFullPhone;      // transferred from old
-            $newProfile->image        = $oldProfile?->image;
-            $newProfile->job_title    = $newJobTitle ?? $oldProfile?->job_title;
-            $newProfile->newsletter   = $oldProfile?->newsletter;
-            $newProfile->wa_updates   = $oldProfile?->wa_updates;
+            $newProfile->image        = optional($oldProfile)->image;
+            $newProfile->job_title    = $newJobTitle ?? optional($oldProfile)->job_title;
+            $newProfile->newsletter   = optional($oldProfile)->newsletter;
+            $newProfile->wa_updates   = optional($oldProfile)->wa_updates;
             // company_id will be set after new company is created
             $newProfile->save();
 
@@ -194,20 +194,20 @@ class MemberCompanyFollowUpController extends Controller
             $newCompany = new CompanyModel();
             $newCompany->users_id             = $newUser->id;
             $newCompany->company_name         = $newCompanyName;
-            $newCompany->prefix               = $oldCompany?->prefix;
-            $newCompany->company_website      = $oldCompany?->company_website;
-            $newCompany->company_category     = $oldCompany?->company_category;
-            $newCompany->company_other        = $oldCompany?->company_other;
-            $newCompany->address              = $oldCompany?->address;
-            $newCompany->city                 = $oldCompany?->city;
-            $newCompany->portal_code          = $oldCompany?->portal_code;
-            $newCompany->prefix_office_number = $oldCompany?->prefix_office_number;
-            $newCompany->office_number        = $oldCompany?->office_number;
-            $newCompany->full_office_number   = $oldCompany?->full_office_number;
-            $newCompany->country              = $oldCompany?->country;
+            $newCompany->prefix               = optional($oldCompany)->prefix;
+            $newCompany->company_website      = optional($oldCompany)->company_website;
+            $newCompany->company_category     = optional($oldCompany)->company_category;
+            $newCompany->company_other        = optional($oldCompany)->company_other;
+            $newCompany->address              = optional($oldCompany)->address;
+            $newCompany->city                 = optional($oldCompany)->city;
+            $newCompany->portal_code          = optional($oldCompany)->portal_code;
+            $newCompany->prefix_office_number = optional($oldCompany)->prefix_office_number;
+            $newCompany->office_number        = optional($oldCompany)->office_number;
+            $newCompany->full_office_number   = optional($oldCompany)->full_office_number;
+            $newCompany->country              = optional($oldCompany)->country;
             $newCompany->is_verified          = true;
             $newCompany->verified_at          = $verifiedAt;
-            $newCompany->explore              = $oldCompany?->explore;
+            $newCompany->explore              = optional($oldCompany)->explore;
             $newCompany->save();
 
             // Link profile to new company
@@ -290,13 +290,13 @@ class MemberCompanyFollowUpController extends Controller
             if (!$apiKey || !$server || !$listId) return;
 
             $merge = [];
-            if (!empty($user->name))              $merge['FNAME']    = $user->name;
-            if (!empty($company?->company_name))  $merge['MMERGE5']  = $company->company_name;
-            if (!empty($profile?->job_title))     $merge['MMERGE7']  = $profile->job_title;
-            if (!empty($company?->company_website)) $merge['MMERGE13'] = $company->company_website;
+            if (!empty($user->name))                          $merge['FNAME']    = $user->name;
+            if (!empty(optional($company)->company_name))     $merge['MMERGE5']  = $company->company_name;
+            if (!empty(optional($profile)->job_title))        $merge['MMERGE7']  = $profile->job_title;
+            if (!empty(optional($company)->company_website))  $merge['MMERGE13'] = $company->company_website;
             $merge['MMERGE11'] = now()->format('m/d/Y');
 
-            $phone = $profile?->fullphone ?? $profile?->phone ?? null;
+            $phone = optional($profile)->fullphone ?? optional($profile)->phone;
             if ($phone && preg_match('/^\+\d[\d\s\-\(\)]{5,}$/', trim((string) $phone))) {
                 $merge['MERGE4'] = trim((string) $phone);
             }
