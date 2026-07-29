@@ -31,20 +31,10 @@ class UsersController extends Controller
     }
     public function index(Request $request)
     {
-        $list = $this->buildFilteredMemberList($request);
-
-        // Self-edit map: user_id => latest self-edit timestamp (single query)
-        $selfEditMap = DB::table('user_edit_logs')
-            ->whereNull('admin_id')
-            ->select('user_id', DB::raw('MAX(created_at) as last_self_edit'))
-            ->groupBy('user_id')
-            ->pluck('last_self_edit', 'user_id')
-            ->all();
-
-        // Open company follow-up flags: user_id => MemberCompanyFollowUp (single query)
-        $followUpMap = MemberCompanyFollowUp::where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP)
-            ->get()
-            ->keyBy('user_id');
+        // The row list itself is no longer fetched here — it was a single ~2.8s query
+        // pulling all ~3,000 matching rows just to render an initial page. The table
+        // now starts empty and loads its first page (and every page after) via
+        // usersData(), so only stat counters are needed up front.
 
         // Stats
         $countActiveMember = User::whereNotNull('isStatus')
@@ -123,7 +113,6 @@ class UsersController extends Controller
             ->count();
 
         return view('admin.users.index', [
-            'list'               => $list,
             'countActiveMember'  => $countActiveMember,
             'countPendingMember' => $countPendingMember,
             'countDeclined'      => $countDeclined,
@@ -140,8 +129,6 @@ class UsersController extends Controller
             'countProspecting'           => $countProspecting,
             'countValidatedWithin48h'    => $countValidatedWithin48h,
             'countValidatedAfter48h'     => $countValidatedAfter48h,
-            'selfEditMap'        => $selfEditMap,
-            'followUpMap'        => $followUpMap,
             'companyNames'       => CompanyModel::whereNotNull('company_name')
                 ->whereRaw("TRIM(company_name) <> ''")
                 ->distinct()
@@ -151,10 +138,13 @@ class UsersController extends Controller
     }
 
     /**
-     * Bangun daftar member sesuai filter aktif (dipakai bersama oleh index & export),
-     * supaya export selalu berisi baris yang sama persis dengan yang tampil di tabel.
+     * Query dasar member ter-filter (join + tab/date filters), dipakai bersama oleh
+     * buildFilteredMemberList() (export, initial-load-free path) dan usersData()
+     * (AJAX pagination) supaya keduanya selalu melihat baris yang sama persis.
+     * Tidak menangani filter=unregist — itu sumber datanya beda (MemberModel), lihat
+     * buildFilteredMemberList().
      */
-    private function buildFilteredMemberList(Request $request)
+    private function buildMemberQuery(Request $request)
     {
         $filter       = $request->filter;
         $dateFrom     = $request->date_from;
@@ -162,21 +152,6 @@ class UsersController extends Controller
         $month        = $request->month;
         $year         = $request->year;
         $statusMember = $request->status_member; // 'active' | 'pending' | ''
-
-        if ($filter == 'unregist') {
-            $query = MemberModel::whereNull('register_as');
-
-            if ($dateFrom) $query->whereDate('created_at', '>=', $dateFrom);
-            if ($dateTo)   $query->whereDate('created_at', '<=', $dateTo);
-            if ($month)    $query->whereMonth('created_at', $month);
-            if ($year)     $query->whereYear('created_at', $year);
-
-            if (!$dateFrom && !$dateTo && !$month && !$year) {
-                $query->where('created_at', '>=', Carbon::now()->startOfYear());
-            }
-
-            return $query->orderBy('id', 'desc')->get();
-        }
 
         $query = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
             ->leftJoin('company', 'company.id', 'profiles.company_id')
@@ -237,7 +212,39 @@ class UsersController extends Controller
         if ($month)    $query->whereMonth('users.created_at', $month);
         if ($year)     $query->whereYear('users.created_at', $year);
 
-        $list = $query->orderBy('users.id', 'desc')
+        return $query;
+    }
+
+    /**
+     * Bangun daftar member sesuai filter aktif (dipakai oleh export — perlu semua
+     * baris sekaligus, bukan per-halaman). Tampilan tabel di index() memakai
+     * usersData() (AJAX, per-halaman) supaya tidak query 3000 baris di setiap load.
+     */
+    private function buildFilteredMemberList(Request $request)
+    {
+        $filter   = $request->filter;
+        $dateFrom = $request->date_from;
+        $dateTo   = $request->date_to;
+        $month    = $request->month;
+        $year     = $request->year;
+
+        if ($filter == 'unregist') {
+            $query = MemberModel::whereNull('register_as');
+
+            if ($dateFrom) $query->whereDate('created_at', '>=', $dateFrom);
+            if ($dateTo)   $query->whereDate('created_at', '<=', $dateTo);
+            if ($month)    $query->whereMonth('created_at', $month);
+            if ($year)     $query->whereYear('created_at', $year);
+
+            if (!$dateFrom && !$dateTo && !$month && !$year) {
+                $query->where('created_at', '>=', Carbon::now()->startOfYear());
+            }
+
+            return $query->orderBy('id', 'desc')->get();
+        }
+
+        $list = $this->buildMemberQuery($request)
+            ->orderBy('users.id', 'desc')
             ->select(
                 'users.*',
                 'users.created_at as user_created_at',
@@ -247,8 +254,15 @@ class UsersController extends Controller
             )
             ->get();
 
-        // Mapping manual: jika ada company lain dengan nama sama yang sudah verified,
-        // tandai row ini agar tombol verify bisa langsung biru.
+        return $this->attachVerifiedCompanyNameFlag($list);
+    }
+
+    /**
+     * Mapping manual: jika ada company lain dengan nama sama yang sudah verified,
+     * tandai row ini agar tombol verify bisa langsung biru.
+     */
+    private function attachVerifiedCompanyNameFlag($list)
+    {
         $verifiedCompanyNameMap = CompanyModel::query()
             ->where('is_verified', true)
             ->whereNotNull('company_name')
@@ -263,6 +277,195 @@ class UsersController extends Controller
             $row->has_verified_company_name = $normalizedName !== '' && $verifiedCompanyNameMap->has($normalizedName);
             return $row;
         });
+    }
+
+    /**
+     * AJAX endpoint (DataTables server-side processing) yang menyuplai tabel Members
+     * di admin/users — hanya query & render baris yang benar-benar sedang dilihat
+     * (default 25/halaman), bukan seluruh ~3000 baris seperti sebelumnya.
+     */
+    public function usersData(Request $request)
+    {
+        $baseQuery = $this->buildMemberQuery($request);
+
+        $recordsTotal = (clone $baseQuery)->count();
+
+        $searchValue = trim((string) $request->input('search.value', ''));
+        if ($searchValue !== '') {
+            $baseQuery->where(function ($q) use ($searchValue) {
+                $q->where('users.name', 'like', "%{$searchValue}%")
+                    ->orWhere('users.email', 'like', "%{$searchValue}%")
+                    ->orWhere('company.company_name', 'like', "%{$searchValue}%")
+                    ->orWhere('profiles.fullphone', 'like', "%{$searchValue}%")
+                    ->orWhere('profiles.job_title', 'like', "%{$searchValue}%");
+            });
+        }
+
+        $recordsFiltered = (clone $baseQuery)->count();
+
+        $columnsSortMap = [
+            1 => 'users.created_at',
+            3 => 'users.name',
+            4 => 'users.status_member',
+            7 => 'company.company_name',
+            8 => 'users.email',
+            9 => 'profiles.fullphone',
+        ];
+        $orderColumnIndex = (int) $request->input('order.0.column', 1);
+        $orderDir = strtolower((string) $request->input('order.0.dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $orderColumn = $columnsSortMap[$orderColumnIndex] ?? 'users.id';
+
+        $start  = max(0, (int) $request->input('start', 0));
+        $length = (int) $request->input('length', 25);
+        $length = $length > 0 ? min($length, 100) : 25;
+
+        $rows = $baseQuery->orderBy($orderColumn, $orderDir)
+            ->select(
+                'users.*',
+                'users.created_at as user_created_at',
+                'profiles.*',
+                'company.*',
+                'users.id as user_id'
+            )
+            ->skip($start)
+            ->take($length)
+            ->get();
+
+        $rows = $this->attachVerifiedCompanyNameFlag($rows);
+
+        $userIds = $rows->pluck('user_id')->all();
+
+        $selfEditMap = DB::table('user_edit_logs')
+            ->whereNull('admin_id')
+            ->whereIn('user_id', $userIds)
+            ->select('user_id', DB::raw('MAX(created_at) as last_self_edit'))
+            ->groupBy('user_id')
+            ->pluck('last_self_edit', 'user_id')
+            ->all();
+
+        $followUpMap = MemberCompanyFollowUp::where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP)
+            ->whereIn('user_id', $userIds)
+            ->get()
+            ->keyBy('user_id');
+
+        $data = [];
+        foreach ($rows as $i => $post) {
+            $cells = $this->renderMemberRowCells($post, $selfEditMap, $followUpMap);
+            $cells[0] = $start + $i + 1;
+            $data[] = $cells;
+        }
+
+        return response()->json([
+            'draw'            => (int) $request->input('draw', 1),
+            'recordsTotal'    => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data'            => $data,
+        ]);
+    }
+
+    /**
+     * Render satu baris tabel Members jadi array cell (index 0..15, cocok dengan
+     * urutan <th> di _table_members.blade.php) + metadata baris (DT_RowId/DT_RowAttr)
+     * untuk response DataTables server-side.
+     */
+    private function renderMemberRowCells($post, array $selfEditMap, $followUpMap): array
+    {
+        $sourceColorMap = [
+            'website'   => ['color' => '#4e73df', 'icon' => 'fas fa-globe'],
+            'apps'      => ['color' => '#1cc88a', 'icon' => 'fas fa-mobile-alt'],
+            'scanner'   => ['color' => '#858796', 'icon' => 'fas fa-qrcode'],
+            'linkedin'  => ['color' => '#0077b5', 'icon' => 'fab fa-linkedin-in'],
+            'instagram' => ['color' => '#e1306c', 'icon' => 'fab fa-instagram'],
+            'event'     => ['color' => '#f6a92f', 'icon' => 'fas fa-calendar-alt'],
+            'other'     => ['color' => '#6f42c1', 'icon' => 'fas fa-ellipsis-h'],
+        ];
+
+        $memberStatus  = strtolower($post->status_member ?? '');
+        $isActive      = $memberStatus === 'active';
+        $isDeclined    = $memberStatus === 'declined';
+        $isDeactivated = $memberStatus === 'deactivated';
+        $rowBg = $isActive ? '' : ($isDeclined ? 'background-color:#fff5f5;' : ($isDeactivated ? 'background-color:#f0f0f0;' : 'background-color:#fffbee;'));
+
+        $sourceRaw = trim((string) ($post->source ?? ''));
+        $sourceKey = strtolower($sourceRaw);
+        if ($sourceKey !== '' && !isset($sourceColorMap[$sourceKey]) && strpos($sourceKey, 'event') === 0) {
+            $sourceKey = 'event';
+        }
+        $sourceStyle = $sourceColorMap[$sourceKey] ?? ['color' => '#adb5bd', 'icon' => 'fas fa-question'];
+        $sourceLabel = $sourceRaw !== '' ? $sourceRaw : 'Unknown';
+
+        $registerRaw = $post->user_created_at ?? $post->created_at;
+        $cellRegister = '<span class="text-nowrap">' . e(date('d M Y', strtotime($registerRaw)))
+            . '<br><small class="text-muted">' . e(date('H:i', strtotime($registerRaw))) . '</small></span>';
+
+        $cellSource = '<span class="text-nowrap"><span class="badge mini-badge" style="background-color:'
+            . e($sourceStyle['color']) . ';color:#fff;" title="' . e($sourceLabel) . '" data-toggle="tooltip">'
+            . '<i class="' . e($sourceStyle['icon']) . '"></i></span></span>';
+
+        $cellName = e($post->name);
+        if (isset($selfEditMap[$post->user_id])) {
+            $cellName .= ' <i class="fas fa-user-edit text-warning ml-1" title="User mengubah data sendiri — '
+                . e(\Carbon\Carbon::parse($selfEditMap[$post->user_id])->format('d M Y H:i'))
+                . '" data-toggle="tooltip"></i>';
+        }
+
+        $cellStatus = view('admin.users.partials._row.status_badge', [
+            'post' => $post, 'isActive' => $isActive, 'isDeclined' => $isDeclined, 'isDeactivated' => $isDeactivated,
+        ])->render();
+
+        $cellActions = view('admin.users.partials._row.status_actions', [
+            'post' => $post, 'isActive' => $isActive, 'isDeclined' => $isDeclined, 'isDeactivated' => $isDeactivated,
+        ])->render();
+
+        $cellJobTitle = '<span class="cell-truncate" title="' . e($post->job_title) . '">' . e($post->job_title) . '</span>';
+        $cellCompany  = '<span class="cell-truncate" title="' . e($post->company_name) . '">' . e($post->company_name) . '</span>';
+        $cellEmail    = '<a href="mailto:' . e($post->email) . '" class="cell-truncate" title="' . e($post->email) . '">' . e($post->email) . '</a>';
+        $cellPhone    = '<span class="text-nowrap">' . e($post->fullphone ?? $post->phone) . '</span>';
+        $cellOffice   = '<span class="text-nowrap">' . e($post->full_office_number) . '</span>';
+        $cellAddress  = '<span class="cell-truncate" title="' . e($post->address) . '">' . e($post->address) . '</span>';
+
+        $cellWebsite = '';
+        if ($post->company_website) {
+            $cellWebsite = '<a href="' . e($post->company_website) . '" target="_blank" rel="noopener" class="cell-truncate" title="'
+                . e($post->company_website) . '">' . e($post->company_website) . '</a>';
+        }
+
+        $categoryLabel = $post->company_category == 'other' ? $post->company_other : $post->company_category;
+        $cellCategory = '<span class="cell-truncate" title="' . e($categoryLabel) . '">' . e($categoryLabel) . '</span>';
+
+        $waAgree = strtolower(trim((string) $post->wa_updates)) === 'agree';
+        $cellWaSpon = '<div class="btn-icon-group">'
+            . '<i class="fab fa-whatsapp ' . ($waAgree ? 'text-success' : 'text-muted') . '" title="WA Updates: ' . ($waAgree ? 'Yes' : 'No') . '" data-toggle="tooltip"></i>'
+            . '<i class="fas fa-star ' . ($post->explore ? 'text-warning' : 'text-muted') . '" title="Open to Sponsorship: ' . ($post->explore ? 'Yes' : 'No') . '" data-toggle="tooltip"></i>'
+            . '<button type="button" class="btn btn-icon btn-outline-secondary btn-import-mailchimp"'
+            . ' data-url="' . e(route('users.import.mailchimp')) . '" data-user-id="' . e($post->user_id) . '" data-email="' . e($post->email) . '"'
+            . ' data-tags=\'["Register of Membership ' . e(now()->format('d M Y')) . '"]\''
+            . ' title="Re-sync data member ini ke Mailchimp" data-toggle="tooltip"><i class="fas fa-sync-alt"></i></button>'
+            . '</div>';
+
+        $cellPasswordActions = view('admin.users.partials._row.password_actions', [
+            'post' => $post, 'followUpMap' => $followUpMap,
+        ])->render();
+
+        return [
+            1  => $cellRegister,
+            2  => $cellSource,
+            3  => $cellName,
+            4  => $cellStatus,
+            5  => $cellActions,
+            6  => $cellJobTitle,
+            7  => $cellCompany,
+            8  => $cellEmail,
+            9  => $cellPhone,
+            10 => $cellOffice,
+            11 => $cellAddress,
+            12 => $cellWebsite,
+            13 => $cellCategory,
+            14 => $cellWaSpon,
+            15 => $cellPasswordActions,
+            'DT_RowId'   => 'row_' . $post->user_id,
+            'DT_RowAttr' => ['style' => $rowBg],
+        ];
     }
 
     /**

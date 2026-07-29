@@ -93,17 +93,8 @@
         })
         .done(function(res) {
             if (res && res.success) {
-                if ($btn) {
-                    const $row = $btn.closest('tr');
-                    $row.find('.member-status-badge').removeClass('badge-warning badge-danger').addClass('badge-success')
-                        .text('Active');
-                    $btn.removeClass('btn-warning btn-danger').addClass('btn-success')
-                        .attr('disabled', true)
-                        .attr('title', 'Sudah verified')
-                        .html('<i class="fas fa-check"></i>');
-                    $row.removeClass('table-warning').css('background-color', '');
-                }
                 $('#verifyMemberModal').modal('hide');
+                refreshMembersTable();
                 showAlert('success', '<i class="fas fa-check-circle mr-1"></i>' + res.message);
             } else {
                 $('#vm-btn-verify-member, #vm-btn-verify-member-direct').prop('disabled', false)
@@ -331,16 +322,8 @@
         $.ajax({ url, method: 'POST', dataType: 'json' })
             .done(function(res) {
                 if (res && res.success) {
-                    if ($vmSourceBtn) {
-                        const $row = $vmSourceBtn.closest('tr');
-                        $row.find('.member-status-badge').removeClass('badge-warning').addClass('badge-danger')
-                            .text('Disqualified');
-                        $vmSourceBtn.removeClass('btn-warning').addClass('btn-danger')
-                            .attr('title', 'Aplikasi ini sudah di-decline — klik untuk re-review')
-                            .html('<i class="fas fa-redo"></i>');
-                        $row.css('background-color', '#fff5f5');
-                    }
                     $('#verifyMemberModal').modal('hide');
+                    refreshMembersTable();
                     showAlert('success', '<i class="fas fa-check-circle mr-1"></i>' + res.message);
                 } else {
                     $btn.prop('disabled', false)
@@ -546,7 +529,7 @@
                     ? ' (field diubah: ' + Object.keys(res.changes).join(', ') + ')'
                     : '';
                 showAlert('success', '<i class="fas fa-check-circle mr-1"></i>' + res.message + changed);
-                setTimeout(function() { location.reload(); }, 1500);
+                refreshMembersTable();
             } else {
                 $('#eu-btn-save').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Simpan Perubahan');
                 showAlert('warning', (res && res.message) || 'Gagal menyimpan.');
@@ -646,7 +629,7 @@
             success: function(res) {
                 if (res.success) {
                     toastr.success(res.message);
-                    location.reload();
+                    refreshMembersTable();
                 } else {
                     toastr.error(res.message || 'Gagal deactivate.');
                 }
@@ -667,7 +650,7 @@
             success: function(res) {
                 if (res.success) {
                     toastr.success(res.message);
-                    location.reload();
+                    refreshMembersTable();
                 } else {
                     toastr.error(res.message || 'Gagal reactivate.');
                 }
@@ -692,7 +675,7 @@
             success: function(res) {
                 if (res.success) {
                     toastr.success(res.message);
-                    location.reload();
+                    refreshMembersTable();
                 } else {
                     toastr.error(res.message || 'Gagal mengubah status verifikasi.');
                     btn.prop('disabled', false);
@@ -710,12 +693,57 @@
     // Semua kolom tetap tampil (tidak collapse) — tabel dibuat compact lewat
     // font/padding kecil + icon-only actions supaya muat tanpa scroll horizontal
     // di layar desktop biasa.
+    //
+    // Registered-members view = server-side processing (usersData() AJAX, 25
+    // baris/request, bukan ~3000 baris sekaligus). "Unregistered" tab tetap
+    // client-side seperti semula — sumber data & kolomnya beda, datanya jauh
+    // lebih kecil (dibatasi tahun berjalan), bukan yang lambat.
     $(document).ready(function() {
-        $('#laravel_crud').DataTable({
-            dom: 'frtip',
-            pageLength: 25,
-            order: [[0, 'asc']],
-        });
+        if ('{{ request('filter') }}' !== 'unregist') {
+            window.membersTable = $('#laravel_crud').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route('users.data') }}',
+                    data: function(d) {
+                        d.status_member = '{{ request('status_member') }}';
+                        d.filter        = '{{ request('filter') }}';
+                        d.date_from     = '{{ request('date_from') }}';
+                        d.date_to       = '{{ request('date_to') }}';
+                        d.month         = '{{ request('month') }}';
+                        d.year          = '{{ request('year') }}';
+                    }
+                },
+                dom: 'frtip',
+                pageLength: 25,
+                order: [[1, 'desc']],
+                searchDelay: 400,
+                columnDefs: [
+                    { targets: [0, 2, 4, 5, 6, 10, 12, 13, 14, 15], orderable: false },
+                ],
+                drawCallback: function() {
+                    $('#laravel_crud tbody [data-toggle="tooltip"]').tooltip();
+                },
+            });
+        } else {
+            $('#laravel_crud').DataTable({
+                dom: 'frtip',
+                pageLength: 25,
+                order: [[0, 'asc']],
+            });
+        }
     });
+
+    // Dipakai oleh semua action (verify/decline/deactivate/reactivate/2-step/edit/
+    // follow-up) sebagai pengganti location.reload() — refresh isi tabel di tempat,
+    // tetap di halaman/sort/search yang sama. Fallback ke reload penuh kalau
+    // membersTable belum/tidak ada (mis. tab Unregistered).
+    function refreshMembersTable() {
+        if (window.membersTable) {
+            window.membersTable.ajax.reload(null, false);
+        } else {
+            location.reload();
+        }
+    }
 </script>
 @endpush

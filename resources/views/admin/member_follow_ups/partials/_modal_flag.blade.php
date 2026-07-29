@@ -73,7 +73,15 @@
                 success: function(res) {
                     if (res.success) {
                         toastr.success(res.message);
-                        location.reload();
+                        $('#followUpModal').modal('hide');
+                        // On admin/users this modal is shared and should refresh just
+                        // the table (stay on page); on the dedicated Follow-Up page
+                        // there's no DataTable instance, so fall back to a full reload.
+                        if (window.membersTable) {
+                            window.membersTable.ajax.reload(null, false);
+                        } else {
+                            location.reload();
+                        }
                     } else {
                         toastr.error(res.message || 'Gagal menyimpan follow up.');
                         btn.prop('disabled', false);

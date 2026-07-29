@@ -535,6 +535,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('users/{id}/toggle-two-step', [UsersController::class, 'toggleTwoStep'])->name('users.toggle_two_step');
     Route::get('users/edit-logs', [UsersController::class, 'editLogs'])->name('admin.user_edit_logs');
     Route::get('users/mailchimp-count', [UsersController::class, 'mailchimpContactCount'])->name('users.mailchimp.count');
+    Route::get('users/data', [UsersController::class, 'usersData'])->name('users.data');
 
     Route::get('company-follow-ups', [MemberCompanyFollowUpController::class, 'index'])->name('admin.member_follow_ups.index');
     Route::post('company-follow-ups', [MemberCompanyFollowUpController::class, 'store'])->name('admin.member_follow_ups.store');
