@@ -4,11 +4,11 @@
     <div class="content-wrapper">
         <section class="section">
             <div class="section-header">
-                <h1>Company Follow-Up</h1>
+                <h1>Member Follow-Up</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
                     <div class="breadcrumb-item"><a href="{{ Route('users') }}">Members Management</a></div>
-                    <div class="breadcrumb-item active">Company Follow-Up</div>
+                    <div class="breadcrumb-item active">Member Follow-Up</div>
                 </div>
             </div>
 
@@ -46,6 +46,7 @@
     </div>
 
     @include('admin.member_follow_ups.partials._modal_flag')
+    @include('admin.member_follow_ups.partials._modal_verify_follow_up')
 @endsection
 
 @include('admin.member_follow_ups.partials._scripts')

@@ -16,6 +16,8 @@
                 <span class="text-warning"><i class="fas fa-key mr-1"></i>Active Members Without Password</span>
             @elseif (request('filter') === 'company_verified')
                 <span class="text-info"><i class="fas fa-building mr-1"></i>Companies Verified</span>
+            @elseif (request('filter') === 'two_step_verified')
+                <span class="text-info"><i class="fas fa-user-check mr-1"></i>2-Step Verified by Staff</span>
             @elseif (request('filter') === 'prospecting')
                 <span class="text-warning"><i class="fas fa-star mr-1"></i>Prospecting — Open to Sponsorship</span>
             @elseif (request('status_member') === 'declined')
@@ -71,6 +73,15 @@
                     class="btn btn-sm {{ request('filter') === 'company_verified' ? 'btn-info' : 'btn-outline-info' }}">
                     <i class="fas fa-building mr-1"></i> Companies Verified
                     <span class="badge badge-light ml-1">{{ $countCompaniesVerified }}</span>
+                </a>
+                <a href="{{ url('admin/users?filter=two_step_verified') }}"
+                    class="btn btn-sm {{ request('filter') === 'two_step_verified' ? 'btn-info' : 'btn-outline-info' }}"
+                    title="Member yang sudah diverifikasi 2-langkah oleh staff (LinkedIn/Telfon)">
+                    <i class="fas fa-user-check mr-1"></i> 2-Step Verified
+                    @if (($countTwoStepVerified ?? 0) > 0)
+                        <span
+                            class="badge {{ request('filter') === 'two_step_verified' ? 'badge-light' : 'badge-info' }} ml-1">{{ $countTwoStepVerified }}</span>
+                    @endif
                 </a>
                 <a href="{{ url('admin/users?filter=prospecting') }}"
                     class="btn btn-sm {{ request('filter') === 'prospecting' ? 'btn-warning' : 'btn-outline-warning' }}">

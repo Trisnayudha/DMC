@@ -27,6 +27,9 @@ class User extends Authenticatable
         'status_member',
         'tier',
         'verified_at',
+        'two_step_verified',
+        'two_step_verified_at',
+        'two_step_verified_by',
     ];
 
     protected $hidden = [
@@ -35,8 +38,10 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'verified_at' => 'datetime',
+        'email_verified_at'    => 'datetime',
+        'verified_at'          => 'datetime',
+        'two_step_verified'    => 'boolean',
+        'two_step_verified_at' => 'datetime',
     ];
 
     /**

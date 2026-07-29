@@ -96,6 +96,14 @@
                         <span class="badge badge-secondary member-status-badge mini-badge">Deactivated</span>
                     @elseif ($isActive)
                         <span class="badge badge-success member-status-badge mini-badge">Active</span>
+                        @if (!empty($post->two_step_verified))
+                            <br>
+                            <span class="badge badge-info mini-badge mt-1 d-inline-block"
+                                title="Verifikasi 2-Langkah oleh {{ $post->two_step_verified_by ?? 'Staff' }} ({{ $post->two_step_verified_at ? \Carbon\Carbon::parse($post->two_step_verified_at)->format('d M Y H:i') : '' }})"
+                                data-toggle="tooltip">
+                                <i class="fas fa-check-double mr-1"></i>2-Step
+                            </span>
+                        @endif
                     @elseif ($isDeclined)
                         <span class="badge badge-danger member-status-badge mini-badge">Disqualified</span>
                     @else
@@ -120,6 +128,15 @@
                                 data-url="{{ route('users.verify', $post->user_id) }}"
                                 disabled title="Sudah verified" data-toggle="tooltip">
                                 <i class="fas fa-check"></i>
+                            </button>
+                            <button type="button"
+                                class="btn btn-icon {{ !empty($post->two_step_verified) ? 'btn-info' : 'btn-outline-info' }} btn-toggle-two-step"
+                                data-url="{{ route('users.toggle_two_step', $post->user_id) }}"
+                                data-name="{{ $post->name }}"
+                                data-verified="{{ !empty($post->two_step_verified) ? '1' : '0' }}"
+                                title="{{ !empty($post->two_step_verified) ? 'Sudah Verifikasi 2-Langkah oleh ' . ($post->two_step_verified_by ?? 'Staff') . ' — Klik untuk batalkan' : 'Tandai Verifikasi 2-Langkah oleh Staff (LinkedIn/Telfon)' }}"
+                                data-toggle="tooltip">
+                                <i class="fas {{ !empty($post->two_step_verified) ? 'fa-check-circle' : 'fa-user-check' }}"></i>
                             </button>
                             <button type="button"
                                 class="btn btn-icon btn-outline-secondary btn-deactivate-member"
@@ -290,7 +307,7 @@
                             data-notes="{{ $openFollowUp->notes ?? '' }}"
                             title="{{ $openFollowUp ? 'Follow-up pending — klik untuk edit' : 'Tandai member ini pindah company' }}"
                             data-toggle="tooltip">
-                            <i class="fas fa-people-arrows"></i>
+                            <i class="fas fa-exchange-alt"></i>
                         </button>
                     </div>
                 </td>

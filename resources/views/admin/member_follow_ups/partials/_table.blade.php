@@ -3,7 +3,7 @@
 <div class="card">
     <div class="card-header">
         <h4 class="mb-0">
-            <i class="fas fa-people-arrows mr-1"></i>Company Change Follow-Up
+            <i class="fas fa-exchange-alt mr-1"></i>Company Change Follow-Up
         </h4>
     </div>
 
@@ -14,7 +14,7 @@
             <div class="d-flex flex-wrap" style="gap:6px;">
                 <a href="{{ url('admin/company-follow-ups?status=needs_follow_up') }}"
                     class="btn btn-sm {{ $status === 'needs_follow_up' ? 'btn-warning' : 'btn-outline-warning' }}">
-                    <i class="fas fa-people-arrows mr-1"></i> Need Follow Up
+                    <i class="fas fa-exchange-alt mr-1"></i> Need Follow Up
                     <span class="badge badge-light ml-1">{{ $countNeedsFollowUp }}</span>
                 </a>
                 <a href="{{ url('admin/company-follow-ups?status=verified') }}"
@@ -109,10 +109,14 @@
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
                                         <button type="button"
-                                            class="btn btn-xs btn-success btn-verify-follow-up"
-                                            data-url="{{ route('admin.member_follow_ups.verify', $item->id) }}"
-                                            data-name="{{ optional($member)->name }}"
-                                            title="Tandai data ini sudah dikonfirmasi benar">
+                                            class="btn btn-xs btn-success btn-open-verify-modal"
+                                            data-follow-up-id="{{ $item->id }}"
+                                            data-verify-url="{{ route('admin.member_follow_ups.verify', $item->id) }}"
+                                            data-member-name="{{ optional($member)->name }}"
+                                            data-new-company="{{ $item->new_company_name }}"
+                                            data-member-email="{{ optional($member)->email }}"
+                                            data-member-job-title="{{ optional(optional($member)->profile)->job_title }}"
+                                            title="Verify — buat akun baru dengan company terbaru">
                                             <i class="fas fa-check"></i> Verify
                                         </button>
                                     @endif

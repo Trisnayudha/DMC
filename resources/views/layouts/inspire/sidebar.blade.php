@@ -42,8 +42,8 @@
 
         <li class="{{ request()->is('admin/company-follow-ups*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('admin.member_follow_ups.index') }}">
-                <i class="fas fa-people-arrows"></i>
-                <span>Company Follow-Up</span>
+                <i class="fas fa-exchange-alt"></i>
+                <span>Member Follow-Up</span>
             </a>
         </li>
 

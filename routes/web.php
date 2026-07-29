@@ -532,6 +532,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('users/{id}/decline', [UsersController::class, 'declineMember'])->name('users.decline');
     Route::post('users/{id}/deactivate', [UsersController::class, 'deactivateMember'])->name('users.deactivate');
     Route::post('users/{id}/reactivate', [UsersController::class, 'reactivateMember'])->name('users.reactivate');
+    Route::post('users/{id}/toggle-two-step', [UsersController::class, 'toggleTwoStep'])->name('users.toggle_two_step');
     Route::get('users/edit-logs', [UsersController::class, 'editLogs'])->name('admin.user_edit_logs');
     Route::get('users/mailchimp-count', [UsersController::class, 'mailchimpContactCount'])->name('users.mailchimp.count');
 

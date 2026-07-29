@@ -118,6 +118,10 @@ class UsersController extends Controller
             ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, verified_at) > 48')
             ->count();
 
+        $countTwoStepVerified = User::whereNotNull('isStatus')
+            ->where('two_step_verified', true)
+            ->count();
+
         return view('admin.users.index', [
             'list'               => $list,
             'countActiveMember'  => $countActiveMember,
@@ -129,6 +133,7 @@ class UsersController extends Controller
             'countVerifyEmail'   => $countVerifyEmail,
             'countVerifyPhone'   => $countVerifyPhone,
             'countDoubleVerify'  => $countDoubleVerify,
+            'countTwoStepVerified' => $countTwoStepVerified,
             'countSelfEdited'    => $countSelfEdited,
             'countActiveWithoutPassword' => $countActiveWithoutPassword,
             'countCompaniesVerified'     => $countCompaniesVerified,
@@ -199,6 +204,10 @@ class UsersController extends Controller
 
         if ($filter == 'company_verified') {
             $query->where('company.is_verified', true);
+        }
+
+        if ($filter == 'two_step_verified') {
+            $query->where('users.two_step_verified', true);
         }
 
         if ($filter == 'prospecting') {
@@ -507,6 +516,34 @@ class UsersController extends Controller
         return response()->json([
             'success' => true,
             'message' => $user->name . ' berhasil di-reactivate.',
+        ]);
+    }
+
+    public function toggleTwoStep(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $admin = auth()->user();
+
+        if ($user->two_step_verified) {
+            $user->two_step_verified = false;
+            $user->two_step_verified_at = null;
+            $user->two_step_verified_by = null;
+            $user->save();
+            $msg = 'Verifikasi 2-Langkah dibatalkan untuk ' . $user->name . '.';
+        } else {
+            $user->two_step_verified = true;
+            $user->two_step_verified_at = now();
+            $user->two_step_verified_by = $admin ? $admin->name : 'Staff';
+            $user->save();
+            $msg = $user->name . ' berhasil ditandai Verifikasi 2-Langkah (Staff).';
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $msg,
+            'two_step_verified' => (bool) $user->two_step_verified,
+            'two_step_verified_at' => $user->two_step_verified_at ? $user->two_step_verified_at->format('d M Y H:i') : null,
+            'two_step_verified_by' => $user->two_step_verified_by,
         ]);
     }
 

@@ -676,6 +676,35 @@
         });
     });
 
+    $(document).on('click', '.btn-toggle-two-step', function() {
+        var btn  = $(this);
+        var name = btn.data('name');
+        var isVerified = btn.data('verified') == '1';
+        var actionText = isVerified ? 'Batalkan status Verifikasi 2-Langkah' : 'Tandai Verifikasi 2-Langkah (manual check staff)';
+
+        if (!confirm(actionText + ' untuk "' + name + '"?')) return;
+
+        btn.prop('disabled', true);
+        $.ajax({
+            url: btn.data('url'),
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}' },
+            success: function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    location.reload();
+                } else {
+                    toastr.error(res.message || 'Gagal mengubah status verifikasi.');
+                    btn.prop('disabled', false);
+                }
+            },
+            error: function() {
+                toastr.error('Terjadi kesalahan.');
+                btn.prop('disabled', false);
+            }
+        });
+    });
+
     // DataTable — export dipindah ke tombol "Export Excel" (server-side) supaya
     // value asli yang keluar, bukan HTML tombol/badge di dalam cell.
     // Semua kolom tetap tampil (tidak collapse) — tabel dibuat compact lewat

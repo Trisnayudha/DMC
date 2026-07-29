@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-people-arrows mr-1"></i>Mark as Need Follow Up</h5>
+                <h5 class="modal-title"><i class="fas fa-exchange-alt mr-1"></i>Mark as Need Follow Up</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -32,7 +32,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-warning" id="fu-btn-submit">
-                    <i class="fas fa-people-arrows mr-1"></i> Mark as Need Follow Up
+                    <i class="fas fa-exchange-alt mr-1"></i> Mark as Need Follow Up
                 </button>
             </div>
         </div>
