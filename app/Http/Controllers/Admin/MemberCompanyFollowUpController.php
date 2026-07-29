@@ -194,20 +194,9 @@ class MemberCompanyFollowUpController extends Controller
 
             $newUser->save();
 
-            // ── 6. Create new Profile (with original phone transferred) ────
-            $newProfile = new ProfileModel();
-            $newProfile->users_id     = $newUser->id;
-            $newProfile->prefix_phone = $oldPrefixPhone;
-            $newProfile->phone        = $oldPhone;          // transferred from old
-            $newProfile->fullphone    = $oldFullPhone;      // transferred from old
-            $newProfile->image        = optional($oldProfile)->image;
-            $newProfile->job_title    = $newJobTitle ?? optional($oldProfile)->job_title;
-            $newProfile->newsletter   = optional($oldProfile)->newsletter;
-            $newProfile->wa_updates   = optional($oldProfile)->wa_updates;
-            // company_id will be set after new company is created
-            $newProfile->save();
-
-            // ── 7. Create new Company ─────────────────────────────────────
+            // ── 6. Create new Company FIRST — profiles.company_id is NOT NULL
+            //      with no default, so the Profile insert below needs a real
+            //      company id already in hand, not patched in afterward ──────
             $newCompany = new CompanyModel();
             $newCompany->users_id             = $newUser->id;
             $newCompany->company_name         = $newCompanyName;
@@ -227,8 +216,17 @@ class MemberCompanyFollowUpController extends Controller
             $newCompany->explore              = optional($oldCompany)->explore;
             $newCompany->save();
 
-            // Link profile to new company
-            $newProfile->company_id = $newCompany->id;
+            // ── 7. Create new Profile (with original phone transferred) ────
+            $newProfile = new ProfileModel();
+            $newProfile->users_id     = $newUser->id;
+            $newProfile->company_id   = $newCompany->id;
+            $newProfile->prefix_phone = $oldPrefixPhone;
+            $newProfile->phone        = $oldPhone;          // transferred from old
+            $newProfile->fullphone    = $oldFullPhone;      // transferred from old
+            $newProfile->image        = optional($oldProfile)->image;
+            $newProfile->job_title    = $newJobTitle ?? optional($oldProfile)->job_title;
+            $newProfile->newsletter   = optional($oldProfile)->newsletter;
+            $newProfile->wa_updates   = optional($oldProfile)->wa_updates;
             $newProfile->save();
 
             // ── 8. Mark follow-up as verified ─────────────────────────────
