@@ -125,6 +125,9 @@ class MemberCompanyFollowUpController extends Controller
             }
         }
 
+        $admin      = auth()->user();
+        $verifiedAt = now();
+
         DB::beginTransaction();
         try {
             // ── 1. Load old profile & company ────────────────────────────
@@ -143,8 +146,18 @@ class MemberCompanyFollowUpController extends Controller
                 $oldProfile->save();
             }
 
-            // ── 3. Deactivate old user ────────────────────────────────────
-            $oldUser->status_member = 'deactivated';
+            // ── 3. Deactivate old user (auto reason — everything needed is
+            //      already on hand from this same verify action) ───────────
+            $deactivationReason = 'Company/job change verified via Follow-Up — replaced by new account ('
+                . $newEmail . '), company "' . $newCompanyName . '".';
+            if (!empty($followUp->notes)) {
+                $deactivationReason .= ' Notes: ' . $followUp->notes;
+            }
+
+            $oldUser->status_member       = 'deactivated';
+            $oldUser->deactivation_reason = $deactivationReason;
+            $oldUser->deactivated_at      = $verifiedAt;
+            $oldUser->deactivated_by      = $admin ? $admin->name : 'Staff';
             $oldUser->save();
 
             // ── 4. Create new User ────────────────────────────────────────
@@ -155,14 +168,18 @@ class MemberCompanyFollowUpController extends Controller
             $newUser->verify_phone  = $oldUser->verify_phone;
             $newUser->isStatus      = $oldUser->isStatus;
             $newUser->source        = $oldUser->source;
-            $newUser->status_member = 'pending'; // will be set to active below
+            // Created active right away — this whole flow only exists to verify
+            // the member under their new company, there's no separate approval
+            // step. status_member has to be set before this first save() (it's
+            // needed here just to get an id for generateMemberId() below), but
+            // there's no reason for that transient pre-id state to say anything
+            // other than the value it'll actually end up as.
+            $newUser->status_member = 'active';
             $newUser->tier          = $oldUser->tier;
             // password intentionally NOT copied — reset via email
             $newUser->save();
 
             // ── 5. Run verify flow on new user ────────────────────────────
-            $verifiedAt = now();
-            $newUser->status_member = 'active';
             $newUser->verified_at   = $verifiedAt;
             $newUser->uname         = $this->generateMemberId($newUser, $verifiedAt);
 
@@ -215,7 +232,6 @@ class MemberCompanyFollowUpController extends Controller
             $newProfile->save();
 
             // ── 8. Mark follow-up as verified ─────────────────────────────
-            $admin = auth()->user();
             $followUp->status          = MemberCompanyFollowUp::STATUS_VERIFIED;
             $followUp->verified_by_id  = auth()->id();
             $followUp->verified_by_name = $admin ? $admin->name : null;
