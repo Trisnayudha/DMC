@@ -112,6 +112,43 @@ class UsersController extends Controller
             ->where('two_step_verified', true)
             ->count();
 
+        // Member Registrations trend — weekly (last 8 weeks) & monthly (last 6
+        // months) — for quick management reporting ("berapa yang daftar minggu/
+        // bulan ini"). Zero-filled so a quiet week/month shows as 0, not a gap.
+        $weeklyRaw = User::whereNotNull('isStatus')
+            ->where('created_at', '>=', Carbon::now()->subWeeks(7)->startOfWeek())
+            ->selectRaw('YEARWEEK(created_at, 3) as period_key, COUNT(*) as total')
+            ->groupBy('period_key')
+            ->pluck('total', 'period_key');
+
+        $registrationsWeeklyLabels = [];
+        $registrationsWeeklyCounts = [];
+        for ($i = 7; $i >= 0; $i--) {
+            $weekStart = Carbon::now()->subWeeks($i)->startOfWeek();
+            $key = (int) $weekStart->format('oW');
+            $registrationsWeeklyLabels[] = $weekStart->format('d M');
+            $registrationsWeeklyCounts[] = (int) ($weeklyRaw[$key] ?? 0);
+        }
+
+        // startOfMonth() BEFORE subMonths() — doing it after can land on a day
+        // that doesn't exist in the target month (e.g. Jul 29 - 5 months = Feb 29,
+        // invalid in a non-leap year) and Carbon silently overflows into March,
+        // producing a duplicate month instead of February.
+        $monthlyRaw = User::whereNotNull('isStatus')
+            ->where('created_at', '>=', Carbon::now()->startOfMonth()->subMonths(5))
+            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as period_key, COUNT(*) as total")
+            ->groupBy('period_key')
+            ->pluck('total', 'period_key');
+
+        $registrationsMonthlyLabels = [];
+        $registrationsMonthlyCounts = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStart = Carbon::now()->startOfMonth()->subMonths($i);
+            $key = $monthStart->format('Y-m');
+            $registrationsMonthlyLabels[] = $monthStart->format('M Y');
+            $registrationsMonthlyCounts[] = (int) ($monthlyRaw[$key] ?? 0);
+        }
+
         return view('admin.users.index', [
             'countActiveMember'  => $countActiveMember,
             'countPendingMember' => $countPendingMember,
@@ -129,6 +166,10 @@ class UsersController extends Controller
             'countProspecting'           => $countProspecting,
             'countValidatedWithin48h'    => $countValidatedWithin48h,
             'countValidatedAfter48h'     => $countValidatedAfter48h,
+            'registrationsWeeklyLabels'  => $registrationsWeeklyLabels,
+            'registrationsWeeklyCounts'  => $registrationsWeeklyCounts,
+            'registrationsMonthlyLabels' => $registrationsMonthlyLabels,
+            'registrationsMonthlyCounts' => $registrationsMonthlyCounts,
             'companyNames'       => CompanyModel::whereNotNull('company_name')
                 ->whereRaw("TRIM(company_name) <> ''")
                 ->distinct()

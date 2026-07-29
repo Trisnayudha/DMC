@@ -117,34 +117,95 @@
     </div>
 @endif
 
-{{-- New Member Validation (48h) --}}
+{{-- Charts — quick visual reporting for management: validation speed, registration
+     trend (weekly/monthly), and verification status breakdown. --}}
 <div class="row">
-    <div class="col-lg-5 col-md-12 col-12">
-        <div class="card">
+
+    <div class="col-lg-4 col-md-6 col-12 mb-4">
+        <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">
                     New Member Validation
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip" data-html="true"
                         title="Mengukur kecepatan admin memvalidasi member baru sejak tanggal daftar (target: 48 jam), untuk member yang daftar dalam 30 hari terakhir."></i>
                 </h4>
-                <span class="badge badge-primary">Last 30 Days</span>
+                <span class="badge badge-primary">30 Days</span>
             </div>
             <div class="card-body">
-                <canvas id="validate48hChart" height="180"></canvas>
+                <div style="position:relative; height:200px;">
+                    <canvas id="validate48hChart"></canvas>
+                </div>
                 <div class="d-flex justify-content-around mt-3 text-center">
                     <div>
-                        <h5 class="mb-0 text-success">{{ $countValidatedWithin48h }}</h5>
+                        <h5 class="mb-0" style="color:#0ca30c;">{{ $countValidatedWithin48h }}</h5>
                         <small class="text-muted">Validated &le; 48h</small>
                     </div>
                     <div>
-                        <h5 class="mb-0 text-danger">{{ $countValidatedAfter48h }}</h5>
+                        <h5 class="mb-0" style="color:#d03b3b;">{{ $countValidatedAfter48h }}</h5>
                         <small class="text-muted">Validated &gt; 48h</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="col-lg-4 col-md-6 col-12 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    Member Registrations
+                    <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
+                        title="Jumlah pendaftar baru per periode — untuk reporting cepat ke management."></i>
+                </h4>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-primary" id="reg-toggle-weekly">Weekly</button>
+                    <button type="button" class="btn btn-outline-primary" id="reg-toggle-monthly">Monthly</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div style="position:relative; height:200px;">
+                    <canvas id="registrationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-md-6 col-12 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    Verification Status
+                    <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
+                        title="Breakdown seluruh member berdasarkan status verifikasi saat ini."></i>
+                </h4>
+            </div>
+            <div class="card-body">
+                <div style="position:relative; height:200px;">
+                    <canvas id="statusBreakdownChart"></canvas>
+                </div>
+                <div class="d-flex flex-wrap justify-content-around mt-3 text-center" style="gap:6px;">
+                    <div>
+                        <h5 class="mb-0" style="color:#0ca30c;">{{ $countActiveMember }}</h5>
+                        <small class="text-muted">Active</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0" style="color:#fab219;">{{ $countPendingMember }}</h5>
+                        <small class="text-muted">Pending</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0" style="color:#d03b3b;">{{ $countDeclined }}</h5>
+                        <small class="text-muted">Declined</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0" style="color:#898781;">{{ $countDeactivated }}</h5>
+                        <small class="text-muted">Deactivated</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>{{-- /charts row --}}
 
 @push('bottom')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -155,12 +216,79 @@
                 labels: ['Validated ≤ 48h', 'Validated > 48h'],
                 datasets: [{
                     data: [{{ (int) $countValidatedWithin48h }}, {{ (int) $countValidatedAfter48h }}],
-                    backgroundColor: ['#1cc88a', '#e74a3b']
+                    backgroundColor: ['#0ca30c', '#d03b3b']
                 }]
             },
             options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        (function() {
+            var weeklyLabels  = @json($registrationsWeeklyLabels);
+            var weeklyCounts  = @json($registrationsWeeklyCounts);
+            var monthlyLabels = @json($registrationsMonthlyLabels);
+            var monthlyCounts = @json($registrationsMonthlyCounts);
+
+            var registrationsChart = new Chart(document.getElementById('registrationsChart'), {
+                type: 'bar',
+                data: {
+                    labels: weeklyLabels,
+                    datasets: [{
+                        label: 'New Registrations',
+                        data: weeklyCounts,
+                        backgroundColor: '#2a78d6',
+                        borderRadius: 4,
+                        maxBarThickness: 28,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+
+            document.getElementById('reg-toggle-weekly').addEventListener('click', function() {
+                this.classList.remove('btn-outline-primary'); this.classList.add('btn-primary');
+                var monthlyBtn = document.getElementById('reg-toggle-monthly');
+                monthlyBtn.classList.remove('btn-primary'); monthlyBtn.classList.add('btn-outline-primary');
+                registrationsChart.data.labels = weeklyLabels;
+                registrationsChart.data.datasets[0].data = weeklyCounts;
+                registrationsChart.update();
+            });
+            document.getElementById('reg-toggle-monthly').addEventListener('click', function() {
+                this.classList.remove('btn-outline-primary'); this.classList.add('btn-primary');
+                var weeklyBtn = document.getElementById('reg-toggle-weekly');
+                weeklyBtn.classList.remove('btn-primary'); weeklyBtn.classList.add('btn-outline-primary');
+                registrationsChart.data.labels = monthlyLabels;
+                registrationsChart.data.datasets[0].data = monthlyCounts;
+                registrationsChart.update();
+            });
+        })();
+
+        new Chart(document.getElementById('statusBreakdownChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Active', 'Pending', 'Declined', 'Deactivated'],
+                datasets: [{
+                    data: [
+                        {{ (int) $countActiveMember }},
+                        {{ (int) $countPendingMember }},
+                        {{ (int) $countDeclined }},
+                        {{ (int) $countDeactivated }}
+                    ],
+                    backgroundColor: ['#0ca30c', '#fab219', '#d03b3b', '#898781']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom' }
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
                 }
             }
         });
