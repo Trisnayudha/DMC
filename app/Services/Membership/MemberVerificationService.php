@@ -24,6 +24,18 @@ use Illuminate\Support\Facades\Storage;
  */
 class MemberVerificationService
 {
+    /** Email lama tidak ada di audience / tidak berubah — tidak ada yang dikerjakan. */
+    const MAILCHIMP_EMAIL_SKIPPED = 'skipped';
+
+    /** Alamat contact-nya berhasil diganti di tempat (status & history tetap). */
+    const MAILCHIMP_EMAIL_RENAMED = 'renamed';
+
+    /** Email baru di-subscribe sebagai contact terpisah, email lama di-unsubscribe. */
+    const MAILCHIMP_EMAIL_SWAPPED = 'swapped';
+
+    /** Mailchimp menolak keduanya — perlu dirapikan manual. */
+    const MAILCHIMP_EMAIL_FAILED = 'failed';
+
     /**
      * Aktifkan user sebagai member: status, member ID (uname), dan QR code.
      */
@@ -71,18 +83,27 @@ class MemberVerificationService
         return $user;
     }
 
-    public function syncToMailchimp(User $user): void
+    /**
+     * Import / re-subscribe member ke Mailchimp.
+     *
+     * @return bool true kalau Mailchimp mengonfirmasi contact-nya tersimpan
+     *              subscribed. Contact yang pernah unsubscribe ditolak
+     *              Mailchimp (compliance state) dan akan mengembalikan false.
+     */
+    public function syncToMailchimp(User $user): bool
     {
         $email = strtolower(trim($user->email ?? ''));
+        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
         $company = CompanyModel::where('users_id', $user->id)->first();
         $profile = ProfileModel::where('users_id', $user->id)->first();
 
         try {
-            $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
-            $server = config('newsletter.server') ?: (explode('-', $apiKey)[1] ?? null);
-            $listId = config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID');
+            $config = $this->mailchimpConfig();
 
-            if ($apiKey && $server && $listId) {
+            if ($config) {
                 $merge = [];
                 if (!empty($user->name))               $merge['FNAME']    = $user->name;
                 if (!empty($company->company_name))    $merge['MMERGE5']  = $company->company_name;
@@ -95,19 +116,192 @@ class MemberVerificationService
                     $merge['MERGE4'] = trim((string) $phone);
                 }
 
-                $subscriberHash = md5($email);
-                Http::withBasicAuth('anystring', $apiKey)
-                    ->timeout(20)
-                    ->put("https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/{$subscriberHash}", [
+                $response = $this->mailchimpRequest($config)
+                    ->put($this->mailchimpMemberUrl($config, $email), [
                         'email_address' => $email,
                         'status_if_new' => 'subscribed',
                         'status'        => 'subscribed',
                         'merge_fields'  => $merge,
                     ]);
+
+                if ($response->successful()) {
+                    return true;
+                }
+
+                Log::warning('MemberVerification: Mailchimp import failed for user ' . $user->id
+                    . ' (HTTP ' . $response->status() . '): ' . $response->body());
             }
         } catch (\Throwable $e) {
             Log::warning('MemberVerification: Mailchimp import failed for user ' . $user->id . ': ' . $e->getMessage());
         }
+
+        return false;
+    }
+
+    /**
+     * Unsubscribe member dari audience Mailchimp (dipakai saat deactivate).
+     *
+     * Sengaja pakai PATCH, bukan PUT: PATCH hanya menyentuh contact yang sudah
+     * ada di audience, jadi member yang memang belum pernah di-import tidak
+     * malah dibuatkan contact baru hanya untuk ditandai unsubscribed.
+     *
+     * @return bool true kalau Mailchimp mengonfirmasi statusnya berubah.
+     */
+    public function unsubscribeFromMailchimp(User $user): bool
+    {
+        return $this->unsubscribeEmailFromMailchimp(strtolower(trim($user->email ?? '')), $user->id);
+    }
+
+    /**
+     * Unsubscribe satu alamat email — dipakai kalau alamat yang mau dimatikan
+     * bukan lagi email user-nya sekarang (mis. setelah admin ganti email).
+     */
+    public function unsubscribeEmailFromMailchimp(string $email, $userId = null): bool
+    {
+        $email = strtolower(trim($email));
+        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        $config = $this->mailchimpConfig();
+        if (!$config) {
+            return false;
+        }
+
+        try {
+            $response = $this->mailchimpRequest($config)
+                ->patch($this->mailchimpMemberUrl($config, $email), [
+                    'status' => 'unsubscribed',
+                ]);
+
+            if ($response->successful()) {
+                return true;
+            }
+
+            // 404 = contact-nya memang tidak ada di audience, bukan kegagalan.
+            if ($response->status() !== 404) {
+                Log::warning('MemberVerification: Mailchimp unsubscribe failed for user ' . $userId
+                    . ' (HTTP ' . $response->status() . '): ' . $response->body());
+            }
+
+            return false;
+        } catch (\Throwable $e) {
+            Log::warning('MemberVerification: Mailchimp unsubscribe failed for user ' . $userId . ': ' . $e->getMessage());
+
+            return false;
+        }
+    }
+
+    /**
+     * Ikutkan Mailchimp saat email member diganti dari backend.
+     *
+     * Jalur utamanya PATCH `email_address` pada contact lama — cara native
+     * Mailchimp untuk ganti alamat: status subscribe, tag, history, dan merge
+     * field ikut pindah, dan alamat lama hilang dari audience. Ini juga yang
+     * bikin koreksi typo aman: alamat lama tidak ditandai unsubscribed, jadi
+     * masih bisa dikembalikan kalau ternyata salah ketik.
+     *
+     * Kalau ditolak — hampir selalu karena email barunya sudah jadi contact
+     * terpisah di audience — baru fallback ke subscribe email baru lalu
+     * unsubscribe email lama.
+     *
+     * Panggil SETELAH email barunya tersimpan di $user.
+     *
+     * @param  string $oldEmail Email sebelum diganti.
+     * @return string Salah satu konstanta MAILCHIMP_EMAIL_*.
+     */
+    public function changeMailchimpEmail(User $user, string $oldEmail): string
+    {
+        $oldEmail = strtolower(trim($oldEmail));
+        $newEmail = strtolower(trim($user->email ?? ''));
+
+        if (!$oldEmail || !$newEmail || $oldEmail === $newEmail) {
+            return self::MAILCHIMP_EMAIL_SKIPPED;
+        }
+
+        if (!filter_var($oldEmail, FILTER_VALIDATE_EMAIL) || !filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            return self::MAILCHIMP_EMAIL_SKIPPED;
+        }
+
+        $config = $this->mailchimpConfig();
+        if (!$config) {
+            return self::MAILCHIMP_EMAIL_SKIPPED;
+        }
+
+        try {
+            $existing = $this->mailchimpRequest($config)->get($this->mailchimpMemberUrl($config, $oldEmail));
+
+            // Email lama tidak pernah masuk audience (mis. member belum pernah
+            // di-verify) — jangan bikin contact baru cuma gara-gara diedit.
+            if ($existing->status() === 404) {
+                return self::MAILCHIMP_EMAIL_SKIPPED;
+            }
+
+            if ($existing->failed()) {
+                Log::warning('MemberVerification: Mailchimp lookup failed for user ' . $user->id
+                    . ' (HTTP ' . $existing->status() . '): ' . $existing->body());
+
+                return self::MAILCHIMP_EMAIL_FAILED;
+            }
+
+            $oldStatus = (string) $existing->json('status');
+
+            $renamed = $this->mailchimpRequest($config)
+                ->patch($this->mailchimpMemberUrl($config, $oldEmail), [
+                    'email_address' => $newEmail,
+                ]);
+
+            if ($renamed->successful()) {
+                return self::MAILCHIMP_EMAIL_RENAMED;
+            }
+
+            // Subscribe email baru hanya kalau yang lama memang masih
+            // subscribed — kalau member sudah opt-out, ganti email bukan
+            // alasan untuk mendaftarkannya lagi.
+            $subscribed = $oldStatus === 'subscribed' ? $this->syncToMailchimp($user) : false;
+            $unsubscribed = $this->unsubscribeEmailFromMailchimp($oldEmail, $user->id);
+
+            if ($subscribed || $unsubscribed) {
+                return self::MAILCHIMP_EMAIL_SWAPPED;
+            }
+
+            Log::warning('MemberVerification: Mailchimp email change failed for user ' . $user->id
+                . ' (HTTP ' . $renamed->status() . '): ' . $renamed->body());
+
+            return self::MAILCHIMP_EMAIL_FAILED;
+        } catch (\Throwable $e) {
+            Log::warning('MemberVerification: Mailchimp email change failed for user ' . $user->id . ': ' . $e->getMessage());
+
+            return self::MAILCHIMP_EMAIL_FAILED;
+        }
+    }
+
+    /**
+     * Kredensial Mailchimp, atau null kalau konfigurasinya belum lengkap.
+     */
+    private function mailchimpConfig(): ?array
+    {
+        $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
+        $server = config('newsletter.server') ?: (explode('-', (string) $apiKey)[1] ?? null);
+        $listId = config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID');
+
+        if (!$apiKey || !$server || !$listId) {
+            return null;
+        }
+
+        return ['apiKey' => $apiKey, 'server' => $server, 'listId' => $listId];
+    }
+
+    private function mailchimpRequest(array $config)
+    {
+        return Http::withBasicAuth('anystring', $config['apiKey'])->timeout(20);
+    }
+
+    private function mailchimpMemberUrl(array $config, string $email): string
+    {
+        $subscriberHash = md5(strtolower(trim($email)));
+
+        return 'https://' . $config['server'] . '.api.mailchimp.com/3.0/lists/' . $config['listId'] . '/members/' . $subscriberHash;
     }
 
     public function sendApprovalEmail(User $user): void

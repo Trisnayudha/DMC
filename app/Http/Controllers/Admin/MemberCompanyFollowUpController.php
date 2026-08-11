@@ -8,6 +8,7 @@ use App\Models\Company\CompanyModel;
 use App\Models\MemberCompanyFollowUp;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
+use App\Services\Membership\MemberVerificationService;
 use App\Support\QrCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -240,6 +241,15 @@ class MemberCompanyFollowUpController extends Controller
 
             // ── 9. Post-commit: Mailchimp + approval email ─────────────────
             $this->syncToMailchimp($newUser, $newProfile, $newCompany);
+
+            // Akun lama ikut di-deactivate di atas, jadi email lamanya juga
+            // di-unsubscribe. Hanya kalau emailnya memang berbeda — kalau
+            // member pindah company dengan email yang sama, unsubscribe di
+            // sini justru membatalkan subscribe akun baru barusan.
+            if (strtolower(trim($oldUser->email ?? '')) !== $newEmail) {
+                app(MemberVerificationService::class)->unsubscribeFromMailchimp($oldUser);
+            }
+
             $this->sendApprovalEmail($newUser, $newEmail);
 
             return response()->json([
