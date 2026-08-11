@@ -178,10 +178,14 @@ class UsersController extends Controller
         // Members by Source (Members Relation SOP §8) — Total Members always
         // computable; Total Leads/Win/Loss/Conversion Rate only once the leads
         // table exists (guarded below alongside the rest of that feature).
-        $sourceBreakdown = collect($this->sourceColorMap())
-            ->map(function ($meta, $key) {
-                return ['label' => $meta['label'], 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0];
-            });
+        // Plain array, not a Collection, while accumulating below —
+        // $collection[$key]['field'] += x silently no-ops on a Collection
+        // (offsetGet returns the nested array by value, so the increment
+        // never writes back); a real array doesn't have that problem.
+        $sourceBreakdown = [];
+        foreach ($this->sourceColorMap() as $key => $meta) {
+            $sourceBreakdown[$key] = ['label' => $meta['label'], 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0];
+        }
 
         User::whereNotNull('isStatus')
             ->selectRaw('source, COUNT(*) as total')
@@ -294,7 +298,7 @@ class UsersController extends Controller
 
         // Finalize the source breakdown: compute conversion rate per bucket,
         // drop buckets with no members at all, sort by member count desc.
-        $sourceBreakdown = $sourceBreakdown
+        $sourceBreakdown = collect($sourceBreakdown)
             ->map(function ($row) {
                 $row['conversion_rate'] = $row['leads'] > 0 ? round($row['win'] / $row['leads'] * 100, 1) : null;
                 return $row;
