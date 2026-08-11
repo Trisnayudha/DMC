@@ -47,6 +47,13 @@
             </a>
         </li>
 
+        <li class="{{ request()->is('admin/leads*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.member_leads.index') }}">
+                <i class="fas fa-bullseye"></i>
+                <span>Lead Follow-Up</span>
+            </a>
+        </li>
+
         <li class="{{ request()->is('admin/master-database*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('admin.master_database.index') }}">
                 <i class="fas fa-database"></i>

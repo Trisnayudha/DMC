@@ -1,4 +1,5 @@
-{{-- Row cell: Status badge. Expects $post, $isActive, $isDeclined, $isDeactivated. --}}
+{{-- Row cell: Status badge. Expects $post, $isActive, $isDeclined, $isDeactivated,
+     $isInVerification, $isLead. --}}
 @if ($isDeactivated)
     <span class="badge badge-secondary member-status-badge mini-badge">Deactivated</span>
     @if (!empty($post->deactivation_reason))
@@ -21,6 +22,17 @@
     @endif
 @elseif ($isDeclined)
     <span class="badge badge-danger member-status-badge mini-badge">Disqualified</span>
+@elseif ($isInVerification)
+    <span class="badge badge-warning member-status-badge mini-badge"
+        title="Admin sudah mulai review — SLA berjalan" data-toggle="tooltip">Verification</span>
 @else
-    <span class="badge badge-warning member-status-badge mini-badge">Pending</span>
+    <span class="badge badge-warning member-status-badge mini-badge"
+        title="Baru masuk, belum ada admin yang mulai review" data-toggle="tooltip">New</span>
+@endif
+@if ($isLead)
+    <br>
+    <span class="badge badge-primary mini-badge mt-1 d-inline-block"
+        title="Explore Marketing — masuk daftar Lead Follow-Up" data-toggle="tooltip">
+        <i class="fas fa-bullseye mr-1"></i>Lead
+    </span>
 @endif

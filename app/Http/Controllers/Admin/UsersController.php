@@ -7,10 +7,13 @@ use App\Helpers\EmailSender;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\MemberCompanyFollowUp;
+use App\Models\MemberLeadFollowUp;
 use App\Models\MemberModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use App\Models\UserEditLog;
+use App\Models\VerificationLog;
+use App\Services\Membership\MemberVerificationService;
 use App\Support\QrCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -18,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -149,6 +153,157 @@ class UsersController extends Controller
             $registrationsMonthlyCounts[] = (int) ($monthlyRaw[$key] ?? 0);
         }
 
+        // Yearly registration trend (Members Relation SOP §6 "Growth Tahunan")
+        // — one bar per calendar year, from the earliest registration on record
+        // (capped at the last 8 years so a very old dataset doesn't produce an
+        // unreadable chart) through the current year.
+        $earliestYear = (int) (User::whereNotNull('isStatus')->min('created_at')
+            ? Carbon::parse(User::whereNotNull('isStatus')->min('created_at'))->year
+            : Carbon::now()->year);
+        $earliestYear = max($earliestYear, Carbon::now()->year - 7);
+
+        $yearlyRaw = User::whereNotNull('isStatus')
+            ->where('created_at', '>=', Carbon::createFromDate($earliestYear, 1, 1)->startOfDay())
+            ->selectRaw('YEAR(created_at) as period_key, COUNT(*) as total')
+            ->groupBy('period_key')
+            ->pluck('total', 'period_key');
+
+        $registrationsYearlyLabels = [];
+        $registrationsYearlyCounts = [];
+        for ($year = $earliestYear; $year <= Carbon::now()->year; $year++) {
+            $registrationsYearlyLabels[] = (string) $year;
+            $registrationsYearlyCounts[] = (int) ($yearlyRaw[$year] ?? 0);
+        }
+
+        // Members by Source (Members Relation SOP §8) — Total Members always
+        // computable; Total Leads/Win/Loss/Conversion Rate only once the leads
+        // table exists (guarded below alongside the rest of that feature).
+        $sourceBreakdown = collect($this->sourceColorMap())
+            ->map(function ($meta, $key) {
+                return ['label' => $meta['label'], 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0];
+            });
+
+        User::whereNotNull('isStatus')
+            ->selectRaw('source, COUNT(*) as total')
+            ->groupBy('source')
+            ->pluck('total', 'source')
+            ->each(function ($total, $rawSource) use (&$sourceBreakdown) {
+                $key = $this->normalizeSourceKey($rawSource);
+                $sourceBreakdown[$key]['members'] += (int) $total;
+            });
+
+        // Verification SLA + Leads (Members Relation SOP §2-4): both new tables
+        // ship in this same change but their migrations haven't necessarily run
+        // yet (never auto-run against this DB — see project convention). Guarded
+        // so the Members page keeps working in that gap instead of 500ing, and
+        // starts reporting real numbers the moment the migrations land, with no
+        // further code change needed.
+        $countNewMember = $countPendingMember;
+        $countInVerification = 0;
+        $countSlaGreen = $countSlaYellow = $countSlaRed = 0;
+        $avgVerificationHours = null;
+        $picPerformance = collect();
+        $countLeads = $countLeadsPendingFollowUp = $countLeadsOverSla = 0;
+        $countLeadsWin = $countLeadsLoss = 0;
+        $leadConversionRate = null;
+
+        if (Schema::hasTable('verification_logs')) {
+            try {
+                // New vs In Verification are computed display labels —
+                // status_member itself stays untouched (pricing logic elsewhere
+                // keys off it) — split by whether an open verification_logs row
+                // exists for that pending user.
+                $openVerificationUserIds = VerificationLog::open()->pluck('user_id')->unique();
+
+                $countNewMember = User::whereNotNull('isStatus')
+                    ->where(function ($q) {
+                        $q->whereNull('status_member')->orWhere('status_member', 'pending');
+                    })
+                    ->whereNotIn('id', $openVerificationUserIds)
+                    ->count();
+
+                $countInVerification = User::whereNotNull('isStatus')
+                    ->where(function ($q) {
+                        $q->whereNull('status_member')->orWhere('status_member', 'pending');
+                    })
+                    ->whereIn('id', $openVerificationUserIds)
+                    ->count();
+
+                // SLA tiers for items currently open (started, not finished yet)
+                $countSlaGreen = VerificationLog::open()->whereRaw('TIMESTAMPDIFF(HOUR, started_at, NOW()) < 24')->count();
+                $countSlaYellow = VerificationLog::open()->whereRaw('TIMESTAMPDIFF(HOUR, started_at, NOW()) BETWEEN 24 AND 48')->count();
+                $countSlaRed = VerificationLog::open()->whereRaw('TIMESTAMPDIFF(HOUR, started_at, NOW()) > 48')->count();
+
+                // Average processing time + per-PIC breakdown, last 30 days (only
+                // ~5 PICs today so a small table is more useful here than a chart)
+                $avgVerificationMinutes = VerificationLog::whereNotNull('finished_at')
+                    ->where('started_at', '>=', Carbon::now()->subDays(30))
+                    ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, started_at, finished_at)) as avg_minutes')
+                    ->value('avg_minutes');
+                $avgVerificationHours = $avgVerificationMinutes ? round($avgVerificationMinutes / 60, 1) : null;
+
+                $picPerformance = VerificationLog::whereNotNull('finished_at')
+                    ->where('started_at', '>=', Carbon::now()->subDays(30))
+                    ->whereNotNull('finished_by_name')
+                    ->selectRaw('finished_by_name, COUNT(*) as total, AVG(TIMESTAMPDIFF(MINUTE, started_at, finished_at)) as avg_minutes')
+                    ->groupBy('finished_by_name')
+                    ->orderByDesc('total')
+                    ->get();
+            } catch (\Throwable $e) {
+                Log::warning('index: verification SLA stats failed: ' . $e->getMessage());
+            }
+        }
+
+        if (Schema::hasTable('member_lead_follow_ups')) {
+            try {
+                $countLeads = MemberLeadFollowUp::count();
+                $countLeadsPendingFollowUp = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
+                $countLeadsOverSla = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)
+                    ->whereNotNull('deadline_at')
+                    ->where('deadline_at', '<', now())
+                    ->count();
+
+                // Lead Performance (SOP §7): Conversion Rate = Win ÷ Total Lead,
+                // per the SOP's own definition (denominator includes pending, not
+                // just resolved leads).
+                $countLeadsWin = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_WIN)->count();
+                $countLeadsLoss = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
+                $leadConversionRate = $countLeads > 0 ? round($countLeadsWin / $countLeads * 100, 1) : null;
+
+                // Members by Source (SOP §8) — fold the lead/win/loss counts
+                // into the member-count breakdown built above.
+                MemberLeadFollowUp::join('users', 'users.id', 'member_lead_follow_ups.user_id')
+                    ->selectRaw('
+                        users.source as source,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN member_lead_follow_ups.result = "win" THEN 1 ELSE 0 END) as win_count,
+                        SUM(CASE WHEN member_lead_follow_ups.result = "loss" THEN 1 ELSE 0 END) as loss_count
+                    ')
+                    ->groupBy('users.source')
+                    ->get()
+                    ->each(function ($row) use (&$sourceBreakdown) {
+                        $key = $this->normalizeSourceKey($row->source);
+                        $sourceBreakdown[$key]['leads'] += (int) $row->total;
+                        $sourceBreakdown[$key]['win']   += (int) $row->win_count;
+                        $sourceBreakdown[$key]['loss']  += (int) $row->loss_count;
+                    });
+            } catch (\Throwable $e) {
+                Log::warning('index: lead stats failed: ' . $e->getMessage());
+            }
+        }
+
+        // Finalize the source breakdown: compute conversion rate per bucket,
+        // drop buckets with no members at all, sort by member count desc.
+        $sourceBreakdown = $sourceBreakdown
+            ->map(function ($row) {
+                $row['conversion_rate'] = $row['leads'] > 0 ? round($row['win'] / $row['leads'] * 100, 1) : null;
+                return $row;
+            })
+            ->filter(function ($row) {
+                return $row['members'] > 0;
+            })
+            ->sortByDesc('members');
+
         return view('admin.users.index', [
             'countActiveMember'  => $countActiveMember,
             'countPendingMember' => $countPendingMember,
@@ -170,6 +325,22 @@ class UsersController extends Controller
             'registrationsWeeklyCounts'  => $registrationsWeeklyCounts,
             'registrationsMonthlyLabels' => $registrationsMonthlyLabels,
             'registrationsMonthlyCounts' => $registrationsMonthlyCounts,
+            'registrationsYearlyLabels'  => $registrationsYearlyLabels,
+            'registrationsYearlyCounts'  => $registrationsYearlyCounts,
+            'sourceBreakdown'     => $sourceBreakdown,
+            'countNewMember'      => $countNewMember,
+            'countInVerification' => $countInVerification,
+            'countSlaGreen'       => $countSlaGreen,
+            'countSlaYellow'      => $countSlaYellow,
+            'countSlaRed'         => $countSlaRed,
+            'avgVerificationHours' => $avgVerificationHours,
+            'picPerformance'      => $picPerformance,
+            'countLeads'                => $countLeads,
+            'countLeadsPendingFollowUp' => $countLeadsPendingFollowUp,
+            'countLeadsOverSla'         => $countLeadsOverSla,
+            'countLeadsWin'             => $countLeadsWin,
+            'countLeadsLoss'            => $countLeadsLoss,
+            'leadConversionRate'        => $leadConversionRate,
             'companyNames'       => CompanyModel::whereNotNull('company_name')
                 ->whereRaw("TRIM(company_name) <> ''")
                 ->distinct()
@@ -389,9 +560,21 @@ class UsersController extends Controller
             ->get()
             ->keyBy('user_id');
 
+        // Guarded the same way as index() — keeps the table working if this
+        // migration hasn't landed yet, rows just show "New" instead of the
+        // New/Verification split until it does.
+        $openVerificationIds = collect();
+        if (Schema::hasTable('verification_logs')) {
+            $openVerificationIds = VerificationLog::open()
+                ->whereIn('user_id', $userIds)
+                ->pluck('user_id')
+                ->unique()
+                ->flip();
+        }
+
         $data = [];
         foreach ($rows as $i => $post) {
-            $cells = $this->renderMemberRowCells($post, $selfEditMap, $followUpMap);
+            $cells = $this->renderMemberRowCells($post, $selfEditMap, $followUpMap, $openVerificationIds);
             $cells[0] = $start + $i + 1;
             $data[] = $cells;
         }
@@ -409,17 +592,9 @@ class UsersController extends Controller
      * urutan <th> di _table_members.blade.php) + metadata baris (DT_RowId/DT_RowAttr)
      * untuk response DataTables server-side.
      */
-    private function renderMemberRowCells($post, array $selfEditMap, $followUpMap): array
+    private function renderMemberRowCells($post, array $selfEditMap, $followUpMap, $openVerificationIds = null): array
     {
-        $sourceColorMap = [
-            'website'   => ['color' => '#4e73df', 'icon' => 'fas fa-globe'],
-            'apps'      => ['color' => '#1cc88a', 'icon' => 'fas fa-mobile-alt'],
-            'scanner'   => ['color' => '#858796', 'icon' => 'fas fa-qrcode'],
-            'linkedin'  => ['color' => '#0077b5', 'icon' => 'fab fa-linkedin-in'],
-            'instagram' => ['color' => '#e1306c', 'icon' => 'fab fa-instagram'],
-            'event'     => ['color' => '#f6a92f', 'icon' => 'fas fa-calendar-alt'],
-            'other'     => ['color' => '#6f42c1', 'icon' => 'fas fa-ellipsis-h'],
-        ];
+        $sourceColorMap = $this->sourceColorMap();
 
         $memberStatus  = strtolower($post->status_member ?? '');
         $isActive      = $memberStatus === 'active';
@@ -428,10 +603,7 @@ class UsersController extends Controller
         $rowBg = $isActive ? '' : ($isDeclined ? 'background-color:#fff5f5;' : ($isDeactivated ? 'background-color:#f0f0f0;' : 'background-color:#fffbee;'));
 
         $sourceRaw = trim((string) ($post->source ?? ''));
-        $sourceKey = strtolower($sourceRaw);
-        if ($sourceKey !== '' && !isset($sourceColorMap[$sourceKey]) && strpos($sourceKey, 'event') === 0) {
-            $sourceKey = 'event';
-        }
+        $sourceKey = $this->normalizeSourceKey($sourceRaw);
         $sourceStyle = $sourceColorMap[$sourceKey] ?? ['color' => '#adb5bd', 'icon' => 'fas fa-question'];
         $sourceLabel = $sourceRaw !== '' ? $sourceRaw : 'Unknown';
 
@@ -450,8 +622,12 @@ class UsersController extends Controller
                 . '" data-toggle="tooltip"></i>';
         }
 
+        $isInVerification = $openVerificationIds ? isset($openVerificationIds[$post->user_id]) : false;
+        $isLead = $this->isLeadExplore($post->explore ?? null);
+
         $cellStatus = view('admin.users.partials._row.status_badge', [
             'post' => $post, 'isActive' => $isActive, 'isDeclined' => $isDeclined, 'isDeactivated' => $isDeactivated,
+            'isInVerification' => $isInVerification, 'isLead' => $isLead,
         ])->render();
 
         $cellActions = view('admin.users.partials._row.status_actions', [
@@ -578,9 +754,142 @@ class UsersController extends Controller
         ]);
     }
 
+    /**
+     * Fired the moment an admin opens the verify modal for a member — stamps
+     * when review actually started (not just when it finished), so the SLA
+     * dashboard can show items currently in progress, not only completed ones.
+     * Idempotent: re-opening the modal on the same member doesn't create a
+     * second open log row.
+     */
+    public function startVerification(Request $request, $id)
+    {
+        // Fire-and-forget from the client — never let this block or fail the
+        // actual verify/decline flow, and degrade quietly if the migration
+        // hasn't landed on this DB yet (never auto-run against it).
+        if (!Schema::hasTable('verification_logs')) {
+            return response()->json(['success' => true, 'log_id' => null]);
+        }
+
+        try {
+            $user = User::findOrFail($id);
+            $admin = auth()->user();
+
+            $log = VerificationLog::open()->where('user_id', $user->id)->latest('started_at')->first();
+
+            if (!$log) {
+                $log = VerificationLog::create([
+                    'user_id'         => $user->id,
+                    'started_at'      => now(),
+                    'started_by_id'   => auth()->id(),
+                    'started_by_name' => $admin ? $admin->name : 'Staff',
+                ]);
+            }
+
+            return response()->json(['success' => true, 'log_id' => $log->id]);
+        } catch (\Throwable $e) {
+            Log::warning('startVerification failed for user ' . $id . ': ' . $e->getMessage());
+            return response()->json(['success' => true, 'log_id' => null]);
+        }
+    }
+
+    /**
+     * Closes out the open verification_logs row for a member (finishing
+     * verifyMember()/declineMember()). Creates one on the fly if none is open
+     * (e.g. startVerification() ping never landed) so nothing goes unlogged.
+     * Never throws — a logging failure must not block verifyMember()/
+     * declineMember() from completing the actual verify/decline.
+     */
+    private function finishVerificationLog(User $user, string $result): void
+    {
+        if (!Schema::hasTable('verification_logs')) {
+            return;
+        }
+
+        try {
+            $admin = auth()->user();
+            $finishedAt = now();
+
+            $log = VerificationLog::open()->where('user_id', $user->id)->latest('started_at')->first();
+
+            if (!$log) {
+                $log = new VerificationLog([
+                    'user_id'         => $user->id,
+                    'started_at'      => $finishedAt,
+                    'started_by_id'   => auth()->id(),
+                    'started_by_name' => $admin ? $admin->name : 'Staff',
+                ]);
+            }
+
+            $log->finished_at      = $finishedAt;
+            $log->finished_by_id   = auth()->id();
+            $log->finished_by_name = $admin ? $admin->name : 'Staff';
+            $log->result           = $result;
+            $log->save();
+        } catch (\Throwable $e) {
+            Log::warning('finishVerificationLog failed for user ' . $user->id . ': ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * "Explore Marketing" on the company record is a messy free-text column
+     * in practice (NULL/''/'0'/'agree'/'aggree' [typo]/'true') — treat any of
+     * these as truthy rather than the single exact-match the old "Prospecting"
+     * filter used, which silently missed the typo variant.
+     */
+    private function isLeadExplore($value): bool
+    {
+        $normalized = strtolower(trim((string) $value));
+        return in_array($normalized, ['agree', 'aggree', 'true', '1'], true);
+    }
+
+    /**
+     * Registration channel buckets — shared between the per-row Source badge
+     * (renderMemberRowCells) and the "Members by Source" breakdown stat, so
+     * a row's badge and the aggregate table it feeds always agree.
+     */
+    private function sourceColorMap(): array
+    {
+        return [
+            'website'   => ['label' => 'Website', 'color' => '#4e73df', 'icon' => 'fas fa-globe'],
+            'apps'      => ['label' => 'Apps', 'color' => '#1cc88a', 'icon' => 'fas fa-mobile-alt'],
+            'scanner'   => ['label' => 'Scanner', 'color' => '#858796', 'icon' => 'fas fa-qrcode'],
+            'linkedin'  => ['label' => 'LinkedIn', 'color' => '#0077b5', 'icon' => 'fab fa-linkedin-in'],
+            'instagram' => ['label' => 'Instagram', 'color' => '#e1306c', 'icon' => 'fab fa-instagram'],
+            'event'     => ['label' => 'Event', 'color' => '#f6a92f', 'icon' => 'fas fa-calendar-alt'],
+            'other'     => ['label' => 'Other', 'color' => '#6f42c1', 'icon' => 'fas fa-ellipsis-h'],
+        ];
+    }
+
+    /**
+     * Raw `source` values are messy free text ('website' vs 'Linkedin' vs
+     * 'Event Mining Balikpapan' vs 'Check-in Scanner', written inconsistently
+     * by web/apps/scanner/admin-import entry points) — collapse to one of the
+     * fixed buckets above. Any "event*"-prefixed value folds into 'event';
+     * anything else unrecognized (including empty) folds into 'other'.
+     */
+    private function normalizeSourceKey($rawSource): string
+    {
+        $key = strtolower(trim((string) $rawSource));
+        if ($key === '') {
+            return 'other';
+        }
+
+        $map = $this->sourceColorMap();
+        if (!isset($map[$key]) && strpos($key, 'event') === 0) {
+            $key = 'event';
+        }
+
+        return isset($map[$key]) ? $key : 'other';
+    }
+
     public function verifyMember(Request $request, $id)
     {
         $user = User::findOrFail($id);
+
+        // Modal verify juga boleh mengoreksi email — simpan yang lama supaya
+        // contact Mailchimp-nya bisa ikut dipindahkan (no-op kalau member ini
+        // memang belum pernah masuk audience).
+        $previousEmail = strtolower(trim($user->email ?? ''));
 
         if ($request->filled('name') || $request->filled('email') || $request->filled('job_title') || $request->filled('phone')) {
             if ($request->filled('name')) {
@@ -625,9 +934,37 @@ class UsersController extends Controller
 
         $user->save();
 
+        $this->finishVerificationLog($user, VerificationLog::RESULT_ACTIVE);
+
+        // Kalau emailnya barusan dikoreksi, pindahkan dulu contact lamanya —
+        // sebelum import di bawah — supaya merge field hasil import mendarat di
+        // contact yang sama, bukan bikin contact kedua dengan alamat baru.
+        app(MemberVerificationService::class)->changeMailchimpEmail($user, $previousEmail);
+
         // Auto-import to Mailchimp after verify
         $company = CompanyModel::where('users_id', $user->id)->first();
         $profile = ProfileModel::where('users_id', $user->id)->first();
+
+        // Explore Marketing → auto-create a lead follow-up task, SLA 2x24h from
+        // now. firstOrCreate on ['user_id','result'=>pending] won't duplicate an
+        // already-open lead, but starts a fresh one if a prior lead for this
+        // member was already resolved (win/loss). Never let this block the
+        // actual verify — degrades quietly if the migration hasn't landed yet.
+        if ($company && $this->isLeadExplore($company->explore ?? null) && Schema::hasTable('member_lead_follow_ups')) {
+            try {
+                $leadAdmin = auth()->user();
+                MemberLeadFollowUp::firstOrCreate(
+                    ['user_id' => $user->id, 'result' => MemberLeadFollowUp::RESULT_PENDING],
+                    [
+                        'deadline_at'     => $verifiedAt->copy()->addHours(48),
+                        'created_by_id'   => auth()->id(),
+                        'created_by_name' => $leadAdmin ? $leadAdmin->name : 'Staff',
+                    ]
+                );
+            } catch (\Throwable $e) {
+                Log::warning('verifyMember: lead auto-create failed for user ' . $id . ': ' . $e->getMessage());
+            }
+        }
 
         $email = strtolower(trim($user->email ?? ''));
 
@@ -713,6 +1050,8 @@ class UsersController extends Controller
         $user->status_member = 'declined';
         $user->save();
 
+        $this->finishVerificationLog($user, VerificationLog::RESULT_DECLINED);
+
         $email = strtolower(trim($user->email ?? ''));
 
         if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -754,9 +1093,15 @@ class UsersController extends Controller
         $user->deactivated_by      = $admin ? $admin->name : 'Staff';
         $user->save();
 
+        // Member non-aktif tidak boleh lagi menerima campaign member — sekalian
+        // unsubscribe dari audience Mailchimp. Gagal/tidak ketemu di Mailchimp
+        // tidak boleh membatalkan deactivate-nya, cukup dilaporkan di message.
+        $unsubscribed = app(MemberVerificationService::class)->unsubscribeFromMailchimp($user);
+
         return response()->json([
             'success' => true,
-            'message' => $user->name . ' berhasil di-deactivate.',
+            'message' => $user->name . ' berhasil di-deactivate'
+                . ($unsubscribed ? ' & di-unsubscribe dari Mailchimp.' : '. (Mailchimp: tidak ada kontak yang di-unsubscribe.)'),
         ]);
     }
 
@@ -769,9 +1114,16 @@ class UsersController extends Controller
         $user->deactivated_by      = null;
         $user->save();
 
+        // Kebalikan dari deactivate: coba subscribe-kan lagi ke Mailchimp.
+        // Mailchimp menolak contact yang statusnya unsubscribed (compliance
+        // state) — kalau ditolak, opt-in ulang harus dilakukan manual/oleh
+        // member sendiri, jadi hasilnya dilaporkan apa adanya ke admin.
+        $resubscribed = app(MemberVerificationService::class)->syncToMailchimp($user);
+
         return response()->json([
             'success' => true,
-            'message' => $user->name . ' berhasil di-reactivate.',
+            'message' => $user->name . ' berhasil di-reactivate'
+                . ($resubscribed ? ' & di-subscribe lagi ke Mailchimp.' : '. (Mailchimp: subscribe ulang gagal — perlu opt-in manual.)'),
         ]);
     }
 
@@ -1102,7 +1454,25 @@ class UsersController extends Controller
             'changes' => $changes,
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Data user berhasil diperbarui.', 'changes' => $changes]);
+        // Email diganti dari CMS = contact-nya di Mailchimp ikut dipindahkan,
+        // supaya alamat lama berhenti menerima campaign dan alamat baru yang
+        // menerimanya. Dijalankan paling akhir: semua penulisan DB sudah
+        // selesai, jadi Mailchimp lambat/error tidak menggagalkan edit-nya.
+        $message = 'Data user berhasil diperbarui.';
+        if (isset($changes['email'])) {
+            $mailchimpResult = app(MemberVerificationService::class)
+                ->changeMailchimpEmail($user, (string) $changes['email']['old']);
+
+            if ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_RENAMED) {
+                $message .= ' Email di Mailchimp ikut dipindahkan.';
+            } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_SWAPPED) {
+                $message .= ' Mailchimp: email lama di-unsubscribe, email baru di-subscribe.';
+            } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_FAILED) {
+                $message .= ' (Mailchimp: gagal memindahkan email — perlu dicek manual.)';
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => $message, 'changes' => $changes]);
     }
 
     public function editLogs(Request $request)

@@ -106,6 +106,95 @@
 
 </div>{{-- /row 2 --}}
 
+{{-- Row 3: Members Relation SOP — Verification SLA + Leads --}}
+<div class="row">
+
+    <div class="col-lg-8 col-md-12 col-12 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    Verification SLA
+                    <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
+                        title="Item yang sedang di-review (admin sudah klik Verify, belum diselesaikan). Target: selesai < 24 jam."></i>
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-around text-center mb-3" style="gap:10px;">
+                    <div>
+                        <h5 class="mb-0" style="color:#0ca30c;">🟢 {{ $countSlaGreen }}</h5>
+                        <small class="text-muted">&lt; 24h</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0" style="color:#fab219;">🟡 {{ $countSlaYellow }}</h5>
+                        <small class="text-muted">24–48h</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0" style="color:#d03b3b;">🔴 {{ $countSlaRed }}</h5>
+                        <small class="text-muted">&gt; 48h (Over SLA)</small>
+                    </div>
+                    <div>
+                        <h5 class="mb-0">{{ $avgVerificationHours !== null ? $avgVerificationHours . 'h' : '—' }}</h5>
+                        <small class="text-muted">Avg. Time (30d)</small>
+                    </div>
+                </div>
+                @if ($picPerformance->isNotEmpty())
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless mb-0" style="font-size:12px;">
+                            <thead>
+                                <tr class="text-muted">
+                                    <th>PIC</th>
+                                    <th class="text-right">Verified (30d)</th>
+                                    <th class="text-right">Avg. Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($picPerformance as $pic)
+                                    <tr>
+                                        <td>{{ $pic->finished_by_name }}</td>
+                                        <td class="text-right">{{ $pic->total }}</td>
+                                        <td class="text-right">{{ round($pic->avg_minutes / 60, 1) }}h</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-muted text-center mb-0 small">Belum ada data verifikasi selesai dalam 30 hari terakhir.</p>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-md-12 col-12 mb-4">
+        <a href="{{ route('admin.member_leads.index') }}" class="text-decoration-none">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-bullseye mr-1"></i>Leads
+                        <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
+                            title="Member dengan Explore Marketing yang perlu di-follow-up sales/marketing."></i>
+                    </h4>
+                </div>
+                <div class="card-body d-flex flex-column justify-content-center text-center">
+                    <h3 class="mb-1">{{ $countLeads }}</h3>
+                    <small class="text-muted mb-3">Total Leads</small>
+                    <div class="d-flex justify-content-around">
+                        <div>
+                            <h5 class="mb-0 text-warning">{{ $countLeadsPendingFollowUp }}</h5>
+                            <small class="text-muted">Pending</small>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 text-danger">{{ $countLeadsOverSla }}</h5>
+                            <small class="text-muted">Over SLA</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+</div>{{-- /row 3 --}}
+
 @if ($countSelfEdited > 0)
     <div class="alert alert-warning alert-dismissible show fade d-flex align-items-center py-2 mb-3" style="gap:10px;">
         <i class="fas fa-exclamation-triangle fa-lg"></i>
@@ -160,6 +249,7 @@
                 <div class="btn-group btn-group-sm" role="group">
                     <button type="button" class="btn btn-primary" id="reg-toggle-weekly">Weekly</button>
                     <button type="button" class="btn btn-outline-primary" id="reg-toggle-monthly">Monthly</button>
+                    <button type="button" class="btn btn-outline-primary" id="reg-toggle-yearly">Yearly</button>
                 </div>
             </div>
             <div class="card-body">
@@ -207,6 +297,53 @@
 
 </div>{{-- /charts row --}}
 
+{{-- Members by Source (Members Relation SOP §8) --}}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    Members by Source
+                    <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
+                        title="Breakdown member, leads, dan konversi per channel pendaftaran."></i>
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0" style="font-size:12.5px;">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Source</th>
+                                <th class="text-right">Total Members</th>
+                                <th class="text-right">Total Leads</th>
+                                <th class="text-right">Win</th>
+                                <th class="text-right">Loss</th>
+                                <th class="text-right">Conversion Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($sourceBreakdown as $row)
+                                <tr>
+                                    <td>{{ $row['label'] }}</td>
+                                    <td class="text-right">{{ $row['members'] }}</td>
+                                    <td class="text-right">{{ $row['leads'] }}</td>
+                                    <td class="text-right text-success">{{ $row['win'] }}</td>
+                                    <td class="text-right text-secondary">{{ $row['loss'] }}</td>
+                                    <td class="text-right">{{ $row['conversion_rate'] !== null ? $row['conversion_rate'] . '%' : '—' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-3">Belum ada data.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>{{-- /source breakdown row --}}
+
 @push('bottom')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -227,18 +364,24 @@
         });
 
         (function() {
-            var weeklyLabels  = @json($registrationsWeeklyLabels);
-            var weeklyCounts  = @json($registrationsWeeklyCounts);
-            var monthlyLabels = @json($registrationsMonthlyLabels);
-            var monthlyCounts = @json($registrationsMonthlyCounts);
+            var periods = {
+                weekly:  { labels: @json($registrationsWeeklyLabels),  counts: @json($registrationsWeeklyCounts) },
+                monthly: { labels: @json($registrationsMonthlyLabels), counts: @json($registrationsMonthlyCounts) },
+                yearly:  { labels: @json($registrationsYearlyLabels),  counts: @json($registrationsYearlyCounts) },
+            };
+            var toggleButtons = {
+                weekly:  document.getElementById('reg-toggle-weekly'),
+                monthly: document.getElementById('reg-toggle-monthly'),
+                yearly:  document.getElementById('reg-toggle-yearly'),
+            };
 
             var registrationsChart = new Chart(document.getElementById('registrationsChart'), {
                 type: 'bar',
                 data: {
-                    labels: weeklyLabels,
+                    labels: periods.weekly.labels,
                     datasets: [{
                         label: 'New Registrations',
-                        data: weeklyCounts,
+                        data: periods.weekly.counts,
                         backgroundColor: '#2a78d6',
                         borderRadius: 4,
                         maxBarThickness: 28,
@@ -252,21 +395,18 @@
                 }
             });
 
-            document.getElementById('reg-toggle-weekly').addEventListener('click', function() {
-                this.classList.remove('btn-outline-primary'); this.classList.add('btn-primary');
-                var monthlyBtn = document.getElementById('reg-toggle-monthly');
-                monthlyBtn.classList.remove('btn-primary'); monthlyBtn.classList.add('btn-outline-primary');
-                registrationsChart.data.labels = weeklyLabels;
-                registrationsChart.data.datasets[0].data = weeklyCounts;
+            function selectPeriod(key) {
+                Object.keys(toggleButtons).forEach(function(k) {
+                    toggleButtons[k].classList.toggle('btn-primary', k === key);
+                    toggleButtons[k].classList.toggle('btn-outline-primary', k !== key);
+                });
+                registrationsChart.data.labels = periods[key].labels;
+                registrationsChart.data.datasets[0].data = periods[key].counts;
                 registrationsChart.update();
-            });
-            document.getElementById('reg-toggle-monthly').addEventListener('click', function() {
-                this.classList.remove('btn-outline-primary'); this.classList.add('btn-primary');
-                var weeklyBtn = document.getElementById('reg-toggle-weekly');
-                weeklyBtn.classList.remove('btn-primary'); weeklyBtn.classList.add('btn-outline-primary');
-                registrationsChart.data.labels = monthlyLabels;
-                registrationsChart.data.datasets[0].data = monthlyCounts;
-                registrationsChart.update();
+            }
+
+            Object.keys(toggleButtons).forEach(function(key) {
+                toggleButtons[key].addEventListener('click', function() { selectPeriod(key); });
             });
         })();
 

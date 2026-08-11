@@ -117,6 +117,14 @@
         const url = $vmSourceBtn.attr('data-url');
         const memberName = $vmSourceBtn.attr('data-member-name') || '';
 
+        // Fire-and-forget: stamps when review actually started, for the SLA
+        // dashboard. Idempotent server-side, doesn't block the modal opening,
+        // and a failure here shouldn't stop the admin from verifying.
+        const startVerificationUrl = $vmSourceBtn.attr('data-start-verification-url');
+        if (startVerificationUrl) {
+            $.post(startVerificationUrl);
+        }
+
         $('#vm-modal-title').text('Verifikasi Member — ' + memberName);
         $('#vm-member-name').text(memberName);
         $('#vm-step2-member-name').text(memberName);
