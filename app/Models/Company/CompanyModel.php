@@ -206,4 +206,36 @@ class CompanyModel extends Model
 
         return $result;
     }
+
+    /**
+     * "Explore Marketing" on the company record is a messy free-text column
+     * in practice (NULL/''/'0'/'agree'/'aggree' [typo]/'true'/'1') — treat any of
+     * these as truthy.
+     */
+    public function isLeadExplore(): bool
+    {
+        $normalized = strtolower(trim((string) $this->explore));
+        return in_array($normalized, ['agree', 'aggree', 'true', '1'], true);
+    }
+
+    protected static function booted()
+    {
+        static::saved(function ($company) {
+            if ($company->users_id && $company->isLeadExplore() && \Illuminate\Support\Facades\Schema::hasTable('member_lead_follow_ups')) {
+                try {
+                    $leadAdmin = auth()->user();
+                    \App\Models\MemberLeadFollowUp::firstOrCreate(
+                        ['user_id' => $company->users_id, 'result' => \App\Models\MemberLeadFollowUp::RESULT_PENDING],
+                        [
+                            'deadline_at'     => now()->addHours(48),
+                            'created_by_id'   => auth()->id(),
+                            'created_by_name' => $leadAdmin ? $leadAdmin->name : 'System',
+                        ]
+                    );
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('CompanyModel saved event: lead auto-create failed for user ' . $company->users_id . ': ' . $e->getMessage());
+                }
+            }
+        });
+    }
 }
