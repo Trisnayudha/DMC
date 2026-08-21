@@ -50,6 +50,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             'No', 'Date Register', 'Source', 'Name', 'Tier', 'Status Member', 'Job Title',
             'Company', 'Email', 'Phone', 'Office', 'Address', 'Website',
             'Category', 'WA Updates', 'Open to Sponsorship', 'Password',
+            'Deactivation Reason', 'Deactivated At', 'Deactivated By',
         ];
     }
 
@@ -90,6 +91,9 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             strtolower(trim((string) $row->wa_updates)) === 'agree' ? 'Yes' : 'No',
             $row->explore ? 'Yes' : 'No',
             $row->password ? 'Set' : 'Not Set',
+            $row->deactivation_reason ?: '',
+            $row->deactivated_at ? $this->formatDate($row->deactivated_at) : '',
+            $row->deactivated_by ?: '',
         ];
     }
 
