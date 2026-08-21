@@ -18,3 +18,41 @@
     justify-content: center !important;
     line-height: normal !important;
 }
+
+/* Center modals within the content area, not the full browser window.
+   Bootstrap's auto-margin centers .modal-dialog against the full-width
+   .modal backdrop, which visually skews every modal left of the fixed
+   sidebar. Shifts right by half the sidebar's current width so the modal
+   optically centers over the actual content instead. No effect once the
+   sidebar goes off-canvas (mobile/.sidebar-gone), since it isn't occupying
+   any layout width there.
+
+   Uses `left` (not `transform`): .modal-dialog is already `position:
+   relative` in Bootstrap, so `left` shifts it with zero side effects — a
+   `transform` override here was tried first and was a real bug, not just an
+   unnecessary risk: Bootstrap's own fade animation transitions .modal-dialog's
+   `transform` (translate(0,-50px) -> none), and modal.js waits for that
+   transition's `transitionend` event before it fully removes the backdrop /
+   unlocks body scroll. Pinning `transform` to a fixed value here made that
+   property never actually change, so the transition never completed —
+   leaving a stuck .modal-backdrop (opacity .5) and an unscrollable page
+   behind after closing. `left` doesn't touch that property at all. */
+body:not(.sidebar-gone):not(.sidebar-mini) .modal-dialog {
+    left: 125px;
+}
+body.sidebar-mini:not(.sidebar-gone) .modal-dialog {
+    left: 32.5px;
+}
+
+/* No dark backdrop behind modals, app-wide — the page stays visible/readable
+   underneath instead of dimming. position:static takes the backdrop out of
+   its full-viewport-covering position:fixed, and opacity:0 removes the tint
+   itself. Note: this also removes click-outside-to-close, since the backdrop
+   normally doubles as the click target for that — closing still works via
+   the × button / Cancel / Esc. */
+.modal-backdrop {
+    position: static !important;
+}
+.modal-backdrop.show {
+    opacity: 0 !important;
+}

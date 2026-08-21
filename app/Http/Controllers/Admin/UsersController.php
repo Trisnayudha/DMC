@@ -127,11 +127,13 @@ class UsersController extends Controller
 
         $registrationsWeeklyLabels = [];
         $registrationsWeeklyCounts = [];
+        $registrationsWeeklyRanges = [];
         for ($i = 7; $i >= 0; $i--) {
             $weekStart = Carbon::now()->subWeeks($i)->startOfWeek();
             $key = (int) $weekStart->format('oW');
             $registrationsWeeklyLabels[] = $weekStart->format('d M');
             $registrationsWeeklyCounts[] = (int) ($weeklyRaw[$key] ?? 0);
+            $registrationsWeeklyRanges[] = ['from' => $weekStart->toDateTimeString(), 'to' => $weekStart->copy()->endOfWeek()->toDateTimeString()];
         }
 
         // startOfMonth() BEFORE subMonths() — doing it after can land on a day
@@ -146,11 +148,13 @@ class UsersController extends Controller
 
         $registrationsMonthlyLabels = [];
         $registrationsMonthlyCounts = [];
+        $registrationsMonthlyRanges = [];
         for ($i = 5; $i >= 0; $i--) {
             $monthStart = Carbon::now()->startOfMonth()->subMonths($i);
             $key = $monthStart->format('Y-m');
             $registrationsMonthlyLabels[] = $monthStart->format('M Y');
             $registrationsMonthlyCounts[] = (int) ($monthlyRaw[$key] ?? 0);
+            $registrationsMonthlyRanges[] = ['from' => $monthStart->toDateTimeString(), 'to' => $monthStart->copy()->endOfMonth()->toDateTimeString()];
         }
 
         // Yearly registration trend (Members Relation SOP §6 "Growth Tahunan")
@@ -170,9 +174,12 @@ class UsersController extends Controller
 
         $registrationsYearlyLabels = [];
         $registrationsYearlyCounts = [];
+        $registrationsYearlyRanges = [];
         for ($year = $earliestYear; $year <= Carbon::now()->year; $year++) {
             $registrationsYearlyLabels[] = (string) $year;
             $registrationsYearlyCounts[] = (int) ($yearlyRaw[$year] ?? 0);
+            $yearStart = Carbon::createFromDate($year, 1, 1)->startOfDay();
+            $registrationsYearlyRanges[] = ['from' => $yearStart->toDateTimeString(), 'to' => $yearStart->copy()->endOfYear()->toDateTimeString()];
         }
 
         // Members by Source (Members Relation SOP §8) — Total Members always
@@ -327,10 +334,13 @@ class UsersController extends Controller
             'countValidatedAfter48h'     => $countValidatedAfter48h,
             'registrationsWeeklyLabels'  => $registrationsWeeklyLabels,
             'registrationsWeeklyCounts'  => $registrationsWeeklyCounts,
+            'registrationsWeeklyRanges'  => $registrationsWeeklyRanges,
             'registrationsMonthlyLabels' => $registrationsMonthlyLabels,
             'registrationsMonthlyCounts' => $registrationsMonthlyCounts,
+            'registrationsMonthlyRanges' => $registrationsMonthlyRanges,
             'registrationsYearlyLabels'  => $registrationsYearlyLabels,
             'registrationsYearlyCounts'  => $registrationsYearlyCounts,
+            'registrationsYearlyRanges'  => $registrationsYearlyRanges,
             'sourceBreakdown'     => $sourceBreakdown,
             'countNewMember'      => $countNewMember,
             'countInVerification' => $countInVerification,
@@ -496,6 +506,107 @@ class UsersController extends Controller
     }
 
     /**
+     * AJAX endpoint behind clicking a bar on the "Member Registrations" chart —
+     * source breakdown (LinkedIn: 2, Website: 5, Event: 2, ...) for just that
+     * one period, instead of the all-time totals "Members by Source" already
+     * shows below it. Reuses the same source normalization as everywhere else
+     * so labels/colors always agree with the rest of the page.
+     */
+    public function registrationSourceBreakdown(Request $request)
+    {
+        $dateFrom = $request->input('date_from');
+        $dateTo   = $request->input('date_to');
+
+        $baseQuery = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftJoin('company', 'company.id', 'profiles.company_id')
+            ->whereNotNull('users.isStatus');
+        if ($dateFrom) $baseQuery->where('users.created_at', '>=', $dateFrom);
+        if ($dateTo)   $baseQuery->where('users.created_at', '<=', $dateTo);
+
+        $raw = (clone $baseQuery)->selectRaw('users.source as source, COUNT(*) as total')
+            ->groupBy('users.source')
+            ->pluck('total', 'source');
+
+        $breakdown = [];
+        foreach ($this->sourceColorMap() as $key => $meta) {
+            $breakdown[$key] = ['label' => $meta['label'], 'color' => $meta['color'], 'icon' => $meta['icon'], 'total' => 0];
+        }
+        foreach ($raw as $rawSource => $total) {
+            $breakdown[$this->normalizeSourceKey($rawSource)]['total'] += (int) $total;
+        }
+
+        $result = collect($breakdown)->filter(function ($row) {
+            return $row['total'] > 0;
+        })->sortByDesc('total')->values();
+
+        // Status breakdown (Verified/Waiting/Declined/Deactivated) + Leads
+        // split by whether they're still a live prospect — one pass over every
+        // matching row (not just the capped list below) so both stay accurate
+        // even for a wide range like a full year. A declined applicant can't
+        // realistically be pursued as a sponsorship lead anymore, so "Potential
+        // Leads" alone overstates it — split into still-viable vs already-dead.
+        $countVerified = $countWaiting = $countDeclinedStatus = $countDeactivatedStatus = 0;
+        $leadsViable = $leadsDead = 0;
+
+        (clone $baseQuery)->get(['users.status_member', 'company.explore'])
+            ->each(function ($row) use (&$countVerified, &$countWaiting, &$countDeclinedStatus, &$countDeactivatedStatus, &$leadsViable, &$leadsDead) {
+                $status = strtolower((string) ($row->status_member ?? ''));
+                if ($status === 'active')           $countVerified++;
+                elseif ($status === 'declined')     $countDeclinedStatus++;
+                elseif ($status === 'deactivated')  $countDeactivatedStatus++;
+                else                                 $countWaiting++;
+
+                if ($this->isLeadExplore($row->explore ?? null)) {
+                    if ($status === 'declined') $leadsDead++;
+                    else                        $leadsViable++;
+                }
+            });
+
+        $leadsCount = $leadsViable + $leadsDead;
+
+        // Who exactly registered this period — capped so a wide (e.g. yearly)
+        // range doesn't return an unusable wall of rows; newest first.
+        $memberRowLimit = 300;
+        $totalMembers = (clone $baseQuery)->count();
+        $members = (clone $baseQuery)
+            ->orderBy('users.created_at', 'desc')
+            ->limit($memberRowLimit)
+            ->get([
+                'users.name', 'users.email', 'users.source', 'users.created_at',
+                'users.status_member', 'company.company_name', 'company.explore',
+            ])
+            ->map(function ($row) {
+                return [
+                    'name'          => $row->name,
+                    'email'         => $row->email,
+                    'company_name'  => $row->company_name,
+                    'source'        => $row->source ?: 'Unknown',
+                    'status_member' => $row->status_member ?: 'pending',
+                    'is_lead'       => $this->isLeadExplore($row->explore ?? null),
+                    'created_at'    => optional($row->created_at)->format('d M Y H:i'),
+                ];
+            });
+
+        return response()->json([
+            'success'            => true,
+            'total'              => (int) $result->sum('total'),
+            'breakdown'          => $result,
+            'leads_count'        => $leadsCount,
+            'leads_viable'       => $leadsViable,
+            'leads_dead'         => $leadsDead,
+            'status'             => [
+                'verified'    => $countVerified,
+                'waiting'     => $countWaiting,
+                'declined'    => $countDeclinedStatus,
+                'deactivated' => $countDeactivatedStatus,
+            ],
+            'members'            => $members,
+            'members_total'      => $totalMembers,
+            'members_truncated'  => $totalMembers > $memberRowLimit,
+        ]);
+    }
+
+    /**
      * AJAX endpoint (DataTables server-side processing) yang menyuplai tabel Members
      * di admin/users — hanya query & render baris yang benar-benar sedang dilihat
      * (default 25/halaman), bukan seluruh ~3000 baris seperti sebelumnya.
@@ -559,11 +670,6 @@ class UsersController extends Controller
             ->pluck('last_self_edit', 'user_id')
             ->all();
 
-        $followUpMap = MemberCompanyFollowUp::where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP)
-            ->whereIn('user_id', $userIds)
-            ->get()
-            ->keyBy('user_id');
-
         // Guarded the same way as index() — keeps the table working if this
         // migration hasn't landed yet, rows just show "New" instead of the
         // New/Verification split until it does.
@@ -576,9 +682,15 @@ class UsersController extends Controller
                 ->flip();
         }
 
+        // Open company follow-up flags for the rows on this page (single query).
+        $followUpMap = MemberCompanyFollowUp::where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP)
+            ->whereIn('user_id', $userIds)
+            ->get()
+            ->keyBy('user_id');
+
         $data = [];
         foreach ($rows as $i => $post) {
-            $cells = $this->renderMemberRowCells($post, $selfEditMap, $followUpMap, $openVerificationIds);
+            $cells = $this->renderMemberRowCells($post, $selfEditMap, $openVerificationIds, $followUpMap);
             $cells[0] = $start + $i + 1;
             $data[] = $cells;
         }
@@ -596,7 +708,7 @@ class UsersController extends Controller
      * urutan <th> di _table_members.blade.php) + metadata baris (DT_RowId/DT_RowAttr)
      * untuk response DataTables server-side.
      */
-    private function renderMemberRowCells($post, array $selfEditMap, $followUpMap, $openVerificationIds = null): array
+    private function renderMemberRowCells($post, array $selfEditMap, $openVerificationIds = null, $followUpMap = null): array
     {
         $sourceColorMap = $this->sourceColorMap();
 
@@ -665,7 +777,8 @@ class UsersController extends Controller
             . '</div>';
 
         $cellPasswordActions = view('admin.users.partials._row.password_actions', [
-            'post' => $post, 'followUpMap' => $followUpMap,
+            'post' => $post,
+            'openFollowUp' => $followUpMap ? ($followUpMap[$post->user_id] ?? null) : null,
         ])->render();
 
         return [
@@ -954,7 +1067,7 @@ class UsersController extends Controller
         // already-open lead, but starts a fresh one if a prior lead for this
         // member was already resolved (win/loss). Never let this block the
         // actual verify — degrades quietly if the migration hasn't landed yet.
-        if ($company && $this->isLeadExplore($company->explore ?? null) && Schema::hasTable('member_lead_follow_ups')) {
+        if ($company && $company->isLeadExplore() && Schema::hasTable('member_lead_follow_ups')) {
             try {
                 $leadAdmin = auth()->user();
                 MemberLeadFollowUp::firstOrCreate(
@@ -1098,14 +1211,16 @@ class UsersController extends Controller
         $user->save();
 
         // Member non-aktif tidak boleh lagi menerima campaign member — sekalian
-        // unsubscribe dari audience Mailchimp. Gagal/tidak ketemu di Mailchimp
-        // tidak boleh membatalkan deactivate-nya, cukup dilaporkan di message.
-        $unsubscribed = app(MemberVerificationService::class)->unsubscribeFromMailchimp($user);
+        // archive dari audience Mailchimp (bukan unsubscribe: archived tidak
+        // dihitung ke billing, unsubscribed tetap terhitung). Gagal/tidak ketemu
+        // di Mailchimp tidak boleh membatalkan deactivate-nya, cukup dilaporkan
+        // di message.
+        $archived = app(MemberVerificationService::class)->archiveFromMailchimp($user);
 
         return response()->json([
             'success' => true,
             'message' => $user->name . ' berhasil di-deactivate'
-                . ($unsubscribed ? ' & di-unsubscribe dari Mailchimp.' : '. (Mailchimp: tidak ada kontak yang di-unsubscribe.)'),
+                . ($archived ? ' & di-archive dari Mailchimp.' : '. (Mailchimp: tidak ada kontak yang di-archive.)'),
         ]);
     }
 
@@ -1470,7 +1585,7 @@ class UsersController extends Controller
             if ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_RENAMED) {
                 $message .= ' Email di Mailchimp ikut dipindahkan.';
             } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_SWAPPED) {
-                $message .= ' Mailchimp: email lama di-unsubscribe, email baru di-subscribe.';
+                $message .= ' Mailchimp: email lama di-archive, email baru di-subscribe.';
             } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_FAILED) {
                 $message .= ' (Mailchimp: gagal memindahkan email — perlu dicek manual.)';
             }

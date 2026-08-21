@@ -254,8 +254,11 @@
             </div>
             <div class="card-body">
                 <div style="position:relative; height:200px;">
-                    <canvas id="registrationsChart"></canvas>
+                    <canvas id="registrationsChart" style="cursor:pointer;"></canvas>
                 </div>
+                <small class="text-muted d-block text-center mt-2">
+                    <i class="fas fa-mouse-pointer mr-1"></i>Klik salah satu bar untuk lihat breakdown source periode itu
+                </small>
             </div>
         </div>
     </div>
@@ -344,6 +347,247 @@
     </div>
 </div>{{-- /source breakdown row --}}
 
+{{-- Modal: source breakdown for one bar of the Member Registrations chart --}}
+<div class="modal fade" id="registrationBreakdownModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content reg-breakdown-modal">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-chart-pie mr-1"></i>Source Breakdown — <span id="reg-breakdown-period">-</span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="reg-breakdown-loading" class="text-center text-muted py-5">
+                    <span class="spinner-border spinner-border-sm mr-2"></span>Memuat...
+                </div>
+                <div id="reg-breakdown-empty" class="text-center text-muted py-5" style="display:none;">
+                    Tidak ada pendaftar di periode ini.
+                </div>
+                <div id="reg-breakdown-content" style="display:none;">
+
+                    {{-- Stat cards --}}
+                    <div class="reg-stat-row mb-3">
+                        <div class="reg-stat-card reg-stat-total">
+                            <div class="reg-stat-value" id="reg-breakdown-total">0</div>
+                            <div class="reg-stat-label">Total Pendaftar</div>
+                        </div>
+                        <div class="reg-stat-card reg-stat-leads">
+                            <div class="reg-stat-value" id="reg-breakdown-leads">0</div>
+                            <div class="reg-stat-label">
+                                Potential Leads <span id="reg-breakdown-leads-pct" class="text-muted font-weight-normal"></span>
+                                <i class="fas fa-info-circle ml-1" data-toggle="tooltip"
+                                    title="Members who indicated Open to Sponsorship (Explore Marketing) — same definition as Lead in the Lead Follow-Up menu."></i>
+                            </div>
+                            <div class="reg-stat-sub" id="reg-breakdown-leads-split"></div>
+                        </div>
+                    </div>
+
+                    {{-- Source + Status chips, side by side --}}
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="reg-section-label">Source</div>
+                            <div class="reg-chip-row" id="reg-breakdown-chips"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="reg-section-label">
+                                Status Verifikasi
+                                <i class="fas fa-info-circle ml-1" data-toggle="tooltip"
+                                    title="Verified = approved by admin (Active). Waiting = pending review. Declined = rejected — no longer a viable sponsorship prospect."></i>
+                            </div>
+                            <div class="reg-chip-row" id="reg-breakdown-status-chips"></div>
+                        </div>
+                    </div>
+
+                    {{-- Table toolbar --}}
+                    <div class="d-flex flex-wrap align-items-center justify-content-between mb-2" style="gap:8px;">
+                        <h6 class="mb-0">Daftar Member <small class="text-muted font-weight-normal" id="reg-breakdown-members-note"></small></h6>
+                        <div class="d-flex align-items-center flex-wrap" style="gap:10px;">
+                            <select id="reg-breakdown-status-filter" class="form-control form-control-sm" style="width:auto;">
+                                <option value="">Semua status</option>
+                                <option value="active">Verified</option>
+                                <option value="waiting">Waiting</option>
+                                <option value="declined">Declined</option>
+                                <option value="deactivated">Deactivated</option>
+                            </select>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="reg-breakdown-leads-only">
+                                <label class="custom-control-label small" for="reg-breakdown-leads-only">Leads saja</label>
+                            </div>
+                            <div class="reg-search-wrap">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="reg-breakdown-search" class="form-control form-control-sm"
+                                    placeholder="Cari nama, email, company, source...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive reg-breakdown-table-wrap">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Company</th>
+                                    <th>Source</th>
+                                    <th width="90px">Status</th>
+                                    <th class="text-center" width="60px">Lead</th>
+                                    <th class="text-nowrap">Registered</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reg-breakdown-members-tbody"></tbody>
+                        </table>
+                        <div id="reg-breakdown-no-match" class="text-center text-muted py-4" style="display:none;">
+                            Tidak ada member yang cocok dengan filter/pencarian ini.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Source Breakdown modal — same compact/modern language as the Members
+       DMC and Follow-Up tables (sticky header, dense rows, hover, truncate). */
+    .reg-stat-row {
+        display: flex;
+        gap: 12px;
+    }
+    .reg-stat-card {
+        flex: 1;
+        border-radius: 10px;
+        padding: 14px 16px;
+        text-align: center;
+    }
+    .reg-stat-total { background: #eef2ff; }
+    .reg-stat-leads { background: #fff6e6; }
+    .reg-stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.1;
+        color: #2a2f45;
+    }
+    .reg-stat-leads .reg-stat-value { color: #b3720c; }
+    .reg-stat-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+    .reg-stat-sub {
+        font-size: 11px;
+        color: #6c757d;
+        margin-top: 6px;
+    }
+    .reg-stat-sub .viable { color: #0ca30c; font-weight: 600; }
+    .reg-stat-sub .dead { color: #d03b3b; font-weight: 600; }
+
+    .reg-section-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: #adb5bd;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .reg-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .reg-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: #f4f5f9;
+        font-size: 12px;
+        font-weight: 600;
+        color: #3c4257;
+    }
+    .reg-chip i, .reg-chip .reg-chip-dot { font-size: 10px; }
+    .reg-chip .reg-chip-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    .reg-chip .reg-chip-pct { color: #8a8fa3; font-weight: 500; }
+
+    .reg-status-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        padding: .2em .5em;
+        border-radius: 4px;
+        color: #fff;
+    }
+
+    .reg-search-wrap { position: relative; }
+    .reg-search-wrap i {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        color: #adb5bd;
+    }
+    .reg-search-wrap input {
+        width: 240px;
+        padding-left: 28px;
+    }
+
+    .reg-breakdown-table-wrap {
+        max-height: 320px;
+        overflow-y: auto;
+        border: 1px solid #eef0f4;
+        border-radius: 8px;
+    }
+    .reg-breakdown-table-wrap table {
+        border-collapse: separate !important;
+        font-size: 12px;
+        margin-bottom: 0;
+    }
+    .reg-breakdown-table-wrap thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f8f9fc;
+        border-top: none !important;
+        border-bottom: 2px solid #e3e6f0 !important;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        color: #6c757d;
+        padding: .5rem .6rem;
+    }
+    .reg-breakdown-table-wrap tbody td {
+        border-top: none !important;
+        border-bottom: 1px solid #eef0f4 !important;
+        vertical-align: middle;
+        padding: .4rem .6rem;
+    }
+    .reg-breakdown-table-wrap tbody tr:hover { background-color: #f7f9fc; }
+    .reg-breakdown-table-wrap .cell-truncate {
+        display: inline-block;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    @media (max-width: 575.98px) {
+        .reg-stat-row { flex-direction: column; }
+        .reg-search-wrap input { width: 100%; }
+    }
+</style>
+
 @push('bottom')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -365,15 +609,28 @@
 
         (function() {
             var periods = {
-                weekly:  { labels: @json($registrationsWeeklyLabels),  counts: @json($registrationsWeeklyCounts) },
-                monthly: { labels: @json($registrationsMonthlyLabels), counts: @json($registrationsMonthlyCounts) },
-                yearly:  { labels: @json($registrationsYearlyLabels),  counts: @json($registrationsYearlyCounts) },
+                weekly:  { labels: @json($registrationsWeeklyLabels),  counts: @json($registrationsWeeklyCounts),  ranges: @json($registrationsWeeklyRanges) },
+                monthly: { labels: @json($registrationsMonthlyLabels), counts: @json($registrationsMonthlyCounts), ranges: @json($registrationsMonthlyRanges) },
+                yearly:  { labels: @json($registrationsYearlyLabels),  counts: @json($registrationsYearlyCounts),  ranges: @json($registrationsYearlyRanges) },
             };
             var toggleButtons = {
                 weekly:  document.getElementById('reg-toggle-weekly'),
                 monthly: document.getElementById('reg-toggle-monthly'),
                 yearly:  document.getElementById('reg-toggle-yearly'),
             };
+            var currentPeriodKey = 'weekly';
+
+            // Safety net for the stuck-backdrop/unscrollable-page case: once no
+            // modal is left open, force-clear anything Bootstrap might have
+            // left behind (a duplicate .modal-backdrop, or the body's
+            // scroll-lock state) instead of trusting a single hide() call to
+            // have fully cleaned up.
+            $('#registrationBreakdownModal').on('hidden.bs.modal', function() {
+                if ($('.modal.show').length === 0) {
+                    $('body').removeClass('modal-open').css({ overflow: '', 'padding-right': '' });
+                    $('.modal-backdrop').remove();
+                }
+            });
 
             var registrationsChart = new Chart(document.getElementById('registrationsChart'), {
                 type: 'bar',
@@ -391,11 +648,20 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                    onClick: function(evt) {
+                        var points = registrationsChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
+                        if (!points.length) return;
+                        var index = points[0].index;
+                        var range = periods[currentPeriodKey].ranges[index];
+                        var label = periods[currentPeriodKey].labels[index];
+                        if (range) showRegistrationBreakdown(label, range.from, range.to);
+                    }
                 }
             });
 
             function selectPeriod(key) {
+                currentPeriodKey = key;
                 Object.keys(toggleButtons).forEach(function(k) {
                     toggleButtons[k].classList.toggle('btn-primary', k === key);
                     toggleButtons[k].classList.toggle('btn-outline-primary', k !== key);
@@ -408,6 +674,169 @@
             Object.keys(toggleButtons).forEach(function(key) {
                 toggleButtons[key].addEventListener('click', function() { selectPeriod(key); });
             });
+
+            var regBreakdownMembers = []; // current period's member list, filtered client-side (no re-fetch)
+            var regBreakdownTotal = 0;
+
+            function escapeHtml(s) {
+                return $('<div>').text(s || '').html();
+            }
+
+            // Same 4 buckets/colors as the "Verification Status" doughnut on
+            // this same page — a status not explicitly active/declined/
+            // deactivated is "waiting" (never verified one way or the other).
+            var statusMeta = {
+                active:      { label: 'Verified',    color: '#0ca30c' },
+                waiting:     { label: 'Waiting',      color: '#fab219' },
+                declined:    { label: 'Declined',     color: '#d03b3b' },
+                deactivated: { label: 'Deactivated',  color: '#898781' },
+            };
+            function statusBucket(status) {
+                status = (status || '').toLowerCase();
+                return statusMeta[status] ? status : 'waiting';
+            }
+
+            function renderRegBreakdownTable() {
+                var q = $('#reg-breakdown-search').val().trim().toLowerCase();
+                var leadsOnly = $('#reg-breakdown-leads-only').is(':checked');
+                var statusFilter = $('#reg-breakdown-status-filter').val();
+
+                var filtered = regBreakdownMembers.filter(function(m) {
+                    if (leadsOnly && !m.is_lead) return false;
+                    if (statusFilter && statusBucket(m.status_member) !== statusFilter) return false;
+                    if (!q) return true;
+                    var haystack = [m.name, m.email, m.company_name, m.source].join(' ').toLowerCase();
+                    return haystack.indexOf(q) !== -1;
+                });
+
+                var $tbody = $('#reg-breakdown-members-tbody').empty();
+
+                if (filtered.length === 0) {
+                    $('#reg-breakdown-no-match').show();
+                } else {
+                    $('#reg-breakdown-no-match').hide();
+                    $.each(filtered, function(i, m) {
+                        var leadBadge = m.is_lead
+                            ? '<span class="badge badge-primary" title="Potential lead — Explore Marketing"><i class="fas fa-bullseye"></i></span>'
+                            : '<span class="text-muted">-</span>';
+                        var bucket = statusBucket(m.status_member);
+                        var statusBadge = '<span class="reg-status-badge" style="background:' + statusMeta[bucket].color + ';">' + statusMeta[bucket].label + '</span>';
+                        $tbody.append(
+                            '<tr>' +
+                                '<td><span class="cell-truncate font-weight-bold" title="' + escapeHtml(m.name) + '">' + escapeHtml(m.name || '-') + '</span><br>' +
+                                    '<small class="cell-truncate text-muted" title="' + escapeHtml(m.email) + '">' + escapeHtml(m.email) + '</small></td>' +
+                                '<td><span class="cell-truncate" title="' + escapeHtml(m.company_name) + '">' + escapeHtml(m.company_name || '-') + '</span></td>' +
+                                '<td>' + escapeHtml(m.source) + '</td>' +
+                                '<td>' + statusBadge + '</td>' +
+                                '<td class="text-center">' + leadBadge + '</td>' +
+                                '<td class="text-nowrap"><small>' + (m.created_at || '-') + '</small></td>' +
+                            '</tr>'
+                        );
+                    });
+                }
+
+                var note = filtered.length !== regBreakdownMembers.length
+                    ? filtered.length + ' dari ' + regBreakdownMembers.length + ' ditampilkan'
+                    : (regBreakdownMembers.length + ' member' + (regBreakdownMembers.length !== regBreakdownTotal ? ' (dari ' + regBreakdownTotal + ' total, terbaru dulu)' : ''));
+                $('#reg-breakdown-members-note').text(note);
+            }
+
+            $(document).on('input', '#reg-breakdown-search', renderRegBreakdownTable);
+            $(document).on('change', '#reg-breakdown-leads-only', renderRegBreakdownTable);
+            $(document).on('change', '#reg-breakdown-status-filter', renderRegBreakdownTable);
+
+            function showRegistrationBreakdown(label, dateFrom, dateTo) {
+                $('#reg-breakdown-period').text(label);
+                $('#reg-breakdown-loading').show();
+                $('#reg-breakdown-empty').hide();
+                $('#reg-breakdown-content').hide();
+                $('#reg-breakdown-chips').empty();
+                $('#reg-breakdown-status-chips').empty();
+                $('#reg-breakdown-leads-split').text('');
+                $('#reg-breakdown-members-tbody').empty();
+                $('#reg-breakdown-members-note').text('');
+                $('#reg-breakdown-search').val('');
+                $('#reg-breakdown-leads-only').prop('checked', false);
+                $('#reg-breakdown-status-filter').val('');
+                regBreakdownMembers = [];
+                regBreakdownTotal = 0;
+
+                // Guard against re-triggering show() on an already-open modal —
+                // the chart stays clickable underneath while it's open/mid-
+                // transition, so a second bar click here is easy to do by
+                // accident. Bootstrap 4 doesn't dedupe that: it stacks a second
+                // .modal-backdrop, and closing only tears down one of them,
+                // leaving the other's opacity + the page's scroll-lock stuck
+                // behind. If it's already open, just refresh the content in
+                // place instead of calling show() again.
+                if (!$('#registrationBreakdownModal').hasClass('show')) {
+                    $('#registrationBreakdownModal').modal('show');
+                }
+
+                $.ajax({
+                    url: '{{ route('users.registration_source_breakdown') }}',
+                    method: 'GET',
+                    data: { date_from: dateFrom, date_to: dateTo },
+                    dataType: 'json'
+                }).done(function(res) {
+                    $('#reg-breakdown-loading').hide();
+
+                    if (!res || !res.success || !res.breakdown || res.breakdown.length === 0) {
+                        $('#reg-breakdown-empty').show();
+                        return;
+                    }
+
+                    regBreakdownMembers = res.members || [];
+                    regBreakdownTotal = res.members_total || regBreakdownMembers.length;
+
+                    $('#reg-breakdown-total').text(res.total);
+                    $('#reg-breakdown-leads').text(res.leads_count || 0);
+                    var leadsPct = res.total > 0 ? Math.round((res.leads_count / res.total) * 100) : 0;
+                    $('#reg-breakdown-leads-pct').text('(' + leadsPct + '%)');
+
+                    // Still viable (active/waiting) vs already dead (declined) —
+                    // a declined applicant can't realistically be pursued as a
+                    // sponsorship lead anymore, so this splits the number above
+                    // instead of leaving "Potential Leads" looking bigger than
+                    // it actually, practically is. Wording kept report-ready
+                    // (standard CRM terms), not casual shorthand.
+                    if ((res.leads_count || 0) > 0) {
+                        $('#reg-breakdown-leads-split').html(
+                            '<span class="viable">' + (res.leads_viable || 0) + ' Active Prospects</span>' +
+                            (res.leads_dead ? ' &nbsp;·&nbsp; <span class="dead">' + res.leads_dead + ' Disqualified</span>' : '')
+                        );
+                    }
+
+                    $.each(res.breakdown, function(i, row) {
+                        var pct = res.total > 0 ? Math.round((row.total / res.total) * 100) : 0;
+                        $('#reg-breakdown-chips').append(
+                            '<span class="reg-chip">' +
+                                '<i class="' + row.icon + '" style="color:' + row.color + ';"></i>' +
+                                row.label + ' <strong>' + row.total + '</strong> <span class="reg-chip-pct">' + pct + '%</span>' +
+                            '</span>'
+                        );
+                    });
+
+                    var statusOrder = ['active', 'waiting', 'declined', 'deactivated'];
+                    $.each(statusOrder, function(i, key) {
+                        var count = (res.status && res.status[key === 'active' ? 'verified' : key]) || 0;
+                        if (count === 0) return;
+                        var pct = res.total > 0 ? Math.round((count / res.total) * 100) : 0;
+                        $('#reg-breakdown-status-chips').append(
+                            '<span class="reg-chip">' +
+                                '<span class="reg-chip-dot" style="background:' + statusMeta[key].color + ';"></span>' +
+                                statusMeta[key].label + ' <strong>' + count + '</strong> <span class="reg-chip-pct">' + pct + '%</span>' +
+                            '</span>'
+                        );
+                    });
+
+                    renderRegBreakdownTable();
+                    $('#reg-breakdown-content').show();
+                }).fail(function() {
+                    $('#reg-breakdown-loading').hide();
+                    $('#reg-breakdown-empty').text('Gagal memuat breakdown.').show();
+                });
+            }
         })();
 
         new Chart(document.getElementById('statusBreakdownChart'), {
