@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\EmailSender;
 use App\Http\Controllers\Controller;
+use App\Models\CmsUser;
 use App\Models\Company\CompanyModel;
 use App\Models\MemberCompanyFollowUp;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
+use App\Models\VerificationLog;
 use App\Services\Membership\MemberVerificationService;
-use App\Support\QrCode;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 class MemberCompanyFollowUpController extends Controller
 {
@@ -28,8 +25,12 @@ class MemberCompanyFollowUpController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP);
+        $q      = trim((string) $request->get('q', ''));
+        $picId  = $request->get('pic_id');
+        $dateFrom = $request->get('date_from');
+        $dateTo   = $request->get('date_to');
 
-        $query = MemberCompanyFollowUp::with(['user.profile'])->orderBy('created_at', 'desc');
+        $query = MemberCompanyFollowUp::with(['user.profile.company'])->orderBy('created_at', 'desc');
 
         if ($status === MemberCompanyFollowUp::STATUS_VERIFIED) {
             $query->where('status', MemberCompanyFollowUp::STATUS_VERIFIED);
@@ -38,24 +39,98 @@ class MemberCompanyFollowUpController extends Controller
             $query->where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP);
         }
 
+        if ($q !== '') {
+            $query->where(function ($outer) use ($q) {
+                $outer->where('previous_company_name', 'like', "%{$q}%")
+                    ->orWhere('new_company_name', 'like', "%{$q}%")
+                    ->orWhere('previous_job_title', 'like', "%{$q}%")
+                    ->orWhere('new_job_title', 'like', "%{$q}%")
+                    ->orWhere('notes', 'like', "%{$q}%")
+                    ->orWhereHas('user', function ($userQuery) use ($q) {
+                        $userQuery->where('name', 'like', "%{$q}%")
+                            ->orWhere('email', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        if ($picId) {
+            $query->where('flagged_by_id', $picId);
+        }
+
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
         $list = $query->get();
 
         $countNeedsFollowUp = MemberCompanyFollowUp::where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP)->count();
         $countVerified      = MemberCompanyFollowUp::where('status', MemberCompanyFollowUp::STATUS_VERIFIED)->count();
 
-        $companyNames = CompanyModel::whereNotNull('company_name')
+        // Datalist suggestions for both the Flag and Edit & Verify modals — only
+        // already-verified companies, so admins are steered toward matching an
+        // existing verified record (and getting its details autofilled) rather
+        // than towards an unverified/duplicate name. Typing a brand-new company
+        // that isn't verified yet still works fine, it's just not suggested.
+        $companyNames = CompanyModel::where('is_verified', true)
+            ->whereNotNull('company_name')
             ->whereRaw("TRIM(company_name) <> ''")
             ->distinct()
             ->orderBy('company_name')
             ->pluck('company_name');
 
+        $pics = CmsUser::where('is_active', true)->orderBy('name')->get(['id', 'name']);
+
         return view('admin.member_follow_ups.index', compact(
             'list',
             'status',
+            'q',
+            'picId',
+            'dateFrom',
+            'dateTo',
             'countNeedsFollowUp',
             'countVerified',
-            'companyNames'
+            'companyNames',
+            'pics'
         ));
+    }
+
+    /**
+     * Look up one already-verified company's full details by name — lets the
+     * Edit & Verify modal auto-fill the rest of the company fields when the
+     * typed name matches one, instead of the admin re-typing data that's
+     * already on file. On-demand (not bundled into index()) so a page with
+     * ~1,500 verified companies doesn't ship that whole dataset on every load.
+     *
+     * Where more than one verified company shares a name (rare, but real —
+     * e.g. same-named companies that are genuinely separate entities), the
+     * most recently verified one wins; it's a convenience autofill the admin
+     * can still override, not an authority.
+     */
+    public function lookupVerifiedCompany(Request $request)
+    {
+        $name = strtolower(trim((string) $request->get('name')));
+
+        if ($name === '') {
+            return response()->json(['found' => false]);
+        }
+
+        $company = CompanyModel::where('is_verified', true)
+            ->whereRaw('LOWER(TRIM(company_name)) = ?', [$name])
+            ->orderBy('verified_at', 'desc')
+            ->first([
+                'prefix', 'company_website', 'company_category',
+                'company_other', 'address', 'city', 'portal_code', 'country',
+                'prefix_office_number', 'office_number', 'full_office_number',
+            ]);
+
+        if (!$company) {
+            return response()->json(['found' => false]);
+        }
+
+        return response()->json(['found' => true, 'data' => $company]);
     }
 
     public function store(Request $request)
@@ -63,11 +138,13 @@ class MemberCompanyFollowUpController extends Controller
         $request->validate([
             'user_id'          => 'required|exists:users,id',
             'new_company_name' => 'required|string|max:255',
+            'new_job_title'    => 'nullable|string|max:255',
             'notes'            => 'nullable|string',
         ]);
 
         $user = User::with('profile.company')->findOrFail($request->user_id);
         $previousCompanyName = optional(optional($user->profile)->company)->company_name;
+        $previousJobTitle    = optional($user->profile)->job_title;
 
         $followUp = MemberCompanyFollowUp::firstOrNew([
             'user_id' => $user->id,
@@ -77,6 +154,14 @@ class MemberCompanyFollowUpController extends Controller
         $admin = auth()->user();
         $followUp->previous_company_name = $previousCompanyName;
         $followUp->new_company_name      = $request->new_company_name;
+        // Guarded: these two columns ship in this same change, but the
+        // migration adding them isn't necessarily run yet (never auto-run
+        // against this DB) — skip setting them rather than erroring on an
+        // unknown column, same defensive pattern used elsewhere this session.
+        if (Schema::hasColumn('member_company_follow_ups', 'previous_job_title')) {
+            $followUp->previous_job_title = $previousJobTitle;
+            $followUp->new_job_title      = $request->new_job_title;
+        }
         $followUp->notes                 = $request->notes;
         $followUp->status                = MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP;
         $followUp->flagged_by_id         = auth()->id();
@@ -90,286 +175,292 @@ class MemberCompanyFollowUpController extends Controller
     }
 
     /**
-     * Verify a company follow-up:
-     *  1. Deactivate old user account & null out their phone (unique constraint)
-     *  2. Create new User with new email (or old email) + new company/job_title
-     *  3. Copy profile & company data from old account
-     *  4. Run the full verify flow (uname, QR code, Mailchimp, approval email)
-     *  5. Mark the follow-up record as verified
+     * Edit a follow-up member's data in place — same fields and field-diff/
+     * user_edit_logs pattern as UsersController::updateUser() (Members DMC),
+     * so both edit paths behave identically instead of maintaining two
+     * separate implementations. No duplicate account is created: the existing
+     * User/Profile/Company records are updated directly.
+     *
+     * Completing this edit is treated as the manual "2-Step Verified"
+     * confirmation (no separate click needed), and closes out the follow-up.
      */
-    public function markVerified(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $request->validate([
-            'new_company_name' => 'required|string|max:255',
-            'new_job_title'    => 'nullable|string|max:255',
-            'new_email'        => 'nullable|email|max:255',
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|max:255',
+            'job_title'     => 'nullable|string|max:255',
+            'phone'         => 'nullable|string|max:50',
+            'prefix'        => 'nullable|string|max:255',
+            'company_name'  => 'nullable|string|max:255',
+            'company_website' => 'nullable|string|max:255',
+            'company_category' => 'nullable|string|max:255',
+            'company_other' => 'nullable|string|max:255',
+            'address'       => 'nullable|string|max:255',
+            'city'          => 'nullable|string|max:255',
+            'portal_code'   => 'nullable|string|max:255',
+            'country'       => 'nullable|string|max:255',
+            'prefix_office_number' => 'nullable|string|max:255',
+            'office_number' => 'nullable|string|max:255',
+            'full_office_number' => 'nullable|string|max:255',
         ]);
 
         $followUp = MemberCompanyFollowUp::with('user.profile')->findOrFail($id);
-        $oldUser  = $followUp->user;
+        $user     = $followUp->user;
 
-        if (!$oldUser) {
-            return response()->json(['success' => false, 'message' => 'User lama tidak ditemukan.'], 422);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User tidak ditemukan.'], 422);
         }
 
-        $newCompanyName = trim($request->new_company_name);
-        $newJobTitle    = $request->filled('new_job_title') ? trim($request->new_job_title) : null;
-        $newEmail       = $request->filled('new_email')     ? strtolower(trim($request->new_email)) : strtolower(trim($oldUser->email ?? ''));
-
-        // Check email uniqueness (allow same as old user)
-        if ($newEmail !== strtolower(trim($oldUser->email ?? ''))) {
-            $emailExists = User::where('email', $newEmail)
-                ->where('id', '!=', $oldUser->id)
-                ->exists();
+        $newEmail = strtolower(trim($request->email));
+        if ($newEmail !== strtolower(trim($user->email ?? ''))) {
+            $emailExists = User::where('email', $newEmail)->where('id', '!=', $user->id)->exists();
             if ($emailExists) {
-                return response()->json(['success' => false, 'message' => 'Email baru sudah digunakan oleh akun lain.'], 422);
+                return response()->json(['success' => false, 'message' => 'Email sudah digunakan oleh akun lain.'], 422);
             }
         }
 
-        $admin      = auth()->user();
-        $verifiedAt = now();
+        $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
+        $company = null;
 
-        DB::beginTransaction();
-        try {
-            // ── 1. Load old profile & company ────────────────────────────
-            $oldProfile = ProfileModel::where('users_id', $oldUser->id)->first();
-            $oldCompany = CompanyModel::where('users_id', $oldUser->id)->first();
-
-            // ── 2. Capture phone BEFORE null-out (to copy to new profile) ─
-            $oldPhone     = optional($oldProfile)->phone;
-            $oldFullPhone = optional($oldProfile)->fullphone;
-            $oldPrefixPhone = optional($oldProfile)->prefix_phone;
-
-            // ── 2. Null-out phone on old profile FIRST (unique constraint) ─
-            if ($oldProfile) {
-                $oldProfile->phone     = null;
-                $oldProfile->fullphone = null;
-                $oldProfile->save();
-            }
-
-            // ── 3. Deactivate old user (auto reason — everything needed is
-            //      already on hand from this same verify action) ───────────
-            $deactivationReason = 'Company/job change verified via Follow-Up — replaced by new account ('
-                . $newEmail . '), company "' . $newCompanyName . '".';
-            if (!empty($followUp->notes)) {
-                $deactivationReason .= ' Notes: ' . $followUp->notes;
-            }
-
-            $oldUser->status_member       = 'deactivated';
-            $oldUser->deactivation_reason = $deactivationReason;
-            $oldUser->deactivated_at      = $verifiedAt;
-            $oldUser->deactivated_by      = $admin ? $admin->name : 'Staff';
-            $oldUser->save();
-
-            // ── 4. Create new User ────────────────────────────────────────
-            $newUser = new User();
-            $newUser->name          = $oldUser->name;
-            $newUser->email         = $newEmail;
-            $newUser->verify_email  = $oldUser->verify_email;
-            $newUser->verify_phone  = $oldUser->verify_phone;
-            $newUser->isStatus      = $oldUser->isStatus;
-            $newUser->source        = $oldUser->source;
-            // Created active right away — this whole flow only exists to verify
-            // the member under their new company, there's no separate approval
-            // step. status_member has to be set before this first save() (it's
-            // needed here just to get an id for generateMemberId() below), but
-            // there's no reason for that transient pre-id state to say anything
-            // other than the value it'll actually end up as.
-            $newUser->status_member = 'active';
-            $newUser->tier          = $oldUser->tier;
-            // password intentionally NOT copied — reset via email
-            $newUser->save();
-
-            // ── 5. Run verify flow on new user ────────────────────────────
-            $newUser->verified_at   = $verifiedAt;
-            $newUser->uname         = $this->generateMemberId($newUser, $verifiedAt);
-
-            try {
-                $qrImage  = QrCode::format('png')->size(300)->errorCorrection('H')->generate($newUser->uname);
-                $fileName = 'img-verify-' . $newUser->id . '-' . $verifiedAt->timestamp . '.png';
-                Storage::disk('local')->put('/public/uploads/qr-code/' . $fileName, $qrImage);
-                $newUser->qrcode = '/storage/uploads/qr-code/' . $fileName;
-            } catch (\Throwable $e) {
-                Log::warning('markVerified: QR generation failed for new user: ' . $e->getMessage());
-            }
-
-            $newUser->save();
-
-            // ── 6. Create new Company FIRST — profiles.company_id is NOT NULL
-            //      with no default, so the Profile insert below needs a real
-            //      company id already in hand, not patched in afterward ──────
-            $newCompany = new CompanyModel();
-            $newCompany->users_id             = $newUser->id;
-            $newCompany->company_name         = $newCompanyName;
-            $newCompany->prefix               = optional($oldCompany)->prefix;
-            $newCompany->company_website      = optional($oldCompany)->company_website;
-            $newCompany->company_category     = optional($oldCompany)->company_category;
-            $newCompany->company_other        = optional($oldCompany)->company_other;
-            $newCompany->address              = optional($oldCompany)->address;
-            $newCompany->city                 = optional($oldCompany)->city;
-            $newCompany->portal_code          = optional($oldCompany)->portal_code;
-            $newCompany->prefix_office_number = optional($oldCompany)->prefix_office_number;
-            $newCompany->office_number        = optional($oldCompany)->office_number;
-            $newCompany->full_office_number   = optional($oldCompany)->full_office_number;
-            $newCompany->country              = optional($oldCompany)->country;
-            $newCompany->is_verified          = true;
-            $newCompany->verified_at          = $verifiedAt;
-            $newCompany->explore              = optional($oldCompany)->explore;
-            $newCompany->save();
-
-            // ── 7. Create new Profile (with original phone transferred) ────
-            $newProfile = new ProfileModel();
-            $newProfile->users_id     = $newUser->id;
-            $newProfile->company_id   = $newCompany->id;
-            $newProfile->prefix_phone = $oldPrefixPhone;
-            $newProfile->phone        = $oldPhone;          // transferred from old
-            $newProfile->fullphone    = $oldFullPhone;      // transferred from old
-            $newProfile->image        = optional($oldProfile)->image;
-            $newProfile->job_title    = $newJobTitle ?? optional($oldProfile)->job_title;
-            $newProfile->newsletter   = optional($oldProfile)->newsletter;
-            $newProfile->wa_updates   = optional($oldProfile)->wa_updates;
-            $newProfile->save();
-
-            // ── 8. Mark follow-up as verified ─────────────────────────────
-            $followUp->status          = MemberCompanyFollowUp::STATUS_VERIFIED;
-            $followUp->verified_by_id  = auth()->id();
-            $followUp->verified_by_name = $admin ? $admin->name : null;
-            $followUp->verified_at     = $verifiedAt;
-            $followUp->save();
-
-            DB::commit();
-
-            // ── 9. Post-commit: Mailchimp + approval email ─────────────────
-            $this->syncToMailchimp($newUser, $newProfile, $newCompany);
-
-            // Akun lama ikut di-deactivate di atas, jadi email lamanya juga
-            // di-unsubscribe. Hanya kalau emailnya memang berbeda — kalau
-            // member pindah company dengan email yang sama, unsubscribe di
-            // sini justru membatalkan subscribe akun baru barusan.
-            if (strtolower(trim($oldUser->email ?? '')) !== $newEmail) {
-                app(MemberVerificationService::class)->unsubscribeFromMailchimp($oldUser);
-            }
-
-            $this->sendApprovalEmail($newUser, $newEmail);
-
-            return response()->json([
-                'success' => true,
-                'message' => $oldUser->name . ' — akun lama dinonaktifkan, akun baru dengan company "' . $newCompanyName . '" berhasil dibuat & diverifikasi.',
-            ]);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            Log::error('markVerified follow-up failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+        if (!empty($profile->company_id)) {
+            $company = CompanyModel::find($profile->company_id);
         }
-    }
+        if (!$company) {
+            $company = CompanyModel::where('users_id', $user->id)->first();
+        }
+        if (!$company) {
+            $company = new CompanyModel();
+            $company->users_id = $user->id;
+        }
 
-    // ────────────────────────────────────────────────────────────────────
-    //  Helpers
-    // ────────────────────────────────────────────────────────────────────
+        $normalizeForCompare = static function ($value): string {
+            if (is_null($value)) {
+                return '';
+            }
+            return is_string($value) ? trim($value) : (string) $value;
+        };
 
-    private function generateMemberId(User $user, Carbon $verifiedAt): string
-    {
-        $datePart    = $verifiedAt->format('Ymd');
-        $monthPrefix = $verifiedAt->format('Ym');
-        $maxSequence = 0;
+        $nullableString = static function ($value): ?string {
+            if (is_null($value)) {
+                return null;
+            }
+            $value = is_string($value) ? trim($value) : (string) $value;
+            return $value === '' ? null : $value;
+        };
 
-        User::where('uname', 'like', $monthPrefix . '%')
-            ->pluck('uname')
-            ->each(function ($uname) use ($monthPrefix, &$maxSequence) {
-                if (!is_string($uname)) return;
-                if (preg_match('/^' . preg_quote($monthPrefix, '/') . '\d{2}(\d{4})[A-Z0-9]*$/', $uname, $m)) {
-                    $seq = (int) $m[1];
-                    if ($seq > $maxSequence) $maxSequence = $seq;
+        $isFilled = static function ($value): bool {
+            return !is_null($value) && (!is_string($value) || trim($value) !== '');
+        };
+
+        $watchUser    = ['name', 'email'];
+        $watchProfile = ['job_title', 'phone'];
+        $watchCompany = [
+            'prefix',
+            'company_name',
+            'company_website',
+            'company_category',
+            'company_other',
+            'address',
+            'city',
+            'portal_code',
+            'country',
+            'prefix_office_number',
+            'office_number',
+            'full_office_number',
+        ];
+
+        $changes = [];
+        $hasCompanyChanges = false;
+
+        foreach ($watchUser as $field) {
+            $old = $normalizeForCompare($user->$field ?? '');
+            $new = $field === 'email' ? $normalizeForCompare($newEmail) : $normalizeForCompare($request->input($field, ''));
+            if ($old !== $new) {
+                $changes[$field] = ['old' => $old, 'new' => $new];
+            }
+        }
+
+        foreach ($watchProfile as $field) {
+            $old = $normalizeForCompare($profile->$field ?? '');
+            $new = $normalizeForCompare($request->input($field, ''));
+            if ($old !== $new) {
+                $changes[$field] = ['old' => $old, 'new' => $new];
+            }
+        }
+
+        foreach ($watchCompany as $field) {
+            if (!$request->has($field)) {
+                continue;
+            }
+            $old = $normalizeForCompare($company->$field ?? '');
+            $new = $normalizeForCompare($request->input($field, ''));
+            if ($old !== $new) {
+                $hasCompanyChanges = true;
+                $changes[$field] = ['old' => $old, 'new' => $new];
+            }
+        }
+
+        // Same auto-verify-company-if-complete rule as updateUser(), for parity.
+        $candidateCompanyData = [];
+        foreach ($watchCompany as $field) {
+            $candidateCompanyData[$field] = $request->has($field)
+                ? $nullableString($request->input($field))
+                : $nullableString($company->{$field} ?? null);
+        }
+
+        $requiredCompanyFields = [
+            'prefix', 'company_name', 'company_website', 'company_category',
+            'address', 'city', 'portal_code',
+            'prefix_office_number', 'office_number', 'full_office_number', 'country',
+        ];
+        $isCompanyComplete = true;
+        foreach ($requiredCompanyFields as $field) {
+            if (!$isFilled($candidateCompanyData[$field] ?? null)) {
+                $isCompanyComplete = false;
+                break;
+            }
+        }
+        if (($candidateCompanyData['company_category'] ?? null) === 'other' && !$isFilled($candidateCompanyData['company_other'] ?? null)) {
+            $isCompanyComplete = false;
+        }
+
+        $shouldAutoVerifyCompany = !(bool) ($company->is_verified ?? false) && $isCompanyComplete;
+        if ($shouldAutoVerifyCompany) {
+            $changes['is_verified'] = ['old' => (bool) ($company->is_verified ?? false) ? '1' : '0', 'new' => '1'];
+        }
+
+        if (empty($changes)) {
+            return response()->json(['success' => true, 'message' => 'Tidak ada perubahan.']);
+        }
+
+        $oldEmail      = (string) ($user->email ?? '');
+        $currentStatus = strtolower((string) ($user->status_member ?? ''));
+        $wasActive     = $currentStatus === 'active';
+        // Only auto-approve a status that was never decided on (pending/blank).
+        // 'deactivated'/'declined' are deliberate admin decisions elsewhere —
+        // a follow-up data edit here must never silently reverse those.
+        $shouldAutoApprove = !$wasActive && !in_array($currentStatus, ['deactivated', 'declined'], true);
+
+        $user->name  = trim((string) $request->name);
+        $user->email = $newEmail;
+
+        // Completing an edit here IS the manual 2-Step confirmation — admin has
+        // just reviewed and corrected the member's real info, no separate click
+        // needed on Members DMC.
+        $admin = auth()->user();
+        $user->two_step_verified    = true;
+        $user->two_step_verified_at = now();
+        $user->two_step_verified_by = $admin ? $admin->name : 'Staff';
+
+        if (!$shouldAutoApprove) {
+            $user->save();
+        } else {
+            // Not an approved member yet (e.g. flagged for follow-up before ever
+            // being verified) — completing this edit also admits them, using the
+            // same status_member/uname/QR core the manual Verify flow uses.
+            // Otherwise they'd end up "2-Step" but stuck showing Pending, since
+            // the 2-Step badge on Members DMC only renders once status_member is
+            // active. activate() saves $user itself (incl. the fields above).
+            // No approval email / lead auto-create here — those belong to
+            // first-time admission, not a data-correction pass.
+            $user->verified_at = now();
+            app(MemberVerificationService::class)->activate($user);
+
+            // Close out any open SLA review timer too, same as the manual Verify
+            // flow — mirrors UsersController::finishVerificationLog(), duplicated
+            // here since that one is private to that controller.
+            if (Schema::hasTable('verification_logs')) {
+                try {
+                    $log = VerificationLog::open()->where('user_id', $user->id)->latest('started_at')->first();
+                    if (!$log) {
+                        $log = new VerificationLog([
+                            'user_id'         => $user->id,
+                            'started_at'      => $user->verified_at,
+                            'started_by_id'   => auth()->id(),
+                            'started_by_name' => $admin ? $admin->name : 'Staff',
+                        ]);
+                    }
+                    $log->finished_at      = $user->verified_at;
+                    $log->finished_by_id   = auth()->id();
+                    $log->finished_by_name = $admin ? $admin->name : 'Staff';
+                    $log->result           = VerificationLog::RESULT_ACTIVE;
+                    $log->save();
+                } catch (\Throwable $e) {
+                    Log::warning('MemberCompanyFollowUp update: verification log close failed for user ' . $user->id . ': ' . $e->getMessage());
                 }
-            });
-
-        $next = max(1, $maxSequence + 1);
-        for ($seq = $next; $seq <= 9999; $seq++) {
-            $memberId = $datePart . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
-            if (!User::where('uname', $memberId)->where('id', '!=', $user->id)->exists()) {
-                return $memberId;
             }
         }
 
-        $seq = max(10000, $next);
-        while (true) {
-            $memberId = $datePart . (string) $seq;
-            if (!User::where('uname', $memberId)->where('id', '!=', $user->id)->exists()) {
-                return $memberId;
+        $shouldSaveCompany = $hasCompanyChanges || $shouldAutoVerifyCompany;
+        if ($shouldSaveCompany && $company->exists) {
+            $belongsToOtherUser = !empty($company->users_id) && (int) $company->users_id !== (int) $user->id;
+            $sharedWithOtherUsers = ProfileModel::where('company_id', $company->id)
+                ->where('users_id', '!=', $user->id)
+                ->exists();
+
+            if ($belongsToOtherUser || $sharedWithOtherUsers) {
+                $company = $company->replicate();
+                $company->users_id = $user->id;
             }
-            $seq++;
         }
-    }
 
-    private function syncToMailchimp(User $user, ?ProfileModel $profile, ?CompanyModel $company): void
-    {
-        $email = strtolower(trim($user->email ?? ''));
-        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) return;
-
-        try {
-            $apiKey = config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY');
-            $server = config('newsletter.server') ?: (explode('-', $apiKey)[1] ?? null);
-            $listId = config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID');
-
-            if (!$apiKey || !$server || !$listId) return;
-
-            $merge = [];
-            if (!empty($user->name))                          $merge['FNAME']    = $user->name;
-            if (!empty(optional($company)->company_name))     $merge['MMERGE5']  = $company->company_name;
-            if (!empty(optional($profile)->job_title))        $merge['MMERGE7']  = $profile->job_title;
-            if (!empty(optional($company)->company_website))  $merge['MMERGE13'] = $company->company_website;
-            $merge['MMERGE11'] = now()->format('m/d/Y');
-
-            $phone = optional($profile)->fullphone ?? optional($profile)->phone;
-            if ($phone && preg_match('/^\+\d[\d\s\-\(\)]{5,}$/', trim((string) $phone))) {
-                $merge['MERGE4'] = trim((string) $phone);
+        if ($shouldSaveCompany) {
+            foreach ($watchCompany as $field) {
+                if (!$request->has($field)) {
+                    continue;
+                }
+                $company->{$field} = $nullableString($request->input($field));
             }
-
-            Http::withBasicAuth('anystring', $apiKey)
-                ->timeout(20)
-                ->put("https://{$server}.api.mailchimp.com/3.0/lists/{$listId}/members/" . md5($email), [
-                    'email_address' => $email,
-                    'status_if_new' => 'subscribed',
-                    'status'        => 'subscribed',
-                    'merge_fields'  => $merge,
-                ]);
-        } catch (\Throwable $e) {
-            Log::warning('markVerified: Mailchimp sync failed: ' . $e->getMessage());
-        }
-    }
-
-    private function sendApprovalEmail(User $user, string $email): void
-    {
-        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) return;
-
-        try {
-            $setPasswordUrl = null;
-            if (empty($user->password)) {
-                $token = Password::broker()->createToken($user);
-                $setPasswordUrl = route('password.reset', ['token' => $token, 'email' => $email]);
+            if ($shouldAutoVerifyCompany) {
+                $company->is_verified = true;
+                $company->verified_at = now();
             }
-
-            $linkExpiryHours = (int) max(1, ceil((int) config('auth.passwords.users.expire', 60) / 60));
-            $loginUrl = (string) config('dmc.post_reset_password_redirect_url', 'https://www.djakarta-miningclub.com?modalloginopen=true');
-
-            $send = new EmailSender();
-            $send->subject     = 'Djakarta Mining Club – Membership Approval Confirmation (ID: ' . $user->uname . ')';
-            $send->template    = 'email.membership-approved';
-            $send->data        = [
-                'users_name'       => $user->name ?? 'Member',
-                'member_id'        => $user->uname,
-                'registered_email' => $email,
-                'set_password_url' => $setPasswordUrl,
-                'link_expiry_hours' => $linkExpiryHours,
-                'login_url'        => $loginUrl,
-            ];
-            $send->name        = $user->name ?? 'Member';
-            $send->from        = env('EMAIL_SENDER');
-            $send->name_sender = env('EMAIL_NAME');
-            $send->to          = $email;
-            $send->sendEmail();
-        } catch (\Throwable $e) {
-            Log::warning('markVerified: approval email failed: ' . $e->getMessage());
+            $company->users_id = $user->id;
+            $company->save();
         }
+
+        $phone = $nullableString($request->phone);
+        $profile->job_title = $nullableString($request->job_title);
+        $profile->phone     = $phone;
+        $profile->fullphone = $phone;
+        if (($hasCompanyChanges || $company->exists) && (int) ($company->id ?? 0) > 0) {
+            $profile->company_id = $company->id;
+        }
+        $profile->users_id = $user->id;
+        $profile->save();
+
+        DB::table('user_edit_logs')->insert([
+            'user_id'    => $user->id,
+            'admin_id'   => auth()->id(),
+            'admin_name' => $admin ? $admin->name : null,
+            'changes'    => json_encode($changes),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Close out the follow-up.
+        $followUp->status           = MemberCompanyFollowUp::STATUS_VERIFIED;
+        $followUp->verified_by_id   = auth()->id();
+        $followUp->verified_by_name = $admin ? $admin->name : null;
+        $followUp->verified_at      = now();
+        $followUp->save();
+
+        $message = $user->name . ' berhasil diperbarui & ditandai Verified.'
+            . ($shouldAutoApprove ? ' Status member otomatis di-approve jadi Active.' : '');
+
+        if (isset($changes['email'])) {
+            $mailchimpResult = app(MemberVerificationService::class)->changeMailchimpEmail($user, $oldEmail);
+
+            if ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_RENAMED) {
+                $message .= ' Email di Mailchimp ikut dipindahkan.';
+            } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_SWAPPED) {
+                $message .= ' Mailchimp: email lama di-archive, email baru di-subscribe.';
+            } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_FAILED) {
+                $message .= ' (Mailchimp: gagal memindahkan email — perlu dicek manual.)';
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => $message, 'changes' => $changes]);
     }
 }

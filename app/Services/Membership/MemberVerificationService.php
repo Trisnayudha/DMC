@@ -30,7 +30,7 @@ class MemberVerificationService
     /** Alamat contact-nya berhasil diganti di tempat (status & history tetap). */
     const MAILCHIMP_EMAIL_RENAMED = 'renamed';
 
-    /** Email baru di-subscribe sebagai contact terpisah, email lama di-unsubscribe. */
+    /** Email baru di-subscribe sebagai contact terpisah, email lama di-archive. */
     const MAILCHIMP_EMAIL_SWAPPED = 'swapped';
 
     /** Mailchimp menolak keduanya — perlu dirapikan manual. */
@@ -139,24 +139,27 @@ class MemberVerificationService
     }
 
     /**
-     * Unsubscribe member dari audience Mailchimp (dipakai saat deactivate).
+     * Archive member dari audience Mailchimp (dipakai saat deactivate, dan saat
+     * email lama sudah tidak dipakai lagi).
      *
-     * Sengaja pakai PATCH, bukan PUT: PATCH hanya menyentuh contact yang sudah
-     * ada di audience, jadi member yang memang belum pernah di-import tidak
-     * malah dibuatkan contact baru hanya untuk ditandai unsubscribed.
+     * Sengaja archive (DELETE), bukan unsubscribe (PATCH status=unsubscribed):
+     * contact yang di-archive tidak lagi dihitung ke billing Mailchimp, sedangkan
+     * contact yang cuma di-unsubscribe tetap terhitung. Archive tetap "soft" —
+     * Mailchimp menyimpan contact-nya, cuma dikeluarkan dari audience aktif, jadi
+     * beda dengan permanent-delete dan masih bisa dipulihkan kalau perlu.
      *
-     * @return bool true kalau Mailchimp mengonfirmasi statusnya berubah.
+     * @return bool true kalau Mailchimp mengonfirmasi contact-nya ter-archive.
      */
-    public function unsubscribeFromMailchimp(User $user): bool
+    public function archiveFromMailchimp(User $user): bool
     {
-        return $this->unsubscribeEmailFromMailchimp(strtolower(trim($user->email ?? '')), $user->id);
+        return $this->archiveEmailFromMailchimp(strtolower(trim($user->email ?? '')), $user->id);
     }
 
     /**
-     * Unsubscribe satu alamat email — dipakai kalau alamat yang mau dimatikan
-     * bukan lagi email user-nya sekarang (mis. setelah admin ganti email).
+     * Archive satu alamat email — dipakai kalau alamat yang mau dimatikan bukan
+     * lagi email user-nya sekarang (mis. setelah admin ganti email).
      */
-    public function unsubscribeEmailFromMailchimp(string $email, $userId = null): bool
+    public function archiveEmailFromMailchimp(string $email, $userId = null): bool
     {
         $email = strtolower(trim($email));
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -170,9 +173,7 @@ class MemberVerificationService
 
         try {
             $response = $this->mailchimpRequest($config)
-                ->patch($this->mailchimpMemberUrl($config, $email), [
-                    'status' => 'unsubscribed',
-                ]);
+                ->delete($this->mailchimpMemberUrl($config, $email));
 
             if ($response->successful()) {
                 return true;
@@ -180,13 +181,13 @@ class MemberVerificationService
 
             // 404 = contact-nya memang tidak ada di audience, bukan kegagalan.
             if ($response->status() !== 404) {
-                Log::warning('MemberVerification: Mailchimp unsubscribe failed for user ' . $userId
+                Log::warning('MemberVerification: Mailchimp archive failed for user ' . $userId
                     . ' (HTTP ' . $response->status() . '): ' . $response->body());
             }
 
             return false;
         } catch (\Throwable $e) {
-            Log::warning('MemberVerification: Mailchimp unsubscribe failed for user ' . $userId . ': ' . $e->getMessage());
+            Log::warning('MemberVerification: Mailchimp archive failed for user ' . $userId . ': ' . $e->getMessage());
 
             return false;
         }
@@ -259,9 +260,9 @@ class MemberVerificationService
             // subscribed — kalau member sudah opt-out, ganti email bukan
             // alasan untuk mendaftarkannya lagi.
             $subscribed = $oldStatus === 'subscribed' ? $this->syncToMailchimp($user) : false;
-            $unsubscribed = $this->unsubscribeEmailFromMailchimp($oldEmail, $user->id);
+            $archived = $this->archiveEmailFromMailchimp($oldEmail, $user->id);
 
-            if ($subscribed || $unsubscribed) {
+            if ($subscribed || $archived) {
                 return self::MAILCHIMP_EMAIL_SWAPPED;
             }
 

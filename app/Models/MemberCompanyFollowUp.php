@@ -15,6 +15,8 @@ class MemberCompanyFollowUp extends Model
         'user_id',
         'previous_company_name',
         'new_company_name',
+        'previous_job_title',
+        'new_job_title',
         'notes',
         'status',
         'flagged_by_id',

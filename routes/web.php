@@ -537,11 +537,13 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('users/edit-logs', [UsersController::class, 'editLogs'])->name('admin.user_edit_logs');
     Route::get('users/mailchimp-count', [UsersController::class, 'mailchimpContactCount'])->name('users.mailchimp.count');
     Route::get('users/data', [UsersController::class, 'usersData'])->name('users.data');
+    Route::get('users/registration-source-breakdown', [UsersController::class, 'registrationSourceBreakdown'])->name('users.registration_source_breakdown');
     Route::post('users/{id}/verification/start', [UsersController::class, 'startVerification'])->name('users.verification.start');
 
     Route::get('company-follow-ups', [MemberCompanyFollowUpController::class, 'index'])->name('admin.member_follow_ups.index');
     Route::post('company-follow-ups', [MemberCompanyFollowUpController::class, 'store'])->name('admin.member_follow_ups.store');
-    Route::post('company-follow-ups/{id}/verify', [MemberCompanyFollowUpController::class, 'markVerified'])->name('admin.member_follow_ups.verify');
+    Route::post('company-follow-ups/{id}/update', [MemberCompanyFollowUpController::class, 'update'])->name('admin.member_follow_ups.update');
+    Route::get('company-follow-ups/verified-company', [MemberCompanyFollowUpController::class, 'lookupVerifiedCompany'])->name('admin.member_follow_ups.verified_company');
 
     Route::get('leads', [MemberLeadFollowUpController::class, 'index'])->name('admin.member_leads.index');
     Route::post('leads/{id}/pic', [MemberLeadFollowUpController::class, 'assignPic'])->name('admin.member_leads.assign_pic');

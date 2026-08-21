@@ -1,5 +1,4 @@
-{{-- Row cell: Password status + Edit/Log/Follow-up buttons. Expects $post, $followUpMap. --}}
-@php $openFollowUp = $followUpMap[$post->user_id] ?? null; @endphp
+{{-- Row cell: Password status + Edit/Log/Follow-up buttons. Expects $post, $openFollowUp. --}}
 <div class="btn-icon-group">
     <i class="fas {{ $post->password ? 'fa-lock text-success' : 'fa-lock-open text-danger' }}"
         title="Password {{ $post->password ? 'has been set' : 'not set yet' }}"
@@ -43,6 +42,8 @@
         data-member-name="{{ $post->name }}"
         data-current-company="{{ $post->company_name }}"
         data-new-company="{{ $openFollowUp->new_company_name ?? '' }}"
+        data-current-job-title="{{ $post->job_title }}"
+        data-new-job-title="{{ $openFollowUp->new_job_title ?? '' }}"
         data-notes="{{ $openFollowUp->notes ?? '' }}"
         title="{{ $openFollowUp ? 'Follow-up pending — klik untuk edit' : 'Tandai member ini pindah company' }}"
         data-toggle="tooltip">

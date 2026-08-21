@@ -11,7 +11,8 @@
             <div class="modal-body">
                 <p class="mb-3">
                     Member: <strong id="fu-member-name">-</strong><br>
-                    <small class="text-muted">Company saat ini: <span id="fu-current-company">-</span></small>
+                    <small class="text-muted">Company saat ini: <span id="fu-current-company">-</span></small><br>
+                    <small class="text-muted">Job title saat ini: <span id="fu-current-job-title">-</span></small>
                 </p>
                 <input type="hidden" id="fu-user-id">
                 <div class="form-group">
@@ -23,6 +24,11 @@
                             <option value="{{ $name }}"></option>
                         @endforeach
                     </datalist>
+                </div>
+                <div class="form-group">
+                    <label>Job Title Baru <span class="text-muted small">(opsional — kosongkan jika sama)</span></label>
+                    <input type="text" id="fu-new-job-title" class="form-control"
+                        placeholder="Job title di company baru...">
                 </div>
                 <div class="form-group mb-0">
                     <label>Notes (opsional)</label>
@@ -47,7 +53,9 @@
             $('#fu-user-id').val(btn.data('user-id'));
             $('#fu-member-name').text(btn.data('member-name') || '-');
             $('#fu-current-company').text(btn.data('current-company') || '-');
+            $('#fu-current-job-title').text(btn.data('current-job-title') || '-');
             $('#fu-new-company-name').val(btn.data('new-company') || '');
+            $('#fu-new-job-title').val(btn.data('new-job-title') || '');
             $('#fu-notes').val(btn.data('notes') || '');
             $('#followUpModal').modal('show');
         });
@@ -68,6 +76,7 @@
                     _token: '{{ csrf_token() }}',
                     user_id: $('#fu-user-id').val(),
                     new_company_name: newCompany,
+                    new_job_title: $('#fu-new-job-title').val(),
                     notes: $('#fu-notes').val()
                 },
                 success: function(res) {

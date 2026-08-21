@@ -50,3 +50,6 @@
 @endsection
 
 @include('admin.member_follow_ups.partials._scripts')
+@push('bottom')
+    @include('admin.users.partials._modal_logs')
+@endpush
