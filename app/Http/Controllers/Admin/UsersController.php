@@ -140,8 +140,9 @@ class UsersController extends Controller
         // that doesn't exist in the target month (e.g. Jul 29 - 5 months = Feb 29,
         // invalid in a non-leap year) and Carbon silently overflows into March,
         // producing a duplicate month instead of February.
+        $monthsToShow = max(5, Carbon::now()->month - 1);
         $monthlyRaw = User::whereNotNull('isStatus')
-            ->where('created_at', '>=', Carbon::now()->startOfMonth()->subMonths(5))
+            ->where('created_at', '>=', Carbon::now()->startOfMonth()->subMonths($monthsToShow))
             ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as period_key, COUNT(*) as total")
             ->groupBy('period_key')
             ->pluck('total', 'period_key');
@@ -149,7 +150,7 @@ class UsersController extends Controller
         $registrationsMonthlyLabels = [];
         $registrationsMonthlyCounts = [];
         $registrationsMonthlyRanges = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = $monthsToShow; $i >= 0; $i--) {
             $monthStart = Carbon::now()->startOfMonth()->subMonths($i);
             $key = $monthStart->format('Y-m');
             $registrationsMonthlyLabels[] = $monthStart->format('M Y');
@@ -316,6 +317,7 @@ class UsersController extends Controller
             ->sortByDesc('members');
 
         return view('admin.users.index', [
+            'sources'            => $this->sourceColorMap(),
             'countActiveMember'  => $countActiveMember,
             'countPendingMember' => $countPendingMember,
             'countDeclined'      => $countDeclined,
@@ -377,6 +379,7 @@ class UsersController extends Controller
         $dateTo       = $request->date_to;
         $month        = $request->month;
         $year         = $request->year;
+        $source       = $request->source;
         $statusMember = $request->status_member; // 'active' | 'pending' | ''
 
         $query = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
@@ -437,6 +440,21 @@ class UsersController extends Controller
         if ($dateTo)   $query->whereDate('users.created_at', '<=', $dateTo);
         if ($month)    $query->whereMonth('users.created_at', $month);
         if ($year)     $query->whereYear('users.created_at', $year);
+
+        if ($source) {
+            if ($source === 'event') {
+                $query->where('users.source', 'like', 'event%');
+            } elseif ($source === 'other') {
+                $query->where(function ($q) {
+                    $q->whereNull('users.source')
+                        ->orWhere('users.source', '')
+                        ->orWhereNotIn(DB::raw('LOWER(TRIM(users.source))'), ['website', 'apps', 'scanner', 'linkedin', 'instagram'])
+                        ->where(DB::raw('LOWER(TRIM(users.source))'), 'not like', 'event%');
+                });
+            } else {
+                $query->where(DB::raw('LOWER(TRIM(users.source))'), strtolower($source));
+            }
+        }
 
         return $query;
     }

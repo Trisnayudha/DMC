@@ -149,7 +149,8 @@ class HomeController extends Controller
         $joinedEventUsers = DB::table('users_event')->distinct('users_id')->count('users_id');
         $joinedEventPercent = $totalUsers > 0 ? round(($joinedEventUsers / $totalUsers) * 100) : 0;
 
-        $start = now()->copy()->startOfMonth()->subMonths(5);
+        $monthsToShow = max(5, now()->month - 1);
+        $start = now()->copy()->startOfMonth()->subMonths($monthsToShow);
         $end   = now()->copy()->endOfMonth();
 
         $raw = DB::table('users')
@@ -342,7 +343,8 @@ class HomeController extends Controller
     private function eventSectionData(): array
     {
         // ===== Registration Trend (Last 6 months, include this month) =====
-        $start = now()->copy()->startOfMonth()->subMonths(5);
+        $monthsToShow = max(5, now()->month - 1);
+        $start = now()->copy()->startOfMonth()->subMonths($monthsToShow);
         $end   = now()->copy()->endOfMonth();
 
         $raw = DB::table('users_event')

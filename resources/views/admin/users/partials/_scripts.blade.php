@@ -743,6 +743,7 @@
                         d.date_to       = '{{ request('date_to') }}';
                         d.month         = '{{ request('month') }}';
                         d.year          = '{{ request('year') }}';
+                        d.source        = '{{ request('source') }}';
                     }
                 },
                 dom: 'frtip',

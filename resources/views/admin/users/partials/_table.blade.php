@@ -174,6 +174,17 @@
                     </select>
                 </div>
                 <div class="form-group mr-2 mb-2">
+                    <label class="mb-1 small text-muted">Source</label>
+                    <select name="source" class="form-control form-control-sm">
+                        <option value="">All</option>
+                        @foreach ($sources as $key => $meta)
+                            <option value="{{ $key }}" {{ request('source') === $key ? 'selected' : '' }}>
+                                {{ $meta['label'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group mr-2 mb-2">
                     <label class="mb-1 small text-muted">&nbsp;</label>
                     <div>
                         <button type="submit" class="btn btn-sm btn-primary">
