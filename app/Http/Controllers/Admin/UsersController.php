@@ -443,13 +443,20 @@ class UsersController extends Controller
 
         if ($source) {
             if ($source === 'event') {
-                $query->where('users.source', 'like', 'event%');
+                $query->where(function ($q) {
+                    $q->where('users.source', 'like', 'event%')
+                      ->orWhere('users.source', 'like', 'e/%');
+                });
+            } elseif ($source === 'partner') {
+                $query->where('users.source', 'like', 'ep/%');
             } elseif ($source === 'other') {
                 $query->where(function ($q) {
                     $q->whereNull('users.source')
                         ->orWhere('users.source', '')
-                        ->orWhereNotIn(DB::raw('LOWER(TRIM(users.source))'), ['website', 'apps', 'scanner', 'linkedin', 'instagram'])
-                        ->where(DB::raw('LOWER(TRIM(users.source))'), 'not like', 'event%');
+                        ->orWhereNotIn(DB::raw('LOWER(TRIM(users.source))'), ['website', 'apps', 'scanner', 'linkedin', 'instagram', 'partner'])
+                        ->where(DB::raw('LOWER(TRIM(users.source))'), 'not like', 'event%')
+                        ->where(DB::raw('LOWER(TRIM(users.source))'), 'not like', 'e/%')
+                        ->where(DB::raw('LOWER(TRIM(users.source))'), 'not like', 'ep/%');
                 });
             } else {
                 $query->where(DB::raw('LOWER(TRIM(users.source))'), strtolower($source));
@@ -991,6 +998,7 @@ class UsersController extends Controller
             'linkedin'  => ['label' => 'LinkedIn', 'color' => '#0077b5', 'icon' => 'fab fa-linkedin-in'],
             'instagram' => ['label' => 'Instagram', 'color' => '#e1306c', 'icon' => 'fab fa-instagram'],
             'event'     => ['label' => 'Event', 'color' => '#f6a92f', 'icon' => 'fas fa-calendar-alt'],
+            'partner'   => ['label' => 'Partner', 'color' => '#36b9cc', 'icon' => 'fas fa-handshake'],
             'other'     => ['label' => 'Other', 'color' => '#6f42c1', 'icon' => 'fas fa-ellipsis-h'],
         ];
     }
@@ -1009,11 +1017,15 @@ class UsersController extends Controller
             return 'other';
         }
 
-        $map = $this->sourceColorMap();
-        if (!isset($map[$key]) && strpos($key, 'event') === 0) {
-            $key = 'event';
+        if (strpos($key, 'ep/') === 0) {
+            return 'partner';
         }
 
+        if (strpos($key, 'e/') === 0 || strpos($key, 'event') === 0) {
+            return 'event';
+        }
+
+        $map = $this->sourceColorMap();
         return isset($map[$key]) ? $key : 'other';
     }
 
