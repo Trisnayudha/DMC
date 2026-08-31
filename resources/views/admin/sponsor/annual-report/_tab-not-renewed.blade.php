@@ -11,6 +11,7 @@
                                         <th style="min-width:190px;">Last Period</th>
                                         <th style="min-width:200px;">PIC Contact</th>
                                         <th>Reason / Notes</th>
+                                        <th style="width:60px;">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -28,6 +29,10 @@
                                             [$ey,$em] = explode('-', $n->contract_end);
                                             $period = ($months[$sm] ?? $sm).' '.$sy.' – '.($months[$em] ?? $em).' '.$ey;
                                         }
+                                        // Default periode kontrak baru kalau sponsor ini di-reactivate: mulai
+                                        // bulan berjalan, 12 bulan — tetap bisa diubah admin di modal.
+                                        $reactivateStart = \Carbon\Carbon::now()->format('Y-m');
+                                        $reactivateEnd   = \Carbon\Carbon::now()->addMonths(11)->format('Y-m');
                                     @endphp
                                     <tr>
                                         <td style="padding:12px 16px; color:#888;">{{ $i+1 }}</td>
@@ -59,10 +64,21 @@
                                                 <span class="text-muted" style="font-style:italic;">No notes recorded</span>
                                             @endif
                                         </td>
+                                        <td style="padding:12px 16px;">
+                                            <button class="btn btn-sm btn-success action-icon-btn update-contract-btn"
+                                                data-sponsor-id="{{ $n->sponsor_id }}"
+                                                data-contract-start="{{ $reactivateStart }}"
+                                                data-contract-end="{{ $reactivateEnd }}"
+                                                data-package="{{ $n->package }}"
+                                                data-renewal-type="new"
+                                                data-toggle="tooltip" title="Reactivate Sponsor / Confirm New Contract">
+                                                <i class="fas fa-redo-alt"></i>
+                                            </button>
+                                        </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-5 text-muted">
+                                        <td colspan="7" class="text-center py-5 text-muted">
                                             <i class="fas fa-inbox fa-2x mb-3 d-block" style="opacity:.3;"></i>
                                             No sponsors marked as not renewed for {{ $year }}.
                                         </td>

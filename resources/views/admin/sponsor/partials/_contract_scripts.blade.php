@@ -76,7 +76,7 @@
             $('#modalContractStart').val($(this).data('contract-start'));
             $('#modalContractEnd').val($(this).data('contract-end'));
             $('#modalPackage').val($(this).data('package') || 'silver');
-            $('#modalRenewalType').val('renewal');
+            $('#modalRenewalType').val($(this).data('renewal-type') || 'renewal');
             $('#modalAmountUsd').val('');
             $('#modalAmountIdr').val('');
             $('#modalAmountIdrDisplay').val('');

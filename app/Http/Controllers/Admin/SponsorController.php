@@ -620,8 +620,8 @@ class SponsorController extends Controller
             'kmk_rate'          => 'nullable|integer|min:1',
             'notes'             => 'nullable|string|max:1000',
             'quotation_number'  => 'nullable|string|max:30|unique:sponsor_renewals,quotation_number',
-            'invoice_date'      => 'required|date',
-            'invoice_number'    => 'required|string|max:30|unique:sponsor_renewals,invoice_number',
+            'invoice_date'      => 'nullable|date',
+            'invoice_number'    => 'nullable|string|max:30|unique:sponsor_renewals,invoice_number',
             'paid_date'         => 'nullable|date|after_or_equal:invoice_date',
         ]);
 
@@ -666,6 +666,10 @@ class SponsorController extends Controller
             $sponsor->contract_start = $validated['contract_start'];
             $sponsor->contract_end   = $validated['contract_end'];
             $sponsor->package        = $validated['package'];
+            // Republish otomatis — menutupi kasus reaktivasi sponsor yang sebelumnya
+            // di-auto-draft oleh markNotRenewed(). No-op untuk sponsor yang memang
+            // sudah publish (renewal biasa).
+            $sponsor->status         = 'publish';
             $sponsor->save();
         });
 

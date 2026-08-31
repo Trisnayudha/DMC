@@ -106,15 +106,20 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Invoice Date <span class="text-danger">*</span></label>
-                                <input type="date" name="invoice_date" id="modalInvoiceDate" class="form-control" required>
+                                <label>Invoice Date
+                                    <small class="text-muted font-weight-normal">(optional)</small>
+                                </label>
+                                <input type="date" name="invoice_date" id="modalInvoiceDate" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Invoice Number <span class="text-danger">*</span></label>
+                                <label>Invoice Number
+                                    <small class="text-muted font-weight-normal">(optional)</small>
+                                </label>
                                 <input type="text" name="invoice_number" id="modalInvoiceNumber"
                                     class="form-control" placeholder="e.g. INV/2026/07/014" style="font-family:monospace;">
+                                <small class="text-muted">Invoice not issued yet? Leave blank — it can be filled in later via Contract History.</small>
                             </div>
                         </div>
                         <div class="col-md-4">
