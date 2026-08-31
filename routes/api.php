@@ -37,6 +37,7 @@ use App\Http\Controllers\API_WEB\ProfileController;
 use App\Http\Controllers\API_WEB\SponsorAdvertisementApiController;
 use App\Http\Controllers\API\ProgramController as API_WEBProgramController;
 use App\Http\Controllers\API_WEB\MemberDirectoryController;
+use App\Http\Controllers\API\MemberSourceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -186,6 +187,7 @@ Route::post('/registration-report', [PublicController::class, 'registrationRepor
 Route::post('home/statistic', [API_WEBHomeController::class, 'statistic']);
 
 Route::prefix('web')->group(function () {
+    Route::get('member-source/check', [MemberSourceController::class, 'check']);
 
     Route::post('/signin-phone', [API_WEBAuthController::class, 'signin_phone']);
     Route::any('request_otp', [API_WEBAuthController::class, 'requestOtp']);

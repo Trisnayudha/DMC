@@ -22,5 +22,6 @@ class DatabaseSeeder extends Seeder
         // $this->call(BenefitSeeder::class);
         // $this->call(PackageBenefitSeeder::class);
         // $this->call(SponsorBenefitUsageSeeder::class);
+        $this->call(MemberSourceSeeder::class);
     }
 }
