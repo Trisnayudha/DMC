@@ -15,6 +15,36 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="editRenewalId" value="">
+
+                    {{-- Referensi read-only: renewal form (proposal) terakhir yang pernah
+                         di-generate untuk sponsor ini. Nilainya TIDAK otomatis mengisi field
+                         di bawah — cuma buat cross-check, karena form bisa saja dibuat untuk
+                         cycle tahun berikutnya, bukan kontrak yang lagi diedit ini. --}}
+                    <div id="editRenewalFormRef" class="alert alert-light border" style="display:none;font-size:12.5px;">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap">
+                            <div>
+                                <strong><i class="fas fa-file-alt mr-1 text-primary"></i>Renewal form on file:</strong>
+                                <span id="editRenewalFormRefNumber" class="font-weight-700"></span>
+                                <span class="text-muted">· generated <span id="editRenewalFormRefDate"></span></span>
+                                <div class="text-muted mt-1">
+                                    KMK: <span id="editRenewalFormRefKmk"></span>
+                                    &nbsp;·&nbsp; Value: <span id="editRenewalFormRefAmount"></span>
+                                </div>
+                                <div id="editRenewalFormRefNotesWrap" class="text-muted mt-1" style="display:none;">
+                                    Notes: <span id="editRenewalFormRefNotes"></span>
+                                </div>
+                            </div>
+                            <div class="text-right" style="white-space:nowrap;">
+                                <a href="#" id="editRenewalFormRefLink" target="_blank" class="btn btn-sm btn-outline-secondary mb-1">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <button type="button" id="editRenewalFormRefUseBtn" class="btn btn-sm btn-outline-primary mb-1">
+                                    <i class="fas fa-arrow-down"></i> Use as Quotation No.
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">

@@ -35,7 +35,44 @@
             $('#editPaidDate').val($btn.attr('data-paid-date') || '');
             $('#editNotes').val($btn.attr('data-notes') || '');
             toggleEditRenewedFields($btn.attr('data-status'));
+            $('#editRenewalFormRef').hide();
             $('#editRenewalModal').modal('show');
+
+            // Referensi: renewal form (proposal) terakhir yang pernah di-generate untuk
+            // sponsor ini, kalau ada. Ditampilkan apa adanya (read-only) — field di atas
+            // TIDAK auto-diisi dari sini, supaya nggak menimpa data kontrak historis yang
+            // sudah benar. "Use as Quotation No." tersedia buat yang mau nyalin manual.
+            var sponsorId = $btn.attr('data-sponsor-id');
+            if (sponsorId) {
+                $.get('/admin/sponsors/' + sponsorId + '/renewal-form/latest', function(res) {
+                    var f = res && res.form;
+                    if (!f) return;
+
+                    $('#editRenewalFormRefNumber').text(f.form_number || '—');
+                    $('#editRenewalFormRefDate').text(f.generated_at || '—');
+                    $('#editRenewalFormRefKmk').text(f.kmk_rate
+                        ? ('IDR ' + Number(f.kmk_rate).toLocaleString('id-ID') + '/USD' + (f.kmk_number ? ' (' + f.kmk_number + ')' : ''))
+                        : '—');
+
+                    var amountParts = [];
+                    if (f.amount_usd) amountParts.push('USD ' + Number(f.amount_usd).toLocaleString('id-ID'));
+                    if (f.amount_idr) amountParts.push('IDR ' + Number(f.amount_idr).toLocaleString('id-ID'));
+                    $('#editRenewalFormRefAmount').text(amountParts.length ? amountParts.join(' / ') : '—');
+
+                    if (f.notes) {
+                        $('#editRenewalFormRefNotes').text(f.notes);
+                        $('#editRenewalFormRefNotesWrap').show();
+                    } else {
+                        $('#editRenewalFormRefNotesWrap').hide();
+                    }
+
+                    $('#editRenewalFormRefLink').attr('href', '/admin/sponsors/' + sponsorId + '/renewal-form/preview');
+                    $('#editRenewalFormRefUseBtn').off('click').on('click', function() {
+                        $('#editQuotationNumber').val(f.form_number || '');
+                    });
+                    $('#editRenewalFormRef').show();
+                });
+            }
         });
 
         // Submit Edit

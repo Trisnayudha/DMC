@@ -20,6 +20,11 @@
                 $passedUnresolved = $expiryForecast
                     ->filter(fn ($g, $m) => $m < $firstUpcomingMonth)
                     ->sum(fn ($g) => $g->where('followup_status', 'pending')->count());
+
+                // Card yang otomatis terbuka saat halaman dimuat: bulan berjalan kalau
+                // report ini untuk tahun sekarang, kalau bukan (tahun lalu/depan) fallback
+                // ke peak month seperti sebelumnya.
+                $defaultOpenMonth = ($year == now()->year) ? $firstUpcomingMonth : $peakExpiryMonth;
             @endphp
 
             <div class="card" id="priorityContracts" style="border-top: 3px solid #f39c12;">
@@ -65,10 +70,11 @@
                             $mCount = $expiryForecast->has($m) ? $expiryForecast->get($m)->count() : 0;
                             $isPeak = ($m == $peakExpiryMonth);
                             $intensity = $mCount > 0 ? min(100, round($mCount / $maxExpiry * 100)) : 0;
+                            // Warna solid oranye dipakai khusus buat nandain tab bulan yang lagi
+                            // dibuka (lihat setBoxActive di JS) — peak month cukup dikasih label
+                            // "PEAK" kecil, background-nya tetap ngikutin tier intensity biasa.
                             if ($mCount == 0) {
                                 $bg = '#f8f9fa'; $textColor = '#bbb'; $border = '#e9ecef';
-                            } elseif ($isPeak) {
-                                $bg = '#f39c12'; $textColor = '#fff'; $border = '#e67e22';
                             } elseif ($intensity >= 70) {
                                 $bg = '#fde3aa'; $textColor = '#8a4a00'; $border = '#f39c12';
                             } elseif ($intensity >= 40) {
@@ -82,11 +88,12 @@
                                  onclick="selectMonth({{ $m }})"
                                  onmouseenter="this.style.transform='translateY(-2px)'"
                                  onmouseleave="this.style.transform=''"
+                                 data-bg="{{ $bg }}" data-border="{{ $border }}" data-color="{{ $textColor }}"
                                  style="background:{{ $bg }};border:2px solid {{ $border }};border-radius:8px;text-align:center;padding:10px 4px;cursor:pointer;transition:transform .15s,box-shadow .15s;">
                                 <div style="font-size:10px;font-weight:600;color:{{ $textColor }};letter-spacing:.3px;text-transform:uppercase;">{{ $monthShort[$m] }}</div>
                                 <div style="font-size:20px;font-weight:800;color:{{ $textColor }};line-height:1.2;margin:2px 0;">{{ $mCount > 0 ? $mCount : '0' }}</div>
                                 @if($isPeak)
-                                    <div style="font-size:9px;color:#fff;background:#e67e22;border-radius:4px;padding:1px 5px;display:inline-block;margin-top:2px;font-weight:700;">PEAK</div>
+                                    <div class="peak-badge" style="font-size:9px;color:#fff;background:#e67e22;border-radius:4px;padding:1px 5px;display:inline-block;margin-top:2px;font-weight:700;">PEAK</div>
                                 @else
                                     <div style="font-size:9px;color:{{ $textColor }};opacity:.6;">contract{{ $mCount != 1 ? 's' : '' }}</div>
                                 @endif
@@ -331,8 +338,16 @@
                                                 @include('admin.sponsor.annual-report._edit-contract-btn', ['r' => $er])
                                             </div>
                                         @else
+                                            {{-- Kontrak ini sudah expired dan followup_status-nya bukan pending
+                                                 lagi — datanya (quotation/invoice/paid) ada di record baru
+                                                 (followup_record), bukan di record yang lagi expiring ini. Edit
+                                                 diarahkan ke situ supaya nggak nyunting record lama yang sudah
+                                                 nggak relevan / kosong. --}}
                                             <div class="d-flex" style="gap:4px;">
-                                                @include('admin.sponsor.annual-report._edit-contract-btn', ['r' => $er])
+                                                @include('admin.sponsor.annual-report._edit-contract-btn', [
+                                                    'r' => $er->followup_record ?? $er,
+                                                    'isSuccessor' => (bool) $er->followup_record,
+                                                ])
                                             </div>
                                         @endif
                                     </td>
@@ -396,26 +411,37 @@
         }
     }
 
+    // Active box (bulan yang sedang ditampilkan di bawah) dikasih solid oranye —
+    // satu-satunya penanda oranye di strip ini, jadi nggak ketuker sama badge kecil
+    // "PEAK" di bulan terpadat.
     function setBoxActive(monthNum) {
         var box = document.getElementById('monthBox' + monthNum);
         if (box) {
-            box.style.boxShadow = '0 0 0 3px #f39c12, 0 4px 12px rgba(243,156,18,.35)';
+            box.style.background = '#f39c12';
+            box.style.border = '2px solid #e67e22';
+            box.style.boxShadow = '0 0 0 3px rgba(243,156,18,.35), 0 4px 12px rgba(243,156,18,.35)';
             box.style.transform = 'translateY(-3px)';
+            box.querySelectorAll(':scope > div').forEach(function (d) { d.style.color = '#fff'; });
         }
     }
 
     function resetBoxStyle(monthNum) {
         var box = document.getElementById('monthBox' + monthNum);
         if (box) {
+            box.style.background = box.dataset.bg;
+            box.style.border = '2px solid ' + box.dataset.border;
             box.style.boxShadow = '';
             box.style.transform = '';
+            box.querySelectorAll(':scope > div').forEach(function (d) {
+                if (!d.classList.contains('peak-badge')) d.style.color = box.dataset.color;
+            });
         }
     }
 
-    // Auto-open peak month on load
+    // Auto-open current month on load (or peak month for non-current years)
     @if($peakExpiryMonth)
     document.addEventListener('DOMContentLoaded', function() {
-        selectMonth({{ $peakExpiryMonth }});
+        selectMonth({{ $defaultOpenMonth }});
     });
     @endif
 </script>

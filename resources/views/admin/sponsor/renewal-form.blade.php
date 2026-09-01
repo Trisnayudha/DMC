@@ -17,7 +17,7 @@
         min-height: 297mm;
         margin: 0 auto;
         background: #fff;
-        padding: 18mm 16mm;
+        padding: 16mm 9mm;
         box-sizing: border-box;
         box-shadow: 0 2px 16px rgba(0,0,0,.18);
     }
@@ -83,7 +83,7 @@
     .title-sub  { font-size: 13px; letter-spacing: .5px; }
 
     /* MAIN TABLE */
-    .custom-table { width: 100%; border-collapse: collapse; font-size: 11.5px; line-height: 1.4; }
+    .custom-table { width: 100%; border-collapse: collapse; font-size: 10.5px; line-height: 1.3; }
     .custom-table th,
     .custom-table td { border: 1px solid #000; padding: 6px 8px; }
     .custom-table th {
@@ -96,11 +96,10 @@
     .text-center  { text-align: center; }
     .val-middle   { vertical-align: middle; }
     .font-bold    { font-weight: bold; }
-    .desc-cell    { vertical-align: top; padding: 8px 10px; }
+    .desc-cell    { vertical-align: top; padding: 6px 8px; }
     .desc-main-title { font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
-    .item-title   { font-weight: bold; margin-top: 6px; margin-bottom: 2px; }
+    .item-title   { font-weight: bold; margin-top: 5px; margin-bottom: 2px; }
     .item-sub     { padding-left: 2px; margin-bottom: 1px; }
-    .item-sub-note { padding-left: 10px; font-size: 11px; margin-bottom: 2px; }
     .currency-flex {
         display: flex;
         justify-content: space-between;
@@ -128,7 +127,7 @@
 
     @media print {
         body { background: #fff; padding: 0; }
-        .page-container { box-shadow: none; padding: 20px; width: 100%; }
+        .page-container { box-shadow: none; padding: 16mm 9mm; width: 100%; }
     }
 </style>
 </head>
@@ -167,7 +166,9 @@
     if ($renewal && $renewal->contract_start && $renewal->contract_end) {
         [$sy, $sm] = explode('-', $renewal->contract_start);
         [$ey, $em] = explode('-', $renewal->contract_end);
-        $periodLabel = ($monthNames[$sm] ?? $sm) . ' ' . $sy . '<br>' . ($monthNames[$em] ?? $em) . ' ' . $ey;
+        // Satu paragraf, wrap alami — muat 1 baris kalau kolomnya cukup lebar (kaya
+        // referensi invoice lama), pecah sendiri ke baris ke-2 kalau kepanjangan.
+        $periodLabel = ($monthNames[$sm] ?? $sm) . ' ' . $sy . ' - ' . ($monthNames[$em] ?? $em) . ' ' . $ey;
     }
 
     $packageLabel = strtoupper($sponsor->package ?? 'GOLD');
@@ -252,7 +253,7 @@
         </thead>
         <tbody>
             <tr>
-                <td class="text-center val-middle font-bold">{!! $periodLabel !!}</td>
+                <td class="text-center val-middle font-bold">{{ $periodLabel }}</td>
                 <td class="desc-cell">
                     <div class="desc-main-title">{{ $pkgDisplay }} SPONSOR OF DJAKARTA MINING CLUB</div>
 
@@ -260,15 +261,14 @@
                     @foreach($packageBenefits as $category => $items)
                         <div class="item-title">{{ $catIndex }}. {{ $category }}</div>
                         @foreach($items as $pb)
+                            {{-- Semua info nempel di satu paragraf (bukan div terpisah per baris)
+                                 biar teksnya wrap alami sesuai lebar kolom, sepadat referensi
+                                 invoice lama — bukan dipaksa baris baru tiap ada catatan. --}}
                             <div class="item-sub">- {{ $pb->benefit->name }}
-                                @if($pb->quantity > 1)({{ $pb->quantity }}x)@endif
+                                @if($pb->quantity > 1) ({{ $pb->quantity }}x)@endif
+                                @if($pb->additional_info) ({{ $pb->additional_info }})@endif
+                                @if($pb->benefit->description) ({{ $pb->benefit->description }})@endif
                             </div>
-                            @if($pb->additional_info)
-                                <div class="item-sub-note">{{ $pb->additional_info }}</div>
-                            @endif
-                            @if($pb->benefit->description)
-                                <div class="item-sub-note">{{ $pb->benefit->description }}</div>
-                            @endif
                         @endforeach
                         @php $catIndex++; @endphp
                     @endforeach

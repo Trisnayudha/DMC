@@ -110,16 +110,23 @@ class SponsorRenewalFormController extends Controller
     }
 
     /**
-     * Renewal form yang sudah di-generate untuk sponsor + tahun tertentu — dipakai
-     * untuk auto-prefill modal Update Contract (KMK, amount, quotation) supaya admin
-     * tidak perlu input ulang. Nilai tetap bisa diedit (mis. bila ada penggantian).
+     * Renewal form yang sudah di-generate untuk sponsor ini — dipakai untuk
+     * auto-prefill modal Update Contract (KMK, amount, quotation) supaya admin
+     * tidak perlu input ulang, dan juga ditampilkan sebagai referensi read-only
+     * di modal Edit Contract Record (Contract History / Annual Report).
+     *
+     * Kalau `year` dikirim (dipakai modal Update Contract, selalu tahun berjalan),
+     * dibatasi ke renewal_year itu. Kalau tidak dikirim, ambil form paling baru
+     * apa pun tahunnya — supaya form yang baru di-generate tetap kelihatan
+     * meski belum ada kontrak renewed untuk cycle tahun itu.
      */
     public function latest(Request $request, int $sponsorId)
     {
-        $year = (int) $request->get('year', now()->year);
+        $year = $request->filled('year') ? (int) $request->get('year') : null;
 
         $form = SponsorRenewalForm::where('sponsor_id', $sponsorId)
-            ->where('renewal_year', $year)
+            ->when($year, fn ($q) => $q->where('renewal_year', $year))
+            ->orderByDesc('renewal_year')
             ->orderByDesc('generated_at')
             ->orderByDesc('id')
             ->first();
@@ -131,12 +138,14 @@ class SponsorRenewalFormController extends Controller
         return response()->json([
             'success' => true,
             'form'    => [
-                'form_number' => $form->form_number,
-                'kmk_rate'    => $form->kmk_rate,
-                'kmk_number'  => $form->kmk_number,
-                'amount_usd'  => $form->amount_usd,
-                'amount_idr'  => $form->amount_idr,
-                'notes'       => $form->notes,
+                'renewal_year' => $form->renewal_year,
+                'form_number'  => $form->form_number,
+                'kmk_rate'     => $form->kmk_rate,
+                'kmk_number'   => $form->kmk_number,
+                'amount_usd'   => $form->amount_usd,
+                'amount_idr'   => $form->amount_idr,
+                'notes'        => $form->notes,
+                'generated_at' => $form->generated_at ? $form->generated_at->format('d M Y') : null,
             ],
         ]);
     }

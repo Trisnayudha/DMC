@@ -98,6 +98,7 @@
                                     <td>
                                         <button type="button" class="btn btn-sm btn-outline-primary edit-renewal-btn"
                                             data-id="{{ $r->id }}"
+                                            data-sponsor-id="{{ $r->sponsor_id }}"
                                             data-sponsor-name="{{ $r->sponsor ? $r->sponsor->name : '—' }}"
                                             data-status="{{ $r->renewal_status }}"
                                             data-contract-start="{{ $r->contract_start }}"
