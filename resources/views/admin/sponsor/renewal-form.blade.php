@@ -34,13 +34,17 @@
         body.is-live-preview { padding: 0; background-color: #fff; }
         body.is-live-preview .page-container { box-shadow: none; }
     }
+    /* Lebar/tinggi dihitung sebagai content-box manual (210mm/297mm dikurangi
+       padding) alih-alih pakai box-sizing:border-box — dompdf (CSS 2.1) nggak
+       selalu patuh sama box-sizing, kalau kepeleset dianggap content-box beneran
+       maka padding numpuk di LUAR 210mm dan konten kepotong di tepi kertas
+       (kejadian kemarin). Math manual ini aman berapa pun dukungan dompdf-nya. */
     .page-container {
-        width: 210mm;
-        min-height: 297mm;
+        width: 192mm;  /* 210mm - 9mm kiri - 9mm kanan */
+        min-height: 265mm;  /* 297mm - 16mm atas - 16mm bawah */
         margin: 0 auto;
         background: #fff;
         padding: 16mm 9mm;
-        box-sizing: border-box;
     }
     /* Tombol aksi — hanya di layar (browser preview), tidak ikut ke PDF */
     .preview-toolbar {
@@ -77,30 +81,35 @@
     .logo-side img { max-height: 60px; width: auto; display: block; }
     .address-side { width: 60%; text-align: right; font-size: 10.5px; line-height: 1.3; }
     .comp-name { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
-    .header-divider { border: none; border-top: 2px solid #000; margin: 0 0 20px 0; }
+    .header-divider { border: none; border-top: 2px solid #000; margin: 0 0 12px 0; }
 
     /* SUB-HEADER */
-    .sub-header-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+    .sub-header-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
     .sub-header-table td { border: none; padding: 0; vertical-align: top; }
     .meta-side { width: 58%; padding-right: 20px; }
     .meta-table { width: 100%; border-collapse: collapse; font-size: 11.5px; line-height: 1.4; }
     .sub-header-table .meta-table td { padding: 2px 0; vertical-align: top; }
     .meta-table td:first-child { width: 120px; color: #000; }
     .title-box-side { width: 42%; }
+    /* Nggak dikasih width:100% + box-sizing — div block polos (width:auto) udah
+       otomatis ngisi penuh sel induknya termasuk border+padding-nya, tanpa
+       gantung ke box-sizing sama sekali. */
     .orange-title-box {
         background-color: #fdb813;
         border: 2px solid #000;
-        width: 100%;
         padding: 10px;
         text-align: center;
         font-weight: bold;
-        box-sizing: border-box;
     }
     .title-main { font-size: 15px; margin-bottom: 4px; letter-spacing: .5px; }
     .title-sub  { font-size: 13px; letter-spacing: .5px; }
 
     /* MAIN TABLE */
-    .custom-table { width: 100%; border-collapse: collapse; font-size: 10.5px; line-height: 1.3; }
+    /* table-layout:fixed — lebar kolom (15/50/15/20%) WAJIB dipatuhi persis, bukan
+       cuma saran; tanpa ini dompdf bisa nyoba nge-lebarin kolom TOTAL ngikutin
+       konten (nested currency-table di dalamnya), dorong dia kepotong di tepi
+       kertas kayak yang kejadian kemarin. */
+    .custom-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 10.5px; line-height: 1.3; }
     .custom-table th,
     .custom-table td { border: 1px solid #000; padding: 6px 8px; }
     .custom-table th {
@@ -120,13 +129,14 @@
     /* Selector diawali .custom-table biar specificity-nya ngalahin ".custom-table td"
        di atas, nggak gantung ke urutan aturan CSS (nested table ini duduk di dalam
        sel .custom-table, jadi kena juga selector induknya kalau nggak dikalahin). */
-    .custom-table .currency-table { width: 100%; border-collapse: collapse; }
+    .custom-table .currency-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
     .custom-table .currency-table td { border: none; padding: 0 4px; }
     .custom-table .currency-table td:last-child { text-align: right; }
     .bg-dark { background-color: #4a4a4a; color: #fff; font-weight: bold; text-align: center; }
 
-    /* FOOTER */
-    .footer-section { margin-top: 25px; }
+    /* FOOTER — spacing dirapetin (25→14, 50→18, 75→40px) biar baris "Approved by"
+       nggak nyempil sendirian ke halaman 2, masih cukup ruang buat tanda tangan. */
+    .footer-section { margin-top: 14px; }
     .footer-section::after { content: ""; display: table; clear: both; }
     .notes-block {
         float: left;
@@ -136,8 +146,8 @@
         line-height: 1.5;
     }
     .notes-title { font-weight: bold; margin-bottom: 4px; }
-    .approval-block { float: right; width: 320px; text-align: center; margin-top: 50px; }
-    .approved-text { font-style: italic; font-size: 12px; margin-bottom: 75px; }
+    .approval-block { float: right; width: 320px; text-align: center; margin-top: 18px; }
+    .approved-text { font-style: italic; font-size: 12px; margin-bottom: 40px; }
     .signature-line { border-top: 1px solid #000; padding-top: 5px; font-size: 12px; }
 </style>
 </head>
