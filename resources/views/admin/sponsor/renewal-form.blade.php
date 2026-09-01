@@ -5,12 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Renewal Form – {{ $sponsor->name }}</title>
 <style>
+    /* dompdf punya default page margin bawaan 1.2cm (lib/res/html.css) yang nggak
+       kepakai di sini — .page-container sudah punya padding sendiri buat itu.
+       Kalau dibiarin default, lebar yang diminta (body padding + page-container
+       210mm) lebih gede dari area cetak yang tersisa → kolom paling kanan
+       (TOTAL) kepotong/ilang di hasil Download PDF. Wajib di-nol-in eksplisit,
+       di luar media query — dompdf render semuanya sebagai media "screen"
+       (config/dompdf.php: default_media_type), jadi @media print TIDAK PERNAH
+       kepakai buat PDF, cuma buat Ctrl+P beneran dari browser. */
+    @page { margin: 0; }
     body {
         font-family: Arial, Helvetica, sans-serif;
         margin: 0;
+        padding: 0;
+        background-color: #fff;
+        color: #000;
+    }
+    /* Efek "halaman mengambang" di atas latar abu-abu — khusus live preview di
+       browser (class ditambahin lewat JS di bawah). dompdf nggak eksekusi JS,
+       jadi hasil PDF selalu pakai body polos di atas: nggak ada resiko lebar
+       body-padding + page-container nabrak batas kertas. */
+    body.is-live-preview {
         padding: 40px 20px;
         background-color: #e9ecef;
-        color: #000;
+    }
+    body.is-live-preview .page-container { box-shadow: 0 2px 16px rgba(0,0,0,.18); }
+    @media print {
+        body.is-live-preview { padding: 0; background-color: #fff; }
+        body.is-live-preview .page-container { box-shadow: none; }
     }
     .page-container {
         width: 210mm;
@@ -19,7 +41,6 @@
         background: #fff;
         padding: 16mm 9mm;
         box-sizing: border-box;
-        box-shadow: 0 2px 16px rgba(0,0,0,.18);
     }
     /* Tombol aksi — hanya di layar (browser preview), tidak ikut ke PDF */
     .preview-toolbar {
@@ -118,14 +139,16 @@
     .approval-block { float: right; width: 320px; text-align: center; margin-top: 50px; }
     .approved-text { font-style: italic; font-size: 12px; margin-bottom: 75px; }
     .signature-line { border-top: 1px solid #000; padding-top: 5px; font-size: 12px; }
-
-    @media print {
-        body { background: #fff; padding: 0; }
-        .page-container { box-shadow: none; padding: 16mm 9mm; width: 100%; }
-    }
 </style>
 </head>
 <body>
+<script>
+    // dompdf nggak eksekusi JS sama sekali, jadi class ini CUMA nempel pas dibuka
+    // beneran di browser (preview) — nentuin efek "halaman mengambang" abu-abu
+    // di atas. Diletakkan di awal body & synchronous biar kepasang sebelum paint,
+    // nggak sempat keliatan flash body polos dulu.
+    document.body.classList.add('is-live-preview');
+</script>
 @php
     $pic = $sponsor->firstPic;
 
