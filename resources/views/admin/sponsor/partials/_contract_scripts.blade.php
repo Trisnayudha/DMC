@@ -259,6 +259,7 @@
                 $('#rfAmountIdr').val('');
                 $('#rfAmountIdrDisplay').val('');
             }
+            rfUpdateVatPreview();
         }
         function rfAutoFillIdr() {
             var usd  = parseFloat($('#rfAmountUsd').val());
@@ -267,17 +268,42 @@
                 rfSetIdr(usd * rate);
             }
         }
-        $('#rfAmountUsd').on('input', rfAutoFillIdr);
+
+        // Live preview Grand Total di modal ini sendiri — biar keliatan langsung
+        // begitu VAT dipilih, nggak perlu submit dulu baru buka PDF buat ngecek.
+        // Sembunyi total kalau VAT-nya 0% (default) atau belum ada nominal sama sekali.
+        function rfUpdateVatPreview() {
+            var vat = parseFloat($('#rfVatPercent').val());
+            var usd = parseFloat($('#rfAmountUsd').val());
+            var idr = parseFloat($('#rfAmountIdr').val());
+            if (!vat || vat <= 0 || (isNaN(usd) && isNaN(idr))) {
+                $('#rfVatPreview').hide();
+                return;
+            }
+            var parts = [];
+            if (!isNaN(idr) && idr > 0) parts.push('IDR ' + Math.round(idr * (1 + vat / 100)).toLocaleString('id-ID'));
+            if (!isNaN(usd) && usd > 0) parts.push('USD ' + Math.round(usd * (1 + vat / 100)).toLocaleString('id-ID'));
+            if (!parts.length) {
+                $('#rfVatPreview').hide();
+                return;
+            }
+            $('#rfVatPreview').text('Grand Total (incl. ' + vat + '% VAT): ' + parts.join(' · ')).show();
+        }
+
+        $('#rfAmountUsd').on('input', function() { rfAutoFillIdr(); rfUpdateVatPreview(); });
         $('#rfKmkRate').on('input', rfAutoFillIdr);
+        $('#rfVatPercent').on('change', rfUpdateVatPreview);
         $('#rfAmountIdrDisplay').on('input', function() {
             var raw = $(this).val().replace(/\./g, '').replace(/,/g, '');
             $('#rfAmountIdr').val(raw);
+            rfUpdateVatPreview();
         }).on('blur', function() {
             var raw = $(this).val().replace(/\./g, '').replace(/,/g, '');
             var num = parseInt(raw, 10);
             if (!isNaN(num) && num > 0) {
                 $(this).val(num.toLocaleString('id-ID'));
                 $('#rfAmountIdr').val(num);
+                rfUpdateVatPreview();
             }
         });
 
@@ -335,6 +361,8 @@
             $('#rfAmountIdr').val('');
             $('#rfAmountIdrDisplay').val('');
             $('#rfKmkNumber').val('');
+            $('#rfVatPercent').val('0');
+            $('#rfVatPreview').hide();
             $('#rfGeneratedAt').val(new Date().toISOString().slice(0, 10));
             $('#rfNotes').val('');
             fillPicFields();
@@ -362,6 +390,8 @@
             $('#rfAmountUsd').val(form.amount_usd || '');
             rfSetIdr(form.amount_idr || '');
             $('#rfUsdHint').text('');
+            $('#rfVatPercent').val(form.vat_percent ? String(parseInt(form.vat_percent, 10)) : '0');
+            rfUpdateVatPreview(); // rfSetIdr() di atas jalan sebelum VAT ke-set, refresh manual
             $('#rfNotes').val(form.notes || '');
             fillPicFields();
             $('#rfSubmitBtn').html('<i class="fas fa-save mr-1"></i> Update Renewal Form');
@@ -380,6 +410,9 @@
             if (form.amount_usd) amt.push('USD ' + Number(form.amount_usd).toLocaleString('id-ID'));
             if (form.amount_idr) amt.push('IDR ' + Number(form.amount_idr).toLocaleString('id-ID'));
             $('#rfGenAmount').text(amt.length ? 'Value: ' + amt.join(' · ') : '');
+            // VAT cuma ditampilin kalau memang diisi (> 0%) — defaultnya nggak kena VAT.
+            var vat = parseFloat(form.vat_percent);
+            $('#rfGenVat').text(vat > 0 ? (amt.length ? ' · ' : '') + 'VAT ' + vat + '%' : '');
             $('#rfPreviewBtn').attr('href', '/admin/sponsors/' + sponsorId + '/renewal-form/preview');
         }
 
@@ -504,6 +537,7 @@
                     kmk_number:   $('#rfKmkNumber').val(),
                     amount_usd:   $('#rfAmountUsd').val(),
                     amount_idr:   $('#rfAmountIdr').val(),
+                    vat_percent:  $('#rfVatPercent').val(),
                     generated_at: $('#rfGeneratedAt').val(),
                     pic_name:     $('#rfPicName').val(),
                     pic_title:    $('#rfPicTitle').val(),

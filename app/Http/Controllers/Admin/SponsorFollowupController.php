@@ -50,6 +50,7 @@ class SponsorFollowupController extends Controller
                 'kmk_number'       => $rf->kmk_number,
                 'amount_usd'       => $rf->amount_usd,
                 'amount_idr'       => $rf->amount_idr,
+                'vat_percent'      => $rf->vat_percent,
                 'notes'            => $rf->notes,
                 'generated_at'     => $rf->generated_at ? $rf->generated_at->format('d M Y') : null,
                 'generated_at_iso' => $rf->generated_at ? $rf->generated_at->format('Y-m-d') : null,

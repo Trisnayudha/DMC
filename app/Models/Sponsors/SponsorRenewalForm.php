@@ -21,6 +21,7 @@ class SponsorRenewalForm extends Model
         'kmk_number',
         'amount_usd',
         'amount_idr',
+        'vat_percent',
         'notes',
         'generated_at',
         'created_by',

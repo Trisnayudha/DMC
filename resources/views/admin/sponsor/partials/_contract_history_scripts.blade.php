@@ -59,6 +59,10 @@
                     if (f.amount_idr) amountParts.push('IDR ' + Number(f.amount_idr).toLocaleString('id-ID'));
                     $('#editRenewalFormRefAmount').text(amountParts.length ? amountParts.join(' / ') : '—');
 
+                    // VAT cuma diinfoin kalau memang diisi (> 0%) — default nggak kena VAT.
+                    var vat = parseFloat(f.vat_percent);
+                    $('#editRenewalFormRefVat').text(vat > 0 ? ' · VAT ' + vat + '%' : '');
+
                     if (f.notes) {
                         $('#editRenewalFormRefNotes').text(f.notes);
                         $('#editRenewalFormRefNotesWrap').show();

@@ -144,6 +144,7 @@ class SponsorRenewalFormController extends Controller
                 'kmk_number'   => $form->kmk_number,
                 'amount_usd'   => $form->amount_usd,
                 'amount_idr'   => $form->amount_idr,
+                'vat_percent'  => $form->vat_percent,
                 'notes'        => $form->notes,
                 'generated_at' => $form->generated_at ? $form->generated_at->format('d M Y') : null,
             ],
@@ -209,6 +210,11 @@ class SponsorRenewalFormController extends Controller
             'kmk_number'   => 'required|string|max:50',
             'amount_usd'   => 'nullable|numeric|min:0',
             'amount_idr'   => 'nullable|numeric|min:0',
+            // Optional — tim finance yang nentuin company mana yang kena VAT. Dropdown
+            // di UI cuma nawarin nilai yang valid (nggak ada input bebas/typo), validasi
+            // range di sini tetap dijaga longgar (0-100) biar nggak perlu redeploy kalau
+            // suatu saat ada tarif baru yang perlu ditambahkan ke dropdown.
+            'vat_percent'  => 'nullable|numeric|min:0|max:100',
             'notes'        => 'nullable|string|max:1000',
             'generated_at' => 'nullable|date',
             'pic_name'     => 'nullable|string|max:255',
@@ -244,6 +250,7 @@ class SponsorRenewalFormController extends Controller
                     'kmk_number'   => $validated['kmk_number'],
                     'amount_usd'   => $validated['amount_usd'] ?? null,
                     'amount_idr'   => $validated['amount_idr'] ?? null,
+                    'vat_percent'  => $validated['vat_percent'] ?? 0,
                     'notes'        => $validated['notes'] ?? null,
                     'generated_at' => $validated['generated_at'] ?? ($existing ? $existing->generated_at : now()->toDateString()),
                     'created_by'   => $existing ? $existing->created_by : auth()->id(),

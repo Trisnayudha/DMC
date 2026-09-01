@@ -189,6 +189,23 @@
                     ? $renewalForm->amount_idr
                     : ($renewal ? $renewal->amount_idr : null);
 
+    // VAT/PPN — optional, diisi tim finance lewat dropdown saat generate renewal
+    // form (default 0% = nggak kena VAT). Cuma ada di renewalForm, nggak ada
+    // fallback ke $renewal kontrak, karena field ini memang belum ada di sana.
+    $vatPercent = $renewalForm && $renewalForm->vat_percent ? (float) $renewalForm->vat_percent : 0;
+
+    // Total final (sebelum VAT) — sama persis kayak yang dihitung di baris
+    // "Total In USD"/"Total In IDR" di bawah, dipakai lagi buat Grand Total.
+    $totalUsd = $amountUsd ?: null;
+    $totalIdr = $amountIdr !== null && $amountIdr !== ''
+                    ? $amountIdr
+                    : (($amountUsd && $kursRate) ? $amountUsd * $kursRate : null);
+
+    $grandTotalUsd = ($vatPercent > 0 && $totalUsd !== null) ? $totalUsd * (1 + $vatPercent / 100) : null;
+    $grandTotalIdr = ($vatPercent > 0 && $totalIdr !== null) ? $totalIdr * (1 + $vatPercent / 100) : null;
+    // Nominal pajaknya doang (bukan grand total) — ditampilin di baris "VAT X%".
+    $vatAmountIdr  = ($vatPercent > 0 && $totalIdr !== null) ? $totalIdr * ($vatPercent / 100) : null;
+
     $periodLabel = '—';
     if ($renewal && $renewal->contract_start && $renewal->contract_end) {
         [$sy, $sm] = explode('-', $renewal->contract_start);
@@ -359,6 +376,41 @@
                     </tr></table>
                 </td>
             </tr>
+            {{-- VAT/Grand Total — cuma muncul kalau sponsor ini emang dikenakan VAT
+                 (vat_percent > 0 di renewal form-nya). Default 0% = baris ini nggak
+                 tampil sama sekali, Total In USD/IDR di atas sudah final. --}}
+            @if($vatPercent > 0)
+            <tr>
+                <td colspan="2" class="val-middle"></td>
+                <td class="bg-dark val-middle">VAT {{ rtrim(rtrim(number_format($vatPercent, 2, '.', ''), '0'), '.') }}%</td>
+                <td class="val-middle font-bold">
+                    <table class="currency-table"><tr>
+                        <td>IDR</td>
+                        <td>{{ $vatAmountIdr !== null ? number_format($vatAmountIdr, 0, '.', '.') : '—' }}</td>
+                    </tr></table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="val-middle"></td>
+                <td class="bg-dark val-middle">Grand Total IDR</td>
+                <td class="val-middle font-bold">
+                    <table class="currency-table"><tr>
+                        <td>IDR</td>
+                        <td>{{ $grandTotalIdr !== null ? number_format($grandTotalIdr, 0, '.', '.') : '—' }}</td>
+                    </tr></table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="val-middle"></td>
+                <td class="bg-dark val-middle">Grand Total USD</td>
+                <td class="val-middle font-bold">
+                    <table class="currency-table"><tr>
+                        <td>USD</td>
+                        <td>{{ $grandTotalUsd !== null ? number_format($grandTotalUsd, 0, '.', '.') : '—' }}</td>
+                    </tr></table>
+                </td>
+            </tr>
+            @endif
         </tbody>
     </table>
 
@@ -367,7 +419,11 @@
         <div class="notes-block">
             <div class="notes-title">Notes:</div>
             <div>Confirmation no longer than 14 Day after Renewal form / Proposal Received</div>
-            <div>Price are exclude VAT</div>
+            @if($vatPercent > 0)
+                <div>Price is inclusive of {{ rtrim(rtrim(number_format($vatPercent, 2, '.', ''), '0'), '.') }}% VAT — see Grand Total</div>
+            @else
+                <div>Price are exclude VAT</div>
+            @endif
             <div>Payments available on Bank transfer and Credit Cards</div>
         </div>
         <div class="approval-block">

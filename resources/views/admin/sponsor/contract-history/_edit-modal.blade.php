@@ -29,6 +29,7 @@
                                 <div class="text-muted mt-1">
                                     KMK: <span id="editRenewalFormRefKmk"></span>
                                     &nbsp;·&nbsp; Value: <span id="editRenewalFormRefAmount"></span>
+                                    <span id="editRenewalFormRefVat"></span>
                                 </div>
                                 <div id="editRenewalFormRefNotesWrap" class="text-muted mt-1" style="display:none;">
                                     Notes: <span id="editRenewalFormRefNotes"></span>

@@ -199,6 +199,7 @@
                                     KMK Rate: <span id="rfGenKmk">—</span><br>
                                     KMK Number: <span id="rfGenKmkNumber">—</span><br>
                                     <span id="rfGenAmount"></span>
+                                    <span id="rfGenVat"></span>
                                 </div>
                             </div>
                             <div class="flex-shrink-0" style="display:flex;gap:6px;">
@@ -287,6 +288,25 @@
                                         <input type="text" id="rfAmountIdrDisplay" class="form-control" placeholder="e.g. 54.000.000">
                                         <input type="hidden" id="rfAmountIdr">
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>VAT / PPN
+                                        <small class="text-muted font-weight-normal">(optional — finance decides which sponsor gets charged)</small>
+                                    </label>
+                                    {{-- Dropdown, bukan free-text — biar nggak typo persentasenya.
+                                         Default 0% (nggak kena VAT); kalau dipilih > 0%, otomatis
+                                         kehitung & muncul di renewal form PDF (VAT + Grand Total). --}}
+                                    <select id="rfVatPercent" class="form-control">
+                                        <option value="0" selected>0% (No VAT)</option>
+                                        <option value="11">11%</option>
+                                    </select>
+                                    {{-- Live preview — biar keliatan langsung hasil hitungannya begitu
+                                         VAT dipilih, gak perlu submit dulu baru cek PDF. --}}
+                                    <div id="rfVatPreview" class="text-muted mt-1" style="font-size:12px;display:none;"></div>
                                 </div>
                             </div>
                         </div>
