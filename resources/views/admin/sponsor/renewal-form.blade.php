@@ -46,30 +46,26 @@
     .preview-toolbar a.secondary { background: #495057; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
     @media print { .preview-toolbar { display: none !important; } }
 
-    /* HEADER */
-    .top-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 8px;
-    }
+    /* HEADER — table-based, bukan flex: dompdf (v2.0.8) cuma CSS 2.1-compliant,
+       flexbox/grid nggak reliable di sana (browser preview kelihatan bener tapi
+       hasil Download PDF-nya berantakan). Table + float sudah dipakai di footer,
+       ikutin pola yang sama biar konsisten di semua renderer. */
+    .top-header-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+    .top-header-table td { border: none; padding: 0; vertical-align: bottom; }
+    .logo-side { width: 40%; }
     .logo-side img { max-height: 60px; width: auto; display: block; }
-    .address-side { text-align: right; font-size: 10.5px; line-height: 1.3; max-width: 450px; }
+    .address-side { width: 60%; text-align: right; font-size: 10.5px; line-height: 1.3; }
     .comp-name { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
     .header-divider { border: none; border-top: 2px solid #000; margin: 0 0 20px 0; }
 
     /* SUB-HEADER */
-    .sub-header-grid {
-        display: grid;
-        grid-template-columns: 1.2fr 1fr;
-        gap: 20px;
-        align-items: start;
-        margin-bottom: 25px;
-    }
+    .sub-header-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+    .sub-header-table td { border: none; padding: 0; vertical-align: top; }
+    .meta-side { width: 58%; padding-right: 20px; }
     .meta-table { width: 100%; border-collapse: collapse; font-size: 11.5px; line-height: 1.4; }
-    .meta-table td { padding: 2px 0; vertical-align: top; }
+    .sub-header-table .meta-table td { padding: 2px 0; vertical-align: top; }
     .meta-table td:first-child { width: 120px; color: #000; }
-    .title-box-side { display: flex; justify-content: flex-end; }
+    .title-box-side { width: 42%; }
     .orange-title-box {
         background-color: #fdb813;
         border: 2px solid #000;
@@ -100,14 +96,12 @@
     .desc-main-title { font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
     .item-title   { font-weight: bold; margin-top: 5px; margin-bottom: 2px; }
     .item-sub     { padding-left: 2px; margin-bottom: 1px; }
-    .currency-flex {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        box-sizing: border-box;
-        padding: 0 4px;
-    }
+    /* Selector diawali .custom-table biar specificity-nya ngalahin ".custom-table td"
+       di atas, nggak gantung ke urutan aturan CSS (nested table ini duduk di dalam
+       sel .custom-table, jadi kena juga selector induknya kalau nggak dikalahin). */
+    .custom-table .currency-table { width: 100%; border-collapse: collapse; }
+    .custom-table .currency-table td { border: none; padding: 0 4px; }
+    .custom-table .currency-table td:last-child { text-align: right; }
     .bg-dark { background-color: #4a4a4a; color: #fff; font-weight: bold; text-align: center; }
 
     /* FOOTER */
@@ -190,56 +184,60 @@
 <div class="page-container">
 
     {{-- HEADER --}}
-    <div class="top-header">
-        <div class="logo-side">
-            <img src="{{ asset('image/logo-dmc-cci3.png') }}" alt="DMC CCI Logo">
-        </div>
-        <div class="address-side">
-            <div class="comp-name">Djakarta Mining Club and Coal Club Indonesia</div>
-            <div>Gedung 47, Jalan Tb Simatupang no.47 Tanjung Barat Jagakarsa 12530</div>
-            <div>T: 021 295 57233 &nbsp;E: secretariat@djakarta-miningclub.com / secretariat@coalclubindonesia.com</div>
-        </div>
-    </div>
+    <table class="top-header-table">
+        <tr>
+            <td class="logo-side">
+                <img src="{{ asset('image/logo-dmc-cci3.png') }}" alt="DMC CCI Logo">
+            </td>
+            <td class="address-side">
+                <div class="comp-name">Djakarta Mining Club and Coal Club Indonesia</div>
+                <div>Gedung 47, Jalan Tb Simatupang no.47 Tanjung Barat Jagakarsa 12530</div>
+                <div>T: 021 295 57233 &nbsp;E: secretariat@djakarta-miningclub.com / secretariat@coalclubindonesia.com</div>
+            </td>
+        </tr>
+    </table>
     <hr class="header-divider">
 
     {{-- QUOTATION INFO + TITLE BOX --}}
-    <div class="sub-header-grid">
-        <div class="meta-side">
-            <table class="meta-table">
-                <tr>
-                    <td>Quotation Date</td>
-                    <td>{{ $quotDate }}</td>
-                </tr>
-                <tr>
-                    <td>Quotation Number</td>
-                    <td>{{ $quotNo }}</td>
-                </tr>
-                <tr>
-                    <td style="vertical-align:top; padding-top:4px;">Attention</td>
-                    <td style="padding-top:4px;">
-                        @if($pic)
-                            {{ $pic->name }}<br>
-                            @if($pic->title) {{ $pic->title }}<br> @endif
-                            <strong>{{ $sponsor->name }}</strong><br>
-                            @if($sponsor->address) {{ $sponsor->address }}<br> @endif
-                            @if($pic->phone) T: {{ $pic->phone }}@endif
-                            @if($pic->email) &nbsp;- E: {{ $pic->email }} @endif
-                        @else
-                            <strong>{{ $sponsor->name }}</strong><br>
-                            @if($sponsor->address) {{ $sponsor->address }}<br> @endif
-                            @if($sponsor->email) E: {{ $sponsor->email }} @endif
-                        @endif
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div class="title-box-side">
-            <div class="orange-title-box" style="background-color: {{ $pkgColor }};">
-                <div class="title-main">RENEWAL FORM</div>
-                <div class="title-sub">DMC {{ $pkgDisplay }} SPONSORSHIP</div>
-            </div>
-        </div>
-    </div>
+    <table class="sub-header-table">
+        <tr>
+            <td class="meta-side">
+                <table class="meta-table">
+                    <tr>
+                        <td>Quotation Date</td>
+                        <td>{{ $quotDate }}</td>
+                    </tr>
+                    <tr>
+                        <td>Quotation Number</td>
+                        <td>{{ $quotNo }}</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:top; padding-top:4px;">Attention</td>
+                        <td style="padding-top:4px;">
+                            @if($pic)
+                                {{ $pic->name }}<br>
+                                @if($pic->title) {{ $pic->title }}<br> @endif
+                                <strong>{{ $sponsor->name }}</strong><br>
+                                @if($sponsor->address) {{ $sponsor->address }}<br> @endif
+                                @if($pic->phone) T: {{ $pic->phone }}@endif
+                                @if($pic->email) &nbsp;- E: {{ $pic->email }} @endif
+                            @else
+                                <strong>{{ $sponsor->name }}</strong><br>
+                                @if($sponsor->address) {{ $sponsor->address }}<br> @endif
+                                @if($sponsor->email) E: {{ $sponsor->email }} @endif
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td class="title-box-side">
+                <div class="orange-title-box" style="background-color: {{ $pkgColor }};">
+                    <div class="title-main">RENEWAL FORM</div>
+                    <div class="title-sub">DMC {{ $pkgDisplay }} SPONSORSHIP</div>
+                </div>
+            </td>
+        </tr>
+    </table>
 
     {{-- MAIN TABLE --}}
     <table class="custom-table">
@@ -275,17 +273,17 @@
                 </td>
                 <td class="text-center val-middle font-bold">1 YEAR</td>
                 <td class="val-middle font-bold">
-                    <div class="currency-flex">
+                    <table class="currency-table"><tr>
                         @if($amountUsd)
-                            <span>USD</span>
-                            <span>{{ number_format($amountUsd, 0, '.', '.') }}</span>
+                            <td>USD</td>
+                            <td>{{ number_format($amountUsd, 0, '.', '.') }}</td>
                         @elseif($amountIdr)
-                            <span>IDR</span>
-                            <span>{{ number_format($amountIdr, 0, '.', '.') }}</span>
+                            <td>IDR</td>
+                            <td>{{ number_format($amountIdr, 0, '.', '.') }}</td>
                         @else
-                            <span>—</span><span></span>
+                            <td>—</td><td></td>
                         @endif
-                    </div>
+                    </tr></table>
                 </td>
             </tr>
 
@@ -298,10 +296,10 @@
                 </td>
                 <td class="bg-dark val-middle">Total In USD</td>
                 <td class="val-middle font-bold">
-                    <div class="currency-flex">
-                        <span>USD</span>
-                        <span>{{ $amountUsd ? number_format($amountUsd, 0, '.', '.') : '—' }}</span>
-                    </div>
+                    <table class="currency-table"><tr>
+                        <td>USD</td>
+                        <td>{{ $amountUsd ? number_format($amountUsd, 0, '.', '.') : '—' }}</td>
+                    </tr></table>
                 </td>
             </tr>
             <tr>
@@ -314,9 +312,9 @@
                 </td>
                 <td class="bg-dark val-middle">Total In IDR</td>
                 <td class="val-middle font-bold">
-                    <div class="currency-flex">
-                        <span>IDR</span>
-                        <span>
+                    <table class="currency-table"><tr>
+                        <td>IDR</td>
+                        <td>
                             @if($amountIdr)
                                 {{ number_format($amountIdr, 0, '.', '.') }}
                             @elseif($amountUsd && $kursRate)
@@ -324,8 +322,8 @@
                             @else
                                 —
                             @endif
-                        </span>
-                    </div>
+                        </td>
+                    </tr></table>
                 </td>
             </tr>
         </tbody>
