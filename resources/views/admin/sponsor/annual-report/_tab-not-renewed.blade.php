@@ -47,7 +47,7 @@
                                         <td style="padding:12px 16px;">
                                             @if($n->package)
                                             <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:{{ $pkgColor }};">
-                                                {{ ucfirst($n->package) }}
+                                                {{ sponsor_package_label($n->package) }}
                                             </span>
                                             @else
                                             <span style="font-size:11px;color:#bbb;">—</span>

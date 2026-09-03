@@ -32,7 +32,7 @@ class SponsorsController extends Controller
 
         $data = [
             [
-                'name' => 'PLATINUM SPONSORS',
+                'name' => 'MAJOR SPONSORS',
                 'type' => 'platinum',
                 'data' => $platinum,
             ],

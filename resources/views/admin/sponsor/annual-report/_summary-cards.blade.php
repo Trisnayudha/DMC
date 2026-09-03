@@ -2,7 +2,7 @@
      Collapsed by default. Toggle via button. --}}
 @php
     $pkgMeta = [
-        'platinum' => ['label' => 'Platinum', 'color' => '#6777ef'],
+        'platinum' => ['label' => 'Major', 'color' => '#6777ef'],
         'gold'     => ['label' => 'Gold',     'color' => '#f39c12'],
         'silver'   => ['label' => 'Silver',   'color' => '#6c757d'],
     ];

@@ -35,7 +35,7 @@
                                     <input type="radio" name="type" value="" autocomplete="off" {{ !request('type') ? 'checked' : '' }}> All
                                 </label>
                                 <label class="btn btn-outline-primary {{ request('type') == 'platinum' ? 'active' : '' }}">
-                                    <input type="radio" name="type" value="platinum" autocomplete="off" {{ request('type') == 'platinum' ? 'checked' : '' }}> Platinum
+                                    <input type="radio" name="type" value="platinum" autocomplete="off" {{ request('type') == 'platinum' ? 'checked' : '' }}> Major
                                 </label>
                                 <label class="btn btn-outline-warning {{ request('type') == 'gold' ? 'active' : '' }}">
                                     <input type="radio" name="type" value="gold" autocomplete="off" {{ request('type') == 'gold' ? 'checked' : '' }}> Gold
@@ -223,7 +223,7 @@
                                             @if ($post->package == 'silver') badge-secondary
                                             @elseif($post->package == 'gold') badge-warning
                                             @elseif($post->package == 'platinum') badge-primary @endif">
-                                            {{ ucfirst($post->package) }}
+                                            {{ sponsor_package_label($post->package) }}
                                         </span>
                                     </td>
                                     <td>

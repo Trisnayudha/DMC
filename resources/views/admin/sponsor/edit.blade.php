@@ -433,7 +433,7 @@
                                 <div class="card-body">
                                     <div class="form-group{{ $errors->has('package') ? ' has-error' : '' }}">
                                         {!! Form::label('Package') !!}
-                                        {!! Form::select('package', ['silver' => 'Silver', 'gold' => 'Gold', 'platinum' => 'Platinum'], null, [
+                                        {!! Form::select('package', ['silver' => 'Silver', 'gold' => 'Gold', 'platinum' => 'Major'], null, [
                                             'class' => 'form-control',
                                         ]) !!}
                                         @if ($errors->has('package'))

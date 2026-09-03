@@ -40,7 +40,7 @@
                             <input type="text" name="search" class="form-control form-control-sm" placeholder="Search sponsor…" value="{{ $search }}" style="min-width:180px">
                             <select name="type" class="form-control form-control-sm" onchange="this.form.submit()">
                                 <option value="">All Packages</option>
-                                <option value="platinum" {{ $type === 'platinum' ? 'selected' : '' }}>Platinum</option>
+                                <option value="platinum" {{ $type === 'platinum' ? 'selected' : '' }}>Major</option>
                                 <option value="gold"     {{ $type === 'gold'     ? 'selected' : '' }}>Gold</option>
                                 <option value="silver"   {{ $type === 'silver'   ? 'selected' : '' }}>Silver</option>
                             </select>
@@ -140,7 +140,7 @@
                                                     @if($post->package === 'platinum') badge-primary
                                                     @elseif($post->package === 'gold') badge-warning
                                                     @else badge-secondary @endif">
-                                                    {{ ucfirst($post->package) }}
+                                                    {{ sponsor_package_label($post->package) }}
                                                 </span>
                                             </td>
                                             <td>
@@ -280,7 +280,7 @@
                                 <div class="form-group">
                                     <label>Package <span class="text-danger">*</span></label>
                                     <select name="package" id="modalPackage" class="form-control" required>
-                                        <option value="platinum">Platinum / Major</option>
+                                        <option value="platinum">Major</option>
                                         <option value="gold">Gold</option>
                                         <option value="silver">Silver</option>
                                     </select>

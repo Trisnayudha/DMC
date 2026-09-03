@@ -56,7 +56,7 @@
                                     @if($sponsor->package === 'platinum') badge-primary
                                     @elseif($sponsor->package === 'gold') badge-warning
                                     @else badge-secondary @endif">
-                                    {{ ucfirst($sponsor->package) }}
+                                    {{ sponsor_package_label($sponsor->package) }}
                                 </span>
                             </td>
                             <td class="text-muted">{{ $endFormatted }}</td>

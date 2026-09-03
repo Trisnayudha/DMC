@@ -190,7 +190,7 @@
                                     </td>
                                     <td style="padding:10px 16px;">
                                         <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:{{ $ePkgColor }};">
-                                            {{ ucfirst($er->package ?? '—') }}
+                                            {{ sponsor_package_label($er->package ?? '—') }}
                                         </span>
                                     </td>
                                     <td style="padding:10px 16px;">
@@ -243,7 +243,7 @@
                                                 <i class="fas fa-check" style="font-size:10px;"></i> Renewed
                                             </span>
                                             <div style="font-size:10px;color:#888;margin-top:3px;">
-                                                {{ $fuInvoice ?? (ucfirst($fuR->package ?? '') . ($fuPeriod ? ' · ' . $fuPeriod : '')) }}
+                                                {{ $fuInvoice ?? (sponsor_package_label($fuR->package ?? '') . ($fuPeriod ? ' · ' . $fuPeriod : '')) }}
                                             </div>
                                             @if($fuTurnaround)
                                                 <div style="font-size:10px;font-weight:600;margin-top:2px;color:{{ $fuR->paid_date ? '#47c363' : '#f39c12' }};">
@@ -255,7 +255,7 @@
                                                 <i class="fas fa-arrow-up" style="font-size:10px;"></i> Upgraded
                                             </span>
                                             <div style="font-size:10px;color:#888;margin-top:3px;">
-                                                {{ $fuInvoice ?? (ucfirst($er->package ?? '?') . ' → ' . ucfirst($fuR->package ?? '?') . ($fuPeriod ? ' · ' . $fuPeriod : '')) }}
+                                                {{ $fuInvoice ?? (sponsor_package_label($er->package ?? '?') . ' → ' . sponsor_package_label($fuR->package ?? '?') . ($fuPeriod ? ' · ' . $fuPeriod : '')) }}
                                             </div>
                                             @if($fuTurnaround)
                                                 <div style="font-size:10px;font-weight:600;margin-top:2px;color:{{ $fuR->paid_date ? '#47c363' : '#f39c12' }};">

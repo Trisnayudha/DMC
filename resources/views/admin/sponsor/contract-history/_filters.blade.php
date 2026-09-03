@@ -24,7 +24,7 @@
                                 <label class="col-form-label col-form-label-sm font-weight-600 text-muted text-uppercase" style="font-size:10px;letter-spacing:.5px;">Package</label>
                                 <select name="package" class="form-control form-control-sm" onchange="this.form.submit()" style="min-width:120px;">
                                     <option value="">All Packages</option>
-                                    <option value="platinum" {{ $package == 'platinum' ? 'selected' : '' }}>Platinum</option>
+                                    <option value="platinum" {{ $package == 'platinum' ? 'selected' : '' }}>Major</option>
                                     <option value="gold"     {{ $package == 'gold'     ? 'selected' : '' }}>Gold</option>
                                     <option value="silver"   {{ $package == 'silver'   ? 'selected' : '' }}>Silver</option>
                                 </select>

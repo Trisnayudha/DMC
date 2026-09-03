@@ -161,7 +161,7 @@
                                                             <div class="font-weight-bold">{{ $sponsor->branding_name ?: $sponsor->name }}</div>
                                                             <span
                                                                 class="badge badge-{{ $sponsor->package === 'platinum' ? 'primary' : ($sponsor->package === 'gold' ? 'warning' : 'secondary') }} mt-1">
-                                                                {{ ucfirst($sponsor->package) }}
+                                                                {{ sponsor_package_label($sponsor->package) }}
                                                             </span>
                                                         </td>
 

@@ -22,7 +22,7 @@
                         @if($sponsor->package === 'platinum') badge-primary
                         @elseif($sponsor->package === 'gold') badge-warning
                         @else badge-secondary @endif">
-                        {{ ucfirst($sponsor->package) }}
+                        {{ sponsor_package_label($sponsor->package) }}
                     </span>
                     <span class="text-muted ml-1">
                         {{ $sponsor->contactRows->count() }} contact{{ $sponsor->contactRows->count() === 1 ? '' : 's' }}

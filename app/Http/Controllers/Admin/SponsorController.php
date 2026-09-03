@@ -728,7 +728,7 @@ class SponsorController extends Controller
         ];
 
         $packageLabels = [
-            'platinum' => 'Platinum / Major',
+            'platinum' => 'Major',
             'gold'     => 'Gold',
             'silver'   => 'Silver',
         ];

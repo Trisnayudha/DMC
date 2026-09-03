@@ -10,7 +10,7 @@
             </div>
             <select name="package" class="form-control form-control-sm" style="min-width:150px">
                 <option value="">All Packages</option>
-                <option value="platinum" {{ $package === 'platinum' ? 'selected' : '' }}>Platinum</option>
+                <option value="platinum" {{ $package === 'platinum' ? 'selected' : '' }}>Major</option>
                 <option value="gold"     {{ $package === 'gold'     ? 'selected' : '' }}>Gold</option>
                 <option value="silver"   {{ $package === 'silver'   ? 'selected' : '' }}>Silver</option>
             </select>

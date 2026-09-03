@@ -44,7 +44,7 @@
                             <div class="form-group">
                                 <label>Package <span class="text-danger">*</span></label>
                                 <select name="package" id="modalPackage" class="form-control" required>
-                                    <option value="platinum">Platinum / Major</option>
+                                    <option value="platinum">Major</option>
                                     <option value="gold">Gold</option>
                                     <option value="silver">Silver</option>
                                 </select>

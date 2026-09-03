@@ -216,10 +216,10 @@
     }
 
     $packageLabel = strtoupper($sponsor->package ?? 'GOLD');
-    $pkgMap = ['platinum' => 'PLATINUM / MAJOR', 'gold' => 'GOLD', 'silver' => 'SILVER'];
+    $pkgMap = ['platinum' => 'MAJOR', 'gold' => 'GOLD', 'silver' => 'SILVER'];
     $pkgDisplay = $pkgMap[$sponsor->package] ?? $packageLabel;
 
-    // Warna banner header per paket: Gold = emas, Silver & Platinum/Major = abu (sama).
+    // Warna banner header per paket: Gold = emas, Silver & Major = abu (sama).
     $pkgColorMap = ['platinum' => '#a6a6a6', 'gold' => '#fdb813', 'silver' => '#a6a6a6'];
     $pkgColor = $pkgColorMap[$sponsor->package] ?? '#fdb813';
 @endphp

@@ -86,9 +86,10 @@ document.addEventListener('DOMContentLoaded', function() {
             gold:     { now: '#f39c12', cmp: 'rgba(243,156,18,0.35)' },
             silver:   { now: '#6c757d', cmp: 'rgba(108,117,125,0.35)' }
         };
+        var pkgLabels = { platinum: 'Major', gold: 'Gold', silver: 'Silver' };
         var datasets = [];
         ['platinum', 'gold', 'silver'].forEach(function(pkg) {
-            var pkgLabel = pkg.charAt(0).toUpperCase() + pkg.slice(1);
+            var pkgLabel = pkgLabels[pkg];
             datasets.push({
                 label: pkgLabel + ' ' + year,
                 backgroundColor: pkgColors[pkg].now,

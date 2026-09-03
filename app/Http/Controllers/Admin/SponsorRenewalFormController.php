@@ -299,7 +299,7 @@ class SponsorRenewalFormController extends Controller
             $lines = [
                 '📄 *RENEWAL FORM DIBUAT*',
                 '',
-                'Sponsor: *' . $sponsor->name . '* (' . ucfirst($sponsor->package ?? '-') . ')',
+                'Sponsor: *' . $sponsor->name . '* (' . sponsor_package_label($sponsor->package ?? '-') . ')',
                 'Kontrak berakhir: ' . $contractEnd,
                 'No. Form: *' . $form->form_number . '*',
                 'Tahun renewal: ' . $form->renewal_year,

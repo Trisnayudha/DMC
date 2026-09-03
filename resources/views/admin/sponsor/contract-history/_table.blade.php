@@ -51,7 +51,7 @@
                                     </td>
                                     <td>
                                         <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:{{ $pkgColor }};">
-                                            {{ ucfirst($r->package ?? '—') }}
+                                            {{ sponsor_package_label($r->package ?? '—') }}
                                         </span>
                                     </td>
                                     <td style="color:#555;">{{ $period }}</td>

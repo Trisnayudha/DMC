@@ -64,7 +64,7 @@
                         <label>Package</label>
                         <select name="package" id="editPackage" class="form-control">
                             <option value="">—</option>
-                            <option value="platinum">Platinum / Major</option>
+                            <option value="platinum">Major</option>
                             <option value="gold">Gold</option>
                             <option value="silver">Silver</option>
                         </select>
