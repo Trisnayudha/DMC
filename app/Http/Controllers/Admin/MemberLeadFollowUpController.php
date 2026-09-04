@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CmsUser;
 use App\Models\MemberLeadFollowUp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class MemberLeadFollowUpController extends Controller
 {
@@ -18,6 +19,7 @@ class MemberLeadFollowUpController extends Controller
     {
         $result = $request->get('result', MemberLeadFollowUp::RESULT_PENDING);
         $picId  = $request->get('pic_id');
+        $search = trim((string) $request->get('search'));
 
         $query = MemberLeadFollowUp::with(['user.profile', 'user.company'])->orderBy('created_at', 'desc');
 
@@ -29,6 +31,16 @@ class MemberLeadFollowUpController extends Controller
 
         if ($picId) {
             $query->where('pic_id', $picId);
+        }
+
+        if ($search !== '') {
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhereHas('company', function ($q2) use ($search) {
+                        $q2->where('company_name', 'like', "%{$search}%");
+                    });
+            });
         }
 
         $list = $query->get();
@@ -51,6 +63,7 @@ class MemberLeadFollowUpController extends Controller
             'list',
             'result',
             'picId',
+            'search',
             'countPending',
             'countWin',
             'countLoss',
@@ -61,33 +74,30 @@ class MemberLeadFollowUpController extends Controller
         ));
     }
 
-    public function assignPic(Request $request, $id)
-    {
-        $request->validate([
-            'pic_id' => 'required|exists:cms_users,id',
-        ]);
-
-        $lead = MemberLeadFollowUp::findOrFail($id);
-        $pic  = CmsUser::findOrFail($request->pic_id);
-
-        $lead->pic_id   = $pic->id;
-        $lead->pic_name = $pic->name;
-        $lead->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'PIC berhasil di-assign ke ' . $pic->name . '.',
-        ]);
-    }
-
+    /**
+     * Logs whichever step is next for this lead (Kirim Sponsorkit → Follow Up 1
+     * → Follow Up 2) — one shared endpoint, same as before, just now aware of
+     * 3 steps instead of 2 and taking a manually-editable date.
+     */
     public function logFollowUp(Request $request, $id)
     {
         $request->validate([
+            'date'    => 'nullable|date',
             'channel' => 'nullable|string|max:50',
             'notes'   => 'nullable|string|max:2000',
         ]);
 
         $lead = MemberLeadFollowUp::findOrFail($id);
+
+        $stepKey = $lead->nextStepKey();
+        if (!$stepKey) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Semua tahap follow up untuk lead ini sudah tercatat.',
+            ], 422);
+        }
+
+        $date = $request->filled('date') ? Carbon::parse($request->date) : now();
 
         if ($request->filled('channel')) {
             $lead->channel = $request->channel;
@@ -96,17 +106,37 @@ class MemberLeadFollowUpController extends Controller
             $lead->notes = $request->notes;
         }
 
-        if (!$lead->first_follow_up_at) {
-            $lead->first_follow_up_at = now();
-        } elseif (!$lead->second_follow_up_at) {
-            $lead->second_follow_up_at = now();
+        if ($stepKey === 'sponsorkit') {
+            $lead->sponsorkit_sent_at = $date;
+        } elseif ($stepKey === 'follow_up_1') {
+            $lead->first_follow_up_at = $date;
+        } else {
+            $lead->second_follow_up_at = $date;
         }
+
+        // Auto-assign PIC to whoever performs the FIRST action on this lead —
+        // stays locked to that person for accountability. Manual re-assign
+        // UI was removed; later actions by other admins don't reassign it.
+        if (!$lead->pic_id) {
+            $admin = auth()->user();
+            if ($admin) {
+                $lead->pic_id   = $admin->id;
+                $lead->pic_name = $admin->name;
+            }
+        }
+
+        // Rolling SLA: the deadline for the NEXT step is 48h after whichever
+        // step was just completed — not from lead creation anymore. Once
+        // Follow Up 2 (the last defined step) is done there's nothing left
+        // to be late for, so the deadline is cleared and the row stops
+        // turning red.
+        $lead->deadline_at = $lead->nextStepKey() ? $date->copy()->addHours(48) : null;
 
         $lead->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Follow up berhasil dicatat.',
+            'message' => MemberLeadFollowUp::stepLabel($stepKey) . ' berhasil dicatat.',
         ]);
     }
 

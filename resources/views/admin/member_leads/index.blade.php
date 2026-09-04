@@ -34,7 +34,6 @@
         </section>
     </div>
 
-    @include('admin.member_leads.partials._modal_assign_pic')
     @include('admin.member_leads.partials._modal_follow_up')
 @endsection
 

@@ -22,7 +22,7 @@
                     <div class="card-header">
                         <h4>Over SLA
                             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                                title="Lead pending yang sudah lewat deadline follow up (48 jam sejak verifikasi)."
+                                title="Lead pending yang sudah lewat 48 jam sejak aksi terakhir (verifikasi / kirim sponsorkit / follow up)."
                                 data-toggle="tooltip"></i>
                         </h4>
                     </div>

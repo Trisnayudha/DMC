@@ -3,13 +3,18 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-comment-dots mr-1"></i>Catat Follow Up</h5>
+                <h5 class="modal-title"><i class="fas fa-comment-dots mr-1"></i>Catat <span id="fl-step-label">Follow Up</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <p class="mb-3">Lead: <strong id="fl-member-name">-</strong></p>
+                <div class="form-group">
+                    <label>Tanggal &amp; Jam</label>
+                    <input type="datetime-local" id="fl-date" class="form-control">
+                    <small class="text-muted">Default sekarang — ubah kalau aksinya sudah dilakukan sebelumnya (jam ikut dipakai untuk hitung SLA 48 jam berikutnya).</small>
+                </div>
                 <div class="form-group">
                     <label>Channel</label>
                     <select id="fl-channel" class="form-control">

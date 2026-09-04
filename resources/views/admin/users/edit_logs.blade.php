@@ -154,14 +154,18 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <span class="text-danger" style="font-size:12px;">
-                                                        {{ $diff['old'] ?: '<em class="text-muted">(kosong)</em>' }}
-                                                    </span>
+                                                    @if ($diff['old'])
+                                                        <span class="text-danger" style="font-size:12px;">{{ $diff['old'] }}</span>
+                                                    @else
+                                                        <span class="text-muted font-italic" style="font-size:12px;">(kosong)</span>
+                                                    @endif
                                                 </td>
                                                 <td>
-                                                    <span class="text-success" style="font-size:12px;">
-                                                        {{ $diff['new'] ?: '<em class="text-muted">(kosong)</em>' }}
-                                                    </span>
+                                                    @if ($diff['new'])
+                                                        <span class="text-success" style="font-size:12px;">{{ $diff['new'] }}</span>
+                                                    @else
+                                                        <span class="text-muted font-italic" style="font-size:12px;">(kosong)</span>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach
