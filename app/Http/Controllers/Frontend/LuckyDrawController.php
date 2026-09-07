@@ -49,6 +49,26 @@ class LuckyDrawController extends Controller
 
     public function store(Request $request)
     {
+        $spinMode = $request->input('spin_mode', 'anonymous');
+
+        if ($spinMode === 'required') {
+            if ($request->input('capture_mode') === 'card') {
+                $request->validate([
+                    'entry_id' => 'required|integer|exists:lucky_draw_entries,id',
+                ], [
+                    'entry_id.required' => 'A business card photo is required before drawing.',
+                ]);
+            } else {
+                $request->validate([
+                    'name'  => 'required|string|max:255',
+                    'phone' => 'required|string|max:30',
+                ], [
+                    'name.required'  => 'Participant full name is required.',
+                    'phone.required' => 'Phone number is required.',
+                ]);
+            }
+        }
+
         $request->validate([
             'entry_id'      => 'nullable|integer|exists:lucky_draw_entries,id',
             'name'          => 'nullable|string|max:255',
@@ -68,8 +88,12 @@ class LuckyDrawController extends Controller
             ? LuckyDrawEntry::findOrFail($request->entry_id)
             : new LuckyDrawEntry();
 
+        $participantName = $request->filled('name')
+            ? $request->name
+            : ($spinMode === 'anonymous' ? 'Anonymous' : null);
+
         $entry->lucky_draw_item_id = $prize ? $prize->id : null;
-        $entry->name               = $request->name;
+        $entry->name               = $participantName;
         $entry->company_name       = $request->company_name;
         $entry->job_title          = $request->job_title;
         $entry->phone              = $request->phone;

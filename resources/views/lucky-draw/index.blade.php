@@ -101,7 +101,86 @@
         .nav-actions {
             display: flex;
             align-items: center;
+            gap: 10px;
+        }
+
+        /* Topbar Spin Mode Segmented Toggle */
+        .topbar-mode-toggle {
+            display: inline-flex;
+            align-items: center;
             gap: 8px;
+            background: #f1f5f9;
+            padding: 3px 4px 3px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border-panel);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+
+        .topbar-mode-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .topbar-segmented-group {
+            display: inline-flex;
+            align-items: center;
+            background: #e2e8f0;
+            padding: 2px;
+            border-radius: 8px;
+            gap: 3px;
+        }
+
+        .topbar-mode-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            height: 30px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .topbar-mode-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .topbar-mode-btn.active[data-spin-mode="anonymous"] {
+            background: #ffffff;
+            color: #0284c7;
+            border-color: #bae6fd;
+            box-shadow: 0 2px 6px rgba(14, 165, 233, 0.16);
+        }
+
+        .topbar-mode-btn.active[data-spin-mode="required"] {
+            background: #ffffff;
+            color: var(--dmc-red);
+            border-color: #fecdd3;
+            box-shadow: 0 2px 6px rgba(200, 16, 46, 0.16);
+        }
+
+        @media (max-width: 576px) {
+            .topbar-mode-label {
+                display: none;
+            }
+            .topbar-mode-btn {
+                padding: 4px 8px;
+                font-size: 0.74rem;
+            }
         }
 
         .btn-action-icon {
@@ -138,6 +217,7 @@
             height: calc(100vh - 60px);
             margin-top: 60px;
             position: relative;
+            overflow: hidden;
         }
 
         /* LEFT: Lucky Draw Stage */
@@ -149,9 +229,10 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            padding: 20px;
+            padding: 16px 24px;
             user-select: none;
             overflow: hidden;
+            min-width: 0;
         }
 
         .wheel-stage::before {
@@ -186,7 +267,7 @@
         #wheel-canvas {
             display: block;
             border-radius: 50%;
-            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12), 0 0 0 10px #ffffff, 0 0 0 14px rgba(200, 16, 46, 0.25), 0 0 45px rgba(200, 16, 46, 0.12);
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12), 0 0 0 8px #ffffff, 0 0 0 12px rgba(200, 16, 46, 0.22), 0 0 35px rgba(200, 16, 46, 0.1);
             transition: filter 0.3s;
         }
 
@@ -197,7 +278,7 @@
         /* Needle / Pointer (Located on the RIGHT edge, pointing LEFT) */
         .wheel-pointer-wrapper {
             position: absolute;
-            right: -24px;
+            right: -20px;
             top: 50%;
             transform: translateY(-50%);
             z-index: 10;
@@ -208,24 +289,24 @@
         .wheel-pointer {
             width: 0;
             height: 0;
-            border-top: 22px solid transparent;
-            border-bottom: 22px solid transparent;
-            border-right: 50px solid var(--dmc-red);
+            border-top: 18px solid transparent;
+            border-bottom: 18px solid transparent;
+            border-right: 44px solid var(--dmc-red);
             position: relative;
-            transform-origin: 45px 50%;
+            transform-origin: 40px 50%;
             transition: transform 0.05s linear;
         }
 
         .wheel-pointer::after {
             content: '';
             position: absolute;
-            top: -16px;
-            right: -48px;
+            top: -13px;
+            right: -42px;
             width: 0;
             height: 0;
-            border-top: 16px solid transparent;
-            border-bottom: 16px solid transparent;
-            border-right: 36px solid #e53935;
+            border-top: 13px solid transparent;
+            border-bottom: 13px solid transparent;
+            border-right: 32px solid #e53935;
         }
 
         .wheel-pointer.flick {
@@ -238,11 +319,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 96px;
-            height: 96px;
+            width: 88px;
+            height: 88px;
             border-radius: 50%;
             background: #ffffff;
-            border: 6px solid var(--dmc-red);
+            border: 5px solid var(--dmc-red);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16), inset 0 2px 5px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
@@ -250,7 +331,7 @@
             justify-content: center;
             pointer-events: none;
             z-index: 5;
-            transition: transform 0.2s;
+            transition: transform 0.2s, width 0.2s, height 0.2s;
         }
 
         .wheel-hub-inner {
@@ -263,7 +344,7 @@
 
         .wheel-hub-icon {
             color: var(--dmc-red);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             line-height: 1;
         }
 
@@ -278,15 +359,15 @@
         }
 
         .wheel-hint {
-            margin-top: 20px;
+            margin-top: 14px;
             display: flex;
             align-items: center;
             gap: 8px;
             color: var(--text-secondary);
-            font-size: 0.88rem;
+            font-size: 0.84rem;
             font-weight: 600;
             background: rgba(255, 255, 255, 0.95);
-            padding: 8px 20px;
+            padding: 6px 18px;
             border-radius: 999px;
             border: 1px solid var(--border-panel);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -300,8 +381,10 @@
 
         /* RIGHT: Sidebar Panel */
         .sidebar-panel {
-            width: 440px;
-            min-width: 380px;
+            width: 400px;
+            min-width: 340px;
+            max-width: 440px;
+            flex-shrink: 0;
             background: var(--bg-panel);
             border-left: 1px solid var(--border-panel);
             display: flex;
@@ -316,25 +399,26 @@
             display: flex;
             border-bottom: 1px solid var(--border-panel);
             background: #ffffff;
-            padding: 8px 12px 0;
-            gap: 6px;
+            padding: 6px 12px 0;
+            gap: 4px;
+            flex-shrink: 0;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 11px 12px;
+            padding: 10px 10px;
             background: transparent;
             border: none;
             border-bottom: 2px solid transparent;
             color: var(--text-secondary);
             font-family: 'Outfit', sans-serif;
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 7px;
+            gap: 6px;
             transition: all 0.2s;
             border-radius: 6px 6px 0 0;
         }
@@ -368,7 +452,7 @@
         .sidebar-content {
             flex: 1;
             overflow-y: auto;
-            padding: 22px;
+            padding: 16px 20px;
         }
 
         .tab-pane {
@@ -382,27 +466,81 @@
         /* Form Styles */
         .panel-header-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.15rem;
+            font-size: 1.12rem;
             font-weight: 800;
             letter-spacing: .02em;
             color: var(--text-primary);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .panel-header-desc {
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
-            margin-bottom: 18px;
+            margin-bottom: 12px;
+            line-height: 1.35;
+        }
+
+        /* Required star & hint badge */
+        .req-star {
+            color: var(--dmc-red);
+            font-weight: 800;
+            margin-left: 2px;
+            display: none;
+        }
+
+        .mode-required-active .req-star {
+            display: inline;
+        }
+
+        .field-hint-badge {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        .mode-required-active .field-hint-badge.req-hint {
+            color: var(--dmc-red);
+            font-weight: 600;
+        }
+
+        /* Validation invalid state & shake */
+        .form-control-dark.is-invalid {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+            background-color: #fffbfb;
+        }
+
+        .invalid-feedback-custom {
+            display: none;
+            color: #dc2626;
+            font-size: 0.73rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .form-control-dark.is-invalid ~ .invalid-feedback-custom {
+            display: block;
+        }
+
+        @keyframes shakeInput {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .shake-element {
+            animation: shakeInput 0.4s ease-in-out;
         }
 
         .mode-toggle-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 6px;
+            margin-bottom: 12px;
             background: #f8fafc;
-            padding: 4px;
-            border-radius: 10px;
+            padding: 3px;
+            border-radius: 9px;
             border: 1px solid var(--border-panel);
         }
 
@@ -410,10 +548,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 9px 12px;
-            border-radius: 7px;
-            font-size: 0.84rem;
+            gap: 6px;
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 0.82rem;
             font-weight: 600;
             color: var(--text-secondary);
             cursor: pointer;
@@ -438,21 +576,26 @@
             color: var(--dmc-red);
         }
 
+        .form-group {
+            margin-bottom: 10px;
+        }
+
         .form-group label {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-secondary);
-            margin-bottom: 6px;
+            margin-bottom: 3px;
             display: block;
         }
 
         .form-control-dark {
             background: #ffffff;
             border: 1px solid var(--border-input);
-            border-radius: 9px;
-            padding: 10px 14px;
+            border-radius: 8px;
+            padding: 8px 12px;
             color: var(--text-primary);
-            font-size: 0.88rem;
+            font-size: 0.86rem;
+            height: 38px;
             width: 100%;
             transition: all 0.2s;
             outline: none;
@@ -824,9 +967,14 @@
 
         /* Action Buttons */
         .action-footer {
-            padding-top: 14px;
+            padding-top: 10px;
+            padding-bottom: 2px;
             border-top: 1px solid var(--border-subtle);
-            margin-top: 14px;
+            margin-top: 10px;
+            position: sticky;
+            bottom: 0;
+            background: var(--bg-panel);
+            z-index: 10;
         }
 
         .btn-draw-main {
@@ -834,25 +982,25 @@
             background: linear-gradient(135deg, #c8102e 0%, #93081f 100%);
             color: #fff;
             border: none;
-            border-radius: 12px;
-            padding: 14px 20px;
+            border-radius: 10px;
+            padding: 12px 18px;
             font-family: 'Outfit', sans-serif;
-            font-size: 1.05rem;
+            font-size: 0.98rem;
             font-weight: 800;
             letter-spacing: .06em;
             text-transform: uppercase;
-            box-shadow: 0 6px 20px rgba(200, 16, 46, 0.35);
+            box-shadow: 0 4px 14px rgba(200, 16, 46, 0.32);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             transition: all 0.25s;
         }
 
         .btn-draw-main:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(200, 16, 46, 0.45);
+            box-shadow: 0 8px 20px rgba(200, 16, 46, 0.42);
             background: linear-gradient(135deg, #dd1334 0%, #a80a24 100%);
         }
 
@@ -1137,11 +1285,28 @@
             }
         }
 
-        /* Responsive */
+        /* Responsive Breakpoints */
+        @media (min-width: 992px) and (max-width: 1200px) {
+            .sidebar-panel {
+                width: 360px;
+                min-width: 340px;
+            }
+            .wheel-stage {
+                padding: 12px 16px;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .sidebar-panel {
+                width: 420px;
+            }
+        }
+
         @media (max-width: 991px) {
             .app-layout {
                 flex-direction: column;
                 height: auto;
+                overflow: visible;
             }
 
             .wheel-stage {
@@ -1170,6 +1335,23 @@
         </a>
 
         <div class="nav-actions">
+            <!-- Topbar Mode Segmented Toggle -->
+            <div class="topbar-mode-toggle" id="topbar-mode-toggle">
+                <span class="topbar-mode-label">
+                    <i class="fas fa-sliders-h"></i> <span>Mode:</span>
+                </span>
+                <div class="topbar-segmented-group">
+                    <button type="button" class="topbar-mode-btn active" data-spin-mode="anonymous" id="btn-mode-anonymous" title="Spin without participant details">
+                        <i class="fas fa-user-secret"></i>
+                        <span>Anonymous</span>
+                    </button>
+                    <button type="button" class="topbar-mode-btn" data-spin-mode="required" id="btn-mode-required" title="Participant details are required before spinning">
+                        <i class="fas fa-user-check"></i>
+                        <span>Require Details</span>
+                    </button>
+                </div>
+            </div>
+
             <button class="btn-action-icon" id="btn-sound" title="Toggle Sound" aria-label="Toggle Sound">
                 <i class="fas fa-volume-up"></i>
             </button>
@@ -1203,9 +1385,9 @@
                 </div>
             </div>
 
-            <div class="wheel-hint">
-                <i class="fas fa-hand-pointer"></i>
-                <span>Click the wheel or click <strong>Draw Now</strong> to spin</span>
+            <div class="wheel-hint" id="wheel-hint">
+                <i class="fas fa-hand-pointer text-primary" id="wheel-hint-icon"></i>
+                <span id="wheel-hint-text">Anonymous Mode: Click the wheel or click <strong>Draw Now</strong> to spin directly</span>
             </div>
         </main>
 
@@ -1232,14 +1414,15 @@
             <!-- TAB 1: FORM -->
             <div class="sidebar-content tab-pane active" id="tab-form">
                 <h2 class="panel-header-title">Lucky Draw Entry</h2>
-                <p class="panel-header-desc">Participant details are optional. You can spin right away!</p>
+                <p class="panel-header-desc" id="panel-header-desc">Participant details are optional. You can spin right away!</p>
 
                 <form action="{{ url('lucky-draw') }}" method="POST" enctype="multipart/form-data" id="lucky-draw-form"
                     novalidate>
                     @csrf
                     <input type="hidden" name="entry_id" id="entry_id" value="">
+                    <input type="hidden" name="spin_mode" id="spin_mode" value="anonymous">
 
-                    <!-- Mode Toggle -->
+                    <!-- Capture Mode Toggle (Fill Details vs Scan Card) -->
                     <div class="mode-toggle-group">
                         <label class="mode-toggle-btn active" data-mode="manual">
                             <input type="radio" name="capture_mode" value="manual" checked>
@@ -1256,9 +1439,13 @@
                     <!-- Mode 1: Manual Input -->
                     <div id="panel-manual">
                         <div class="form-group">
-                            <label for="input-name">Full Name</label>
+                            <label for="input-name">
+                                Full Name <span class="req-star">*</span>
+                                <span class="field-hint-badge req-hint" id="hint-name">(Optional)</span>
+                            </label>
                             <input type="text" name="name" id="input-name" class="form-control-dark"
                                 placeholder="e.g. John Doe">
+                            <div class="invalid-feedback-custom" id="err-name">Full Name is required in this mode.</div>
                         </div>
 
                         <div class="form-group">
@@ -1280,8 +1467,12 @@
                                     placeholder="john@example.com">
                             </div>
                             <div class="col-12 form-group">
-                                <label for="phone">Phone</label>
+                                <label for="phone">
+                                    Phone <span class="req-star">*</span>
+                                    <span class="field-hint-badge req-hint" id="hint-phone">(Optional)</span>
+                                </label>
                                 <input type="tel" name="phone" id="phone" class="form-control-dark">
+                                <div class="invalid-feedback-custom" id="err-phone">Phone number is required in this mode.</div>
                             </div>
                         </div>
                     </div>
@@ -1301,7 +1492,7 @@
                                         <div class="hud-corner bottom-left"></div>
                                         <div class="hud-corner bottom-right"></div>
                                         <div class="hud-instruction">
-                                            <i class="fas fa-id-card"></i> Posisikan Kartu Nama di Kotak
+                                            <i class="fas fa-id-card"></i> Position Business Card in Frame
                                         </div>
                                     </div>
                                 </div>
@@ -1312,20 +1503,20 @@
                                 <!-- Camera Loading State -->
                                 <div class="camera-state-overlay" id="camera-loading" style="display: none;">
                                     <i class="fas fa-spinner fa-spin"></i>
-                                    <span>Menghubungkan kamera...</span>
+                                    <span>Connecting camera...</span>
                                 </div>
 
                                 <!-- Camera Error / Denied State -->
                                 <div class="camera-state-overlay error" id="camera-error" style="display: none;">
                                     <i class="fas fa-video-slash"></i>
-                                    <div class="cam-err-title" id="cam-err-msg">Akses kamera tidak tersedia</div>
+                                    <div class="cam-err-title" id="cam-err-msg">Camera access unavailable</div>
                                     <button type="button" class="btn-retry-cam" id="btn-retry-camera">
-                                        <i class="fas fa-redo"></i> Coba Akses Lagi
+                                        <i class="fas fa-redo"></i> Retry Camera Access
                                     </button>
                                     <div class="cam-fallback-row">
-                                        <span>atau</span>
+                                        <span>or</span>
                                         <label for="business_card_fallback" class="cam-fallback-label">
-                                            <i class="fas fa-folder-open"></i> Upload dari File
+                                            <i class="fas fa-folder-open"></i> Upload from File
                                         </label>
                                     </div>
                                 </div>
@@ -1335,7 +1526,7 @@
                             <div class="camera-preview-container" id="camera-preview-container" style="display: none;">
                                 <img id="card-preview-img" src="" alt="Business card captured">
                                 <div class="preview-success-tag">
-                                    <i class="fas fa-check-circle"></i> Foto Kartu Nama Siap
+                                    <i class="fas fa-check-circle"></i> Business Card Ready
                                 </div>
                             </div>
 
@@ -1349,13 +1540,13 @@
                             <div class="camera-toolbar">
                                 <!-- Active Stream Controls -->
                                 <div class="toolbar-stream" id="toolbar-stream">
-                                    <button type="button" class="btn-cam-tool" id="btn-switch-camera" title="Ganti Kamera (Depan/Belakang)">
+                                    <button type="button" class="btn-cam-tool" id="btn-switch-camera" title="Switch Camera (Front/Rear)">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
-                                    <button type="button" class="btn-cam-shutter" id="btn-shutter" title="Ambil Foto Kartu Nama">
+                                    <button type="button" class="btn-cam-shutter" id="btn-shutter" title="Take Business Card Photo">
                                         <span class="shutter-circle"></span>
                                     </button>
-                                    <label for="business_card_fallback" class="btn-cam-tool" title="Upload dari File/Galeri">
+                                    <label for="business_card_fallback" class="btn-cam-tool" title="Upload from File/Gallery">
                                         <i class="fas fa-folder-open"></i>
                                     </label>
                                 </div>
@@ -1363,7 +1554,7 @@
                                 <!-- Captured Preview Controls -->
                                 <div class="toolbar-preview" id="toolbar-preview" style="display: none;">
                                     <button type="button" class="btn-cam-retake" id="btn-retake">
-                                        <i class="fas fa-redo"></i> Foto Ulang
+                                        <i class="fas fa-redo"></i> Retake Photo
                                     </button>
                                 </div>
                             </div>
@@ -1635,18 +1826,36 @@
         var canvasSize = 650;
 
         function resizeCanvas() {
-            var stageWidth = stage.clientWidth - 40;
-            var stageHeight = stage.clientHeight - 80;
+            var isDesktop = window.innerWidth > 991;
+
+            // Available space calculations tailored for desktop vs mobile
+            // On desktop, account for stage padding, glowing rings, needle pointer, and hint pill
+            var stageWidth = isDesktop ? (stage.clientWidth - 130) : (stage.clientWidth - 30);
+            var stageHeight = isDesktop ? (stage.clientHeight - 130) : (stage.clientHeight - 80);
             var availableSize = Math.min(stageWidth, stageHeight);
 
-            // Responsive bounds: between 320px and 740px
-            canvasSize = Math.max(320, Math.min(740, availableSize));
+            // Responsive bounds: max 620px on desktop (leaves plenty of breathing room, zero clipping)
+            var maxCap = isDesktop ? 620 : 420;
+            var minCap = isDesktop ? 300 : 280;
+            canvasSize = Math.max(minCap, Math.min(maxCap, availableSize));
 
             var dpr = window.devicePixelRatio || 1;
             canvas.width = canvasSize * dpr;
             canvas.height = canvasSize * dpr;
             canvas.style.width = canvasSize + 'px';
             canvas.style.height = canvasSize + 'px';
+
+            // Scale center hub dynamically
+            var hub = document.querySelector('.wheel-hub');
+            var hubText = document.querySelector('.wheel-hub-text');
+            if (hub) {
+                var hubSize = Math.max(54, Math.min(92, Math.round(canvasSize * 0.155)));
+                hub.style.width = hubSize + 'px';
+                hub.style.height = hubSize + 'px';
+                if (hubText) {
+                    hubText.style.fontSize = Math.max(9, Math.round(hubSize * 0.16)) + 'px';
+                }
+            }
 
             ctx.scale(dpr, dpr);
             drawWheel(currentRotation);
@@ -1937,8 +2146,13 @@
         function showWinnerCelebration(prizeName, recipientName) {
             var isWin = prizeName && prizeName !== 'Try Again';
 
+            var fallbackName = (typeof currentSpinMode !== 'undefined' && currentSpinMode === 'anonymous')
+                ? 'Anonymous Participant'
+                : 'Guest Participant';
+            var finalRecipient = (recipientName && recipientName.trim()) ? recipientName.trim() : fallbackName;
+
             winnerTitle.textContent = prizeName || 'Try Again';
-            winnerUser.textContent = recipientName || 'Guest Participant';
+            winnerUser.textContent = finalRecipient;
 
             if (isWin) {
                 winnerBadge.textContent = '🎉 Congratulations! 🎉';
@@ -1956,7 +2170,7 @@
             }
 
             // Log to Winners Tab
-            addWinnerToLog(prizeName || 'Try Again', recipientName, isWin);
+            addWinnerToLog(prizeName || 'Try Again', finalRecipient, isWin);
         }
 
         var STORAGE_KEY = 'dmc_lucky_draw_winners_history';
@@ -2122,10 +2336,81 @@
         var currentFacingMode = 'environment';
         var isCameraActive = false;
 
-        // Capture Mode Switcher
+        // Capture Mode Switcher (Manual vs Card)
         var modeButtons = document.querySelectorAll('.mode-toggle-btn');
         var panelManual = document.getElementById('panel-manual');
         var panelCard = document.getElementById('panel-card');
+
+        // Spin Mode State (Anonymous vs Required Data)
+        var currentSpinMode = 'anonymous';
+        try {
+            var savedSpinMode = localStorage.getItem('dmc_lucky_spin_mode');
+            if (savedSpinMode === 'required' || savedSpinMode === 'anonymous') {
+                currentSpinMode = savedSpinMode;
+            }
+        } catch (e) {}
+
+        var spinModeInput = document.getElementById('spin_mode');
+        var wheelHintText = document.getElementById('wheel-hint-text');
+        var wheelHintIcon = document.getElementById('wheel-hint-icon');
+        var hintName = document.getElementById('hint-name');
+        var hintPhone = document.getElementById('hint-phone');
+        var panelHeaderDesc = document.getElementById('panel-header-desc');
+
+        function setSpinMode(mode, saveToStorage) {
+            currentSpinMode = mode;
+            if (saveToStorage !== false) {
+                try {
+                    localStorage.setItem('dmc_lucky_spin_mode', mode);
+                } catch (e) {}
+            }
+
+            if (spinModeInput) spinModeInput.value = mode;
+
+            var isAnon = mode === 'anonymous';
+
+            // Update topbar segmented buttons
+            var btnAnon = document.getElementById('btn-mode-anonymous');
+            var btnReq = document.getElementById('btn-mode-required');
+            if (btnAnon) btnAnon.classList.toggle('active', isAnon);
+            if (btnReq) btnReq.classList.toggle('active', !isAnon);
+
+            // Update form container for req-star styling
+            if (luckyForm) {
+                luckyForm.classList.toggle('mode-required-active', !isAnon);
+            }
+
+            if (panelHeaderDesc) {
+                panelHeaderDesc.textContent = isAnon
+                    ? 'Anonymous Mode: Participant details are optional. You can spin right away!'
+                    : 'Required Mode: Participant details are required before spinning.';
+            }
+
+            // Update hint labels (Optional vs Required)
+            if (hintName) hintName.textContent = isAnon ? '(Optional)' : '(Required)';
+            if (hintPhone) hintPhone.textContent = isAnon ? '(Optional)' : '(Required)';
+
+            // Update wheel stage hint
+            if (wheelHintText) {
+                if (isAnon) {
+                    wheelHintText.innerHTML = 'Anonymous Mode: Click the wheel or click <strong>Draw Now</strong> to spin directly';
+                } else {
+                    wheelHintText.innerHTML = 'Required Mode: Complete participant details before spinning the wheel';
+                }
+            }
+            if (wheelHintIcon) {
+                wheelHintIcon.className = isAnon ? 'fas fa-hand-pointer text-primary' : 'fas fa-lock text-danger';
+            }
+
+            // Clear any invalid states if switching to anonymous
+            if (isAnon) {
+                document.querySelectorAll('.form-control-dark').forEach(function(el) {
+                    el.classList.remove('is-invalid');
+                });
+            }
+
+            updateSubmitAvailability();
+        }
 
         function setCaptureMode(mode) {
             currentMode = mode;
@@ -2153,8 +2438,8 @@
         });
 
         function updateSubmitAvailability() {
-            var blockedByCard = currentMode === 'card' && (cardUploading || !entryIdInput.value);
-            drawBtn.disabled = blockedByCard || isSpinning;
+            var blocked = cardUploading;
+            drawBtn.disabled = blocked || isSpinning;
             drawBtn.querySelector('span').textContent = cardUploading ? 'Uploading...' : 'Draw Now';
         }
 
@@ -2178,7 +2463,7 @@
             if (cameraError) cameraError.style.display = 'none';
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showCameraError('Browser tidak mendukung akses kamera secara langsung.');
+                showCameraError('Browser does not support direct camera access.');
                 return;
             }
 
@@ -2193,7 +2478,7 @@
 
             navigator.mediaDevices.getUserMedia(constraints)
                 .catch(function(err) {
-                    console.warn('Fallback ke default video camera:', err);
+                    console.warn('Fallback to default video camera:', err);
                     return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 })
                 .then(function(stream) {
@@ -2208,8 +2493,8 @@
                     if (cameraLoading) cameraLoading.style.display = 'none';
                 })
                 .catch(function(err) {
-                    console.error('Kamera error:', err);
-                    showCameraError('Akses kamera ditolak atau kamera tidak terdeteksi.');
+                    console.error('Camera error:', err);
+                    showCameraError('Camera access denied or no camera detected.');
                 });
         }
 
@@ -2269,7 +2554,7 @@
             // Convert to Blob and auto-upload
             cameraCanvas.toBlob(function(blob) {
                 if (!blob) {
-                    setCardStatus('Gagal memproses gambar.', 'error');
+                    setCardStatus('Failed to process image.', 'error');
                     return;
                 }
                 uploadBusinessCardFile(blob, 'business_card.jpg');
@@ -2280,7 +2565,7 @@
             filename = filename || 'business_card.jpg';
             entryIdInput.value = '';
             cardUploading = true;
-            setCardStatus('Mengunggah & memproses kartu nama...', 'uploading');
+            setCardStatus('Uploading & processing business card...', 'uploading');
             updateSubmitAvailability();
 
             var formData = new FormData();
@@ -2299,11 +2584,11 @@
                 })
                 .then(function(data) {
                     entryIdInput.value = data.entry_id;
-                    setCardStatus('Kartu nama tersimpan ✓ Siap diundi!', 'done');
+                    setCardStatus('Business card saved ✓ Ready to draw!', 'done');
                 })
                 .catch(function(err) {
                     console.error(err);
-                    setCardStatus('Gagal menyimpan kartu nama. Silakan foto ulang.', 'error');
+                    setCardStatus('Failed to save business card. Please retake photo.', 'error');
                 })
                 .finally(function() {
                     cardUploading = false;
@@ -2362,9 +2647,110 @@
             });
         }
 
+        // Spin Mode Eligibility Validation
+        function validateSpinEligibility() {
+            if (currentSpinMode === 'anonymous') {
+                return true;
+            }
+
+            // Mode Wajib Isi Data is active: ensure user is on the Form tab to see inputs
+            var formTabBtn = document.querySelector('.tab-btn[data-tab="form"]');
+            var tabForm = document.getElementById('tab-form');
+            if (tabForm && !tabForm.classList.contains('active') && formTabBtn) {
+                formTabBtn.click();
+            }
+
+            if (currentMode === 'manual') {
+                var nameInput = document.getElementById('input-name');
+                var phoneEl = document.getElementById('phone');
+                var nameVal = nameInput ? nameInput.value.trim() : '';
+                var phoneVal = phoneEl ? (iti ? iti.getNumber() : phoneEl.value.trim()) : '';
+
+                var hasError = false;
+
+                if (!nameVal) {
+                    if (nameInput) {
+                        nameInput.classList.add('is-invalid');
+                        var grp = nameInput.closest('.form-group');
+                        if (grp) {
+                            grp.classList.add('shake-element');
+                            setTimeout(function() { grp.classList.remove('shake-element'); }, 500);
+                        }
+                    }
+                    hasError = true;
+                } else if (nameInput) {
+                    nameInput.classList.remove('is-invalid');
+                }
+
+                if (!phoneVal) {
+                    if (phoneEl) {
+                        phoneEl.classList.add('is-invalid');
+                        var grpPhone = phoneEl.closest('.form-group');
+                        if (grpPhone) {
+                            grpPhone.classList.add('shake-element');
+                            setTimeout(function() { grpPhone.classList.remove('shake-element'); }, 500);
+                        }
+                    }
+                    hasError = true;
+                } else if (phoneEl) {
+                    phoneEl.classList.remove('is-invalid');
+                }
+
+                if (hasError) {
+                    swal({
+                        title: "Participant Details Required!",
+                        text: "Required Mode is active. Please enter Participant's Full Name and Phone Number before spinning the wheel.",
+                        icon: "warning",
+                        button: "Complete Details"
+                    }).then(function() {
+                        if (!nameVal && nameInput) {
+                            nameInput.focus();
+                        } else if (!phoneVal && phoneEl) {
+                            phoneEl.focus();
+                        }
+                    });
+                    return false;
+                }
+                return true;
+            } else if (currentMode === 'card') {
+                if (cardUploading) {
+                    swal({
+                        title: "Uploading in Progress...",
+                        text: "Please wait a moment until the business card upload is completed.",
+                        icon: "info",
+                        button: "OK"
+                    });
+                    return false;
+                }
+
+                if (!entryIdInput.value) {
+                    var cardWrapper = document.querySelector('.camera-card-wrapper');
+                    if (cardWrapper) {
+                        cardWrapper.classList.add('shake-element');
+                        setTimeout(function() { cardWrapper.classList.remove('shake-element'); }, 500);
+                    }
+                    swal({
+                        title: "Business Card Required!",
+                        text: "Required Mode is active. Please capture or upload a business card before spinning the wheel.",
+                        icon: "warning",
+                        button: "Capture Photo"
+                    });
+                    return false;
+                }
+                return true;
+            }
+
+            return true;
+        }
+
         // Trigger Draw Function
         function triggerDraw() {
             if (isSpinning || drawBtn.disabled) return;
+
+            // Validate eligibility based on currentSpinMode
+            if (!validateSpinEligibility()) {
+                return;
+            }
 
             stopCamera();
             initAudio();
@@ -2418,6 +2804,14 @@
                         setCardStatus('');
                         entryIdInput.value = '';
                         if (iti) iti.setNumber('');
+
+                        // Clear invalid states
+                        document.querySelectorAll('.form-control-dark').forEach(function(el) {
+                            el.classList.remove('is-invalid');
+                        });
+
+                        // Reapply current spin mode so input and UI remain in sync
+                        setSpinMode(currentSpinMode, false);
                     });
                 })
                 .catch(function() {
@@ -2438,6 +2832,46 @@
                     });
                 });
         }
+
+        // Mode Switch Event Listeners
+        var btnModeAnon = document.getElementById('btn-mode-anonymous');
+        if (btnModeAnon) {
+            btnModeAnon.addEventListener('click', function(e) {
+                e.preventDefault();
+                setSpinMode('anonymous');
+            });
+        }
+
+        var btnModeReq = document.getElementById('btn-mode-required');
+        if (btnModeReq) {
+            btnModeReq.addEventListener('click', function(e) {
+                e.preventDefault();
+                setSpinMode('required');
+            });
+        }
+
+        // Clear invalid error highlights as user types
+        var nameField = document.getElementById('input-name');
+        if (nameField) {
+            nameField.addEventListener('input', function() {
+                if (nameField.value.trim()) {
+                    nameField.classList.remove('is-invalid');
+                }
+            });
+        }
+
+        var phoneField = document.getElementById('phone');
+        if (phoneField) {
+            phoneField.addEventListener('input', function() {
+                var val = iti ? iti.getNumber() : phoneField.value.trim();
+                if (val) {
+                    phoneField.classList.remove('is-invalid');
+                }
+            });
+        }
+
+        // Initialize spin mode UI
+        setSpinMode(currentSpinMode, false);
 
         // Click anywhere on wheel to spin
         wheelContainer.addEventListener('click', function(e) {
