@@ -48,6 +48,7 @@ use App\Http\Controllers\Frontend\EventsPaymentController;
 use App\Http\Controllers\Frontend\EventsRegisterController;
 use App\Http\Controllers\Frontend\EventsRegisterSponsorController;
 use App\Http\Controllers\Frontend\FormMemberController;
+use App\Http\Controllers\Frontend\LuckyDrawController;
 use App\Http\Controllers\Frontend\PrintController;
 use App\Http\Controllers\Frontend\ScholarshipController;
 use App\Http\Controllers\Frontend\SponsorInterviewScheduleController;
@@ -56,6 +57,8 @@ use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\Admin\MembershipTierBannerController;
 use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\SponsorExportController;
+use App\Http\Controllers\Admin\LuckyDrawItemController;
+use App\Http\Controllers\Admin\LuckyDrawEntryController;
 use App\Http\Controllers\DmcMemberSurveyController;
 use App\Http\Controllers\EditorUploadController;
 use App\Http\Controllers\SponsorSurveyController;
@@ -185,6 +188,10 @@ Route::get('/event-gallery/{slug}', [EventGalleryController::class, 'show']);
 
 Route::get('/visit', [FormMemberController::class, 'visit']);
 Route::post('/visit', [FormMemberController::class, 'visitStore']);
+
+Route::get('/lucky-draw', [LuckyDrawController::class, 'index']);
+Route::post('/lucky-draw', [LuckyDrawController::class, 'store']);
+Route::post('/lucky-draw/business-card', [LuckyDrawController::class, 'uploadBusinessCard']);
 // Route::get('/register-event', [EventController::class, 'view2']);
 // Route::get('/register-event/multiple', [EventController::class, 'view']);
 // Route::get('/special-event/free', [SpecialEventController::class, 'free']);
@@ -548,6 +555,13 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('leads', [MemberLeadFollowUpController::class, 'index'])->name('admin.member_leads.index');
     Route::post('leads/{id}/follow-up', [MemberLeadFollowUpController::class, 'logFollowUp'])->name('admin.member_leads.log_follow_up');
     Route::post('leads/{id}/result', [MemberLeadFollowUpController::class, 'markResult'])->name('admin.member_leads.mark_result');
+
+    Route::get('lucky-draw/items', [LuckyDrawItemController::class, 'index'])->name('admin.lucky_draw.items.index');
+    Route::post('lucky-draw/items', [LuckyDrawItemController::class, 'store'])->name('admin.lucky_draw.items.store');
+    Route::post('lucky-draw/items/{id}/update', [LuckyDrawItemController::class, 'update'])->name('admin.lucky_draw.items.update');
+    Route::post('lucky-draw/items/{id}/delete', [LuckyDrawItemController::class, 'destroy'])->name('admin.lucky_draw.items.destroy');
+
+    Route::get('lucky-draw/entries', [LuckyDrawEntryController::class, 'index'])->name('admin.lucky_draw.entries.index');
 
     // Quick Search
     Route::get('quick-search', [App\Http\Controllers\Admin\QuickSearchController::class, 'search'])

@@ -142,6 +142,21 @@
             </ul>
         </li>
 
+        <li class="dropdown {{ request()->is('admin/lucky-draw*') ? 'active' : '' }}">
+            <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                <i class="fas fa-gift"></i>
+                <span>Lucky Draw</span>
+            </a>
+            <ul class="dropdown-menu">
+                <li class="{{ request()->is('admin/lucky-draw/items') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('admin.lucky_draw.items.index') }}">Prizes</a>
+                </li>
+                <li class="{{ request()->is('admin/lucky-draw/entries') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('admin.lucky_draw.entries.index') }}">Entries / Winners</a>
+                </li>
+            </ul>
+        </li>
+
         {{-- ── MARKETING & COMMUNICATION ────────────── --}}
         <li class="menu-header">Marketing &amp; Communication</li>
 

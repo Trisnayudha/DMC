@@ -1,0 +1,2492 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>DMC – Lucky Draw</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/css/intlTelInput.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --dmc-red: #c8102e;
+            --dmc-red-glow: rgba(200, 16, 46, 0.25);
+            --dmc-red-dark: #93081f;
+            --dmc-red-light: #fff0f2;
+            --dmc-red-subtle: #ffe4e8;
+            --bg-page: #f8fafc;
+            --bg-stage: #f1f5f9;
+            --bg-panel: #ffffff;
+            --bg-panel-subtle: #f8fafc;
+            --bg-input: #ffffff;
+            --border-panel: #e2e8f0;
+            --border-subtle: #edf2f7;
+            --border-input: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        .top-navbar {
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-panel);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #0f172a;
+        }
+
+        .brand-logo:hover {
+            text-decoration: none;
+            color: #0f172a;
+        }
+
+        .brand-logo img {
+            height: 38px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+        }
+
+        .brand-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            margin: 0;
+            color: #0f172a;
+        }
+
+        .brand-title span {
+            color: var(--dmc-red);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-action-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid var(--border-panel);
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            outline: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-action-icon:hover {
+            color: var(--dmc-red);
+            background: var(--dmc-red-light);
+            border-color: #fecdd3;
+        }
+
+        .btn-action-icon.active {
+            color: var(--dmc-red);
+            border-color: var(--dmc-red);
+            background: var(--dmc-red-subtle);
+        }
+
+        /* Main Workspace Layout */
+        .app-layout {
+            display: flex;
+            height: calc(100vh - 60px);
+            margin-top: 60px;
+            position: relative;
+        }
+
+        /* LEFT: Lucky Draw Stage */
+        .wheel-stage {
+            flex: 1;
+            background: radial-gradient(circle at 45% 50%, rgba(200, 16, 46, 0.05) 0%, #ffffff 50%, #f1f5f9 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .wheel-stage::before {
+            content: '';
+            position: absolute;
+            width: 720px;
+            height: 720px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(200, 16, 46, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .wheel-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            transition: transform 0.25s ease;
+        }
+
+        .wheel-container:hover {
+            transform: scale(1.008);
+        }
+
+        .wheel-container:active {
+            transform: scale(0.995);
+        }
+
+        #wheel-canvas {
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12), 0 0 0 10px #ffffff, 0 0 0 14px rgba(200, 16, 46, 0.25), 0 0 45px rgba(200, 16, 46, 0.12);
+            transition: filter 0.3s;
+        }
+
+        .wheel-container.is-spinning #wheel-canvas {
+            filter: drop-shadow(0 0 25px var(--dmc-red-glow));
+        }
+
+        /* Needle / Pointer (Located on the RIGHT edge, pointing LEFT) */
+        .wheel-pointer-wrapper {
+            position: absolute;
+            right: -24px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            pointer-events: none;
+            filter: drop-shadow(-3px 4px 8px rgba(200, 16, 46, 0.35));
+        }
+
+        .wheel-pointer {
+            width: 0;
+            height: 0;
+            border-top: 22px solid transparent;
+            border-bottom: 22px solid transparent;
+            border-right: 50px solid var(--dmc-red);
+            position: relative;
+            transform-origin: 45px 50%;
+            transition: transform 0.05s linear;
+        }
+
+        .wheel-pointer::after {
+            content: '';
+            position: absolute;
+            top: -16px;
+            right: -48px;
+            width: 0;
+            height: 0;
+            border-top: 16px solid transparent;
+            border-bottom: 16px solid transparent;
+            border-right: 36px solid #e53935;
+        }
+
+        .wheel-pointer.flick {
+            transform: rotate(-15deg);
+        }
+
+        /* Center Hub */
+        .wheel-hub {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 6px solid var(--dmc-red);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16), inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 5;
+            transition: transform 0.2s;
+        }
+
+        .wheel-hub-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .wheel-hub-icon {
+            color: var(--dmc-red);
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+
+        .wheel-hub-text {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 0.75rem;
+            letter-spacing: .08em;
+            color: var(--dmc-red-dark);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .wheel-hint {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 20px;
+            border-radius: 999px;
+            border: 1px solid var(--border-panel);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(6px);
+            z-index: 2;
+        }
+
+        .wheel-hint i {
+            color: var(--dmc-red);
+        }
+
+        /* RIGHT: Sidebar Panel */
+        .sidebar-panel {
+            width: 440px;
+            min-width: 380px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border-panel);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            z-index: 20;
+            box-shadow: -6px 0 25px rgba(15, 23, 42, 0.05);
+        }
+
+        /* Tabs Header */
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-panel);
+            background: #ffffff;
+            padding: 8px 12px 0;
+            gap: 6px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 11px 12px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: all 0.2s;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .tab-btn:hover {
+            color: var(--dmc-red);
+            background: var(--dmc-red-light);
+        }
+
+        .tab-btn.active {
+            color: var(--dmc-red);
+            border-bottom-color: var(--dmc-red);
+            background: #ffffff;
+        }
+
+        .tab-badge {
+            font-size: 0.7rem;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            font-weight: 700;
+        }
+
+        .tab-btn.active .tab-badge {
+            background: var(--dmc-red);
+            color: #fff;
+        }
+
+        /* Sidebar Content */
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .panel-header-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .panel-header-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+
+        .mode-toggle-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border-panel);
+        }
+
+        .mode-toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border-radius: 7px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            margin: 0;
+            text-align: center;
+        }
+
+        .mode-toggle-btn input {
+            display: none;
+        }
+
+        .mode-toggle-btn.active {
+            background: #ffffff;
+            color: var(--dmc-red);
+            border-color: #fecdd3;
+            box-shadow: 0 2px 6px rgba(200, 16, 46, 0.08);
+        }
+
+        .mode-toggle-btn.active i {
+            color: var(--dmc-red);
+        }
+
+        .form-group label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-control-dark {
+            background: #ffffff;
+            border: 1px solid var(--border-input);
+            border-radius: 9px;
+            padding: 10px 14px;
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            width: 100%;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .form-control-dark:focus {
+            border-color: var(--dmc-red);
+            box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.15);
+            background: #ffffff;
+            color: var(--text-primary);
+        }
+
+        .form-control-dark::placeholder {
+            color: var(--text-muted);
+        }
+
+        .iti {
+            width: 100%;
+        }
+
+        .iti__country-list {
+            background-color: #ffffff !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-panel) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .iti__country.iti__highlight {
+            background-color: var(--dmc-red-light) !important;
+        }
+
+        /* Camera Card Scanner */
+        .camera-card-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .camera-viewfinder-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: #090d16;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #camera-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .camera-hud-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .card-target-box {
+            position: relative;
+            width: 86%;
+            height: 74%;
+            border: 1.5px dashed rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.38);
+        }
+
+        .hud-corner {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: var(--dmc-red);
+            border-style: solid;
+        }
+
+        .hud-corner.top-left {
+            top: -2px;
+            left: -2px;
+            border-width: 3px 0 0 3px;
+            border-top-left-radius: 9px;
+        }
+
+        .hud-corner.top-right {
+            top: -2px;
+            right: -2px;
+            border-width: 3px 3px 0 0;
+            border-top-right-radius: 9px;
+        }
+
+        .hud-corner.bottom-left {
+            bottom: -2px;
+            left: -2px;
+            border-width: 0 0 3px 3px;
+            border-bottom-left-radius: 9px;
+        }
+
+        .hud-corner.bottom-right {
+            bottom: -2px;
+            right: -2px;
+            border-width: 0 3px 3px 0;
+            border-bottom-right-radius: 9px;
+        }
+
+        .hud-instruction {
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #ffffff;
+            font-size: 0.73rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .camera-flash {
+            position: absolute;
+            inset: 0;
+            background: #ffffff;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease-out;
+            z-index: 25;
+        }
+
+        .camera-flash.flash {
+            opacity: 0.95;
+            transition: none;
+        }
+
+        .camera-state-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            z-index: 20;
+        }
+
+        .camera-state-overlay i.fa-spinner {
+            font-size: 1.8rem;
+            color: var(--dmc-red);
+        }
+
+        .camera-state-overlay.error i.fa-video-slash {
+            font-size: 2rem;
+            color: #ef4444;
+        }
+
+        .cam-err-title {
+            font-size: 0.84rem;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .btn-retry-cam {
+            background: var(--dmc-red);
+            color: #fff;
+            border: none;
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-retry-cam:hover {
+            background: var(--dmc-red-dark);
+        }
+
+        .cam-fallback-row {
+            margin-top: 4px;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cam-fallback-label {
+            color: #38bdf8;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        /* Preview container */
+        .camera-preview-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: #0f172a;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid var(--dmc-red);
+            box-shadow: 0 4px 16px rgba(200, 16, 46, 0.15);
+        }
+
+        #card-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .preview-success-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(16, 185, 129, 0.9);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Camera Toolbar */
+        .camera-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 0;
+        }
+
+        .toolbar-stream {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .btn-cam-tool {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0;
+        }
+
+        .btn-cam-tool:hover {
+            background: var(--dmc-red-light);
+            color: var(--dmc-red);
+            border-color: var(--dmc-red);
+        }
+
+        .btn-cam-shutter {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3.5px solid var(--dmc-red);
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 14px rgba(200, 16, 46, 0.25);
+        }
+
+        .btn-cam-shutter:hover {
+            transform: scale(1.06);
+            box-shadow: 0 6px 18px rgba(200, 16, 46, 0.35);
+        }
+
+        .btn-cam-shutter:active {
+            transform: scale(0.92);
+        }
+
+        .shutter-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c8102e 0%, #93081f 100%);
+            display: block;
+        }
+
+        .toolbar-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-cam-retake {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            color: var(--dmc-red);
+            border: 1.5px solid var(--dmc-red);
+            padding: 9px 20px;
+            border-radius: 999px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(200, 16, 46, 0.12);
+        }
+
+        .btn-cam-retake:hover {
+            background: var(--dmc-red-light);
+            transform: translateY(-1px);
+        }
+
+        #card-upload-status {
+            display: block;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            min-height: 18px;
+        }
+
+        .status-uploading {
+            color: #f59e0b;
+        }
+
+        .status-done {
+            color: #10b981;
+        }
+
+        .status-error {
+            color: #ef4444;
+        }
+
+        /* Action Buttons */
+        .action-footer {
+            padding-top: 14px;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 14px;
+        }
+
+        .btn-draw-main {
+            width: 100%;
+            background: linear-gradient(135deg, #c8102e 0%, #93081f 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            box-shadow: 0 6px 20px rgba(200, 16, 46, 0.35);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s;
+        }
+
+        .btn-draw-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(200, 16, 46, 0.45);
+            background: linear-gradient(135deg, #dd1334 0%, #a80a24 100%);
+        }
+
+        .btn-draw-main:active {
+            transform: translateY(0);
+        }
+
+        .btn-draw-main:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Tab 2: Prizes List */
+        .prize-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: #ffffff;
+            border: 1px solid var(--border-panel);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.15s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+
+        .prize-list-item:hover {
+            transform: translateX(3px);
+            border-color: #fca5a5;
+            background: #fff9fa;
+        }
+
+        .prize-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .prize-color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .prize-name-text {
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--text-primary);
+        }
+
+        .prize-chance-pill {
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-panel);
+        }
+
+        /* Tab 3: Winners Log */
+        .winner-empty-state {
+            text-align: center;
+            padding: 40px 16px;
+            color: var(--text-muted);
+        }
+
+        .winner-empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+            color: var(--dmc-red);
+        }
+
+        .winner-log-card {
+            background: #ffffff;
+            border: 1px solid var(--border-panel);
+            border-left: 4px solid var(--dmc-red);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .winner-log-prize {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.02rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .winner-log-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .winner-log-time {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Modal Celebration Overlay (Wheel of Names Style) */
+        .winner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .winner-overlay.active {
+            display: flex;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .winner-modal {
+            background: #ffffff;
+            border: 2px solid #fecdd3;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2), 0 0 45px rgba(200, 16, 46, 0.12);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            padding: 36px 28px 30px;
+            position: relative;
+            overflow: hidden;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .winner-modal-glow {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(200, 16, 46, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .winner-icon-wrap {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c8102e, #93081f);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.3rem;
+            margin-bottom: 18px;
+            box-shadow: 0 10px 25px rgba(200, 16, 46, 0.4);
+            animation: bounceIn 0.6s ease;
+        }
+
+        .winner-congrats-sub {
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #d97706;
+            margin-bottom: 6px;
+        }
+
+        .winner-prize-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .winner-recipient-name {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .winner-recipient-name strong {
+            color: var(--text-primary);
+        }
+
+        .winner-modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-modal-close {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-modal-close:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-modal-again {
+            background: var(--dmc-red);
+            border: none;
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(200, 16, 46, 0.35);
+            transition: all 0.2s;
+        }
+
+        .btn-modal-again:hover {
+            background: var(--dmc-red-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.85);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            70% {
+                transform: scale(0.9);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .app-layout {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .wheel-stage {
+                min-height: 520px;
+                padding: 30px 10px;
+            }
+
+            .sidebar-panel {
+                width: 100%;
+                min-width: 100%;
+                box-shadow: none;
+                border-left: none;
+                border-top: 1px solid var(--border-panel);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP NAVIGATION BAR -->
+    <nav class="top-navbar">
+        <a href="{{ url('/') }}" class="brand-logo">
+            <img src="{{ asset('image/dmc.png') }}" alt="DMC Logo">
+            <h1 class="brand-title"><span>Lucky Draw</span></h1>
+        </a>
+
+        <div class="nav-actions">
+            <button class="btn-action-icon" id="btn-sound" title="Toggle Sound" aria-label="Toggle Sound">
+                <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="btn-action-icon" id="btn-fullscreen" title="Toggle Fullscreen"
+                aria-label="Toggle Fullscreen">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- APP MAIN LAYOUT -->
+    <div class="app-layout">
+
+        <!-- LEFT: HUGE LUCKY DRAW WHEEL STAGE -->
+        <main class="wheel-stage" id="wheel-stage">
+            <div class="wheel-container" id="wheel-container" title="Click to Spin the Wheel!">
+                <!-- HTML5 Canvas for ultra-sharp, large dynamic rendering -->
+                <canvas id="wheel-canvas"></canvas>
+
+                <!-- Center Hub with DMC Branding & SPIN text -->
+                <div class="wheel-hub">
+                    <div class="wheel-hub-inner">
+                        {{-- <i class="fas fa-dice-d20 wheel-hub-icon"></i> --}}
+                        <span class="wheel-hub-text">SPIN</span>
+                    </div>
+                </div>
+
+                <!-- Right Pointer Needle pointing LEFT horizontally -->
+                <div class="wheel-pointer-wrapper">
+                    <div class="wheel-pointer" id="wheel-pointer"></div>
+                </div>
+            </div>
+
+            <div class="wheel-hint">
+                <i class="fas fa-hand-pointer"></i>
+                <span>Click the wheel or click <strong>Draw Now</strong> to spin</span>
+            </div>
+        </main>
+
+        <!-- RIGHT: SIDEBAR PANEL (FORM, ENTRIES, RESULTS) -->
+        <aside class="sidebar-panel">
+            <!-- TABS -->
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="form">
+                    <i class="fas fa-edit"></i>
+                    <span>Form</span>
+                </button>
+                <button class="tab-btn" data-tab="prizes">
+                    <i class="fas fa-gift"></i>
+                    <span>Entries</span>
+                    <span class="tab-badge" id="badge-prizes-count">{{ count($prizes) + 1 }}</span>
+                </button>
+                <button class="tab-btn" data-tab="winners">
+                    <i class="fas fa-trophy"></i>
+                    <span>Results</span>
+                    <span class="tab-badge" id="badge-winners-count">0</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: FORM -->
+            <div class="sidebar-content tab-pane active" id="tab-form">
+                <h2 class="panel-header-title">Lucky Draw Entry</h2>
+                <p class="panel-header-desc">Participant details are optional. You can spin right away!</p>
+
+                <form action="{{ url('lucky-draw') }}" method="POST" enctype="multipart/form-data" id="lucky-draw-form"
+                    novalidate>
+                    @csrf
+                    <input type="hidden" name="entry_id" id="entry_id" value="">
+
+                    <!-- Mode Toggle -->
+                    <div class="mode-toggle-group">
+                        <label class="mode-toggle-btn active" data-mode="manual">
+                            <input type="radio" name="capture_mode" value="manual" checked>
+                            <i class="fas fa-keyboard"></i>
+                            <span>Fill Details</span>
+                        </label>
+                        <label class="mode-toggle-btn" data-mode="card">
+                            <input type="radio" name="capture_mode" value="card">
+                            <i class="fas fa-camera"></i>
+                            <span>Scan Card</span>
+                        </label>
+                    </div>
+
+                    <!-- Mode 1: Manual Input -->
+                    <div id="panel-manual">
+                        <div class="form-group">
+                            <label for="input-name">Full Name</label>
+                            <input type="text" name="name" id="input-name" class="form-control-dark"
+                                placeholder="e.g. John Doe">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-company">Company</label>
+                            <input type="text" name="company_name" id="input-company" class="form-control-dark"
+                                placeholder="e.g. PT Example Mining">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-job">Job Title</label>
+                            <input type="text" name="job_title" id="input-job" class="form-control-dark"
+                                placeholder="e.g. Operation Manager">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 form-group">
+                                <label for="input-email">Email</label>
+                                <input type="email" name="email" id="input-email" class="form-control-dark"
+                                    placeholder="john@example.com">
+                            </div>
+                            <div class="col-12 form-group">
+                                <label for="phone">Phone</label>
+                                <input type="tel" name="phone" id="phone" class="form-control-dark">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mode 2: Card Scan (Live Camera Stream) -->
+                    <div id="panel-card" style="display: none;">
+                        <div class="camera-card-wrapper">
+                            <!-- Live Viewfinder Box -->
+                            <div class="camera-viewfinder-container" id="camera-viewfinder-container">
+                                <video id="camera-video" playsinline autoplay muted></video>
+
+                                <!-- HUD Alignment Frame Overlay -->
+                                <div class="camera-hud-overlay" id="camera-hud">
+                                    <div class="card-target-box">
+                                        <div class="hud-corner top-left"></div>
+                                        <div class="hud-corner top-right"></div>
+                                        <div class="hud-corner bottom-left"></div>
+                                        <div class="hud-corner bottom-right"></div>
+                                        <div class="hud-instruction">
+                                            <i class="fas fa-id-card"></i> Posisikan Kartu Nama di Kotak
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- White flash animation on shutter click -->
+                                <div class="camera-flash" id="camera-flash"></div>
+
+                                <!-- Camera Loading State -->
+                                <div class="camera-state-overlay" id="camera-loading" style="display: none;">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span>Menghubungkan kamera...</span>
+                                </div>
+
+                                <!-- Camera Error / Denied State -->
+                                <div class="camera-state-overlay error" id="camera-error" style="display: none;">
+                                    <i class="fas fa-video-slash"></i>
+                                    <div class="cam-err-title" id="cam-err-msg">Akses kamera tidak tersedia</div>
+                                    <button type="button" class="btn-retry-cam" id="btn-retry-camera">
+                                        <i class="fas fa-redo"></i> Coba Akses Lagi
+                                    </button>
+                                    <div class="cam-fallback-row">
+                                        <span>atau</span>
+                                        <label for="business_card_fallback" class="cam-fallback-label">
+                                            <i class="fas fa-folder-open"></i> Upload dari File
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Photo Preview Container (Shown after capture) -->
+                            <div class="camera-preview-container" id="camera-preview-container" style="display: none;">
+                                <img id="card-preview-img" src="" alt="Business card captured">
+                                <div class="preview-success-tag">
+                                    <i class="fas fa-check-circle"></i> Foto Kartu Nama Siap
+                                </div>
+                            </div>
+
+                            <!-- Hidden Canvas for Full Resolution Snapshot -->
+                            <canvas id="camera-canvas" style="display: none;"></canvas>
+
+                            <!-- Hidden Fallback File Input -->
+                            <input type="file" id="business_card_fallback" accept="image/*" style="display: none;">
+
+                            <!-- Camera Controls Toolbar -->
+                            <div class="camera-toolbar">
+                                <!-- Active Stream Controls -->
+                                <div class="toolbar-stream" id="toolbar-stream">
+                                    <button type="button" class="btn-cam-tool" id="btn-switch-camera" title="Ganti Kamera (Depan/Belakang)">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <button type="button" class="btn-cam-shutter" id="btn-shutter" title="Ambil Foto Kartu Nama">
+                                        <span class="shutter-circle"></span>
+                                    </button>
+                                    <label for="business_card_fallback" class="btn-cam-tool" title="Upload dari File/Galeri">
+                                        <i class="fas fa-folder-open"></i>
+                                    </label>
+                                </div>
+
+                                <!-- Captured Preview Controls -->
+                                <div class="toolbar-preview" id="toolbar-preview" style="display: none;">
+                                    <button type="button" class="btn-cam-retake" id="btn-retake">
+                                        <i class="fas fa-redo"></i> Foto Ulang
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Upload & Validation Status -->
+                            <div id="card-upload-status"></div>
+                        </div>
+                    </div>
+
+                    <!-- Submit / Spin Button -->
+                    <div class="action-footer">
+                        <button type="submit" class="btn-draw-main" id="btn-draw">
+                            <i class="fas fa-play"></i>
+                            <span>Draw Now</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB 2: PRIZES / ENTRIES -->
+            <div class="sidebar-content tab-pane" id="tab-prizes">
+                <h2 class="panel-header-title">Wheel Entries</h2>
+                <p class="panel-header-desc">Available prizes on the lucky draw wheel.</p>
+
+                <div id="prizes-list-container">
+                    <!-- Populated dynamically via JS matching wheel segment colors -->
+                </div>
+            </div>
+
+            <!-- TAB 3: RESULTS / WINNERS -->
+            <div class="sidebar-content tab-pane" id="tab-winners">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h2 class="panel-header-title mb-0">Winners History</h2>
+                        <p class="panel-header-desc mb-0">Recorded prizes drawn during this session.</p>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" id="btn-clear-history"
+                        title="Clear this session log" style="font-size: 0.75rem;">
+                        <i class="fas fa-trash-alt"></i> Clear
+                    </button>
+                </div>
+
+                <div id="winners-list-container">
+                    <div class="winner-empty-state" id="winner-empty-state">
+                        <i class="fas fa-dice"></i>
+                        <p>No winners drawn yet.<br>Click the wheel to start drawing!</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- WINNER CELEBRATION MODAL (Wheel of Names Style) -->
+    <div class="winner-overlay" id="winner-modal">
+        <div class="winner-modal">
+            <div class="winner-modal-glow"></div>
+            <div class="winner-icon-wrap">
+                <i class="fas fa-award"></i>
+            </div>
+            <div class="winner-congrats-sub" id="winner-modal-badge">🎉 Congratulations! 🎉</div>
+            <h3 class="winner-prize-title" id="winner-modal-title">Gelas</h3>
+            <p class="winner-recipient-name" id="winner-modal-desc">
+                Winner: <strong id="winner-modal-user">Guest Participant</strong>
+            </p>
+            <div class="winner-modal-actions">
+                <button type="button" class="btn-modal-close" id="btn-modal-close">Close</button>
+                <button type="button" class="btn-modal-again" id="btn-modal-again">Spin Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script>
+        // Initialize Phone Input
+        var phoneInput = document.querySelector("#phone");
+        var iti = null;
+        if (phoneInput && window.intlTelInput) {
+            iti = window.intlTelInput(phoneInput, {
+                initialCountry: "id",
+                preferredCountries: ["id", "sg", "my", "au"],
+                utilsScript: "https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/utils.js"
+            });
+        }
+
+        // ==========================================
+        // 1. DATA PREPARATION & COLOR PALETTE
+        // ==========================================
+        var initialPrizes = @json($prizes);
+        var wheelSegments = [];
+
+        // Build list of segments: prizes plus "Try Again" slice
+        if (initialPrizes && initialPrizes.length > 0) {
+            initialPrizes.forEach(function(p) {
+                wheelSegments.push({
+                    name: p.name,
+                    chance: p.chance_percent || null,
+                    isPrize: true
+                });
+            });
+        } else {
+            wheelSegments.push({
+                name: "Grand Prize",
+                chance: 50,
+                isPrize: true
+            });
+        }
+        // Always include zonk / try again option
+        wheelSegments.push({
+            name: "Try Again",
+            chance: null,
+            isPrize: false
+        });
+
+        // Wheel color palette with DMC Signature Red
+        var colorPalette = [
+            '#c8102e', // DMC Signature Red
+            '#f59e0b', // Golden Amber
+            '#10b981', // Emerald Green
+            '#1d4ed8', // Royal Cobalt Blue
+            '#8b5cf6', // Violet
+            '#d97706', // Warm Amber
+            '#e11d48', // Crimson Rose
+            '#0f766e' // Deep Teal
+        ];
+
+        wheelSegments.forEach(function(seg, idx) {
+            seg.color = colorPalette[idx % colorPalette.length];
+        });
+
+        // Populate Tab 2: Prizes / Entries list
+        var prizesContainer = document.getElementById('prizes-list-container');
+        if (prizesContainer) {
+            prizesContainer.innerHTML = '';
+            wheelSegments.forEach(function(seg) {
+                var div = document.createElement('div');
+                div.className = 'prize-list-item';
+                div.innerHTML = `
+                    <div class="prize-item-left">
+                        <div class="prize-color-swatch" style="background-color: ${seg.color}"></div>
+                        <div class="prize-name-text">${escapeHtml(seg.name)}</div>
+                    </div>
+                `;
+                prizesContainer.appendChild(div);
+            });
+        }
+
+        function escapeHtml(text) {
+            var div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+
+        // ==========================================
+        // 2. AUDIO SYNTHESIZER (Web Audio API)
+        // ==========================================
+        var audioCtx = null;
+        var soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playPegTick() {
+            if (!soundEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            try {
+                var now = audioCtx.currentTime;
+                var osc = audioCtx.createOscillator();
+                var gain = audioCtx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(650, now);
+                osc.frequency.exponentialRampToValueAtTime(140, now + 0.035);
+
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.04);
+            } catch (e) {}
+        }
+
+        function playFanfare() {
+            if (!soundEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            try {
+                var notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach(function(freq, i) {
+                    var now = audioCtx.currentTime + i * 0.12;
+                    var osc = audioCtx.createOscillator();
+                    var gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.28, now + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                });
+            } catch (e) {}
+        }
+
+        // Sound Toggle Button
+        var soundBtn = document.getElementById('btn-sound');
+        if (soundBtn) {
+            soundBtn.addEventListener('click', function() {
+                soundEnabled = !soundEnabled;
+                soundBtn.classList.toggle('active', soundEnabled);
+                soundBtn.innerHTML = soundEnabled ? '<i class="fas fa-volume-up"></i>' :
+                    '<i class="fas fa-volume-mute"></i>';
+            });
+        }
+
+        // Fullscreen Toggle Button
+        var fullscreenBtn = document.getElementById('btn-fullscreen');
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', function() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(function() {});
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                }
+            });
+        }
+
+        // ==========================================
+        // 3. CANVAS WHEEL RENDERING ENGINE
+        // ==========================================
+        var canvas = document.getElementById('wheel-canvas');
+        var ctx = canvas.getContext('2d');
+        var wheelContainer = document.getElementById('wheel-container');
+        var wheelPointer = document.getElementById('wheel-pointer');
+        var stage = document.getElementById('wheel-stage');
+
+        var numSegments = wheelSegments.length;
+        var arcAngle = (2 * Math.PI) / numSegments;
+        var currentRotation = 0; // Current angle in radians
+        var isSpinning = false;
+        var canvasSize = 650;
+
+        function resizeCanvas() {
+            var stageWidth = stage.clientWidth - 40;
+            var stageHeight = stage.clientHeight - 80;
+            var availableSize = Math.min(stageWidth, stageHeight);
+
+            // Responsive bounds: between 320px and 740px
+            canvasSize = Math.max(320, Math.min(740, availableSize));
+
+            var dpr = window.devicePixelRatio || 1;
+            canvas.width = canvasSize * dpr;
+            canvas.height = canvasSize * dpr;
+            canvas.style.width = canvasSize + 'px';
+            canvas.style.height = canvasSize + 'px';
+
+            ctx.scale(dpr, dpr);
+            drawWheel(currentRotation);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Draw the complete wheel
+        function drawWheel(angle) {
+            var size = canvasSize;
+            var cx = size / 2;
+            var cy = size / 2;
+            var radius = size / 2 - 6;
+
+            ctx.clearRect(0, 0, size, size);
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(angle);
+
+            // Draw Segments
+            for (var i = 0; i < numSegments; i++) {
+                var seg = wheelSegments[i];
+                var segStart = i * arcAngle;
+                var segEnd = segStart + arcAngle;
+
+                // Wedge background
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, segStart, segEnd);
+                ctx.fillStyle = seg.color;
+                ctx.fill();
+
+                // Wedge border line
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, segStart, segEnd);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+
+                // Outer edge pin / peg dot
+                var pegX = Math.cos(segStart) * (radius - 9);
+                var pegY = Math.sin(segStart) * (radius - 9);
+                ctx.beginPath();
+                ctx.arc(pegX, pegY, 4, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+                ctx.shadowBlur = 3;
+                ctx.fill();
+                ctx.shadowColor = 'transparent';
+
+                // Draw Text (Centred radially along the wedge)
+                ctx.save();
+                var midAngle = segStart + arcAngle / 2;
+                ctx.rotate(midAngle);
+
+                var hubRadius = 52;
+                drawSliceText(ctx, seg.name, hubRadius, radius, arcAngle);
+
+                ctx.restore();
+            }
+
+            // Outer metallic rim
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Helper to draw large, bold, centered radial text like Wheel of Names
+        function drawSliceText(ctx, text, hubRadius, radius, arcAngle) {
+            var availableLength = (radius - hubRadius) - 24;
+            var maxThickness = (hubRadius + radius) * Math.sin(arcAngle / 2) * 0.72;
+
+            var words = text.split(' ');
+            var lines = [];
+            if (words.length > 2 && text.length > 13) {
+                var mid = Math.ceil(words.length / 2);
+                lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+            } else {
+                lines = [text];
+            }
+
+            // Calculate maximum bold font size
+            var testSize = Math.min(52, Math.floor(maxThickness / (lines.length * 1.12)));
+            testSize = Math.max(18, testSize);
+
+            while (testSize > 16) {
+                ctx.font = '900 ' + testSize + 'px "Outfit", "Inter", sans-serif';
+                var maxW = 0;
+                for (var l = 0; l < lines.length; l++) {
+                    var w = ctx.measureText(lines[l]).width;
+                    if (w > maxW) maxW = w;
+                }
+                if (maxW <= availableLength) {
+                    break;
+                }
+                testSize -= 2;
+            }
+
+            ctx.font = '900 ' + testSize + 'px "Outfit", "Inter", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
+
+            var textDistance = hubRadius + (radius - hubRadius) * 0.52;
+            var lineHeight = testSize * 1.15;
+            var totalHeight = lines.length * lineHeight;
+            var startY = -(totalHeight / 2) + lineHeight / 2;
+
+            for (var i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], textDistance, startY + i * lineHeight);
+            }
+        }
+
+        // Initialize Canvas
+        resizeCanvas();
+
+        // ==========================================
+        // 4. FLAPPER POINTER & SPIN PHYSICS ENGINE
+        // ==========================================
+        var idleAnimId = null;
+        var isIdle = true;
+        var idleSpeed = 0.0032; // smooth, gentle ambient rotation on standby
+
+        function startIdleAnimation() {
+            if (isSpinning) return;
+            isIdle = true;
+            if (idleAnimId) cancelAnimationFrame(idleAnimId);
+
+            function idleLoop() {
+                if (!isIdle || isSpinning) return;
+                currentRotation += idleSpeed;
+                drawWheel(currentRotation);
+                idleAnimId = requestAnimationFrame(idleLoop);
+            }
+            idleAnimId = requestAnimationFrame(idleLoop);
+        }
+
+        function stopIdleAnimation() {
+            isIdle = false;
+            if (idleAnimId) {
+                cancelAnimationFrame(idleAnimId);
+                idleAnimId = null;
+            }
+        }
+
+        // Start standby spinning right away
+        startIdleAnimation();
+
+        function flickPointer() {
+            wheelPointer.classList.remove('flick');
+            void wheelPointer.offsetWidth; // trigger reflow
+            wheelPointer.classList.add('flick');
+            setTimeout(function() {
+                wheelPointer.classList.remove('flick');
+            }, 60);
+        }
+
+        /**
+         * Spin the wheel to land on targetIndex under the right-side pointer.
+         * The right pointer is at 0 rad (3 o'clock).
+         */
+        function animateSpinTo(targetIndex, onFinish) {
+            stopIdleAnimation();
+            isSpinning = true;
+            wheelContainer.classList.add('is-spinning');
+            drawBtn.disabled = true;
+
+            // Target segment center in local coordinates
+            var targetMidAngle = targetIndex * arcAngle + arcAngle / 2;
+
+            // Alignment to angle 0 (3 o'clock pointer):
+            // (currentAngle + totalDelta + targetMidAngle) % 2PI = 0
+            var desiredLocalAngle = (2 * Math.PI - (targetMidAngle % (2 * Math.PI))) % (2 * Math.PI);
+            var currentMod = ((currentRotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            var delta = desiredLocalAngle - currentMod;
+            if (delta < 0) {
+                delta += 2 * Math.PI;
+            }
+
+            // Small random jitter within +/- 25% of slice so it doesn't land dead center every time
+            var jitter = (Math.random() - 0.5) * (arcAngle * 0.4);
+
+            // Minimum 6 full rotations for dramatic suspense
+            var fullRounds = (6 + Math.floor(Math.random() * 2)) * 2 * Math.PI;
+            var totalRotation = fullRounds + delta + jitter;
+
+            var startAngle = currentRotation;
+            var startTime = performance.now();
+            var duration = 5800; // 5.8 seconds
+
+            var lastPegIndex = -1;
+
+            // Custom ease-out curve (deceleration)
+            function easeOutQuart(t) {
+                return 1 - Math.pow(1 - t, 4);
+            }
+
+            function frame(now) {
+                var elapsed = now - startTime;
+                var progress = Math.min(elapsed / duration, 1);
+                var eased = easeOutQuart(progress);
+
+                currentRotation = startAngle + totalRotation * eased;
+                drawWheel(currentRotation);
+
+                // Check which slice boundary is crossing the right pointer (angle 0)
+                var localAngleAtPointer = ((2 * Math.PI - (currentRotation % (2 * Math.PI))) + 2 * Math.PI) % (2 * Math.PI);
+                var currentPeg = Math.floor(localAngleAtPointer / arcAngle);
+
+                if (currentPeg !== lastPegIndex) {
+                    lastPegIndex = currentPeg;
+                    playPegTick();
+                    flickPointer();
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(frame);
+                } else {
+                    isSpinning = false;
+                    wheelContainer.classList.remove('is-spinning');
+                    drawBtn.disabled = false;
+                    if (onFinish) onFinish();
+                }
+            }
+
+            requestAnimationFrame(frame);
+        }
+
+        // ==========================================
+        // 5. CELEBRATION & WINNER POPUP MODAL
+        // ==========================================
+        var winnerModal = document.getElementById('winner-modal');
+        var winnerTitle = document.getElementById('winner-modal-title');
+        var winnerUser = document.getElementById('winner-modal-user');
+        var winnerBadge = document.getElementById('winner-modal-badge');
+        var btnModalClose = document.getElementById('btn-modal-close');
+        var btnModalAgain = document.getElementById('btn-modal-again');
+        var winnersLogContainer = document.getElementById('winners-list-container');
+        var winnerEmptyState = document.getElementById('winner-empty-state');
+        var badgeWinnersCount = document.getElementById('badge-winners-count');
+        var winnersCount = 0;
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                // Confetti cannon from left
+                confetti({
+                    particleCount: 70,
+                    angle: 60,
+                    spread: 65,
+                    origin: {
+                        x: 0.1,
+                        y: 0.6
+                    }
+                });
+                // Confetti cannon from right
+                confetti({
+                    particleCount: 70,
+                    angle: 120,
+                    spread: 65,
+                    origin: {
+                        x: 0.9,
+                        y: 0.6
+                    }
+                });
+                // Center burst
+                setTimeout(function() {
+                    confetti({
+                        particleCount: 90,
+                        spread: 100,
+                        origin: {
+                            y: 0.45
+                        }
+                    });
+                }, 250);
+            }
+        }
+
+        function showWinnerCelebration(prizeName, recipientName) {
+            var isWin = prizeName && prizeName !== 'Try Again';
+
+            winnerTitle.textContent = prizeName || 'Try Again';
+            winnerUser.textContent = recipientName || 'Guest Participant';
+
+            if (isWin) {
+                winnerBadge.textContent = '🎉 Congratulations! 🎉';
+                winnerBadge.style.color = '#f59e0b';
+                playFanfare();
+                triggerConfetti();
+            } else {
+                winnerBadge.textContent = '🙏 Better Luck Next Time! 🙏';
+                winnerBadge.style.color = '#94a3b8';
+            }
+
+            winnerModal.classList.add('active');
+            if (typeof stopCamera === 'function') {
+                stopCamera();
+            }
+
+            // Log to Winners Tab
+            addWinnerToLog(prizeName || 'Try Again', recipientName, isWin);
+        }
+
+        var STORAGE_KEY = 'dmc_lucky_draw_winners_history';
+
+        function loadWinnersFromCache() {
+            try {
+                var cached = localStorage.getItem(STORAGE_KEY);
+                if (cached) {
+                    var items = JSON.parse(cached);
+                    if (Array.isArray(items) && items.length > 0) {
+                        if (winnerEmptyState) {
+                            winnerEmptyState.style.display = 'none';
+                        }
+                        winnersCount = items.length;
+                        badgeWinnersCount.textContent = winnersCount;
+
+                        items.forEach(function(item) {
+                            renderWinnerCard(item, false);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not load winners from localStorage:", e);
+            }
+        }
+
+        function saveWinnerToCache(item) {
+            try {
+                var cached = localStorage.getItem(STORAGE_KEY);
+                var items = cached ? JSON.parse(cached) : [];
+                if (!Array.isArray(items)) items = [];
+                items.unshift(item);
+                if (items.length > 100) items = items.slice(0, 100);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+            } catch (e) {
+                console.warn("Could not save winner to localStorage:", e);
+            }
+        }
+
+        function renderWinnerCard(item, isNew) {
+            var logCard = document.createElement('div');
+            logCard.className = 'winner-log-card';
+            logCard.style.borderLeftColor = item.isWin ? 'var(--dmc-red)' : '#94a3b8';
+
+            logCard.innerHTML = `
+                <div class="winner-log-prize">
+                    <i class="${item.isWin ? 'fas fa-gift text-warning' : 'fas fa-redo text-secondary'}"></i>
+                    <span>${escapeHtml(item.prize)}</span>
+                </div>
+                <div class="winner-log-meta">
+                    <strong>Winner:</strong> ${escapeHtml(item.winner || 'Guest Participant')}
+                </div>
+                <div class="winner-log-time">
+                    <i class="far fa-clock"></i> ${escapeHtml(item.time)}
+                </div>
+            `;
+
+            if (isNew) {
+                winnersLogContainer.insertBefore(logCard, winnersLogContainer.firstChild);
+            } else {
+                winnersLogContainer.appendChild(logCard);
+            }
+        }
+
+        function addWinnerToLog(prizeName, recipientName, isWin) {
+            if (winnerEmptyState) {
+                winnerEmptyState.style.display = 'none';
+            }
+
+            winnersCount++;
+            badgeWinnersCount.textContent = winnersCount;
+
+            var timeStr = new Date().toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            var item = {
+                id: Date.now(),
+                prize: prizeName || 'Try Again',
+                winner: recipientName || 'Guest Participant',
+                isWin: isWin,
+                time: timeStr
+            };
+
+            renderWinnerCard(item, true);
+            saveWinnerToCache(item);
+        }
+
+        // Initialize cache on page load
+        loadWinnersFromCache();
+
+        function closeWinnerModal() {
+            winnerModal.classList.remove('active');
+            startIdleAnimation();
+        }
+
+        btnModalClose.addEventListener('click', closeWinnerModal);
+
+        winnerModal.addEventListener('click', function(e) {
+            if (e.target === winnerModal) {
+                closeWinnerModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && winnerModal.classList.contains('active')) {
+                closeWinnerModal();
+            }
+        });
+
+        btnModalAgain.addEventListener('click', function() {
+            winnerModal.classList.remove('active');
+            triggerDraw();
+        });
+
+        var btnClearHistory = document.getElementById('btn-clear-history');
+        if (btnClearHistory) {
+            btnClearHistory.addEventListener('click', function() {
+                try {
+                    localStorage.removeItem(STORAGE_KEY);
+                } catch (e) {}
+                winnersLogContainer.innerHTML = '';
+                winnersCount = 0;
+                badgeWinnersCount.textContent = 0;
+                if (winnerEmptyState) {
+                    winnerEmptyState.style.display = 'block';
+                    winnersLogContainer.appendChild(winnerEmptyState);
+                }
+            });
+        }
+
+        // ==========================================
+        // 6. FORM & SUBMISSION INTEGRATION (LIVE CAMERA SCANNER)
+        // ==========================================
+        var luckyForm = document.getElementById('lucky-draw-form');
+        var drawBtn = document.getElementById('btn-draw');
+        var entryIdInput = document.getElementById('entry_id');
+        var cardStatus = document.getElementById('card-upload-status');
+        var cardUploading = false;
+        var currentMode = 'manual';
+
+        // Camera elements
+        var cameraVideo = document.getElementById('camera-video');
+        var cameraCanvas = document.getElementById('camera-canvas');
+        var cameraFlash = document.getElementById('camera-flash');
+        var cameraViewfinder = document.getElementById('camera-viewfinder-container');
+        var cameraPreviewContainer = document.getElementById('camera-preview-container');
+        var cardPreviewImg = document.getElementById('card-preview-img');
+        var cameraLoading = document.getElementById('camera-loading');
+        var cameraError = document.getElementById('camera-error');
+        var cameraErrorMsg = document.getElementById('cam-err-msg');
+        var toolbarStream = document.getElementById('toolbar-stream');
+        var toolbarPreview = document.getElementById('toolbar-preview');
+        var btnShutter = document.getElementById('btn-shutter');
+        var btnRetake = document.getElementById('btn-retake');
+        var btnSwitchCamera = document.getElementById('btn-switch-camera');
+        var btnRetryCamera = document.getElementById('btn-retry-camera');
+        var fallbackInput = document.getElementById('business_card_fallback');
+
+        var cameraStream = null;
+        var currentFacingMode = 'environment';
+        var isCameraActive = false;
+
+        // Capture Mode Switcher
+        var modeButtons = document.querySelectorAll('.mode-toggle-btn');
+        var panelManual = document.getElementById('panel-manual');
+        var panelCard = document.getElementById('panel-card');
+
+        function setCaptureMode(mode) {
+            currentMode = mode;
+            modeButtons.forEach(function(btn) {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            panelManual.style.display = mode === 'manual' ? 'block' : 'none';
+            panelCard.style.display = mode === 'card' ? 'block' : 'none';
+
+            if (mode === 'card') {
+                // If a card is not already successfully uploaded, start camera immediately
+                if (!entryIdInput.value) {
+                    startCamera(currentFacingMode);
+                }
+            } else {
+                stopCamera();
+            }
+            updateSubmitAvailability();
+        }
+
+        modeButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                setCaptureMode(btn.dataset.mode);
+            });
+        });
+
+        function updateSubmitAvailability() {
+            var blockedByCard = currentMode === 'card' && (cardUploading || !entryIdInput.value);
+            drawBtn.disabled = blockedByCard || isSpinning;
+            drawBtn.querySelector('span').textContent = cardUploading ? 'Uploading...' : 'Draw Now';
+        }
+
+        function setCardStatus(text, kind) {
+            if (!cardStatus) return;
+            cardStatus.textContent = text;
+            cardStatus.className = kind ? 'status-' + kind : '';
+        }
+
+        // Live Camera Functions
+        function startCamera(facingMode) {
+            stopCamera();
+            facingMode = facingMode || currentFacingMode;
+            currentFacingMode = facingMode;
+
+            if (cameraViewfinder) cameraViewfinder.style.display = 'flex';
+            if (cameraPreviewContainer) cameraPreviewContainer.style.display = 'none';
+            if (toolbarStream) toolbarStream.style.display = 'flex';
+            if (toolbarPreview) toolbarPreview.style.display = 'none';
+            if (cameraLoading) cameraLoading.style.display = 'flex';
+            if (cameraError) cameraError.style.display = 'none';
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showCameraError('Browser tidak mendukung akses kamera secara langsung.');
+                return;
+            }
+
+            var constraints = {
+                video: {
+                    facingMode: { ideal: facingMode },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            };
+
+            navigator.mediaDevices.getUserMedia(constraints)
+                .catch(function(err) {
+                    console.warn('Fallback ke default video camera:', err);
+                    return navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                })
+                .then(function(stream) {
+                    cameraStream = stream;
+                    if (cameraVideo) {
+                        cameraVideo.srcObject = stream;
+                        cameraVideo.onloadedmetadata = function() {
+                            cameraVideo.play().catch(function(e) { console.warn(e); });
+                        };
+                    }
+                    isCameraActive = true;
+                    if (cameraLoading) cameraLoading.style.display = 'none';
+                })
+                .catch(function(err) {
+                    console.error('Kamera error:', err);
+                    showCameraError('Akses kamera ditolak atau kamera tidak terdeteksi.');
+                });
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+                cameraStream = null;
+            }
+            if (cameraVideo) {
+                cameraVideo.srcObject = null;
+            }
+            isCameraActive = false;
+            if (cameraLoading) cameraLoading.style.display = 'none';
+        }
+
+        function showCameraError(msg) {
+            if (cameraLoading) cameraLoading.style.display = 'none';
+            if (cameraError) {
+                cameraError.style.display = 'flex';
+                if (cameraErrorMsg) cameraErrorMsg.textContent = msg;
+            }
+        }
+
+        function capturePhoto() {
+            if (!cameraVideo || !cameraVideo.videoWidth) return;
+
+            // Flash effect
+            if (cameraFlash) {
+                cameraFlash.classList.add('flash');
+                setTimeout(function() {
+                    cameraFlash.classList.remove('flash');
+                }, 250);
+            }
+
+            // Audio shutter click
+            playPegTick();
+
+            // Draw snapshot on hidden high-res canvas
+            cameraCanvas.width = cameraVideo.videoWidth;
+            cameraCanvas.height = cameraVideo.videoHeight;
+            var ctx = cameraCanvas.getContext('2d');
+            ctx.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+
+            // Display in preview box
+            var dataUrl = cameraCanvas.toDataURL('image/jpeg', 0.92);
+            if (cardPreviewImg) cardPreviewImg.src = dataUrl;
+            if (cameraViewfinder) cameraViewfinder.style.display = 'none';
+            if (cameraPreviewContainer) cameraPreviewContainer.style.display = 'block';
+            if (toolbarStream) toolbarStream.style.display = 'none';
+            if (toolbarPreview) toolbarPreview.style.display = 'flex';
+
+            // Turn off live camera once picture is taken
+            stopCamera();
+
+            // Convert to Blob and auto-upload
+            cameraCanvas.toBlob(function(blob) {
+                if (!blob) {
+                    setCardStatus('Gagal memproses gambar.', 'error');
+                    return;
+                }
+                uploadBusinessCardFile(blob, 'business_card.jpg');
+            }, 'image/jpeg', 0.92);
+        }
+
+        function uploadBusinessCardFile(fileOrBlob, filename) {
+            filename = filename || 'business_card.jpg';
+            entryIdInput.value = '';
+            cardUploading = true;
+            setCardStatus('Mengunggah & memproses kartu nama...', 'uploading');
+            updateSubmitAvailability();
+
+            var formData = new FormData();
+            formData.append('business_card', fileOrBlob, filename);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            fetch('{{ url('lucky-draw/business-card') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(function(res) {
+                    return res.ok ? res.json() : Promise.reject(res);
+                })
+                .then(function(data) {
+                    entryIdInput.value = data.entry_id;
+                    setCardStatus('Kartu nama tersimpan ✓ Siap diundi!', 'done');
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    setCardStatus('Gagal menyimpan kartu nama. Silakan foto ulang.', 'error');
+                })
+                .finally(function() {
+                    cardUploading = false;
+                    updateSubmitAvailability();
+                });
+        }
+
+        if (btnShutter) {
+            btnShutter.addEventListener('click', function(e) {
+                e.preventDefault();
+                capturePhoto();
+            });
+        }
+
+        if (btnRetake) {
+            btnRetake.addEventListener('click', function(e) {
+                e.preventDefault();
+                entryIdInput.value = '';
+                setCardStatus('');
+                updateSubmitAvailability();
+                startCamera(currentFacingMode);
+            });
+        }
+
+        if (btnSwitchCamera) {
+            btnSwitchCamera.addEventListener('click', function(e) {
+                e.preventDefault();
+                currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+                startCamera(currentFacingMode);
+            });
+        }
+
+        if (btnRetryCamera) {
+            btnRetryCamera.addEventListener('click', function(e) {
+                e.preventDefault();
+                startCamera(currentFacingMode);
+            });
+        }
+
+        if (fallbackInput) {
+            fallbackInput.addEventListener('change', function() {
+                var file = fallbackInput.files && fallbackInput.files[0];
+                if (!file) return;
+
+                stopCamera();
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    if (cardPreviewImg) cardPreviewImg.src = e.target.result;
+                    if (cameraViewfinder) cameraViewfinder.style.display = 'none';
+                    if (cameraPreviewContainer) cameraPreviewContainer.style.display = 'block';
+                    if (toolbarStream) toolbarStream.style.display = 'none';
+                    if (toolbarPreview) toolbarPreview.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+                uploadBusinessCardFile(file, file.name);
+            });
+        }
+
+        // Trigger Draw Function
+        function triggerDraw() {
+            if (isSpinning || drawBtn.disabled) return;
+
+            stopCamera();
+            initAudio();
+
+            var participantName = document.getElementById('input-name') ? document.getElementById('input-name').value
+                .trim() : '';
+            var formData = new FormData(luckyForm);
+
+            drawBtn.disabled = true;
+            drawBtn.querySelector('span').textContent = 'Drawing...';
+
+            fetch(luckyForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(function(res) {
+                    return res.ok ? res.json() : Promise.reject(res);
+                })
+                .then(function(data) {
+                    // Find matching segment index
+                    var prizeName = data.prize;
+                    var targetIndex = -1;
+
+                    if (prizeName) {
+                        targetIndex = wheelSegments.findIndex(function(s) {
+                            return s.name.trim().toLowerCase() === prizeName.trim().toLowerCase();
+                        });
+                    }
+
+                    // Fallback to "Try Again" slice if zonk or not found
+                    if (targetIndex === -1) {
+                        targetIndex = wheelSegments.length - 1;
+                    }
+
+                    animateSpinTo(targetIndex, function() {
+                        showWinnerCelebration(data.prize, participantName);
+                        drawBtn.disabled = false;
+                        drawBtn.querySelector('span').textContent = 'Draw Now';
+
+                        // Reset form fields
+                        luckyForm.reset();
+                        setCaptureMode('manual');
+                        if (cardPreviewImg) cardPreviewImg.src = '';
+                        if (cameraViewfinder) cameraViewfinder.style.display = 'flex';
+                        if (cameraPreviewContainer) cameraPreviewContainer.style.display = 'none';
+                        if (toolbarStream) toolbarStream.style.display = 'flex';
+                        if (toolbarPreview) toolbarPreview.style.display = 'none';
+                        setCardStatus('');
+                        entryIdInput.value = '';
+                        if (iti) iti.setNumber('');
+                    });
+                })
+                .catch(function() {
+                    swal({
+                        title: "Notice",
+                        text: "Could not connect to server, spinning offline preview...",
+                        icon: "info",
+                        buttons: false,
+                        timer: 1500
+                    });
+
+                    // Random offline spin fallback
+                    var randomIndex = Math.floor(Math.random() * wheelSegments.length);
+                    animateSpinTo(randomIndex, function() {
+                        showWinnerCelebration(wheelSegments[randomIndex].name, participantName);
+                        drawBtn.disabled = false;
+                        drawBtn.querySelector('span').textContent = 'Draw Now';
+                    });
+                });
+        }
+
+        // Click anywhere on wheel to spin
+        wheelContainer.addEventListener('click', function(e) {
+            triggerDraw();
+        });
+
+        // Form Submit listener
+        luckyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            triggerDraw();
+        });
+
+        // Sidebar Tabs Switcher
+        var tabBtns = document.querySelectorAll('.tab-btn');
+        var tabPanes = document.querySelectorAll('.tab-pane');
+
+        tabBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var targetTab = btn.dataset.tab;
+                if (targetTab !== 'form') {
+                    stopCamera();
+                } else if (currentMode === 'card' && !entryIdInput.value) {
+                    startCamera(currentFacingMode);
+                }
+
+                tabBtns.forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                tabPanes.forEach(function(p) {
+                    p.classList.remove('active');
+                });
+
+                btn.classList.add('active');
+                var activePane = document.getElementById('tab-' + targetTab);
+                if (activePane) {
+                    activePane.classList.add('active');
+                }
+            });
+        });
+
+        // Clean up camera when page unloads
+        window.addEventListener('beforeunload', function() {
+            stopCamera();
+        });
+
+        @if (session('success'))
+            showWinnerCelebration(@json(session('prize')), '');
+        @endif
+    </script>
+</body>
+
+</html>
