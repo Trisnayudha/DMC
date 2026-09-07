@@ -121,6 +121,73 @@ class LuckyDrawController extends Controller
         return redirect()->back()->with($result);
     }
 
+    /**
+     * Lightweight ping to verify network connectivity from client.
+     */
+    public function ping()
+    {
+        return response()->json([
+            'status'    => 'ok',
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
+     * Synchronize a lucky draw entry drawn/stored offline at the venue.
+     */
+    public function syncOffline(Request $request)
+    {
+        $request->validate([
+            'name'                => 'nullable|string|max:255',
+            'company_name'        => 'nullable|string|max:255',
+            'job_title'           => 'nullable|string|max:255',
+            'phone'               => 'nullable|string|max:30',
+            'email'               => 'nullable|email|max:255',
+            'lucky_draw_item_id'  => 'nullable|integer|exists:lucky_draw_items,id',
+            'prize_name'          => 'nullable|string|max:255',
+            'drawn_at'            => 'nullable|string',
+            'business_card'       => 'nullable|image|max:10240',
+        ]);
+
+        $itemId = $request->input('lucky_draw_item_id');
+        if (!$itemId && $request->filled('prize_name')) {
+            $matchedItem = LuckyDrawItem::where('name', $request->prize_name)->first();
+            if ($matchedItem) {
+                $itemId = $matchedItem->id;
+            }
+        }
+
+        $drawnAt = now();
+        if ($request->filled('drawn_at')) {
+            try {
+                $drawnAt = \Carbon\Carbon::parse($request->drawn_at);
+            } catch (\Exception $e) {
+                $drawnAt = now();
+            }
+        }
+
+        $participantName = $request->filled('name')
+            ? $request->name
+            : ($request->input('spin_mode') === 'anonymous' ? 'Anonymous' : null);
+
+        $entry = new LuckyDrawEntry();
+        $entry->lucky_draw_item_id = $itemId;
+        $entry->name               = $participantName;
+        $entry->company_name       = $request->company_name;
+        $entry->job_title          = $request->job_title;
+        $entry->phone              = $request->phone;
+        $entry->email              = $request->email;
+        $entry->drawn_at           = $drawnAt;
+        $entry->business_card_path = $this->storeBusinessCard($request);
+        $entry->save();
+
+        return response()->json([
+            'success'   => true,
+            'entry_id'  => $entry->id,
+            'message'   => 'Offline entry successfully synced.',
+        ]);
+    }
+
     private function storeBusinessCard(Request $request): ?string
     {
         if (!$request->hasFile('business_card')) {
@@ -141,3 +208,4 @@ class LuckyDrawController extends Controller
         return '/storage/lucky-draw/business-cards/' . $imageName;
     }
 }
+

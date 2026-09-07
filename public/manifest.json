@@ -1,0 +1,16 @@
+{
+  "name": "DMC Lucky Draw",
+  "short_name": "Lucky Draw",
+  "start_url": "/lucky-draw",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#c8102e",
+  "description": "Djakarta Mining Club Interactive Lucky Draw Spin Wheel",
+  "icons": [
+    {
+      "src": "/image/dmc.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}

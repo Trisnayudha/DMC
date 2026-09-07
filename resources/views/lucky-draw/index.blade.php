@@ -5,6 +5,11 @@
     <meta charset="utf-8">
     <title>DMC – Lucky Draw</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#c8102e">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DMC Lucky Draw">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/css/intlTelInput.css" />
@@ -1322,6 +1327,332 @@
                 border-top: 1px solid var(--border-panel);
             }
         }
+
+        /* Network Status Badge */
+        .network-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border-panel);
+            background: var(--bg-panel);
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .network-status-badge:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .network-status-badge .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+            transition: background-color 0.3s;
+        }
+
+        .network-status-badge.online .status-dot {
+            background-color: #10b981;
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+        }
+
+        .network-status-badge.offline .status-dot {
+            background-color: #ef4444;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+        }
+
+        .network-status-badge.pending .status-dot {
+            background-color: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+            animation: pulseDot 1.5s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+        }
+
+        .network-status-badge .status-count {
+            background: #f59e0b;
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+
+        /* Offline Sync Modal */
+        .offline-sync-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .offline-sync-card {
+            background: #ffffff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-panel);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: popIn 0.25s ease;
+        }
+
+        .offline-sync-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border-subtle);
+            background: #f8fafc;
+        }
+
+        .offline-sync-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .offline-sync-title i {
+            color: var(--dmc-red);
+        }
+
+        .offline-sync-close {
+            background: transparent;
+            border: none;
+            font-size: 1.4rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .offline-sync-close:hover {
+            color: var(--text-primary);
+        }
+
+        .offline-sync-body {
+            padding: 20px 22px;
+            max-height: 65vh;
+            overflow-y: auto;
+        }
+
+        .offline-connection-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .offline-stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .offline-stat-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-panel);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .offline-stat-box .stat-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .offline-stat-box .stat-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .offline-queue-list-header {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .offline-queue-list {
+            background: #f8fafc;
+            border: 1px solid var(--border-panel);
+            border-radius: 10px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .offline-queue-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-radius: 6px;
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 6px;
+            font-size: 0.83rem;
+        }
+
+        .offline-queue-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .offline-queue-item-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .offline-queue-item-name {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .offline-queue-item-prize {
+            font-size: 0.75rem;
+            color: var(--dmc-red);
+            font-weight: 600;
+        }
+
+        .offline-queue-item-badge {
+            font-size: 0.7rem;
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .offline-queue-item-badge.pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .offline-queue-item-badge.synced {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .offline-empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 24px 10px;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .sync-progress-container {
+            margin-top: 14px;
+        }
+
+        .sync-progress-bar-wrap {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .sync-progress-bar {
+            height: 100%;
+            background: var(--dmc-red);
+            transition: width 0.3s ease;
+        }
+
+        .sync-progress-text {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .offline-sync-footer {
+            display: flex;
+            gap: 10px;
+            padding: 14px 22px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .btn-sync-action {
+            flex: 1;
+            padding: 11px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-sync-export {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+
+        .btn-sync-export:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-sync-primary {
+            background: var(--dmc-red);
+            color: #ffffff;
+        }
+
+        .btn-sync-primary:hover {
+            background: var(--dmc-red-dark);
+        }
+
+        .btn-sync-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
@@ -1351,6 +1682,13 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Network & Offline Queue Status Badge -->
+            <button type="button" class="network-status-badge online" id="btn-network-status" title="Status Jaringan & Antrean Tablet">
+                <span class="status-dot"></span>
+                <span class="status-text" id="network-status-text">Online</span>
+                <span class="status-count" id="network-queue-count" style="display: none;">0</span>
+            </button>
 
             <button class="btn-action-icon" id="btn-sound" title="Toggle Sound" aria-label="Toggle Sound">
                 <i class="fas fa-volume-up"></i>
@@ -1627,6 +1965,59 @@
         </div>
     </div>
 
+    <!-- OFFLINE SYNC & QUEUE MODAL -->
+    <div class="offline-sync-overlay" id="offline-sync-modal" style="display: none;">
+        <div class="offline-sync-card">
+            <div class="offline-sync-header">
+                <div class="offline-sync-title">
+                    <i class="fas fa-satellite-dish"></i> Status Jaringan & Antrean Tablet
+                </div>
+                <button type="button" class="offline-sync-close" id="btn-close-sync-modal">&times;</button>
+            </div>
+            <div class="offline-sync-body">
+                <div class="offline-connection-banner" id="sync-connection-banner">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span id="sync-connection-text">Terhubung ke server DMC</span>
+                </div>
+                <div class="offline-stats-row">
+                    <div class="offline-stat-box">
+                        <div class="stat-number" id="sync-stat-pending">0</div>
+                        <div class="stat-label">Antrean Offline</div>
+                    </div>
+                    <div class="offline-stat-box">
+                        <div class="stat-number" id="sync-stat-synced">0</div>
+                        <div class="stat-label">Tersinkronisasi</div>
+                    </div>
+                </div>
+
+                <div class="offline-queue-list-container">
+                    <div class="offline-queue-list-header">
+                        <span>Daftar Antrean di Tablet</span>
+                        <small style="color:var(--text-muted);font-weight:normal;">Auto-sync saat online</small>
+                    </div>
+                    <div class="offline-queue-list" id="offline-queue-list">
+                        <div class="offline-empty-state">Belum ada antrean di tablet. Semua data aman!</div>
+                    </div>
+                </div>
+
+                <div class="sync-progress-container" id="sync-progress-container" style="display: none;">
+                    <div class="sync-progress-bar-wrap">
+                        <div class="sync-progress-bar" id="sync-progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="sync-progress-text" id="sync-progress-text">Mengunggah 1 dari 5...</div>
+                </div>
+            </div>
+            <div class="offline-sync-footer">
+                <button type="button" class="btn-sync-action btn-sync-export" id="btn-export-backup" title="Download backup data ke tablet">
+                    <i class="fas fa-file-download"></i> Backup (JSON)
+                </button>
+                <button type="button" class="btn-sync-action btn-sync-primary" id="btn-trigger-sync">
+                    <i class="fas fa-sync-alt"></i> Sync Sekarang
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
@@ -1645,6 +2036,126 @@
         }
 
         // ==========================================
+        // 0. SERVICE WORKER & OFFLINE DATABASE
+        // ==========================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                    console.log('[PWA] Service Worker active with scope:', reg.scope);
+                }).catch(function(err) {
+                    console.warn('[PWA] Service Worker registration:', err);
+                });
+            });
+        }
+
+        var OfflineDB = (function() {
+            var DB_NAME = 'DMCLuckyDrawOfflineDB';
+            var DB_VERSION = 1;
+            var STORE_NAME = 'offline_entries';
+            var db = null;
+
+            function open() {
+                return new Promise(function(resolve, reject) {
+                    if (db) return resolve(db);
+                    if (!('indexedDB' in window)) {
+                        return reject(new Error('IndexedDB not supported'));
+                    }
+                    var req = indexedDB.open(DB_NAME, DB_VERSION);
+                    req.onupgradeneeded = function(e) {
+                        var d = e.target.result;
+                        if (!d.objectStoreNames.contains(STORE_NAME)) {
+                            var store = d.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                            store.createIndex('synced', 'synced', { unique: false });
+                            store.createIndex('created_at', 'created_at', { unique: false });
+                        }
+                    };
+                    req.onsuccess = function(e) {
+                        db = e.target.result;
+                        resolve(db);
+                    };
+                    req.onerror = function(e) {
+                        reject(e.target.error);
+                    };
+                });
+            }
+
+            function addEntry(entry) {
+                return open().then(function(d) {
+                    return new Promise(function(resolve, reject) {
+                        var tx = d.transaction(STORE_NAME, 'readwrite');
+                        var store = tx.objectStore(STORE_NAME);
+                        var req = store.add(entry);
+                        req.onsuccess = function() { resolve(entry); };
+                        req.onerror = function(e) { reject(e.target.error); };
+                    });
+                });
+            }
+
+            function getAllUnsynced() {
+                return open().then(function(d) {
+                    return new Promise(function(resolve, reject) {
+                        var tx = d.transaction(STORE_NAME, 'readonly');
+                        var store = tx.objectStore(STORE_NAME);
+                        var req = store.getAll();
+                        req.onsuccess = function() {
+                            var items = req.result || [];
+                            var unsynced = items.filter(function(i) { return !i.synced; });
+                            resolve(unsynced);
+                        };
+                        req.onerror = function(e) { reject(e.target.error); };
+                    });
+                });
+            }
+
+            function markSynced(id) {
+                return open().then(function(d) {
+                    return new Promise(function(resolve, reject) {
+                        var tx = d.transaction(STORE_NAME, 'readwrite');
+                        var store = tx.objectStore(STORE_NAME);
+                        var req = store.get(id);
+                        req.onsuccess = function() {
+                            var item = req.result;
+                            if (item) {
+                                item.synced = true;
+                                item.synced_at = new Date().toISOString();
+                                store.put(item);
+                            }
+                            resolve();
+                        };
+                        req.onerror = function(e) { reject(e.target.error); };
+                    });
+                });
+            }
+
+            function countAll() {
+                return open().then(function(d) {
+                    return new Promise(function(resolve, reject) {
+                        var tx = d.transaction(STORE_NAME, 'readonly');
+                        var store = tx.objectStore(STORE_NAME);
+                        var req = store.getAll();
+                        req.onsuccess = function() {
+                            var items = req.result || [];
+                            var pending = items.filter(function(i) { return !i.synced; }).length;
+                            var synced = items.filter(function(i) { return !!i.synced; }).length;
+                            resolve({ pending: pending, synced: synced, items: items });
+                        };
+                        req.onerror = function() { resolve({ pending: 0, synced: 0, items: [] }); };
+                    });
+                }).catch(function() {
+                    return { pending: 0, synced: 0, items: [] };
+                });
+            }
+
+            return {
+                open: open,
+                addEntry: addEntry,
+                getAllUnsynced: getAllUnsynced,
+                markSynced: markSynced,
+                countAll: countAll
+            };
+        })();
+
+        // ==========================================
         // 1. DATA PREPARATION & COLOR PALETTE
         // ==========================================
         var initialPrizes = @json($prizes);
@@ -1654,6 +2165,7 @@
         if (initialPrizes && initialPrizes.length > 0) {
             initialPrizes.forEach(function(p) {
                 wheelSegments.push({
+                    id: p.id,
                     name: p.name,
                     chance: p.chance_percent || null,
                     isPrize: true
@@ -1661,6 +2173,7 @@
             });
         } else {
             wheelSegments.push({
+                id: null,
                 name: "Grand Prize",
                 chance: 50,
                 isPrize: true
@@ -1668,10 +2181,28 @@
         }
         // Always include zonk / try again option
         wheelSegments.push({
+            id: null,
             name: "Try Again",
             chance: null,
             isPrize: false
         });
+
+        // Exact client-side mathematical clone of LuckyDrawService::draw()
+        function drawPrizeOffline() {
+            var roll = Math.random() * 100;
+            var cursor = 0.0;
+            for (var i = 0; i < wheelSegments.length; i++) {
+                var seg = wheelSegments[i];
+                if (seg.isPrize && seg.chance) {
+                    cursor += parseFloat(seg.chance);
+                    if (roll < cursor) {
+                        return { index: i, segment: seg };
+                    }
+                }
+            }
+            var tryAgainIndex = wheelSegments.length - 1;
+            return { index: tryAgainIndex, segment: wheelSegments[tryAgainIndex] };
+        }
 
         // Wheel color palette with DMC Signature Red
         var colorPalette = [
@@ -2520,6 +3051,42 @@
             }
         }
 
+        var currentCapturedCardBlob = null;
+
+        // Proportional client-side image compression (max 1280px, quality 0.82)
+        function compressImageFile(fileOrBlob, callback) {
+            var img = new Image();
+            var objectUrl = URL.createObjectURL(fileOrBlob);
+            img.onload = function() {
+                URL.revokeObjectURL(objectUrl);
+                var maxDim = 1280;
+                var w = img.width;
+                var h = img.height;
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) {
+                        h = Math.round((h * maxDim) / w);
+                        w = maxDim;
+                    } else {
+                        w = Math.round((w * maxDim) / h);
+                        h = maxDim;
+                    }
+                }
+                var canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                canvas.toBlob(function(blob) {
+                    callback(blob || fileOrBlob);
+                }, 'image/jpeg', 0.82);
+            };
+            img.onerror = function() {
+                URL.revokeObjectURL(objectUrl);
+                callback(fileOrBlob);
+            };
+            img.src = objectUrl;
+        }
+
         function capturePhoto() {
             if (!cameraVideo || !cameraVideo.videoWidth) return;
 
@@ -2534,14 +3101,27 @@
             // Audio shutter click
             playPegTick();
 
-            // Draw snapshot on hidden high-res canvas
-            cameraCanvas.width = cameraVideo.videoWidth;
-            cameraCanvas.height = cameraVideo.videoHeight;
+            // Resize snapshot on high-res canvas (max 1280px)
+            var maxDim = 1280;
+            var w = cameraVideo.videoWidth;
+            var h = cameraVideo.videoHeight;
+            if (w > maxDim || h > maxDim) {
+                if (w > h) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                } else {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+
+            cameraCanvas.width = w;
+            cameraCanvas.height = h;
             var ctx = cameraCanvas.getContext('2d');
-            ctx.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+            ctx.drawImage(cameraVideo, 0, 0, w, h);
 
             // Display in preview box
-            var dataUrl = cameraCanvas.toDataURL('image/jpeg', 0.92);
+            var dataUrl = cameraCanvas.toDataURL('image/jpeg', 0.82);
             if (cardPreviewImg) cardPreviewImg.src = dataUrl;
             if (cameraViewfinder) cameraViewfinder.style.display = 'none';
             if (cameraPreviewContainer) cameraPreviewContainer.style.display = 'block';
@@ -2551,44 +3131,63 @@
             // Turn off live camera once picture is taken
             stopCamera();
 
-            // Convert to Blob and auto-upload
+            // Convert to Blob & process upload/offline save
             cameraCanvas.toBlob(function(blob) {
                 if (!blob) {
-                    setCardStatus('Failed to process image.', 'error');
+                    setCardStatus('Gagal memproses gambar.', 'error');
                     return;
                 }
+                currentCapturedCardBlob = blob;
                 uploadBusinessCardFile(blob, 'business_card.jpg');
-            }, 'image/jpeg', 0.92);
+            }, 'image/jpeg', 0.82);
         }
 
         function uploadBusinessCardFile(fileOrBlob, filename) {
             filename = filename || 'business_card.jpg';
             entryIdInput.value = '';
+            currentCapturedCardBlob = fileOrBlob;
             cardUploading = true;
-            setCardStatus('Uploading & processing business card...', 'uploading');
+            setCardStatus('Mengompres & memproses kartu nama...', 'uploading');
             updateSubmitAvailability();
+
+            // If offline, store locally and allow instant draw without waiting!
+            if (!navigator.onLine) {
+                cardUploading = false;
+                setCardStatus('Kartu nama tersimpan di tablet (Mode Offline) ✓ Siap undi!', 'done');
+                updateSubmitAvailability();
+                return;
+            }
 
             var formData = new FormData();
             formData.append('business_card', fileOrBlob, filename);
             formData.append('_token', '{{ csrf_token() }}');
+
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function() {
+                controller.abort();
+            }, 3500); // 3.5s timeout for crowded expo networks
 
             fetch('{{ url('lucky-draw/business-card') }}', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json'
                     },
-                    body: formData
+                    body: formData,
+                    signal: controller.signal
                 })
                 .then(function(res) {
+                    clearTimeout(timeoutId);
                     return res.ok ? res.json() : Promise.reject(res);
                 })
                 .then(function(data) {
                     entryIdInput.value = data.entry_id;
-                    setCardStatus('Business card saved ✓ Ready to draw!', 'done');
+                    setCardStatus('Kartu nama tersimpan di server ✓ Siap undi!', 'done');
                 })
                 .catch(function(err) {
-                    console.error(err);
-                    setCardStatus('Failed to save business card. Please retake photo.', 'error');
+                    clearTimeout(timeoutId);
+                    console.warn('[Network] Upload kartu nama lambat/gagal, disimpan di memori tablet:', err);
+                    // Do not block participant! Allow draw using offline queue
+                    setCardStatus('Kartu nama tersimpan di tablet ✓ Siap undi!', 'done');
                 })
                 .finally(function() {
                     cardUploading = false;
@@ -2607,6 +3206,7 @@
             btnRetake.addEventListener('click', function(e) {
                 e.preventDefault();
                 entryIdInput.value = '';
+                currentCapturedCardBlob = null;
                 setCardStatus('');
                 updateSubmitAvailability();
                 startCamera(currentFacingMode);
@@ -2643,7 +3243,11 @@
                     if (toolbarPreview) toolbarPreview.style.display = 'flex';
                 };
                 reader.readAsDataURL(file);
-                uploadBusinessCardFile(file, file.name);
+
+                compressImageFile(file, function(compressedBlob) {
+                    currentCapturedCardBlob = compressedBlob;
+                    uploadBusinessCardFile(compressedBlob, file.name);
+                });
             });
         }
 
@@ -2716,14 +3320,15 @@
                 if (cardUploading) {
                     swal({
                         title: "Uploading in Progress...",
-                        text: "Please wait a moment until the business card upload is completed.",
+                        text: "Please wait a moment until the business card is processed.",
                         icon: "info",
                         button: "OK"
                     });
                     return false;
                 }
 
-                if (!entryIdInput.value) {
+                // Eligible if uploaded online (entryIdInput) OR captured offline (currentCapturedCardBlob)
+                if (!entryIdInput.value && !currentCapturedCardBlob) {
                     var cardWrapper = document.querySelector('.camera-card-wrapper');
                     if (cardWrapper) {
                         cardWrapper.classList.add('shake-element');
@@ -2743,7 +3348,7 @@
             return true;
         }
 
-        // Trigger Draw Function
+        // Trigger Draw Function with Fast Timeout & Resilient Offline Queue
         function triggerDraw() {
             if (isSpinning || drawBtn.disabled) return;
 
@@ -2755,25 +3360,111 @@
             stopCamera();
             initAudio();
 
-            var participantName = document.getElementById('input-name') ? document.getElementById('input-name').value
-                .trim() : '';
+            var participantName = document.getElementById('input-name') ? document.getElementById('input-name').value.trim() : '';
+            var companyName = document.getElementById('input-company') ? document.getElementById('input-company').value.trim() : '';
+            var jobTitle = document.getElementById('input-job-title') ? document.getElementById('input-job-title').value.trim() : '';
+            var phoneEl = document.getElementById('phone');
+            var phoneVal = phoneEl ? (iti ? iti.getNumber() : phoneEl.value.trim()) : '';
+            var emailVal = document.getElementById('input-email') ? document.getElementById('input-email').value.trim() : '';
+
             var formData = new FormData(luckyForm);
+            if (phoneVal) {
+                formData.set('phone', phoneVal);
+            }
+            if (!entryIdInput.value && currentCapturedCardBlob) {
+                formData.append('business_card', currentCapturedCardBlob, 'business_card.jpg');
+            }
 
             drawBtn.disabled = true;
             drawBtn.querySelector('span').textContent = 'Drawing...';
+
+            function finalizeSpinState() {
+                drawBtn.disabled = false;
+                drawBtn.querySelector('span').textContent = 'Draw Now';
+
+                // Reset form fields
+                luckyForm.reset();
+                setCaptureMode('manual');
+                if (cardPreviewImg) cardPreviewImg.src = '';
+                if (cameraViewfinder) cameraViewfinder.style.display = 'flex';
+                if (cameraPreviewContainer) cameraPreviewContainer.style.display = 'none';
+                if (toolbarStream) toolbarStream.style.display = 'flex';
+                if (toolbarPreview) toolbarPreview.style.display = 'none';
+                setCardStatus('');
+                entryIdInput.value = '';
+                currentCapturedCardBlob = null;
+                if (iti) iti.setNumber('');
+
+                // Clear invalid states
+                document.querySelectorAll('.form-control-dark').forEach(function(el) {
+                    el.classList.remove('is-invalid');
+                });
+
+                // Reapply current spin mode so input and UI remain in sync
+                setSpinMode(currentSpinMode, false);
+            }
+
+            function handleOfflineDrawExecution() {
+                var offlineResult = drawPrizeOffline();
+                var targetIndex = offlineResult.index;
+                var wonSeg = offlineResult.segment;
+                var prizeName = wonSeg.name;
+                var prizeId = wonSeg.id || null;
+
+                var offlineEntry = {
+                    id: 'off_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                    created_at: new Date().toISOString(),
+                    drawn_at: new Date().toISOString(),
+                    name: participantName,
+                    company_name: companyName,
+                    job_title: jobTitle,
+                    phone: phoneVal,
+                    email: emailVal,
+                    spin_mode: currentSpinMode,
+                    capture_mode: currentCaptureMode,
+                    lucky_draw_item_id: prizeId,
+                    prize_name: prizeName,
+                    card_blob: currentCapturedCardBlob || null,
+                    synced: false
+                };
+
+                OfflineDB.addEntry(offlineEntry).then(function() {
+                    refreshNetworkQueueUI();
+                }).catch(function(err) {
+                    console.error('[OfflineDB] Error saving offline entry:', err);
+                });
+
+                animateSpinTo(targetIndex, function() {
+                    showWinnerCelebration(prizeName, participantName);
+                    finalizeSpinState();
+                });
+            }
+
+            // If browser is offline, trigger offline draw immediately without waiting
+            if (!navigator.onLine) {
+                handleOfflineDrawExecution();
+                return;
+            }
+
+            // Online attempt with fast timeout (3.5s) for congested expo network
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function() {
+                controller.abort();
+            }, 3500);
 
             fetch(luckyForm.action, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json'
                     },
-                    body: formData
+                    body: formData,
+                    signal: controller.signal
                 })
                 .then(function(res) {
+                    clearTimeout(timeoutId);
                     return res.ok ? res.json() : Promise.reject(res);
                 })
                 .then(function(data) {
-                    // Find matching segment index
                     var prizeName = data.prize;
                     var targetIndex = -1;
 
@@ -2783,53 +3474,19 @@
                         });
                     }
 
-                    // Fallback to "Try Again" slice if zonk or not found
                     if (targetIndex === -1) {
                         targetIndex = wheelSegments.length - 1;
                     }
 
                     animateSpinTo(targetIndex, function() {
                         showWinnerCelebration(data.prize, participantName);
-                        drawBtn.disabled = false;
-                        drawBtn.querySelector('span').textContent = 'Draw Now';
-
-                        // Reset form fields
-                        luckyForm.reset();
-                        setCaptureMode('manual');
-                        if (cardPreviewImg) cardPreviewImg.src = '';
-                        if (cameraViewfinder) cameraViewfinder.style.display = 'flex';
-                        if (cameraPreviewContainer) cameraPreviewContainer.style.display = 'none';
-                        if (toolbarStream) toolbarStream.style.display = 'flex';
-                        if (toolbarPreview) toolbarPreview.style.display = 'none';
-                        setCardStatus('');
-                        entryIdInput.value = '';
-                        if (iti) iti.setNumber('');
-
-                        // Clear invalid states
-                        document.querySelectorAll('.form-control-dark').forEach(function(el) {
-                            el.classList.remove('is-invalid');
-                        });
-
-                        // Reapply current spin mode so input and UI remain in sync
-                        setSpinMode(currentSpinMode, false);
+                        finalizeSpinState();
                     });
                 })
-                .catch(function() {
-                    swal({
-                        title: "Notice",
-                        text: "Could not connect to server, spinning offline preview...",
-                        icon: "info",
-                        buttons: false,
-                        timer: 1500
-                    });
-
-                    // Random offline spin fallback
-                    var randomIndex = Math.floor(Math.random() * wheelSegments.length);
-                    animateSpinTo(randomIndex, function() {
-                        showWinnerCelebration(wheelSegments[randomIndex].name, participantName);
-                        drawBtn.disabled = false;
-                        drawBtn.querySelector('span').textContent = 'Draw Now';
-                    });
+                .catch(function(err) {
+                    clearTimeout(timeoutId);
+                    console.warn('[Draw] Server slow/unreachable, continuing with offline spin:', err);
+                    handleOfflineDrawExecution();
                 });
         }
 
@@ -2916,6 +3573,308 @@
         window.addEventListener('beforeunload', function() {
             stopCamera();
         });
+
+        // ==========================================
+        // NETWORK STATUS & OFFLINE QUEUE CONTROLLER
+        // ==========================================
+        var isSyncing = false;
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function checkNetworkConnection() {
+            var badge = document.getElementById('btn-network-status');
+            var statusText = document.getElementById('network-status-text');
+            var banner = document.getElementById('sync-connection-banner');
+
+            if (!navigator.onLine) {
+                if (badge) badge.className = 'network-status-badge offline';
+                if (statusText) statusText.textContent = 'Offline';
+                if (banner) {
+                    banner.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#ef4444"></i> <span>Koneksi Offline (Tidak ada jaringan)</span>';
+                }
+                return Promise.resolve(false);
+            }
+
+            var controller = new AbortController();
+            var timeoutId = setTimeout(function() { controller.abort(); }, 3000);
+
+            return fetch('{{ url('lucky-draw/ping') }}', { signal: controller.signal })
+                .then(function(res) {
+                    clearTimeout(timeoutId);
+                    var ok = res.ok;
+                    updateOnlineStatusUI(ok);
+                    return ok;
+                })
+                .catch(function() {
+                    clearTimeout(timeoutId);
+                    updateOnlineStatusUI(false);
+                    return false;
+                });
+        }
+
+        function updateOnlineStatusUI(isOnline) {
+            var badge = document.getElementById('btn-network-status');
+            var statusText = document.getElementById('network-status-text');
+            var banner = document.getElementById('sync-connection-banner');
+
+            OfflineDB.countAll().then(function(stats) {
+                if (!isOnline) {
+                    if (badge) badge.className = 'network-status-badge offline';
+                    if (statusText) statusText.textContent = 'Offline';
+                    if (banner) {
+                        banner.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#f59e0b"></i> <span>Server DMC tidak merespons (Jaringan Expo Padat)</span>';
+                    }
+                } else {
+                    if (stats.pending > 0) {
+                        if (badge) badge.className = 'network-status-badge pending';
+                        if (statusText) statusText.textContent = stats.pending + ' Pending';
+                    } else {
+                        if (badge) badge.className = 'network-status-badge online';
+                        if (statusText) statusText.textContent = 'Online';
+                    }
+                    if (banner) {
+                        banner.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981"></i> <span>Terhubung ke server DMC</span>';
+                    }
+                }
+            });
+        }
+
+        function refreshNetworkQueueUI() {
+            OfflineDB.countAll().then(function(stats) {
+                var countEl = document.getElementById('network-queue-count');
+                var statPending = document.getElementById('sync-stat-pending');
+                var statSynced = document.getElementById('sync-stat-synced');
+                var queueList = document.getElementById('offline-queue-list');
+                var syncBtn = document.getElementById('btn-trigger-sync');
+
+                if (countEl) {
+                    if (stats.pending > 0) {
+                        countEl.style.display = 'inline-block';
+                        countEl.textContent = stats.pending;
+                    } else {
+                        countEl.style.display = 'none';
+                    }
+                }
+
+                if (statPending) statPending.textContent = stats.pending;
+                if (statSynced) statSynced.textContent = stats.synced;
+                if (syncBtn) {
+                    syncBtn.disabled = stats.pending === 0 || isSyncing;
+                }
+
+                if (queueList) {
+                    if (stats.items.length === 0) {
+                        queueList.innerHTML = '<div class="offline-empty-state">Belum ada antrean di tablet. Semua data aman!</div>';
+                    } else {
+                        var html = '';
+                        stats.items.slice(-20).reverse().forEach(function(item) {
+                            var dateStr = new Date(item.drawn_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            var badgeClass = item.synced ? 'synced' : 'pending';
+                            var badgeLabel = item.synced ? 'Synced ✓' : 'Pending';
+                            var pName = item.name || 'Anonymous';
+                            var pPrize = item.prize_name || 'Try Again';
+
+                            html += '<div class="offline-queue-item">' +
+                                '<div class="offline-queue-item-info">' +
+                                    '<span class="offline-queue-item-name">' + escapeHtml(pName) + ' <small style="color:var(--text-muted)">(' + dateStr + ')</small></span>' +
+                                    '<span class="offline-queue-item-prize">' + escapeHtml(pPrize) + '</span>' +
+                                '</div>' +
+                                '<span class="offline-queue-item-badge ' + badgeClass + '">' + badgeLabel + '</span>' +
+                            '</div>';
+                        });
+                        queueList.innerHTML = html;
+                    }
+                }
+
+                checkNetworkConnection();
+            });
+        }
+
+        async function syncPendingEntries(isManual) {
+            if (isSyncing) return;
+
+            var unsynced = await OfflineDB.getAllUnsynced();
+            if (unsynced.length === 0) {
+                if (isManual) {
+                    swal({ title: "Semua Terunggah", text: "Semua data undian di tablet sudah tersimpan di server pusat!", icon: "success", timer: 2000, buttons: false });
+                }
+                refreshNetworkQueueUI();
+                return;
+            }
+
+            var isOnline = await checkNetworkConnection();
+            if (!isOnline) {
+                if (isManual) {
+                    swal({ title: "Koneksi Belum Siap", text: "Koneksi internet belum stabil. Data tetap aman di memori tablet dan akan disinkronkan otomatis saat sinyal pulih.", icon: "info" });
+                }
+                return;
+            }
+
+            isSyncing = true;
+            var progressContainer = document.getElementById('sync-progress-container');
+            var progressBar = document.getElementById('sync-progress-bar');
+            var progressText = document.getElementById('sync-progress-text');
+            var syncBtn = document.getElementById('btn-trigger-sync');
+
+            if (progressContainer) progressContainer.style.display = 'block';
+            if (syncBtn) syncBtn.disabled = true;
+
+            var total = unsynced.length;
+            var successCount = 0;
+
+            for (var i = 0; i < total; i++) {
+                var entry = unsynced[i];
+                var pct = Math.round(((i) / total) * 100);
+                if (progressBar) progressBar.style.width = pct + '%';
+                if (progressText) progressText.textContent = 'Mengunggah ' + (i + 1) + ' dari ' + total + ' (' + (entry.name || 'Anonymous') + ')...';
+
+                var fd = new FormData();
+                fd.append('_token', '{{ csrf_token() }}');
+                fd.append('name', entry.name || '');
+                fd.append('company_name', entry.company_name || '');
+                fd.append('job_title', entry.job_title || '');
+                fd.append('phone', entry.phone || '');
+                fd.append('email', entry.email || '');
+                fd.append('spin_mode', entry.spin_mode || 'anonymous');
+                fd.append('drawn_at', entry.drawn_at || entry.created_at);
+                if (entry.lucky_draw_item_id) {
+                    fd.append('lucky_draw_item_id', entry.lucky_draw_item_id);
+                }
+                if (entry.prize_name) {
+                    fd.append('prize_name', entry.prize_name);
+                }
+                if (entry.card_blob) {
+                    fd.append('business_card', entry.card_blob, 'business_card.jpg');
+                }
+
+                try {
+                    var res = await fetch('{{ url('lucky-draw/sync-offline') }}', {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json' },
+                        body: fd
+                    });
+                    if (res.ok) {
+                        await OfflineDB.markSynced(entry.id);
+                        successCount++;
+                    }
+                } catch (e) {
+                    console.warn('[Sync] Gagal upload item ' + entry.id, e);
+                    break;
+                }
+            }
+
+            if (progressBar) progressBar.style.width = '100%';
+            if (progressText) progressText.textContent = 'Selesai: ' + successCount + ' data berhasil disinkronkan!';
+
+            setTimeout(function() {
+                if (progressContainer) progressContainer.style.display = 'none';
+                isSyncing = false;
+                refreshNetworkQueueUI();
+                if (isManual && successCount > 0) {
+                    swal({ title: "Berhasil!", text: successCount + " data peserta offline berhasil disinkronkan ke server!", icon: "success", timer: 2500, buttons: false });
+                }
+            }, 1000);
+        }
+
+        function exportOfflineDataBackup() {
+            OfflineDB.countAll().then(function(stats) {
+                if (stats.items.length === 0) {
+                    swal({ title: "Data Kosong", text: "Tidak ada data antrean di tablet.", icon: "info" });
+                    return;
+                }
+
+                var cleanItems = stats.items.map(function(item) {
+                    return {
+                        id: item.id,
+                        created_at: item.created_at,
+                        drawn_at: item.drawn_at,
+                        name: item.name,
+                        company: item.company_name,
+                        job_title: item.job_title,
+                        phone: item.phone,
+                        email: item.email,
+                        prize_won: item.prize_name,
+                        spin_mode: item.spin_mode,
+                        synced: item.synced,
+                        has_card_photo: !!item.card_blob
+                    };
+                });
+
+                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cleanItems, null, 2));
+                var dlAnchor = document.createElement('a');
+                dlAnchor.setAttribute("href", dataStr);
+                dlAnchor.setAttribute("download", "dmc_lucky_draw_backup_" + new Date().toISOString().replace(/[:.]/g, "-") + ".json");
+                document.body.appendChild(dlAnchor);
+                dlAnchor.click();
+                dlAnchor.remove();
+            });
+        }
+
+        // Modal Controls & Event Listeners
+        var btnNetworkStatus = document.getElementById('btn-network-status');
+        var modalSync = document.getElementById('offline-sync-modal');
+        var btnCloseSync = document.getElementById('btn-close-sync-modal');
+        var btnTriggerSync = document.getElementById('btn-trigger-sync');
+        var btnExportBackup = document.getElementById('btn-export-backup');
+
+        if (btnNetworkStatus && modalSync) {
+            btnNetworkStatus.addEventListener('click', function() {
+                modalSync.style.display = 'flex';
+                refreshNetworkQueueUI();
+            });
+        }
+
+        if (btnCloseSync && modalSync) {
+            btnCloseSync.addEventListener('click', function() {
+                modalSync.style.display = 'none';
+            });
+        }
+
+        if (modalSync) {
+            modalSync.addEventListener('click', function(e) {
+                if (e.target === modalSync) {
+                    modalSync.style.display = 'none';
+                }
+            });
+        }
+
+        if (btnTriggerSync) {
+            btnTriggerSync.addEventListener('click', function() {
+                syncPendingEntries(true);
+            });
+        }
+
+        if (btnExportBackup) {
+            btnExportBackup.addEventListener('click', function() {
+                exportOfflineDataBackup();
+            });
+        }
+
+        // Auto-detect online/offline transitions
+        window.addEventListener('online', function() {
+            checkNetworkConnection();
+            syncPendingEntries(false);
+        });
+
+        window.addEventListener('offline', function() {
+            updateOnlineStatusUI(false);
+        });
+
+        // Periodic background health-check & auto-sync (every 30s)
+        setInterval(function() {
+            refreshNetworkQueueUI();
+            if (navigator.onLine && !isSyncing) {
+                syncPendingEntries(false);
+            }
+        }, 30000);
+
+        // Initial check on page load
+        refreshNetworkQueueUI();
 
         @if (session('success'))
             showWinnerCelebration(@json(session('prize')), '');
