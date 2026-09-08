@@ -111,6 +111,7 @@ class LuckyDrawController extends Controller
         $result = [
             'success'     => 'Thanks for joining the Lucky Draw!',
             'prize'       => $prize ? $prize->name : null,
+            'prize_id'    => $prize ? $prize->id : null,
             'prize_image' => $prize && $prize->image ? asset($prize->image) : null,
         ];
 
@@ -206,6 +207,33 @@ class LuckyDrawController extends Controller
             ->save(storage_path('app/public/lucky-draw/business-cards/' . $imageName));
 
         return '/storage/lucky-draw/business-cards/' . $imageName;
+    }
+
+    /**
+     * Nonaktifkan item hadiah dari roda undian setelah dimenangkan.
+     * Data tetap tersimpan di database untuk menjaga riwayat pemenang,
+     * hanya kolom is_active diset false agar tidak lagi muncul di roda.
+     */
+    public function deactivateItem($id)
+    {
+        $item = LuckyDrawItem::find($id);
+
+        if (!$item) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hadiah tidak ditemukan.',
+            ], 404);
+        }
+
+        $item->is_active = false;
+        $item->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Hadiah {$item->name} telah dinonaktifkan dari roda.",
+            'item_id' => $item->id,
+            'name'    => $item->name,
+        ]);
     }
 }
 

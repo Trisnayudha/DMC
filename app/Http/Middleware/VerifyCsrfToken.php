@@ -14,5 +14,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'lucky-draw/sync-offline',
         'lucky-draw/ping',
+        'lucky-draw/items/*/deactivate',
     ];
 }

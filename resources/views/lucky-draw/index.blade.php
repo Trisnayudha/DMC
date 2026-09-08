@@ -619,17 +619,49 @@
 
         .iti {
             width: 100%;
+            display: block;
+        }
+
+        .iti--separate-dial-code .iti__selected-dial-code {
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding-left: 4px;
+        }
+
+        .iti--separate-dial-code .iti__selected-flag {
+            background-color: #f8fafc;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+            border-right: 1.5px solid #e2e8f0;
+            padding: 0 10px 0 12px;
+            transition: background-color 0.2s;
+        }
+
+        .iti--separate-dial-code .iti__selected-flag:hover {
+            background-color: #f1f5f9;
         }
 
         .iti__country-list {
             background-color: #ffffff !important;
             color: var(--text-primary) !important;
             border-color: var(--border-panel) !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+            border-radius: 10px !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+            z-index: 100 !important;
+            font-size: 0.9rem !important;
         }
 
         .iti__country.iti__highlight {
             background-color: var(--dmc-red-light) !important;
+        }
+
+        .iti__country-name {
+            color: #1e293b;
+        }
+
+        .iti__dial-code {
+            color: #64748b;
         }
 
         /* Camera Card Scanner */
@@ -1228,6 +1260,33 @@
         .btn-modal-close:hover {
             background: #e2e8f0;
             color: #0f172a;
+        }
+
+        .btn-modal-remove {
+            background: #fff1f2;
+            border: 1.5px solid #fecdd3;
+            color: #e11d48;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-modal-remove:hover {
+            background: #ffe4e6;
+            border-color: #fda4af;
+            color: #be123c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.15);
+        }
+
+        .btn-modal-remove:active {
+            transform: translateY(0);
         }
 
         .btn-modal-again {
@@ -1960,6 +2019,9 @@
             </p>
             <div class="winner-modal-actions">
                 <button type="button" class="btn-modal-close" id="btn-modal-close">Close</button>
+                <button type="button" class="btn-modal-remove" id="btn-modal-remove" style="display: none;">
+                    <i class="fas fa-trash-alt"></i> <span>Remove from Wheel</span>
+                </button>
                 <button type="button" class="btn-modal-again" id="btn-modal-again">Spin Again</button>
             </div>
         </div>
@@ -2024,15 +2086,35 @@
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
     <script>
-        // Initialize Phone Input
+        // Initialize Phone Input with Separate Country Dial Code (+62, +61, etc.)
         var phoneInput = document.querySelector("#phone");
         var iti = null;
         if (phoneInput && window.intlTelInput) {
             iti = window.intlTelInput(phoneInput, {
                 initialCountry: "id",
-                preferredCountries: ["id", "sg", "my", "au"],
+                separateDialCode: true,
+                autoPlaceholder: "polite",
+                placeholderNumberType: "MOBILE",
+                preferredCountries: ["id", "au", "sg", "my"],
                 utilsScript: "https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/utils.js"
             });
+        }
+
+        function getFullPhoneNumber() {
+            var phoneEl = document.getElementById('phone');
+            if (!phoneEl) return '';
+            var raw = phoneEl.value.trim().replace(/^0+/, '');
+            if (!raw) return '';
+            if (iti) {
+                var intlNum = iti.getNumber();
+                if (intlNum && intlNum.startsWith('+')) {
+                    return intlNum;
+                }
+                var country = iti.getSelectedCountryData();
+                var dialCode = (country && country.dialCode) ? ('+' + country.dialCode) : '+62';
+                return dialCode + raw;
+            }
+            return raw;
         }
 
         // Global Network & App Connectivity State
@@ -2238,21 +2320,30 @@
         });
 
         // Populate Tab 2: Prizes / Entries list
-        var prizesContainer = document.getElementById('prizes-list-container');
-        if (prizesContainer) {
-            prizesContainer.innerHTML = '';
-            wheelSegments.forEach(function(seg) {
-                var div = document.createElement('div');
-                div.className = 'prize-list-item';
-                div.innerHTML = `
-                    <div class="prize-item-left">
-                        <div class="prize-color-swatch" style="background-color: ${seg.color}"></div>
-                        <div class="prize-name-text">${escapeHtml(seg.name)}</div>
-                    </div>
-                `;
-                prizesContainer.appendChild(div);
-            });
+        function renderPrizesList() {
+            var prizesContainer = document.getElementById('prizes-list-container');
+            if (prizesContainer) {
+                prizesContainer.innerHTML = '';
+                wheelSegments.forEach(function(seg) {
+                    var div = document.createElement('div');
+                    div.className = 'prize-list-item';
+                    div.innerHTML = `
+                        <div class="prize-item-left">
+                            <div class="prize-color-swatch" style="background-color: ${seg.color}"></div>
+                            <div class="prize-name-text">${escapeHtml(seg.name)}</div>
+                        </div>
+                    `;
+                    prizesContainer.appendChild(div);
+                });
+            }
+
+            var badgePrizes = document.getElementById('badge-prizes-count');
+            if (badgePrizes) {
+                badgePrizes.textContent = wheelSegments.length;
+            }
         }
+
+        renderPrizesList();
 
         function escapeHtml(text) {
             var div = document.createElement('div');
@@ -2650,7 +2741,9 @@
         var winnerUser = document.getElementById('winner-modal-user');
         var winnerBadge = document.getElementById('winner-modal-badge');
         var btnModalClose = document.getElementById('btn-modal-close');
+        var btnModalRemove = document.getElementById('btn-modal-remove');
         var btnModalAgain = document.getElementById('btn-modal-again');
+        var lastWonPrize = null;
         var winnersLogContainer = document.getElementById('winners-list-container');
         var winnerEmptyState = document.getElementById('winner-empty-state');
         var badgeWinnersCount = document.getElementById('badge-winners-count');
@@ -2691,7 +2784,7 @@
             }
         }
 
-        function showWinnerCelebration(prizeName, recipientName) {
+        function showWinnerCelebration(prizeName, recipientName, prizeId) {
             var isWin = prizeName && prizeName !== 'Try Again';
 
             var fallbackName = (typeof currentSpinMode !== 'undefined' && currentSpinMode === 'anonymous')
@@ -2701,6 +2794,22 @@
 
             winnerTitle.textContent = prizeName || 'Try Again';
             winnerUser.textContent = finalRecipient;
+
+            // Resolve prizeId from wheelSegments if not explicitly provided
+            if (!prizeId && prizeName && isWin) {
+                var match = wheelSegments.find(function(s) {
+                    return s.isPrize && s.name.trim().toLowerCase() === prizeName.trim().toLowerCase();
+                });
+                if (match) {
+                    prizeId = match.id;
+                }
+            }
+
+            lastWonPrize = isWin ? { id: prizeId, name: prizeName } : null;
+
+            if (btnModalRemove) {
+                btnModalRemove.style.display = isWin ? 'inline-flex' : 'none';
+            }
 
             if (isWin) {
                 winnerBadge.textContent = '🎉 Congratulations! 🎉';
@@ -2835,6 +2944,96 @@
             winnerModal.classList.remove('active');
             triggerDraw();
         });
+
+        // Remove Won Prize From Wheel & Deactivate in Backend
+        function removePrizeFromWheel(prizeId, prizeName) {
+            if (!prizeId && !prizeName) return;
+
+            // 1. Close modal
+            closeWinnerModal();
+
+            // 2. Remove the prize from active wheel segments
+            var foundIndex = wheelSegments.findIndex(function(s) {
+                if (prizeId && s.id === prizeId) return true;
+                if (prizeName && s.name.trim().toLowerCase() === prizeName.trim().toLowerCase()) return true;
+                return false;
+            });
+
+            if (foundIndex !== -1) {
+                var removedSeg = wheelSegments.splice(foundIndex, 1)[0];
+                var removedName = removedSeg ? removedSeg.name : prizeName;
+                var targetId = prizeId || (removedSeg ? removedSeg.id : null);
+
+                // Re-assign colors to remaining segments
+                wheelSegments.forEach(function(seg, idx) {
+                    seg.color = colorPalette[idx % colorPalette.length];
+                });
+
+                // Recalculate wheel geometry
+                numSegments = wheelSegments.length;
+                arcAngle = (2 * Math.PI) / numSegments;
+
+                // Redraw wheel immediately with remaining slices
+                drawWheel(currentRotation);
+
+                // Re-render Tab 2: Prizes / Entries list
+                renderPrizesList();
+
+                // Update localStorage cache of prizes (without the removed item)
+                try {
+                    var cached = localStorage.getItem('dmc_lucky_draw_prizes');
+                    if (cached) {
+                        var parsed = JSON.parse(cached);
+                        if (Array.isArray(parsed)) {
+                            var updated = parsed.filter(function(p) {
+                                if (targetId && p.id === targetId) return false;
+                                if (removedName && p.name.trim().toLowerCase() === removedName.trim().toLowerCase()) return false;
+                                return true;
+                            });
+                            localStorage.setItem('dmc_lucky_draw_prizes', JSON.stringify(updated));
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[Cache] Could not update localStorage prizes:', e);
+                }
+
+                // Deactivate in backend (is_active = false)
+                if (targetId) {
+                    var fd = new FormData();
+                    fd.append('_token', '{{ csrf_token() }}');
+
+                    fetch('{{ url('lucky-draw/items') }}/' + targetId + '/deactivate', {
+                        method: 'POST',
+                        body: fd
+                    }).then(function(res) {
+                        return res.json();
+                    }).then(function(data) {
+                        console.log('[Prize Deactivated on Server]', data);
+                    }).catch(function(err) {
+                        console.warn('[Prize Deactivate] Offline / server unreachable, deactivated locally on tablet:', err);
+                    });
+                }
+
+                // User-friendly feedback toast
+                if (typeof swal === 'function') {
+                    swal({
+                        title: "Removed from Wheel",
+                        text: '"' + removedName + '" has been removed from upcoming spins.',
+                        icon: "info",
+                        timer: 2000,
+                        buttons: false
+                    });
+                }
+            }
+        }
+
+        if (btnModalRemove) {
+            btnModalRemove.addEventListener('click', function() {
+                if (lastWonPrize) {
+                    removePrizeFromWheel(lastWonPrize.id, lastWonPrize.name);
+                }
+            });
+        }
 
         var btnClearHistory = document.getElementById('btn-clear-history');
         if (btnClearHistory) {
@@ -3285,7 +3484,7 @@
                 var nameInput = document.getElementById('input-name');
                 var phoneEl = document.getElementById('phone');
                 var nameVal = nameInput ? nameInput.value.trim() : '';
-                var phoneVal = phoneEl ? (iti ? iti.getNumber() : phoneEl.value.trim()) : '';
+                var phoneVal = getFullPhoneNumber();
 
                 var hasError = false;
 
@@ -3380,8 +3579,7 @@
             var participantName = document.getElementById('input-name') ? document.getElementById('input-name').value.trim() : '';
             var companyName = document.getElementById('input-company') ? document.getElementById('input-company').value.trim() : '';
             var jobTitle = document.getElementById('input-job-title') ? document.getElementById('input-job-title').value.trim() : '';
-            var phoneEl = document.getElementById('phone');
-            var phoneVal = phoneEl ? (iti ? iti.getNumber() : phoneEl.value.trim()) : '';
+            var phoneVal = getFullPhoneNumber();
             var emailVal = document.getElementById('input-email') ? document.getElementById('input-email').value.trim() : '';
 
             var formData = new FormData(luckyForm);
@@ -3457,7 +3655,7 @@
                     });
 
                     animateSpinTo(targetIndex, function() {
-                        showWinnerCelebration(prizeName, participantName);
+                        showWinnerCelebration(prizeName, participantName, prizeId);
                         finalizeSpinState();
                     });
                 } catch (drawErr) {
@@ -3505,7 +3703,7 @@
                     }
 
                     animateSpinTo(targetIndex, function() {
-                        showWinnerCelebration(data.prize, participantName);
+                        showWinnerCelebration(data.prize, participantName, data.prize_id);
                         finalizeSpinState();
                     });
                 })
@@ -3548,7 +3746,11 @@
         var phoneField = document.getElementById('phone');
         if (phoneField) {
             phoneField.addEventListener('input', function() {
-                var val = iti ? iti.getNumber() : phoneField.value.trim();
+                // Auto strip leading 0 since country dial code (+62, +61) is already shown
+                if (phoneField.value.startsWith('0')) {
+                    phoneField.value = phoneField.value.replace(/^0+/, '');
+                }
+                var val = getFullPhoneNumber();
                 if (val) {
                     phoneField.classList.remove('is-invalid');
                 }
@@ -3911,7 +4113,7 @@
         refreshNetworkQueueUI();
 
         @if (session('success'))
-            showWinnerCelebration(@json(session('prize')), '');
+            showWinnerCelebration(@json(session('prize')), '', @json(session('prize_id')));
         @endif
     </script>
 </body>

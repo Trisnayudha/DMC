@@ -194,6 +194,7 @@ Route::get('/lucky-draw/ping', [LuckyDrawController::class, 'ping']);
 Route::post('/lucky-draw', [LuckyDrawController::class, 'store']);
 Route::post('/lucky-draw/business-card', [LuckyDrawController::class, 'uploadBusinessCard']);
 Route::post('/lucky-draw/sync-offline', [LuckyDrawController::class, 'syncOffline']);
+Route::post('/lucky-draw/items/{id}/deactivate', [LuckyDrawController::class, 'deactivateItem']);
 // Route::get('/register-event', [EventController::class, 'view2']);
 // Route::get('/register-event/multiple', [EventController::class, 'view']);
 // Route::get('/special-event/free', [SpecialEventController::class, 'free']);
