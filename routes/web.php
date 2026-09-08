@@ -561,7 +561,9 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
 
     Route::get('lucky-draw/items', [LuckyDrawItemController::class, 'index'])->name('admin.lucky_draw.items.index');
     Route::post('lucky-draw/items', [LuckyDrawItemController::class, 'store'])->name('admin.lucky_draw.items.store');
+    Route::post('lucky-draw/items/quick-batch', [LuckyDrawItemController::class, 'quickBatch'])->name('admin.lucky_draw.items.quick_batch');
     Route::post('lucky-draw/items/{id}/update', [LuckyDrawItemController::class, 'update'])->name('admin.lucky_draw.items.update');
+    Route::post('lucky-draw/items/{id}/quick-update', [LuckyDrawItemController::class, 'quickUpdate'])->name('admin.lucky_draw.items.quick_update');
     Route::post('lucky-draw/items/{id}/delete', [LuckyDrawItemController::class, 'destroy'])->name('admin.lucky_draw.items.destroy');
 
     Route::get('lucky-draw/entries', [LuckyDrawEntryController::class, 'index'])->name('admin.lucky_draw.entries.index');
