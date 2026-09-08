@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'lucky-draw/sync-offline',
+        'lucky-draw/ping',
     ];
 }

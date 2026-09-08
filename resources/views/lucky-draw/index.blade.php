@@ -2035,6 +2035,9 @@
             });
         }
 
+        // Global Network & App Connectivity State
+        var isAppOnline = navigator.onLine;
+
         // ==========================================
         // 0. SERVICE WORKER & OFFLINE DATABASE
         // ==========================================
@@ -2159,6 +2162,19 @@
         // 1. DATA PREPARATION & COLOR PALETTE
         // ==========================================
         var initialPrizes = @json($prizes);
+        try {
+            if (initialPrizes && initialPrizes.length > 0) {
+                localStorage.setItem('dmc_lucky_draw_prizes', JSON.stringify(initialPrizes));
+            } else {
+                var cachedPrizes = localStorage.getItem('dmc_lucky_draw_prizes');
+                if (cachedPrizes) {
+                    initialPrizes = JSON.parse(cachedPrizes);
+                }
+            }
+        } catch (e) {
+            console.warn('[Cache] Could not access localStorage for prizes:', e);
+        }
+
         var wheelSegments = [];
 
         // Build list of segments: prizes plus "Try Again" slice
@@ -2189,7 +2205,8 @@
 
         // Exact client-side mathematical clone of LuckyDrawService::draw()
         function drawPrizeOffline() {
-            var roll = Math.random() * 100;
+            // Angka acak 0.0000 - 99.9999 (presisi 4 desimal) identik dengan mt_rand(0, 999999)/10000 di LuckyDrawService
+            var roll = Math.floor(Math.random() * 1000000) / 10000;
             var cursor = 0.0;
             for (var i = 0; i < wheelSegments.length; i++) {
                 var seg = wheelSegments[i];
@@ -3151,7 +3168,7 @@
             updateSubmitAvailability();
 
             // If offline, store locally and allow instant draw without waiting!
-            if (!navigator.onLine) {
+            if (!navigator.onLine || !isAppOnline) {
                 cardUploading = false;
                 setCardStatus('Kartu nama tersimpan di tablet (Mode Offline) ✓ Siap undi!', 'done');
                 updateSubmitAvailability();
@@ -3405,43 +3422,52 @@
             }
 
             function handleOfflineDrawExecution() {
-                var offlineResult = drawPrizeOffline();
-                var targetIndex = offlineResult.index;
-                var wonSeg = offlineResult.segment;
-                var prizeName = wonSeg.name;
-                var prizeId = wonSeg.id || null;
+                try {
+                    var offlineResult = drawPrizeOffline();
+                    var targetIndex = (offlineResult && typeof offlineResult.index === 'number')
+                        ? offlineResult.index
+                        : (wheelSegments.length - 1);
+                    var wonSeg = (offlineResult && offlineResult.segment)
+                        ? offlineResult.segment
+                        : wheelSegments[targetIndex];
+                    var prizeName = wonSeg ? wonSeg.name : 'Try Again';
+                    var prizeId = wonSeg ? (wonSeg.id || null) : null;
 
-                var offlineEntry = {
-                    id: 'off_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                    created_at: new Date().toISOString(),
-                    drawn_at: new Date().toISOString(),
-                    name: participantName,
-                    company_name: companyName,
-                    job_title: jobTitle,
-                    phone: phoneVal,
-                    email: emailVal,
-                    spin_mode: currentSpinMode,
-                    capture_mode: currentCaptureMode,
-                    lucky_draw_item_id: prizeId,
-                    prize_name: prizeName,
-                    card_blob: currentCapturedCardBlob || null,
-                    synced: false
-                };
+                    var offlineEntry = {
+                        id: 'off_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                        created_at: new Date().toISOString(),
+                        drawn_at: new Date().toISOString(),
+                        name: participantName,
+                        company_name: companyName,
+                        job_title: jobTitle,
+                        phone: phoneVal,
+                        email: emailVal,
+                        spin_mode: currentSpinMode,
+                        capture_mode: (typeof currentMode !== 'undefined' ? currentMode : 'manual'),
+                        lucky_draw_item_id: prizeId,
+                        prize_name: prizeName,
+                        card_blob: currentCapturedCardBlob || null,
+                        synced: false
+                    };
 
-                OfflineDB.addEntry(offlineEntry).then(function() {
-                    refreshNetworkQueueUI();
-                }).catch(function(err) {
-                    console.error('[OfflineDB] Error saving offline entry:', err);
-                });
+                    OfflineDB.addEntry(offlineEntry).then(function() {
+                        refreshNetworkQueueUI();
+                    }).catch(function(err) {
+                        console.error('[OfflineDB] Error saving offline entry:', err);
+                    });
 
-                animateSpinTo(targetIndex, function() {
-                    showWinnerCelebration(prizeName, participantName);
+                    animateSpinTo(targetIndex, function() {
+                        showWinnerCelebration(prizeName, participantName);
+                        finalizeSpinState();
+                    });
+                } catch (drawErr) {
+                    console.error('[Draw] Error executing offline draw:', drawErr);
                     finalizeSpinState();
-                });
+                }
             }
 
-            // If browser is offline, trigger offline draw immediately without waiting
-            if (!navigator.onLine) {
+            // If browser or app is offline, trigger offline draw immediately without waiting
+            if (!navigator.onLine || !isAppOnline) {
                 handleOfflineDrawExecution();
                 return;
             }
@@ -3486,6 +3512,8 @@
                 .catch(function(err) {
                     clearTimeout(timeoutId);
                     console.warn('[Draw] Server slow/unreachable, continuing with offline spin:', err);
+                    isAppOnline = false;
+                    updateOnlineStatusUI(false);
                     handleOfflineDrawExecution();
                 });
         }
@@ -3592,6 +3620,7 @@
             var banner = document.getElementById('sync-connection-banner');
 
             if (!navigator.onLine) {
+                isAppOnline = false;
                 if (badge) badge.className = 'network-status-badge offline';
                 if (statusText) statusText.textContent = 'Offline';
                 if (banner) {
@@ -3607,17 +3636,20 @@
                 .then(function(res) {
                     clearTimeout(timeoutId);
                     var ok = res.ok;
+                    isAppOnline = ok;
                     updateOnlineStatusUI(ok);
                     return ok;
                 })
                 .catch(function() {
                     clearTimeout(timeoutId);
+                    isAppOnline = false;
                     updateOnlineStatusUI(false);
                     return false;
                 });
         }
 
         function updateOnlineStatusUI(isOnline) {
+            isAppOnline = !!isOnline;
             var badge = document.getElementById('btn-network-status');
             var statusText = document.getElementById('network-status-text');
             var banner = document.getElementById('sync-connection-banner');
@@ -3857,11 +3889,13 @@
 
         // Auto-detect online/offline transitions
         window.addEventListener('online', function() {
+            isAppOnline = true;
             checkNetworkConnection();
             syncPendingEntries(false);
         });
 
         window.addEventListener('offline', function() {
+            isAppOnline = false;
             updateOnlineStatusUI(false);
         });
 
