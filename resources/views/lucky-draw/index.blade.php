@@ -2265,7 +2265,7 @@
                 wheelSegments.push({
                     id: p.id,
                     name: p.name,
-                    chance: p.chance_percent || null,
+                    chance: (p.chance_percent !== undefined && p.chance_percent !== null) ? parseFloat(p.chance_percent) : 0,
                     isPrize: true
                 });
             });
@@ -2292,8 +2292,10 @@
             var cursor = 0.0;
             for (var i = 0; i < wheelSegments.length; i++) {
                 var seg = wheelSegments[i];
-                if (seg.isPrize && seg.chance) {
-                    cursor += parseFloat(seg.chance);
+                var chanceVal = parseFloat(seg.chance) || 0;
+                // Hadiah dengan peluang 0% tidak pernah dipilih oleh algoritma
+                if (seg.isPrize && chanceVal > 0) {
+                    cursor += chanceVal;
                     if (roll < cursor) {
                         return { index: i, segment: seg };
                     }

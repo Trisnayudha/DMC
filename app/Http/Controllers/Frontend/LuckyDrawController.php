@@ -13,10 +13,10 @@ class LuckyDrawController extends Controller
 {
     public function index()
     {
-        // Only the names are needed — the wheel's slice labels are the only
-        // place prizes are shown now (no separate gallery/photos on this page).
+        // Tampilkan semua hadiah yang aktif di roda putar (termasuk yang chance 0%).
+        // Item berpeluang 0% tetap dipajang di roda, namun algoritma pengundian
+        // (LuckyDrawService::draw()) secara ketat hanya memilih item dengan chance > 0.
         $prizes = LuckyDrawItem::active()
-            ->where('chance_percent', '>', 0)
             ->orderBy('sort_order')
             ->get(['id', 'name', 'chance_percent', 'image']);
 
