@@ -556,12 +556,11 @@ class CompanyDatabaseController extends Controller
     }
 
     /**
-     * Nama company (ter-normalisasi) yang punya minimal satu member dengan status
-     * deactivated/declined. Seluruh company dengan nama ini di-hide dari database —
-     * sekali ada member yang di-deactivate/decline, company-nya tidak ditampilkan
-     * lagi walau ada member lain yang masih aktif atau baru daftar/verify.
+     * Nama company (ter-normalisasi) yang SELURUH membernya berstatus
+     * deactivated/declined di-hide dari database. Selama company masih memiliki
+     * minimal satu member aktif/valid, company tetap ditampilkan.
      *
-     * @return string[]
+     * @return Collection
      */
     private function buildCompanyGroups(string $search = ''): Collection
     {
@@ -580,8 +579,7 @@ class CompanyDatabaseController extends Controller
                     ->whereColumn('users.id', 'company.users_id');
             });
 
-        // Company yang punya minimal satu member deactivated/declined di-hide SELURUHNYA,
-        // meskipun ada member lain yang masih aktif atau baru daftar/verify.
+        // Company yang seluruh membernya deactivated/declined di-hide dari database.
         if (!empty($taintedNames)) {
             $placeholders = implode(',', array_fill(0, count($taintedNames), '?'));
             $query->whereRaw("LOWER(TRIM(company_name)) NOT IN ($placeholders)", $taintedNames);

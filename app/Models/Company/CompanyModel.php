@@ -68,25 +68,22 @@ class CompanyModel extends Model
     }
 
     /**
-     * Nama company (lowercase, trimmed) yang punya minimal satu member
-     * berstatus deactivated/declined. Dipakai untuk menyembunyikan company
-     * "tainted" dari Company Database & dari hitungan verified company,
-     * supaya company dengan member bermasalah tidak ikut ditampilkan/dihitung.
+     * Nama company (lowercase, trimmed) yang SELURUH membernya berstatus
+     * deactivated/declined (tidak memiliki member aktif/valid sama sekali).
+     * Jika sebuah company masih memiliki minimal satu member aktif/valid,
+     * company tersebut TIDAK dianggap tainted dan tetap ditampilkan.
      */
     public static function taintedCompanyNames(): array
     {
         return static::query()
-            ->leftJoin('users', 'users.id', '=', 'company.users_id')
-            ->whereIn('users.status_member', ['deactivated', 'declined'])
+            ->join('users', 'users.id', '=', 'company.users_id')
             ->whereNotNull('company.company_name')
             ->whereRaw("TRIM(company.company_name) <> ''")
-            ->pluck('company.company_name')
-            ->map(function ($n) {
-                return Str::lower(trim((string) $n));
-            })
-            ->filter()
-            ->unique()
-            ->values()
+            ->groupBy(DB::raw('LOWER(TRIM(company.company_name))'))
+            ->havingRaw("SUM(CASE WHEN users.status_member IS NULL OR users.status_member NOT IN ('deactivated', 'declined') THEN 1 ELSE 0 END) = 0")
+            ->selectRaw('LOWER(TRIM(company.company_name)) as normalized_name')
+            ->toBase()
+            ->pluck('normalized_name')
             ->all();
     }
 
