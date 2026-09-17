@@ -22,7 +22,7 @@ class HomeController extends Controller
         // 2 signature terpisah (urutannya sesuai array)
         $signatures = [
             //     // '/image/libur5.png',
-            // '/image/libur9-1.png',
+            '/image/banner_ctaasia_1.jpeg',
         ];
 
         $events = Events::select('id', 'name', 'description', 'slug', 'start_date')
