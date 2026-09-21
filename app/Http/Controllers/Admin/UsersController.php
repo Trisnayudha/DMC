@@ -1725,9 +1725,7 @@ class UsersController extends Controller
             $mailchimpResult = app(MemberVerificationService::class)
                 ->changeMailchimpEmail($user, (string) $changes['email']['old']);
 
-            if ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_RENAMED) {
-                $message .= ' Email di Mailchimp ikut dipindahkan.';
-            } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_SWAPPED) {
+            if ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_SWAPPED) {
                 $message .= ' Mailchimp: email lama di-archive, email baru di-subscribe.';
             } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_FAILED) {
                 $message .= ' (Mailchimp: gagal memindahkan email — perlu dicek manual.)';

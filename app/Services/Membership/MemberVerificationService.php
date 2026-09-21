@@ -3,6 +3,7 @@
 namespace App\Services\Membership;
 
 use App\Helpers\EmailSender;
+use App\Helpers\WhatsappApi;
 use App\Models\Company\CompanyModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
@@ -27,14 +28,14 @@ class MemberVerificationService
     /** Email lama tidak ada di audience / tidak berubah — tidak ada yang dikerjakan. */
     const MAILCHIMP_EMAIL_SKIPPED = 'skipped';
 
-    /** Alamat contact-nya berhasil diganti di tempat (status & history tetap). */
-    const MAILCHIMP_EMAIL_RENAMED = 'renamed';
-
     /** Email baru di-subscribe sebagai contact terpisah, email lama di-archive. */
     const MAILCHIMP_EMAIL_SWAPPED = 'swapped';
 
     /** Mailchimp menolak keduanya — perlu dirapikan manual. */
     const MAILCHIMP_EMAIL_FAILED = 'failed';
+
+    /** Nomor WA yang dikirimi laporan tiap kali sync Mailchimp gagal. */
+    const MAILCHIMP_FAILURE_REPORT_PHONE = '6283829314436';
 
     /**
      * Aktifkan user sebagai member: status, member ID (uname), dan QR code.
@@ -239,41 +240,61 @@ class MemberVerificationService
             }
 
             if ($existing->failed()) {
-                Log::warning('MemberVerification: Mailchimp lookup failed for user ' . $user->id
-                    . ' (HTTP ' . $existing->status() . '): ' . $existing->body());
+                $detail = 'Lookup gagal (HTTP ' . $existing->status() . '): ' . $existing->body();
+                Log::warning('MemberVerification: Mailchimp lookup failed for user ' . $user->id . ': ' . $detail);
+                $this->notifyMailchimpFailure($user, $oldEmail, $newEmail, $detail);
 
                 return self::MAILCHIMP_EMAIL_FAILED;
             }
 
             $oldStatus = (string) $existing->json('status');
 
-            $renamed = $this->mailchimpRequest($config)
-                ->patch($this->mailchimpMemberUrl($config, $oldEmail), [
-                    'email_address' => $newEmail,
-                ]);
-
-            if ($renamed->successful()) {
-                return self::MAILCHIMP_EMAIL_RENAMED;
-            }
+            // Selalu archive email lama + subscribe email baru sebagai contact
+            // segar — bukan rename in-place — supaya tiap email yang
+            // dimasukkan/diedit benar-benar tersubscribe ulang.
+            $archived = $this->archiveEmailFromMailchimp($oldEmail, $user->id);
 
             // Subscribe email baru hanya kalau yang lama memang masih
             // subscribed — kalau member sudah opt-out, ganti email bukan
             // alasan untuk mendaftarkannya lagi.
             $subscribed = $oldStatus === 'subscribed' ? $this->syncToMailchimp($user) : false;
-            $archived = $this->archiveEmailFromMailchimp($oldEmail, $user->id);
 
-            if ($subscribed || $archived) {
+            if ($archived || $subscribed) {
                 return self::MAILCHIMP_EMAIL_SWAPPED;
             }
 
-            Log::warning('MemberVerification: Mailchimp email change failed for user ' . $user->id
-                . ' (HTTP ' . $renamed->status() . '): ' . $renamed->body());
+            $detail = "Archive email lama ({$oldEmail}) dan subscribe email baru ({$newEmail}) sama-sama gagal.";
+            Log::warning('MemberVerification: Mailchimp email change failed for user ' . $user->id . ': ' . $detail);
+            $this->notifyMailchimpFailure($user, $oldEmail, $newEmail, $detail);
 
             return self::MAILCHIMP_EMAIL_FAILED;
         } catch (\Throwable $e) {
             Log::warning('MemberVerification: Mailchimp email change failed for user ' . $user->id . ': ' . $e->getMessage());
+            $this->notifyMailchimpFailure($user, $oldEmail, $newEmail, $e->getMessage());
 
             return self::MAILCHIMP_EMAIL_FAILED;
+        }
+    }
+
+    /**
+     * Error Mailchimp gampang kelewat kalau cuma masuk log — kirim juga ke WA
+     * supaya kelihatan langsung, tapi jangan sampai kegagalan KIRIM WA ini
+     * ikut menggagalkan alur utamanya (edit user tetap harus sukses).
+     */
+    private function notifyMailchimpFailure(User $user, string $oldEmail, string $newEmail, string $detail): void
+    {
+        try {
+            $send = new WhatsappApi();
+            $send->phone = self::MAILCHIMP_FAILURE_REPORT_PHONE;
+            $send->message = "⚠️ *Mailchimp Sync Gagal — Ganti Email Member*\n\n"
+                . "Member: {$user->name} (ID: {$user->id})\n"
+                . "Email lama: {$oldEmail}\n"
+                . "Email baru: {$newEmail}\n"
+                . "Detail: {$detail}\n\n"
+                . "Perlu dicek manual di Mailchimp.";
+            $send->WhatsappMessage();
+        } catch (\Throwable $e) {
+            Log::warning('MemberVerification: WA failure report failed for user ' . $user->id . ': ' . $e->getMessage());
         }
     }
 
