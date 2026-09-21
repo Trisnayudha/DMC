@@ -48,7 +48,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
 
         return [
             'No', 'Date Register', 'Source', 'Name', 'Tier', 'Status Member', 'Job Title',
-            'Company', 'Email', 'Phone', 'Office', 'Address', 'Website',
+            'Company', 'Email', 'Alternative Email', 'Phone', 'Office', 'Address', 'Website',
             'Category', 'WA Updates', 'Open to Sponsorship', 'Password',
             'Deactivation Reason', 'Deactivated At', 'Deactivated By',
         ];
@@ -83,6 +83,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             $row->job_title,
             $row->company_name,
             $row->email,
+            $row->alternative_email,
             $row->fullphone ?? $row->phone,
             $row->full_office_number,
             $row->address,

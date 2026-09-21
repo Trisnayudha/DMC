@@ -30,6 +30,19 @@
                         </div>
                     </div>
                 @endif
+                @if (session('import_errors'))
+                    <div class="alert alert-warning alert-dismissible show fade">
+                        <div class="alert-body">
+                            <button class="close" data-dismiss="alert"><span>×</span></button>
+                            <strong>Detail baris yang dilewati saat import:</strong>
+                            <ul class="mb-0 mt-1" style="max-height:200px; overflow-y:auto;">
+                                @foreach (session('import_errors') as $importError)
+                                    <li>{{ $importError }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
                 @if ($errors->any())
                     <div class="alert alert-warning alert-dismissible show fade">
                         <div class="alert-body">
@@ -58,6 +71,7 @@
     @include('admin.users.partials._modal_edit_user')
     @include('admin.users.partials._modal_logs')
     @include('admin.users.partials._modal_import')
+    @include('admin.users.partials._modal_bulk_two_step_import')
     @include('admin.users.partials._modal_deactivate')
     @include('admin.member_follow_ups.partials._modal_flag')
     @include('admin.users.partials._modal_registration_breakdown')

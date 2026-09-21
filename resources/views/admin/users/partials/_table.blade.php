@@ -205,6 +205,10 @@
                     data-target="#example">
                     <i class="fas fa-file-import mr-1"></i> Import Excel
                 </button>
+                <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                    data-target="#bulkTwoStepImportModal">
+                    <i class="fas fa-user-check mr-1"></i> Bulk Import 2-Step Verification
+                </button>
             </div>
         </div>
 

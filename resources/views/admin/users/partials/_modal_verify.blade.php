@@ -49,7 +49,13 @@
                             </div>
                             <div class="form-group col-md-6 mb-2">
                                 <label class="small mb-1">Email</label>
-                                <input type="email" id="vm-user-email" class="form-control form-control-sm">
+                                <input type="email" id="vm-user-email" class="form-control form-control-sm vm-email-typo-check">
+                                <small class="text-warning d-none vm-email-typo-warning"></small>
+                            </div>
+                            <div class="form-group col-md-6 mb-2">
+                                <label class="small mb-1">Alternative Email</label>
+                                <input type="email" id="vm-user-alternative-email" class="form-control form-control-sm vm-email-typo-check">
+                                <small class="text-warning d-none vm-email-typo-warning"></small>
                             </div>
                             <div class="form-group col-md-6 mb-0">
                                 <label class="small mb-1">Job Title</label>
@@ -156,6 +162,10 @@
                         <i class="fas fa-info-circle mr-1"></i>Status member akan berubah jadi
                         <span class="badge badge-success">Active</span> dan data dikirim ke Mailchimp.
                     </small>
+                    <div class="custom-control custom-checkbox mt-2">
+                        <input type="checkbox" class="custom-control-input vm-send-notification-checkbox" id="vm-send-notification-1" checked>
+                        <label class="custom-control-label" for="vm-send-notification-1">Send notification email</label>
+                    </div>
                 </div>
                 <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-danger" id="vm-btn-open-decline">
@@ -188,6 +198,10 @@
                         <small class="text-muted">Status member akan berubah jadi
                             <span class="badge badge-success">Active</span> dan data dikirim ke Mailchimp.</small>
                     </div>
+                    <div class="custom-control custom-checkbox mt-2 text-left d-inline-block">
+                        <input type="checkbox" class="custom-control-input vm-send-notification-checkbox" id="vm-send-notification-2" checked>
+                        <label class="custom-control-label" for="vm-send-notification-2">Send notification email</label>
+                    </div>
                 </div>
                 <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-danger" id="vm-btn-open-decline-step2">
@@ -213,11 +227,15 @@
                         <i class="fas fa-exclamation-triangle mr-2"></i>
                         Kamu akan <strong>mendecline</strong> aplikasi membership dari
                         <strong id="vm-decline-member-name">-</strong>.<br>
-                        <small>Email notifikasi decline akan otomatis dikirim ke mereka.</small>
+                        <small>Centang opsi di bawah kalau mau kirim email notifikasi decline ke mereka.</small>
                     </div>
-                    <div class="alert alert-light border py-2 small">
+                    <div class="alert alert-light border py-2 small" id="vm-decline-email-preview">
                         <strong>Subject:</strong> Update on Your Djakarta Mining Club Membership Application<br>
                         <span class="text-muted">Email akan dikirim ke: <strong id="vm-decline-member-email">-</strong></span>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="vm-decline-send-notification" checked>
+                        <label class="custom-control-label" for="vm-decline-send-notification">Send notification email</label>
                     </div>
                 </div>
                 <div class="modal-footer d-flex justify-content-between">

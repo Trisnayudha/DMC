@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\BulkTwoStepVerificationImportTemplate;
 use App\Exports\UsersExport;
 use App\Helpers\EmailSender;
 use App\Http\Controllers\Controller;
+use App\Imports\BulkTwoStepVerificationImport;
 use App\Models\Company\CompanyModel;
 use App\Models\MemberCompanyFollowUp;
 use App\Models\MemberLeadFollowUp;
@@ -1076,12 +1078,15 @@ class UsersController extends Controller
         // memang belum pernah masuk audience).
         $previousEmail = strtolower(trim($user->email ?? ''));
 
-        if ($request->filled('name') || $request->filled('email') || $request->filled('job_title') || $request->filled('phone')) {
+        if ($request->filled('name') || $request->filled('email') || $request->filled('alternative_email') || $request->filled('job_title') || $request->filled('phone')) {
             if ($request->filled('name')) {
                 $user->name = trim($request->input('name'));
             }
             if ($request->filled('email')) {
                 $user->email = trim($request->input('email'));
+            }
+            if ($request->filled('alternative_email')) {
+                $user->alternative_email = trim($request->input('alternative_email'));
             }
             if ($request->filled('job_title') || $request->filled('phone')) {
                 $profile = ProfileModel::firstOrNew(['users_id' => $user->id]);
@@ -1186,45 +1191,50 @@ class UsersController extends Controller
                 Log::warning('verifyMember: Mailchimp import failed for user ' . $id . ': ' . $e->getMessage());
             }
 
-            try {
-                $setPasswordUrl = null;
-                if (empty($user->password)) {
-                    $token = Password::broker()->createToken($user);
-                    $setPasswordUrl = route('password.reset', [
-                        'token' => $token,
-                        'email' => $email,
-                    ]);
+            if ($request->boolean('send_notification', true)) {
+                try {
+                    $setPasswordUrl = null;
+                    if (empty($user->password)) {
+                        $token = Password::broker()->createToken($user);
+                        $setPasswordUrl = route('password.reset', [
+                            'token' => $token,
+                            'email' => $email,
+                        ]);
+                    }
+
+                    $memberId = $user->uname;
+                    $linkExpiryMinutes = (int) config('auth.passwords.users.expire', 60);
+                    $linkExpiryHours = (int) max(1, ceil($linkExpiryMinutes / 60));
+                    $loginUrl = (string) config('dmc.post_reset_password_redirect_url', 'https://www.djakarta-miningclub.com?modalloginopen=true');
+
+                    $send = new EmailSender();
+                    $send->subject = 'Djakarta Mining Club – Membership Approval Confirmation (ID: ' . $memberId . ')';
+                    $send->template = 'email.membership-approved';
+                    $send->data = [
+                        'users_name' => $user->name ?? 'Member',
+                        'member_id' => $memberId,
+                        'registered_email' => $email,
+                        'set_password_url' => $setPasswordUrl,
+                        'link_expiry_hours' => $linkExpiryHours,
+                        'login_url' => $loginUrl,
+                    ];
+                    $send->name = $user->name ?? 'Member';
+                    $send->from = env('EMAIL_SENDER');
+                    $send->name_sender = env('EMAIL_NAME');
+                    $send->to = $email;
+                    $send->sendEmail();
+                } catch (\Throwable $e) {
+                    Log::warning('verifyMember: approval email failed for user ' . $id . ': ' . $e->getMessage());
                 }
-
-                $memberId = $user->uname;
-                $linkExpiryMinutes = (int) config('auth.passwords.users.expire', 60);
-                $linkExpiryHours = (int) max(1, ceil($linkExpiryMinutes / 60));
-                $loginUrl = (string) config('dmc.post_reset_password_redirect_url', 'https://www.djakarta-miningclub.com?modalloginopen=true');
-
-                $send = new EmailSender();
-                $send->subject = 'Djakarta Mining Club – Membership Approval Confirmation (ID: ' . $memberId . ')';
-                $send->template = 'email.membership-approved';
-                $send->data = [
-                    'users_name' => $user->name ?? 'Member',
-                    'member_id' => $memberId,
-                    'registered_email' => $email,
-                    'set_password_url' => $setPasswordUrl,
-                    'link_expiry_hours' => $linkExpiryHours,
-                    'login_url' => $loginUrl,
-                ];
-                $send->name = $user->name ?? 'Member';
-                $send->from = env('EMAIL_SENDER');
-                $send->name_sender = env('EMAIL_NAME');
-                $send->to = $email;
-                $send->sendEmail();
-            } catch (\Throwable $e) {
-                Log::warning('verifyMember: approval email failed for user ' . $id . ': ' . $e->getMessage());
             }
         }
 
+        $message = 'Member verified dan data telah diimport ke Mailchimp.'
+            . ($request->boolean('send_notification', true) ? '' : ' Email notifikasi TIDAK dikirim (sesuai pilihan admin).');
+
         return response()->json([
             'success' => true,
-            'message' => 'Member verified dan data telah diimport ke Mailchimp.',
+            'message' => $message,
         ]);
     }
 
@@ -1238,8 +1248,9 @@ class UsersController extends Controller
         $this->finishVerificationLog($user, VerificationLog::RESULT_DECLINED);
 
         $email = strtolower(trim($user->email ?? ''));
+        $sendNotification = $request->boolean('send_notification', true);
 
-        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if ($sendNotification && $email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
             try {
                 $send = new EmailSender();
                 $send->subject = 'Update on Your Djakarta Mining Club Membership Application';
@@ -1259,7 +1270,9 @@ class UsersController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Membership application declined dan email notifikasi telah dikirim.',
+            'message' => $sendNotification
+                ? 'Membership application declined dan email notifikasi telah dikirim.'
+                : 'Membership application declined. Email notifikasi TIDAK dikirim (sesuai pilihan admin).',
         ]);
     }
 
@@ -1342,6 +1355,39 @@ class UsersController extends Controller
         ]);
     }
 
+    public function bulkTwoStepImportTemplate()
+    {
+        return Excel::download(new BulkTwoStepVerificationImportTemplate(), 'template-import-verifikasi-2-langkah.xlsx');
+    }
+
+    /**
+     * Bulk version of toggleTwoStep() — sama efeknya, cuma dari daftar email
+     * di Excel sekaligus (LinkedIn/Telfon verification batch yang dikerjakan
+     * di luar sistem, lalu hasilnya diimport balik ke sini).
+     */
+    public function bulkTwoStepImport(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $admin = auth()->user();
+        $import = new BulkTwoStepVerificationImport($admin ? $admin->name : 'Staff');
+        Excel::import($import, $request->file('file'));
+
+        $message = "Import selesai. {$import->getVerified()} member ditandai verified, "
+            . "{$import->getUnverified()} dibatalkan verifikasinya, {$import->getUnchanged()} tidak berubah.";
+        if ($import->getNotFound() > 0) {
+            $message .= " {$import->getNotFound()} email tidak ditemukan.";
+        }
+
+        if (!empty($import->getErrors())) {
+            return back()->with('success', $message)->with('import_errors', $import->getErrors());
+        }
+
+        return back()->with('success', $message);
+    }
+
     private function generateVerificationMemberId(User $user, ?Carbon $verifiedAt = null): string
     {
         $verifiedAt = $verifiedAt ? $verifiedAt->copy() : now();
@@ -1413,6 +1459,7 @@ class UsersController extends Controller
         $request->validate([
             'name'          => 'required|string|max:255',
             'email'         => 'required|email|max:255',
+            'alternative_email' => 'nullable|email|max:255',
             'job_title'     => 'nullable|string|max:255',
             'phone'         => 'nullable|string|max:50',
             'prefix'        => 'nullable|string|max:255',
@@ -1472,7 +1519,7 @@ class UsersController extends Controller
             ? (string) $request->input('tier')
             : (string) ($user->tier ?? '');
 
-        $watchUser    = ['name', 'email', 'status_member', 'tier'];
+        $watchUser    = ['name', 'email', 'alternative_email', 'status_member', 'tier'];
         $watchProfile = ['job_title', 'phone'];
         $watchCompany = [
             'prefix',
@@ -1578,10 +1625,11 @@ class UsersController extends Controller
             return response()->json(['success' => true, 'message' => 'Tidak ada perubahan.']);
         }
 
-        $user->name          = trim((string) $request->name);
-        $user->email         = trim((string) $request->email);
-        $user->status_member = $nextStatusMember;
-        $user->tier          = $nextTier;
+        $user->name              = trim((string) $request->name);
+        $user->email             = trim((string) $request->email);
+        $user->alternative_email = $nullableString($request->alternative_email);
+        $user->status_member     = $nextStatusMember;
+        $user->tier              = $nextTier;
         $user->save();
 
         $shouldSaveCompany = $hasCompanyChanges || $shouldAutoVerifyCompany;

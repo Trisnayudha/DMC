@@ -59,6 +59,7 @@
             data-normalized-name="{{ strtolower(trim((string) $post->company_name)) }}"
             data-member-name="{{ $post->name }}"
             data-member-email="{{ $post->email }}"
+            data-member-alternative-email="{{ $post->alternative_email }}"
             data-member-job-title="{{ $post->job_title }}"
             data-member-phone="{{ $post->fullphone ?? $post->phone }}"
             data-payload='@json($declinedPayload)'
@@ -93,6 +94,7 @@
             data-normalized-name="{{ strtolower(trim((string) $post->company_name)) }}"
             data-member-name="{{ $post->name }}"
             data-member-email="{{ $post->email }}"
+            data-member-alternative-email="{{ $post->alternative_email }}"
             data-member-job-title="{{ $post->job_title }}"
             data-member-phone="{{ $post->fullphone ?? $post->phone }}"
             data-payload='@json($companyPayload)'

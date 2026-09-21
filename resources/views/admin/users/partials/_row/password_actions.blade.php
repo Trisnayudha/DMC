@@ -8,6 +8,7 @@
         data-user-id="{{ $post->user_id }}"
         data-name="{{ $post->name }}"
         data-email="{{ $post->email }}"
+        data-alternative-email="{{ $post->alternative_email }}"
         data-job-title="{{ $post->job_title }}"
         data-phone="{{ $post->fullphone ?? $post->phone }}"
         data-prefix="{{ $post->prefix }}"

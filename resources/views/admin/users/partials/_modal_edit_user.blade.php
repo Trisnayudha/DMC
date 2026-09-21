@@ -21,6 +21,10 @@
                     <input type="email" id="eu-email" class="form-control">
                 </div>
                 <div class="form-group">
+                    <label class="small font-weight-bold">Alternative Email</label>
+                    <input type="email" id="eu-alternative-email" class="form-control">
+                </div>
+                <div class="form-group">
                     <label class="small font-weight-bold">Job Title</label>
                     <input type="text" id="eu-job-title" class="form-control">
                 </div>

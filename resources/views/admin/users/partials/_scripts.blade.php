@@ -16,6 +16,84 @@
         return { prefix: '', office: trimmed };
     }
 
+    // =========================================================
+    // EMAIL TYPO CHECK (client-side "did you mean...?", no network
+    // call — instant while the admin is reviewing the Verify modal)
+    // =========================================================
+    var EMAIL_TYPO_KNOWN_DOMAINS = [
+        'gmail.com', 'yahoo.com', 'yahoo.co.id', 'outlook.com', 'hotmail.com',
+        'hotmail.co.id', 'icloud.com', 'live.com', 'aol.com', 'protonmail.com',
+    ];
+
+    function emailTypoLevenshtein(a, b) {
+        var m = a.length, n = b.length;
+        var dp = [];
+        for (var i = 0; i <= m; i++) { dp.push([i]); }
+        for (var j = 0; j <= n; j++) { dp[0][j] = j; }
+        for (i = 1; i <= m; i++) {
+            for (j = 1; j <= n; j++) {
+                dp[i][j] = a[i - 1] === b[j - 1]
+                    ? dp[i - 1][j - 1]
+                    : 1 + Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+        return dp[m][n];
+    }
+
+    // Returns the suggested domain if `domain` looks like a near-miss typo of
+    // a well-known one (distance 1-2, and never suggesting itself), else null.
+    // Distance 1 only for very short domains — avoids false positives on
+    // legit custom/company domains that just happen to be domain-length-close
+    // to a common one.
+    function emailTypoSuggestDomain(domain) {
+        domain = domain.toLowerCase();
+        if (EMAIL_TYPO_KNOWN_DOMAINS.indexOf(domain) !== -1) return null;
+
+        var best = null;
+        var bestDistance = Infinity;
+        EMAIL_TYPO_KNOWN_DOMAINS.forEach(function(known) {
+            var distance = emailTypoLevenshtein(domain, known);
+            if (distance < bestDistance) { bestDistance = distance; best = known; }
+        });
+
+        var maxAllowed = domain.length <= 6 ? 1 : 2;
+        return (best && bestDistance > 0 && bestDistance <= maxAllowed) ? best : null;
+    }
+
+    function vmCheckEmailTypo($input) {
+        var $warning = $input.siblings('.vm-email-typo-warning');
+        var value = ($input.val() || '').trim();
+        var atIndex = value.lastIndexOf('@');
+
+        if (atIndex === -1 || atIndex === value.length - 1) {
+            $warning.addClass('d-none').text('');
+            return;
+        }
+
+        var local  = value.slice(0, atIndex);
+        var domain = value.slice(atIndex + 1);
+        var suggestion = emailTypoSuggestDomain(domain);
+
+        if (suggestion) {
+            $warning.removeClass('d-none')
+                .html('<i class="fas fa-exclamation-triangle mr-1"></i>Kemungkinan typo — maksudnya <a href="#" class="vm-email-typo-apply" data-suggested="' +
+                    local + '@' + suggestion + '">' + local + '@' + suggestion + '</a>?');
+        } else {
+            $warning.addClass('d-none').text('');
+        }
+    }
+
+    $(document).on('input blur', '.vm-email-typo-check', function() {
+        vmCheckEmailTypo($(this));
+    });
+
+    $(document).on('click', '.vm-email-typo-apply', function(e) {
+        e.preventDefault();
+        var $input = $(this).closest('.form-group').find('.vm-email-typo-check');
+        $input.val($(this).attr('data-suggested'));
+        vmCheckEmailTypo($input);
+    });
+
     // Helper: alert di atas tabel
     function showAlert(type, message) {
         $('#alert-area').html(
@@ -72,13 +150,23 @@
     function vmFillUserFields($btn) {
         $('#vm-user-name').val($btn.attr('data-member-name') || '');
         $('#vm-user-email').val($btn.attr('data-member-email') || '');
+        $('#vm-user-alternative-email').val($btn.attr('data-member-alternative-email') || '');
         $('#vm-user-job-title').val($btn.attr('data-member-job-title') || '');
         $('#vm-user-phone').val($btn.attr('data-member-phone') || '');
+        // Check for a domain typo right away — the value came from what the
+        // member typed at registration, so the warning shouldn't wait for the
+        // admin to touch the field first.
+        $('.vm-email-typo-check').each(function() { vmCheckEmailTypo($(this)); });
     }
 
     function vmDoVerifyMember(url, $btn) {
         $('#vm-btn-verify-member, #vm-btn-verify-member-direct').prop('disabled', true)
             .html('<span class="spinner-border spinner-border-sm mr-1"></span> Memverifikasi...');
+
+        // Step 1 dan Step 2 masing-masing punya checkbox notifikasi sendiri
+        // (dua section berbeda di modal yang sama) — ambil dari yang lagi
+        // ditampilkan.
+        const sendNotification = $('.vm-send-notification-checkbox:visible').is(':checked');
 
         $.ajax({
             url,
@@ -87,8 +175,10 @@
             data: {
                 name: $('#vm-user-name').val() || undefined,
                 email: $('#vm-user-email').val() || undefined,
+                alternative_email: $('#vm-user-alternative-email').val() || undefined,
                 job_title: $('#vm-user-job-title').val() || undefined,
                 phone: $('#vm-user-phone').val() || undefined,
+                send_notification: sendNotification ? 1 : 0,
             }
         })
         .done(function(res) {
@@ -307,9 +397,19 @@
         $('#vm-step-1').hide();
         $('#vm-step-2').hide();
         $('#vm-step-decline').show();
+        vmSyncDeclineButtonLabel();
     }
 
     $(document).on('click', '#vm-btn-open-decline, #vm-btn-open-decline-step2', vmShowDeclineStep);
+
+    function vmSyncDeclineButtonLabel() {
+        const willSend = $('#vm-decline-send-notification').is(':checked');
+        $('#vm-decline-email-preview').toggle(willSend);
+        $('#vm-btn-decline-confirm').html(willSend
+            ? '<i class="fas fa-times-circle mr-1"></i> Ya, Decline & Kirim Email'
+            : '<i class="fas fa-times-circle mr-1"></i> Ya, Decline (tanpa email)');
+    }
+    $(document).on('change', '#vm-decline-send-notification', vmSyncDeclineButtonLabel);
 
     $(document).on('click', '#vm-btn-decline-cancel', function() {
         $('#vm-step-decline').hide();
@@ -324,25 +424,32 @@
         const $btn = $(this);
         const url  = $vmSourceBtn.attr('data-url').replace(/\/verify$/, '/decline');
 
+        const sendNotification = $('#vm-decline-send-notification').is(':checked');
+
         $btn.prop('disabled', true)
             .html('<span class="spinner-border spinner-border-sm mr-1"></span> Memproses...');
 
-        $.ajax({ url, method: 'POST', dataType: 'json' })
+        $.ajax({
+            url,
+            method: 'POST',
+            dataType: 'json',
+            data: { send_notification: sendNotification ? 1 : 0 },
+        })
             .done(function(res) {
                 if (res && res.success) {
                     $('#verifyMemberModal').modal('hide');
                     refreshMembersTable();
                     showAlert('success', '<i class="fas fa-check-circle mr-1"></i>' + res.message);
                 } else {
-                    $btn.prop('disabled', false)
-                        .html('<i class="fas fa-times-circle mr-1"></i> Ya, Decline & Kirim Email');
+                    $btn.prop('disabled', false);
+                    vmSyncDeclineButtonLabel();
                     showAlert('warning', (res && res.message) || 'Gagal decline member.');
                 }
             })
             .fail(function(xhr) {
                 const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Gagal menghubungi server.';
-                $btn.prop('disabled', false)
-                    .html('<i class="fas fa-times-circle mr-1"></i> Ya, Decline & Kirim Email');
+                $btn.prop('disabled', false);
+                vmSyncDeclineButtonLabel();
                 showAlert('danger', msg);
             });
     });
@@ -350,8 +457,10 @@
     // Reset decline step ketika modal ditutup
     $('#verifyMemberModal').on('hidden.bs.modal', function() {
         $('#vm-step-decline').hide();
-        $('#vm-btn-decline-confirm').prop('disabled', false)
-            .html('<i class="fas fa-times-circle mr-1"></i> Ya, Decline & Kirim Email');
+        $('#vm-btn-decline-confirm').prop('disabled', false);
+        $('#vm-decline-send-notification').prop('checked', true);
+        $('.vm-send-notification-checkbox').prop('checked', true);
+        vmSyncDeclineButtonLabel();
     });
 
     // =========================================================
@@ -475,6 +584,7 @@
         $('#eu-update-url').val($btn.attr('data-update-url'));
         $('#eu-name').val($btn.attr('data-name'));
         $('#eu-email').val($btn.attr('data-email'));
+        $('#eu-alternative-email').val($btn.attr('data-alternative-email'));
         $('#eu-job-title').val($btn.attr('data-job-title'));
         $('#eu-phone').val($btn.attr('data-phone'));
         $('#eu-prefix').val($btn.attr('data-prefix') || '');
@@ -512,6 +622,7 @@
             url, method: 'POST', dataType: 'json',
             data: {
                 name, email,
+                alternative_email:    $('#eu-alternative-email').val(),
                 job_title:            $('#eu-job-title').val(),
                 phone:                $('#eu-phone').val(),
                 prefix:               $('#eu-prefix').val(),
