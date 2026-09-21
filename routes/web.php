@@ -59,6 +59,7 @@ use App\Http\Controllers\Admin\ProgramController;
 use App\Http\Controllers\Admin\SponsorExportController;
 use App\Http\Controllers\Admin\LuckyDrawItemController;
 use App\Http\Controllers\Admin\LuckyDrawEntryController;
+use App\Http\Controllers\Admin\PartnershipEventVisitorController;
 use App\Http\Controllers\DmcMemberSurveyController;
 use App\Http\Controllers\EditorUploadController;
 use App\Http\Controllers\SponsorSurveyController;
@@ -567,6 +568,17 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('lucky-draw/items/{id}/delete', [LuckyDrawItemController::class, 'destroy'])->name('admin.lucky_draw.items.destroy');
 
     Route::get('lucky-draw/entries', [LuckyDrawEntryController::class, 'index'])->name('admin.lucky_draw.entries.index');
+
+    // Partnership Event Visitors
+    Route::get('partnership-events', [PartnershipEventVisitorController::class, 'index'])->name('admin.partnership_events.index');
+    Route::get('partnership-events/import-template', [PartnershipEventVisitorController::class, 'importTemplate'])->name('admin.partnership_events.import_template');
+    Route::get('partnership-events/{slug}', [PartnershipEventVisitorController::class, 'show'])->name('admin.partnership_events.show');
+    Route::get('partnership-events/{slug}/export', [PartnershipEventVisitorController::class, 'export'])->name('admin.partnership_events.export');
+    Route::post('partnership-events/{slug}/visitors', [PartnershipEventVisitorController::class, 'store'])->name('admin.partnership_events.visitors.store');
+    Route::post('partnership-events/{slug}/visitors/{id}/update', [PartnershipEventVisitorController::class, 'update'])->name('admin.partnership_events.visitors.update');
+    Route::post('partnership-events/{slug}/visitors/{id}/delete', [PartnershipEventVisitorController::class, 'destroy'])->name('admin.partnership_events.visitors.destroy');
+    Route::post('partnership-events/{slug}/visitors/{id}/register-as-member', [PartnershipEventVisitorController::class, 'registerAsMember'])->name('admin.partnership_events.visitors.register_as_member');
+    Route::post('partnership-events/{slug}/import', [PartnershipEventVisitorController::class, 'import'])->name('admin.partnership_events.import');
 
     // Quick Search
     Route::get('quick-search', [App\Http\Controllers\Admin\QuickSearchController::class, 'search'])

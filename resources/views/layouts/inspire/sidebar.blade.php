@@ -142,6 +142,13 @@
             </ul>
         </li>
 
+        <li class="{{ request()->is('admin/partnership-events*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.partnership_events.index') }}">
+                <i class="fas fa-handshake"></i>
+                <span>Partnership Event</span>
+            </a>
+        </li>
+
         <li class="dropdown {{ request()->is('admin/lucky-draw*') ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
                 <i class="fas fa-gift"></i>

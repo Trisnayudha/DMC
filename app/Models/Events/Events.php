@@ -30,4 +30,9 @@ class Events extends Model
     {
         return preg_replace('/^The\s+/i', '', $this->name);
     }
+
+    public function partnershipEventVisitors()
+    {
+        return $this->hasMany(\App\Models\PartnershipEvent\PartnershipEventVisitor::class, 'events_id');
+    }
 }
