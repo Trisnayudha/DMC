@@ -717,7 +717,7 @@ Terima kasih.
                     } else {
                         $subject = 'Waiting for Approval – ' . $findEvent->subject_name;
                     }
-                    Mail::send('email.waiting-approval', $dataEmail, function ($message) use ($email, $findEvent, $subject) {
+                    Mail::send('email.waiting-event', $dataEmail, function ($message) use ($email, $findEvent, $subject) {
                         $message->from(env('EMAIL_SENDER'));
                         $message->to($email);
                         $message->subject($subject);

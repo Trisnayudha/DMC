@@ -423,7 +423,7 @@ Terima kasih.
                 $send->to = $key['email'];
                 $send->from = env('EMAIL_SENDER');
                 $send->data = $emailData;
-                $send->template = 'email.waiting-approval';
+                $send->template = 'email.waiting-event';
                 $send->sendEmail();
             }
 
