@@ -23,7 +23,12 @@ class MemberLeadFollowUpController extends Controller
 
         $query = MemberLeadFollowUp::with(['user.profile', 'user.company'])->orderBy('created_at', 'desc');
 
-        if (in_array($result, [MemberLeadFollowUp::RESULT_PENDING, MemberLeadFollowUp::RESULT_WIN, MemberLeadFollowUp::RESULT_LOSS], true)) {
+        // 'do_not_send' is its own tab, independent of win/pending/loss — a
+        // flagged lead can be in any result state, so it filters on the flag
+        // instead of the result column.
+        if ($result === 'do_not_send') {
+            $query->where('do_not_send', true);
+        } elseif (in_array($result, [MemberLeadFollowUp::RESULT_PENDING, MemberLeadFollowUp::RESULT_WIN, MemberLeadFollowUp::RESULT_LOSS], true)) {
             $query->where('result', $result);
         } else {
             $result = 'all';
@@ -45,10 +50,11 @@ class MemberLeadFollowUpController extends Controller
 
         $list = $query->get();
 
-        $countPending = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
-        $countWin     = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_WIN)->count();
-        $countLoss    = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
-        $countOverSla = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)
+        $countPending   = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
+        $countWin       = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_WIN)->count();
+        $countLoss      = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
+        $countDoNotSend = MemberLeadFollowUp::where('do_not_send', true)->count();
+        $countOverSla   = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)
             ->whereNotNull('deadline_at')
             ->where('deadline_at', '<', now())
             ->count();
@@ -67,6 +73,7 @@ class MemberLeadFollowUpController extends Controller
             'countPending',
             'countWin',
             'countLoss',
+            'countDoNotSend',
             'countOverSla',
             'countTotalLeads',
             'conversionRate',
@@ -75,8 +82,8 @@ class MemberLeadFollowUpController extends Controller
     }
 
     /**
-     * Logs whichever step is next for this lead (Kirim Sponsorkit → Follow Up 1
-     * → Follow Up 2) — one shared endpoint, same as before, just now aware of
+     * Logs whichever step is next for this lead (Send Sponsor Kit → Follow-up 1
+     * → Follow-up 2) — one shared endpoint, same as before, just now aware of
      * 3 steps instead of 2 and taking a manually-editable date.
      */
     public function logFollowUp(Request $request, $id)
@@ -93,7 +100,9 @@ class MemberLeadFollowUpController extends Controller
         if (!$stepKey) {
             return response()->json([
                 'success' => false,
-                'message' => 'Semua tahap follow up untuk lead ini sudah tercatat.',
+                'message' => $lead->do_not_send
+                    ? 'This lead is flagged "Do Not Send" — the sponsor kit cannot be sent.'
+                    : 'All follow-up steps for this lead have already been logged.',
             ], 422);
         }
 
@@ -136,7 +145,7 @@ class MemberLeadFollowUpController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => MemberLeadFollowUp::stepLabel($stepKey) . ' berhasil dicatat.',
+            'message' => MemberLeadFollowUp::stepLabel($stepKey) . ' logged successfully.',
         ]);
     }
 
@@ -152,7 +161,48 @@ class MemberLeadFollowUpController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Hasil lead berhasil ditandai ' . ucfirst($request->result) . '.',
+            'message' => 'Lead marked as ' . ucfirst($request->result) . '.',
+        ]);
+    }
+
+    /**
+     * Flag/unflag a lead as ineligible for the sponsor kit (competitor,
+     * unqualified, etc.) — separate from win/loss, since this is a
+     * disqualification decided before any real pursuit happens. While
+     * flagged, MemberLeadFollowUp::nextStepKey() never returns 'sponsorkit',
+     * so the "Send Sponsor Kit" action stays hidden/blocked for this lead.
+     */
+    public function markDoNotSend(Request $request, $id)
+    {
+        $request->validate([
+            'do_not_send' => 'required|boolean',
+            'reason'      => 'nullable|string|max:255',
+        ]);
+
+        $lead  = MemberLeadFollowUp::findOrFail($id);
+        $admin = auth()->user();
+
+        $lead->do_not_send = $request->boolean('do_not_send');
+
+        if ($lead->do_not_send) {
+            $lead->do_not_send_reason  = $request->input('reason');
+            $lead->do_not_send_by_id   = auth()->id();
+            $lead->do_not_send_by_name = $admin ? $admin->name : 'Staff';
+            $lead->do_not_send_at      = now();
+        } else {
+            $lead->do_not_send_reason  = null;
+            $lead->do_not_send_by_id   = null;
+            $lead->do_not_send_by_name = null;
+            $lead->do_not_send_at      = null;
+        }
+
+        $lead->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => $lead->do_not_send
+                ? 'Lead flagged — the sponsor kit will not be sent to this lead.'
+                : '"Do Not Send" flag removed.',
         ]);
     }
 }

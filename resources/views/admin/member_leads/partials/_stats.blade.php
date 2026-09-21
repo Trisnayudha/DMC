@@ -22,7 +22,7 @@
                     <div class="card-header">
                         <h4>Over SLA
                             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                                title="Lead pending yang sudah lewat 48 jam sejak aksi terakhir (verifikasi / kirim sponsorkit / follow up)."
+                                title="Pending leads past 48 hours since the last action (verification / sponsor kit sent / follow-up)."
                                 data-toggle="tooltip"></i>
                         </h4>
                     </div>
@@ -85,6 +85,24 @@
                 <div class="card-body">{{ $conversionRate !== null ? $conversionRate . '%' : '—' }}</div>
             </div>
         </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+        <a href="{{ url('admin/leads?result=do_not_send') }}" class="text-decoration-none">
+            <div class="card card-statistic-1">
+                <div class="card-icon bg-danger"><i class="fas fa-ban"></i></div>
+                <div class="card-wrap">
+                    <div class="card-header">
+                        <h4>Do Not Send
+                            <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
+                                title="Leads flagged as ineligible for the sponsor kit (competitor, unqualified, etc.)."
+                                data-toggle="tooltip"></i>
+                        </h4>
+                    </div>
+                    <div class="card-body">{{ $countDoNotSend }}</div>
+                </div>
+            </div>
+        </a>
     </div>
 
 </div>{{-- /row 2 --}}

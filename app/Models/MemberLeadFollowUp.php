@@ -25,6 +25,11 @@ class MemberLeadFollowUp extends Model
         'second_follow_up_at',
         'created_by_id',
         'created_by_name',
+        'do_not_send',
+        'do_not_send_reason',
+        'do_not_send_by_id',
+        'do_not_send_by_name',
+        'do_not_send_at',
     ];
 
     protected $casts = [
@@ -32,6 +37,8 @@ class MemberLeadFollowUp extends Model
         'sponsorkit_sent_at' => 'datetime',
         'first_follow_up_at' => 'datetime',
         'second_follow_up_at' => 'datetime',
+        'do_not_send' => 'boolean',
+        'do_not_send_at' => 'datetime',
     ];
 
     public function user()
@@ -40,7 +47,7 @@ class MemberLeadFollowUp extends Model
     }
 
     /**
-     * Flow: Kirim Sponsorkit → Follow Up 1 → Follow Up 2. Returns the key of
+     * Flow: Send Sponsor Kit → Follow-up 1 → Follow-up 2. Returns the key of
      * whichever step hasn't happened yet, or null once all three are done.
      * Drives both the row's action button label and which timestamp
      * logStep() fills in next.
@@ -48,7 +55,9 @@ class MemberLeadFollowUp extends Model
     public function nextStepKey(): ?string
     {
         if (!$this->sponsorkit_sent_at) {
-            return 'sponsorkit';
+            // Flagged as "do not send" (competitor/unqualified) — never
+            // surface the Send Sponsor Kit step, even if it's technically next.
+            return $this->do_not_send ? null : 'sponsorkit';
         }
         if (!$this->first_follow_up_at) {
             return 'follow_up_1';
@@ -62,9 +71,9 @@ class MemberLeadFollowUp extends Model
     public static function stepLabel(string $key): string
     {
         return [
-            'sponsorkit'   => 'Kirim Sponsorkit',
-            'follow_up_1'  => 'Follow Up 1',
-            'follow_up_2'  => 'Follow Up 2',
+            'sponsorkit'   => 'Send Sponsor Kit',
+            'follow_up_1'  => 'Follow-up 1',
+            'follow_up_2'  => 'Follow-up 2',
         ][$key] ?? $key;
     }
 }

@@ -70,7 +70,13 @@
                 <thead>
                     <tr>
                         <th width="10px">No</th>
-                        <th class="text-nowrap">Flagged</th>
+                        <th class="text-nowrap">
+                            <a href="{{ route('admin.member_follow_ups.index', array_merge(request()->except(['dir', 'page']), ['dir' => $dir === 'asc' ? 'desc' : 'asc'])) }}"
+                                class="text-dark" style="text-decoration:none;">
+                                Flagged
+                                <i class="fas {{ $dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down' }} ml-1 text-muted"></i>
+                            </a>
+                        </th>
                         <th>Member</th>
                         <th class="text-nowrap">Phone</th>
                         <th>Company (Previous → New)</th>

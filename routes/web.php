@@ -561,6 +561,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('leads', [MemberLeadFollowUpController::class, 'index'])->name('admin.member_leads.index');
     Route::post('leads/{id}/follow-up', [MemberLeadFollowUpController::class, 'logFollowUp'])->name('admin.member_leads.log_follow_up');
     Route::post('leads/{id}/result', [MemberLeadFollowUpController::class, 'markResult'])->name('admin.member_leads.mark_result');
+    Route::post('leads/{id}/do-not-send', [MemberLeadFollowUpController::class, 'markDoNotSend'])->name('admin.member_leads.do_not_send');
 
     Route::get('lucky-draw/items', [LuckyDrawItemController::class, 'index'])->name('admin.lucky_draw.items.index');
     Route::post('lucky-draw/items', [LuckyDrawItemController::class, 'store'])->name('admin.lucky_draw.items.store');

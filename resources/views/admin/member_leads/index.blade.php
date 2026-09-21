@@ -35,6 +35,7 @@
     </div>
 
     @include('admin.member_leads.partials._modal_follow_up')
+    @include('admin.member_leads.partials._modal_do_not_send')
 @endsection
 
 @include('admin.member_leads.partials._scripts')

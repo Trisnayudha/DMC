@@ -5,7 +5,7 @@
         <h4 class="mb-0">
             <i class="fas fa-bullseye mr-1"></i>Lead Follow-Up
             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                title="Otomatis dibuat saat member dengan Explore Marketing (company.explore) di-verify. SLA follow up: 48 jam sejak aksi terakhir (verifikasi / kirim sponsorkit / follow up)."
+                title="Automatically created when a member with Explore Marketing (company.explore) is verified. Follow-up SLA: 48 hours since the last action (verification / sponsor kit sent / follow-up)."
                 data-toggle="tooltip"></i>
         </h4>
     </div>
@@ -30,6 +30,11 @@
                     <i class="fas fa-times-circle mr-1"></i> Loss
                     <span class="badge badge-light ml-1">{{ $countLoss }}</span>
                 </a>
+                <a href="{{ url('admin/leads?' . http_build_query(array_merge(request()->except('result'), ['result' => 'do_not_send']))) }}"
+                    class="btn btn-sm {{ $result === 'do_not_send' ? 'btn-danger' : 'btn-outline-danger' }}">
+                    <i class="fas fa-ban mr-1"></i> Do Not Send
+                    <span class="badge badge-light ml-1">{{ $countDoNotSend }}</span>
+                </a>
                 <a href="{{ url('admin/leads?' . http_build_query(array_merge(request()->except('result'), ['result' => 'all']))) }}"
                     class="btn btn-sm {{ $result === 'all' ? 'btn-dark' : 'btn-outline-dark' }}">
                     <i class="fas fa-list mr-1"></i> All
@@ -44,7 +49,7 @@
             <div class="form-group mb-0" style="min-width:220px; flex:1 1 220px;">
                 <label class="mb-1 small text-muted">Search</label>
                 <input type="text" name="search" value="{{ $search }}" class="form-control form-control-sm"
-                    placeholder="Nama, email, atau company...">
+                    placeholder="Name, email, or company...">
             </div>
             <div class="form-group mb-0">
                 <label class="mb-1 small text-muted">PIC</label>
@@ -81,10 +86,10 @@
                         <th class="text-nowrap">
                             Progress
                             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                                title="Kirim Sponsorkit → Follow Up 1 → Follow Up 2." data-toggle="tooltip"></i>
+                                title="Sponsor Kit Sent → Follow-up 1 → Follow-up 2." data-toggle="tooltip"></i>
                         </th>
                         <th width="90px">Result</th>
-                        <th width="150px">Actions</th>
+                        <th width="150px" class="text-nowrap">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -106,7 +111,7 @@
                             $isOverSla = $isPending && $item->deadline_at && $item->deadline_at->isPast();
                             $nextStepKey = $item->nextStepKey();
                         @endphp
-                        <tr @if ($isOverSla) style="background-color:#fff5f5;" @endif>
+                        <tr @if ($item->do_not_send) style="background-color:#fbeaea;" @elseif ($isOverSla) style="background-color:#fff5f5;" @endif>
                             <td>{{ $no++ }}</td>
                             <td class="text-nowrap"><small>{{ $item->created_at ? $item->created_at->format('d M Y H:i') : '-' }}</small></td>
                             <td>
@@ -134,17 +139,23 @@
                             <td><small>{{ $item->channel ? ucfirst($item->channel) : '-' }}</small></td>
                             <td><span class="cell-truncate" title="{{ $item->notes }}">{{ $item->notes ?: '—' }}</span></td>
                             <td class="text-nowrap" style="font-size:11px;">
+                                @if ($item->do_not_send)
+                                    <div class="text-danger font-weight-bold" title="Flagged by {{ $item->do_not_send_by_name }} on {{ optional($item->do_not_send_at)->format('d M Y H:i') }}{{ $item->do_not_send_reason ? ' — ' . $item->do_not_send_reason : '' }}" data-toggle="tooltip">
+                                        <i class="fas fa-ban mr-1"></i>
+                                        Do Not Send Kit{{ $item->do_not_send_reason ? ' (' . $item->do_not_send_reason . ')' : '' }}
+                                    </div>
+                                @endif
                                 <div class="{{ $item->sponsorkit_sent_at ? 'text-success' : 'text-muted' }}">
                                     <i class="fas {{ $item->sponsorkit_sent_at ? 'fa-check-circle' : 'fa-circle' }} mr-1"></i>
-                                    Sponsorkit: {{ optional($item->sponsorkit_sent_at)->format('d M Y H:i') ?: '-' }}
+                                    Sponsor Kit: {{ optional($item->sponsorkit_sent_at)->format('d M Y H:i') ?: '-' }}
                                 </div>
                                 <div class="{{ $item->first_follow_up_at ? 'text-success' : 'text-muted' }}">
                                     <i class="fas {{ $item->first_follow_up_at ? 'fa-check-circle' : 'fa-circle' }} mr-1"></i>
-                                    Follow Up 1: {{ optional($item->first_follow_up_at)->format('d M Y H:i') ?: '-' }}
+                                    Follow-up 1: {{ optional($item->first_follow_up_at)->format('d M Y H:i') ?: '-' }}
                                 </div>
                                 <div class="{{ $item->second_follow_up_at ? 'text-success' : 'text-muted' }}">
                                     <i class="fas {{ $item->second_follow_up_at ? 'fa-check-circle' : 'fa-circle' }} mr-1"></i>
-                                    Follow Up 2: {{ optional($item->second_follow_up_at)->format('d M Y H:i') ?: '-' }}
+                                    Follow-up 2: {{ optional($item->second_follow_up_at)->format('d M Y H:i') ?: '-' }}
                                 </div>
                             </td>
                             <td>
@@ -156,44 +167,77 @@
                                     <span class="badge badge-warning mini-badge">Pending</span>
                                 @endif
                             </td>
-                            <td>
-                                <div class="btn-icon-group">
-                                    @if ($isPending && $nextStepKey)
-                                        <button type="button"
-                                            class="btn btn-xs btn-outline-secondary btn-open-follow-up-log-modal"
-                                            data-lead-id="{{ $item->id }}"
-                                            data-member-name="{{ optional($member)->name }}"
-                                            data-step-key="{{ $nextStepKey }}"
-                                            data-step-label="{{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}"
-                                            data-channel="{{ $item->channel }}"
-                                            data-notes="{{ $item->notes }}"
-                                            data-log-url="{{ route('admin.member_leads.log_follow_up', $item->id) }}"
-                                            title="Catat {{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}" data-toggle="tooltip">
-                                            <i class="fas fa-comment-dots mr-1"></i>{{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}
+                            <td class="text-nowrap">
+                                @php
+                                    $hasAnyLeadAction = ($isPending && $nextStepKey) || $isPending || $item->do_not_send || !$item->sponsorkit_sent_at;
+                                @endphp
+                                @if ($hasAnyLeadAction)
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light border py-1 px-2" type="button"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v text-muted"></i>
                                         </button>
-                                    @endif
-                                    @if ($isPending)
-                                        <button type="button"
-                                            class="btn btn-icon btn-success btn-mark-lead-result"
-                                            data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
-                                            data-result="win"
-                                            title="Tandai Win" data-toggle="tooltip">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button type="button"
-                                            class="btn btn-icon btn-outline-secondary btn-mark-lead-result"
-                                            data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
-                                            data-result="loss"
-                                            title="Tandai Loss" data-toggle="tooltip">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    @endif
-                                </div>
+                                        <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                            @if ($isPending && $nextStepKey)
+                                                <button type="button"
+                                                    class="dropdown-item btn-open-follow-up-log-modal"
+                                                    data-lead-id="{{ $item->id }}"
+                                                    data-member-name="{{ optional($member)->name }}"
+                                                    data-step-key="{{ $nextStepKey }}"
+                                                    data-step-label="{{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}"
+                                                    data-channel="{{ $item->channel }}"
+                                                    data-notes="{{ $item->notes }}"
+                                                    data-log-url="{{ route('admin.member_leads.log_follow_up', $item->id) }}">
+                                                    <i class="fas {{ $nextStepKey === 'sponsorkit' ? 'fa-gift' : 'fa-comment-dots' }} mr-2 text-secondary"></i>
+                                                    Log {{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}
+                                                </button>
+                                            @endif
+                                            @if ($isPending)
+                                                <button type="button"
+                                                    class="dropdown-item btn-mark-lead-result"
+                                                    data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
+                                                    data-result="win">
+                                                    <i class="fas fa-check mr-2 text-success"></i>Mark as Win
+                                                </button>
+                                                <button type="button"
+                                                    class="dropdown-item btn-mark-lead-result"
+                                                    data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
+                                                    data-result="loss">
+                                                    <i class="fas fa-times mr-2 text-secondary"></i>Mark as Loss
+                                                </button>
+                                            @endif
+                                            @if ($item->do_not_send)
+                                                @if ($isPending || $nextStepKey)
+                                                    <div class="dropdown-divider"></div>
+                                                @endif
+                                                <button type="button"
+                                                    class="dropdown-item btn-toggle-do-not-send"
+                                                    data-url="{{ route('admin.member_leads.do_not_send', $item->id) }}"
+                                                    data-do-not-send="0">
+                                                    <i class="fas fa-undo mr-2 text-danger"></i>Remove Do Not Send Flag
+                                                </button>
+                                            @elseif (!$item->sponsorkit_sent_at)
+                                                @if ($isPending)
+                                                    <div class="dropdown-divider"></div>
+                                                @endif
+                                                <button type="button"
+                                                    class="dropdown-item text-danger btn-open-do-not-send-modal"
+                                                    data-lead-id="{{ $item->id }}"
+                                                    data-member-name="{{ optional($member)->name }}"
+                                                    data-url="{{ route('admin.member_leads.do_not_send', $item->id) }}">
+                                                    <i class="fas fa-ban mr-2"></i>Flag as Do Not Send
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="12" class="text-center text-muted py-4">Tidak ada data.</td>
+                            <td colspan="12" class="text-center text-muted py-4">No data available.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -252,12 +296,6 @@
         font-size: 11px;
         line-height: 1;
         border-radius: 5px;
-    }
-    .lead-table-wrap .btn-icon-group {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 3px;
     }
 
     /* Small pill badges (result, over-SLA) */

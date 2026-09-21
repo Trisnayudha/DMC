@@ -30,7 +30,11 @@ class MemberCompanyFollowUpController extends Controller
         $dateFrom = $request->get('date_from');
         $dateTo   = $request->get('date_to');
 
-        $query = MemberCompanyFollowUp::with(['user.profile.company'])->orderBy('created_at', 'desc');
+        // Only "Flagged" (created_at) is sortable right now — the header link
+        // just toggles direction, so this is the only column that needs it.
+        $dir = strtolower((string) $request->get('dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        $query = MemberCompanyFollowUp::with(['user.profile.company'])->orderBy('created_at', $dir);
 
         if ($status === MemberCompanyFollowUp::STATUS_VERIFIED) {
             $query->where('status', MemberCompanyFollowUp::STATUS_VERIFIED);
@@ -90,6 +94,7 @@ class MemberCompanyFollowUpController extends Controller
             'picId',
             'dateFrom',
             'dateTo',
+            'dir',
             'countNeedsFollowUp',
             'countVerified',
             'companyNames',
