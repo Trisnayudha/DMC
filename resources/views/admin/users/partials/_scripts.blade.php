@@ -751,7 +751,7 @@
                 order: [[1, 'desc']],
                 searchDelay: 400,
                 columnDefs: [
-                    { targets: [0, 2, 4, 5, 6, 10, 12, 13, 14, 15], orderable: false },
+                    { targets: [0, 4, 5, 6, 10, 12, 13, 14, 15], orderable: false },
                 ],
                 drawCallback: function() {
                     $('#laravel_crud tbody [data-toggle="tooltip"]').tooltip();

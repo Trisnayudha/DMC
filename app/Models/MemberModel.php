@@ -35,6 +35,7 @@ class MemberModel extends Model
         'sponsor_id',
         'register_as',
         'source',
+        'hear',
         'exported_at',
     ];
 }

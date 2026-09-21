@@ -183,26 +183,12 @@ class UsersController extends Controller
             $registrationsYearlyRanges[] = ['from' => $yearStart->toDateTimeString(), 'to' => $yearStart->copy()->endOfYear()->toDateTimeString()];
         }
 
-        // Members by Source (Members Relation SOP §8) — Total Members always
-        // computable; Total Leads/Win/Loss/Conversion Rate only once the leads
-        // table exists (guarded below alongside the rest of that feature).
-        // Plain array, not a Collection, while accumulating below —
-        // $collection[$key]['field'] += x silently no-ops on a Collection
-        // (offsetGet returns the nested array by value, so the increment
-        // never writes back); a real array doesn't have that problem.
-        $sourceBreakdown = [];
-        foreach ($this->sourceColorMap() as $key => $meta) {
-            $sourceBreakdown[$key] = ['label' => $meta['label'], 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0];
-        }
-
-        User::whereNotNull('isStatus')
-            ->selectRaw('source, COUNT(*) as total')
-            ->groupBy('source')
-            ->pluck('total', 'source')
-            ->each(function ($total, $rawSource) use (&$sourceBreakdown) {
-                $key = $this->normalizeSourceKey($rawSource);
-                $sourceBreakdown[$key]['members'] += (int) $total;
-            });
+        // Members by Source (Members Relation SOP §8) — reflects whatever
+        // date/month/year/source/status filter is currently active on the
+        // table (same query the table itself uses), so the breakdown stays
+        // in sync when an admin filters instead of always showing all-time
+        // totals. See computeSourceBreakdown().
+        $sourceQuery = $this->buildMemberQuery($request);
 
         // Verification SLA + Leads (Members Relation SOP §2-4): both new tables
         // ship in this same change but their migrations haven't necessarily run
@@ -281,40 +267,12 @@ class UsersController extends Controller
                 $countLeadsWin = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_WIN)->count();
                 $countLeadsLoss = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
                 $leadConversionRate = $countLeads > 0 ? round($countLeadsWin / $countLeads * 100, 1) : null;
-
-                // Members by Source (SOP §8) — fold the lead/win/loss counts
-                // into the member-count breakdown built above.
-                MemberLeadFollowUp::join('users', 'users.id', 'member_lead_follow_ups.user_id')
-                    ->selectRaw('
-                        users.source as source,
-                        COUNT(*) as total,
-                        SUM(CASE WHEN member_lead_follow_ups.result = "win" THEN 1 ELSE 0 END) as win_count,
-                        SUM(CASE WHEN member_lead_follow_ups.result = "loss" THEN 1 ELSE 0 END) as loss_count
-                    ')
-                    ->groupBy('users.source')
-                    ->get()
-                    ->each(function ($row) use (&$sourceBreakdown) {
-                        $key = $this->normalizeSourceKey($row->source);
-                        $sourceBreakdown[$key]['leads'] += (int) $row->total;
-                        $sourceBreakdown[$key]['win']   += (int) $row->win_count;
-                        $sourceBreakdown[$key]['loss']  += (int) $row->loss_count;
-                    });
             } catch (\Throwable $e) {
                 Log::warning('index: lead stats failed: ' . $e->getMessage());
             }
         }
 
-        // Finalize the source breakdown: compute conversion rate per bucket,
-        // drop buckets with no members at all, sort by member count desc.
-        $sourceBreakdown = collect($sourceBreakdown)
-            ->map(function ($row) {
-                $row['conversion_rate'] = $row['leads'] > 0 ? round($row['win'] / $row['leads'] * 100, 1) : null;
-                return $row;
-            })
-            ->filter(function ($row) {
-                return $row['members'] > 0;
-            })
-            ->sortByDesc('members');
+        $sourceBreakdown = $this->computeSourceBreakdown($sourceQuery);
 
         return view('admin.users.index', [
             'sources'            => $this->sourceColorMap(),
@@ -442,22 +400,18 @@ class UsersController extends Controller
         if ($year)     $query->whereYear('users.created_at', $year);
 
         if ($source) {
-            if ($source === 'event') {
+            if ($source === 'dmc_event') {
+                // 'DMC Event' bucket = anything event-ish: the unified 'DMC Event'
+                // value itself, legacy 'event*'/'e/*'-prefixed leftovers, and
+                // 'scanner' (check-in registrations) — see normalizeSourceKey().
                 $query->where(function ($q) {
-                    $q->where('users.source', 'like', 'event%')
+                    $q->where(DB::raw('LOWER(TRIM(users.source))'), 'dmc event')
+                      ->orWhere(DB::raw('LOWER(TRIM(users.source))'), 'scanner')
+                      ->orWhere('users.source', 'like', 'event%')
                       ->orWhere('users.source', 'like', 'e/%');
                 });
             } elseif ($source === 'partner') {
                 $query->where('users.source', 'like', 'ep/%');
-            } elseif ($source === 'other') {
-                $query->where(function ($q) {
-                    $q->whereNull('users.source')
-                        ->orWhere('users.source', '')
-                        ->orWhereNotIn(DB::raw('LOWER(TRIM(users.source))'), ['website', 'apps', 'scanner', 'linkedin', 'instagram', 'partner'])
-                        ->where(DB::raw('LOWER(TRIM(users.source))'), 'not like', 'event%')
-                        ->where(DB::raw('LOWER(TRIM(users.source))'), 'not like', 'e/%')
-                        ->where(DB::raw('LOWER(TRIM(users.source))'), 'not like', 'ep/%');
-                });
             } else {
                 $query->where(DB::raw('LOWER(TRIM(users.source))'), strtolower($source));
             }
@@ -557,7 +511,10 @@ class UsersController extends Controller
             $breakdown[$key] = ['label' => $meta['label'], 'color' => $meta['color'], 'icon' => $meta['icon'], 'total' => 0];
         }
         foreach ($raw as $rawSource => $total) {
-            $breakdown[$this->normalizeSourceKey($rawSource)]['total'] += (int) $total;
+            $key = $this->normalizeSourceKey($rawSource);
+            if (isset($breakdown[$key])) {
+                $breakdown[$key]['total'] += (int) $total;
+            }
         }
 
         $result = collect($breakdown)->filter(function ($row) {
@@ -657,6 +614,7 @@ class UsersController extends Controller
 
         $columnsSortMap = [
             1 => 'users.created_at',
+            2 => 'users.source',
             3 => 'users.name',
             4 => 'users.status_member',
             7 => 'company.company_name',
@@ -748,13 +706,22 @@ class UsersController extends Controller
         $sourceStyle = $sourceColorMap[$sourceKey] ?? ['color' => '#adb5bd', 'icon' => 'fas fa-question'];
         $sourceLabel = $sourceRaw !== '' ? $sourceRaw : 'Unknown';
 
+        // 'DMC Event' merges 'scanner' + legacy 'event*' registrations into one
+        // filterable bucket — show the finer detail (which one it actually was)
+        // from `hear` instead of the now-generic `source` value.
+        if ($sourceKey === 'dmc_event') {
+            $hearRaw = trim((string) ($post->hear ?? ''));
+            if ($hearRaw !== '') {
+                $sourceLabel = $hearRaw;
+            }
+        }
+
         $registerRaw = $post->user_created_at ?? $post->created_at;
         $cellRegister = '<span class="text-nowrap">' . e(date('d M Y', strtotime($registerRaw)))
             . '<br><small class="text-muted">' . e(date('H:i', strtotime($registerRaw))) . '</small></span>';
 
-        $cellSource = '<span class="text-nowrap"><span class="badge mini-badge" style="background-color:'
-            . e($sourceStyle['color']) . ';color:#fff;" title="' . e($sourceLabel) . '" data-toggle="tooltip">'
-            . '<i class="' . e($sourceStyle['icon']) . '"></i></span></span>';
+        $cellSource = '<span class="text-nowrap"><span class="badge" style="background-color:'
+            . e($sourceStyle['color']) . ';color:#fff;">' . e($sourceLabel) . '</span></span>';
 
         $cellName = e($post->name);
         if (isset($selfEditMap[$post->user_id])) {
@@ -985,6 +952,73 @@ class UsersController extends Controller
     }
 
     /**
+     * "Members by Source" breakdown (Members Relation SOP §8) — takes an
+     * already-filtered member query (buildMemberQuery($request), so it
+     * respects whatever date/month/year/source/status filter is currently
+     * active) and returns members/leads/win/loss/conversion_rate per bucket.
+     * Total Members always computable; Total Leads/Win/Loss only once the
+     * leads table exists (guarded, same as the rest of that feature).
+     */
+    private function computeSourceBreakdown($baseQuery)
+    {
+        // Plain array, not a Collection, while accumulating below —
+        // $collection[$key]['field'] += x silently no-ops on a Collection
+        // (offsetGet returns the nested array by value, so the increment
+        // never writes back); a real array doesn't have that problem.
+        $sourceBreakdown = [];
+        foreach ($this->sourceColorMap() as $key => $meta) {
+            $sourceBreakdown[$key] = ['label' => $meta['label'], 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0];
+        }
+
+        (clone $baseQuery)
+            ->selectRaw('users.source as source, COUNT(*) as total')
+            ->groupBy('users.source')
+            ->pluck('total', 'source')
+            ->each(function ($total, $rawSource) use (&$sourceBreakdown) {
+                $key = $this->normalizeSourceKey($rawSource);
+                if (isset($sourceBreakdown[$key])) {
+                    $sourceBreakdown[$key]['members'] += (int) $total;
+                }
+            });
+
+        if (Schema::hasTable('member_lead_follow_ups')) {
+            try {
+                (clone $baseQuery)
+                    ->join('member_lead_follow_ups', 'member_lead_follow_ups.user_id', 'users.id')
+                    ->selectRaw('
+                        users.source as source,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN member_lead_follow_ups.result = "win" THEN 1 ELSE 0 END) as win_count,
+                        SUM(CASE WHEN member_lead_follow_ups.result = "loss" THEN 1 ELSE 0 END) as loss_count
+                    ')
+                    ->groupBy('users.source')
+                    ->get()
+                    ->each(function ($row) use (&$sourceBreakdown) {
+                        $key = $this->normalizeSourceKey($row->source);
+                        if (isset($sourceBreakdown[$key])) {
+                            $sourceBreakdown[$key]['leads'] += (int) $row->total;
+                            $sourceBreakdown[$key]['win']   += (int) $row->win_count;
+                            $sourceBreakdown[$key]['loss']  += (int) $row->loss_count;
+                        }
+                    });
+            } catch (\Throwable $e) {
+                Log::warning('computeSourceBreakdown: lead stats failed: ' . $e->getMessage());
+            }
+        }
+
+        return collect($sourceBreakdown)
+            ->map(function ($row) {
+                $row['conversion_rate'] = $row['leads'] > 0 ? round($row['win'] / $row['leads'] * 100, 1) : null;
+                return $row;
+            })
+            ->filter(function ($row) {
+                return $row['members'] > 0;
+            })
+            ->sortByDesc('members')
+            ->values();
+    }
+
+    /**
      * Registration channel buckets — shared between the per-row Source badge
      * (renderMemberRowCells) and the "Members by Source" breakdown stat, so
      * a row's badge and the aggregate table it feeds always agree.
@@ -994,21 +1028,25 @@ class UsersController extends Controller
         return [
             'website'   => ['label' => 'Website', 'color' => '#4e73df', 'icon' => 'fas fa-globe'],
             'apps'      => ['label' => 'Apps', 'color' => '#1cc88a', 'icon' => 'fas fa-mobile-alt'],
-            'scanner'   => ['label' => 'Scanner', 'color' => '#858796', 'icon' => 'fas fa-qrcode'],
             'linkedin'  => ['label' => 'LinkedIn', 'color' => '#0077b5', 'icon' => 'fab fa-linkedin-in'],
             'instagram' => ['label' => 'Instagram', 'color' => '#e1306c', 'icon' => 'fab fa-instagram'],
-            'event'     => ['label' => 'Event', 'color' => '#f6a92f', 'icon' => 'fas fa-calendar-alt'],
-            'partner'   => ['label' => 'Partner', 'color' => '#36b9cc', 'icon' => 'fas fa-handshake'],
-            'other'     => ['label' => 'Other', 'color' => '#6f42c1', 'icon' => 'fas fa-ellipsis-h'],
+            'dmc_event' => ['label' => 'DMC Event', 'color' => '#f6a92f', 'icon' => 'fas fa-calendar-alt'],
+            'partner'   => ['label' => 'Partnership Event', 'color' => '#36b9cc', 'icon' => 'fas fa-handshake'],
         ];
     }
 
     /**
      * Raw `source` values are messy free text ('website' vs 'Linkedin' vs
-     * 'Event Mining Balikpapan' vs 'Check-in Scanner', written inconsistently
-     * by web/apps/scanner/admin-import entry points) — collapse to one of the
-     * fixed buckets above. Any "event*"-prefixed value folds into 'event';
-     * anything else unrecognized (including empty) folds into 'other'.
+     * legacy 'Event Mining Balikpapan' vs 'scanner', written inconsistently by
+     * web/apps/scanner/admin-import entry points) — collapse to one of the
+     * fixed buckets above. 'DMC Event', 'scanner', and any legacy
+     * "event*"/"e/*"-prefixed value all fold into 'dmc_event' — check-in
+     * scanner registrations are a DMC Event mechanism, not a separate channel;
+     * the finer detail (which one it actually was) lives in `hear` instead,
+     * see renderMemberRowCells(). There's no "Other" bucket — anything
+     * unrecognized (including empty) returns a key that isn't in the map
+     * above, so callers building a breakdown skip it (isset() guard) instead
+     * of showing a catch-all category.
      */
     private function normalizeSourceKey($rawSource): string
     {
@@ -1021,8 +1059,8 @@ class UsersController extends Controller
             return 'partner';
         }
 
-        if (strpos($key, 'e/') === 0 || strpos($key, 'event') === 0) {
-            return 'event';
+        if ($key === 'dmc event' || $key === 'scanner' || strpos($key, 'e/') === 0 || strpos($key, 'event') === 0) {
+            return 'dmc_event';
         }
 
         $map = $this->sourceColorMap();

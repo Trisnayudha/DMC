@@ -9,6 +9,7 @@ use App\Services\Membership\MemberVerificationService;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\MemberModel;
+use App\Models\MemberSource;
 use App\Models\Profiles\Profile;
 use App\Models\Profiles\ProfileApi;
 use App\Models\Profiles\ProfileModel;
@@ -379,8 +380,13 @@ Your verification code (OTP) ' . $otp;
         $portal_code           = $request->portal_code;
         $cci                   = $request->cci;
         $explore               = $request->explore;
-        $source                = $request->source;
+        // Frontend still submits this under the "source" param name, but it's
+        // really the "How did you hear about us?" marketing answer (Website/
+        // Linkedin/Instagram/Event/Other) — it must never overwrite the real
+        // registration-channel value stored in `source`.
+        $hear                  = $request->source;
 
+        $source = $this->resolveWebSource($request);
         // 3) Check existing user (auto-created from event is usually already in users)
         $userByEmail = User::where('email', $email)->first();
         $profileByPhone = ProfileModel::where(function ($q) use ($phone, $fullphone) {
@@ -438,8 +444,9 @@ Your verification code (OTP) ' . $otp;
                 $member->company_other        = $company_other;
                 $member->explore              = $explore;
                 $member->cci                  = $cci;
-                $member->source               = $source ?? 'apps';
-                $member->password             = Hash::make($password); // temporary; will be moved in verifyOtp
+                $member->source                = $source;
+                $member->hear                  = $hear;
+                $member->password              = Hash::make($password); // temporary; will be moved in verifyOtp
                 $member->save();
 
                 // (Optional) Send OTP in next step (requestOtp)
@@ -477,8 +484,9 @@ Your verification code (OTP) ' . $otp;
             $member->company_other        = $company_other;
             $member->explore              = $explore;
             $member->cci                  = $cci;
-            $member->source               = $source ?? 'apps';
-            $member->password             = Hash::make($password);
+            $member->source                = $source;
+            $member->hear                  = $hear;
+            $member->password              = Hash::make($password);
             $member->save();
 
             DB::commit();
@@ -559,11 +567,16 @@ Your verification code (OTP) ' . $otp;
 
         DB::beginTransaction();
         try {
+            $resolvedSource = $this->resolveWebSource($request);
+            $isHearFallback = in_array($resolvedSource, ['Website', 'Apps'], true);
+            $existingHear   = optional($userByEmail)->hear;
+
             $userData = [
                 'name'          => $request->name,
                 'isStatus'      => 'Active',
                 'status_member' => 'pending',
-                'source'        => $request->source ?? 'web',
+                'source'        => $resolvedSource,
+                'hear'          => $isHearFallback ? ($request->source ?? $existingHear) : $existingHear,
             ];
 
             if ($userByEmail && $this->isProvisionalUser($userByEmail)) {
@@ -640,12 +653,7 @@ Your verification code (OTP) ' . $otp;
                 $waNotif = new WhatsappApi();
                 $waNotif->phone = '120363426220126771';
 
-                $source = $request->source ?? 'web';
-                if ($source === 'scanner' || $source === 'apps') {
-                    $sourceText = 'Check-in Scanner';
-                } else {
-                    $sourceText = ucfirst($source);
-                }
+                $sourceText = $resolvedSource === 'scanner' ? 'Check-in Scanner' : $resolvedSource;
 
                 $waNotif->message = "🚨 *New Membership Registration (" . $sourceText . ")*\n\n" .
                     "• *Name*: " . $user->name . "\n" .
@@ -718,7 +726,7 @@ Your verification code (OTP) ' . $otp;
             'scan_phone'      => ['nullable', 'string', 'max:50'],
             'member_name'     => ['required', 'string', 'max:255'],
             'member_email'    => ['nullable', 'string', 'max:255'],
-            'member_job_title'=> ['nullable', 'string', 'max:255'],
+            'member_job_title' => ['nullable', 'string', 'max:255'],
         ]);
 
         if ($validate->fails()) {
@@ -867,7 +875,8 @@ Your verification code (OTP) ' . $otp;
                 'password' => $findUser->password,
                 'isStatus' => 'Active',
                 'status_member' => 'pending',
-                'source' => $findUser->source
+                'source' => $findUser->source,
+                'hear' => $findUser->hear,
             ];
 
             if (!empty($email)) {
@@ -1179,5 +1188,51 @@ Your verification code (OTP) ' . $otp;
     {
         // Considered provisional if password is not set OR no verification of any kind exists
         return (empty($u->password) || is_null($u->verify_email) || is_null($u->verify_phone));
+    }
+
+    /**
+     * Used by both registerWeb() and signup() — registerWeb() is called by BOTH
+     * the website AND the mobile app (dmc-apps-v2 hits the same /api/register-web
+     * endpoint), and both clients still reuse the `source` param for their "How
+     * did you hear about us?" dropdown (Website/Linkedin/Instagram/Event/Other —
+     * not a real channel). Real channel values that DO arrive in `source` —
+     * 'scanner' from the check-in tool, and 'CATEGORY/CODE' from the Event
+     * Partnership/LinkedIn registration-link screen (validated against
+     * member_sources) — are trusted as-is and never go through User-Agent
+     * sniffing. Everything else is "hear" junk from either client, so we fall
+     * back to guessing the real channel from the User-Agent: browser-like UA →
+     * 'Website', anything else (Dio/Flutter's non-browser default UA) → 'Apps'.
+     * Heuristic, not a guarantee — a WebView-wrapped request or an API testing
+     * tool would be misread — but it's the only signal available without a
+     * client-side header change.
+     */
+    private function resolveWebSource(Request $request): string
+    {
+        $value = trim((string) $request->source);
+
+        if (strtolower($value) === 'scanner') {
+            return 'scanner';
+        }
+
+        if (preg_match('/^([A-Za-z]+)\/([A-Za-z0-9]+)$/', $value, $matches)) {
+            $isValidMemberSource = MemberSource::where('category', $matches[1])
+                ->where('code', $matches[2])
+                ->where('is_active', true)
+                ->exists();
+            if ($isValidMemberSource) {
+                return $value;
+            }
+        }
+
+        return $this->looksLikeBrowserUserAgent($request->userAgent()) ? 'Website' : 'Apps';
+    }
+
+    private function looksLikeBrowserUserAgent(?string $userAgent): bool
+    {
+        if (!$userAgent) {
+            return false;
+        }
+
+        return (bool) preg_match('/Mozilla|Chrome|Safari|Firefox|Edg|OPR|Trident|MSIE/i', $userAgent);
     }
 }

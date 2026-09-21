@@ -24,6 +24,7 @@ class User extends Authenticatable
         'uname',
         'qrcode',
         'source',
+        'hear',
         'status_member',
         'tier',
         'verified_at',

@@ -166,7 +166,7 @@ class PartnershipEventVisitorController extends Controller
                 'name'          => $visitor->name ?: $visitor->company_name,
                 'isStatus'      => 'Active',
                 'status_member' => 'pending',
-                'source'        => 'partnership_event',
+                'source'        => 'Event Partnership',
             ];
 
             if ($existingUser) {

@@ -92,7 +92,8 @@ class FormMemberController extends Controller
                 'name'          => $request->name,
                 'isStatus'      => 'Active',
                 'status_member' => 'pending',
-                'source'        => $request->source ?? 'web',
+                'source'        => 'Website',
+                'hear'          => $request->source ?? optional($userByEmail)->hear,
             ];
 
             if ($userByEmail && $this->isProvisionalUser($userByEmail)) {

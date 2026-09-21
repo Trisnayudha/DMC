@@ -304,12 +304,20 @@
 <div class="row">
     <div class="col-12 mb-4">
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex align-items-center justify-content-between">
                 <h4 class="mb-0">
                     Members by Source
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Breakdown member, leads, dan konversi per channel pendaftaran."></i>
+                        title="Breakdown member, leads, dan konversi per channel pendaftaran. Mengikuti filter yang lagi aktif di tabel Members."></i>
                 </h4>
+                @php
+                    $activeSourceFilters = array_filter(request()->only(['date_from', 'date_to', 'month', 'year', 'source', 'status_member', 'filter']));
+                @endphp
+                @if (count($activeSourceFilters) > 0)
+                    <span class="badge badge-info">
+                        <i class="fas fa-filter mr-1"></i>Filtered
+                    </span>
+                @endif
             </div>
             <div class="card-body">
                 <div class="table-responsive">
