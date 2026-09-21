@@ -1625,12 +1625,39 @@ class UsersController extends Controller
             return response()->json(['success' => true, 'message' => 'Tidak ada perubahan.']);
         }
 
+        $admin = auth()->user();
+
+        // Kalau member ini lagi ditandai "needs follow up" (Member Follow-Up
+        // menu), edit di sini SUDAH sama artinya dengan menyelesaikan follow-up
+        // itu — admin gak wajib buka menu Follow-Up terpisah cuma buat
+        // menutupnya. Sama persis perilakunya dengan
+        // MemberCompanyFollowUpController::update() (menandai 2-Step Verified +
+        // menutup follow-up), tapi TANPA auto-approve status_member — modal
+        // Edit User ini sudah punya kontrol status_member sendiri, jadi gak
+        // perlu ditimpa otomatis.
+        $openFollowUp = MemberCompanyFollowUp::where('user_id', $user->id)
+            ->where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP)
+            ->first();
+
         $user->name              = trim((string) $request->name);
         $user->email             = trim((string) $request->email);
         $user->alternative_email = $nullableString($request->alternative_email);
         $user->status_member     = $nextStatusMember;
         $user->tier              = $nextTier;
+        if ($openFollowUp) {
+            $user->two_step_verified    = true;
+            $user->two_step_verified_at = now();
+            $user->two_step_verified_by = $admin ? $admin->name : 'Staff';
+        }
         $user->save();
+
+        if ($openFollowUp) {
+            $openFollowUp->status           = MemberCompanyFollowUp::STATUS_VERIFIED;
+            $openFollowUp->verified_by_id   = auth()->id();
+            $openFollowUp->verified_by_name = $admin ? $admin->name : null;
+            $openFollowUp->verified_at      = now();
+            $openFollowUp->save();
+        }
 
         $shouldSaveCompany = $hasCompanyChanges || $shouldAutoVerifyCompany;
         if ($shouldSaveCompany && $company->exists) {
@@ -1672,18 +1699,17 @@ class UsersController extends Controller
         $profile->users_id  = $user->id;
         $profile->save();
 
-        $adminUser = auth()->user();
         DB::table('user_edit_logs')->insert([
             'user_id'    => $user->id,
             'admin_id'   => auth()->id(),
-            'admin_name' => $adminUser ? $adminUser->name : null,
+            'admin_name' => $admin ? $admin->name : null,
             'changes'    => json_encode($changes),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
         Log::info('Admin edited user', [
-            'admin'   => $adminUser ? $adminUser->name : null,
+            'admin'   => $admin ? $admin->name : null,
             'user_id' => $user->id,
             'email'   => $user->email,
             'changes' => $changes,
@@ -1693,7 +1719,8 @@ class UsersController extends Controller
         // supaya alamat lama berhenti menerima campaign dan alamat baru yang
         // menerimanya. Dijalankan paling akhir: semua penulisan DB sudah
         // selesai, jadi Mailchimp lambat/error tidak menggagalkan edit-nya.
-        $message = 'Data user berhasil diperbarui.';
+        $message = 'Data user berhasil diperbarui.'
+            . ($openFollowUp ? ' Follow-up perusahaan otomatis ditutup & ditandai 2-Step Verified.' : '');
         if (isset($changes['email'])) {
             $mailchimpResult = app(MemberVerificationService::class)
                 ->changeMailchimpEmail($user, (string) $changes['email']['old']);
