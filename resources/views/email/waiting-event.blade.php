@@ -43,7 +43,7 @@
         <img src="{{ asset('image/banner71_revisi5.png') }}" alt="Djakarta Mining Club" style="width:100%;display:block;">
         <div class="content">
             <p>Dear {{ $users_name }},</p>
-            <p>Thank you for registering for {{ $events_name }} | PwC's 2026 Mine Report: Ambition to Action.
+            <p>Thank you for registering for {{ $events_name }}.
             </p>
             <p>Your registration is currently being processed and awaiting confirmation. We will send you a confirmation
                 within <strong>48 hours</strong> of receiving this email.</p>
