@@ -40,7 +40,8 @@
 
 <body>
     <div class="card">
-        <img src="{{ asset('image/banner71_revisi5.png') }}" alt="Djakarta Mining Club" style="width:100%;display:block;">
+        <img src="{{ asset('image/banner_mccloskey_v1.png') }}" alt="Djakarta Mining Club"
+            style="width:100%;display:block;">
         <div class="content">
             <p>Dear {{ $users_name }},</p>
             <p>Thank you for registering for {{ $events_name }}.
