@@ -148,7 +148,7 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/banner_mccloskey_v1.png') }}" alt="DMC Logo">
+            <img src="{{ asset('image/banner_mccloskey_v2.png') }}" alt="DMC Logo">
             <h1>{{ $events_name }}</h1>
             <h2>Official Event E-Ticket / Entry Pass</h2>
         </div>
