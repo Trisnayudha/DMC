@@ -160,11 +160,6 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}" alt="DMC Logo">
                 <h1 class="page-title">Booth <span>Visitor</span></h1>
-                @if (isset($event) && $event)
-                    <p class="mt-2 mb-0" style="font-size: 0.95rem; font-weight: 600; color: #4b5563;">
-                        {{ $event->name }}
-                    </p>
-                @endif
             </div>
 
             <!-- FORM -->

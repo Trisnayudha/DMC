@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('events', function (Blueprint $table) {
-            $table->boolean('has_giveaway')->default(true)->after('event_type');
+            $table->boolean('has_giveaway')->default(false)->after('event_type');
         });
     }
 

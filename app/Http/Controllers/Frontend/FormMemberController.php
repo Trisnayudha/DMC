@@ -239,10 +239,9 @@ class FormMemberController extends Controller
     }
 
     /**
-     * Check if giveaway feature is enabled:
-     * 1. Query parameter or form input (?giveaway=1 / 0)
-     * 2. Per-event setting ($event->has_giveaway)
-     * 3. Global config/env (config('dmc.booth_giveaway_enabled'))
+     * Check if giveaway feature is enabled (Default: FALSE):
+     * 1. Query parameter or form input (?giveaway=1 / 0) takes precedence
+     * 2. Otherwise enabled ONLY if config/env BOOTH_GIVEAWAY_ENABLED is true
      */
     protected function isGiveawayEnabled(?Events $event = null, ?Request $request = null): bool
     {
@@ -250,11 +249,17 @@ class FormMemberController extends Controller
             return filter_var($request->input('giveaway'), FILTER_VALIDATE_BOOLEAN);
         }
 
+        $globalEnabled = (bool) config('dmc.booth_giveaway_enabled', env('BOOTH_GIVEAWAY_ENABLED', false));
+
+        if (!$globalEnabled) {
+            return false;
+        }
+
         if ($event && isset($event->has_giveaway)) {
             return (bool) $event->has_giveaway;
         }
 
-        return (bool) config('dmc.booth_giveaway_enabled', env('BOOTH_GIVEAWAY_ENABLED', true));
+        return $globalEnabled;
     }
 
     /**

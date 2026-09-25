@@ -6,5 +6,5 @@ return [
     'post_reset_password_redirect_url' => env('DMC_POST_RESET_PASSWORD_REDIRECT_URL', 'https://www.djakarta-miningclub.com?modalloginopen=true'),
     'active_booth_event_slug' => env('ACTIVE_BOOTH_EVENT_SLUG', 'international-critical-minerals-metals-summit-indonesia-2026'),
     'active_booth_event_id' => env('ACTIVE_BOOTH_EVENT_ID', 70),
-    'booth_giveaway_enabled' => env('BOOTH_GIVEAWAY_ENABLED', true),
+    'booth_giveaway_enabled' => env('BOOTH_GIVEAWAY_ENABLED', false),
 ];
