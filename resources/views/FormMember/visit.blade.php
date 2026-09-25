@@ -189,20 +189,20 @@
                                 <!-- INSTITUTION -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Institution <small>*</small></label>
+                                        <label>Company <small>*</small></label>
                                         <input type="text" name="institution" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group mb-1">
-                                        <label>Title <small>*</small></label>
+                                        <label>Job Title <small>*</small></label>
                                         <input type="text" name="title" class="form-control" required>
                                     </div>
                                 </div>
                                 <!-- EMAIL -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Email <small>*</small></label>
+                                        <label>Business Email <small>*</small></label>
                                         <input type="email" name="email" class="form-control" required>
                                     </div>
                                 </div>
@@ -210,7 +210,7 @@
                                 <!-- PHONE -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Phone <small>*</small></label>
+                                        <label>Mobile Phone <small>*</small></label>
                                         <input type="tel" name="phone" id="phone" class="form-control"
                                             required>
                                     </div>
