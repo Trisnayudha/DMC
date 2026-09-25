@@ -148,8 +148,8 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/banner71_revisi5.png') }}" alt="DMC Logo">
-            <h1>{{ $events_name }} | PwC's 2026 Mine Report: Ambition to Action</h1>
+            <img src="{{ asset('image/banner_mccloskey_v1.png') }}" alt="DMC Logo">
+            <h1>{{ $events_name }}</h1>
             <h2>Official Event E-Ticket / Entry Pass</h2>
         </div>
 
@@ -189,7 +189,7 @@
                 <tr>
                     <td class="label">Event</td>
                     <td class="colon">:</td>
-                    <td>{{ $events_name }} | PwC's 2026 Mine Report: Ambition to Action</td>
+                    <td>{{ $events_name }} </td>
                 </tr>
                 <tr>
                     <td class="label">Date</td>
