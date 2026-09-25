@@ -51,6 +51,7 @@
                                         <th>Start Date</th>
                                         <th>End Date</th>
                                         <th>Location</th>
+                                        <th>Giveaway</th>
                                         <th>Visitors</th>
                                         <th>Action</th>
                                     </tr>
@@ -64,16 +65,28 @@
                                             <td>{{ $event->start_date ? \Carbon\Carbon::parse($event->start_date)->format('d M Y') : '-' }}</td>
                                             <td>{{ $event->end_date ? \Carbon\Carbon::parse($event->end_date)->format('d M Y') : '-' }}</td>
                                             <td>{{ $event->location ?: '-' }}</td>
+                                            <td>
+                                                @if ($event->has_giveaway)
+                                                    <span class="badge badge-success" title="Giveaway booth aktif untuk event ini"><i class="fas fa-gift"></i> ON</span>
+                                                @else
+                                                    <span class="badge badge-secondary" title="Giveaway booth nonaktif">OFF</span>
+                                                @endif
+                                            </td>
                                             <td><span class="badge badge-primary">{{ $event->visitors_count }}</span></td>
                                             <td>
-                                                <a href="{{ route('admin.partnership_events.show', $event->slug) }}" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-users"></i> Kelola Visitor
-                                                </a>
+                                                <div class="btn-group" role="group">
+                                                    <a href="{{ route('admin.partnership_events.show', $event->slug) }}" class="btn btn-sm btn-info" title="Kelola Visitor">
+                                                        <i class="fas fa-users"></i> Kelola
+                                                    </a>
+                                                    <a href="{{ url('visit/' . $event->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Buka Form Booth Visitor (Link untuk QR Code)">
+                                                        <i class="fas fa-external-link-alt"></i> Form Booth
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="text-center text-muted">
+                                            <td colspan="9" class="text-center text-muted">
                                                 Belum ada event dengan tipe "Partnership Event". Buat/tandai event tersebut lebih dulu di menu Events.
                                             </td>
                                         </tr>

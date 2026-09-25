@@ -187,8 +187,8 @@ Route::get('/events/{year}/{number}/{topic}', function ($year, $number, $topic) 
 
 Route::get('/event-gallery/{slug}', [EventGalleryController::class, 'show']);
 
-Route::get('/visit', [FormMemberController::class, 'visit']);
-Route::post('/visit', [FormMemberController::class, 'visitStore']);
+Route::get('/visit/{slug?}', [FormMemberController::class, 'visit'])->name('booth.visit');
+Route::post('/visit/{slug?}', [FormMemberController::class, 'visitStore'])->name('booth.visit.store');
 
 Route::get('/lucky-draw', [LuckyDrawController::class, 'index']);
 Route::get('/lucky-draw/ping', [LuckyDrawController::class, 'ping']);
@@ -582,6 +582,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('partnership-events/{slug}/visitors/{id}/delete', [PartnershipEventVisitorController::class, 'destroy'])->name('admin.partnership_events.visitors.destroy');
     Route::post('partnership-events/{slug}/visitors/{id}/register-as-member', [PartnershipEventVisitorController::class, 'registerAsMember'])->name('admin.partnership_events.visitors.register_as_member');
     Route::post('partnership-events/{slug}/import', [PartnershipEventVisitorController::class, 'import'])->name('admin.partnership_events.import');
+    Route::post('partnership-events/{slug}/toggle-giveaway', [PartnershipEventVisitorController::class, 'toggleGiveaway'])->name('admin.partnership_events.toggle_giveaway');
 
     // Quick Search
     Route::get('quick-search', [App\Http\Controllers\Admin\QuickSearchController::class, 'search'])

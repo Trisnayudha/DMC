@@ -251,6 +251,16 @@ class PartnershipEventVisitorController extends Controller
         return back()->with('success', $message);
     }
 
+    public function toggleGiveaway(Request $request, $slug)
+    {
+        $event = $this->findEvent($slug);
+        $event->has_giveaway = !$event->has_giveaway;
+        $event->save();
+
+        $status = $event->has_giveaway ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->back()->with('success', "Giveaway untuk event \"{$event->name}\" berhasil {$status}.");
+    }
+
     /**
      * $memberEmails: lowercased active-member email set untuk event ini
      * (hasil activeMemberEmailsFor), dipakai buat filter membership=member/

@@ -94,7 +94,7 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center" style="gap:12px;">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="gap:12px; flex-wrap:wrap;">
                         <div>
                             <h4 class="mb-0">{{ $event->name }}</h4>
                             <small class="text-muted">
@@ -103,6 +103,24 @@
                                 {{ $event->end_date ? \Carbon\Carbon::parse($event->end_date)->format('d M Y') : '-' }}
                                 &middot; {{ $event->location ?: '-' }}
                             </small>
+                        </div>
+                        <div class="d-flex align-items-center" style="gap:10px;">
+                            <form action="{{ route('admin.partnership_events.toggle_giveaway', $event->slug) }}" method="POST" class="mb-0">
+                                @csrf
+                                @if ($event->has_giveaway)
+                                    <button type="submit" class="btn btn-sm btn-success" title="Giveaway saat ini AKTIF untuk booth event ini. Klik untuk mematikan.">
+                                        <i class="fas fa-gift"></i> Giveaway: <strong>ON</strong>
+                                    </button>
+                                @else
+                                    <button type="submit" class="btn btn-sm btn-secondary" title="Giveaway saat ini NONAKTIF untuk booth event ini. Klik untuk menyalakan.">
+                                        <i class="fas fa-ban"></i> Giveaway: <strong>OFF</strong>
+                                    </button>
+                                @endif
+                            </form>
+
+                            <a href="{{ url('visit/' . $event->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Buka Form Booth Visitor / Salin Link untuk QR Code">
+                                <i class="fas fa-external-link-alt"></i> Buka Form Booth
+                            </a>
                         </div>
                     </div>
 

@@ -20,10 +20,16 @@ class Events extends Model
         'location',
         'event_category_id',
         'slug',
+        'topic',
         'status',
         'type',
         'maps',
-        'image_banner'
+        'image_banner',
+        'has_giveaway',
+    ];
+
+    protected $casts = [
+        'has_giveaway' => 'boolean',
     ];
 
     public function getSubjectNameAttribute()

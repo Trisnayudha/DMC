@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Frontend;
 use App\Helpers\EmailSender;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
+use App\Models\Events\Events;
+use App\Models\PartnershipEvent\PartnershipEventVisitor;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use App\Models\VisitModel;
@@ -177,12 +179,14 @@ class FormMemberController extends Controller
         return response()->json($res);
     }
 
-    public function visit()
+    public function visit(Request $request, $slug = null)
     {
-        return view('FormMember.visit');
+        $event = $this->resolveActivePartnershipEvent($slug, $request);
+        $giveawayEnabled = $this->isGiveawayEnabled($event, $request);
+        return view('FormMember.visit', compact('event', 'giveawayEnabled'));
     }
 
-    public function visitStore(Request $request)
+    public function visitStore(Request $request, $slug = null)
     {
         $request->validate([
             'name'        => 'required|string|max:255',
@@ -192,19 +196,130 @@ class FormMemberController extends Controller
             'phone'       => 'required|string|max:30',
         ]);
 
-        $visit = VisitModel::create([
-            'name' => $request->name,
-            'institution' => $request->institution,
-            'job_title' => $request->title,
-            'email' => $request->email,
-            'phone' => $request->phone,
+        $event = $this->resolveActivePartnershipEvent($slug, $request);
+        $eventId = $event ? $event->id : 70;
+
+        $visitor = PartnershipEventVisitor::create([
+            'events_id'      => $eventId,
+            'name'           => $request->name,
+            'company_name'   => PartnershipEventVisitor::normalizeCompanyName($request->institution),
+            'job_title'      => $request->title,
+            'business_email' => $request->email,
+            'mobile_number'  => $request->phone,
         ]);
 
-        $gift = GiveawayService::draw($visit->id);
+        // Keep legacy VisitModel recorded for backwards compatibility
+        try {
+            VisitModel::create([
+                'name'        => $request->name,
+                'institution' => $request->institution,
+                'job_title'   => $request->title,
+                'email'       => $request->email,
+                'phone'       => $request->phone,
+            ]);
+        } catch (\Exception $e) {
+            // Silently continue if legacy table is optional
+        }
+
+        $giveawayEnabled = $this->isGiveawayEnabled($event, $request);
+        $gift = null;
+
+        if ($giveawayEnabled) {
+            $gift = GiveawayService::draw($visitor->id);
+            if ($gift) {
+                $visitor->update(['merchandise' => $gift->name]);
+            }
+        }
 
         return redirect()->back()->with([
-            'success' => 'Thank you for visiting our booth!',
-            'gift' => $gift ? $gift->name : null
+            'success'          => 'Thank you for visiting our booth!',
+            'giveaway_enabled' => $giveawayEnabled,
+            'gift'             => $gift ? $gift->name : null,
         ]);
+    }
+
+    /**
+     * Check if giveaway feature is enabled:
+     * 1. Query parameter or form input (?giveaway=1 / 0)
+     * 2. Per-event setting ($event->has_giveaway)
+     * 3. Global config/env (config('dmc.booth_giveaway_enabled'))
+     */
+    protected function isGiveawayEnabled(?Events $event = null, ?Request $request = null): bool
+    {
+        if ($request && $request->has('giveaway')) {
+            return filter_var($request->input('giveaway'), FILTER_VALIDATE_BOOLEAN);
+        }
+
+        if ($event && isset($event->has_giveaway)) {
+            return (bool) $event->has_giveaway;
+        }
+
+        return (bool) config('dmc.booth_giveaway_enabled', env('BOOTH_GIVEAWAY_ENABLED', true));
+    }
+
+    /**
+     * Resolve active partnership event with dynamic fallback:
+     * 1. Explicit slug or ID from route parameter ($slug) or request input (event_slug/event_id/event)
+     * 2. Config / Environment variable (ACTIVE_BOOTH_EVENT_SLUG / ACTIVE_BOOTH_EVENT_ID)
+     * 3. Ongoing partnership event based on current date (start_date <= today <= end_date)
+     * 4. Hardcoded default fallback: International Critical Minerals & Metals Summit: Indonesia 2026 (id: 70)
+     */
+    protected function resolveActivePartnershipEvent(?string $slug = null, ?Request $request = null): ?Events
+    {
+        $identifier = $slug;
+
+        if (!$identifier && $request) {
+            $identifier = $request->input('event_slug')
+                ?: $request->input('event_id')
+                ?: $request->query('event')
+                ?: $request->query('event_id');
+        }
+
+        if ($identifier) {
+            $event = Events::where('slug', $identifier)
+                ->orWhere('id', is_numeric($identifier) ? (int) $identifier : 0)
+                ->first();
+
+            if ($event) {
+                return $event;
+            }
+        }
+
+        // Config / .env setting
+        $configuredSlug = config('dmc.active_booth_event_slug', env('ACTIVE_BOOTH_EVENT_SLUG'));
+        if (!empty($configuredSlug)) {
+            $event = Events::where('slug', $configuredSlug)
+                ->orWhere('id', is_numeric($configuredSlug) ? (int) $configuredSlug : 0)
+                ->first();
+
+            if ($event) {
+                return $event;
+            }
+        }
+
+        $configuredId = config('dmc.active_booth_event_id', env('ACTIVE_BOOTH_EVENT_ID'));
+        if (!empty($configuredId)) {
+            $event = Events::find($configuredId);
+            if ($event) {
+                return $event;
+            }
+        }
+
+        // Smart auto-detect: Partnership Event happening today
+        $today = Carbon::today()->toDateString();
+        $runningEvent = Events::whereIn('event_type', ['Partnership Event'])
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->orderBy('start_date', 'desc')
+            ->first();
+
+        if ($runningEvent) {
+            return $runningEvent;
+        }
+
+        // Default fallback: International Critical Minerals & Metals Summit: Indonesia 2026
+        return Events::where('slug', 'international-critical-minerals-metals-summit-indonesia-2026')
+            ->orWhere('id', 70)
+            ->first();
     }
 }

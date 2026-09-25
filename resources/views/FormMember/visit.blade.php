@@ -158,8 +158,13 @@
 
             <!-- HEADER -->
             <div class="page-header">
-                <img src="{{ asset('image/dmc.png') }}">
+                <img src="{{ asset('image/dmc.png') }}" alt="DMC Logo">
                 <h1 class="page-title">Booth <span>Visitor</span></h1>
+                @if (isset($event) && $event)
+                    <p class="mt-2 mb-0" style="font-size: 0.95rem; font-weight: 600; color: #4b5563;">
+                        {{ $event->name }}
+                    </p>
+                @endif
             </div>
 
             <!-- FORM -->
@@ -171,8 +176,15 @@
                         <small class="text-muted">* Required</small>
                     </div>
 
-                    <form action="{{ url('visit') }}" method="POST" class="needs-validation" novalidate>
+                    <form action="{{ isset($event) && $event ? url('visit/' . $event->slug) : url('visit') }}" method="POST" class="needs-validation" novalidate>
                         @csrf
+                        @if (isset($event) && $event)
+                            <input type="hidden" name="event_id" value="{{ $event->id }}">
+                            <input type="hidden" name="event_slug" value="{{ $event->slug }}">
+                        @endif
+                        @if (request()->has('giveaway'))
+                            <input type="hidden" name="giveaway" value="{{ request('giveaway') }}">
+                        @endif
 
                         <div class="form-section">
                             <div class="form-section-title">Visitor Information</div>
@@ -182,7 +194,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Full Name <small>*</small></label>
-                                        <input type="text" name="name" class="form-control" required>
+                                        <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
                                     </div>
                                 </div>
 
@@ -190,20 +202,20 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Company <small>*</small></label>
-                                        <input type="text" name="institution" class="form-control" required>
+                                        <input type="text" name="institution" class="form-control" value="{{ old('institution') }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group mb-1">
                                         <label>Job Title <small>*</small></label>
-                                        <input type="text" name="title" class="form-control" required>
+                                        <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
                                     </div>
                                 </div>
                                 <!-- EMAIL -->
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Business Email <small>*</small></label>
-                                        <input type="email" name="email" class="form-control" required>
+                                        <input type="email" name="email" class="form-control" value="{{ old('email') }}" required>
                                     </div>
                                 </div>
 
@@ -211,7 +223,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Mobile Phone <small>*</small></label>
-                                        <input type="tel" name="phone" id="phone" class="form-control"
+                                        <input type="tel" name="phone" id="phone" class="form-control" value="{{ old('phone') }}"
                                             required>
                                     </div>
                                 </div>
@@ -247,69 +259,85 @@
 
     @if (session('success'))
         <script>
-            // hadiah dari server (Laravel)
+            const isGiveawayEnabled = @json(session('giveaway_enabled', false));
             const giftName = @json(session('gift'));
 
-            // mapping icon + text
-            function getGiveawayResultFromServer(gift) {
-                if (!gift) {
-                    return {
-                        title: "Giveaway 🎁",
-                        message: "Mohon maaf, giveaway hari ini sudah habis 🙏",
-                        icon: "warning"
-                    };
-                }
+            function resetBoothForm() {
+                var form = document.querySelector('form');
+                if (form) form.reset();
 
-                if (gift.toLowerCase().includes('gelas')) {
+                if (window.intlTelInputGlobals) {
+                    var phoneInput = document.querySelector("#phone");
+                    if (phoneInput && phoneInput.intlTelInput) {
+                        phoneInput.intlTelInput.setNumber("");
+                    }
+                }
+            }
+
+            if (!isGiveawayEnabled) {
+                // 1️⃣ SUCCESS ONLY (Giveaway Disabled)
+                swal({
+                    title: "Success 🎉",
+                    text: "{{ session('success') }}",
+                    icon: "success",
+                    buttons: false,
+                    timer: 2000,
+                    closeOnClickOutside: false,
+                    closeOnEsc: false,
+                }).then(function() {
+                    resetBoothForm();
+                });
+            } else {
+                // 2️⃣ GIVEAWAY ENABLED
+                function getGiveawayResultFromServer(gift) {
+                    if (!gift) {
+                        return {
+                            title: "Giveaway 🎁",
+                            message: "Mohon maaf, giveaway hari ini sudah habis 🙏",
+                            icon: "warning"
+                        };
+                    }
+
+                    if (gift.toLowerCase().includes('gelas')) {
+                        return {
+                            title: "Giveaway 🎁",
+                            message: "Selamat! Anda mendapatkan 🥛 " + gift,
+                            icon: "success"
+                        };
+                    }
+
                     return {
                         title: "Giveaway 🎁",
-                        message: "Selamat! Anda mendapatkan 🥛 " + gift,
+                        message: "Selamat! Anda mendapatkan 📘 " + gift,
                         icon: "success"
                     };
                 }
 
-                return {
-                    title: "Giveaway 🎁",
-                    message: "Selamat! Anda mendapatkan 📘 " + gift,
-                    icon: "success"
-                };
-            }
+                const giveaway = getGiveawayResultFromServer(giftName);
 
-            const giveaway = getGiveawayResultFromServer(giftName);
-
-            // 1️⃣ SUCCESS — auto close (TETAP ADA)
-            swal({
-                title: "Success 🎉",
-                text: "{{ session('success') }}",
-                icon: "success",
-                buttons: false,
-                timer: 1800,
-                closeOnClickOutside: false,
-                closeOnEsc: false,
-            }).then(function() {
-
-                // 2️⃣ GIVEAWAY — must click OK
+                // 1️⃣ SUCCESS — auto close
                 swal({
-                    title: giveaway.title,
-                    text: giveaway.message,
-                    icon: giveaway.icon,
-                    button: "OK",
+                    title: "Success 🎉",
+                    text: "{{ session('success') }}",
+                    icon: "success",
+                    buttons: false,
+                    timer: 1800,
                     closeOnClickOutside: false,
                     closeOnEsc: false,
                 }).then(function() {
-
-                    // 3️⃣ reset form
-                    document.querySelector('form').reset();
-
-                    // reset intl-tel-input
-                    if (window.intlTelInputGlobals) {
-                        var phoneInput = document.querySelector("#phone");
-                        if (phoneInput && phoneInput.intlTelInput) {
-                            phoneInput.intlTelInput.setNumber("");
-                        }
-                    }
+                    // 2️⃣ GIVEAWAY — must click OK
+                    swal({
+                        title: giveaway.title,
+                        text: giveaway.message,
+                        icon: giveaway.icon,
+                        button: "OK",
+                        closeOnClickOutside: false,
+                        closeOnEsc: false,
+                    }).then(function() {
+                        resetBoothForm();
+                    });
                 });
-            });
+            }
         </script>
     @endif
 
