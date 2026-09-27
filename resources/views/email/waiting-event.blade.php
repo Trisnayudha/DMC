@@ -40,7 +40,7 @@
 
 <body>
     <div class="card">
-        <img src="{{ asset('image/banner_mccloskey_v2.png') }}" alt="Djakarta Mining Club"
+        <img src="{{ asset('image/banner_mccloskey_v3.png') }}" alt="Djakarta Mining Club"
             style="width:100%;display:block;">
         <div class="content">
             <p>Dear {{ $users_name }},</p>
