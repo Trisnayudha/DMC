@@ -78,9 +78,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::post('/check-membership', [MembershipController::class, 'check']);
 Route::post('/xendit/invoice', [XenditCallbackController::class, 'invoice']);
-Route::post('/xendit/invoice_v2', [XenditCallbackController::class, 'invoice_v2']);
-Route::post('/xendit/fva_create', [XenditCallbackController::class, 'fva_create']);
 Route::post('/xendit/fva_paid', [XenditCallbackController::class, 'fva_paid']);
+Route::post('/xendit/payment-callback', [XenditCallbackController::class, 'paymentCallback']);
 Route::post('payment/creditcard', [PaymentController::class, 'creditCard']);
 Route::post('/v2/payment/', [PaymentController::class, 'payment_v2']);
 Route::post('/v2/discount', [VoucherController::class, 'discount']);

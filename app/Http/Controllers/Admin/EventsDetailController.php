@@ -27,8 +27,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Support\QrCode;
-use Xendit\Invoice;
-use Xendit\Xendit;
+use App\Services\XenditPaymentSessionService;
 use Illuminate\Support\Facades\Response;
 
 class EventsDetailController extends Controller
@@ -269,16 +268,6 @@ class EventsDetailController extends Controller
             $date = date('d-m-Y H:i:s');
             $linkPay = null;
             if ($paymentMethod != 'free' && $paymentMethod != 'sponsor') {
-                // init xendit
-                $isProd = env('XENDIT_ISPROD');
-                if ($isProd) {
-                    $secretKey = env('XENDIT_SECRET_KEY_PROD');
-                } else {
-                    $secretKey = env('XENDIT_SECRET_KEY_TEST');
-                }
-                // params invoice
-                Xendit::setApiKey($secretKey);
-
                 $params = [
                     'external_id' => $codePayment,
                     'payer_email' => $email,
@@ -286,8 +275,9 @@ class EventsDetailController extends Controller
                     'amount' => $total_price,
                     'success_redirect_url' => 'https://djakarta-miningclub.com',
                     'failure_redirect_url' => url('/'),
+                    'expires_at' => now()->addDay(),
                 ];
-                $createInvoice = Invoice::create($params);
+                $createInvoice = XenditPaymentSessionService::createPaymentSession($params);
                 $linkPay = $createInvoice['invoice_url'];
             }
             // TODO masih hardcode

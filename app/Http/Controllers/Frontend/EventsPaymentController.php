@@ -17,8 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Xendit\Invoice;
-use Xendit\Xendit;
+use App\Services\XenditPaymentSessionService;
 
 class EventsPaymentController extends Controller
 {
@@ -100,10 +99,6 @@ class EventsPaymentController extends Controller
             $linkPay = null;
 
             if ($inputData['paymentMethod'] != 'free') {
-                $isProd = env('XENDIT_ISPROD');
-                $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
-                Xendit::setApiKey($secretKey);
-
                 $params = [
                     'external_id' => $codePayment,
                     'payer_email' => $inputData['email'],
@@ -111,9 +106,10 @@ class EventsPaymentController extends Controller
                     'amount' => $total_price,
                     'success_redirect_url' => 'https://djakarta-miningclub.com',
                     'failure_redirect_url' => url('/'),
+                    'expires_at' => now()->addDay(),
                 ];
 
-                $createInvoice = Invoice::create($params);
+                $createInvoice = XenditPaymentSessionService::createPaymentSession($params);
                 $linkPay = $createInvoice['invoice_url'];
             }
 
@@ -440,21 +436,17 @@ Best Regards Bot DMC Website
             $send->phone = '120363429723388586';
             $send->WhatsappMessageGroup();
             $linkPay = null;
-            $isProd = env('XENDIT_ISPROD');
-            $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
-
-            Xendit::setApiKey($secretKey);
-
             $params = [
                 'external_id' => $checkPayment->code_payment,
                 'payer_email' => $email_contact,
                 'description' => 'Invoice Event DMC',
                 'amount' => $countPrice,
                 'success_redirect_url' => 'https://djakarta-miningclub.com',
-                'failure_redirect_url' => url('/')
+                'failure_redirect_url' => url('/'),
+                'expires_at' => now()->addDay(),
             ];
 
-            $createInvoice = Invoice::create($params);
+            $createInvoice = XenditPaymentSessionService::createPaymentSession($params);
             $linkPay = $createInvoice['invoice_url'];
 
             $payload = [
