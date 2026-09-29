@@ -1,6 +1,7 @@
-{{-- Modal: Register visitor as member — asks which channel was used to
-     approach them (Sponsor referral / WhatsApp / Email), saved into
-     users.hear (sama seperti "How did you hear about us?" member biasa). --}}
+{{-- Modal: Register visitor as member — sama persis 3 checkbox consent yang
+     ada di form registrasi member publik (FormMemberController::store()),
+     supaya visitor yang didaftarkan lewat sini punya data consent yang sama
+     kelakuannya dengan yang daftar sendiri lewat web. --}}
 <div class="modal fade" id="registerAsMemberModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -12,16 +13,20 @@
                 </div>
                 <div class="modal-body">
                     <p class="mb-3">Daftarkan <strong id="ram-visitor-name">-</strong> sebagai calon member?</p>
-                    <div class="form-group mb-0">
-                        <label>Channel <span class="text-danger">*</span></label>
-                        <select name="channel" class="form-control" required>
-                            <option value="">Pilih channel...</option>
-                            <option value="Sponsor">Sponsor</option>
-                            <option value="WA">WhatsApp</option>
-                            <option value="Email">Email</option>
-                        </select>
-                        <small class="text-muted">Cara visitor ini di-approach untuk jadi calon member — tersimpan di data member (mirip "How did you hear about us?").</small>
+
+                    <div class="custom-control custom-checkbox mb-2">
+                        <input type="checkbox" class="custom-control-input" id="ram_newsletter" name="newsletter" value="agree" required checked>
+                        <label class="custom-control-label" for="ram_newsletter">I agree to receive newsletters and program updates via email. <span class="text-danger">*</span></label>
                     </div>
+                    <div class="custom-control custom-checkbox mb-2">
+                        <input type="checkbox" class="custom-control-input" id="ram_wa_updates" name="wa_updates" value="agree">
+                        <label class="custom-control-label" for="ram_wa_updates">I agree to receive updates via WhatsApp.</label>
+                    </div>
+                    <div class="custom-control custom-checkbox mb-0">
+                        <input type="checkbox" class="custom-control-input" id="ram_explore" name="explore" value="agree">
+                        <label class="custom-control-label" for="ram_explore">I would like to receive information about corporate sponsorship opportunities.</label>
+                    </div>
+                    <small class="text-muted d-block mt-2">Sama seperti form registrasi member di web — centang "sponsorship opportunities" otomatis memasukkan member ini ke Lead Follow-Up.</small>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>

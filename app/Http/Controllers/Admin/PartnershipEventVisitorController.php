@@ -148,7 +148,7 @@ class PartnershipEventVisitorController extends Controller
     public function registerAsMember(Request $request, $slug, $id)
     {
         $request->validate([
-            'channel' => 'required|in:Sponsor,WA,Email',
+            'newsletter' => 'required',
         ]);
 
         $event = $this->findEvent($slug);
@@ -171,7 +171,6 @@ class PartnershipEventVisitorController extends Controller
                 'isStatus'      => 'Active',
                 'status_member' => 'pending',
                 'source'        => 'Event Partnership',
-                'hear'          => $request->channel,
             ];
 
             if ($existingUser) {
@@ -182,23 +181,35 @@ class PartnershipEventVisitorController extends Controller
                 $user->assignRole('guest');
             }
 
+            // 3 consent checkbox sama persis dengan form registrasi member
+            // publik (FormMemberController::store()) — 'explore' di company
+            // memicu auto-create Lead Follow-Up lewat CompanyModel::booted().
             $company = CompanyModel::updateOrCreate(
                 ['users_id' => $user->id],
-                array_filter([
-                    'company_name'    => $visitor->company_name,
-                    'company_website' => $visitor->website,
-                    'address'         => $visitor->address,
-                    'office_number'   => $visitor->office_number,
-                ], fn ($v) => $v !== null && $v !== '')
+                array_merge(
+                    array_filter([
+                        'company_name'    => $visitor->company_name,
+                        'company_website' => $visitor->website,
+                        'address'         => $visitor->address,
+                        'office_number'   => $visitor->office_number,
+                    ], fn ($v) => $v !== null && $v !== ''),
+                    ['explore' => $request->explore ?? '']
+                )
             );
 
             ProfileModel::updateOrCreate(
                 ['users_id' => $user->id],
-                array_filter([
-                    'phone'      => $visitor->mobile_number,
-                    'job_title'  => $visitor->job_title,
-                    'company_id' => $company->id,
-                ], fn ($v) => $v !== null && $v !== '')
+                array_merge(
+                    array_filter([
+                        'phone'      => $visitor->mobile_number,
+                        'job_title'  => $visitor->job_title,
+                        'company_id' => $company->id,
+                    ], fn ($v) => $v !== null && $v !== ''),
+                    [
+                        'newsletter' => $request->newsletter ?? '',
+                        'wa_updates' => $request->wa_updates ?? '',
+                    ]
+                )
             );
 
             $send = new EmailSender();
