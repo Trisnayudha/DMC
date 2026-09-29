@@ -145,8 +145,12 @@ class PartnershipEventVisitorController extends Controller
      * Email yang SUDAH jadi user penuh (bukan akun provisional/kosong)
      * tidak didaftar ulang — dicegah sama seperti di flow web asli.
      */
-    public function registerAsMember($slug, $id)
+    public function registerAsMember(Request $request, $slug, $id)
     {
+        $request->validate([
+            'channel' => 'required|in:Sponsor,WA,Email',
+        ]);
+
         $event = $this->findEvent($slug);
         $visitor = PartnershipEventVisitor::where('events_id', $event->id)->findOrFail($id);
 
@@ -167,6 +171,7 @@ class PartnershipEventVisitorController extends Controller
                 'isStatus'      => 'Active',
                 'status_member' => 'pending',
                 'source'        => 'Event Partnership',
+                'hear'          => $request->channel,
             ];
 
             if ($existingUser) {
@@ -343,6 +348,7 @@ class PartnershipEventVisitorController extends Controller
             'address'        => 'nullable|string',
             'remarks'        => 'nullable|string',
             'merchandise'    => 'nullable|string|max:255',
+            'day'            => 'nullable|integer|min:1|max:4',
         ]);
 
         $validator->after(function ($validator) use ($request) {

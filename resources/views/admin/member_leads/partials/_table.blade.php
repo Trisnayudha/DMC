@@ -5,7 +5,7 @@
         <h4 class="mb-0">
             <i class="fas fa-bullseye mr-1"></i>Lead Follow-Up
             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                title="Automatically created when a member with Explore Marketing (company.explore) is verified. Follow-up SLA: 48 hours since the last action (verification / sponsor kit sent / follow-up)."
+                title="Automatically created when a member with Explore Marketing (company.explore) is verified. Follow-up SLA: 48h after verification (waiting to send sponsor kit), then 7 days after sponsor kit sent or after each follow-up (waiting on prospect response)."
                 data-toggle="tooltip"></i>
         </h4>
     </div>

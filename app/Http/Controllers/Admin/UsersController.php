@@ -276,7 +276,14 @@ class UsersController extends Controller
 
         $sourceBreakdown = $this->computeSourceBreakdown($sourceQuery);
 
+        // Tab "Unregistered" pakai partial server-rendered terpisah
+        // (_table_unregistered.blade.php, sumber data MemberModel, bukan
+        // User) — bukan AJAX DataTables seperti tabel utama, jadi $list-nya
+        // memang perlu dihitung di sini, hanya saat tab ini aktif.
+        $list = $request->filter === 'unregist' ? $this->buildFilteredMemberList($request) : null;
+
         return view('admin.users.index', [
+            'list'                => $list,
             'sources'            => $this->sourceColorMap(),
             'countActiveMember'  => $countActiveMember,
             'countPendingMember' => $countPendingMember,
@@ -339,7 +346,7 @@ class UsersController extends Controller
         $dateTo       = $request->date_to;
         $month        = $request->month;
         $year         = $request->year;
-        $source       = $request->source;
+        $sources      = array_values(array_filter((array) $request->source));
         $statusMember = $request->status_member; // 'active' | 'pending' | ''
 
         $query = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
@@ -401,22 +408,29 @@ class UsersController extends Controller
         if ($month)    $query->whereMonth('users.created_at', $month);
         if ($year)     $query->whereYear('users.created_at', $year);
 
-        if ($source) {
-            if ($source === 'dmc_event') {
-                // 'DMC Event' bucket = anything event-ish: the unified 'DMC Event'
-                // value itself, legacy 'event*'/'e/*'-prefixed leftovers, and
-                // 'scanner' (check-in registrations) — see normalizeSourceKey().
-                $query->where(function ($q) {
-                    $q->where(DB::raw('LOWER(TRIM(users.source))'), 'dmc event')
-                      ->orWhere(DB::raw('LOWER(TRIM(users.source))'), 'scanner')
-                      ->orWhere('users.source', 'like', 'event%')
-                      ->orWhere('users.source', 'like', 'e/%');
-                });
-            } elseif ($source === 'partner') {
-                $query->where('users.source', 'like', 'ep/%');
-            } else {
-                $query->where(DB::raw('LOWER(TRIM(users.source))'), strtolower($source));
-            }
+        if (!empty($sources)) {
+            // Bisa pilih lebih dari 1 source sekaligus — OR-kan klausa per bucket
+            // yang dipilih (tiap bucket sendiri bisa berupa OR pattern-match,
+            // mis. dmc_event menggabungkan beberapa variasi source lama).
+            $query->where(function ($outer) use ($sources) {
+                foreach ($sources as $source) {
+                    $outer->orWhere(function ($q) use ($source) {
+                        if ($source === 'dmc_event') {
+                            // 'DMC Event' bucket = anything event-ish: the unified 'DMC Event'
+                            // value itself, legacy 'event*'/'e/*'-prefixed leftovers, and
+                            // 'scanner' (check-in registrations) — see normalizeSourceKey().
+                            $q->where(DB::raw('LOWER(TRIM(users.source))'), 'dmc event')
+                              ->orWhere(DB::raw('LOWER(TRIM(users.source))'), 'scanner')
+                              ->orWhere('users.source', 'like', 'event%')
+                              ->orWhere('users.source', 'like', 'e/%');
+                        } elseif ($source === 'partner') {
+                            $q->where('users.source', 'like', 'ep/%');
+                        } else {
+                            $q->where(DB::raw('LOWER(TRIM(users.source))'), strtolower($source));
+                        }
+                    });
+                }
+            });
         }
 
         return $query;

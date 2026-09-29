@@ -175,6 +175,7 @@
                                         <th>Office Number</th>
                                         <th>Website</th>
                                         <th>Address</th>
+                                        <th>Day</th>
                                         <th>Remarks</th>
                                         <th>Merchandise</th>
                                         <th>Membership</th>
@@ -197,6 +198,7 @@
                                             <td>{{ $visitor->office_number ?: '-' }}</td>
                                             <td class="text-truncate-cell" title="{{ $visitor->website }}">{{ $visitor->website ?: '-' }}</td>
                                             <td class="text-truncate-cell" title="{{ $visitor->address }}">{{ $visitor->address ?: '-' }}</td>
+                                            <td>{{ $visitor->day ? 'Day ' . $visitor->day : '-' }}</td>
                                             <td class="text-truncate-cell" title="{{ $visitor->remarks }}">{{ $visitor->remarks ?: '-' }}</td>
                                             <td>{{ $visitor->merchandise ?: '-' }}</td>
                                             <td class="text-nowrap">
@@ -205,14 +207,12 @@
                                                 @else
                                                     <span class="badge badge-secondary d-block mb-1" style="width:fit-content;">Visitor</span>
                                                     @if ($visitor->business_email)
-                                                        <form method="POST"
-                                                            action="{{ route('admin.partnership_events.visitors.register_as_member', [$event->slug, $visitor->id]) }}"
-                                                            onsubmit="return confirm('Daftarkan {{ addslashes($visitor->name ?: $visitor->company_name) }} sebagai calon member?')">
-                                                            @csrf
-                                                            <button type="submit" class="btn btn-xs btn-outline-primary" style="font-size:11px; padding:2px 6px;">
-                                                                <i class="fas fa-user-plus"></i> Register as Member
-                                                            </button>
-                                                        </form>
+                                                        <button type="button" class="btn btn-xs btn-outline-primary js-open-register-member" style="font-size:11px; padding:2px 6px;"
+                                                            data-toggle="modal" data-target="#registerAsMemberModal"
+                                                            data-url="{{ route('admin.partnership_events.visitors.register_as_member', [$event->slug, $visitor->id]) }}"
+                                                            data-name="{{ $visitor->name ?: $visitor->company_name }}">
+                                                            <i class="fas fa-user-plus"></i> Register as Member
+                                                        </button>
                                                     @else
                                                         <button type="button" class="btn btn-xs btn-outline-secondary" style="font-size:11px; padding:2px 6px;" disabled
                                                             title="Business Email kosong, lengkapi dulu">
@@ -240,7 +240,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="13" class="text-center text-muted">Belum ada data visitor untuk event ini.</td>
+                                            <td colspan="14" class="text-center text-muted">Belum ada data visitor untuk event ini.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -256,6 +256,7 @@
 
     @include('admin.partnership_event._import_modal')
     @include('admin.partnership_event._visitor_form_modal')
+    @include('admin.partnership_event._register_as_member_modal')
 @endsection
 
 @push('bottom')
@@ -289,6 +290,13 @@
                 $('#vf_address').val(payload.address || '');
                 $('#vf_remarks').val(payload.remarks || '');
                 $('#vf_merchandise').val(payload.merchandise || '');
+                $('#vf_day').val(payload.day || '');
+            });
+
+            $(document).on('click', '.js-open-register-member', function() {
+                $('#registerAsMemberForm').attr('action', $(this).data('url'));
+                $('#ram-visitor-name').text($(this).data('name') || '-');
+                $('#registerAsMemberForm')[0].reset();
             });
         });
     </script>

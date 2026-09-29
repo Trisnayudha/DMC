@@ -854,7 +854,7 @@
                         d.date_to       = '{{ request('date_to') }}';
                         d.month         = '{{ request('month') }}';
                         d.year          = '{{ request('year') }}';
-                        d.source        = '{{ request('source') }}';
+                        d.source        = @json(array_values((array) request('source', [])));
                     }
                 },
                 dom: 'frtip',

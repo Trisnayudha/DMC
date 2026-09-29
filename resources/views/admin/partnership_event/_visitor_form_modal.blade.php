@@ -54,12 +54,22 @@
                     </div>
 
                     <div class="form-row">
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
+                            <label>Day</label>
+                            <select name="day" id="vf_day" class="form-control">
+                                <option value="">-</option>
+                                <option value="1">Day 1</option>
+                                <option value="2">Day 2</option>
+                                <option value="3">Day 3</option>
+                                <option value="4">Day 4</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
                             <label>Remarks</label>
                             <input type="text" name="remarks" id="vf_remarks" class="form-control"
-                                placeholder="contoh: Mi26 - day1 - visitor">
+                                placeholder="contoh: visitor">
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
                             <label>Merchandise</label>
                             <input type="text" name="merchandise" id="vf_merchandise" class="form-control">
                         </div>

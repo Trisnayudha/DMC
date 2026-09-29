@@ -175,10 +175,9 @@
                 </div>
                 <div class="form-group mr-2 mb-2">
                     <label class="mb-1 small text-muted">Source</label>
-                    <select name="source" class="form-control form-control-sm">
-                        <option value="">All</option>
+                    <select name="source[]" multiple class="form-control form-control-sm select2" style="min-width:220px;" data-placeholder="All">
                         @foreach ($sources as $key => $meta)
-                            <option value="{{ $key }}" {{ request('source') === $key ? 'selected' : '' }}>
+                            <option value="{{ $key }}" {{ in_array($key, (array) request('source', [])) ? 'selected' : '' }}>
                                 {{ $meta['label'] }}
                             </option>
                         @endforeach

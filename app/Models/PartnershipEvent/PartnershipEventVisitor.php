@@ -24,6 +24,7 @@ class PartnershipEventVisitor extends Model
         'address',
         'remarks',
         'merchandise',
+        'day',
     ];
 
     public function event()

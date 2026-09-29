@@ -134,12 +134,18 @@ class MemberLeadFollowUpController extends Controller
             }
         }
 
-        // Rolling SLA: the deadline for the NEXT step is 48h after whichever
-        // step was just completed — not from lead creation anymore. Once
-        // Follow Up 2 (the last defined step) is done there's nothing left
-        // to be late for, so the deadline is cleared and the row stops
-        // turning red.
-        $lead->deadline_at = $lead->nextStepKey() ? $date->copy()->addHours(48) : null;
+        // Rolling SLA: the deadline for the NEXT step is set relative to
+        // whichever step was just completed here — not from lead creation
+        // anymore. The very first deadline (lead created -> Send Sponsor
+        // Kit) is a 48h *internal* action and is set elsewhere (on lead
+        // creation, see UsersController::verifyMember() /
+        // CompanyModel::booted()). Every transition THIS method handles
+        // (sponsor kit sent -> Follow-up 1, Follow-up 1 -> Follow-up 2) is
+        // instead waiting on an *external* response from the prospect, so
+        // it gets a full 7 days rather than 48h. Once Follow Up 2 (the last
+        // defined step) is done there's nothing left to be late for, so the
+        // deadline is cleared and the row stops turning red.
+        $lead->deadline_at = $lead->nextStepKey() ? $date->copy()->addDays(7) : null;
 
         $lead->save();
 
