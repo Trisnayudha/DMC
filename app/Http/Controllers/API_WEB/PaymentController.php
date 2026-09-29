@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Sum;
 use App\Support\QrCode;
-use Xendit\Invoice;
+use App\Services\XenditPaymentSessionService;
 use Xendit\VirtualAccounts;
 use Xendit\Xendit;
 
@@ -178,10 +178,6 @@ class PaymentController extends Controller
         $save_va = null;
         $response = [];
 
-        // Xendit configuration
-        $isProd = env('XENDIT_ISPROD');
-        $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
-
         $findEvent = Events::where('id', $events_id)->first();
 
         // Payment method label for email / WA
@@ -275,9 +271,11 @@ Code Payment: ' . $payment->code_payment;
         }
 
         if ($type == 'paid') {
-            Xendit::setApiKey($secretKey);
-
             if ($payment_method != 'CREDIT_CARD') {
+                $isProd = env('XENDIT_ISPROD');
+                $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
+                Xendit::setApiKey($secretKey);
+
                 $params = [
                     'external_id' => $codePayment[0],
                     'bank_code' => $payment_method,
@@ -309,15 +307,17 @@ Code Payment: ' . $payment->code_payment;
                 $response['payload'] = $createVA ?: null;
             } else {
                 $params = [
-                    'external_id' => $codePayment[0],
-                    'payer_email' => $emails[0],
-                    'description' => 'Invoice Event DMC',
-                    'amount' => $totalPrice,
-                    'success_redirect_url' => 'https://djakarta-miningclub.com',
-                    'failure_redirect_url' => url('/'),
+                    'external_id'              => $codePayment[0],
+                    'payer_email'              => $emails[0],
+                    'description'              => 'Invoice Event DMC',
+                    'amount'                   => $totalPrice,
+                    'success_redirect_url'     => 'https://djakarta-miningclub.com',
+                    'failure_redirect_url'     => url('/'),
+                    'expires_at'               => Carbon::now()->addDays(1),
+                    'allowed_payment_channels' => ['CREDIT_CARD'],
                 ];
 
-                $createInvoice = Invoice::create($params);
+                $createInvoice = XenditPaymentSessionService::createPaymentSession($params);
                 $linkPay = $createInvoice['invoice_url'];
 
                 $payment = Payment::where('id', $paymentId[0])->first();
@@ -326,14 +326,11 @@ Code Payment: ' . $payment->code_payment;
 
                 $save_va = new PaymentUsersVA();
                 $save_va->payment_id = $paymentId[0];
-                $save_va->is_closed = 0;
-                $save_va->status = 'PENDING';
-                $save_va->country = 'IDR';
+                $save_va->status = $createInvoice['status'];
                 $save_va->owner_id = $createInvoice['user_id'];
                 $save_va->bank_code = 'CREDIT_CARD';
                 $save_va->expected_amount = $createInvoice['amount'];
                 $save_va->expiration_date = $createInvoice['expiry_date'];
-                $save_va->is_single_use = 0;
                 $save_va->save();
 
                 $response['status'] = 200;

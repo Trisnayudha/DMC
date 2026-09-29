@@ -46,14 +46,24 @@ class WhatsappApi
     }
 
     /**
+     * Group WA test — dipakai buat nampung notifikasi (approval/payment/dst)
+     * selama testing di mode non-prod, supaya tidak spam group admin asli.
+     */
+    const TEST_GROUP_ID = '120363402546800516';
+
+    /**
      * Kirim pesan ke group
      * phone diisi group id, misal: 1203630xxxxxxx@g.us
      * atau raw id yang nanti dinormalize oleh API
+     *
+     * Selama XENDIT_ISPROD=false (mode test/dev), semua pesan group
+     * dialihkan ke TEST_GROUP_ID apa pun group tujuan aslinya — supaya
+     * testing (termasuk payment) tidak nyasar ke group admin asli.
      */
     public function WhatsappMessageGroup()
     {
         try {
-            $to = $this->phone;
+            $to = env('XENDIT_ISPROD') ? $this->phone : self::TEST_GROUP_ID;
             $text = $this->message;
 
             $payload = [

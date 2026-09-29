@@ -13,8 +13,7 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use Xendit\Invoice;
-use Xendit\Xendit;
+use App\Services\XenditPaymentSessionService;
 
 class PaymentController extends Controller
 {
@@ -36,9 +35,6 @@ class PaymentController extends Controller
             $findUsers = User::findOrFail($check->member_id);
             $findProfile = ProfileModel::where('users_id', $check->member_id)->first();
             $findCompany = CompanyModel::where('users_id', $check->member_id)->first();
-            $isProd = env('XENDIT_ISPROD');
-            $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
-            Xendit::setApiKey($secretKey);
             $date = date('d, M Y H:i');
             $dueDate = date('d, M Y H:i', strtotime($date . ' +1 day'));
             if (!empty($check->groupby_users_id)) {
@@ -66,8 +62,9 @@ class PaymentController extends Controller
                     'amount' => $totalPrice,
                     'success_redirect_url' => 'https://djakarta-miningclub.com',
                     'failure_redirect_url' => url('/'),
+                    'expires_at' => now()->addDay(),
                 ];
-                $createInvoice = Invoice::create($params);
+                $createInvoice = XenditPaymentSessionService::createPaymentSession($params);
                 $linkPay = $createInvoice['invoice_url'];
                 $data = [
                     'code_payment' => $check->code_payment,
@@ -101,8 +98,9 @@ class PaymentController extends Controller
                     'amount' => $total,
                     'success_redirect_url' => 'https://djakarta-miningclub.com',
                     'failure_redirect_url' => url(''),
+                    'expires_at' => now()->addDay(),
                 ];
-                $createInvoice = Invoice::create($params);
+                $createInvoice = XenditPaymentSessionService::createPaymentSession($params);
                 $linkPay = $createInvoice['invoice_url'];
 
 

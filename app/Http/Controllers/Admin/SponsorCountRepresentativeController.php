@@ -539,15 +539,14 @@ class SponsorCountRepresentativeController extends Controller
         $totalPrice  = $prices[$ticket] ?? 0;
         $codePayment = strtoupper(Str::random(7));
 
-        $secretKey = env('XENDIT_ISPROD') ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
-        \Xendit\Xendit::setApiKey($secretKey);
-        $createInvoice = \Xendit\Invoice::create([
+        $createInvoice = \App\Services\XenditPaymentSessionService::createPaymentSession([
             'external_id'          => $codePayment,
             'payer_email'          => $user->email,
             'description'          => 'Invoice Event DMC',
             'amount'               => $totalPrice,
             'success_redirect_url' => 'https://djakarta-miningclub.com',
             'failure_redirect_url' => url('/'),
+            'expires_at'           => now()->addDay(),
         ]);
         $linkPay = $createInvoice['invoice_url'];
 

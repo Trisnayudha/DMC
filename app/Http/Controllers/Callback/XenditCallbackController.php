@@ -16,6 +16,7 @@ use App\Models\Payments\Payment;
 use App\Models\Payments\PaymentUsersVA;
 use App\Repositories\Company;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Ladumor\OneSignal\OneSignal;
@@ -24,6 +25,12 @@ use App\Support\QrCode;
 class XenditCallbackController extends Controller
 {
 
+    /**
+     * Webhook lama (Invoice API) — payload flat, mis. {id, external_id,
+     * status: PAID/EXPIRED, payment_method, ...}. Dibiarkan hidup sebagai
+     * jaring pengaman untuk invoice yang sempat dibuat lewat SDK lama
+     * sebelum cutover ke Payment Sessions (lihat paymentCallback()).
+     */
     public function invoice()
     {
         try {
@@ -49,34 +56,151 @@ class XenditCallbackController extends Controller
             //        "payment_channel": "PERMATA",
             //        "payment_destination": "888888888888"
 
-            $id = request('id');
             $external_id = request('external_id');
-            $user_id = request('user_id');
-            $is_high = request('is_high');
             $payment_method = request('payment_method');
             $status = request('status');
-            $merchant_name = request('merchant_name');
-            $amount = request('amount');
             $paid_amount = request('paid_amount');
-            $bank_code = request('bank_code');
-            $paid_at = request('paid_at');
-            $payer_email = request('payer_email');
-            $description = request('description');
-            $adjusted_received_amount = request('adjusted_received_amount');
-            $fees_paid_amount = request('fees_paid_amount');
-            $updated = request('updated');
-            $created = request('created');
-            $currency = request('currency');
-            $payment_channel = request('payment_channel');
-            $payment_destination = request('payment_destination');
 
-            $check = Payment::where('code_payment', '=', $external_id)->first();
-            $findUser = Payment::where('code_payment', $external_id)
-                ->leftjoin('users as a', 'a.id', 'payment.member_id')
-                ->leftjoin('profiles as b', 'a.id', 'b.users_id')
-                ->leftjoin('company as c', 'c.id', 'b.company_id')
-                ->first();
-            if (!empty($check)) {
+            $res = $this->handlePaidOrExpired($external_id, $status, $payment_method, $paid_amount);
+
+            return response()->json($res, 200);
+        } catch (\Exception $msg) {
+            $res['api_status'] = 0;
+            $res['api_message'] = $msg->getMessage();
+            return response()->json($res, 500);
+        }
+    }
+
+    /**
+     * Webhook baru (Payment Sessions API) — payload event-based, mis.
+     * {event: "payment.capture", data: {reference_id, status: SUCCEEDED,
+     * channel_code, ...}}. Bentuk pastinya belum 100% dipastikan dari
+     * dokumentasi, jadi extraction di sini WAJIB defensif (banyak fallback)
+     * dan payload mentah selalu di-log dulu supaya bisa dicocokkan dengan
+     * payload asli dari Xendit Dashboard "Send Test Webhook" saat testing.
+     */
+    public function paymentCallback(Request $request)
+    {
+        $payload = $request->all();
+
+        Log::info('Xendit payment-session webhook received', [
+            'headers' => $request->headers->all(),
+            'payload' => $payload,
+        ]);
+
+        $isProd = env('XENDIT_ISPROD');
+        $expectedToken = $isProd ? env('XENDIT_CALLBACK_TOKEN_PROD') : env('XENDIT_CALLBACK_TOKEN_TEST');
+        $receivedToken = $request->header('x-callback-token');
+
+        if (empty($expectedToken) || empty($receivedToken) || !hash_equals((string) $expectedToken, (string) $receivedToken)) {
+            Log::warning('Xendit webhook token mismatch', ['received' => $receivedToken]);
+            return response()->json(['api_status' => 0, 'api_message' => 'Invalid token'], 401);
+        }
+
+        // event.data wraps fields for payment.capture/payment.failure; shape
+        // is unconfirmed for payment_session.completed, so fall back to the
+        // top level too rather than assuming one rigid structure.
+        $data = $payload['data'] ?? $payload;
+
+        $referenceId = $data['reference_id']
+            ?? $data['external_id']
+            ?? $payload['reference_id']
+            ?? $payload['external_id']
+            ?? null;
+        $rawStatus = $data['status'] ?? $payload['status'] ?? null;
+        $channelCode = $data['channel_code'] ?? $data['payment_method'] ?? $payload['channel_code'] ?? null;
+        $amount = $data['amount'] ?? $data['capture_amount'] ?? $payload['amount'] ?? null;
+
+        if (empty($referenceId)) {
+            Log::error('Xendit webhook missing reference_id, cannot process', ['payload' => $payload]);
+            // 200 supaya Xendit tidak infinite-retry payload yang memang
+            // tidak bisa diparse (mis. event lain yang tidak relevan).
+            return response()->json(['api_status' => 0, 'api_message' => 'Missing reference_id'], 200);
+        }
+
+        $normalizedStatus = $this->normalizeSessionStatus($rawStatus);
+        $paymentMethod = $this->reverseChannelMap($channelCode);
+
+        try {
+            $res = $this->handlePaidOrExpired($referenceId, $normalizedStatus, $paymentMethod, $amount);
+            return response()->json($res, 200);
+        } catch (\Exception $msg) {
+            $res['api_status'] = 0;
+            $res['api_message'] = $msg->getMessage();
+            return response()->json($res, 500);
+        }
+    }
+
+    /**
+     * Map status Payment Sessions/Payment Request Xendit ke status lama
+     * ('PAID'/'EXPIRED') yang dipakai handlePaidOrExpired() supaya logic
+     * bisnis di bawah tidak perlu tahu bedanya webhook lama vs baru.
+     */
+    private function normalizeSessionStatus($status)
+    {
+        $status = strtoupper((string) $status);
+
+        if (in_array($status, ['SUCCEEDED', 'PAID', 'COMPLETED', 'CAPTURED'], true)) {
+            return 'PAID';
+        }
+
+        if (in_array($status, ['FAILED', 'EXPIRED', 'CANCELED', 'CANCELLED'], true)) {
+            return 'EXPIRED';
+        }
+
+        return $status;
+    }
+
+    /**
+     * Kebalikan dari $channelMap di XenditPaymentSessionService — supaya
+     * payment.payment_method yang tersimpan tetap pakai label lama DMC
+     * (BCA/BNI/dst), dan config/xendit_fee.php tidak perlu berubah.
+     */
+    private function reverseChannelMap($channelCode)
+    {
+        $map = [
+            'CARDS'                   => 'CREDIT_CARD',
+            'BCA_VIRTUAL_ACCOUNT'     => 'BCA',
+            'BNI_VIRTUAL_ACCOUNT'     => 'BNI',
+            'BRI_VIRTUAL_ACCOUNT'     => 'BRI',
+            'MANDIRI_VIRTUAL_ACCOUNT' => 'MANDIRI',
+            'PERMATA_VIRTUAL_ACCOUNT' => 'PERMATA',
+        ];
+
+        return $map[strtoupper((string) $channelCode)] ?? $channelCode;
+    }
+
+    /**
+     * Logic bisnis inti begitu suatu payment diketahui PAID/EXPIRED —
+     * dipakai bareng oleh invoice() (webhook lama) dan paymentCallback()
+     * (webhook baru), supaya cuma ditulis & ditest sekali. Perilakunya
+     * SAMA PERSIS dengan invoice() sebelum di-refactor, ditambah guard
+     * idempotency di langkah awal (Xendit bisa kirim webhook dobel).
+     */
+    private function handlePaidOrExpired($external_id, $status, $payment_method, $paid_amount)
+    {
+        $res = [];
+
+        $check = Payment::where('code_payment', '=', $external_id)->first();
+        $findUser = Payment::where('code_payment', $external_id)
+            ->leftjoin('users as a', 'a.id', 'payment.member_id')
+            ->leftjoin('profiles as b', 'a.id', 'b.users_id')
+            ->leftjoin('company as c', 'c.id', 'b.company_id')
+            ->first();
+        if (!empty($check)) {
+                // Idempotency guard — cegah kirim ulang email/WA kalau webhook
+                // yang sama (atau untuk status yang sama) datang dobel.
+                if ($status == 'PAID' && $check->status_registration === 'Paid Off') {
+                    $res['api_status'] = 1;
+                    $res['api_message'] = 'Payment already processed';
+                    return $res;
+                }
+                if ($status == 'EXPIRED' && $check->status_registration === 'Expired') {
+                    $res['api_status'] = 1;
+                    $res['api_message'] = 'Already marked expired';
+                    return $res;
+                }
+
                 if ($status == 'PAID') {
                     $findEvent = Events::where('id', $check->events_id)->first();
                     if ($check->booking_contact_id != null) {
@@ -430,16 +554,12 @@ Best Regards Bot DMC
                     $res['api_status'] = 1;
                     $res['api_message'] = 'Error Tidak diketahui';
                 }
-            } else {
-                $res['api_status'] = 0;
-                $res['api_message'] = 'Payment is not Found';
-            }
-            return response()->json($res, 200);
-        } catch (\Exception $msg) {
+        } else {
             $res['api_status'] = 0;
-            $res['api_message'] = $msg->getMessage();
-            return response()->json($res, 500);
+            $res['api_message'] = 'Payment is not Found';
         }
+
+        return $res;
     }
 
 

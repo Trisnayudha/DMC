@@ -15,17 +15,17 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use App\Models\Vouchers\Voucher;
 use Illuminate\Http\Request;
+use App\Services\XenditPaymentSessionService;
 use Xendit\PaymentChannels;
 use Xendit\Xendit;
+use Xendit\VirtualAccounts;
 use Illuminate\Support\Str;
 use App\Support\QrCode;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Xendit\VirtualAccounts;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Xendit\Invoice;
 
 class PaymentController extends Controller
 {
@@ -318,15 +318,6 @@ Terima kasih.
                 $save->qr_code = $db;
                 $save->referral = $request->referral;
 
-                // init xendit
-                $isProd = env('XENDIT_ISPROD');
-                if ($isProd) {
-                    $secretKey = env('XENDIT_SECRET_KEY_PROD');
-                } else {
-                    $secretKey = env('XENDIT_SECRET_KEY_TEST');
-                }
-                // params invoice
-                Xendit::setApiKey($secretKey);
                 $params = [
                     'external_id' => $codePayment,
                     'payer_email' => $findUsers->email,
@@ -334,8 +325,10 @@ Terima kasih.
                     'amount' => $findTicket->price_rupiah,
                     'success_redirect_url' => 'https://api.djakarta-miningclub.com/payment-success',
                     'failure_redirect_url' => url('/'),
+                    'expires_at' => now()->addDay(),
+                    'allowed_payment_channels' => ['CREDIT_CARD'],
                 ];
-                $createInvoice = Invoice::create($params);
+                $createInvoice = XenditPaymentSessionService::createPaymentSession($params);
 
                 $linkPay = $createInvoice['invoice_url'];
                 $save->link = $linkPay;
@@ -570,27 +563,24 @@ Terima kasih.
             $payment->mobile              = true;
             $payment->save();
 
-            // --- Integrasi Xendit ---
-            $isProd    = env('XENDIT_ISPROD');
-            $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
-            Xendit::setApiKey($secretKey);
-
             $responsePayload = null;
 
-            // Jika type = paid, buat invoice/VA
+            // Jika type = paid, buat payment session (redirect ke halaman checkout Xendit)
             if ($type == 'paid') {
                 if ($payment_method == 'CREDIT_CARD') {
                     // Buat Invoice untuk Credit Card
                     $paramsInvoice = [
-                        'external_id'          => $codePayment,
-                        'payer_email'          => $user->email,
-                        'description'          => 'Invoice Event ' . $findEvent->name,
-                        'amount'               => $finalPrice,
-                        'success_redirect_url' => 'https://djakarta-miningclub.com',
-                        'failure_redirect_url' => url('/'),
+                        'external_id'              => $codePayment,
+                        'payer_email'              => $user->email,
+                        'description'              => 'Invoice Event ' . $findEvent->name,
+                        'amount'                   => $finalPrice,
+                        'success_redirect_url'     => 'https://djakarta-miningclub.com',
+                        'failure_redirect_url'     => url('/'),
+                        'expires_at'               => now()->addDay(),
+                        'allowed_payment_channels' => ['CREDIT_CARD'],
                     ];
 
-                    $createInvoice = Invoice::create($paramsInvoice);
+                    $createInvoice = XenditPaymentSessionService::createPaymentSession($paramsInvoice);
                     $linkPay       = $createInvoice['invoice_url'];
 
                     // Update payment dengan link invoice
@@ -600,19 +590,20 @@ Terima kasih.
                     // Simpan ke PaymentUsersVA
                     $save_va = new PaymentUsersVA();
                     $save_va->payment_id      = $payment->id;
-                    $save_va->is_closed       = 0;
-                    $save_va->status          = "PENDING";
-                    $save_va->country         = 'IDR';
+                    $save_va->status          = $createInvoice['status'];
                     $save_va->owner_id        = $createInvoice['user_id'];
                     $save_va->bank_code       = 'CREDIT_CARD';
                     $save_va->expected_amount = $createInvoice['amount'];
                     $save_va->expiration_date = $createInvoice['expiry_date'];
-                    $save_va->is_single_use   = 0;
                     $save_va->save();
 
                     $responsePayload = $createInvoice;
                 } else {
                     // Buat VA (contoh: BCA, MANDIRI, dll)
+                    $isProd    = env('XENDIT_ISPROD');
+                    $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
+                    Xendit::setApiKey($secretKey);
+
                     $paramsVA = [
                         'external_id'     => $codePayment,
                         'bank_code'       => $payment_method,
