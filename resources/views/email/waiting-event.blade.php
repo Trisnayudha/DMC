@@ -46,8 +46,10 @@
             <p>Dear {{ $users_name }},</p>
             <p>Thank you for registering for {{ $events_name }}.
             </p>
+            {{-- <p>Your registration is currently being processed and awaiting confirmation. We will send you a confirmation
+                within <strong>48 hours</strong> of receiving this email.</p> --}}
             <p>Your registration is currently being processed and awaiting confirmation. We will send you a confirmation
-                within <strong>48 hours</strong> of receiving this email.</p>
+                once your registration has been reviewed.</p>
             <p>If you have any further questions, please contact us via email at
                 <strong>register@djakarta-miningclub.com</strong> or WhatsApp at <strong>+62 811-1937-399</strong>.
             </p>
