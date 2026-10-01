@@ -421,10 +421,14 @@ class UsersController extends Controller
                             // 'scanner' (check-in registrations) — see normalizeSourceKey().
                             $q->where(DB::raw('LOWER(TRIM(users.source))'), 'dmc event')
                               ->orWhere(DB::raw('LOWER(TRIM(users.source))'), 'scanner')
-                              ->orWhere('users.source', 'like', 'event%')
+                              ->orWhere(function ($legacy) {
+                                  $legacy->where('users.source', 'like', 'event%')
+                                         ->where(DB::raw('LOWER(TRIM(users.source))'), '!=', 'event partnership');
+                              })
                               ->orWhere('users.source', 'like', 'e/%');
                         } elseif ($source === 'partner') {
-                            $q->where('users.source', 'like', 'ep/%');
+                            $q->where('users.source', 'like', 'ep/%')
+                              ->orWhere(DB::raw('LOWER(TRIM(users.source))'), 'event partnership');
                         } else {
                             $q->where(DB::raw('LOWER(TRIM(users.source))'), strtolower($source));
                         }
@@ -1071,7 +1075,9 @@ class UsersController extends Controller
             return 'other';
         }
 
-        if (strpos($key, 'ep/') === 0) {
+        // 'Event Partnership' (ditulis PartnershipEventVisitorController::registerAsMember)
+        // harus dicek sebelum bucket 'event*' di bawah, kalau tidak ikut kehitung DMC Event.
+        if (strpos($key, 'ep/') === 0 || $key === 'event partnership') {
             return 'partner';
         }
 
