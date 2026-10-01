@@ -344,7 +344,7 @@
                                 </tr>
                                 @foreach ($row['children'] as $child)
                                     <tr class="text-muted" style="background:#fafbfc;">
-                                        <td class="pl-4">↳ {{ $child['label'] }}</td>
+                                        <td class="pl-4" title="{{ $child['code'] }}">↳ {{ $child['label'] }}</td>
                                         <td class="text-right">{{ $child['members'] }}</td>
                                         <td class="text-right">{{ $child['leads'] }}</td>
                                         <td class="text-right">{{ $child['win'] }}</td>

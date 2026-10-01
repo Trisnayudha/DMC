@@ -10,6 +10,7 @@ use App\Imports\BulkTwoStepVerificationImport;
 use App\Models\Company\CompanyModel;
 use App\Models\MemberCompanyFollowUp;
 use App\Models\MemberLeadFollowUp;
+use App\Models\MemberSource;
 use App\Models\MemberModel;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
@@ -1049,6 +1050,31 @@ class UsersController extends Controller
     }
 
     /**
+     * Nama tampilan per source dari tabel member_sources, di-key 'category/code'
+     * lowercase (mis. 'ep/mi2026' => 'Mining Indonesia 2026'), supaya breakdown
+     * menampilkan nama event, bukan kode mentah. Kosong kalau tabel belum ada.
+     */
+    private function memberSourceNames(): array
+    {
+        static $names = null;
+
+        if ($names === null) {
+            $names = [];
+            try {
+                if (Schema::hasTable('member_sources')) {
+                    foreach (MemberSource::all(['category', 'code', 'name']) as $row) {
+                        $names[strtolower($row->category . '/' . $row->code)] = $row->name;
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('memberSourceNames failed: ' . $e->getMessage());
+            }
+        }
+
+        return $names;
+    }
+
+    /**
      * Rincian per source mentah (mis. EP/MI2026 vs EP/CTICMMS2026) di bawah
      * bucket 'Partnership Event' — satu bucket menampung banyak event, jadi
      * tim MR perlu lihat tiap event-nya. Bucket lain tidak dirinci. Grouping
@@ -1060,11 +1086,11 @@ class UsersController extends Controller
             return;
         }
 
-        $label = trim((string) $rawSource);
-        $id = strtolower($label);
+        $code = trim((string) $rawSource);
+        $id = strtolower($code);
 
         if (!isset($bucket['children'][$id])) {
-            $bucket['children'][$id] = ['label' => $label, 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0];
+            $bucket['children'][$id] = ['label' => $this->memberSourceNames()[$id] ?? $code, 'code' => $code, 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0];
         }
 
         $bucket['children'][$id][$field] += $total;
