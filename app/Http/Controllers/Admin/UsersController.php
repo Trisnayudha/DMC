@@ -987,7 +987,7 @@ class UsersController extends Controller
         // never writes back); a real array doesn't have that problem.
         $sourceBreakdown = [];
         foreach ($this->sourceColorMap() as $key => $meta) {
-            $sourceBreakdown[$key] = ['label' => $meta['label'], 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0];
+            $sourceBreakdown[$key] = ['label' => $meta['label'], 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0, 'children' => []];
         }
 
         (clone $baseQuery)
@@ -998,6 +998,7 @@ class UsersController extends Controller
                 $key = $this->normalizeSourceKey($rawSource);
                 if (isset($sourceBreakdown[$key])) {
                     $sourceBreakdown[$key]['members'] += (int) $total;
+                    $this->addSourceChild($sourceBreakdown[$key], $key, $rawSource, 'members', (int) $total);
                 }
             });
 
@@ -1019,6 +1020,7 @@ class UsersController extends Controller
                             $sourceBreakdown[$key]['leads'] += (int) $row->total;
                             $sourceBreakdown[$key]['win']   += (int) $row->win_count;
                             $sourceBreakdown[$key]['loss']  += (int) $row->loss_count;
+                            $this->addSourceChild($sourceBreakdown[$key], $key, $row->source, 'leads', (int) $row->total, (int) $row->win_count, (int) $row->loss_count);
                         }
                     });
             } catch (\Throwable $e) {
@@ -1029,6 +1031,14 @@ class UsersController extends Controller
         return collect($sourceBreakdown)
             ->map(function ($row) {
                 $row['conversion_rate'] = $row['leads'] > 0 ? round($row['win'] / $row['leads'] * 100, 1) : null;
+                $row['children'] = collect($row['children'])
+                    ->map(function ($child) {
+                        $child['conversion_rate'] = $child['leads'] > 0 ? round($child['win'] / $child['leads'] * 100, 1) : null;
+                        return $child;
+                    })
+                    ->sortByDesc('members')
+                    ->values()
+                    ->all();
                 return $row;
             })
             ->filter(function ($row) {
@@ -1036,6 +1046,30 @@ class UsersController extends Controller
             })
             ->sortByDesc('members')
             ->values();
+    }
+
+    /**
+     * Rincian per source mentah (mis. EP/MI2026 vs EP/CTICMMS2026) di bawah
+     * bucket 'Partnership Event' — satu bucket menampung banyak event, jadi
+     * tim MR perlu lihat tiap event-nya. Bucket lain tidak dirinci. Grouping
+     * case-insensitive supaya 'EP/MI2026' dan 'ep/mi2026' tidak terpecah.
+     */
+    private function addSourceChild(array &$bucket, string $key, $rawSource, string $field, int $total, int $win = 0, int $loss = 0): void
+    {
+        if ($key !== 'partner') {
+            return;
+        }
+
+        $label = trim((string) $rawSource);
+        $id = strtolower($label);
+
+        if (!isset($bucket['children'][$id])) {
+            $bucket['children'][$id] = ['label' => $label, 'members' => 0, 'leads' => 0, 'win' => 0, 'loss' => 0];
+        }
+
+        $bucket['children'][$id][$field] += $total;
+        $bucket['children'][$id]['win']  += $win;
+        $bucket['children'][$id]['loss'] += $loss;
     }
 
     /**

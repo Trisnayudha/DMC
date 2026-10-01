@@ -342,6 +342,16 @@
                                     <td class="text-right text-secondary">{{ $row['loss'] }}</td>
                                     <td class="text-right">{{ $row['conversion_rate'] !== null ? $row['conversion_rate'] . '%' : '—' }}</td>
                                 </tr>
+                                @foreach ($row['children'] as $child)
+                                    <tr class="text-muted" style="background:#fafbfc;">
+                                        <td class="pl-4">↳ {{ $child['label'] }}</td>
+                                        <td class="text-right">{{ $child['members'] }}</td>
+                                        <td class="text-right">{{ $child['leads'] }}</td>
+                                        <td class="text-right">{{ $child['win'] }}</td>
+                                        <td class="text-right">{{ $child['loss'] }}</td>
+                                        <td class="text-right">{{ $child['conversion_rate'] !== null ? $child['conversion_rate'] . '%' : '—' }}</td>
+                                    </tr>
+                                @endforeach
                             @empty
                                 <tr>
                                     <td colspan="6" class="text-center text-muted py-3">Belum ada data.</td>
