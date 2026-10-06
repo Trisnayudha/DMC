@@ -139,6 +139,7 @@
                 <li><a class="nav-link" href="{{ Route('events.schedule') }}">Schedule</a></li>
                 <li><a class="nav-link" href="{{ Route('speakers.index') }}">Speakers</a></li>
                 <li><a class="nav-link" href="{{ Route('rundown.index') }}">Rundown</a></li>
+                <li class="{{ request()->is('admin/event-conversions*') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.event_conversions.index') }}"><i class="fas fa-chart-pie mr-1 text-warning"></i> Member Conversion</a></li>
             </ul>
         </li>
 
@@ -146,6 +147,13 @@
             <a class="nav-link" href="{{ route('admin.partnership_events.index') }}">
                 <i class="fas fa-handshake"></i>
                 <span>Partnership Event</span>
+            </a>
+        </li>
+
+        <li class="{{ request()->is('admin/event-conversions*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.event_conversions.index') }}">
+                <i class="fas fa-chart-line"></i>
+                <span>Member Conversion</span>
             </a>
         </li>
 
@@ -183,6 +191,13 @@
             <a class="nav-link" href="{{ Route('email.index') }}">
                 <i class="fas fa-envelope"></i>
                 <span>Email Management</span>
+            </a>
+        </li>
+
+        <li class="{{ request()->is('admin/mailchimp*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.mailchimp_unsubscribes.index') }}">
+                <i class="fab fa-mailchimp"></i>
+                <span>Mailchimp Unsubscribes</span>
             </a>
         </li>
 

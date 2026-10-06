@@ -118,6 +118,10 @@
                                 @endif
                             </form>
 
+                            <a href="{{ route('admin.event_conversions.index', ['search' => $event->name, 'type' => 'supporting']) }}" class="btn btn-sm btn-outline-info" title="Lihat Analisis Konversi Member">
+                                <i class="fas fa-chart-line"></i> Conversion Analytics
+                            </a>
+
                             <a href="{{ url('visit/' . $event->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Buka Form Booth Visitor / Salin Link untuk QR Code">
                                 <i class="fas fa-external-link-alt"></i> Buka Form Booth
                             </a>

@@ -24,6 +24,9 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4 class="mb-0">Pilih Partnership Event</h4>
+                        <a href="{{ route('admin.event_conversions.index', ['type' => 'supporting']) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-chart-line mr-1"></i> Member Conversion Analytics
+                        </a>
                     </div>
 
                     <div class="card-body">

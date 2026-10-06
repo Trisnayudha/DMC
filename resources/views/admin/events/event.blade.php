@@ -40,9 +40,15 @@
                                     <div class="alert alert-danger">{{ session('error') }}</div>
                                 @endif
 
-                                <div class="float-right">
+                                <div class="float-right d-flex" style="gap: 8px;">
+                                    <a href="{{ route('admin.event_conversions.index') }}"
+                                        class="btn btn-icon icon-left btn-outline-primary btn-filter mb-3"
+                                        title="Lihat Analisis Konversi Member dari Event">
+                                        <i class="fas fa-chart-line"></i>
+                                        Member Conversion
+                                    </a>
                                     <a href="{{ Route('events.create') }}"
-                                        class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
+                                        class="btn btn-icon icon-left btn-success btn-filter mb-3"
                                         id="addNewCategory">
                                         <i class="fas fa-plus-circle"></i>
                                         Add Event</a>

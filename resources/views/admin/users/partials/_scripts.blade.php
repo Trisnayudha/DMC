@@ -723,7 +723,11 @@
         $.ajax({ url: '{{ route('users.mailchimp.count') }}', method: 'GET', dataType: 'json', timeout: 12000 })
             .done(function(res) {
                 if (res && res.success && res.count !== null) {
-                    $('#mc-contact-count').text(Number(res.count).toLocaleString());
+                    var html = Number(res.count).toLocaleString();
+                    if (res.unsubscribed) {
+                        html += ' <a href="{{ route('admin.mailchimp_unsubscribes.index') }}" class="badge badge-danger ml-2" style="font-size:11px; vertical-align:middle;" title="Lihat ' + res.unsubscribed + ' Kontak Unsubscribed"><i class="fas fa-user-slash mr-1"></i>' + res.unsubscribed + ' Unsub</a>';
+                    }
+                    $('#mc-contact-count').html(html);
                 } else {
                     $('#mc-contact-count').html('<span class="text-muted small">N/A</span>');
                 }

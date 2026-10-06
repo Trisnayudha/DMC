@@ -21,6 +21,9 @@
                             <div class="card-header">
                                 <h4>Detail Registration</h4>
                                 <div class="card-header-action">
+                                    <a href="{{ route('admin.event_conversions.index', ['search' => $slug]) }}" class="btn btn-sm btn-outline-primary mr-2" title="Lihat Analisis Konversi Member">
+                                        <i class="fas fa-chart-line mr-1"></i> Conversion Funnel
+                                    </a>
                                     <a data-collapse="#detail-registration" class="btn btn-icon btn-info" href="#"><i
                                             class="fas fa-{{ $date <= date('Y-m-d') ? 'minus' : 'plus' }}"></i></a>
                                 </div>

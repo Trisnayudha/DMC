@@ -60,6 +60,8 @@ use App\Http\Controllers\Admin\SponsorExportController;
 use App\Http\Controllers\Admin\LuckyDrawItemController;
 use App\Http\Controllers\Admin\LuckyDrawEntryController;
 use App\Http\Controllers\Admin\PartnershipEventVisitorController;
+use App\Http\Controllers\Admin\EventConversionController;
+use App\Http\Controllers\Admin\MailchimpUnsubscribeController;
 use App\Http\Controllers\DmcMemberSurveyController;
 use App\Http\Controllers\EditorUploadController;
 use App\Http\Controllers\SponsorSurveyController;
@@ -583,6 +585,17 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('partnership-events/{slug}/visitors/{id}/register-as-member', [PartnershipEventVisitorController::class, 'registerAsMember'])->name('admin.partnership_events.visitors.register_as_member');
     Route::post('partnership-events/{slug}/import', [PartnershipEventVisitorController::class, 'import'])->name('admin.partnership_events.import');
     Route::post('partnership-events/{slug}/toggle-giveaway', [PartnershipEventVisitorController::class, 'toggleGiveaway'])->name('admin.partnership_events.toggle_giveaway');
+
+    // Event & Member Conversion Analytics
+    Route::get('event-conversions', [EventConversionController::class, 'index'])->name('admin.event_conversions.index');
+    Route::get('event-conversions/{id}/members', [EventConversionController::class, 'convertedMembers'])->name('admin.event_conversions.members');
+    Route::get('event-conversions/export', [EventConversionController::class, 'export'])->name('admin.event_conversions.export');
+
+    // Mailchimp Unsubscribes
+    Route::get('mailchimp/unsubscribes', [MailchimpUnsubscribeController::class, 'index'])->name('admin.mailchimp_unsubscribes.index');
+    Route::get('mailchimp/unsubscribes/export', [MailchimpUnsubscribeController::class, 'export'])->name('admin.mailchimp_unsubscribes.export');
+    Route::post('mailchimp/unsubscribes/resubscribe', [MailchimpUnsubscribeController::class, 'resubscribe'])->name('admin.mailchimp_unsubscribes.resubscribe');
+    Route::get('mailchimp/unsubscribes/{hash}/activity', [MailchimpUnsubscribeController::class, 'memberActivity'])->name('admin.mailchimp_unsubscribes.activity');
 
     // Quick Search
     Route::get('quick-search', [App\Http\Controllers\Admin\QuickSearchController::class, 'search'])
