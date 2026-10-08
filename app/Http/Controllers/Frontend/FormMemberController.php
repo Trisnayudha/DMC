@@ -151,6 +151,8 @@ class FormMemberController extends Controller
             $send->sendEmail();
 
             DB::commit();
+
+            $user->stampMemberRegistered();
         } catch (\Exception $registrationError) {
             DB::rollBack();
             unset($registrationError);

@@ -9,6 +9,7 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use App\Support\QrCode;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
@@ -25,6 +26,9 @@ use Illuminate\Support\Facades\Storage;
  */
 class MemberVerificationService
 {
+    const MAILCHIMP_STATUS_CACHE_KEY = 'mailchimp_member_statuses';
+    const MAILCHIMP_STATUS_CACHE_TTL = 600; // detik
+
     /** Email lama tidak ada di audience / tidak berubah — tidak ada yang dikerjakan. */
     const MAILCHIMP_EMAIL_SKIPPED = 'skipped';
 
@@ -126,6 +130,8 @@ class MemberVerificationService
                     ]);
 
                 if ($response->successful()) {
+                    self::forgetMailchimpStatusCache();
+
                     return true;
                 }
 
@@ -137,6 +143,75 @@ class MemberVerificationService
         }
 
         return false;
+    }
+
+    /**
+     * Peta status seluruh kontak di audience Mailchimp: email (lowercase) =>
+     * status (subscribed / unsubscribed / cleaned / pending / transactional).
+     * Email yang tidak ada di peta berarti tidak ada di audience (belum pernah
+     * masuk atau sudah di-archive).
+     *
+     * Diambil sekaligus (paginasi 1000) lalu di-cache sebentar, supaya tabel
+     * Members tidak memanggil Mailchimp per baris. Dibersihkan otomatis tiap
+     * kali kita sync/archive kontak (forgetMailchimpStatusCache).
+     *
+     * @return array|null null kalau Mailchimp belum dikonfigurasi atau gagal
+     *                    dihubungi (hasil gagal tidak di-cache).
+     */
+    public function mailchimpStatusMap(): ?array
+    {
+        $cached = Cache::get(self::MAILCHIMP_STATUS_CACHE_KEY);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $config = $this->mailchimpConfig();
+        if (!$config) {
+            return null;
+        }
+
+        $map = [];
+        $offset = 0;
+        $pageSize = 1000;
+
+        try {
+            do {
+                $response = Http::withBasicAuth('anystring', $config['apiKey'])
+                    ->timeout(30)
+                    ->get('https://' . $config['server'] . '.api.mailchimp.com/3.0/lists/' . $config['listId'] . '/members', [
+                        'count'  => $pageSize,
+                        'offset' => $offset,
+                        'fields' => 'total_items,members.email_address,members.status',
+                    ]);
+
+                if (!$response->successful()) {
+                    Log::warning('MemberVerification: Mailchimp status list failed (HTTP ' . $response->status() . '): ' . $response->body());
+
+                    return null;
+                }
+
+                $members = $response->json('members') ?: [];
+                foreach ($members as $member) {
+                    $map[strtolower(trim((string) $member['email_address']))] = (string) $member['status'];
+                }
+
+                $offset += $pageSize;
+                $total = (int) $response->json('total_items');
+            } while (count($members) === $pageSize && $offset < $total);
+        } catch (\Throwable $e) {
+            Log::warning('MemberVerification: Mailchimp status list failed: ' . $e->getMessage());
+
+            return null;
+        }
+
+        Cache::put(self::MAILCHIMP_STATUS_CACHE_KEY, $map, self::MAILCHIMP_STATUS_CACHE_TTL);
+
+        return $map;
+    }
+
+    public static function forgetMailchimpStatusCache(): void
+    {
+        Cache::forget(self::MAILCHIMP_STATUS_CACHE_KEY);
     }
 
     /**
@@ -177,6 +252,8 @@ class MemberVerificationService
                 ->delete($this->mailchimpMemberUrl($config, $email));
 
             if ($response->successful()) {
+                self::forgetMailchimpStatusCache();
+
                 return true;
             }
 

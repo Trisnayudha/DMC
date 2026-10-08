@@ -32,6 +32,12 @@
                     title="WA Updates: member setuju menerima update via WhatsApp. Open to Sponsorship: member bersedia menerima penawaran paket sponsorship."
                     data-toggle="tooltip"></i>
             </th>
+            <th width="80px">
+                Mailchimp
+                <i class="fas fa-info-circle text-muted ml-1"
+                    title="Status email member di audience Mailchimp (di-cache ±10 menit; berubah otomatis setelah sync/archive dari CMS)."
+                    data-toggle="tooltip"></i>
+            </th>
             <th width="70px">Password</th>
         </tr>
     </thead>

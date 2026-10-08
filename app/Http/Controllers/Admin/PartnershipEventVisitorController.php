@@ -236,6 +236,8 @@ class PartnershipEventVisitorController extends Controller
                 )
             );
 
+            $user->stampMemberRegistered();
+
             $send = new EmailSender();
             $send->subject     = 'Thank You for Registering – Your Membership Application Is Under Review';
             $send->template    = 'email.waiting-approval';

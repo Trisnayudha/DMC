@@ -63,8 +63,10 @@ class UsersController extends Controller
             ->where('status_member', 'deactivated')
             ->count();
 
+        $registeredAt = $this->registeredAtExpr();
+
         $countNewThisMonth = User::whereNotNull('isStatus')
-            ->whereBetween('created_at', [
+            ->whereBetween(DB::raw($registeredAt), [
                 Carbon::now()->startOfMonth(),
                 Carbon::now()->endOfMonth(),
             ])
@@ -106,13 +108,13 @@ class UsersController extends Controller
         $validationWindowStart = Carbon::now()->subDays(30);
 
         $countValidatedWithin48h = User::whereNotNull('verified_at')
-            ->where('created_at', '>=', $validationWindowStart)
-            ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, verified_at) <= 48')
+            ->where(DB::raw($registeredAt), '>=', $validationWindowStart)
+            ->whereRaw("TIMESTAMPDIFF(HOUR, {$registeredAt}, verified_at) <= 48")
             ->count();
 
         $countValidatedAfter48h = User::whereNotNull('verified_at')
-            ->where('created_at', '>=', $validationWindowStart)
-            ->whereRaw('TIMESTAMPDIFF(HOUR, created_at, verified_at) > 48')
+            ->where(DB::raw($registeredAt), '>=', $validationWindowStart)
+            ->whereRaw("TIMESTAMPDIFF(HOUR, {$registeredAt}, verified_at) > 48")
             ->count();
 
         $countTwoStepVerified = User::whereNotNull('isStatus')
@@ -123,8 +125,8 @@ class UsersController extends Controller
         // months) — for quick management reporting ("berapa yang daftar minggu/
         // bulan ini"). Zero-filled so a quiet week/month shows as 0, not a gap.
         $weeklyRaw = User::whereNotNull('isStatus')
-            ->where('created_at', '>=', Carbon::now()->subWeeks(7)->startOfWeek())
-            ->selectRaw('YEARWEEK(created_at, 3) as period_key, COUNT(*) as total')
+            ->where(DB::raw($registeredAt), '>=', Carbon::now()->subWeeks(7)->startOfWeek())
+            ->selectRaw("YEARWEEK({$registeredAt}, 3) as period_key, COUNT(*) as total")
             ->groupBy('period_key')
             ->pluck('total', 'period_key');
 
@@ -145,8 +147,8 @@ class UsersController extends Controller
         // producing a duplicate month instead of February.
         $monthsToShow = max(5, Carbon::now()->month - 1);
         $monthlyRaw = User::whereNotNull('isStatus')
-            ->where('created_at', '>=', Carbon::now()->startOfMonth()->subMonths($monthsToShow))
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as period_key, COUNT(*) as total")
+            ->where(DB::raw($registeredAt), '>=', Carbon::now()->startOfMonth()->subMonths($monthsToShow))
+            ->selectRaw("DATE_FORMAT({$registeredAt}, '%Y-%m') as period_key, COUNT(*) as total")
             ->groupBy('period_key')
             ->pluck('total', 'period_key');
 
@@ -165,14 +167,15 @@ class UsersController extends Controller
         // — one bar per calendar year, from the earliest registration on record
         // (capped at the last 8 years so a very old dataset doesn't produce an
         // unreadable chart) through the current year.
-        $earliestYear = (int) (User::whereNotNull('isStatus')->min('created_at')
-            ? Carbon::parse(User::whereNotNull('isStatus')->min('created_at'))->year
+        $earliestRegistered = User::whereNotNull('isStatus')->min(DB::raw($registeredAt));
+        $earliestYear = (int) ($earliestRegistered
+            ? Carbon::parse($earliestRegistered)->year
             : Carbon::now()->year);
         $earliestYear = max($earliestYear, Carbon::now()->year - 7);
 
         $yearlyRaw = User::whereNotNull('isStatus')
-            ->where('created_at', '>=', Carbon::createFromDate($earliestYear, 1, 1)->startOfDay())
-            ->selectRaw('YEAR(created_at) as period_key, COUNT(*) as total')
+            ->where(DB::raw($registeredAt), '>=', Carbon::createFromDate($earliestYear, 1, 1)->startOfDay())
+            ->selectRaw("YEAR({$registeredAt}) as period_key, COUNT(*) as total")
             ->groupBy('period_key')
             ->pluck('total', 'period_key');
 
@@ -354,7 +357,7 @@ class UsersController extends Controller
             ->leftJoin('company', 'company.id', 'profiles.company_id')
             ->whereNotNull('users.isStatus');
         if ($filter == 'this_month') {
-            $query->whereBetween('users.created_at', [
+            $query->whereBetween(DB::raw($this->registeredAtExpr()), [
                 Carbon::now()->startOfMonth(),
                 Carbon::now()->endOfMonth(),
             ]);
@@ -404,10 +407,11 @@ class UsersController extends Controller
             });
         }
 
-        if ($dateFrom) $query->whereDate('users.created_at', '>=', $dateFrom);
-        if ($dateTo)   $query->whereDate('users.created_at', '<=', $dateTo);
-        if ($month)    $query->whereMonth('users.created_at', $month);
-        if ($year)     $query->whereYear('users.created_at', $year);
+        $registeredAtCol = DB::raw($this->registeredAtExpr());
+        if ($dateFrom) $query->whereDate($registeredAtCol, '>=', $dateFrom);
+        if ($dateTo)   $query->whereDate($registeredAtCol, '<=', $dateTo);
+        if ($month)    $query->whereMonth($registeredAtCol, $month);
+        if ($year)     $query->whereYear($registeredAtCol, $year);
 
         if (!empty($sources)) {
             // Bisa pilih lebih dari 1 source sekaligus — OR-kan klausa per bucket
@@ -473,7 +477,7 @@ class UsersController extends Controller
             ->orderBy('users.id', 'desc')
             ->select(
                 'users.*',
-                'users.created_at as user_created_at',
+                DB::raw($this->registeredAtExpr() . ' as user_created_at'),
                 'profiles.*',
                 'company.*',
                 'users.id as user_id'
@@ -520,8 +524,8 @@ class UsersController extends Controller
         $baseQuery = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
             ->leftJoin('company', 'company.id', 'profiles.company_id')
             ->whereNotNull('users.isStatus');
-        if ($dateFrom) $baseQuery->where('users.created_at', '>=', $dateFrom);
-        if ($dateTo)   $baseQuery->where('users.created_at', '<=', $dateTo);
+        if ($dateFrom) $baseQuery->where(DB::raw($this->registeredAtExpr()), '>=', $dateFrom);
+        if ($dateTo)   $baseQuery->where(DB::raw($this->registeredAtExpr()), '<=', $dateTo);
 
         $raw = (clone $baseQuery)->selectRaw('users.source as source, COUNT(*) as total')
             ->groupBy('users.source')
@@ -572,10 +576,10 @@ class UsersController extends Controller
         $memberRowLimit = 300;
         $totalMembers = (clone $baseQuery)->count();
         $members = (clone $baseQuery)
-            ->orderBy('users.created_at', 'desc')
+            ->orderByRaw($this->registeredAtExpr() . ' desc')
             ->limit($memberRowLimit)
             ->get([
-                'users.name', 'users.email', 'users.source', 'users.created_at',
+                'users.name', 'users.email', 'users.source', DB::raw($this->registeredAtExpr() . ' as created_at'),
                 'users.status_member', 'company.company_name', 'company.explore',
             ])
             ->map(function ($row) {
@@ -634,7 +638,7 @@ class UsersController extends Controller
         $recordsFiltered = (clone $baseQuery)->count();
 
         $columnsSortMap = [
-            1 => 'users.created_at',
+            1 => DB::raw($this->registeredAtExpr()),
             2 => 'users.source',
             3 => 'users.name',
             4 => 'users.status_member',
@@ -653,7 +657,7 @@ class UsersController extends Controller
         $rows = $baseQuery->orderBy($orderColumn, $orderDir)
             ->select(
                 'users.*',
-                'users.created_at as user_created_at',
+                DB::raw($this->registeredAtExpr() . ' as user_created_at'),
                 'profiles.*',
                 'company.*',
                 'users.id as user_id'
@@ -692,9 +696,13 @@ class UsersController extends Controller
             ->get()
             ->keyBy('user_id');
 
+        // Status Mailchimp: satu peta untuk seluruh audience (di-cache), bukan
+        // request per baris. null = Mailchimp tidak terjangkau -> kolom tampil "—".
+        $mailchimpStatuses = app(MemberVerificationService::class)->mailchimpStatusMap();
+
         $data = [];
         foreach ($rows as $i => $post) {
-            $cells = $this->renderMemberRowCells($post, $selfEditMap, $openVerificationIds, $followUpMap);
+            $cells = $this->renderMemberRowCells($post, $selfEditMap, $openVerificationIds, $followUpMap, $mailchimpStatuses);
             $cells[0] = $start + $i + 1;
             $data[] = $cells;
         }
@@ -708,11 +716,11 @@ class UsersController extends Controller
     }
 
     /**
-     * Render satu baris tabel Members jadi array cell (index 0..15, cocok dengan
+     * Render satu baris tabel Members jadi array cell (index 0..16, cocok dengan
      * urutan <th> di _table_members.blade.php) + metadata baris (DT_RowId/DT_RowAttr)
      * untuk response DataTables server-side.
      */
-    private function renderMemberRowCells($post, array $selfEditMap, $openVerificationIds = null, $followUpMap = null): array
+    private function renderMemberRowCells($post, array $selfEditMap, $openVerificationIds = null, $followUpMap = null, ?array $mailchimpStatuses = null): array
     {
         $sourceColorMap = $this->sourceColorMap();
 
@@ -789,6 +797,8 @@ class UsersController extends Controller
             . ' title="Re-sync data member ini ke Mailchimp" data-toggle="tooltip"><i class="fas fa-sync-alt"></i></button>'
             . '</div>';
 
+        $cellMailchimp = $this->mailchimpStatusBadge($mailchimpStatuses, $post->email);
+
         $cellPasswordActions = view('admin.users.partials._row.password_actions', [
             'post' => $post,
             'openFollowUp' => $followUpMap ? ($followUpMap[$post->user_id] ?? null) : null,
@@ -809,10 +819,53 @@ class UsersController extends Controller
             12 => $cellWebsite,
             13 => $cellCategory,
             14 => $cellWaSpon,
-            15 => $cellPasswordActions,
+            15 => $cellMailchimp,
+            16 => $cellPasswordActions,
             'DT_RowId'   => 'row_' . $post->user_id,
             'DT_RowAttr' => ['style' => $rowBg],
         ];
+    }
+
+    /**
+     * Ekspresi SQL "tanggal daftar member": member_registered_at (diisi saat
+     * orang yang sebelumnya cuma terdaftar di event mendaftar jadi member),
+     * fallback ke users.created_at. Fallback penuh ke created_at kalau
+     * migration kolomnya belum dijalankan.
+     */
+    private function registeredAtExpr(): string
+    {
+        return User::hasMemberRegisteredAtColumn()
+            ? 'COALESCE(users.member_registered_at, users.created_at)'
+            : 'users.created_at';
+    }
+
+    /**
+     * Badge status Mailchimp per member. $statuses = peta email => status dari
+     * MemberVerificationService::mailchimpStatusMap(), atau null kalau lookup gagal.
+     */
+    private function mailchimpStatusBadge(?array $statuses, $email): string
+    {
+        if ($statuses === null) {
+            return '<span class="text-muted" title="Status Mailchimp tidak bisa diambil" data-toggle="tooltip">—</span>';
+        }
+
+        $status = $statuses[strtolower(trim((string) $email))] ?? null;
+
+        $map = [
+            'subscribed'    => ['badge-success', 'Subscribed', 'Terdaftar & aktif menerima email'],
+            'unsubscribed'  => ['badge-warning', 'Unsubscribed', 'Pernah berhenti berlangganan (opt-out)'],
+            'cleaned'       => ['badge-danger', 'Cleaned', 'Email bounce / tidak valid di Mailchimp'],
+            'pending'       => ['badge-info', 'Pending', 'Menunggu konfirmasi double opt-in'],
+            'transactional' => ['badge-secondary', 'Transactional', 'Hanya email transaksional'],
+        ];
+
+        if ($status === null) {
+            return '<span class="badge badge-light border text-muted" title="Belum ada di audience Mailchimp (belum pernah masuk atau sudah di-archive)" data-toggle="tooltip">Not in list</span>';
+        }
+
+        $meta = $map[$status] ?? ['badge-secondary', ucfirst($status), $status];
+
+        return '<span class="badge ' . $meta[0] . '" title="' . e($meta[2]) . '" data-toggle="tooltip">' . e($meta[1]) . '</span>';
     }
 
     /**
@@ -1279,6 +1332,7 @@ class UsersController extends Controller
                             'status'        => 'subscribed',
                             'merge_fields'  => $merge,
                         ]);
+                    MemberVerificationService::forgetMailchimpStatusCache();
                 }
             } catch (\Throwable $e) {
                 Log::warning('verifyMember: Mailchimp import failed for user ' . $id . ': ' . $e->getMessage());
@@ -2223,6 +2277,8 @@ class UsersController extends Controller
                 }
                 return response()->json(['success' => false, 'message' => $resp->status() . ': ' . $detail], 400);
             }
+
+            MemberVerificationService::forgetMailchimpStatusCache();
 
             return response()->json(['success' => true, 'message' => 'Berhasil diimpor ke Mailchimp.']);
         } catch (\Throwable $e) {

@@ -259,19 +259,29 @@ class EventConversionController extends Controller
         $activeConverted = 0;
 
         if ($emails->isNotEmpty()) {
-            $matchedUsers = User::whereIn('email', $emails)->get(['id', 'email', 'status_member', 'source']);
+            $matchedUsers = User::whereIn('email', $emails)->get($this->conversionUserColumns(['id', 'email', 'status_member', 'source']));
 
             $verifiedMemberEmails = $matchedUsers->where('status_member', 'active')
                 ->where('source', '!=', 'Event Partnership')
                 ->pluck('email')
                 ->map(fn ($e) => strtolower(trim($e)));
 
-            $pendingConverted = $matchedUsers->where('status_member', 'pending')->count();
+            // Waktu pertama tiap email masuk ke booth event ini.
+            $enteredByEmail = $visitors->filter(fn ($v) => !empty($v->business_email))
+                ->groupBy(fn ($v) => strtolower(trim($v->business_email)))
+                ->map(fn ($group) => $group->min('created_at'));
 
-            $activeConverted = $matchedUsers->filter(function ($u) {
-                return $u->status_member === 'active' && (
-                    $u->source === 'Event Partnership' || (is_string($u->source) && str_starts_with($u->source, 'ep/'))
-                );
+            // Hanya yang mendaftar jadi member di tahun event ini DAN bukan
+            // sebelum masuk ke event ini yang dihitung konversi.
+            $pendingConverted = $matchedUsers
+                ->where('status_member', 'pending')
+                ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByEmail->get(strtolower(trim($u->email)))))
+                ->count();
+
+            $activeConverted = $matchedUsers->filter(function ($u) use ($event, $enteredByEmail) {
+                return $u->status_member === 'active'
+                    && $this->convertedByEvent($u, $event, $enteredByEmail->get(strtolower(trim($u->email))))
+                    && $this->isPartnershipSource($u->source);
             })->count();
         }
         $verifiedMembersCount = $verifiedMemberEmails->count();
@@ -369,7 +379,7 @@ class EventConversionController extends Controller
         $allUserIds = $attendeeUserIds->merge($conversionCandidateIds)->unique()->values();
         $usersMap = collect();
         if ($allUserIds->isNotEmpty()) {
-            $usersMap = User::whereIn('id', $allUserIds)->get(['id', 'email', 'status_member'])->keyBy('id');
+            $usersMap = User::whereIn('id', $allUserIds)->get($this->conversionUserColumns(['id', 'email', 'status_member']))->keyBy('id');
         }
 
         $attendeeEmails = collect();
@@ -387,7 +397,16 @@ class EventConversionController extends Controller
         $pendingConverted = 0;
         $activeConverted = 0;
         if ($conversionCandidateIds->isNotEmpty()) {
-            $candidateUsers = $conversionCandidateIds->map(fn ($id) => $usersMap->get($id))->filter();
+            // Konversi = mendaftar jadi member di tahun event dan bukan sebelum
+            // mendaftar tiket event ini (lihat convertedByEvent).
+            $enteredByMember = $payments->filter(fn ($p) => $p->member_id)
+                ->groupBy('member_id')
+                ->map(fn ($group) => $group->min('created_at'));
+
+            $candidateUsers = $conversionCandidateIds
+                ->map(fn ($id) => $usersMap->get($id))
+                ->filter()
+                ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByMember->get($u->id)));
             $pendingConverted = $candidateUsers->where('status_member', 'pending')->count();
             $activeConverted = $candidateUsers->where('status_member', 'active')->count();
         }
@@ -425,6 +444,73 @@ class EventConversionController extends Controller
     }
 
     /**
+     * Kolom user yang dibutuhkan untuk menentukan tanggal daftar member.
+     * member_registered_at hanya ikut di-select kalau migration-nya sudah jalan.
+     */
+    private function conversionUserColumns(array $base): array
+    {
+        $columns = array_merge($base, ['created_at']);
+        if (User::hasMemberRegisteredAtColumn()) {
+            $columns[] = 'member_registered_at';
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Kapan user ini mendaftar jadi member: member_registered_at (diisi saat
+     * akun event-only mendaftar member), fallback users.created_at untuk data
+     * lama / yang daftar member langsung.
+     */
+    private function memberRegisteredAt($user): ?Carbon
+    {
+        $value = $user->member_registered_at ?? $user->created_at ?? null;
+
+        return $value ? Carbon::parse($value) : null;
+    }
+
+    /**
+     * Source member yang berasal dari Partnership Event: 'Event Partnership'
+     * atau kode event 'EP/...' (huruf besar/kecil tidak dibedakan).
+     */
+    private function isPartnershipSource($source): bool
+    {
+        $source = strtolower(trim((string) $source));
+
+        return $source === 'event partnership' || strpos($source, 'ep/') === 0;
+    }
+
+    /**
+     * Syarat konversi event: orangnya mendaftar jadi member
+     *  (1) di TAHUN YANG SAMA dengan event, dan
+     *  (2) bukan sebelum dia masuk ke event itu ($enteredAt = pendaftaran
+     *      tiket / kunjungan booth), dengan toleransi 1 hari karena akun
+     *      dan pendaftaran event dibuat berurutan dalam satu alur.
+     * Member yang sudah daftar sebelumnya (tahun lalu, atau lebih awal di
+     * tahun yang sama) lalu ikut event hanyalah peserta member, bukan
+     * konversi dari event ini. Event tanpa tanggal tidak bisa dicocokkan
+     * tahunnya, jadi syarat (1) dilewati.
+     */
+    private function convertedByEvent($user, Events $event, $enteredAt = null): bool
+    {
+        $registeredAt = $this->memberRegisteredAt($user);
+        if ($registeredAt === null) {
+            return false;
+        }
+
+        $eventDate = $event->start_date ?: $event->end_date;
+        if ($eventDate && $registeredAt->year !== Carbon::parse($eventDate)->year) {
+            return false;
+        }
+
+        if ($enteredAt) {
+            return $registeredAt->greaterThanOrEqualTo(Carbon::parse($enteredAt)->subDay());
+        }
+
+        return true;
+    }
+
+    /**
      * AJAX endpoint untuk modal detail peserta/visitor yang terkonversi
      * untuk event tertentu.
      */
@@ -443,11 +529,19 @@ class EventConversionController extends Controller
                 ->unique()
                 ->values();
 
+            $enteredByEmail = $visitors->filter(fn ($v) => !empty($v->business_email))
+                ->groupBy(fn ($v) => strtolower(trim($v->business_email)))
+                ->map(fn ($group) => $group->min('created_at'));
+
             if ($emails->isNotEmpty()) {
                 $users = User::whereIn('email', $emails)
                     ->whereIn('status_member', ['pending', 'active'])
                     ->with(['profile', 'profile.company'])
-                    ->get();
+                    ->get()
+                    ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByEmail->get(strtolower(trim($u->email)))))
+                    // Sama dengan kartu: yang sudah active dihitung konversi hanya
+                    // kalau memang daftar lewat Partnership Event (source EP/...).
+                    ->filter(fn ($u) => $u->status_member === 'pending' || $this->isPartnershipSource($u->source));
 
                 foreach ($users as $user) {
                     $userEmail = strtolower(trim((string) $user->email));
@@ -468,7 +562,7 @@ class EventConversionController extends Controller
                         'job_title'     => $jobTitle,
                         'status_member' => $user->status_member,
                         'source'        => $user->source ?: 'Event Partnership',
-                        'converted_at'  => $user->created_at ? $user->created_at->format('d M Y') : '-',
+                        'converted_at'  => $this->memberRegisteredAt($user) ? $this->memberRegisteredAt($user)->format('d M Y') : '-',
                         'is_prospect'   => !empty($visitor->remarks) || !empty($visitor->merchandise),
                     ];
                 }
@@ -482,12 +576,16 @@ class EventConversionController extends Controller
                 ->get();
 
             $memberIds = $payments->pluck('member_id')->filter()->unique()->values();
+            $enteredByMember = $payments->filter(fn ($p) => $p->member_id)
+                ->groupBy('member_id')
+                ->map(fn ($group) => $group->min('created_at'));
 
             if ($memberIds->isNotEmpty()) {
                 $users = User::whereIn('id', $memberIds)
                     ->whereIn('status_member', ['pending', 'active'])
                     ->with(['profile', 'profile.company'])
-                    ->get();
+                    ->get()
+                    ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByMember->get($u->id)));
 
                 foreach ($users as $user) {
                     $payment = $payments->firstWhere('member_id', $user->id);
@@ -504,7 +602,7 @@ class EventConversionController extends Controller
                         'job_title'     => $jobTitle,
                         'status_member' => $user->status_member,
                         'source'        => $user->source ?: 'DMC Event',
-                        'converted_at'  => $payment->created_at ? $payment->created_at->format('d M Y') : ($user->created_at ? $user->created_at->format('d M Y') : '-'),
+                        'converted_at'  => $this->memberRegisteredAt($user) ? $this->memberRegisteredAt($user)->format('d M Y') : '-',
                         'is_prospect'   => (bool) ($payment->is_membership_prospect ?? false),
                     ];
                 }

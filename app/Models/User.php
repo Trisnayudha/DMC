@@ -50,6 +50,49 @@ class User extends Authenticatable
      * Relasi ke ProfileModel (one to one)
      * Setiap user hanya memiliki satu profile.
      */
+    /**
+     * Apakah kolom users.member_registered_at sudah ada (migration belum tentu
+     * sudah dijalankan di DB ini — jangan 500 kalau belum).
+     */
+    public static function hasMemberRegisteredAtColumn(): bool
+    {
+        static $has = null;
+
+        if ($has === null) {
+            try {
+                $has = \Illuminate\Support\Facades\Schema::hasColumn('users', 'member_registered_at');
+            } catch (\Throwable $e) {
+                $has = false;
+            }
+        }
+
+        return $has;
+    }
+
+    /**
+     * Catat saat orang ini mendaftar jadi member (form dikirim, status jadi
+     * pending) — dipakai semua pintu pendaftaran. Penting untuk akun yang sudah
+     * ada sebelumnya karena daftar event: users.created_at tetap tanggal daftar
+     * event, jadi tanggal daftar member disimpan terpisah. Update langsung via
+     * query supaya updated_at tidak ikut berubah.
+     */
+    public function stampMemberRegistered(): void
+    {
+        if (!self::hasMemberRegisteredAtColumn() || !$this->exists) {
+            return;
+        }
+
+        try {
+            $now = now();
+            \Illuminate\Support\Facades\DB::table('users')->where('id', $this->id)->update(['member_registered_at' => $now]);
+            $this->setAttribute('member_registered_at', $now);
+            $this->syncOriginalAttribute('member_registered_at');
+        } catch (\Throwable $e) {
+            // Pencatatan tanggal tidak boleh menggagalkan pendaftaran member.
+            \Illuminate\Support\Facades\Log::warning('stampMemberRegistered failed for user ' . $this->id . ': ' . $e->getMessage());
+        }
+    }
+
     public function profile()
     {
         return $this->hasOne(\App\Models\Profiles\ProfileModel::class, 'users_id', 'id');

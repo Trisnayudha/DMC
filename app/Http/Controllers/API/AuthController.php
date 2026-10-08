@@ -630,6 +630,8 @@ Your verification code (OTP) ' . $otp;
 
             DB::commit();
 
+            $user->stampMemberRegistered();
+
             // Auto-verify khusus pendaftaran dari app scanner saat check-in.
             // PENGAMAN: endpoint ini publik, jadi auto-verify HANYA dilakukan bila
             // kode scan (code_payment) benar-benar ada DAN peserta sudah ditandai
