@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CmsUser;
 use App\Models\MemberLeadFollowUp;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -21,7 +22,7 @@ class MemberLeadFollowUpController extends Controller
         $picId  = $request->get('pic_id');
         $search = trim((string) $request->get('search'));
 
-        $query = MemberLeadFollowUp::with(['user.profile', 'user.company'])->orderBy('created_at', 'desc');
+        $query = MemberLeadFollowUp::approvedMember()->with(['user.profile', 'user.company'])->orderBy('created_at', 'desc');
 
         // 'do_not_send' is its own tab, independent of win/pending/loss — a
         // flagged lead can be in any result state, so it filters on the flag
@@ -50,11 +51,11 @@ class MemberLeadFollowUpController extends Controller
 
         $list = $query->get();
 
-        $countPending   = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
-        $countWin       = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_WIN)->count();
-        $countLoss      = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
-        $countDoNotSend = MemberLeadFollowUp::where('do_not_send', true)->count();
-        $countOverSla   = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)
+        $countPending   = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
+        $countWin       = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_WIN)->count();
+        $countLoss      = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
+        $countDoNotSend = MemberLeadFollowUp::approvedMember()->where('do_not_send', true)->count();
+        $countOverSla   = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING)
             ->whereNotNull('deadline_at')
             ->where('deadline_at', '<', now())
             ->count();
@@ -79,6 +80,87 @@ class MemberLeadFollowUpController extends Controller
             'conversionRate',
             'pics'
         ));
+    }
+
+    /**
+     * Autocomplete untuk modal "Add Member to Lead": hanya member active yang
+     * belum punya lead pending (kasus member lama yang tidak otomatis masuk
+     * karena sudah approved sebelum fitur ini ada).
+     */
+    public function searchMembers(Request $request)
+    {
+        $term = trim((string) $request->get('q'));
+        if (mb_strlen($term) < 2) {
+            return response()->json(['results' => []]);
+        }
+
+        $users = User::with('company')
+            ->where('status_member', 'active')
+            ->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%")
+                    ->orWhereHas('company', function ($c) use ($term) {
+                        $c->where('company_name', 'like', "%{$term}%");
+                    });
+            })
+            ->whereNotIn('id', MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)->pluck('user_id'))
+            ->orderBy('name')
+            ->limit(20)
+            ->get();
+
+        return response()->json([
+            'results' => $users->map(function ($u) {
+                $company = optional($u->company)->company_name;
+                return [
+                    'id'   => $u->id,
+                    'text' => $u->name . ' — ' . $u->email . ($company ? ' (' . $company . ')' : ''),
+                ];
+            })->values(),
+        ]);
+    }
+
+    /**
+     * Tambah member (yang sudah approved) ke Lead Follow-Up secara manual.
+     * Aturan SLA awal sama seperti lead otomatis: 48 jam untuk kirim sponsor kit.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'notes'   => 'nullable|string|max:2000',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+
+        if ($user->status_member !== 'active') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hanya member yang sudah approved (active) yang bisa dimasukkan ke Lead Follow-Up.',
+            ], 422);
+        }
+
+        if (MemberLeadFollowUp::where('user_id', $user->id)->where('result', MemberLeadFollowUp::RESULT_PENDING)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Member ini sudah ada di Lead Follow-Up (status pending).',
+            ], 422);
+        }
+
+        $admin = auth()->user();
+
+        MemberLeadFollowUp::create([
+            'user_id'         => $user->id,
+            'deadline_at'     => now()->addHours(48),
+            'notes'           => $request->filled('notes') ? $request->notes : null,
+            'result'          => MemberLeadFollowUp::RESULT_PENDING,
+            'created_by_id'   => auth()->id(),
+            'created_by_name' => $admin ? $admin->name : 'Staff',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $user->name . ' ditambahkan ke Lead Follow-Up.',
+        ]);
     }
 
     /**

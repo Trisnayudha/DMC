@@ -257,9 +257,9 @@ class UsersController extends Controller
 
         if (Schema::hasTable('member_lead_follow_ups')) {
             try {
-                $countLeads = MemberLeadFollowUp::count();
-                $countLeadsPendingFollowUp = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
-                $countLeadsOverSla = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_PENDING)
+                $countLeads = MemberLeadFollowUp::approvedMember()->count();
+                $countLeadsPendingFollowUp = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
+                $countLeadsOverSla = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING)
                     ->whereNotNull('deadline_at')
                     ->where('deadline_at', '<', now())
                     ->count();
@@ -267,8 +267,8 @@ class UsersController extends Controller
                 // Lead Performance (SOP §7): Conversion Rate = Win ÷ Total Lead,
                 // per the SOP's own definition (denominator includes pending, not
                 // just resolved leads).
-                $countLeadsWin = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_WIN)->count();
-                $countLeadsLoss = MemberLeadFollowUp::where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
+                $countLeadsWin = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_WIN)->count();
+                $countLeadsLoss = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
                 $leadConversionRate = $countLeads > 0 ? round($countLeadsWin / $countLeads * 100, 1) : null;
             } catch (\Throwable $e) {
                 Log::warning('index: lead stats failed: ' . $e->getMessage());
@@ -1007,6 +1007,12 @@ class UsersController extends Controller
             try {
                 (clone $baseQuery)
                     ->join('member_lead_follow_ups', 'member_lead_follow_ups.user_id', 'users.id')
+                    ->where(function ($q) {
+                        // Sama dengan MemberLeadFollowUp::scopeApprovedMember()
+                        $q->where('users.status_member', 'active')
+                            ->orWhereNotNull('member_lead_follow_ups.sponsorkit_sent_at')
+                            ->orWhere('member_lead_follow_ups.result', '!=', 'pending');
+                    })
                     ->selectRaw('
                         users.source as source,
                         COUNT(*) as total,
@@ -1223,7 +1229,7 @@ class UsersController extends Controller
         if ($company && $company->isLeadExplore() && Schema::hasTable('member_lead_follow_ups')) {
             try {
                 $leadAdmin = auth()->user();
-                MemberLeadFollowUp::firstOrCreate(
+                $lead = MemberLeadFollowUp::firstOrCreate(
                     ['user_id' => $user->id, 'result' => MemberLeadFollowUp::RESULT_PENDING],
                     [
                         'deadline_at'     => $verifiedAt->copy()->addHours(48),
@@ -1231,6 +1237,13 @@ class UsersController extends Controller
                         'created_by_name' => $leadAdmin ? $leadAdmin->name : 'Staff',
                     ]
                 );
+
+                // Lead lama yang dibuat sebelum approve (saat registrasi) dan
+                // belum disentuh: SLA 48 jam dihitung dari approve, bukan registrasi.
+                if (!$lead->wasRecentlyCreated && !$lead->sponsorkit_sent_at) {
+                    $lead->deadline_at = $verifiedAt->copy()->addHours(48);
+                    $lead->save();
+                }
             } catch (\Throwable $e) {
                 Log::warning('verifyMember: lead auto-create failed for user ' . $id . ': ' . $e->getMessage());
             }

@@ -55,6 +55,60 @@
     });
 
     // =========================================================
+    // ADD MEMBER TO LEAD
+    // =========================================================
+    $('#addLeadModal').on('shown.bs.modal', function() {
+        if (!$('#al-user').data('select2')) {
+            $('#al-user').select2({
+                dropdownParent: $('#addLeadModal'),
+                placeholder: 'Search member...',
+                minimumInputLength: 2,
+                ajax: {
+                    url: '{{ route('admin.member_leads.search_members') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) { return { q: params.term }; },
+                    processResults: function(data) { return { results: data.results }; }
+                }
+            });
+        }
+    });
+
+    $('#addLeadModal').on('hidden.bs.modal', function() {
+        $('#al-user').val(null).trigger('change');
+        $('#al-notes').val('');
+        $('#al-btn-submit').prop('disabled', false);
+    });
+
+    $(document).on('click', '#al-btn-submit', function() {
+        var btn = $(this);
+        var userId = $('#al-user').val();
+        if (!userId) {
+            toastr.error('Pilih member dulu.');
+            return;
+        }
+        btn.prop('disabled', true);
+        $.ajax({
+            url: '{{ route('admin.member_leads.store') }}',
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}', user_id: userId, notes: $('#al-notes').val() },
+            success: function(res) {
+                if (res.success) {
+                    toastr.success(res.message);
+                    location.reload();
+                } else {
+                    toastr.error(res.message || 'Gagal menambahkan lead.');
+                    btn.prop('disabled', false);
+                }
+            },
+            error: function(xhr) {
+                toastr.error((xhr.responseJSON && xhr.responseJSON.message) || 'An error occurred.');
+                btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // =========================================================
     // MARK RESULT (Win / Loss)
     // =========================================================
     $(document).on('click', '.btn-mark-lead-result', function() {

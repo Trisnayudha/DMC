@@ -47,6 +47,23 @@ class MemberLeadFollowUp extends Model
     }
 
     /**
+     * Lead Follow-Up hanya untuk member yang sudah approved (status_member =
+     * active). Lead lama milik member yang belum/tidak approved (pending,
+     * declined, deactivated) disembunyikan — kecuali sudah ada aktivitas
+     * (kit terkirim atau sudah win/loss) supaya riwayatnya tidak hilang.
+     */
+    public function scopeApprovedMember($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereHas('user', function ($u) {
+                $u->where('status_member', 'active');
+            })
+                ->orWhereNotNull('member_lead_follow_ups.sponsorkit_sent_at')
+                ->orWhere('member_lead_follow_ups.result', '!=', self::RESULT_PENDING);
+        });
+    }
+
+    /**
      * Flow: Send Sponsor Kit → Follow-up 1 → Follow-up 2. Returns the key of
      * whichever step hasn't happened yet, or null once all three are done.
      * Drives both the row's action button label and which timestamp
