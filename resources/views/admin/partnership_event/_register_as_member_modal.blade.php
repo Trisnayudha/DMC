@@ -13,6 +13,12 @@
                 </div>
                 <div class="modal-body">
                     <p class="mb-3">Daftarkan <strong id="ram-visitor-name">-</strong> sebagai calon member?</p>
+                    <div class="form-group">
+                        <label for="ram_company_category">Company Category <span class="text-danger">*</span></label>
+                        <select name="company_category" id="ram_company_category" class="form-control" required>
+                            @include('partials._company_category_options')
+                        </select>
+                    </div>
 
                     <div class="custom-control custom-checkbox mb-2">
                         <input type="checkbox" class="custom-control-input" id="ram_newsletter" name="newsletter" value="agree" required checked>

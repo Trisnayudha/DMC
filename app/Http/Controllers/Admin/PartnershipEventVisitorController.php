@@ -75,8 +75,13 @@ class PartnershipEventVisitorController extends Controller
             ->paginate(50)
             ->withQueryString();
 
+        $eventDays = $event->dayCount();
+        $emailStatuses = $this->memberStatusByEmail($allVisitorsForEvent);
+
         return view('admin.partnership_event.show', compact(
             'event',
+            'eventDays',
+            'emailStatuses',
             'visitors',
             'search',
             'membership',
@@ -148,7 +153,8 @@ class PartnershipEventVisitorController extends Controller
     public function registerAsMember(Request $request, $slug, $id)
     {
         $request->validate([
-            'newsletter' => 'required',
+            'newsletter'       => 'required',
+            'company_category' => 'required|string|max:255',
         ]);
 
         $event = $this->findEvent($slug);
@@ -160,7 +166,11 @@ class PartnershipEventVisitorController extends Controller
         }
 
         $existingUser = User::where('email', $email)->first();
-        if ($existingUser && !$this->isProvisionalUser($existingUser)) {
+        $isDeactivated = $existingUser && $existingUser->status_member === 'deactivated';
+        $alreadyRegistered = $existingUser
+            && (in_array($existingUser->status_member, ['active', 'pending', 'declined'], true)
+                || (!$isDeactivated && !$this->isProvisionalUser($existingUser)));
+        if ($alreadyRegistered) {
             return redirect()->back()->with('error', "Email {$email} sudah terdaftar sebagai member (status: " . ($existingUser->status_member ?: '-') . "). Tidak didaftarkan ulang.");
         }
 
@@ -175,7 +185,20 @@ class PartnershipEventVisitorController extends Controller
 
             if ($existingUser) {
                 $user = $existingUser;
+                if ($isDeactivated) {
+                    // Akun lama dihidupkan lagi lewat jalur verifikasi biasa;
+                    // source asli tidak ditimpa, sisa data deaktivasi dibersihkan.
+                    unset($userData['source']);
+                }
                 $user->update($userData);
+                if ($isDeactivated) {
+                    // Kolom deaktivasi tidak ada di $fillable User, jadi forceFill.
+                    $user->forceFill([
+                        'deactivation_reason' => null,
+                        'deactivated_at'      => null,
+                        'deactivated_by'      => null,
+                    ])->save();
+                }
             } else {
                 $user = User::create(array_merge($userData, ['email' => $email, 'password' => null]));
                 $user->assignRole('guest');
@@ -192,6 +215,7 @@ class PartnershipEventVisitorController extends Controller
                         'company_website' => $visitor->website,
                         'address'         => $visitor->address,
                         'office_number'   => $visitor->office_number,
+                        'company_category' => $request->company_category,
                     ], fn ($v) => $v !== null && $v !== ''),
                     ['explore' => $request->explore ?? '']
                 )
@@ -320,6 +344,25 @@ class PartnershipEventVisitorController extends Controller
     }
 
     /**
+     * Peta email (lowercase) => status_member user yang sudah ada di DB
+     * (status apa pun, termasuk pending/declined), dipakai untuk menentukan
+     * apakah tombol Register as Member masih boleh diklik. Email yang tidak
+     * ada di peta = belum ada di database.
+     */
+    private function memberStatusByEmail($visitors)
+    {
+        $emails = $visitors->pluck('business_email')->filter()->map(fn ($e) => trim($e))->filter()->unique()->values();
+
+        if ($emails->isEmpty()) {
+            return collect();
+        }
+
+        return User::whereIn('email', $emails)
+            ->pluck('status_member', 'email')
+            ->mapWithKeys(fn ($status, $email) => [strtolower(trim($email)) => (string) $status]);
+    }
+
+    /**
      * Lowercased set of business_email dari $visitors yang match ke users
      * dengan status_member = active (satu-satunya syarat "sudah member" —
      * lihat memory Member verification flow). Batch query per halaman,
@@ -359,7 +402,7 @@ class PartnershipEventVisitorController extends Controller
             'address'        => 'nullable|string',
             'remarks'        => 'nullable|string',
             'merchandise'    => 'nullable|string|max:255',
-            'day'            => 'nullable|integer|min:1|max:4',
+            'day'            => 'nullable|integer|min:1|max:31',
         ]);
 
         $validator->after(function ($validator) use ($request) {

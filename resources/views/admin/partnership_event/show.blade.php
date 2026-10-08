@@ -171,6 +171,7 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
+                                        <th>Date Added</th>
                                         <th>Company Name</th>
                                         <th>Name</th>
                                         <th>Job Title</th>
@@ -191,9 +192,16 @@
                                         @php
                                             $isMember = $visitor->business_email
                                                 && $memberEmails->contains(strtolower(trim($visitor->business_email)));
+                                            // Sudah ada di DB dengan status pending/declined = tombol
+                                            // dikunci; hanya deactivated / belum ada user yang boleh daftar lagi.
+                                            $existingStatus = $visitor->business_email
+                                                ? $emailStatuses->get(strtolower(trim($visitor->business_email)))
+                                                : null;
+                                            $registerLocked = in_array($existingStatus, ['pending', 'declined'], true);
                                         @endphp
                                         <tr>
                                             <td>{{ $visitors->firstItem() + $idx }}</td>
+                                            <td class="text-nowrap">{{ $visitor->created_at ? $visitor->created_at->format('d M Y H:i') : '-' }}</td>
                                             <td>{{ $visitor->company_name ?: '-' }}</td>
                                             <td>{{ $visitor->name ?: '-' }}</td>
                                             <td>{{ $visitor->job_title ?: '-' }}</td>
@@ -208,8 +216,16 @@
                                             <td class="text-nowrap">
                                                 @if ($isMember)
                                                     <span class="badge badge-success"><i class="fas fa-check-circle"></i> Member</span>
+                                                @elseif ($registerLocked)
+                                                    <span class="badge {{ $existingStatus === 'pending' ? 'badge-warning' : 'badge-danger' }} d-block mb-1" style="width:fit-content;">
+                                                        {{ $existingStatus === 'pending' ? 'Pending Verification' : 'Declined' }}
+                                                    </span>
+                                                    <button type="button" class="btn btn-xs btn-outline-secondary" style="font-size:11px; padding:2px 6px;" disabled
+                                                        title="Sudah terdaftar di database ({{ $existingStatus }})">
+                                                        <i class="fas fa-user-plus"></i> Register as Member
+                                                    </button>
                                                 @else
-                                                    <span class="badge badge-secondary d-block mb-1" style="width:fit-content;">Visitor</span>
+                                                    <span class="badge badge-secondary d-block mb-1" style="width:fit-content;">Visitor{{ $existingStatus === 'deactivated' ? ' (Deactivated)' : '' }}</span>
                                                     @if ($visitor->business_email)
                                                         <button type="button" class="btn btn-xs btn-outline-primary js-open-register-member" style="font-size:11px; padding:2px 6px;"
                                                             data-toggle="modal" data-target="#registerAsMemberModal"
@@ -244,7 +260,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="14" class="text-center text-muted">Belum ada data visitor untuk event ini.</td>
+                                            <td colspan="15" class="text-center text-muted">Belum ada data visitor untuk event ini.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>

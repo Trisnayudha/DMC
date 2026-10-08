@@ -223,6 +223,26 @@
                                     </div>
                                 </div>
 
+                                @php
+                                    $eventDays = (isset($event) && $event) ? $event->dayCount() : 1;
+                                    $selectedDay = old('day', (isset($event) && $event) ? $event->currentDay() : null);
+                                @endphp
+                                @if ($eventDays > 1)
+                                    <!-- DAY -->
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="d-block">Day <small>*</small></label>
+                                            @for ($d = 1; $d <= $eventDays; $d++)
+                                                <div class="custom-control custom-radio custom-control-inline">
+                                                    <input type="radio" id="visit_day_{{ $d }}" name="day" value="{{ $d }}"
+                                                        class="custom-control-input" required
+                                                        {{ (string) $selectedDay === (string) $d ? 'checked' : '' }}>
+                                                    <label class="custom-control-label" for="visit_day_{{ $d }}">Day {{ $d }}</label>
+                                                </div>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                @endif
                                 <!-- TITLE -->
 
                             </div>

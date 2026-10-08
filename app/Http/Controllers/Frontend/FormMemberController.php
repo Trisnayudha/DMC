@@ -188,16 +188,19 @@ class FormMemberController extends Controller
 
     public function visitStore(Request $request, $slug = null)
     {
+        $event = $this->resolveActivePartnershipEvent($slug, $request);
+        $eventId = $event ? $event->id : 70;
+        $eventDays = $event ? $event->dayCount() : 1;
+
         $request->validate([
             'name'        => 'required|string|max:255',
             'institution' => 'required|string|max:255',
             'title'       => 'required|string|max:255',
             'email'       => 'required|email|max:255',
             'phone'       => 'required|string|max:30',
+            // Event 1 hari tidak punya pilihan day; event multi-hari wajib pilih.
+            'day'         => $eventDays > 1 ? 'required|integer|min:1|max:' . $eventDays : 'nullable',
         ]);
-
-        $event = $this->resolveActivePartnershipEvent($slug, $request);
-        $eventId = $event ? $event->id : 70;
 
         $visitor = PartnershipEventVisitor::create([
             'events_id'      => $eventId,
@@ -206,6 +209,7 @@ class FormMemberController extends Controller
             'job_title'      => $request->title,
             'business_email' => $request->email,
             'mobile_number'  => $request->phone,
+            'day'            => $eventDays > 1 ? (int) $request->day : null,
         ]);
 
         // Keep legacy VisitModel recorded for backwards compatibility

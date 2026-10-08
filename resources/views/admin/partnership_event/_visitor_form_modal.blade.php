@@ -58,10 +58,9 @@
                             <label>Day</label>
                             <select name="day" id="vf_day" class="form-control">
                                 <option value="">-</option>
-                                <option value="1">Day 1</option>
-                                <option value="2">Day 2</option>
-                                <option value="3">Day 3</option>
-                                <option value="4">Day 4</option>
+                                @for ($d = 1; $d <= ($eventDays ?? 1); $d++)
+                                    <option value="{{ $d }}">Day {{ $d }}</option>
+                                @endfor
                             </select>
                         </div>
                         <div class="form-group col-md-4">
