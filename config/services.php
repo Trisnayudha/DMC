@@ -30,4 +30,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // GET /api/lead-followup-reminders (API\LeadFollowupReminderController), polled by wa-gateway.
+    // `since` is the go-live cutoff: only steps that started on/after it are ever reminded about,
+    // so the existing overdue backlog doesn't flood the group. Left blank, the feed refuses to run.
+    'lead_reminder' => [
+        'key' => env('LEAD_REMINDER_API_KEY'),
+        'since' => env('LEAD_REMINDER_SINCE'),
+    ],
+
 ];

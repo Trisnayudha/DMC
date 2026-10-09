@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin' => \App\Http\Middleware\AdminOnly::class,
         'cms_auth' => \App\Http\Middleware\CmsAuth::class,
+        'lead.reminder.key' => \App\Http\Middleware\VerifyLeadReminderKey::class,
     ];
 }

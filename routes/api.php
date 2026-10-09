@@ -179,6 +179,11 @@ Route::post('delegate-list', [PrintController::class, 'delegateList']);
 Route::post('ngrok-list', [PrintController::class, 'ngrokList']);
 
 Route::post('summary-attandance', [PublicController::class, 'summaryAttandance']);
+
+// Read-only feed for wa-gateway's sponsor lead follow-up reminders — see
+// App\Http\Controllers\API\LeadFollowupReminderController.
+Route::get('/lead-followup-reminders', [\App\Http\Controllers\API\LeadFollowupReminderController::class, 'index'])
+    ->middleware(['lead.reminder.key', 'throttle:30,1']);
 Route::get('/attendance-by-package', [PublicController::class, 'attendanceByPackage']);
 Route::get('/user-detail-by-codepayment/{codepayment}', [PublicController::class, 'userDetailByCodepayment']);
 Route::post('/registration-report', [PublicController::class, 'registrationReport']);
