@@ -108,6 +108,12 @@
                     <div class="alert-body">
                         <button class="close" data-dismiss="alert"><span>×</span></button>
                         <i class="fas fa-exclamation-triangle mr-2"></i>{{ $errorMessage }}
+                        @if (!empty($errorDetail))
+                            <details class="mt-2">
+                                <summary class="small" style="cursor:pointer;">Detail respons error</summary>
+                                <pre class="mt-2 mb-0 p-2 bg-light border rounded small" style="white-space:pre-wrap; word-break:break-word; max-height:320px; overflow:auto;">{{ $errorDetail }}</pre>
+                            </details>
+                        @endif
                     </div>
                 </div>
             @endif

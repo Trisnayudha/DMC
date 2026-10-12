@@ -21,6 +21,9 @@ class MailchimpUnsubscribeController extends Controller
     const CACHE_KEY_STATS      = 'mailchimp_audience_stats_data';
     const CACHE_KEY_ACTIVITIES = 'mailchimp_unsubscribed_activities_data';
 
+    /** Rincian respons gagal terakhir (status, header, body) untuk ditampilkan di halaman. */
+    private $lastFailureDetail = null;
+
     public function __construct()
     {
         // Auth handled by cms_auth middleware
@@ -79,6 +82,7 @@ class MailchimpUnsubscribeController extends Controller
             return view('admin.mailchimp.unsubscribes', [
                 'configured'         => true,
                 'errorMessage'       => 'Gagal menghubungi server Mailchimp: ' . $e->getMessage(),
+                'errorDetail'        => $this->lastFailureDetail ?: get_class($e) . ': ' . $e->getMessage(),
                 'contacts'           => new LengthAwarePaginator([], 0, 25),
                 'stats'              => [],
                 'filter'             => 'all',
@@ -502,18 +506,61 @@ class MailchimpUnsubscribeController extends Controller
         $count = 100; // Mailchimp count per batch
 
         do {
-            $response = Http::withBasicAuth('anystring', $config['apiKey'])
-                ->timeout(20)
-                ->get("https://{$config['server']}.api.mailchimp.com/3.0/lists/{$config['listId']}/members", [
-                    'status'     => 'unsubscribed',
-                    'count'      => $count,
-                    'offset'     => $offset,
-                    'sort_field' => 'last_changed',
-                    'sort_dir'   => 'DESC',
-                ]);
+            // Retry untuk 429/5xx/gangguan koneksi (Mailchimp sibuk atau perantara
+            // jaringan menolak sesaat) — satu kegagalan sementara tidak boleh
+            // menggagalkan halaman. Laravel 8 melempar RequestException begitu
+            // retry habis, jadi response-nya diambil dari exception supaya
+            // diagnosis di bawah tetap jalan.
+            try {
+                $response = Http::withBasicAuth('anystring', $config['apiKey'])
+                    ->timeout(20)
+                    ->retry(3, 800, function ($exception) {
+                        if ($exception instanceof \Illuminate\Http\Client\RequestException) {
+                            $status = $exception->response->status();
+
+                            return $status === 429 || $status >= 500;
+                        }
+
+                        return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+                    })
+                    ->get("https://{$config['server']}.api.mailchimp.com/3.0/lists/{$config['listId']}/members", [
+                        'status'     => 'unsubscribed',
+                        'count'      => $count,
+                        'offset'     => $offset,
+                        'sort_field' => 'last_changed',
+                        'sort_dir'   => 'DESC',
+                    ]);
+            } catch (\Illuminate\Http\Client\RequestException $e) {
+                $response = $e->response;
+            }
 
             if (!$response->successful()) {
-                throw new \Exception($response->json('detail') ?: 'HTTP Error ' . $response->status());
+                // Log body + header perantara supaya ketahuan 503 ini dari Mailchimp
+                // (JSON dengan "detail") atau dari firewall/proxy (HTML).
+                Log::warning('MailchimpUnsubscribeController: members request failed', [
+                    'status'      => $response->status(),
+                    'server'      => $response->header('Server'),
+                    'via'         => $response->header('Via'),
+                    'retry_after' => $response->header('Retry-After'),
+                    'content_type' => $response->header('Content-Type'),
+                    'body'        => mb_substr((string) $response->body(), 0, 500),
+                ]);
+
+                $this->lastFailureDetail = 'HTTP ' . $response->status()
+                    . "\nServer: " . ($response->header('Server') ?: '-')
+                    . "\nVia: " . ($response->header('Via') ?: '-')
+                    . "\nContent-Type: " . ($response->header('Content-Type') ?: '-')
+                    . "\nRetry-After: " . ($response->header('Retry-After') ?: '-')
+                    . "\n\n" . mb_substr(trim((string) $response->body()), 0, 2000);
+
+                $detail = $response->json('detail');
+                if (!$detail) {
+                    $detail = 'HTTP Error ' . $response->status()
+                        . ' (' . ($response->header('Server') ?: 'tanpa header Server')
+                        . ', ' . ($response->header('Content-Type') ?: 'tanpa content-type') . ')';
+                }
+
+                throw new \Exception($detail);
             }
 
             $data = $response->json();
@@ -651,7 +698,8 @@ class MailchimpUnsubscribeController extends Controller
     private function fetchActivitiesForMembersFromMailchimp(array $config, array $rawMembers): array
     {
         $activitiesByEmail = [];
-        $chunks = array_chunk($rawMembers, 25);
+        // Mailchimp membatasi ±10 koneksi bersamaan; di atas itu request ditolak.
+        $chunks = array_chunk($rawMembers, 8);
 
         foreach ($chunks as $chunk) {
             $responses = Http::pool(function ($pool) use ($chunk, $config) {
