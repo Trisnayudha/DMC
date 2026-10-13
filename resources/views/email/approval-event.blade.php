@@ -18,8 +18,7 @@
         }
 
         .header-email {
-            padding: 60px;
-            padding-bottom: 20px;
+            padding: 60px 40px 20px;
             border-bottom-right-radius: 33%;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
