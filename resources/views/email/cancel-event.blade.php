@@ -55,7 +55,7 @@
 <body>
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/banner_mccloskey_v6.png') }}" alt="Image" class="img-logo">
+            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Image" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>

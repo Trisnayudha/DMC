@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -m 10 https://status.mailchimp.com/api/v2/status.json)",
+      "Bash(php -l app/Http/Controllers/Admin/MailchimpUnsubscribeController.php)",
+      "Bash(php \"/private/tmp/claude-501/-Users-ingganasution-Kerja-Documents-Dokumen-Kerja-DMC/4df7b9f6-62f7-4612-a9b5-192fef799b1f/scratchpad/lead_audit.php\")",
+      "Bash(php \"/private/tmp/claude-501/-Users-ingganasution-Kerja-Documents-Dokumen-Kerja-DMC/4df7b9f6-62f7-4612-a9b5-192fef799b1f/scratchpad/lead_audit2.php\")",
+      "Bash(git fetch *)"
+    ]
+  }
+}
