@@ -16,12 +16,11 @@
             width: 100%;
             background: #FFF;
             border-radius: 8px;
+            overflow: hidden;
         }
 
         .header-email {
-            padding: 60px;
-            padding-bottom: 20px;
-            border-bottom-right-radius: 33%;
+            padding: 0;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
         }
@@ -82,11 +81,9 @@
         }
 
         .img-logo {
-            height: 200px;
+            width: 100%;
+            height: auto;
             display: block;
-            margin-left: auto;
-            margin-right: auto;
-
         }
 
         @media only screen and (max-device-width: 601px) {
@@ -124,7 +121,8 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Image" class="img-logo">
+            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Djakarta Mining Club" class="img-logo"
+                style="width:100%;height:auto;display:block;">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
