@@ -27,7 +27,7 @@
         }
 
         .body-email {
-            padding: 20px 40px;
+            padding: 20px 40px 20px 0;
             font-size: 13px;
             color: #333;
         }
@@ -112,7 +112,7 @@
             border-top-width: 0;
             border-bottom: 1px solid;
             border-color: transparent !important;
-            padding: .75rem;
+            padding: .75rem .75rem .75rem 0;
             text-align: left;
         }
     </style>
