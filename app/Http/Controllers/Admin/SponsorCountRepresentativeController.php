@@ -98,10 +98,11 @@ class SponsorCountRepresentativeController extends Controller
             ->orderBy('name')
             ->get();
 
-        // Events for the "Add to Event" modal
-        $events = Events::orderBy('start_date', 'desc')
+        // Events for the "Add to Event" modal (only DMC Event and DMC Partnership Event)
+        $events = Events::whereIn('event_type', ['DMC Event', 'DMC Partnership Event'])
+            ->orderBy('start_date', 'desc')
             ->whereYear('start_date', '>=', now()->year - 2)
-            ->get(['id', 'name', 'slug', 'start_date']);
+            ->get(['id', 'name', 'slug', 'start_date', 'event_type']);
 
         // All publish sponsors with their contacts (member + PIC + rep + billing,
         // dedup by email, data user diutamakan) for the modal selector
