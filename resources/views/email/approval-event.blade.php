@@ -7,7 +7,6 @@
     <style>
         body {
             font-family: sans-serif;
-            /*background: #F6F7F7;*/
             background: linear-gradient(72.03deg, #FBFBFB 0%, #F6F7F7 99.18%);
             margin: 5% 25%;
         }
@@ -16,17 +15,18 @@
             width: 100%;
             background: #FFF;
             border-radius: 8px;
-            overflow: hidden;
         }
 
         .header-email {
-            padding: 0;
+            padding: 60px;
+            padding-bottom: 20px;
+            border-bottom-right-radius: 33%;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
         }
 
         .body-email {
-            padding: 20px 40px 20px 0;
+            padding: 20px 40px;
             font-size: 13px;
             color: #333;
         }
@@ -39,47 +39,6 @@
             font-weight: bold;
         }
 
-
-        .flex-code {
-            display: flex;
-            margin: 4% auto;
-        }
-
-        .flex-code .code {
-            /*width: 50px;*/
-            /*height: 50px;*/
-            border-radius: 10px;
-            background: #F6F7F7;
-            margin-right: 10px;
-            /*display: flex;*/
-            /*align-items: center;*/
-            /*justify-content: center;*/
-            font-weight: bold;
-            padding: 20px 25px;
-        }
-
-        .link-confirm {
-            background: #F6F7F7;
-            margin: 4% auto;
-            padding: 15px 15px;
-            border-radius: 7px;
-            border: 1px dotted #E5E5E5;
-        }
-
-        .btn-link-confirm {
-            text-decoration: none;
-            background: #F1B22C;
-            color: #FFF;
-            padding: 17px 16px;
-            text-align: center;
-            display: block;
-            margin: 5% auto;
-            width: 20%;
-            border-radius: 25px;
-            font-weight: bold;
-            box-shadow: 2px 1px 3px #ddd;
-        }
-
         .img-logo {
             width: 100%;
             height: auto;
@@ -90,29 +49,6 @@
             body {
                 margin: 5% 5%;
             }
-
-            .btn-link-confirm {
-                width: 40%;
-            }
-        }
-
-        .table {
-            border-collapse: collapse;
-            width: 100%;
-            max-width: 100%;
-            margin-bottom: 1rem;
-            background-color: transparent;
-            color: #555;
-        }
-
-        .table td,
-        .table th {
-            font-size: 13px;
-            border-top-width: 0;
-            border-bottom: 1px solid;
-            border-color: transparent !important;
-            padding: .75rem .75rem .75rem 0;
-            text-align: left;
         }
     </style>
 </head>
@@ -121,93 +57,77 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Djakarta Mining Club" class="img-logo"
-                style="width:100%;height:auto;display:block;">
+            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Djakarta Mining Club" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
             <p>Your registration for {{ $events_name }} has been approved.
-                Your registration
-                number is
+                Your registration number is
                 <b
-                    style="background-color: #F1B22C;
-                border: none;
-                color: black;
-                padding: 5px 10px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                margin: 4px 2px;
-                border-radius: 16px;">
-                    {{ $code_payment }} </b>
+                    style="background-color: #F1B22C; color: black; padding: 5px 10px; display: inline-block; margin: 4px 2px; border-radius: 16px;">{{ $code_payment }}</b>
             </p>
-            <table class="table">
-                <tr>
-                    <th colspan="3">
-                        EVENT DETAILS :
-                    </th>
-                </tr>
+
+            <p style="margin-top: 20px; margin-bottom: 5px;"><strong>EVENT DETAILS :</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                 {{-- <tr>
-                    <th>Topic</th>
-                    <th>:</th>
-                    <td>{{ $events_name }}</td>
+                    <td style="width: 80px; padding: 4px 0; vertical-align: top; font-weight: bold; font-size: 13px; color: #333;">Topic</td>
+                    <td style="width: 15px; padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">:</td>
+                    <td style="padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">{{ $events_name }}</td>
                 </tr> --}}
                 <tr>
-                    <th style="width: 130px;">Date</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">
-                        {{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} </td>
-                </tr>
-                <tr>
-                    <th style="width: 130px;">Time</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">
-                        {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
-                        (Followed
-                        by Networking Dinner & Drinks)
-                        {{-- 08.00 – 14.00 WITA & 17.00 – 21.00 WITA --}}
+                    <td
+                        style="width: 80px; padding: 4px 0; vertical-align: top; font-weight: bold; font-size: 13px; color: #333;">
+                        Date</td>
+                    <td style="width: 15px; padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">:</td>
+                    <td style="padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">
+                        {{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }}
                     </td>
                 </tr>
                 <tr>
-                    <th style="width: 130px;">Venue</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
-                        Kebayoran Baru, 12160, Indonesia)</td>
-                    {{-- <td>Le Grande Ballroom 10th Floor, Grand Jatra Hotel Balikpapan</td> --}}
+                    <td
+                        style="width: 80px; padding: 4px 0; vertical-align: top; font-weight: bold; font-size: 13px; color: #333;">
+                        Time</td>
+                    <td style="width: 15px; padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">:</td>
+                    <td style="padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">
+                        {{ date('h.i a', strtotime($start_time)) . ' - ' . date('h.i a', strtotime($end_time)) }}
+                        (Followed by Networking Dinner & Drinks)
+                        {{-- 08.00 – 14.00 WITA & 17.00 – 21.00 WITA --}}
+                    </td>
+                </tr>
+                <tr>
+                    <td
+                        style="width: 80px; padding: 4px 0; vertical-align: top; font-weight: bold; font-size: 13px; color: #333;">
+                        Venue</td>
+                    <td style="width: 15px; padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">:</td>
+                    <td style="padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">The Dharmawangsa
+                        Hotel Jakarta (Jl. Brawijaya Raya No. 26, Kebayoran Baru, 12160, Indonesia)</td>
+                    {{-- <td>Le Grande Ballroom 10th Floor, Grand Jatra Hotel Balikpapan</td> --}}
                 </tr>
             </table>
 
-            <p>You can view the latest event program by clicking here:
+            <p style="margin-top: 20px; line-height: 1.5;">You can view the latest event program by clicking here:
                 (https://membership.djakarta-miningclub.com/events/2026/4/indonesia-energy-market-briefing-2026)</p>
-            </p>
 
-            <br>
-            <p>
-                <b>
-                    Collecting Your Badge
-                </b>
-            </p>
-            <p>
-            <ul>
+            <p style="margin-top: 20px; margin-bottom: 5px;"><strong>Collecting Your Badge</strong></p>
+            <ul style="margin-top: 0; padding-left: 20px; line-height: 1.5;">
                 <li>Please bring your business card to exchange for a badge at the registration table.</li>
                 <li>Kindly note that collecting a badge on behalf of someone else is not permitted. All attendees must
-                    collect their own badge and present a matching business card to gain entry.
-
-                </li>
+                    collect their own badge and present a matching business card to gain entry.</li>
                 {{-- <li>If you are unable to attend, please contact our team for substitution of attendee information at the
                     latest by 1 day before the event.</li> --}}
-
             </ul>
-            </p>
-            <p><b>IMPORTANT:</b> If you are unable to attend, please contact our team for a substitution. If no
-                replacement is provided, we may offer your spot to the next registrant on the waitlist.</p>
-            <p>Should you require any assistance, please contact us at register@djakarta-miningclub.com or +62
-                811-1937-399.</p>
-            <p>
-                We look forward to meeting you in person. Thank you.</p>
-            <br>
-            <p>Yours Sincerely,</p>
-            <span>The Djakarta Mining Club Team</span>
+
+            <p style="margin-top: 20px; line-height: 1.5;"><b>IMPORTANT:</b> If you are unable to attend, please
+                contact our team for a substitution. If no replacement is provided, we may offer your spot to the next
+                registrant on the waitlist.</p>
+
+            <p style="margin-top: 20px; line-height: 1.5;">Should you require any assistance, please contact us at
+                register@djakarta-miningclub.com or +62 811-1937-399.</p>
+
+            <p style="margin-top: 20px; line-height: 1.5;">We look forward to meeting you in person. Thank you.</p>
+
+            <p style="margin-top: 25px; line-height: 1.5; margin-bottom: 0;">Yours Sincerely,<br />
+                The Djakarta Mining Club Team</p>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.
