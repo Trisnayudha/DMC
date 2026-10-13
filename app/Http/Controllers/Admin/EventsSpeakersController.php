@@ -19,28 +19,35 @@ class EventsSpeakersController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'name'      => 'required|string|max:255',
+            'job_title' => 'nullable|string|max:255',
+            'company'   => 'nullable|string|max:255',
+            'image'     => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
+        ]);
+
         $data = [
-            'name' => $request->name,
-            'company' => $request->company,
+            'name'      => $request->name,
+            'company'   => $request->company,
             'job_title' => $request->job_title,
         ];
 
         // Cek apakah file gambar diupload
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '.' . $image->extension();
+            $imageName = time() . '_' . uniqid() . '.' . $image->extension();
             $dbPath = '/storage/events-speakers/' . $imageName;
             $image->storeAs('public/events-speakers', $imageName);
             $data['image'] = $dbPath;
         }
 
         try {
-            if ($request->id != null) {
+            if ($request->filled('id')) {
                 // Ini adalah permintaan pembaruan
                 $model = EventsSpeakers::find($request->id);
 
                 if (!$model) {
-                    return response()->json(['error' => 'Model not found.'], 404);
+                    return response()->json(['error' => 'Data speaker tidak ditemukan.'], 404);
                 }
 
                 $model->update($data);
@@ -60,23 +67,24 @@ class EventsSpeakersController extends Controller
         $data = EventsSpeakers::find($id);
 
         if (!$data) {
-            // Handle the case where the record with the given id is not found
-            return response()->json(['error' => 'Record not found'], 404);
+            return response()->json(['error' => 'Data speaker tidak ditemukan.'], 404);
         }
 
-        // Assuming you have a resource or transformer to format the data
-        // If not, you can return the $data directly
-
-        // For example, if you have a EventsSpeakersResource:
-        // return new EventsSpeakersResource($data);
-
-        // Or just return the data directly
-        return response()->json($data);
+        return response()->json($data, 200, [
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma'        => 'no-cache',
+            'Expires'       => '0',
+        ]);
     }
 
     public function destroy($id)
     {
-        $data = EventsSpeakers::find($id)->delete();
-        return response()->json($data);
+        $data = EventsSpeakers::find($id);
+        if (!$data) {
+            return response()->json(['error' => 'Data speaker tidak ditemukan.'], 404);
+        }
+
+        $data->delete();
+        return response()->json(['success' => true]);
     }
 }

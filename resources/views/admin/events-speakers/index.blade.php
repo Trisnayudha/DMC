@@ -86,7 +86,13 @@
                                                     <td>{{ $post->name }}</td>
                                                     <td>{{ $post->job_title }}</td>
                                                     <td>{{ $post->company }}</td>
-                                                    <td>{{ asset($post->image) }}</td>
+                                                    <td>
+                                                        @if (!empty($post->image))
+                                                            <img src="{{ asset($post->image) }}" alt="{{ $post->name }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                                        @else
+                                                            <span class="badge badge-light">No Image</span>
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         <a href="javascript:void(0)" data-id="{{ $post->id }}"
                                                             class="btn btn-success edit"><span
@@ -108,60 +114,51 @@
         </section>
 
     </div>
-    <div class="modal fade" id="category-model" aria-hidden="true">
+    <div class="modal fade" id="category-model" aria-hidden="true" tabindex="-1" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="ajaxCategoryModel"></h4>
+                    <h5 class="modal-title" id="ajaxCategoryModel">Tambah Speaker</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="modal-body">
-                    <form action="javascript:void(0)" id="addEditCategoryForm" name="addEditCategoryForm"
-                        class="form-horizontal" method="POST" enctype="multipart/form-data">
-                        @csrf
+                <form action="javascript:void(0)" id="addEditCategoryForm" name="addEditCategoryForm"
+                    class="form-horizontal" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
                         <input type="hidden" name="id" id="id">
                         <div class="form-group">
-                            <label for=""> Name </label>
-                            <input type="text" name="name" id="name" class="form-control">
+                            <label for="name">Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="name" class="form-control" placeholder="Nama speaker" required>
                         </div>
                         <div class="form-group">
-                            <label for=""> Job Title </label>
-                            <input type="text" name="job_title" id="job_title" class="form-control">
+                            <label for="job_title">Job Title</label>
+                            <input type="text" name="job_title" id="job_title" class="form-control" placeholder="Job Title / Jabatan">
                         </div>
                         <div class="form-group">
-                            <label for=""> Company </label>
-                            <input type="text" name="company" id="company" class="form-control">
+                            <label for="company">Company</label>
+                            <input type="text" name="company" id="company" class="form-control" placeholder="Perusahaan / Organisasi">
                         </div>
                         <div class="form-group">
-                            <input type="file" name="image" id="image" id="image">
+                            <label for="image">Foto Speaker</label>
+                            <input type="file" name="image" id="image" class="form-control-file" accept="image/*">
+                            <div id="imagePreviewContainer" class="mt-2" style="display: none;">
+                                <small class="text-muted d-block mb-1">Foto saat ini:</small>
+                                <img id="imagePreview" src="" alt="Preview" class="img-thumbnail" style="max-height: 80px; max-width: 80px; object-fit: cover;">
+                            </div>
                         </div>
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="submit" class="btn btn-primary" id="btn-save" value="addNewCategory">Save
-                                changes
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-
-                </div>
+                    </div>
+                    <div class="modal-footer bg-whitesmoke br">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="btn-save">
+                            <i class="fas fa-save mr-1"></i> Simpan
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    <script>
-        $(function() {
-            $('.my-editor').summernote({
-                dialogsInBody: true,
-                minHeight: 150,
-                toolbar: [
-                    ['style', ['bold', 'italic', 'underline', 'clear', 'link', 'picture', 'video',
-                        'undo'
-                    ]],
-                    ['font', ['strikethrough']],
-                    ['para', ['paragraph']]
-                ]
-            })
-        });
-    </script>
     <script type="text/javascript">
         $(document).ready(function($) {
             $.ajaxSetup({
@@ -169,119 +166,168 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
+
             $('#addNewCategory').click(function() {
-                $('#addEditCategoryForm').trigger("reset");
-                $('#ajaxCategoryModel').html("Add Category");
+                $('#addEditCategoryForm')[0].reset();
+                $('#id').val('');
+                $('#imagePreviewContainer').hide();
+                $('#imagePreview').attr('src', '');
+                $('#ajaxCategoryModel').html("Tambah Speaker");
+                $('#btn-save').html('<i class="fas fa-save mr-1"></i> Simpan').prop("disabled", false);
                 $('#category-model').modal('show');
             });
 
             $(document).on('click', '.edit', function() {
                 var id = $(this).data('id');
 
-                // ajax
+                // Reset form terlebih dahulu agar data speaker sebelumnya tidak tertinggal
+                $('#addEditCategoryForm')[0].reset();
+                $('#id').val('');
+                $('#imagePreviewContainer').hide();
+                $('#imagePreview').attr('src', '');
+                $('#ajaxCategoryModel').html("Edit Speaker");
+                $('#btn-save').html('<i class="fas fa-save mr-1"></i> Simpan').prop("disabled", false);
+
+                // AJAX fetch dengan cache: false untuk memastikan data selalu fresh dari database
                 $.ajax({
                     type: "GET",
                     url: "{{ url('admin/events/speakers') }}/" + id + "/edit",
-                    data: {
-                        id: id
-                    },
+                    cache: false,
                     dataType: 'json',
                     success: function(res) {
-                        $('#ajaxCategoryModel').html("Edit Category");
-                        $('#category-model').modal('show');
                         $('#id').val(res.id);
-                        $('#name').val(res.name);
-                        $('#company').val(res.company);
-                        $('#job_title').val(res.job_title);
-                        $('#image').val(res.image);
+                        $('#name').val(res.name || '');
+                        $('#company').val(res.company || '');
+                        $('#job_title').val(res.job_title || '');
+
+                        // Bersihkan input file (jangan set val string ke input file)
+                        $('#image').val('');
+                        if (res.image) {
+                            var imgUrl = res.image.startsWith('http') ? res.image : '{{ asset("") }}' + res.image.replace(/^\//, '');
+                            $('#imagePreview').attr('src', imgUrl);
+                            $('#imagePreviewContainer').show();
+                        } else {
+                            $('#imagePreviewContainer').hide();
+                        }
+
+                        $('#category-model').modal('show');
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            title: "Gagal",
+                            text: "Gagal memuat data speaker. Silakan coba lagi.",
+                            icon: "error"
+                        });
                     }
                 });
             });
-            $(document).on('click', '.delete', function() {
 
+            $(document).on('click', '.delete', function() {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
+                    title: "Anda Yakin?",
+                    text: "Ingin menghapus data speaker ini?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
                             type: "DELETE",
                             url: "{{ url('admin/events/speakers') }}/" + id,
-                            data: {
-                                id: id
-                            },
                             dataType: 'json',
+                            cache: false,
                             success: function(res) {
                                 Swal.fire({
-                                    title: "Success",
+                                    title: "Berhasil!",
+                                    text: "Data speaker berhasil dihapus.",
                                     icon: "success",
                                     showConfirmButton: false,
-                                    position: 'center',
                                     timer: 1500
                                 }).then(function() {
-                                    // Code to execute after Swal is closed
                                     window.location.reload();
-                                    console.log(res);
+                                });
+                            },
+                            error: function(xhr) {
+                                var errMsg = "Gagal menghapus data speaker.";
+                                if (xhr.responseJSON && xhr.responseJSON.error) {
+                                    errMsg = xhr.responseJSON.error;
+                                }
+                                Swal.fire({
+                                    title: "Gagal",
+                                    text: errMsg,
+                                    icon: "error"
                                 });
                             }
                         });
-
                     }
                 });
-
-
             });
-            $(document).on('click', '#btn-save', function(event) {
+
+            $('#addEditCategoryForm').on('submit', function(e) {
+                e.preventDefault();
+
                 var id = $("#id").val();
                 var name = $("#name").val();
                 var company = $("#company").val();
                 var job_title = $("#job_title").val();
                 var imageInput = $("#image")[0];
-
-                // Cek apakah file gambar dipilih
-                var image = imageInput.files.length > 0 ? imageInput.files[0] : null;
+                var image = (imageInput && imageInput.files.length > 0) ? imageInput.files[0] : null;
 
                 var formData = new FormData();
-                formData.append('id', id);
+                if (id) {
+                    formData.append('id', id);
+                }
                 formData.append('name', name);
                 formData.append('company', company);
                 formData.append('job_title', job_title);
-                // Hanya tambahkan file gambar jika dipilih
                 if (image) {
                     formData.append('image', image);
                 }
-                $("#btn-save").html('Please Wait...');
-                $("#btn-save").attr("disabled", true);
-                // ajax
+
+                var $btnSave = $("#btn-save");
+                var originalHtml = $btnSave.html();
+                $btnSave.html('<i class="fas fa-spinner fa-spin mr-1"></i> Menyimpan...').prop("disabled", true);
+
                 $.ajax({
                     type: "POST",
                     url: "{{ url('admin/events/speakers') }}",
                     data: formData,
                     processData: false,
                     contentType: false,
+                    cache: false,
                     success: function(res) {
-                        console.log(res)
+                        $('#category-model').modal('hide');
                         Swal.fire({
-                                title: "Success",
-                                icon: "success",
-                                showConfirmButton: false,
-                                position: 'center',
-                                timer: 1500
-                            }),
+                            title: "Berhasil!",
+                            text: "Data speaker berhasil disimpan.",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(function() {
                             window.location.reload();
-                        $("#btn-save").html('Submit');
-                        $("#btn-save").attr("disabled", false);
+                        });
+                    },
+                    error: function(xhr) {
+                        $btnSave.html(originalHtml).prop("disabled", false);
+                        var errMsg = "Gagal menyimpan data speaker.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errMsg = xhr.responseJSON.message;
+                        } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errMsg = xhr.responseJSON.error;
+                        }
+                        Swal.fire({
+                            title: "Gagal",
+                            text: errMsg,
+                            icon: "error"
+                        });
                     }
                 });
             });
-        });
-        $(document).ready(function() {
+
             $('#laravel_crud').DataTable();
         });
     </script>
