@@ -38,7 +38,11 @@ class EventsController extends Controller
             $key->title = (strlen($key->title) > 100 ? substr($key->title, 0,  100) . '...' : $key->title);
             $key->image = (!empty($key->image) ? asset($key->image) : '');
             $key->date_start_events = (!empty($key->start_date) ? date('d M Y', strtotime($key->start_date))  : '');
-            $key->start_date = (!empty($key->start_date) ? date('d M Y', strtotime($key->start_date)) : '');
+            // Versi tampilan dengan nama hari ("Wednesday, 11 Nov 2026"); start_date/end_date tetap
+            // "d M Y" karena app mobile mem-parse-nya dengan DateFormat("dd MMM yyyy").
+            $key->start_date_label = (!empty($key->start_date) ? date('l, d M Y', strtotime($key->start_date)) : '');
+            $key->end_date_label = (!empty($key->end_date) ? date('l, d M Y', strtotime($key->end_date)) : '');
+            $key->start_date =(!empty($key->start_date) ? date('d M Y', strtotime($key->start_date)) : '');
             $key->end_date = (!empty($key->end_date) ? date('d M Y', strtotime($key->end_date)) : '');
             // Ambil jam dan menit dari start_time dan end_time
             $key->start_time = (!empty($key->start_time) ? date('h:i', strtotime($key->start_time)) : '');
@@ -74,6 +78,8 @@ class EventsController extends Controller
                 'event_status' => $eventStatus,
                 'start_date' => $startDateFormat,
                 'end_date' => $endDateFormat,
+                'start_date_label' => (!empty($findEvent->start_date) ? date('l, d M Y', strtotime($findEvent->start_date)) : ''),
+                'end_date_label' => (!empty($findEvent->end_date) ? date('l, d M Y', strtotime($findEvent->end_date)) : ''),
                 'start_time' => date('h:i', strtotime($findEvent->start_time)),
                 'end_time' => date('h:i A', strtotime($findEvent->end_time)),
                 'location' => $findEvent->location,
