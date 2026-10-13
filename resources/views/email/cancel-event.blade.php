@@ -18,7 +18,7 @@
         }
 
         .header-email {
-            padding: 60px 60px 20px;
+            padding: 0 40px 20px;
             border-bottom-right-radius: 33%;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
@@ -39,9 +39,9 @@
         }
 
         .img-logo {
-            height: 200px;
+            width: 100%;
+            height: auto;
             display: block;
-            margin: 0 auto;
         }
 
         @media only screen and (max-device-width: 601px) {
@@ -53,32 +53,33 @@
 </head>
 
 <body>
+
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Image" class="img-logo">
+            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Djakarta Mining Club" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
 
-            <p>We regret to inform you that your registration for {{ $events_name }} has been cancelled.
+            <p style="margin-top: 20px; line-height: 1.5;">We regret to inform you that your registration for
+                {{ $events_name }} has been cancelled.
                 {{-- Your seat will be offered to participants on the waiting list. --}}
             </p>
 
-            <p>If you believe this is an error or would like further assistance, please contact us at
-                register@djakarta-miningclub.com or +62 811-1937-399.</b>
-            </p>
+            <p style="margin-top: 20px; line-height: 1.5;">If you believe this is an error or would like further
+                assistance, please contact us at register@djakarta-miningclub.com or +62 811-1937-399.</p>
 
-            <p>We apologize for any inconvenience caused. We look forward to welcoming you at our future events.
-                Thank you.</p>
+            <p style="margin-top: 20px; line-height: 1.5;">We apologize for any inconvenience caused. We look forward
+                to welcoming you at our future events. Thank you.</p>
 
-            <br>
-            <p>Yours Sincerely,</p>
-            <span>The Djakarta Mining Club Team</span>
+            <p style="margin-top: 25px; line-height: 1.5; margin-bottom: 0;">Yours Sincerely,<br />
+                The Djakarta Mining Club Team</p>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.
         </div>
     </div>
+
 </body>
 
 </html>

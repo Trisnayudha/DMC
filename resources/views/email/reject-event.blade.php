@@ -7,7 +7,6 @@
     <style>
         body {
             font-family: sans-serif;
-            /*background: #F6F7F7;*/
             background: linear-gradient(72.03deg, #FBFBFB 0%, #F6F7F7 99.18%);
             margin: 5% 25%;
         }
@@ -19,8 +18,7 @@
         }
 
         .header-email {
-            padding: 60px;
-            padding-bottom: 20px;
+            padding: 0 40px 20px;
             border-bottom-right-radius: 33%;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
@@ -40,82 +38,16 @@
             font-weight: bold;
         }
 
-
-        .flex-code {
-            display: flex;
-            margin: 4% auto;
-        }
-
-        .flex-code .code {
-            /*width: 50px;*/
-            /*height: 50px;*/
-            border-radius: 10px;
-            background: #F6F7F7;
-            margin-right: 10px;
-            /*display: flex;*/
-            /*align-items: center;*/
-            /*justify-content: center;*/
-            font-weight: bold;
-            padding: 20px 25px;
-        }
-
-        .link-confirm {
-            background: #F6F7F7;
-            margin: 4% auto;
-            padding: 15px 15px;
-            border-radius: 7px;
-            border: 1px dotted #E5E5E5;
-        }
-
-        .btn-link-confirm {
-            text-decoration: none;
-            background: #F1B22C;
-            color: #FFF;
-            padding: 17px 16px;
-            text-align: center;
-            display: block;
-            margin: 5% auto;
-            width: 20%;
-            border-radius: 25px;
-            font-weight: bold;
-            box-shadow: 2px 1px 3px #ddd;
-        }
-
         .img-logo {
-            height: 200px;
+            width: 100%;
+            height: auto;
             display: block;
-            margin-left: auto;
-            margin-right: auto;
-
         }
 
         @media only screen and (max-device-width: 601px) {
             body {
                 margin: 5% 5%;
             }
-
-            .btn-link-confirm {
-                width: 40%;
-            }
-        }
-
-        .table {
-            border-collapse: collapse;
-            width: 100%;
-            max-width: 100%;
-            margin-bottom: 1rem;
-            background-color: transparent;
-            color: #555;
-        }
-
-        .table td,
-        .table th {
-            font-size: 13px;
-            border-top-width: 0;
-            border-bottom: 1px solid;
-            border-color: transparent !important;
-            padding: .75rem !important;
-            text-align: left;
         }
     </style>
 </head>
@@ -124,23 +56,25 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Image" class="img-logo">
+            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Djakarta Mining Club" class="img-logo">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>Thank you for your registration. We regret to inform you that <b>{{ $events_name }}</b> is now fully
-                booked.</p>
+
+            <p style="margin-top: 20px; line-height: 1.5;">Thank you for your registration. We regret to inform you
+                that <b>{{ $events_name }}</b> is now fully booked.</p>
             {{-- <p>We are able to add your details to a waiting list and notify you should a place become available. If you
                 would like to be added to the waiting list for this event, please email
                 Secretariat@djakartaminingclub.com or call +628111937300</p> --}}
-            <p>We can add your details to the waiting list and notify you should a place become available.
-            </p>
-            <p>If you have any question or information, please contact us at email register@djakartaminingclub.com or
-                WhatsApp +62 811-1937-399.
-            </p>
-            <br>
-            <p>Yours Sincerely,</p>
-            <span>The Djakarta Mining Club Team</span>
+
+            <p style="margin-top: 20px; line-height: 1.5;">We can add your details to the waiting list and notify you
+                should a place become available.</p>
+
+            <p style="margin-top: 20px; line-height: 1.5;">If you have any question or information, please contact us
+                at email register@djakartaminingclub.com or WhatsApp +62 811-1937-399.</p>
+
+            <p style="margin-top: 25px; line-height: 1.5; margin-bottom: 0;">Yours Sincerely,<br />
+                The Djakarta Mining Club Team</p>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.
