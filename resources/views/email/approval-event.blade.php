@@ -16,7 +16,6 @@
             width: 100%;
             background: #FFF;
             border-radius: 8px;
-            border: 1px solid #e5e5e5;
             overflow: hidden;
         }
 
