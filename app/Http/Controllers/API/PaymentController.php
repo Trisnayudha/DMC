@@ -32,12 +32,8 @@ class PaymentController extends Controller
     {
         // Daftar channel dari config/xendit_channels.php (pengganti
         // PaymentChannels::list() legacy — Payments API v3 tidak punya list channel).
-        $enabledVa = config('xendit_channels.virtual_accounts', []);
         $available_payment = [];
         foreach (config('xendit_channels.channels', []) as $channel) {
-            if ($channel['channel_category'] == 'VIRTUAL_ACCOUNT' && !in_array($channel['channel_code'], $enabledVa, true)) {
-                continue;
-            }
             $available_payment[] = $channel + [
                 'is_livemode' => (bool) env('XENDIT_ISPROD'),
                 'is_enabled'  => true,

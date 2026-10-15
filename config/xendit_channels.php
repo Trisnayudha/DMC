@@ -5,23 +5,19 @@
  *
  * Pengganti PaymentChannels::list() (endpoint legacy GET /payment_channels)
  * — Payments API v3 tidak punya endpoint list channel, jadi daftarnya
- * dikelola di sini. Shape tiap item sengaja sama dengan response lama
- * (channel_code, name, currency, channel_category, is_enabled) supaya
- * FE & mobile tidak perlu berubah.
+ * dikelola di sini. Isi HANYA channel yang aktif di akun Xendit produksi.
  *
+ * Shape tiap item sengaja sama dengan response lama supaya FE & mobile tidak
+ * perlu berubah. `name` dipakai FE untuk mencocokkan ikon, jadi jangan diubah.
  * channel_code VA = kode bank lama DMC (lihat XenditPaymentRequestService::VA_CHANNEL_MAP).
- * Bank bisa dimatikan tanpa deploy lewat env, mis. XENDIT_VA_CHANNELS="BRI,BNI,MANDIRI".
  */
 
 return [
-    'virtual_accounts' => array_filter(array_map('trim', explode(',', env('XENDIT_VA_CHANNELS', 'BCA,BRI,BNI,MANDIRI,PERMATA')))),
-
     'channels' => [
-        ['channel_code' => 'BCA',     'name' => 'BCA virtual account',     'currency' => 'IDR', 'channel_category' => 'VIRTUAL_ACCOUNT'],
-        ['channel_code' => 'BRI',     'name' => 'BRI virtual account',     'currency' => 'IDR', 'channel_category' => 'VIRTUAL_ACCOUNT'],
-        ['channel_code' => 'BNI',     'name' => 'BNI virtual account',     'currency' => 'IDR', 'channel_category' => 'VIRTUAL_ACCOUNT'],
-        ['channel_code' => 'MANDIRI', 'name' => 'Mandiri virtual account', 'currency' => 'IDR', 'channel_category' => 'VIRTUAL_ACCOUNT'],
-        ['channel_code' => 'PERMATA', 'name' => 'Permata virtual account', 'currency' => 'IDR', 'channel_category' => 'VIRTUAL_ACCOUNT'],
-        ['channel_code' => 'VISA',    'name' => 'VISA',                    'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
+        ['channel_code' => 'MANDIRI',    'name' => 'Mandiri virtual account',                'currency' => 'IDR', 'channel_category' => 'VIRTUAL_ACCOUNT'],
+        ['channel_code' => 'VISA',       'name' => 'Visa credit and debit cards',            'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
+        ['channel_code' => 'MASTERCARD', 'name' => 'Mastercard credit and debit cards',      'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
+        ['channel_code' => 'JCB',        'name' => 'JCB credit and debit cards',             'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
+        ['channel_code' => 'AMEX',       'name' => 'American Express credit and debit cards', 'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
     ],
 ];
