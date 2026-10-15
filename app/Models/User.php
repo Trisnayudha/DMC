@@ -47,6 +47,20 @@ class User extends Authenticatable
     ];
 
     /**
+     * Job tier hanya untuk member active — begitu status_member berubah
+     * (verify, decline, deactivate, reactivate, edit admin) tier di profile
+     * ikut dihitung / dikosongkan.
+     */
+    protected static function booted()
+    {
+        static::saved(function (User $user) {
+            if ($user->wasChanged('status_member')) {
+                \App\Models\Profiles\ProfileModel::syncJobTierForUser($user->id, $user->status_member);
+            }
+        });
+    }
+
+    /**
      * Relasi ke ProfileModel (one to one)
      * Setiap user hanya memiliki satu profile.
      */

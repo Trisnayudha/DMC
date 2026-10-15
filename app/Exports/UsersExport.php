@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Models\Profiles\ProfileModel;
+use App\Support\JobTierClassifier;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -47,7 +49,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         }
 
         return [
-            'No', 'Date Register', 'Source', 'Name', 'Tier', 'Status Member', 'Job Title',
+            'No', 'Date Register', 'Source', 'Name', 'Tier', 'Status Member', 'Job Title', 'Job Tier',
             'Company', 'Email', 'Alternative Email', 'Phone', 'Office', 'Address', 'Website',
             'Category', 'WA Updates', 'Open to Sponsorship', 'Password',
             'Deactivation Reason', 'Deactivated At', 'Deactivated By',
@@ -81,6 +83,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             $this->tierLabel($row->tier),
             $this->statusLabel($row->status_member),
             $row->job_title,
+            $this->jobTierLabel($row),
             $row->company_name,
             $row->email,
             $row->alternative_email,
@@ -117,6 +120,14 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             $tier = 'reguler';
         }
         return ucfirst($tier);
+    }
+
+    /** Hanya member active — aturannya sama dengan badge di tabel (ProfileModel::jobTierFor). */
+    private function jobTierLabel($row): string
+    {
+        $tier = ProfileModel::jobTierFor($row->job_title, $row->status_member, $row->job_tier ?? null);
+
+        return $tier ? JobTierClassifier::label($tier) : '';
     }
 
     private function statusLabel($status): string

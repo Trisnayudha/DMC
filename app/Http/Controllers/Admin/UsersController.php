@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\UserEditLog;
 use App\Models\VerificationLog;
 use App\Services\Membership\MemberVerificationService;
+use App\Support\JobTierClassifier;
 use App\Support\QrCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -407,6 +408,11 @@ class UsersController extends Controller
             });
         }
 
+        $jobTier = (int) $request->job_tier;
+        if (isset(JobTierClassifier::TIERS[$jobTier]) && ProfileModel::hasJobTierColumn()) {
+            $query->where('profiles.job_tier', $jobTier);
+        }
+
         $registeredAtCol = DB::raw($this->registeredAtExpr());
         if ($dateFrom) $query->whereDate($registeredAtCol, '>=', $dateFrom);
         if ($dateTo)   $query->whereDate($registeredAtCol, '<=', $dateTo);
@@ -771,7 +777,8 @@ class UsersController extends Controller
             'post' => $post, 'isActive' => $isActive, 'isDeclined' => $isDeclined, 'isDeactivated' => $isDeactivated,
         ])->render();
 
-        $cellJobTitle = '<span class="cell-truncate" title="' . e($post->job_title) . '">' . e($post->job_title) . '</span>';
+        $cellJobTitle = '<span class="text-nowrap">' . $this->jobTierBadge($post) . ' '
+            . '<span class="cell-truncate" title="' . e($post->job_title) . '">' . e($post->job_title) . '</span></span>';
         $cellCompany  = '<span class="cell-truncate" title="' . e($post->company_name) . '">' . e($post->company_name) . '</span>';
         $cellEmail    = '<a href="mailto:' . e($post->email) . '" class="cell-truncate" title="' . e($post->email) . '">' . e($post->email) . '</a>';
         $cellPhone    = '<span class="text-nowrap">' . e($post->fullphone ?? $post->phone) . '</span>';
@@ -824,6 +831,68 @@ class UsersController extends Controller
             'DT_RowId'   => 'row_' . $post->user_id,
             'DT_RowAttr' => ['style' => $rowBg],
         ];
+    }
+
+    /**
+     * Select kecil "T1".."T4" di depan job title (hanya member active), bisa
+     * diubah langsung dari tabel → updateJobTier().
+     */
+    private function jobTierBadge($post): string
+    {
+        return view('admin.users.partials._row.job_tier_select', [
+            'post'   => $post,
+            'tier'   => ProfileModel::jobTierFor($post->job_title, $post->status_member, $post->job_tier ?? null),
+            'manual' => !empty($post->job_tier_manual),
+        ])->render();
+    }
+
+    /**
+     * Ubah job tier langsung dari tabel Members: 'auto' = ikut job_title,
+     * 1-4 = override manual. Hanya untuk member active.
+     */
+    public function updateJobTier(Request $request, $id)
+    {
+        $request->validate(['job_tier' => 'required|in:auto,1,2,3,4']);
+
+        $user = User::findOrFail($id);
+        if ($user->status_member !== 'active') {
+            return response()->json(['success' => false, 'message' => 'Job tier hanya untuk member Active.'], 422);
+        }
+
+        $profile = ProfileModel::hasJobTierColumn() ? ProfileModel::where('users_id', $user->id)->first() : null;
+        if (!$profile) {
+            return response()->json(['success' => false, 'message' => 'Profile member tidak ditemukan.'], 422);
+        }
+
+        $manual = $request->input('job_tier') !== 'auto';
+        $tier   = $manual ? (int) $request->input('job_tier') : JobTierClassifier::classify($profile->job_title);
+
+        $old = $this->jobTierLogValue($profile->job_tier, (bool) $profile->job_tier_manual);
+        $new = $this->jobTierLogValue($tier, $manual);
+
+        $profile->job_tier_manual = $manual;
+        $profile->job_tier        = $tier;
+        $profile->save();
+
+        if ($old !== $new) {
+            $admin = auth()->user();
+            DB::table('user_edit_logs')->insert([
+                'user_id'    => $user->id,
+                'admin_id'   => auth()->id(),
+                'admin_name' => $admin ? $admin->name : null,
+                'changes'    => json_encode(['job_tier' => ['old' => $old, 'new' => $new]]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'tier'    => $tier,
+            'manual'  => $manual,
+            'color'   => JobTierClassifier::color($tier),
+            'title'   => JobTierClassifier::tooltip($tier, $manual),
+        ]);
     }
 
     /**
@@ -1623,6 +1692,7 @@ class UsersController extends Controller
             'full_office_number' => 'nullable|string|max:255',
             'status_member' => 'nullable|in:active,pending',
             'tier'          => 'nullable|in:reguler,black',
+            'job_tier'      => 'nullable|in:auto,1,2,3,4',
         ]);
 
         $user    = User::findOrFail($id);
@@ -1768,6 +1838,26 @@ class UsersController extends Controller
             $changes['is_verified'] = ['old' => (bool) ($company->is_verified ?? false) ? '1' : '0', 'new' => '1'];
         }
 
+        // Job tier: 'auto' = ikut job_title (JobTierClassifier), 1-4 = override manual.
+        // Hanya untuk member active — status lain selalu dikosongkan.
+        $nextJobTier = null;
+        $nextJobTierManual = null;
+        if ($request->filled('job_tier') && ProfileModel::hasJobTierColumn()) {
+            $isActiveNext = $nextStatusMember === 'active';
+            $nextJobTierManual = $isActiveNext && $request->input('job_tier') !== 'auto';
+            if ($isActiveNext) {
+                $nextJobTier = $nextJobTierManual
+                    ? (int) $request->input('job_tier')
+                    : JobTierClassifier::classify($nullableString($request->job_title));
+            }
+
+            $oldJobTier = $this->jobTierLogValue($profile->job_tier, (bool) $profile->job_tier_manual);
+            $newJobTier = $this->jobTierLogValue($nextJobTier, $nextJobTierManual);
+            if ($oldJobTier !== $newJobTier) {
+                $changes['job_tier'] = ['old' => $oldJobTier, 'new' => $newJobTier];
+            }
+        }
+
         if (empty($changes)) {
             return response()->json(['success' => true, 'message' => 'Tidak ada perubahan.']);
         }
@@ -1840,6 +1930,10 @@ class UsersController extends Controller
         $profile->job_title = $nullableString($request->job_title);
         $profile->phone     = $phone;
         $profile->fullphone = $phone;
+        if ($nextJobTierManual !== null) {
+            $profile->job_tier_manual = $nextJobTierManual;
+            $profile->job_tier        = $nextJobTier;
+        }
         if (($hasCompanyChanges || $company->exists) && (int) ($company->id ?? 0) > 0) {
             $profile->company_id = $company->id;
         }
@@ -1880,6 +1974,16 @@ class UsersController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => $message, 'changes' => $changes]);
+    }
+
+    /** Nilai job tier untuk user_edit_logs, mis. "Tier 2 (manual)" / "Tier 3 (auto)". */
+    private function jobTierLogValue($tier, bool $manual): string
+    {
+        if ($tier === null || $tier === '') {
+            return '';
+        }
+
+        return JobTierClassifier::label((int) $tier) . ($manual ? ' (manual)' : ' (auto)');
     }
 
     public function editLogs(Request $request)

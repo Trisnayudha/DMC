@@ -29,6 +29,17 @@
                     <input type="text" id="eu-job-title" class="form-control">
                 </div>
                 <div class="form-group">
+                    <label class="small font-weight-bold">Job Tier</label>
+                    <select id="eu-job-tier" class="form-control">
+                        <option value="auto">Auto (dari Job Title)</option>
+                        @foreach (\App\Support\JobTierClassifier::TIERS as $tierNo => $tierMeta)
+                            <option value="{{ $tierNo }}">{{ \App\Support\JobTierClassifier::description($tierNo) }}</option>
+                        @endforeach
+                    </select>
+                    <small class="form-text text-muted">Pilih tier tertentu untuk override manual; tier manual tidak berubah walau Job Title diedit.</small>
+                    <small id="eu-job-tier-inactive-note" class="form-text text-warning" style="display:none;">Job tier hanya diisi untuk member Active.</small>
+                </div>
+                <div class="form-group">
                     <label class="small font-weight-bold">Phone</label>
                     <input type="text" id="eu-phone" class="form-control">
                 </div>

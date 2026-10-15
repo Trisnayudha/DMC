@@ -568,6 +568,45 @@
         }
     });
 
+    // =========================================================
+    // JOB TIER — ubah langsung dari tabel (select kecil di kolom Job Title)
+    // =========================================================
+    $(document).on('change', '.job-tier-select', function() {
+        const $sel = $(this);
+        const prev = String($sel.attr('data-current'));
+        $sel.prop('disabled', true);
+
+        $.post($sel.attr('data-url'), { job_tier: $sel.val() })
+            .done(function(res) {
+                if (!res || !res.success) {
+                    $sel.val(prev);
+                    showAlert('warning', (res && res.message) || 'Gagal mengubah job tier.');
+                    return;
+                }
+                // 'auto' dikembalikan server sebagai tier hasil hitungan job title.
+                $sel.val(String(res.tier))
+                    .attr('data-current', res.tier)
+                    .css('background-color', res.color)
+                    .toggleClass('is-manual', !!res.manual)
+                    .attr('title', res.title)
+                    .attr('data-original-title', res.title);
+            })
+            .fail(function(xhr) {
+                $sel.val(prev);
+                showAlert('danger', xhr.responseJSON?.message || 'Gagal menghubungi server.');
+            })
+            .always(function() {
+                $sel.prop('disabled', false);
+            });
+    });
+
+    // Job tier hanya untuk member active (server juga mengosongkannya untuk status lain).
+    $('#eu-status-member').on('change', function() {
+        const isActive = $(this).val() === 'active';
+        $('#eu-job-tier').prop('disabled', !isActive);
+        $('#eu-job-tier-inactive-note').toggle(!isActive);
+    });
+
     $(document).on('click', '.btn-edit-user', function() {
         const $btn = $(this);
 
@@ -586,6 +625,7 @@
         $('#eu-email').val($btn.attr('data-email'));
         $('#eu-alternative-email').val($btn.attr('data-alternative-email'));
         $('#eu-job-title').val($btn.attr('data-job-title'));
+        $('#eu-job-tier').val($btn.attr('data-job-tier') || 'auto');
         $('#eu-phone').val($btn.attr('data-phone'));
         $('#eu-prefix').val($btn.attr('data-prefix') || '');
         if ($.fn.select2) $('#eu-prefix').trigger('change');
@@ -602,7 +642,7 @@
         $('#eu-full-office-number').val($btn.attr('data-full-office-number'));
         $('#eu-company-category').trigger('change');
         $('#eu-company-suggestions').hide().empty();
-        $('#eu-status-member').val($btn.attr('data-status-member') || '');
+        $('#eu-status-member').val($btn.attr('data-status-member') || '').trigger('change');
         $('#eu-tier').val($btn.attr('data-tier') || 'reguler');
         $('#eu-btn-save').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Simpan Perubahan');
         $('#editUserModal').modal('show');
@@ -624,6 +664,7 @@
                 name, email,
                 alternative_email:    $('#eu-alternative-email').val(),
                 job_title:            $('#eu-job-title').val(),
+                job_tier:             $('#eu-job-tier').val(),
                 phone:                $('#eu-phone').val(),
                 prefix:               $('#eu-prefix').val(),
                 company_name:         $('#eu-company-name').val(),
@@ -675,7 +716,7 @@
         $('#userLogsModal').modal('show');
 
         const fieldLabels = {
-            name: 'Nama', email: 'Email', job_title: 'Job Title', phone: 'Phone',
+            name: 'Nama', email: 'Email', job_title: 'Job Title', job_tier: 'Job Tier', phone: 'Phone',
             prefix: 'Prefix', company_name: 'Company Name', company_website: 'Company Website',
             company_category: 'Company Category', company_other: 'Company Other',
             address: 'Address', city: 'City', portal_code: 'Postal Code', country: 'Country',
@@ -859,6 +900,7 @@
                         d.month         = '{{ request('month') }}';
                         d.year          = '{{ request('year') }}';
                         d.source        = @json(array_values((array) request('source', [])));
+                        d.job_tier      = '{{ request('job_tier') }}';
                     }
                 },
                 dom: 'frtip',

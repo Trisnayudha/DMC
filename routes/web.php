@@ -540,6 +540,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     // routes/web.php (tambahin)
     Route::post('users/{id}/tier', [UsersController::class, 'updateTier'])
         ->name('users.update.tier');
+    Route::post('users/{id}/job-tier', [UsersController::class, 'updateJobTier'])
+        ->name('users.update.job_tier');
     Route::post('/users-import', [UsersController::class, 'import'])->name('users.import');
     Route::post('/import-mailchimp', [UsersController::class, 'importToMailchimp'])->name('users.import.mailchimp');
     Route::post('users/{id}/verify', [UsersController::class, 'verifyMember'])->name('users.verify');

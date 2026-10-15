@@ -10,6 +10,7 @@
         data-email="{{ $post->email }}"
         data-alternative-email="{{ $post->alternative_email }}"
         data-job-title="{{ $post->job_title }}"
+        data-job-tier="{{ !empty($post->job_tier_manual) ? $post->job_tier : 'auto' }}"
         data-phone="{{ $post->fullphone ?? $post->phone }}"
         data-prefix="{{ $post->prefix }}"
         data-company-name="{{ $post->company_name }}"

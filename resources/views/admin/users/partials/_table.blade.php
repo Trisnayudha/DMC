@@ -184,6 +184,16 @@
                     </select>
                 </div>
                 <div class="form-group mr-2 mb-2">
+                    <label class="mb-1 small text-muted">Job Tier</label>
+                    <select name="job_tier" class="form-control form-control-sm">
+                        <option value="">All</option>
+                        @foreach (\App\Support\JobTierClassifier::TIERS as $tierNo => $tierMeta)
+                            <option value="{{ $tierNo }}" {{ request('job_tier') == $tierNo ? 'selected' : '' }}
+                                title="{{ $tierMeta['roles'] }}">Tier {{ $tierNo }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group mr-2 mb-2">
                     <label class="mb-1 small text-muted">&nbsp;</label>
                     <div>
                         <button type="submit" class="btn btn-sm btn-primary">
@@ -312,6 +322,37 @@
         font-size: 9.5px;
         padding: .2em .45em;
         font-weight: 600;
+    }
+
+    /* Job tier: <select> native seukuran mini-badge. Lebar dipatok sempit supaya
+       yang terlihat cuma "T1".."T4" — keterangan lengkap tiap option tetap
+       tampil saat dropdown dibuka. Garis putus-putus = diset manual. */
+    .member-table-wrap .job-tier-select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: auto;
+        padding: .2em 0 .2em .45em;
+        border: 0;
+        border-radius: .25rem;
+        color: #fff;
+        font-size: 9.5px;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        cursor: pointer;
+        vertical-align: middle;
+    }
+    .member-table-wrap .job-tier-select.is-manual {
+        outline: 1px dashed rgba(255, 255, 255, .9);
+        outline-offset: -2px;
+    }
+    .member-table-wrap .job-tier-select option {
+        color: #212529;
+        background: #fff;
+        font-weight: normal;
     }
 
     /* Long free-text fields (email/address/website/company/job title) —
