@@ -19,8 +19,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Support\QrCode;
 use Illuminate\Support\Str;
-use Xendit\Invoice;
-use Xendit\Xendit;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;

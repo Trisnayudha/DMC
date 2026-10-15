@@ -15,10 +15,8 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\User;
 use App\Models\Vouchers\Voucher;
 use Illuminate\Http\Request;
+use App\Services\XenditPaymentRequestService;
 use App\Services\XenditPaymentSessionService;
-use Xendit\PaymentChannels;
-use Xendit\Xendit;
-use Xendit\VirtualAccounts;
 use Illuminate\Support\Str;
 use App\Support\QrCode;
 use Illuminate\Support\Facades\Mail;
@@ -32,44 +30,18 @@ class PaymentController extends Controller
 
     public function listbank()
     {
-        // init xendit
-        $isProd = env('XENDIT_ISPROD');
-        if ($isProd) {
-            $secretKey = env('XENDIT_SECRET_KEY_PROD');
-        } else {
-            $secretKey = env('XENDIT_SECRET_KEY_TEST');
-        }
-        // params invoice
-        Xendit::setApiKey($secretKey);
-        $getPaymentChannels = PaymentChannels::list();
-        $available_payment = array_filter($getPaymentChannels, function ($key) {
-            return $key['is_enabled'] == true &&
-                ($key['channel_category'] == 'VIRTUAL_ACCOUNT' || $key['channel_category'] == 'CREDIT_CARD');
-        });
-
-        // Ubah kembali index array
-        $available_payment = array_values($available_payment);
-
-        // Cek apakah sudah ada opsi CREDIT_CARD, jika belum tambahkan manual
-        $hasCreditCard = false;
-        foreach ($available_payment as $payment) {
-            if ($payment['channel_category'] == 'CREDIT_CARD') {
-                $hasCreditCard = true;
-                break;
+        // Daftar channel dari config/xendit_channels.php (pengganti
+        // PaymentChannels::list() legacy — Payments API v3 tidak punya list channel).
+        $enabledVa = config('xendit_channels.virtual_accounts', []);
+        $available_payment = [];
+        foreach (config('xendit_channels.channels', []) as $channel) {
+            if ($channel['channel_category'] == 'VIRTUAL_ACCOUNT' && !in_array($channel['channel_code'], $enabledVa, true)) {
+                continue;
             }
-        }
-
-        if (!$hasCreditCard) {
-            $manual_credit_card = [
-                'business_id'      => Str::random(24), // business_id random
-                'is_livemode'      => true,
-                'channel_code'     => 'VISA',
-                'name'             => 'VISA',
-                'currency'         => 'IDR',
-                'channel_category' => 'CREDIT_CARD',
-                'is_enabled'       => true,
+            $available_payment[] = $channel + [
+                'is_livemode' => (bool) env('XENDIT_ISPROD'),
+                'is_enabled'  => true,
             ];
-            $available_payment[] = $manual_credit_card;
         }
 
         $response['status'] = 200;
@@ -166,27 +138,15 @@ class PaymentController extends Controller
                 $notif->message = 'Register Success, please waiting approval';
                 $notif->NotifApp();
             } else {
-                // init xendit
-                $isProd = env('XENDIT_ISPROD');
-                if ($isProd) {
-                    $secretKey = env('XENDIT_SECRET_KEY_PROD');
-                } else {
-                    $secretKey = env('XENDIT_SECRET_KEY_TEST');
-                }
-                // params invoice
-                Xendit::setApiKey($secretKey);
-
                 $params = [
                     'external_id' => $codePayment,
                     'bank_code' => $payment_method,
                     'name' => $findUsers->name,
                     'expected_amount' => $findTicket->price_rupiah,
-                    'is_closed' => true,
                     "expiration_date" => Carbon::now()->addDays(1)->toISOString(),
-                    'is_single_use' => true,
                 ];
 
-                $createVA = VirtualAccounts::create($params);
+                $createVA = XenditPaymentRequestService::createVirtualAccount($params);
                 $save_va = new PaymentUsersVA();
                 $save_va->payment_id = $save->id;
                 $save_va->is_closed = $createVA['is_closed'];
@@ -600,20 +560,15 @@ Terima kasih.
                     $responsePayload = $createInvoice;
                 } else {
                     // Buat VA (contoh: BCA, MANDIRI, dll)
-                    $isProd    = env('XENDIT_ISPROD');
-                    $secretKey = $isProd ? env('XENDIT_SECRET_KEY_PROD') : env('XENDIT_SECRET_KEY_TEST');
-                    Xendit::setApiKey($secretKey);
-
                     $paramsVA = [
                         'external_id'     => $codePayment,
                         'bank_code'       => $payment_method,
                         'name'            => $user->name,
                         'expected_amount' => $finalPrice,
-                        'is_closed'       => true,
-                        'is_single_use'   => true,
                         'expiration_date' => Carbon::now()->addDay(1)->toISOString(),
+                        'description'     => 'Invoice Event ' . $findEvent->name,
                     ];
-                    $createVA = VirtualAccounts::create($paramsVA);
+                    $createVA = XenditPaymentRequestService::createVirtualAccount($paramsVA);
 
                     // Simpan ke PaymentUsersVA
                     $save_va = new PaymentUsersVA();

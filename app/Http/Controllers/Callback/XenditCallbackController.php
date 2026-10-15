@@ -109,7 +109,12 @@ class XenditCallbackController extends Controller
             ?? null;
         $rawStatus = $data['status'] ?? $payload['status'] ?? null;
         $channelCode = $data['channel_code'] ?? $data['payment_method'] ?? $payload['channel_code'] ?? null;
-        $amount = $data['amount'] ?? $data['capture_amount'] ?? $payload['amount'] ?? null;
+        $amount = $data['amount']
+            ?? $data['capture_amount']
+            ?? $data['captures'][0]['capture_amount']
+            ?? $data['request_amount']
+            ?? $payload['amount']
+            ?? null;
 
         if (empty($referenceId)) {
             Log::error('Xendit webhook missing reference_id, cannot process', ['payload' => $payload]);
@@ -123,6 +128,16 @@ class XenditCallbackController extends Controller
 
         try {
             $res = $this->handlePaidOrExpired($referenceId, $normalizedStatus, $paymentMethod, $amount);
+
+            // VA v3 (XenditPaymentRequestService) dulu ditandai lunas oleh
+            // fva_paid(); sekarang lewat sini, jadi status VA ikut di-update.
+            if ($normalizedStatus == 'PAID') {
+                $payment = Payment::where('code_payment', $referenceId)->first();
+                if ($payment) {
+                    PaymentUsersVA::where('payment_id', $payment->id)->update(['status' => 'Paid Off']);
+                }
+            }
+
             return response()->json($res, 200);
         } catch (\Exception $msg) {
             $res['api_status'] = 0;
@@ -563,6 +578,12 @@ Best Regards Bot DMC
     }
 
 
+    /**
+     * Webhook lama (Fixed VA API). VA baru dibuat lewat Payments API v3
+     * (XenditPaymentRequestService) dan webhook-nya masuk ke paymentCallback().
+     * Dibiarkan hidup sebagai jaring pengaman untuk VA yang sempat dibuat
+     * lewat SDK lama sebelum cutover.
+     */
     public function fva_paid(Request $request)
     {
         // "updated": "2017-02-15T11:01:52.896Z",
