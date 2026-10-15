@@ -13,7 +13,9 @@ class CmsAuth
         Auth::shouldUse('cms');
 
         if (!Auth::check()) {
-            return redirect()->route('cms.login');
+            // guest() simpan URL ini ke session (url.intended) supaya setelah
+            // login CmsLoginController::login() bisa redirect()->intended() ke sini.
+            return redirect()->guest(route('cms.login'));
         }
 
         if (!Auth::user()->is_active) {
