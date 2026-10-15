@@ -14,10 +14,9 @@
 
 return [
     'channels' => [
-        ['channel_code' => 'MANDIRI',    'name' => 'Mandiri virtual account',                'currency' => 'IDR', 'channel_category' => 'VIRTUAL_ACCOUNT'],
-        ['channel_code' => 'VISA',       'name' => 'Visa credit and debit cards',            'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
-        ['channel_code' => 'MASTERCARD', 'name' => 'Mastercard credit and debit cards',      'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
-        ['channel_code' => 'JCB',        'name' => 'JCB credit and debit cards',             'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
-        ['channel_code' => 'AMEX',       'name' => 'American Express credit and debit cards', 'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
+        ['channel_code' => 'MANDIRI',     'name' => 'Mandiri virtual account',                            'currency' => 'IDR', 'channel_category' => 'VIRTUAL_ACCOUNT'],
+        // Satu entri untuk semua kartu — FE & mobile kirim payment_method CREDIT_CARD
+        // berdasarkan channel_category, dan checkout Xendit (CARDS) menerima semua network.
+        ['channel_code' => 'CREDIT_CARD', 'name' => 'Credit / Debit Card (Visa, Mastercard, JCB, Amex)', 'currency' => 'IDR', 'channel_category' => 'CREDIT_CARD'],
     ],
 ];
