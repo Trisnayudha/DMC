@@ -1086,7 +1086,7 @@
                         var mid = (arc.startAngle + arc.endAngle) / 2;
                         var cos = Math.cos(mid), sin = Math.sin(mid);
                         var lines = wrap(chart.data.labels[i]);
-                        var count = fmt(ds.data[i]) + ' company · ' + pct(ds.data[i], sum) + '%';
+                        var count = pct(ds.data[i], sum) + '%';
                         return {
                             right: cos >= 0,
                             color: ds.backgroundColor[i],
