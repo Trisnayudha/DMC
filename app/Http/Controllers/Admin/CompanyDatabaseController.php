@@ -6,7 +6,10 @@ use App\Exports\CompanyDatabaseExport;
 use App\Exports\CompanyImportTemplate;
 use App\Http\Controllers\Controller;
 use App\Imports\CompanyDatabaseImport;
+use App\Models\Company\CompanyCategory;
 use App\Models\Company\CompanyModel;
+use App\Models\Company\CompanySubcategory;
+use App\Support\CompanyCategoryTier;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -308,6 +311,137 @@ class CompanyDatabaseController extends Controller
             ->get();
 
         return response()->json($users);
+    }
+
+    /**
+     * Pie chart "Company Category" (admin/users): jumlah company unik per
+     * kategori dari Company Database — definisi sama dengan halaman ini
+     * (dedup per nama, tanpa company hantu/tainted). Bukan hitungan member.
+     */
+    public function categoryBreakdown()
+    {
+        $counts = $this->buildCompanyGroups('')
+            ->countBy(function ($group) {
+                return CompanyModel::categoryLabel($group->best_values['company_category']);
+            })
+            ->all();
+
+        $withSubcategories = CompanyCategory::has('subcategories')
+            ->pluck('name')
+            ->map(function ($name) { return CompanyModel::categoryLabel($name); })
+            ->flip();
+
+        $categories = [];
+        foreach ($counts as $name => $count) {
+            $categories[] = ['name' => $name, 'count' => $count, 'has_subcategories' => $withSubcategories->has($name)];
+        }
+
+        // Terbanyak dulu; "Others" & "Not set" selalu paling bawah.
+        usort($categories, function ($a, $b) {
+            $tail = ['Others' => 1, 'Not set' => 2];
+            $aTail = $tail[$a['name']] ?? 0;
+            $bTail = $tail[$b['name']] ?? 0;
+            return $aTail !== $bTail ? $aTail <=> $bTail : $b['count'] <=> $a['count'];
+        });
+
+        // Company Category Tier: 5 grup besar (lihat CompanyCategoryTier), urutan tetap.
+        $tiers = [];
+        foreach (array_keys(CompanyCategoryTier::TIERS) as $tierName) {
+            $tiers[$tierName] = ['name' => $tierName, 'count' => 0, 'categories' => []];
+        }
+        foreach ($categories as $category) {
+            $tierName = CompanyCategoryTier::tierFor($category['name']);
+            $tiers[$tierName]['count'] += $category['count'];
+            $tiers[$tierName]['categories'][] = $category;
+        }
+
+        return response()->json([
+            'total'      => array_sum($counts),
+            'tiers'      => array_values($tiers),
+            'categories' => $categories,
+        ]);
+    }
+
+    /**
+     * Detail untuk modal chart Company Category Tier — satu grup (`tier`) atau
+     * satu kategori (`category`): breakdown category detail & subcategory +
+     * daftar company-nya.
+     */
+    public function categoryDetail(Request $request)
+    {
+        $tier = (string) $request->query('tier', '');
+        $tier = CompanyCategoryTier::exists($tier) ? $tier : null;
+        $category = $tier ? null : CompanyModel::categoryLabel($request->query('category', ''));
+
+        $groups = $this->buildCompanyGroups('')
+            ->each(function ($group) {
+                $group->category_label = CompanyModel::categoryLabel($group->best_values['company_category']);
+            })
+            ->filter(function ($group) use ($tier, $category) {
+                return $tier
+                    ? CompanyCategoryTier::tierFor($group->category_label) === $tier
+                    : $group->category_label === $category;
+            })
+            ->sortBy('company_name', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
+
+        $labelsInScope = $groups->pluck('category_label')->unique()->all();
+        $ownSubcategories = CompanyCategory::all()
+            ->filter(function ($row) use ($labelsInScope) {
+                return in_array(CompanyModel::categoryLabel($row->name), $labelsInScope, true);
+            })
+            ->flatMap(function ($row) {
+                return $row->subcategories()->get(['id', 'name']);
+            });
+        $subcategoryNames = CompanySubcategory::pluck('name', 'id');
+
+        $subcategoryCounts = array_fill_keys($ownSubcategories->pluck('id')->all(), 0);
+        $withoutSubcategory = 0;
+        $companies = [];
+        foreach ($groups as $group) {
+            $ids = $group->best_values['subcategory_ids'];
+            if (empty($ids)) {
+                $withoutSubcategory++;
+            }
+            foreach ($ids as $id) {
+                $subcategoryCounts[$id] = ($subcategoryCounts[$id] ?? 0) + 1;
+            }
+
+            $companies[] = [
+                'company_name'    => $group->company_name,
+                'category'        => $group->category_label,
+                'is_verified'     => $group->is_verified,
+                'total_records'   => $group->total_records,
+                'city'            => $group->best_values['city'],
+                'country'         => $group->best_values['country'],
+                'subcategory_ids' => $ids,
+                'database_url'    => route('admin.company_database.index', ['scope' => 'all', 'search' => $group->company_name]),
+            ];
+        }
+
+        $subcategories = [];
+        foreach ($subcategoryCounts as $id => $count) {
+            $subcategories[] = ['id' => (int) $id, 'name' => $subcategoryNames[$id] ?? ('#' . $id), 'count' => $count];
+        }
+
+        // Category Detail: jumlah company per kategori asli di dalam grup ini.
+        $categoryBreakdown = $groups->countBy('category_label')->sortDesc()
+            ->map(function ($count, $name) {
+                return ['name' => $name, 'count' => $count];
+            })
+            ->values();
+
+        return response()->json([
+            'tier'                => $tier,
+            'category'            => $category,
+            'category_breakdown'  => $categoryBreakdown,
+            'total'               => $groups->count(),
+            'verified'            => $groups->where('is_verified', true)->count(),
+            'has_subcategories'   => $ownSubcategories->isNotEmpty(),
+            'subcategories'       => $subcategories,
+            'without_subcategory' => $withoutSubcategory,
+            'companies'           => $companies,
+        ]);
     }
 
     public function incompleteDetail(Request $request)

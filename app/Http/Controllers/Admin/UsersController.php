@@ -362,7 +362,7 @@ class UsersController extends Controller
         $byCategory = [];
         foreach ($rows as $row) {
             $tier = ProfileModel::jobTierFor($row->job_title, $row->status_member, $row->job_tier ?? null);
-            $category = $this->compositionCategoryLabel($row->company_category);
+            $category = CompanyModel::categoryLabel($row->company_category);
 
             if (!isset($byCategory[$category])) {
                 $byCategory[$category] = array_fill_keys($tierNos, 0);
@@ -399,17 +399,6 @@ class UsersController extends Controller
             'tiers'      => $tiers,
             'categories' => array_keys($byCategory),
         ];
-    }
-
-    private function compositionCategoryLabel($category): string
-    {
-        $category = trim((string) $category);
-        if ($category === '') {
-            return 'Not set';
-        }
-
-        // ucfirst menyatukan varian ketikan lama, mis. "services/Logistics/..." → "Services/Logistics/...".
-        return strtolower($category) === 'other' ? 'Others' : ucfirst($category);
     }
 
     /**

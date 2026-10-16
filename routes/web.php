@@ -650,6 +650,10 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('admin.company_database.company_users');
     Route::get('/company-database/chart-data', [CompanyDatabaseController::class, 'chartData'])
         ->name('admin.company_database.chart_data');
+    Route::get('/company-database/category-breakdown', [CompanyDatabaseController::class, 'categoryBreakdown'])
+        ->name('admin.company_database.category_breakdown');
+    Route::get('/company-database/category-detail', [CompanyDatabaseController::class, 'categoryDetail'])
+        ->name('admin.company_database.category_detail');
     Route::get('/company-database/incomplete-detail', [CompanyDatabaseController::class, 'incompleteDetail'])
         ->name('admin.company_database.incomplete_detail');
     Route::get('/company-database/logs', [CompanyDatabaseController::class, 'logs'])

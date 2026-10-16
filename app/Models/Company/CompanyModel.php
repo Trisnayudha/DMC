@@ -68,6 +68,21 @@ class CompanyModel extends Model
     }
 
     /**
+     * Label company_category untuk chart/report: kosong → "Not set",
+     * "other" → "Others", dan ucfirst menyatukan varian ketikan lama
+     * (mis. "services/Logistics/..." → "Services/Logistics/...").
+     */
+    public static function categoryLabel($category): string
+    {
+        $category = trim((string) $category);
+        if ($category === '') {
+            return 'Not set';
+        }
+
+        return strtolower($category) === 'other' ? 'Others' : ucfirst($category);
+    }
+
+    /**
      * Nama company (lowercase, trimmed) yang SELURUH membernya berstatus
      * deactivated/declined (tidak memiliki member aktif/valid sama sekali).
      * Jika sebuah company masih memiliki minimal satu member aktif/valid,

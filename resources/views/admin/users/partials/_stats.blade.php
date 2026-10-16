@@ -349,6 +349,40 @@
     </div>
 </div>{{-- /member composition row --}}
 
+{{-- Company Category Tier dari Company Database — hitungan company unik, bukan member,
+     dikelompokkan ke 5 grup (App\Support\CompanyCategoryTier). Klik slice / grup / kategori
+     → modal category detail + subcategory + daftar company. --}}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    Company Category Tier
+                    <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
+                        title="Jumlah company unik dari Company Database (dedup per nama company, sama seperti halaman Company Database) — bukan jumlah member — dikelompokkan ke 5 grup kategori seperti di event detail IndonesiaMiner. Klik grup atau kategori untuk lihat category detail, subcategory & daftar company."></i>
+                </h4>
+                <span class="badge badge-light" id="company-category-total">—</span>
+            </div>
+            <div class="card-body">
+                <div id="company-category-loading" class="text-center text-muted py-5">
+                    <span class="spinner-border spinner-border-sm mr-2"></span>Memuat...
+                </div>
+                <div id="company-category-content" class="row align-items-center" style="display:none;">
+                    <div class="col-md-5 mb-3 mb-md-0">
+                        <div style="position:relative; height:300px;">
+                            <canvas id="companyCategoryChart" role="img" style="cursor:pointer;"
+                                aria-label="Jumlah company per company category tier"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="company-category-list" id="company-category-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>{{-- /company category row --}}
+
 {{-- Members by Source (Members Relation SOP §8) --}}
 <div class="row">
     <div class="col-12 mb-4">
@@ -550,7 +584,52 @@
         vertical-align: middle;
     }
 
+    /* Company Category: daftar semua kategori di samping pie — tiap baris bisa diklik. */
+    .company-category-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2px 16px;
+    }
+    .company-category-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 5px 8px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        font-size: 12px;
+        color: #3c4257;
+        text-align: left;
+        cursor: pointer;
+    }
+    .company-category-item:hover,
+    .company-category-item:focus { background: #f4f5f9; outline: none; }
+    .company-category-item .cc-dot {
+        flex-shrink: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+    }
+    .company-category-item .cc-name {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .company-category-item .cc-count { font-weight: 700; }
+    .cc-tier-group { margin-bottom: 8px; }
+    .company-category-item.cc-tier .cc-name { font-weight: 700; white-space: normal; }
+    .company-category-item.cc-sub { padding: 2px 8px 2px 26px; font-size: 11.5px; color: #6c757d; }
+    .company-category-item.cc-sub .cc-count { font-weight: 600; }
+    .company-category-item .cc-pct { color: #8a8fa3; width: 44px; text-align: right; }
+    .cc-filter-chip { cursor: pointer; border: 1px solid transparent; }
+    .cc-filter-chip.active { border-color: #2a78d6; background: #eaf2fd; color: #1c5cab; }
+
     @media (max-width: 575.98px) {
+        .company-category-list { grid-template-columns: minmax(0, 1fr); }
         .reg-stat-row { flex-direction: column; }
         .reg-search-wrap input { width: 100%; }
     }
@@ -942,6 +1021,111 @@
                     }
                 },
                 plugins: [endLabels]
+            });
+        })();
+
+        // Company Category Tier (Company Database) — pie 5 grup besar (pola sama dengan
+        // event detail IndonesiaMiner); daftar samping = grup + kategori di dalamnya.
+        (function() {
+            // 5 slot pertama palet kategorikal, urutan tetap (lolos uji CVD antar-slot bersebelahan).
+            var palette = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4'];
+            var fmt = function(n) { return Number(n).toLocaleString('id-ID'); };
+            var pct = function(n, of) { return (of ? Math.round(n * 1000 / of) / 10 : 0).toLocaleString('id-ID'); };
+            var esc = function(s) { return $('<span>').text(s).html(); };
+
+            // Label persentase di tengah tiap slice; teks putih/gelap dipilih dari
+            // terang-gelapnya warna slice supaya tetap terbaca.
+            var sliceLabels = {
+                id: 'sliceLabels',
+                afterDatasetsDraw: function(chart) {
+                    var ds = chart.data.datasets[0];
+                    var sum = ds.data.reduce(function(s, v) { return s + v; }, 0);
+                    var ctx = chart.ctx;
+                    ctx.save();
+                    ctx.font = '700 12px ' + Chart.defaults.font.family;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    chart.getDatasetMeta(0).data.forEach(function(arc, i) {
+                        if (!sum || ds.data[i] / sum < 0.03) return; // slice terlalu kecil untuk label
+                        var hex = ds.backgroundColor[i].replace('#', '');
+                        var r = parseInt(hex.substr(0, 2), 16), g = parseInt(hex.substr(2, 2), 16), b = parseInt(hex.substr(4, 2), 16);
+                        ctx.fillStyle = (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#1f2328' : '#ffffff';
+                        var pos = arc.tooltipPosition();
+                        ctx.fillText(pct(ds.data[i], sum) + '%', pos.x, pos.y);
+                    });
+                    ctx.restore();
+                }
+            };
+
+            $.getJSON(@json(route('admin.company_database.category_breakdown')))
+                .done(function(res) {
+                    var tiers = res.tiers;
+                    var total = res.total;
+
+                    $('#company-category-total').text(fmt(total) + ' company');
+                    $('#company-category-list').html(tiers.map(function(t, i) {
+                        var categories = t.categories.map(function(c) {
+                            return '<button type="button" class="company-category-item cc-sub" data-category="' + esc(c.name) + '"'
+                                + ' title="' + esc(c.name) + ' — klik untuk detail">'
+                                + '<span class="cc-name">' + esc(c.name)
+                                + (c.has_subcategories ? ' <i class="fas fa-sitemap text-muted ml-1" title="Punya subcategory"></i>' : '') + '</span>'
+                                + '<span class="cc-count">' + fmt(c.count) + '</span>'
+                                + '<span class="cc-pct">' + pct(c.count, total) + '%</span>'
+                                + '</button>';
+                        }).join('');
+                        return '<div class="cc-tier-group">'
+                            + '<button type="button" class="company-category-item cc-tier" data-tier="' + esc(t.name) + '"'
+                            + ' title="' + esc(t.name) + ' — klik untuk detail">'
+                            + '<span class="cc-dot" style="background:' + palette[i] + ';"></span>'
+                            + '<span class="cc-name">' + esc(t.name) + '</span>'
+                            + '<span class="cc-count">' + fmt(t.count) + '</span>'
+                            + '<span class="cc-pct">' + pct(t.count, total) + '%</span>'
+                            + '</button>' + categories + '</div>';
+                    }).join(''));
+
+                    $('#company-category-loading').hide();
+                    $('#company-category-content').show();
+
+                    new Chart(document.getElementById('companyCategoryChart'), {
+                        type: 'pie',
+                        data: {
+                            labels: tiers.map(function(t) { return t.name; }),
+                            datasets: [{
+                                data: tiers.map(function(t) { return t.count; }),
+                                backgroundColor: palette.slice(0, tiers.length),
+                                borderColor: '#ffffff',
+                                borderWidth: 2,
+                                hoverOffset: 6,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(item) {
+                                            return ' ' + fmt(item.raw) + ' company (' + pct(item.raw, total) + '%)';
+                                        },
+                                        footer: function() { return 'Klik untuk detail'; }
+                                    }
+                                }
+                            },
+                            onClick: function(evt, elements) {
+                                if (elements.length) window.openCompanyCategoryDetail({ tier: tiers[elements[0].index].name });
+                            }
+                        },
+                        plugins: [sliceLabels]
+                    });
+                })
+                .fail(function() {
+                    $('#company-category-loading').text('Gagal memuat data company category.');
+                });
+
+            $(document).on('click', '.company-category-item', function() {
+                var tier = $(this).attr('data-tier');
+                window.openCompanyCategoryDetail(tier ? { tier: tier } : { category: $(this).attr('data-category') });
             });
         })();
 
