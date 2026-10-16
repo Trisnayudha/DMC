@@ -941,14 +941,14 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { right: 70 } },
+                    layout: { padding: { right: 45 } },
                     scales: {
                         x: axisStyle,
                         y: { grid: { display: false }, border: { display: false }, ticks: { color: '#343a40', font: { size: 11, weight: '600' } } }
                     },
                     plugins: {
                         legend: { display: false },
-                        endLabels: { format: function(n) { return fmt(n) + ' · ' + pct(n, composition.total) + '%'; } },
+                        endLabels: { format: function(n) { return pct(n, composition.total) + '%'; } },
                         tooltip: {
                             callbacks: {
                                 title: function(items) { var t = tiers[items[0].dataIndex]; return t.label + ' — ' + t.roles; },
