@@ -20,15 +20,16 @@ class JobTierClassifier
 {
     /**
      * `roles` = keterangan yang ditampilkan di UI (dropdown, tooltip, filter, chart).
-     * `color` = ramp biru ordinal (T1 paling gelap = prioritas tertinggi), lolos
-     * validasi ordinal (monoton, beda terang tiap step, ujung terang >= 2:1).
-     * `text` = warna teks di atas badge; T3/T4 terlalu terang untuk teks putih.
+     * `color` = warna brand dari desain "Member Compositions" DMC (hitam, abu,
+     * merah, marun) — dipakai di badge tabel, chart Job Tier, dan chart Company
+     * Category × Job Tier.
+     * `text` = warna teks di atas badge; semua warna gelap → teks putih.
      */
     const TIERS = [
-        1 => ['roles' => 'Owner, Commissioner, C suite, President Director, Director',         'action' => 'Priority relationship', 'color' => '#104281', 'text' => '#ffffff'],
-        2 => ['roles' => 'General Manager, Head, Senior Manager, Manager, Superintendent',     'action' => 'Targeted engagement',   'color' => '#256abf', 'text' => '#ffffff'],
-        3 => ['roles' => 'Supervisor, engineer, geologist, analyst, sales and consultant',    'action' => 'Event nurture',         'color' => '#5598e7', 'text' => '#0d366b'],
-        4 => ['roles' => 'Staff, junior professional, student, academic or unconfirmed role', 'action' => 'Standard nurture',      'color' => '#86b6ef', 'text' => '#0d366b'],
+        1 => ['roles' => 'Owner, Commissioner, C suite, President Director, Director',         'action' => 'Priority relationship', 'color' => '#1d1d1f', 'text' => '#ffffff'],
+        2 => ['roles' => 'General Manager, Head, Senior Manager, Manager, Superintendent',     'action' => 'Targeted engagement',   'color' => '#4b5058', 'text' => '#ffffff'],
+        3 => ['roles' => 'Supervisor, engineer, geologist, analyst, sales and consultant',    'action' => 'Event nurture',         'color' => '#8e0f15', 'text' => '#ffffff'],
+        4 => ['roles' => 'Staff, junior professional, student, academic or unconfirmed role', 'action' => 'Standard nurture',      'color' => '#3c1016', 'text' => '#ffffff'],
     ];
 
     /**

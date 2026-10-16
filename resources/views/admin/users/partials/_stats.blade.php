@@ -1027,8 +1027,10 @@
         // Company Category Tier (Company Database) — pie 5 grup besar (pola sama dengan
         // event detail IndonesiaMiner); daftar samping = grup + kategori di dalamnya.
         (function() {
-            // 5 slot pertama palet kategorikal, urutan tetap (lolos uji CVD antar-slot bersebelahan).
-            var palette = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4'];
+            // Warna brand desain "Member Compositions" (hitam, merah, abu, marun) + tan
+            // senada untuk grup ke-5. Urutan dipilih supaya slice bersebelahan (termasuk
+            // slice terakhir ↔ pertama) tidak sama-sama gelap.
+            var palette = ['#1d1d1f', '#8e0f15', '#4b5058', '#3c1016', '#a8896c'];
             var fmt = function(n) { return Number(n).toLocaleString('id-ID'); };
             var pct = function(n, of) { return (of ? Math.round(n * 1000 / of) / 10 : 0).toLocaleString('id-ID'); };
             var esc = function(s) { return $('<span>').text(s).html(); };
