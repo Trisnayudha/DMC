@@ -368,13 +368,13 @@
                     <span class="spinner-border spinner-border-sm mr-2"></span>Memuat...
                 </div>
                 <div id="company-category-content" class="row align-items-center" style="display:none;">
-                    <div class="col-md-5 mb-3 mb-md-0">
-                        <div style="position:relative; height:300px;">
+                    <div class="col-lg-7 mb-3 mb-lg-0">
+                        <div style="position:relative; height:460px;">
                             <canvas id="companyCategoryChart" role="img" style="cursor:pointer;"
                                 aria-label="Jumlah company per company category tier"></canvas>
                         </div>
                     </div>
-                    <div class="col-md-7">
+                    <div class="col-lg-5">
                         <div class="company-category-list" id="company-category-list"></div>
                     </div>
                 </div>
@@ -587,8 +587,8 @@
     /* Company Category: daftar semua kategori di samping pie — tiap baris bisa diklik. */
     .company-category-list {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 2px 16px;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
     }
     .company-category-item {
         display: flex;
@@ -620,9 +620,9 @@
         white-space: nowrap;
     }
     .company-category-item .cc-count { font-weight: 700; }
-    .cc-tier-group { margin-bottom: 8px; }
+    .cc-tier-group { margin-bottom: 6px; }
     .company-category-item.cc-tier .cc-name { font-weight: 700; white-space: normal; }
-    .company-category-item.cc-sub { padding: 2px 8px 2px 26px; font-size: 11.5px; color: #6c757d; }
+    .company-category-item.cc-sub { padding: 1px 8px 1px 26px; font-size: 11.5px; color: #6c757d; }
     .company-category-item.cc-sub .cc-count { font-weight: 600; }
     .company-category-item .cc-pct { color: #8a8fa3; width: 44px; text-align: right; }
     .cc-filter-chip { cursor: pointer; border: 1px solid transparent; }
@@ -1057,6 +1057,83 @@
                 }
             };
 
+            // Nama grup di luar pie dengan garis penunjuk (callout) — supaya chart
+            // bisa langsung di-screenshot untuk management tanpa daftar samping.
+            // Label di sisi yang sama digeser vertikal kalau bertumpuk.
+            var calloutLabels = {
+                id: 'calloutLabels',
+                afterDatasetsDraw: function(chart) {
+                    var ctx = chart.ctx;
+                    var ds = chart.data.datasets[0];
+                    var sum = ds.data.reduce(function(s, v) { return s + v; }, 0);
+                    var maxWidth = 165, lineHeight = 13, elbow = 14, run = 10;
+                    var font = '11px ' + Chart.defaults.font.family;
+                    var boldFont = '700 11px ' + Chart.defaults.font.family;
+
+                    var wrap = function(text) {
+                        ctx.font = boldFont;
+                        var words = text.split(' '), lines = [], line = '';
+                        words.forEach(function(w) {
+                            var test = line ? line + ' ' + w : w;
+                            if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = w; }
+                            else { line = test; }
+                        });
+                        if (line) lines.push(line);
+                        return lines;
+                    };
+
+                    var labels = chart.getDatasetMeta(0).data.map(function(arc, i) {
+                        var mid = (arc.startAngle + arc.endAngle) / 2;
+                        var cos = Math.cos(mid), sin = Math.sin(mid);
+                        var lines = wrap(chart.data.labels[i]);
+                        var count = fmt(ds.data[i]) + ' company · ' + pct(ds.data[i], sum) + '%';
+                        return {
+                            right: cos >= 0,
+                            color: ds.backgroundColor[i],
+                            x0: arc.x + cos * arc.outerRadius, y0: arc.y + sin * arc.outerRadius,
+                            x1: arc.x + cos * (arc.outerRadius + elbow), y1: arc.y + sin * (arc.outerRadius + elbow),
+                            lines: lines, count: count,
+                            height: (lines.length + 1) * lineHeight,
+                        };
+                    });
+
+                    // Geser label per sisi supaya tidak saling menimpa.
+                    [true, false].forEach(function(side) {
+                        var group = labels.filter(function(l) { return l.right === side; })
+                            .sort(function(a, b) { return a.y1 - b.y1; });
+                        var bottom = -Infinity;
+                        group.forEach(function(l) {
+                            l.ty = Math.max(l.y1, bottom + l.height / 2 + 6);
+                            bottom = l.ty + l.height / 2;
+                        });
+                    });
+
+                    ctx.save();
+                    labels.forEach(function(l) {
+                        var x2 = l.x1 + (l.right ? run : -run);
+                        ctx.strokeStyle = l.color;
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.moveTo(l.x0, l.y0);
+                        ctx.lineTo(l.x1, l.ty);
+                        ctx.lineTo(x2, l.ty);
+                        ctx.stroke();
+
+                        var tx = x2 + (l.right ? 4 : -4);
+                        var top = l.ty - l.height / 2 + lineHeight / 2;
+                        ctx.textAlign = l.right ? 'left' : 'right';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = '#343a40';
+                        ctx.font = boldFont;
+                        l.lines.forEach(function(line, j) { ctx.fillText(line, tx, top + j * lineHeight); });
+                        ctx.fillStyle = '#6c757d';
+                        ctx.font = font;
+                        ctx.fillText(l.count, tx, top + l.lines.length * lineHeight);
+                    });
+                    ctx.restore();
+                }
+            };
+
             $.getJSON(@json(route('admin.company_database.category_breakdown')))
                 .done(function(res) {
                     var tiers = res.tiers;
@@ -1101,6 +1178,8 @@
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
+                            // Ruang kiri-kanan untuk label callout nama grup.
+                            layout: { padding: { left: 190, right: 190, top: 24, bottom: 24 } },
                             plugins: {
                                 legend: { display: false },
                                 tooltip: {
@@ -1116,7 +1195,7 @@
                                 if (elements.length) window.openCompanyCategoryDetail({ tier: tiers[elements[0].index].name });
                             }
                         },
-                        plugins: [sliceLabels]
+                        plugins: [sliceLabels, calloutLabels]
                     });
                 })
                 .fail(function() {
