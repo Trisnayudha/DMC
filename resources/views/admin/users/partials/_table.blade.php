@@ -346,7 +346,7 @@
         vertical-align: middle;
     }
     .member-table-wrap .job-tier-select.is-manual {
-        outline: 1px dashed rgba(255, 255, 255, .9);
+        outline: 1px dashed currentColor;
         outline-offset: -2px;
     }
     .member-table-wrap .job-tier-select option {

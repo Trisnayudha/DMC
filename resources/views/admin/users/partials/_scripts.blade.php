@@ -586,7 +586,7 @@
                 // 'auto' dikembalikan server sebagai tier hasil hitungan job title.
                 $sel.val(String(res.tier))
                     .attr('data-current', res.tier)
-                    .css('background-color', res.color)
+                    .css({ 'background-color': res.color, color: res.text })
                     .toggleClass('is-manual', !!res.manual)
                     .attr('title', res.title)
                     .attr('data-original-title', res.title);

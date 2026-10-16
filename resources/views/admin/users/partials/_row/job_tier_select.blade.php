@@ -5,7 +5,7 @@
     <select class="job-tier-select{{ $manual ? ' is-manual' : '' }}"
         data-url="{{ route('users.update.job_tier', $post->user_id) }}"
         data-current="{{ $tier }}"
-        style="background-color: {{ \App\Support\JobTierClassifier::color($tier) }};"
+        style="background-color: {{ \App\Support\JobTierClassifier::color($tier) }}; color: {{ \App\Support\JobTierClassifier::textColor($tier) }};"
         title="{{ \App\Support\JobTierClassifier::tooltip($tier, $manual) }}" data-toggle="tooltip">
         @foreach (\App\Support\JobTierClassifier::TIERS as $tierNo => $tierMeta)
             <option value="{{ $tierNo }}" {{ $tierNo === $tier ? 'selected' : '' }}>T{{ $tierNo }}&nbsp;&nbsp;&nbsp;— {{ $tierMeta['roles'] }}</option>

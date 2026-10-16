@@ -18,12 +18,17 @@ namespace App\Support;
  */
 class JobTierClassifier
 {
-    /** `roles` = keterangan yang ditampilkan di UI (dropdown, tooltip, filter). */
+    /**
+     * `roles` = keterangan yang ditampilkan di UI (dropdown, tooltip, filter, chart).
+     * `color` = ramp biru ordinal (T1 paling gelap = prioritas tertinggi), lolos
+     * validasi ordinal (monoton, beda terang tiap step, ujung terang >= 2:1).
+     * `text` = warna teks di atas badge; T3/T4 terlalu terang untuk teks putih.
+     */
     const TIERS = [
-        1 => ['roles' => 'Owner, Commissioner, C suite, President Director, Director',               'action' => 'Priority relationship', 'color' => '#b08433'],
-        2 => ['roles' => 'General Manager, Head, Senior Manager, Manager, Superintendent',           'action' => 'Targeted engagement',   'color' => '#2f6fb0'],
-        3 => ['roles' => 'Supervisor, engineer, geologist, analyst, sales and consultant',          'action' => 'Event nurture',         'color' => '#2a9d8f'],
-        4 => ['roles' => 'Staff, junior professional, student, academic or unconfirmed role',       'action' => 'Standard nurture',      'color' => '#8d99ae'],
+        1 => ['roles' => 'Owner, Commissioner, C suite, President Director, Director',         'action' => 'Priority relationship', 'color' => '#104281', 'text' => '#ffffff'],
+        2 => ['roles' => 'General Manager, Head, Senior Manager, Manager, Superintendent',     'action' => 'Targeted engagement',   'color' => '#256abf', 'text' => '#ffffff'],
+        3 => ['roles' => 'Supervisor, engineer, geologist, analyst, sales and consultant',    'action' => 'Event nurture',         'color' => '#5598e7', 'text' => '#0d366b'],
+        4 => ['roles' => 'Staff, junior professional, student, academic or unconfirmed role', 'action' => 'Standard nurture',      'color' => '#86b6ef', 'text' => '#0d366b'],
     ];
 
     /**
@@ -99,6 +104,11 @@ class JobTierClassifier
     public static function color(?int $tier): string
     {
         return self::TIERS[$tier]['color'] ?? '#adb5bd';
+    }
+
+    public static function textColor(?int $tier): string
+    {
+        return self::TIERS[$tier]['text'] ?? '#ffffff';
     }
 
     /**

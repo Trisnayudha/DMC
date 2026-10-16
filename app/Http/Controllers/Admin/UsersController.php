@@ -329,12 +329,87 @@ class UsersController extends Controller
             'countLeadsWin'             => $countLeadsWin,
             'countLeadsLoss'            => $countLeadsLoss,
             'leadConversionRate'        => $leadConversionRate,
+            'memberComposition'         => $this->memberCompositionStats(),
             'companyNames'       => CompanyModel::whereNotNull('company_name')
                 ->whereRaw("TRIM(company_name) <> ''")
                 ->distinct()
                 ->orderBy('company_name')
                 ->pluck('company_name'),
         ]);
+    }
+
+    /**
+     * Data chart "Job Tier" & "Company Category × Job Tier" — komposisi member
+     * active (Internal Operating Guideline: position tier dan company category
+     * dilaporkan terpisah). Tier pakai aturan yang sama dengan badge tabel
+     * (ProfileModel::jobTierFor), jadi angkanya selalu cocok dengan filter Job Tier.
+     */
+    private function memberCompositionStats(): array
+    {
+        $tierNos = array_keys(JobTierClassifier::TIERS);
+        $hasTierColumn = ProfileModel::hasJobTierColumn();
+
+        $rows = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
+            ->leftJoin('company', 'company.id', 'profiles.company_id')
+            ->whereNotNull('users.isStatus')
+            ->where('users.status_member', 'active')
+            ->get(array_merge(
+                ['users.status_member', 'profiles.job_title', 'company.company_category'],
+                $hasTierColumn ? ['profiles.job_tier'] : []
+            ));
+
+        $tierCounts = array_fill_keys($tierNos, 0);
+        $byCategory = [];
+        foreach ($rows as $row) {
+            $tier = ProfileModel::jobTierFor($row->job_title, $row->status_member, $row->job_tier ?? null);
+            $category = $this->compositionCategoryLabel($row->company_category);
+
+            if (!isset($byCategory[$category])) {
+                $byCategory[$category] = array_fill_keys($tierNos, 0);
+            }
+            $byCategory[$category][$tier]++;
+            $tierCounts[$tier]++;
+        }
+
+        // Urut terbanyak dulu; "Others" & "Not set" selalu paling bawah.
+        $tail = ['Others', 'Not set'];
+        uksort($byCategory, function ($a, $b) use ($byCategory, $tail) {
+            $aTail = array_search($a, $tail, true);
+            $bTail = array_search($b, $tail, true);
+            if ($aTail !== false || $bTail !== false) {
+                return ($aTail === false ? -1 : $aTail) <=> ($bTail === false ? -1 : $bTail);
+            }
+            return array_sum($byCategory[$b]) <=> array_sum($byCategory[$a]);
+        });
+
+        $tiers = [];
+        foreach (JobTierClassifier::TIERS as $tierNo => $meta) {
+            $tiers[] = [
+                'tier'      => $tierNo,
+                'label'     => 'T' . $tierNo,
+                'roles'     => $meta['roles'],
+                'color'     => $meta['color'],
+                'count'     => $tierCounts[$tierNo],
+                'byCategory' => array_values(array_column($byCategory, $tierNo)),
+            ];
+        }
+
+        return [
+            'total'      => $rows->count(),
+            'tiers'      => $tiers,
+            'categories' => array_keys($byCategory),
+        ];
+    }
+
+    private function compositionCategoryLabel($category): string
+    {
+        $category = trim((string) $category);
+        if ($category === '') {
+            return 'Not set';
+        }
+
+        // ucfirst menyatukan varian ketikan lama, mis. "services/Logistics/..." → "Services/Logistics/...".
+        return strtolower($category) === 'other' ? 'Others' : ucfirst($category);
     }
 
     /**
@@ -891,6 +966,7 @@ class UsersController extends Controller
             'tier'    => $tier,
             'manual'  => $manual,
             'color'   => JobTierClassifier::color($tier),
+            'text'    => JobTierClassifier::textColor($tier),
             'title'   => JobTierClassifier::tooltip($tier, $manual),
         ]);
     }

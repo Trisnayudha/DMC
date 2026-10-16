@@ -300,6 +300,55 @@
 
 </div>{{-- /charts row --}}
 
+{{-- Member composition (Internal Operating Guideline: position tier & company
+     category dilaporkan terpisah) — hanya member Active. --}}
+<div class="row">
+    <div class="col-lg-4 col-md-12 col-12 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    Job Tier
+                    <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
+                        title="Komposisi member Active berdasarkan position tier dari job title (otomatis atau diset manual)."></i>
+                </h4>
+                <span class="badge badge-light">{{ number_format($memberComposition['total'], 0, ',', '.') }} Active</span>
+            </div>
+            <div class="card-body">
+                <div style="position:relative; height:200px;">
+                    <canvas id="jobTierChart" role="img"
+                        aria-label="Jumlah member Active per job tier"></canvas>
+                </div>
+                <ul class="list-unstyled small mb-0 mt-3">
+                    @foreach ($memberComposition['tiers'] as $tierRow)
+                        <li class="d-flex align-items-start mb-1">
+                            <span class="mr-2 mt-1 flex-shrink-0" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:{{ $tierRow['color'] }};"></span>
+                            <span><strong>{{ $tierRow['label'] }}</strong> <span class="text-muted">{{ $tierRow['roles'] }}</span></span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 col-md-12 col-12 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    Company Category × Job Tier
+                    <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
+                        title="Jumlah member Active per company category, dipecah per job tier. Angka di ujung bar = total kategori."></i>
+                </h4>
+            </div>
+            <div class="card-body">
+                <div style="position:relative; height:{{ max(260, count($memberComposition['categories']) * 24 + 60) }}px;">
+                    <canvas id="companyCategoryTierChart" role="img"
+                        aria-label="Jumlah member Active per company category, dipecah per job tier"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>{{-- /member composition row --}}
+
 {{-- Members by Source (Members Relation SOP §8) --}}
 <div class="row">
     <div class="col-12 mb-4">
@@ -756,6 +805,144 @@
                     $('#reg-breakdown-empty').text('Gagal memuat breakdown.').show();
                 });
             }
+        })();
+
+        // Member composition: Job Tier & Company Category × Job Tier.
+        (function() {
+            var composition = @json($memberComposition);
+            var tiers = composition.tiers;
+            var pct = function(n, of) { return (of ? Math.round(n * 1000 / of) / 10 : 0).toLocaleString('id-ID'); };
+            var fmt = function(n) { return Number(n).toLocaleString('id-ID'); };
+
+            // Satu angka di ujung tiap bar horizontal (total segmen yang sedang
+            // tampil) — bukan angka di setiap segmen. Ikut berubah kalau tier
+            // disembunyikan lewat legend.
+            var endLabels = {
+                id: 'endLabels',
+                afterDatasetsDraw: function(chart, args, opts) {
+                    var ctx = chart.ctx;
+                    ctx.save();
+                    ctx.font = '600 11px ' + Chart.defaults.font.family;
+                    ctx.fillStyle = '#495057';
+                    ctx.textBaseline = 'middle';
+                    chart.data.labels.forEach(function(label, i) {
+                        var sum = 0, x = chart.scales.x.getPixelForValue(0), y = null;
+                        chart.data.datasets.forEach(function(ds, d) {
+                            var meta = chart.getDatasetMeta(d);
+                            if (meta.hidden || !meta.data[i]) return;
+                            sum += ds.data[i];
+                            x = Math.max(x, meta.data[i].x);
+                            y = meta.data[i].y;
+                        });
+                        if (y !== null && sum > 0) ctx.fillText(opts.format(sum), x + 6, y);
+                    });
+                    ctx.restore();
+                }
+            };
+
+            var axisStyle = {
+                grid: { color: '#eef0f3', drawTicks: false },
+                border: { display: false },
+                ticks: { color: '#6c757d', font: { size: 10 }, precision: 0, callback: function(v) { return fmt(v); } }
+            };
+
+            new Chart(document.getElementById('jobTierChart'), {
+                type: 'bar',
+                data: {
+                    labels: tiers.map(function(t) { return t.label; }),
+                    datasets: [{
+                        label: 'Member Active',
+                        data: tiers.map(function(t) { return t.count; }),
+                        backgroundColor: tiers.map(function(t) { return t.color; }),
+                        borderRadius: 4,
+                        maxBarThickness: 26,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 70 } },
+                    scales: {
+                        x: axisStyle,
+                        y: { grid: { display: false }, border: { display: false }, ticks: { color: '#343a40', font: { size: 11, weight: '600' } } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        endLabels: { format: function(n) { return fmt(n) + ' · ' + pct(n, composition.total) + '%'; } },
+                        tooltip: {
+                            callbacks: {
+                                title: function(items) { var t = tiers[items[0].dataIndex]; return t.label + ' — ' + t.roles; },
+                                label: function(item) { return ' ' + fmt(item.raw) + ' member (' + pct(item.raw, composition.total) + '%)'; }
+                            }
+                        }
+                    }
+                },
+                plugins: [endLabels]
+            });
+
+            var categories = composition.categories;
+            var categoryTotals = categories.map(function(c, i) {
+                return tiers.reduce(function(sum, t) { return sum + t.byCategory[i]; }, 0);
+            });
+
+            new Chart(document.getElementById('companyCategoryTierChart'), {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: tiers.map(function(t) {
+                        return {
+                            label: t.label,
+                            data: t.byCategory,
+                            backgroundColor: t.color,
+                            // 2px celah putih antar segmen supaya tier bersebelahan tetap terpisah.
+                            borderColor: '#ffffff',
+                            borderWidth: { right: 2 },
+                            borderSkipped: false,
+                            maxBarThickness: 16,
+                        };
+                    })
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 40 } },
+                    interaction: { mode: 'index', axis: 'y', intersect: false },
+                    scales: {
+                        x: Object.assign({ stacked: true }, axisStyle),
+                        y: {
+                            stacked: true,
+                            grid: { display: false },
+                            border: { display: false },
+                            ticks: {
+                                color: '#343a40',
+                                font: { size: 11 },
+                                callback: function(value) {
+                                    var label = this.getLabelForValue(value);
+                                    return label.length > 32 ? label.slice(0, 31) + '…' : label;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', align: 'end', labels: { boxWidth: 10, boxHeight: 10, font: { size: 11 } } },
+                        endLabels: { format: fmt },
+                        tooltip: {
+                            callbacks: {
+                                label: function(item) {
+                                    var t = tiers[item.datasetIndex];
+                                    return ' ' + t.label + ': ' + fmt(item.raw) + ' (' + pct(item.raw, categoryTotals[item.dataIndex]) + '%)';
+                                },
+                                footer: function(items) {
+                                    return 'Total: ' + fmt(categoryTotals[items[0].dataIndex]) + ' member';
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: [endLabels]
+            });
         })();
 
         new Chart(document.getElementById('statusBreakdownChart'), {
