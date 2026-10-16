@@ -61,6 +61,14 @@
             /* Atur nilai z-index yang lebih tinggi daripada modal */
         }
 
+        /* <select> asli yang disembunyikan select2 tetap position:absolute dengan
+           lebar alaminya (select multiple bisa ribuan px) — tanpa ini halaman bisa
+           di-scroll ke kanan (mis. filter Source di Members DMC). */
+        .select2-hidden-accessible {
+            width: 1px !important;
+            min-width: 0 !important;
+        }
+
         .myDiv {
             display: none;
         }
