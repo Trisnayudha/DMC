@@ -109,6 +109,35 @@ class CompanyModel extends Model
      * Definisi ini disamakan dengan Company Database page: exclude company "hantu"
      * (users_id tidak valid) dan company "tainted" (lihat taintedCompanyNames()).
      */
+    /**
+     * Nama company (lowercase, trimmed) yang terverifikasi — per NAMA, sama
+     * seperti Company Database: verified kalau ada satu baris dengan nama itu
+     * yang is_verified. Dipakai chart Job Tier, Company Category × Job Tier,
+     * dan Company Category Distribution di dashboard.
+     *
+     * @return array<string, true> set (key = nama) untuk lookup cepat
+     */
+    public static function verifiedCompanyNameSet(): array
+    {
+        return static::query()
+            ->where('is_verified', true)
+            ->whereNotNull('company_name')
+            ->whereRaw("TRIM(company_name) <> ''")
+            ->selectRaw('LOWER(TRIM(company_name)) as normalized_name')
+            ->distinct()
+            ->pluck('normalized_name')
+            ->flip()
+            ->map(function () {
+                return true;
+            })
+            ->all();
+    }
+
+    public static function isVerifiedName(?string $companyName, array $verifiedNameSet): bool
+    {
+        return isset($verifiedNameSet[mb_strtolower(trim((string) $companyName))]);
+    }
+
     public static function countVerifiedCompanies(): int
     {
         $tainted = static::taintedCompanyNames();

@@ -194,9 +194,9 @@
                 <h4 class="mb-0">
                     Job Tier
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Komposisi member Active berdasarkan position tier dari job title (otomatis atau diset manual). Klik bar, tier atau role untuk lihat detail & daftar member."></i>
+                        title="Komposisi member Active (hanya company yang sudah verified) berdasarkan position tier dari job title (otomatis atau diset manual). Klik bar, tier atau role untuk lihat detail & daftar member."></i>
                 </h4>
-                <span class="badge badge-light">{{ number_format($memberComposition['total'], 0, ',', '.') }} Active</span>
+                <span class="badge badge-light">{{ number_format($memberComposition['total'], 0, ',', '.') }} Active · company verified</span>
             </div>
             <div class="card-body">
                 @php
@@ -257,7 +257,7 @@
                 <h4 class="mb-0">
                     Company Category × Job Tier
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Jumlah member Active per company category, dipecah per job tier. Angka di ujung bar = total kategori."></i>
+                        title="Jumlah member Active (hanya company yang sudah verified) per company category, dipecah per job tier. Angka di ujung bar = total kategori."></i>
                 </h4>
                 <button type="button" class="btn btn-sm btn-outline-primary" id="company-category-tier-toggle"
                     data-toggle="collapse" data-target="#company-category-tier-collapse"
@@ -287,7 +287,7 @@
                 <h4 class="mb-0">
                     Company Category Tier
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Jumlah company unik dari Company Database (dedup per nama company, sama seperti halaman Company Database) — bukan jumlah member — dikelompokkan ke 5 grup kategori seperti di event detail IndonesiaMiner. Klik grup atau kategori untuk lihat category detail, subcategory & daftar company."></i>
+                        title="Jumlah company unik yang sudah verified dari Company Database (dedup per nama company, sama seperti tab Verified di halaman Company Database) — bukan jumlah member — dikelompokkan ke 5 grup kategori seperti di event detail IndonesiaMiner. Klik grup atau kategori untuk lihat category detail, subcategory & daftar company."></i>
                 </h4>
                 <span class="badge badge-light" id="company-category-total">—</span>
             </div>

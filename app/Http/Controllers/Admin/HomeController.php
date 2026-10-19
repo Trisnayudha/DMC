@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company\CompanyModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -273,8 +274,10 @@ class HomeController extends Controller
             'other'                  => 'Category 5',
         ];
 
+        // Hanya company yang sudah verified (per nama company, sama seperti Company Database).
         $companyCategoryRaw = DB::table('users as u')
             ->join('company as c', 'c.users_id', '=', 'u.id')
+            ->whereIn(DB::raw('LOWER(TRIM(c.company_name))'), array_keys(CompanyModel::verifiedCompanyNameSet()))
             ->selectRaw("
                 CASE
                     WHEN c.company_category IS NULL OR c.company_category = '' THEN 'Uncategorized'

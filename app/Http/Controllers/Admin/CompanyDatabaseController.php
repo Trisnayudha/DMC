@@ -316,11 +316,12 @@ class CompanyDatabaseController extends Controller
     /**
      * Pie chart "Company Category" (admin/users): jumlah company unik per
      * kategori dari Company Database — definisi sama dengan halaman ini
-     * (dedup per nama, tanpa company hantu/tainted). Bukan hitungan member.
+     * (dedup per nama, tanpa company hantu/tainted), hanya yang sudah verified
+     * (scope "verified"). Bukan hitungan member.
      */
     public function categoryBreakdown()
     {
-        $counts = $this->buildCompanyGroups('')
+        $counts = $this->applyScope($this->buildCompanyGroups(''), 'verified')
             ->countBy(function ($group) {
                 return CompanyModel::categoryLabel($group->best_values['company_category']);
             })
@@ -365,7 +366,7 @@ class CompanyDatabaseController extends Controller
     /**
      * Detail untuk modal chart Company Category Tier — satu grup (`tier`) atau
      * satu kategori (`category`): breakdown category detail & subcategory +
-     * daftar company-nya.
+     * daftar company-nya. Hanya company verified, sama dengan chart-nya.
      */
     public function categoryDetail(Request $request)
     {
@@ -373,7 +374,7 @@ class CompanyDatabaseController extends Controller
         $tier = CompanyCategoryTier::exists($tier) ? $tier : null;
         $category = $tier ? null : CompanyModel::categoryLabel($request->query('category', ''));
 
-        $groups = $this->buildCompanyGroups('')
+        $groups = $this->applyScope($this->buildCompanyGroups(''), 'verified')
             ->each(function ($group) {
                 $group->category_label = CompanyModel::categoryLabel($group->best_values['company_category']);
             })

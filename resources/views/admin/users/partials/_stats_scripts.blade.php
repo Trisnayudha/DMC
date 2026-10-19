@@ -529,7 +529,7 @@
                     var tiers = res.tiers;
                     var total = res.total;
 
-                    $('#company-category-total').text(fmt(total) + ' company');
+                    $('#company-category-total').text(fmt(total) + ' company verified');
                     $('#company-category-list').html(tiers.map(function(t, i) {
                         var categories = t.categories.map(function(c) {
                             return '<button type="button" class="company-category-item cc-sub" data-category="' + esc(c.name) + '"'

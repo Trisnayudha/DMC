@@ -55,8 +55,14 @@ class JobTierDetailController extends Controller
                 $hasTierColumn ? ['profiles.job_tier', 'profiles.job_tier_manual'] : []
             ));
 
+        // Sama dengan chart Job Tier: hanya company yang sudah verified.
+        $verifiedNames = CompanyModel::verifiedCompanyNameSet();
+
         $members = [];
         foreach ($rows as $row) {
+            if (!CompanyModel::isVerifiedName($row->company_name, $verifiedNames)) {
+                continue;
+            }
             if (ProfileModel::jobTierFor($row->job_title, $row->status_member, $row->job_tier ?? null) !== $tier) {
                 continue;
             }

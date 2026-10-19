@@ -345,14 +345,20 @@ class UsersController extends Controller
         $tierNos = array_keys(JobTierClassifier::TIERS);
         $hasTierColumn = ProfileModel::hasJobTierColumn();
 
+        // Hanya member Active yang company-nya sudah verified (per nama company,
+        // sama seperti Company Database).
+        $verifiedNames = CompanyModel::verifiedCompanyNameSet();
         $rows = User::leftJoin('profiles', 'profiles.users_id', 'users.id')
             ->leftJoin('company', 'company.id', 'profiles.company_id')
             ->whereNotNull('users.isStatus')
             ->where('users.status_member', 'active')
             ->get(array_merge(
-                ['users.status_member', 'profiles.job_title', 'company.company_category'],
+                ['users.status_member', 'profiles.job_title', 'company.company_name', 'company.company_category'],
                 $hasTierColumn ? ['profiles.job_tier'] : []
-            ));
+            ))
+            ->filter(function ($row) use ($verifiedNames) {
+                return CompanyModel::isVerifiedName($row->company_name, $verifiedNames);
+            });
 
         $tierCounts = array_fill_keys($tierNos, 0);
         $tierRoles = [];

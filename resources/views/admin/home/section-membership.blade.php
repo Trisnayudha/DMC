@@ -61,6 +61,7 @@
             <div class="card-header">
                 @php
                     $catTierTooltip = implode('<br>', [
+                        '<i>Hanya company yang sudah verified.</i>',
                         '<b>Category 1:</b> Coal Mining, Minerals Producers, Power Plant, Smelter, Mining Contractor, Coal & Minerals Trading',
                         '<b>Category 2:</b> Supplier, Distributor &amp; Channel Partner, Manufacturer, Technology Provider',
                         '<b>Category 3:</b> Services/Logistics/Shipping/Facilities Management',
