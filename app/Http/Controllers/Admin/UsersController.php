@@ -394,6 +394,7 @@ class UsersController extends Controller
                 'tier'      => $tierNo,
                 'label'     => 'T' . $tierNo,
                 'roles'     => $meta['roles'],
+                'action'    => $meta['action'],
                 'color'     => $meta['color'],
                 'count'     => $tierCounts[$tierNo],
                 'byCategory' => array_values(array_column($byCategory, $tierNo)),

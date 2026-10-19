@@ -326,6 +326,14 @@
                             <canvas id="jobTierChart" role="img" style="cursor:pointer;"
                                 aria-label="Jumlah member Active per job tier"></canvas>
                         </div>
+                        <ul class="list-unstyled small mb-0 mt-3">
+                            @foreach ($memberComposition['tiers'] as $tierRow)
+                                <li class="d-flex align-items-start mb-1">
+                                    <span class="mr-2 mt-1 flex-shrink-0" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:{{ $tierRow['color'] }};"></span>
+                                    <span><strong>{{ $tierRow['label'] }}</strong> <span class="text-muted">{{ $tierRow['roles'] }}</span></span>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
                     <div class="col-lg-7">
                 {{-- Detail per tier + rincian role sesuai definisi tier (App\Support\JobTierRole);
@@ -336,7 +344,7 @@
                             <button type="button" class="company-category-item cc-tier" data-tier="{{ $tierRow['tier'] }}"
                                 title="{{ $tierRow['label'] }} — klik untuk detail">
                                 <span class="cc-dot" style="background:{{ $tierRow['color'] }};"></span>
-                                <span class="cc-name">{{ $tierRow['label'] }} <span class="text-muted font-weight-normal">{{ $tierRow['roles'] }}</span></span>
+                                <span class="cc-name">{{ $tierRow['label'] }} <span class="text-muted font-weight-normal">{{ $tierRow['action'] }}</span></span>
                                 <span class="cc-count">{{ number_format($tierRow['count'], 0, ',', '.') }}</span>
                                 <span class="cc-pct">{{ $jobTierPct($tierRow['count']) }}%</span>
                             </button>
