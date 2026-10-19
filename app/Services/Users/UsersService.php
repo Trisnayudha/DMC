@@ -3,6 +3,7 @@
 namespace App\Services\Users;
 
 use App\Models\User;
+use App\Support\CompanyCategoryTier;
 
 class UsersService extends User
 {
@@ -22,7 +23,7 @@ class UsersService extends User
         $users = $query->get();
         $categoryData = [];
         $otherCount = 0;
-        $colorPalette = ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff']; // Add more colors if needed
+        $colorPalette = ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40']; // Category 1..6
 
         foreach ($users as $user) {
             $category = self::mapCategory($user->company_category, $user->company_other);
@@ -32,6 +33,8 @@ class UsersService extends User
                 $categoryData[$category] = 1;
             }
         }
+
+        ksort($categoryData, SORT_NATURAL); // Category 1..6 berurutan
 
         $chartData = [
             'labels' => array_keys($categoryData),
@@ -51,37 +54,10 @@ class UsersService extends User
         return $chartData;
     }
 
+    /** "Category N" dari CompanyCategoryTier (sumber yang sama dengan chart Members & Dashboard). */
     private static function mapCategory($category, $otherCategory)
     {
-        $categoryMap = [
-            'Coal Mining'            => 'Category 1',
-            'Minerals Producers'     => 'Category 1',
-            'Power Plant'            => 'Category 1',
-            'Smelter'                => 'Category 1',
-            'Mining Contractor'      => 'Category 1',
-            'Coal & Minerals Trading'=> 'Category 1',
-            'Supplier'               => 'Category 2',
-            'Distributor & Channel Partner' => 'Category 2',
-            'Manufacturer'           => 'Category 2',
-            'Technology Provider'    => 'Category 2',
-            // Nama lama: S/D/M nonaktif (belum di-reclassify), Technology sebelum di-rename.
-            'Supplier/Distributor/Manufacturer' => 'Category 2',
-            'Technology'             => 'Category 2',
-            'Services/Logistics/Shipping/Facilities Management' => 'Category 3',
-            'Media'                  => 'Category 4',
-            'Association/Organization/Government/Academic' => 'Category 4',
-            'Consultants'            => 'Category 5',
-            'Investor'               => 'Category 5',
-            'Financial Services'     => 'Category 5',
-            'Law Firm'               => 'Category 5',
-            'Others'                 => 'Category 5',
-            'other'                  => 'Category 5',
-        ];
-
-        if (isset($categoryMap[$category])) {
-            return $categoryMap[$category];
-        }
-        return 'Category 5';
+        return CompanyCategoryTier::labelForCategory($category);
     }
 
     private static function generateColorPalette($count, $colorPalette)

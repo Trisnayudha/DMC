@@ -278,7 +278,7 @@
 </div>{{-- /member composition row --}}
 
 {{-- Company Category Tier dari Company Database — hitungan company unik, bukan member,
-     dikelompokkan ke 5 grup (App\Support\CompanyCategoryTier). Klik slice / grup / kategori
+     dikelompokkan ke 6 grup / Category 1–6 (App\Support\CompanyCategoryTier). Klik slice / grup / kategori
      → modal category detail + subcategory + daftar company. --}}
 <div class="row">
     <div class="col-12 mb-4">
@@ -287,7 +287,7 @@
                 <h4 class="mb-0">
                     Company Category Tier
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Jumlah company unik yang sudah verified dari Company Database (dedup per nama company, sama seperti tab Verified di halaman Company Database) — bukan jumlah member — dikelompokkan ke 5 grup kategori seperti di event detail IndonesiaMiner. Klik grup atau kategori untuk lihat category detail, subcategory & daftar company."></i>
+                        title="Jumlah company unik yang sudah verified dari Company Database (dedup per nama company, sama seperti tab Verified di halaman Company Database) — bukan jumlah member — dikelompokkan ke 6 grup (Category 1–6, sama dengan Dashboard & Event Detail). Klik grup atau kategori untuk lihat category detail, subcategory & daftar company."></i>
                 </h4>
                 <span class="badge badge-light" id="company-category-total">—</span>
             </div>

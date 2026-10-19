@@ -100,13 +100,7 @@
                                             <div class="card">
                                                 <div class="card-header">
                                                     @php
-                                                        $evtCatTooltip = implode('<br>', [
-                                                            '<b>Cat 1:</b> Coal Mining, Minerals Producers, Power Plant, Smelter, Mining Contractor, Coal & Minerals Trading',
-                                                            '<b>Cat 2:</b> Supplier, Distributor &amp; Channel Partner, Manufacturer, Technology Provider',
-                                                            '<b>Cat 3:</b> Services/Logistics/Shipping/Facilities Mgmt',
-                                                            '<b>Cat 4:</b> Media, Association/Org/Gov/Academic',
-                                                            '<b>Cat 5:</b> Consultants, Investor, Financial Services, Law Firm, Others',
-                                                        ]);
+                                                        $evtCatTooltip = implode('<br>', \App\Support\CompanyCategoryTier::tooltipLines());
                                                     @endphp
                                                     <h4>
                                                         Category Company

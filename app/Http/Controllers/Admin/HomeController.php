@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Company\CompanyModel;
 use App\Models\User;
+use App\Support\CompanyCategoryTier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -249,32 +250,9 @@ class HomeController extends Controller
         // =========================
         // Company Category Tier Chart
         // =========================
-        $categoryTierMap = [
-            'Coal Mining'            => 'Category 1',
-            'Minerals Producers'     => 'Category 1',
-            'Power Plant'            => 'Category 1',
-            'Smelter'                => 'Category 1',
-            'Mining Contractor'      => 'Category 1',
-            'Coal & Minerals Trading'=> 'Category 1',
-            'Supplier'               => 'Category 2',
-            'Distributor & Channel Partner' => 'Category 2',
-            'Manufacturer'           => 'Category 2',
-            'Technology Provider'    => 'Category 2',
-            // Nama lama: S/D/M nonaktif (belum di-reclassify), Technology sebelum di-rename.
-            'Supplier/Distributor/Manufacturer' => 'Category 2',
-            'Technology'             => 'Category 2',
-            'Services/Logistics/Shipping/Facilities Management' => 'Category 3',
-            'Media'                  => 'Category 4',
-            'Association/Organization/Government/Academic' => 'Category 4',
-            'Consultants'            => 'Category 5',
-            'Investor'               => 'Category 5',
-            'Financial Services'     => 'Category 5',
-            'Law Firm'               => 'Category 5',
-            'Others'                 => 'Category 5',
-            'other'                  => 'Category 5',
-        ];
-
-        // Hanya company yang sudah verified (per nama company, sama seperti Company Database).
+        // Grup Category 1..6 dari CompanyCategoryTier (sumber yang sama dengan chart
+        // di halaman Members & Event Detail). Hanya company yang sudah verified
+        // (per nama company, sama seperti Company Database).
         $companyCategoryRaw = DB::table('users as u')
             ->join('company as c', 'c.users_id', '=', 'u.id')
             ->whereIn(DB::raw('LOWER(TRIM(c.company_name))'), array_keys(CompanyModel::verifiedCompanyNameSet()))
@@ -288,17 +266,40 @@ class HomeController extends Controller
             ->groupBy('category')
             ->get();
 
-        $tierTotals = ['Category 1' => 0, 'Category 2' => 0, 'Category 3' => 0, 'Category 4' => 0, 'Category 5' => 0, 'Uncategorized' => 0];
-        foreach ($companyCategoryRaw as $row) {
-            $tier = $categoryTierMap[$row->category] ?? 'Uncategorized';
-            $tierTotals[$tier] += (int) $row->total;
+        // Breakdown per Category N: total + jumlah per kategori asli di dalamnya.
+        $companyCategoryBreakdown = [];
+        foreach (CompanyCategoryTier::labels() as $label => $tierName) {
+            $companyCategoryBreakdown[$label] = ['name' => $tierName, 'total' => 0, 'categories' => []];
         }
-        if ($tierTotals['Uncategorized'] === 0) {
-            unset($tierTotals['Uncategorized']);
+        $companyCategoryBreakdown['Uncategorized'] = ['name' => 'Company category belum diisi', 'total' => 0, 'categories' => []];
+
+        foreach ($companyCategoryRaw as $row) {
+            $label = $row->category === 'Uncategorized'
+                ? 'Uncategorized'
+                : CompanyCategoryTier::labelForCategory($row->category);
+            $categoryName = CompanyModel::categoryLabel($row->category);
+
+            $companyCategoryBreakdown[$label]['total'] += (int) $row->total;
+            $companyCategoryBreakdown[$label]['categories'][$categoryName] =
+                ($companyCategoryBreakdown[$label]['categories'][$categoryName] ?? 0) + (int) $row->total;
+        }
+        foreach ($companyCategoryBreakdown as &$group) {
+            arsort($group['categories']);
+        }
+        unset($group);
+        if ($companyCategoryBreakdown['Uncategorized']['total'] === 0) {
+            unset($companyCategoryBreakdown['Uncategorized']);
         }
 
-        $companyCategoryLabels = collect(array_keys($tierTotals));
-        $companyCategoryData   = collect(array_values($tierTotals));
+        $companyCategoryLabels = collect(array_keys($companyCategoryBreakdown));
+        $companyCategoryData   = collect(array_column($companyCategoryBreakdown, 'total'));
+        // Category 1..6 + abu-abu untuk Uncategorized; dipakai pie & daftar breakdown.
+        $companyCategoryColors = array_slice(
+            ['#6777ef', '#63ed7a', '#ffa426', '#3abaf4', '#fc544b', '#9b59b6'],
+            0,
+            count(CompanyCategoryTier::TIERS)
+        );
+        $companyCategoryColors[] = '#cdd3d8';
 
         // =========================
         // Job Title Tier Chart
@@ -341,6 +342,8 @@ class HomeController extends Controller
             'dataSourceStats',
             'companyCategoryLabels',
             'companyCategoryData',
+            'companyCategoryBreakdown',
+            'companyCategoryColors',
             'jobTitleTierLabels',
             'jobTitleTierData'
         );

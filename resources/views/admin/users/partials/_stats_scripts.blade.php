@@ -412,13 +412,13 @@
             }
         })();
 
-        // Company Category Tier (Company Database) — pie 5 grup besar (pola sama dengan
+        // Company Category Tier (Company Database) — pie 6 grup besar (Category 1..6) (pola sama dengan
         // event detail IndonesiaMiner); daftar samping = grup + kategori di dalamnya.
         (function() {
             // Warna brand desain "Member Compositions" (hitam, merah, abu, marun) + tan
-            // senada untuk grup ke-5. Urutan dipilih supaya slice bersebelahan (termasuk
+            // & abu muda senada untuk grup ke-5 dan ke-6. Urutan dipilih supaya slice bersebelahan (termasuk
             // slice terakhir ↔ pertama) tidak sama-sama gelap.
-            var palette = ['#1d1d1f', '#8e0f15', '#4b5058', '#3c1016', '#a8896c'];
+            var palette = ['#1d1d1f', '#8e0f15', '#4b5058', '#3c1016', '#a8896c', '#c4c6ca'];
             var fmt = function(n) { return Number(n).toLocaleString('id-ID'); };
             var pct = function(n, of) { return (of ? Math.round(n * 1000 / of) / 10 : 0).toLocaleString('id-ID'); };
             var esc = function(s) { return $('<span>').text(s).html(); };
@@ -544,7 +544,7 @@
                             + '<button type="button" class="company-category-item cc-tier" data-tier="' + esc(t.name) + '"'
                             + ' title="' + esc(t.name) + ' — klik untuk detail">'
                             + '<span class="cc-dot" style="background:' + palette[i] + ';"></span>'
-                            + '<span class="cc-name">' + esc(t.name) + '</span>'
+                            + '<span class="cc-name"><span class="text-muted">' + esc(t.label) + '</span> ' + esc(t.name) + '</span>'
                             + '<span class="cc-count">' + fmt(t.count) + '</span>'
                             + '<span class="cc-pct">' + pct(t.count, total) + '%</span>'
                             + '</button>' + categories + '</div>';
@@ -556,7 +556,7 @@
                     new Chart(document.getElementById('companyCategoryChart'), {
                         type: 'pie',
                         data: {
-                            labels: tiers.map(function(t) { return t.name; }),
+                            labels: tiers.map(function(t) { return t.label + ': ' + t.name; }),
                             datasets: [{
                                 data: tiers.map(function(t) { return t.count; }),
                                 backgroundColor: palette.slice(0, tiers.length),

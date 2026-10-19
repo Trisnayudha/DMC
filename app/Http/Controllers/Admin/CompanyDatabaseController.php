@@ -345,10 +345,10 @@ class CompanyDatabaseController extends Controller
             return $aTail !== $bTail ? $aTail <=> $bTail : $b['count'] <=> $a['count'];
         });
 
-        // Company Category Tier: 5 grup besar (lihat CompanyCategoryTier), urutan tetap.
+        // Company Category Tier: 6 grup besar (lihat CompanyCategoryTier), urutan tetap = Category 1..6.
         $tiers = [];
         foreach (array_keys(CompanyCategoryTier::TIERS) as $tierName) {
-            $tiers[$tierName] = ['name' => $tierName, 'count' => 0, 'categories' => []];
+            $tiers[$tierName] = ['name' => $tierName, 'label' => CompanyCategoryTier::label($tierName), 'count' => 0, 'categories' => []];
         }
         foreach ($categories as $category) {
             $tierName = CompanyCategoryTier::tierFor($category['name']);

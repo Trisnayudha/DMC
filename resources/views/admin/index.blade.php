@@ -198,14 +198,8 @@
                     labels: @json($companyCategoryLabels ?? []),
                     datasets: [{
                         data: @json($companyCategoryData ?? []),
-                        backgroundColor: [
-                            '#6777ef',
-                            '#63ed7a',
-                            '#ffa426',
-                            '#3abaf4',
-                            '#fc544b',
-                            '#cdd3d8'
-                        ]
+                        // Sama dengan warna daftar breakdown di bawah chart (HomeController).
+                        backgroundColor: @json($companyCategoryColors ?? [])
                     }]
                 },
                 options: {

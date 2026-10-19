@@ -60,14 +60,10 @@
         <div class="card">
             <div class="card-header">
                 @php
-                    $catTierTooltip = implode('<br>', [
-                        '<i>Hanya company yang sudah verified.</i>',
-                        '<b>Category 1:</b> Coal Mining, Minerals Producers, Power Plant, Smelter, Mining Contractor, Coal & Minerals Trading',
-                        '<b>Category 2:</b> Supplier, Distributor &amp; Channel Partner, Manufacturer, Technology Provider',
-                        '<b>Category 3:</b> Services/Logistics/Shipping/Facilities Management',
-                        '<b>Category 4:</b> Media, Association/Organization/Government/Academic',
-                        '<b>Category 5:</b> Consultants, Investor, Financial Services, Law Firm, Others',
-                    ]);
+                    $catTierTooltip = implode('<br>', array_merge(
+                        ['<i>Jumlah member di company yang sudah verified.</i>'],
+                        \App\Support\CompanyCategoryTier::tooltipLines()
+                    ));
                 @endphp
                 <h4>
                     Company Category Distribution
@@ -78,6 +74,33 @@
             </div>
             <div class="card-body">
                 <canvas id="companyCategoryChart" height="220"></canvas>
+
+                {{-- Breakdown: tiap Category N + kategori company di dalamnya. --}}
+                @php $companyCategoryGrandTotal = array_sum(array_column($companyCategoryBreakdown ?? [], 'total')); @endphp
+                <div class="mt-3" style="font-size:12px;">
+                    @foreach ($companyCategoryBreakdown ?? [] as $groupLabel => $group)
+                        <div class="d-flex align-items-start py-1" style="gap:8px;border-top:1px solid #f1f3f5;">
+                            <span class="flex-shrink-0 mt-1" style="width:10px;height:10px;border-radius:2px;background:{{ $companyCategoryColors[$loop->index] ?? '#cdd3d8' }};"></span>
+                            <div class="flex-grow-1" style="min-width:0;">
+                                <div class="d-flex" style="gap:8px;">
+                                    <span class="font-weight-bold">{{ $groupLabel }}</span>
+                                    <span class="text-muted text-truncate" title="{{ $group['name'] }}">{{ $group['name'] }}</span>
+                                    <span class="ml-auto font-weight-bold">{{ number_format($group['total'], 0, ',', '.') }}</span>
+                                    <span class="text-muted text-right" style="width:40px;">
+                                        {{ $companyCategoryGrandTotal ? number_format($group['total'] * 100 / $companyCategoryGrandTotal, 1, ',', '.') : 0 }}%
+                                    </span>
+                                </div>
+                                @if (!empty($group['categories']))
+                                    <div class="text-muted" style="font-size:11px;">
+                                        @foreach ($group['categories'] as $categoryName => $categoryCount)
+                                            {{ $categoryName }} <b>{{ number_format($categoryCount, 0, ',', '.') }}</b>@if (!$loop->last) · @endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>
