@@ -555,6 +555,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('users/mailchimp-count', [UsersController::class, 'mailchimpContactCount'])->name('users.mailchimp.count');
     Route::get('users/data', [UsersController::class, 'usersData'])->name('users.data');
     Route::get('users/registration-source-breakdown', [UsersController::class, 'registrationSourceBreakdown'])->name('users.registration_source_breakdown');
+    Route::get('users/job-tier-detail', [App\Http\Controllers\Admin\JobTierDetailController::class, 'show'])->name('users.job_tier_detail');
     Route::post('users/{id}/verification/start', [UsersController::class, 'startVerification'])->name('users.verification.start');
 
     Route::get('company-follow-ups', [MemberCompanyFollowUpController::class, 'index'])->name('admin.member_follow_ups.index');

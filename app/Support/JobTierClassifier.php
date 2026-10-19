@@ -27,8 +27,8 @@ class JobTierClassifier
      */
     const TIERS = [
         1 => ['roles' => 'Owner, Commissioner, C suite, President Director, Director',         'action' => 'Priority relationship', 'color' => '#1d1d1f', 'text' => '#ffffff'],
-        2 => ['roles' => 'General Manager, Head, Senior Manager, Manager, Superintendent',     'action' => 'Targeted engagement',   'color' => '#4b5058', 'text' => '#ffffff'],
-        3 => ['roles' => 'Supervisor, engineer, geologist, analyst, sales and consultant',    'action' => 'Event nurture',         'color' => '#8e0f15', 'text' => '#ffffff'],
+        2 => ['roles' => 'General Manager, Head, Senior Manager, Manager',                    'action' => 'Targeted engagement',   'color' => '#4b5058', 'text' => '#ffffff'],
+        3 => ['roles' => 'Superintendent, Supervisor, engineer, geologist, analyst, sales and consultant', 'action' => 'Event nurture', 'color' => '#8e0f15', 'text' => '#ffffff'],
         4 => ['roles' => 'Staff, junior professional, student, academic or unconfirmed role', 'action' => 'Standard nurture',      'color' => '#3c1016', 'text' => '#ffffff'],
     ];
 
@@ -49,8 +49,10 @@ class JobTierClassifier
              'director', 'directors', 'direktur', 'dirut', 'managing partner', 'partner', 'principal',
              'board', 'bod', 'md', 'entrepreneur', 'pengusaha', 'wiraswasta', 'minister', 'menteri',
              'governor', 'gubernur', 'bupati', 'walikota', 'mayor', 'dirjen', 'director general']],
-        [2, ['general manager', 'gm', 'manager', 'managers', 'manajer', 'mgr', 'head', 'kepala', 'ktt',
-             'superintendent', 'kabag', 'kadiv', 'bdm', 'avp']],
+        [2, ['general manager', 'gm', 'agm', 'manager', 'managers', 'manajer', 'mgr', 'head', 'kepala', 'ktt',
+             'kabag', 'kadiv', 'bdm', 'avp']],
+        // Superintendent dicek sebelum "staff/admin/assistant" supaya "Assistant Superintendent" tetap Tier 3.
+        [3, ['superintendent', 'supt']],
         [4, ['staff', 'staf', 'karyawan', 'pegawai', 'employee', 'admin', 'administration', 'assistant',
              'asisten', 'clerk']],
         [3, ['supervisor', 'spv', 'pengawas', 'engineer', 'engineering', 'insinyur', 'geologist', 'geology',
@@ -117,7 +119,7 @@ class JobTierClassifier
      * pencocokan per kata utuh ("it" tidak cocok di "security", "md" tidak
      * cocok di "admin") cukup pakai strpos(' kata ').
      */
-    private static function normalize(?string $jobTitle): string
+    public static function normalize(?string $jobTitle): string
     {
         $text = strtolower(trim((string) $jobTitle));
         $text = preg_replace('/[^a-z0-9]+/', ' ', $text);

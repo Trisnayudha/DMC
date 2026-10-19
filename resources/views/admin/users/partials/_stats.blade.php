@@ -303,46 +303,81 @@
 {{-- Member composition (Internal Operating Guideline: position tier & company
      category dilaporkan terpisah) — hanya member Active. --}}
 <div class="row">
-    <div class="col-lg-4 col-md-12 col-12 mb-4">
-        <div class="card h-100">
+    <div class="col-12 mb-4">
+        <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">
                     Job Tier
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Komposisi member Active berdasarkan position tier dari job title (otomatis atau diset manual)."></i>
+                        title="Komposisi member Active berdasarkan position tier dari job title (otomatis atau diset manual). Klik bar, tier atau role untuk lihat detail & daftar member."></i>
                 </h4>
                 <span class="badge badge-light">{{ number_format($memberComposition['total'], 0, ',', '.') }} Active</span>
             </div>
             <div class="card-body">
-                <div style="position:relative; height:200px;">
-                    <canvas id="jobTierChart" role="img"
-                        aria-label="Jumlah member Active per job tier"></canvas>
-                </div>
-                <ul class="list-unstyled small mb-0 mt-3">
+                @php
+                    $jobTierPct = function ($n) use ($memberComposition) {
+                        return $memberComposition['total'] ? number_format($n * 100 / $memberComposition['total'], 1, ',', '.') : '0';
+                    };
+                @endphp
+                {{-- Chart kiri, detail kanan (grid 2 kolom: T1 | T2 / T3 | T4) supaya tidak memanjang ke bawah. --}}
+                <div class="row align-items-center">
+                    <div class="col-lg-5 mb-3 mb-lg-0">
+                        <div style="position:relative; height:280px;">
+                            <canvas id="jobTierChart" role="img" style="cursor:pointer;"
+                                aria-label="Jumlah member Active per job tier"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                {{-- Detail per tier + rincian role sesuai definisi tier (App\Support\JobTierRole);
+                     klik → modal Job Tier detail. --}}
+                <div class="job-tier-grid" id="job-tier-list">
                     @foreach ($memberComposition['tiers'] as $tierRow)
-                        <li class="d-flex align-items-start mb-1">
-                            <span class="mr-2 mt-1 flex-shrink-0" style="display:inline-block;width:10px;height:10px;border-radius:2px;background:{{ $tierRow['color'] }};"></span>
-                            <span><strong>{{ $tierRow['label'] }}</strong> <span class="text-muted">{{ $tierRow['roles'] }}</span></span>
-                        </li>
+                        <div class="cc-tier-group">
+                            <button type="button" class="company-category-item cc-tier" data-tier="{{ $tierRow['tier'] }}"
+                                title="{{ $tierRow['label'] }} — klik untuk detail">
+                                <span class="cc-dot" style="background:{{ $tierRow['color'] }};"></span>
+                                <span class="cc-name">{{ $tierRow['label'] }} <span class="text-muted font-weight-normal">{{ $tierRow['roles'] }}</span></span>
+                                <span class="cc-count">{{ number_format($tierRow['count'], 0, ',', '.') }}</span>
+                                <span class="cc-pct">{{ $jobTierPct($tierRow['count']) }}%</span>
+                            </button>
+                            @foreach ($tierRow['roleCounts'] as $role => $roleCount)
+                                <button type="button" class="company-category-item cc-sub" data-tier="{{ $tierRow['tier'] }}"
+                                    data-role="{{ $role }}" title="{{ $role }} — klik untuk detail">
+                                    <span class="cc-name">{{ $role }}</span>
+                                    <span class="cc-count">{{ number_format($roleCount, 0, ',', '.') }}</span>
+                                    <span class="cc-pct">{{ $jobTierPct($roleCount) }}%</span>
+                                </button>
+                            @endforeach
+                        </div>
                     @endforeach
-                </ul>
+                </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-8 col-md-12 col-12 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
+    {{-- Jarang dipakai → disembunyikan default; chart baru digambar saat pertama dibuka. --}}
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">
                     Company Category × Job Tier
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
                         title="Jumlah member Active per company category, dipecah per job tier. Angka di ujung bar = total kategori."></i>
                 </h4>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="company-category-tier-toggle"
+                    data-toggle="collapse" data-target="#company-category-tier-collapse"
+                    aria-expanded="false" aria-controls="company-category-tier-collapse">
+                    <i class="fas fa-eye mr-1"></i><span>Show</span>
+                </button>
             </div>
-            <div class="card-body">
-                <div style="position:relative; height:{{ max(260, count($memberComposition['categories']) * 24 + 60) }}px;">
-                    <canvas id="companyCategoryTierChart" role="img"
-                        aria-label="Jumlah member Active per company category, dipecah per job tier"></canvas>
+            <div class="collapse" id="company-category-tier-collapse">
+                <div class="card-body">
+                    <div style="position:relative; height:{{ max(260, count($memberComposition['categories']) * 24 + 60) }}px;">
+                        <canvas id="companyCategoryTierChart" role="img"
+                            aria-label="Jumlah member Active per company category, dipecah per job tier"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -626,6 +661,17 @@
     .company-category-item.cc-sub .cc-count { font-weight: 600; }
     .company-category-item .cc-pct { color: #8a8fa3; width: 44px; text-align: right; }
     .cc-filter-chip { cursor: pointer; border: 1px solid transparent; }
+
+    /* Job Tier: detail tier dalam grid 2 kolom di samping chart. */
+    .job-tier-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px 24px;
+    }
+    .job-tier-grid .cc-tier-group { margin-bottom: 10px; }
+    @media (max-width: 767.98px) {
+        .job-tier-grid { grid-template-columns: minmax(0, 1fr); }
+    }
     .cc-filter-chip.active { border-color: #2a78d6; background: #eaf2fd; color: #1c5cab; }
 
     @media (max-width: 575.98px) {
@@ -952,12 +998,20 @@
                         tooltip: {
                             callbacks: {
                                 title: function(items) { var t = tiers[items[0].dataIndex]; return t.label + ' — ' + t.roles; },
-                                label: function(item) { return ' ' + fmt(item.raw) + ' member (' + pct(item.raw, composition.total) + '%)'; }
+                                label: function(item) { return ' ' + fmt(item.raw) + ' member (' + pct(item.raw, composition.total) + '%)'; },
+                                footer: function() { return 'Klik untuk detail'; }
                             }
                         }
+                    },
+                    onClick: function(evt, elements) {
+                        if (elements.length) window.openJobTierDetail({ tier: tiers[elements[0].index].tier });
                     }
                 },
                 plugins: [endLabels]
+            });
+
+            $('#job-tier-list').on('click', '.company-category-item', function() {
+                window.openJobTierDetail({ tier: Number($(this).attr('data-tier')), role: $(this).attr('data-role') || null });
             });
 
             var categories = composition.categories;
@@ -965,63 +1019,82 @@
                 return tiers.reduce(function(sum, t) { return sum + t.byCategory[i]; }, 0);
             });
 
-            new Chart(document.getElementById('companyCategoryTierChart'), {
-                type: 'bar',
-                data: {
-                    labels: categories,
-                    datasets: tiers.map(function(t) {
-                        return {
-                            label: t.label,
-                            data: t.byCategory,
-                            backgroundColor: t.color,
-                            // 2px celah putih antar segmen supaya tier bersebelahan tetap terpisah.
-                            borderColor: '#ffffff',
-                            borderWidth: { right: 2 },
-                            borderSkipped: false,
-                            maxBarThickness: 16,
-                        };
-                    })
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { right: 40 } },
-                    interaction: { mode: 'index', axis: 'y', intersect: false },
-                    scales: {
-                        x: Object.assign({ stacked: true }, axisStyle),
-                        y: {
-                            stacked: true,
-                            grid: { display: false },
-                            border: { display: false },
-                            ticks: {
-                                color: '#343a40',
-                                font: { size: 11 },
-                                callback: function(value) {
-                                    var label = this.getLabelForValue(value);
-                                    return label.length > 32 ? label.slice(0, 31) + '…' : label;
+            // Card ini collapse by default — chart digambar saat pertama dibuka supaya
+            // ukurannya benar (canvas di elemen tersembunyi lebarnya 0).
+            var categoryTierChartDrawn = false;
+            $('#company-category-tier-collapse')
+                .on('shown.bs.collapse', function() {
+                    $('#company-category-tier-toggle span').text('Hide');
+                    $('#company-category-tier-toggle i').attr('class', 'fas fa-eye-slash mr-1');
+                    if (!categoryTierChartDrawn) {
+                        categoryTierChartDrawn = true;
+                        drawCategoryTierChart();
+                    }
+                })
+                .on('hidden.bs.collapse', function() {
+                    $('#company-category-tier-toggle span').text('Show');
+                    $('#company-category-tier-toggle i').attr('class', 'fas fa-eye mr-1');
+                });
+
+            function drawCategoryTierChart() {
+                new Chart(document.getElementById('companyCategoryTierChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: categories,
+                        datasets: tiers.map(function(t) {
+                            return {
+                                label: t.label,
+                                data: t.byCategory,
+                                backgroundColor: t.color,
+                                // 2px celah putih antar segmen supaya tier bersebelahan tetap terpisah.
+                                borderColor: '#ffffff',
+                                borderWidth: { right: 2 },
+                                borderSkipped: false,
+                                maxBarThickness: 16,
+                            };
+                        })
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: { padding: { right: 40 } },
+                        interaction: { mode: 'index', axis: 'y', intersect: false },
+                        scales: {
+                            x: Object.assign({ stacked: true }, axisStyle),
+                            y: {
+                                stacked: true,
+                                grid: { display: false },
+                                border: { display: false },
+                                ticks: {
+                                    color: '#343a40',
+                                    font: { size: 11 },
+                                    callback: function(value) {
+                                        var label = this.getLabelForValue(value);
+                                        return label.length > 32 ? label.slice(0, 31) + '…' : label;
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'top', align: 'end', labels: { boxWidth: 10, boxHeight: 10, font: { size: 11 } } },
+                            endLabels: { format: fmt },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(item) {
+                                        var t = tiers[item.datasetIndex];
+                                        return ' ' + t.label + ': ' + fmt(item.raw) + ' (' + pct(item.raw, categoryTotals[item.dataIndex]) + '%)';
+                                    },
+                                    footer: function(items) {
+                                        return 'Total: ' + fmt(categoryTotals[items[0].dataIndex]) + ' member';
+                                    }
                                 }
                             }
                         }
                     },
-                    plugins: {
-                        legend: { position: 'top', align: 'end', labels: { boxWidth: 10, boxHeight: 10, font: { size: 11 } } },
-                        endLabels: { format: fmt },
-                        tooltip: {
-                            callbacks: {
-                                label: function(item) {
-                                    var t = tiers[item.datasetIndex];
-                                    return ' ' + t.label + ': ' + fmt(item.raw) + ' (' + pct(item.raw, categoryTotals[item.dataIndex]) + '%)';
-                                },
-                                footer: function(items) {
-                                    return 'Total: ' + fmt(categoryTotals[items[0].dataIndex]) + ' member';
-                                }
-                            }
-                        }
-                    }
-                },
-                plugins: [endLabels]
-            });
+                    plugins: [endLabels]
+                });
+            }
         })();
 
         // Company Category Tier (Company Database) — pie 5 grup besar (pola sama dengan
@@ -1204,7 +1277,7 @@
                     $('#company-category-loading').text('Gagal memuat data company category.');
                 });
 
-            $(document).on('click', '.company-category-item', function() {
+            $('#company-category-list').on('click', '.company-category-item', function() {
                 var tier = $(this).attr('data-tier');
                 window.openCompanyCategoryDetail(tier ? { tier: tier } : { category: $(this).attr('data-category') });
             });

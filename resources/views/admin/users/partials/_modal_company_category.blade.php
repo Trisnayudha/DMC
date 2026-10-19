@@ -179,10 +179,10 @@
                     });
             };
 
-            $(document).on('click', '.cc-filter-chip', function() {
+            $('#companyCategoryModal').on('click', '.cc-filter-chip', function() {
                 var group = $(this).attr('data-group');
                 state[group === 'category' ? 'categoryFilter' : 'subcategoryFilter'] = String($(this).attr('data-value'));
-                $('.cc-filter-chip[data-group="' + group + '"]').removeClass('active');
+                $('#companyCategoryModal .cc-filter-chip[data-group="' + group + '"]').removeClass('active');
                 $(this).addClass('active');
                 renderRows();
             });

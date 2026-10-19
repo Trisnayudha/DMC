@@ -18,6 +18,7 @@ use App\Models\UserEditLog;
 use App\Models\VerificationLog;
 use App\Services\Membership\MemberVerificationService;
 use App\Support\JobTierClassifier;
+use App\Support\JobTierRole;
 use App\Support\QrCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -359,6 +360,10 @@ class UsersController extends Controller
             ));
 
         $tierCounts = array_fill_keys($tierNos, 0);
+        $tierRoles = [];
+        foreach ($tierNos as $tierNo) {
+            $tierRoles[$tierNo] = JobTierRole::emptyCounts($tierNo);
+        }
         $byCategory = [];
         foreach ($rows as $row) {
             $tier = ProfileModel::jobTierFor($row->job_title, $row->status_member, $row->job_tier ?? null);
@@ -369,6 +374,7 @@ class UsersController extends Controller
             }
             $byCategory[$category][$tier]++;
             $tierCounts[$tier]++;
+            $tierRoles[$tier][JobTierRole::roleFor($tier, $row->job_title)]++;
         }
 
         // Urut terbanyak dulu; "Others" & "Not set" selalu paling bawah.
@@ -391,6 +397,8 @@ class UsersController extends Controller
                 'color'     => $meta['color'],
                 'count'     => $tierCounts[$tierNo],
                 'byCategory' => array_values(array_column($byCategory, $tierNo)),
+                // Daftar detail di card Job Tier: jumlah per role di definisi tier.
+                'roleCounts' => $tierRoles[$tierNo],
             ];
         }
 
