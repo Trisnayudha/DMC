@@ -45,25 +45,14 @@ class UsersController extends Controller
         // now starts empty and loads its first page (and every page after) via
         // usersData(), so only stat counters are needed up front.
 
-        // Stats
-        $countActiveMember = User::whereNotNull('isStatus')
-            ->where('status_member', 'active')
-            ->count();
-
-        $countPendingMember = User::whereNotNull('isStatus')
-            ->where(function ($q) {
-                $q->whereNull('status_member')
-                    ->orWhere('status_member', 'pending');
-            })
-            ->count();
-
-        $countDeclined = User::whereNotNull('isStatus')
-            ->where('status_member', 'declined')
-            ->count();
-
-        $countDeactivated = User::whereNotNull('isStatus')
-            ->where('status_member', 'deactivated')
-            ->count();
+        // Stats — hanya hitungan ringan yang dipakai KPI card & badge tab tabel.
+        // Statistik berat (chart, SLA, leads, Job Tier, Members by Source) tidak
+        // dihitung di sini: dimuat lewat stats() saat panel "Statistik & Chart" dibuka.
+        $statusCounts = $this->memberStatusCounts();
+        $countActiveMember  = $statusCounts['active'];
+        $countPendingMember = $statusCounts['pending'];
+        $countDeclined      = $statusCounts['declined'];
+        $countDeactivated   = $statusCounts['deactivated'];
 
         $registeredAt = $this->registeredAtExpr();
 
@@ -105,182 +94,9 @@ class UsersController extends Controller
             ->where('company.explore', 'agree')
             ->count();
 
-        // New Member Validation (48h): rolling 30 hari terakhir (created_at) supaya
-        // mencerminkan performa terkini, bukan tumpukan histori all-time.
-        $validationWindowStart = Carbon::now()->subDays(30);
-
-        $countValidatedWithin48h = User::whereNotNull('verified_at')
-            ->where(DB::raw($registeredAt), '>=', $validationWindowStart)
-            ->whereRaw("TIMESTAMPDIFF(HOUR, {$registeredAt}, verified_at) <= 48")
-            ->count();
-
-        $countValidatedAfter48h = User::whereNotNull('verified_at')
-            ->where(DB::raw($registeredAt), '>=', $validationWindowStart)
-            ->whereRaw("TIMESTAMPDIFF(HOUR, {$registeredAt}, verified_at) > 48")
-            ->count();
-
         $countTwoStepVerified = User::whereNotNull('isStatus')
             ->where('two_step_verified', true)
             ->count();
-
-        // Member Registrations trend — weekly (last 8 weeks) & monthly (last 6
-        // months) — for quick management reporting ("berapa yang daftar minggu/
-        // bulan ini"). Zero-filled so a quiet week/month shows as 0, not a gap.
-        $weeklyRaw = User::whereNotNull('isStatus')
-            ->where(DB::raw($registeredAt), '>=', Carbon::now()->subWeeks(7)->startOfWeek())
-            ->selectRaw("YEARWEEK({$registeredAt}, 3) as period_key, COUNT(*) as total")
-            ->groupBy('period_key')
-            ->pluck('total', 'period_key');
-
-        $registrationsWeeklyLabels = [];
-        $registrationsWeeklyCounts = [];
-        $registrationsWeeklyRanges = [];
-        for ($i = 7; $i >= 0; $i--) {
-            $weekStart = Carbon::now()->subWeeks($i)->startOfWeek();
-            $key = (int) $weekStart->format('oW');
-            $registrationsWeeklyLabels[] = $weekStart->format('d M');
-            $registrationsWeeklyCounts[] = (int) ($weeklyRaw[$key] ?? 0);
-            $registrationsWeeklyRanges[] = ['from' => $weekStart->toDateTimeString(), 'to' => $weekStart->copy()->endOfWeek()->toDateTimeString()];
-        }
-
-        // startOfMonth() BEFORE subMonths() — doing it after can land on a day
-        // that doesn't exist in the target month (e.g. Jul 29 - 5 months = Feb 29,
-        // invalid in a non-leap year) and Carbon silently overflows into March,
-        // producing a duplicate month instead of February.
-        $monthsToShow = max(5, Carbon::now()->month - 1);
-        $monthlyRaw = User::whereNotNull('isStatus')
-            ->where(DB::raw($registeredAt), '>=', Carbon::now()->startOfMonth()->subMonths($monthsToShow))
-            ->selectRaw("DATE_FORMAT({$registeredAt}, '%Y-%m') as period_key, COUNT(*) as total")
-            ->groupBy('period_key')
-            ->pluck('total', 'period_key');
-
-        $registrationsMonthlyLabels = [];
-        $registrationsMonthlyCounts = [];
-        $registrationsMonthlyRanges = [];
-        for ($i = $monthsToShow; $i >= 0; $i--) {
-            $monthStart = Carbon::now()->startOfMonth()->subMonths($i);
-            $key = $monthStart->format('Y-m');
-            $registrationsMonthlyLabels[] = $monthStart->format('M Y');
-            $registrationsMonthlyCounts[] = (int) ($monthlyRaw[$key] ?? 0);
-            $registrationsMonthlyRanges[] = ['from' => $monthStart->toDateTimeString(), 'to' => $monthStart->copy()->endOfMonth()->toDateTimeString()];
-        }
-
-        // Yearly registration trend (Members Relation SOP §6 "Growth Tahunan")
-        // — one bar per calendar year, from the earliest registration on record
-        // (capped at the last 8 years so a very old dataset doesn't produce an
-        // unreadable chart) through the current year.
-        $earliestRegistered = User::whereNotNull('isStatus')->min(DB::raw($registeredAt));
-        $earliestYear = (int) ($earliestRegistered
-            ? Carbon::parse($earliestRegistered)->year
-            : Carbon::now()->year);
-        $earliestYear = max($earliestYear, Carbon::now()->year - 7);
-
-        $yearlyRaw = User::whereNotNull('isStatus')
-            ->where(DB::raw($registeredAt), '>=', Carbon::createFromDate($earliestYear, 1, 1)->startOfDay())
-            ->selectRaw("YEAR({$registeredAt}) as period_key, COUNT(*) as total")
-            ->groupBy('period_key')
-            ->pluck('total', 'period_key');
-
-        $registrationsYearlyLabels = [];
-        $registrationsYearlyCounts = [];
-        $registrationsYearlyRanges = [];
-        for ($year = $earliestYear; $year <= Carbon::now()->year; $year++) {
-            $registrationsYearlyLabels[] = (string) $year;
-            $registrationsYearlyCounts[] = (int) ($yearlyRaw[$year] ?? 0);
-            $yearStart = Carbon::createFromDate($year, 1, 1)->startOfDay();
-            $registrationsYearlyRanges[] = ['from' => $yearStart->toDateTimeString(), 'to' => $yearStart->copy()->endOfYear()->toDateTimeString()];
-        }
-
-        // Members by Source (Members Relation SOP §8) — reflects whatever
-        // date/month/year/source/status filter is currently active on the
-        // table (same query the table itself uses), so the breakdown stays
-        // in sync when an admin filters instead of always showing all-time
-        // totals. See computeSourceBreakdown().
-        $sourceQuery = $this->buildMemberQuery($request);
-
-        // Verification SLA + Leads (Members Relation SOP §2-4): both new tables
-        // ship in this same change but their migrations haven't necessarily run
-        // yet (never auto-run against this DB — see project convention). Guarded
-        // so the Members page keeps working in that gap instead of 500ing, and
-        // starts reporting real numbers the moment the migrations land, with no
-        // further code change needed.
-        $countNewMember = $countPendingMember;
-        $countInVerification = 0;
-        $countSlaGreen = $countSlaYellow = $countSlaRed = 0;
-        $avgVerificationHours = null;
-        $picPerformance = collect();
-        $countLeads = $countLeadsPendingFollowUp = $countLeadsOverSla = 0;
-        $countLeadsWin = $countLeadsLoss = 0;
-        $leadConversionRate = null;
-
-        if (Schema::hasTable('verification_logs')) {
-            try {
-                // New vs In Verification are computed display labels —
-                // status_member itself stays untouched (pricing logic elsewhere
-                // keys off it) — split by whether an open verification_logs row
-                // exists for that pending user.
-                $openVerificationUserIds = VerificationLog::open()->pluck('user_id')->unique();
-
-                $countNewMember = User::whereNotNull('isStatus')
-                    ->where(function ($q) {
-                        $q->whereNull('status_member')->orWhere('status_member', 'pending');
-                    })
-                    ->whereNotIn('id', $openVerificationUserIds)
-                    ->count();
-
-                $countInVerification = User::whereNotNull('isStatus')
-                    ->where(function ($q) {
-                        $q->whereNull('status_member')->orWhere('status_member', 'pending');
-                    })
-                    ->whereIn('id', $openVerificationUserIds)
-                    ->count();
-
-                // SLA tiers for items currently open (started, not finished yet)
-                $countSlaGreen = VerificationLog::open()->whereRaw('TIMESTAMPDIFF(HOUR, started_at, NOW()) < 24')->count();
-                $countSlaYellow = VerificationLog::open()->whereRaw('TIMESTAMPDIFF(HOUR, started_at, NOW()) BETWEEN 24 AND 48')->count();
-                $countSlaRed = VerificationLog::open()->whereRaw('TIMESTAMPDIFF(HOUR, started_at, NOW()) > 48')->count();
-
-                // Average processing time + per-PIC breakdown, last 30 days (only
-                // ~5 PICs today so a small table is more useful here than a chart)
-                $avgVerificationMinutes = VerificationLog::whereNotNull('finished_at')
-                    ->where('started_at', '>=', Carbon::now()->subDays(30))
-                    ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, started_at, finished_at)) as avg_minutes')
-                    ->value('avg_minutes');
-                $avgVerificationHours = $avgVerificationMinutes ? round($avgVerificationMinutes / 60, 1) : null;
-
-                $picPerformance = VerificationLog::whereNotNull('finished_at')
-                    ->where('started_at', '>=', Carbon::now()->subDays(30))
-                    ->whereNotNull('finished_by_name')
-                    ->selectRaw('finished_by_name, COUNT(*) as total, AVG(TIMESTAMPDIFF(MINUTE, started_at, finished_at)) as avg_minutes')
-                    ->groupBy('finished_by_name')
-                    ->orderByDesc('total')
-                    ->get();
-            } catch (\Throwable $e) {
-                Log::warning('index: verification SLA stats failed: ' . $e->getMessage());
-            }
-        }
-
-        if (Schema::hasTable('member_lead_follow_ups')) {
-            try {
-                $countLeads = MemberLeadFollowUp::approvedMember()->count();
-                $countLeadsPendingFollowUp = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
-                $countLeadsOverSla = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING)
-                    ->whereNotNull('deadline_at')
-                    ->where('deadline_at', '<', now())
-                    ->count();
-
-                // Lead Performance (SOP §7): Conversion Rate = Win ÷ Total Lead,
-                // per the SOP's own definition (denominator includes pending, not
-                // just resolved leads).
-                $countLeadsWin = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_WIN)->count();
-                $countLeadsLoss = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
-                $leadConversionRate = $countLeads > 0 ? round($countLeadsWin / $countLeads * 100, 1) : null;
-            } catch (\Throwable $e) {
-                Log::warning('index: lead stats failed: ' . $e->getMessage());
-            }
-        }
-
-        $sourceBreakdown = $this->computeSourceBreakdown($sourceQuery);
 
         // Tab "Unregistered" pakai partial server-rendered terpisah
         // (_table_unregistered.blade.php, sumber data MemberModel, bukan
@@ -305,38 +121,217 @@ class UsersController extends Controller
             'countActiveWithoutPassword' => $countActiveWithoutPassword,
             'countCompaniesVerified'     => $countCompaniesVerified,
             'countProspecting'           => $countProspecting,
-            'countValidatedWithin48h'    => $countValidatedWithin48h,
-            'countValidatedAfter48h'     => $countValidatedAfter48h,
-            'registrationsWeeklyLabels'  => $registrationsWeeklyLabels,
-            'registrationsWeeklyCounts'  => $registrationsWeeklyCounts,
-            'registrationsWeeklyRanges'  => $registrationsWeeklyRanges,
-            'registrationsMonthlyLabels' => $registrationsMonthlyLabels,
-            'registrationsMonthlyCounts' => $registrationsMonthlyCounts,
-            'registrationsMonthlyRanges' => $registrationsMonthlyRanges,
-            'registrationsYearlyLabels'  => $registrationsYearlyLabels,
-            'registrationsYearlyCounts'  => $registrationsYearlyCounts,
-            'registrationsYearlyRanges'  => $registrationsYearlyRanges,
-            'sourceBreakdown'     => $sourceBreakdown,
-            'countNewMember'      => $countNewMember,
-            'countInVerification' => $countInVerification,
-            'countSlaGreen'       => $countSlaGreen,
-            'countSlaYellow'      => $countSlaYellow,
-            'countSlaRed'         => $countSlaRed,
-            'avgVerificationHours' => $avgVerificationHours,
-            'picPerformance'      => $picPerformance,
-            'countLeads'                => $countLeads,
-            'countLeadsPendingFollowUp' => $countLeadsPendingFollowUp,
-            'countLeadsOverSla'         => $countLeadsOverSla,
-            'countLeadsWin'             => $countLeadsWin,
-            'countLeadsLoss'            => $countLeadsLoss,
-            'leadConversionRate'        => $leadConversionRate,
-            'memberComposition'         => $this->memberCompositionStats(),
             'companyNames'       => CompanyModel::whereNotNull('company_name')
                 ->whereRaw("TRIM(company_name) <> ''")
                 ->distinct()
                 ->orderBy('company_name')
                 ->pluck('company_name'),
         ]);
+    }
+
+    /**
+     * Panel "Statistik & Chart" di halaman Members (AJAX, dipanggil saat panel
+     * dibuka pertama kali): HTML panel (_stats_panel) + data chart untuk
+     * initMemberStats(). Query string halaman ikut dikirim, jadi Members by
+     * Source tetap mengikuti filter tabel yang sedang aktif.
+     */
+    public function stats(Request $request)
+    {
+        $statusCounts  = $this->memberStatusCounts();
+        $validation    = $this->validation48hStats();
+        $composition   = $this->memberCompositionStats();
+
+        $html = view('admin.users.partials._stats_panel', array_merge(
+            $this->verificationSlaStats(),
+            $this->leadStats(),
+            [
+                'countActiveMember'       => $statusCounts['active'],
+                'countPendingMember'      => $statusCounts['pending'],
+                'countDeclined'           => $statusCounts['declined'],
+                'countDeactivated'        => $statusCounts['deactivated'],
+                'countValidatedWithin48h' => $validation['within48h'],
+                'countValidatedAfter48h'  => $validation['after48h'],
+                'sourceBreakdown'         => $this->computeSourceBreakdown($this->buildMemberQuery($request)),
+                'memberComposition'       => $composition,
+            ]
+        ))->render();
+
+        return response()->json([
+            'html' => $html,
+            'data' => [
+                'status'            => $statusCounts,
+                'validation'        => $validation,
+                'registrations'     => $this->registrationTrends(),
+                'memberComposition' => $composition,
+            ],
+        ]);
+    }
+
+    /** Jumlah member per status (KPI card, badge tab, chart Verification Status). */
+    private function memberStatusCounts(): array
+    {
+        $base = function () {
+            return User::whereNotNull('isStatus');
+        };
+
+        return [
+            'active'      => $base()->where('status_member', 'active')->count(),
+            'pending'     => $base()->where(function ($q) {
+                $q->whereNull('status_member')->orWhere('status_member', 'pending');
+            })->count(),
+            'declined'    => $base()->where('status_member', 'declined')->count(),
+            'deactivated' => $base()->where('status_member', 'deactivated')->count(),
+        ];
+    }
+
+    /**
+     * New Member Validation (48h): rolling 30 hari terakhir (created_at) supaya
+     * mencerminkan performa terkini, bukan tumpukan histori all-time.
+     */
+    private function validation48hStats(): array
+    {
+        $registeredAt = $this->registeredAtExpr();
+        $base = function () use ($registeredAt) {
+            return User::whereNotNull('verified_at')
+                ->where(DB::raw($registeredAt), '>=', Carbon::now()->subDays(30));
+        };
+
+        return [
+            'within48h' => $base()->whereRaw("TIMESTAMPDIFF(HOUR, {$registeredAt}, verified_at) <= 48")->count(),
+            'after48h'  => $base()->whereRaw("TIMESTAMPDIFF(HOUR, {$registeredAt}, verified_at) > 48")->count(),
+        ];
+    }
+
+    /**
+     * Member Registrations trend — weekly (8 minggu), monthly (≥ 6 bulan) &
+     * yearly (maks. 8 tahun, Members Relation SOP §6 "Growth Tahunan") — untuk
+     * reporting cepat ke management. Zero-filled supaya periode sepi tampil 0,
+     * bukan bolong. Tiap periode: { labels, counts, ranges } (ranges dipakai
+     * modal breakdown source saat bar diklik).
+     */
+    private function registrationTrends(): array
+    {
+        $registeredAt = $this->registeredAtExpr();
+        $now = Carbon::now();
+
+        $weeklyRaw = User::whereNotNull('isStatus')
+            ->where(DB::raw($registeredAt), '>=', $now->copy()->subWeeks(7)->startOfWeek())
+            ->selectRaw("YEARWEEK({$registeredAt}, 3) as period_key, COUNT(*) as total")
+            ->groupBy('period_key')
+            ->pluck('total', 'period_key');
+
+        $weekly = ['labels' => [], 'counts' => [], 'ranges' => []];
+        for ($i = 7; $i >= 0; $i--) {
+            $weekStart = $now->copy()->subWeeks($i)->startOfWeek();
+            $weekly['labels'][] = $weekStart->format('d M');
+            $weekly['counts'][] = (int) ($weeklyRaw[(int) $weekStart->format('oW')] ?? 0);
+            $weekly['ranges'][] = ['from' => $weekStart->toDateTimeString(), 'to' => $weekStart->copy()->endOfWeek()->toDateTimeString()];
+        }
+
+        // startOfMonth() SEBELUM subMonths() — kalau sesudahnya bisa jatuh ke
+        // tanggal yang tidak ada di bulan tujuan (mis. 29 Jul - 5 bulan = 29 Feb di
+        // tahun non-kabisat) dan Carbon overflow ke Maret → bulan dobel.
+        $monthsToShow = max(5, $now->month - 1);
+        $monthlyRaw = User::whereNotNull('isStatus')
+            ->where(DB::raw($registeredAt), '>=', $now->copy()->startOfMonth()->subMonths($monthsToShow))
+            ->selectRaw("DATE_FORMAT({$registeredAt}, '%Y-%m') as period_key, COUNT(*) as total")
+            ->groupBy('period_key')
+            ->pluck('total', 'period_key');
+
+        $monthly = ['labels' => [], 'counts' => [], 'ranges' => []];
+        for ($i = $monthsToShow; $i >= 0; $i--) {
+            $monthStart = $now->copy()->startOfMonth()->subMonths($i);
+            $monthly['labels'][] = $monthStart->format('M Y');
+            $monthly['counts'][] = (int) ($monthlyRaw[$monthStart->format('Y-m')] ?? 0);
+            $monthly['ranges'][] = ['from' => $monthStart->toDateTimeString(), 'to' => $monthStart->copy()->endOfMonth()->toDateTimeString()];
+        }
+
+        $earliestRegistered = User::whereNotNull('isStatus')->min(DB::raw($registeredAt));
+        $earliestYear = $earliestRegistered ? Carbon::parse($earliestRegistered)->year : $now->year;
+        $earliestYear = max($earliestYear, $now->year - 7);
+
+        $yearlyRaw = User::whereNotNull('isStatus')
+            ->where(DB::raw($registeredAt), '>=', Carbon::createFromDate($earliestYear, 1, 1)->startOfDay())
+            ->selectRaw("YEAR({$registeredAt}) as period_key, COUNT(*) as total")
+            ->groupBy('period_key')
+            ->pluck('total', 'period_key');
+
+        $yearly = ['labels' => [], 'counts' => [], 'ranges' => []];
+        for ($year = $earliestYear; $year <= $now->year; $year++) {
+            $yearStart = Carbon::createFromDate($year, 1, 1)->startOfDay();
+            $yearly['labels'][] = (string) $year;
+            $yearly['counts'][] = (int) ($yearlyRaw[$year] ?? 0);
+            $yearly['ranges'][] = ['from' => $yearStart->toDateTimeString(), 'to' => $yearStart->copy()->endOfYear()->toDateTimeString()];
+        }
+
+        return ['weekly' => $weekly, 'monthly' => $monthly, 'yearly' => $yearly];
+    }
+
+    /**
+     * Verification SLA (Members Relation SOP §2-4): item yang sedang di-review per
+     * tier umur, rata-rata waktu proses & performa per PIC (30 hari). Di-guard
+     * Schema::hasTable supaya panel tetap jalan kalau migration-nya belum ada.
+     */
+    private function verificationSlaStats(): array
+    {
+        $stats = [
+            'countSlaGreen'        => 0,
+            'countSlaYellow'       => 0,
+            'countSlaRed'          => 0,
+            'avgVerificationHours' => null,
+            'picPerformance'       => collect(),
+        ];
+
+        if (!Schema::hasTable('verification_logs')) {
+            return $stats;
+        }
+
+        try {
+            $stats['countSlaGreen']  = VerificationLog::open()->whereRaw('TIMESTAMPDIFF(HOUR, started_at, NOW()) < 24')->count();
+            $stats['countSlaYellow'] = VerificationLog::open()->whereRaw('TIMESTAMPDIFF(HOUR, started_at, NOW()) BETWEEN 24 AND 48')->count();
+            $stats['countSlaRed']    = VerificationLog::open()->whereRaw('TIMESTAMPDIFF(HOUR, started_at, NOW()) > 48')->count();
+
+            $avgMinutes = VerificationLog::whereNotNull('finished_at')
+                ->where('started_at', '>=', Carbon::now()->subDays(30))
+                ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, started_at, finished_at)) as avg_minutes')
+                ->value('avg_minutes');
+            $stats['avgVerificationHours'] = $avgMinutes ? round($avgMinutes / 60, 1) : null;
+
+            $stats['picPerformance'] = VerificationLog::whereNotNull('finished_at')
+                ->where('started_at', '>=', Carbon::now()->subDays(30))
+                ->whereNotNull('finished_by_name')
+                ->selectRaw('finished_by_name, COUNT(*) as total, AVG(TIMESTAMPDIFF(MINUTE, started_at, finished_at)) as avg_minutes')
+                ->groupBy('finished_by_name')
+                ->orderByDesc('total')
+                ->get();
+        } catch (\Throwable $e) {
+            Log::warning('stats: verification SLA stats failed: ' . $e->getMessage());
+        }
+
+        return $stats;
+    }
+
+    /** Leads (Members Relation SOP §7): total, pending follow-up & lewat SLA. */
+    private function leadStats(): array
+    {
+        $stats = ['countLeads' => 0, 'countLeadsPendingFollowUp' => 0, 'countLeadsOverSla' => 0];
+
+        if (!Schema::hasTable('member_lead_follow_ups')) {
+            return $stats;
+        }
+
+        try {
+            $pending = function () {
+                return MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING);
+            };
+            $stats['countLeads'] = MemberLeadFollowUp::approvedMember()->count();
+            $stats['countLeadsPendingFollowUp'] = $pending()->count();
+            $stats['countLeadsOverSla'] = $pending()->whereNotNull('deadline_at')->where('deadline_at', '<', now())->count();
+        } catch (\Throwable $e) {
+            Log::warning('stats: lead stats failed: ' . $e->getMessage());
+        }
+
+        return $stats;
     }
 
     /**
