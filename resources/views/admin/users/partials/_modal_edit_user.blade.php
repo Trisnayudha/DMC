@@ -89,7 +89,7 @@
                         <div class="form-group col-md-6">
                             <label class="small font-weight-bold">Company Category</label>
                             <select id="eu-company-category" class="form-control">
-                                @include('partials._company_category_options')
+                                @include('partials._company_category_options', ['includeInactive' => true])
                             </select>
                         </div>
                         <div class="form-group col-md-6 eu-company-other-wrap" style="display:none;">

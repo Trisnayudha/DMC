@@ -102,7 +102,7 @@
                                                     @php
                                                         $evtCatTooltip = implode('<br>', [
                                                             '<b>Cat 1:</b> Coal Mining, Minerals Producers, Power Plant, Smelter, Mining Contractor, Coal & Minerals Trading',
-                                                            '<b>Cat 2:</b> Supplier/Distributor/Manufacturer, Technology',
+                                                            '<b>Cat 2:</b> Supplier, Distributor &amp; Channel Partner, Manufacturer, Technology Provider',
                                                             '<b>Cat 3:</b> Services/Logistics/Shipping/Facilities Mgmt',
                                                             '<b>Cat 4:</b> Media, Association/Org/Gov/Academic',
                                                             '<b>Cat 5:</b> Consultants, Investor, Financial Services, Law Firm, Others',
@@ -695,7 +695,7 @@
                                     <label for="company_category" class="form-label">Company Category *</label>
                                     <select class="form-control js-example-basic-single d-block w-100"
                                         name="company_category" id="company_category" required>
-                                        @include('partials._company_category_options')
+                                        @include('partials._company_category_options', ['includeInactive' => true])
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -814,7 +814,7 @@
                                     <label>Company Category</label>
                                     <select class="form-control js-example-basic-single d-block w-100"
                                         name="company_category_edit" id="company_category_edit">
-                                        @include('partials._company_category_options')
+                                        @include('partials._company_category_options', ['includeInactive' => true])
                                     </select>
                                 </div>
                                 <div class="form-group company_other_edit">

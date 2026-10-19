@@ -16,7 +16,7 @@
                     <div class="form-group">
                         <label for="ram_company_category">Company Category <span class="text-danger">*</span></label>
                         <select name="company_category" id="ram_company_category" class="form-control" required>
-                            @include('partials._company_category_options')
+                            @include('partials._company_category_options', ['includeInactive' => true])
                         </select>
                     </div>
 

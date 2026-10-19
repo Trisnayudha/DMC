@@ -104,7 +104,7 @@
                             <option value="Indonesia" selected>Indonesia</option>
                         </select>
                         <select id="ateCompanyCategory">
-                            @include('partials._company_category_options')
+                            @include('partials._company_category_options', ['includeInactive' => true])
                         </select>
                         <div id="ateCompanyOtherGroup"></div>
                     </div>

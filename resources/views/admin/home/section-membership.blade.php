@@ -62,7 +62,7 @@
                 @php
                     $catTierTooltip = implode('<br>', [
                         '<b>Category 1:</b> Coal Mining, Minerals Producers, Power Plant, Smelter, Mining Contractor, Coal & Minerals Trading',
-                        '<b>Category 2:</b> Supplier/Distributor/Manufacturer, Technology',
+                        '<b>Category 2:</b> Supplier, Distributor &amp; Channel Partner, Manufacturer, Technology Provider',
                         '<b>Category 3:</b> Services/Logistics/Shipping/Facilities Management',
                         '<b>Category 4:</b> Media, Association/Organization/Government/Academic',
                         '<b>Category 5:</b> Consultants, Investor, Financial Services, Law Firm, Others',

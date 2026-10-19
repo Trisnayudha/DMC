@@ -19,6 +19,8 @@ class CompanyCategoryTier
             'Coal & Minerals Trading',
         ],
         'Supplier, Distributor, Manufacturer, Technology' => [
+            'Supplier', 'Distributor & Channel Partner', 'Manufacturer', 'Technology Provider',
+            // Nama lama: S/D/M nonaktif (belum di-reclassify), Technology sebelum di-rename.
             'Supplier/Distributor/Manufacturer', 'Technology',
         ],
         'Services, Logistics, Shipping, Facilities Management' => [

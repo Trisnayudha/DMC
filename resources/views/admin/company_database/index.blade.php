@@ -407,7 +407,7 @@
                                 <label>Company Category</label>
                                 <select name="company_category" id="edit_company_category"
                                     class="form-control company_category_edit">
-                                    @include('partials._company_category_options')
+                                    @include('partials._company_category_options', ['includeInactive' => true])
                                 </select>
                             </div>
                             <div class="form-group col-md-6 company_other_edit" style="display:none;">

@@ -60,6 +60,11 @@ class UsersService extends User
             'Smelter'                => 'Category 1',
             'Mining Contractor'      => 'Category 1',
             'Coal & Minerals Trading'=> 'Category 1',
+            'Supplier'               => 'Category 2',
+            'Distributor & Channel Partner' => 'Category 2',
+            'Manufacturer'           => 'Category 2',
+            'Technology Provider'    => 'Category 2',
+            // Nama lama: S/D/M nonaktif (belum di-reclassify), Technology sebelum di-rename.
             'Supplier/Distributor/Manufacturer' => 'Category 2',
             'Technology'             => 'Category 2',
             'Services/Logistics/Shipping/Facilities Management' => 'Category 3',
