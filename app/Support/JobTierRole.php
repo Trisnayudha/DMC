@@ -20,10 +20,10 @@ class JobTierRole
         1 => ['Owner', 'Commissioner', 'C suite', 'President Director', 'Director'],
         2 => ['General Manager', 'Head', 'Senior Manager', 'Manager'],
         3 => ['Superintendent', 'Supervisor', 'Engineer', 'Geologist', 'Analyst', 'Sales', 'Consultant'],
-        4 => ['Staff', 'Junior professional', 'Student', 'Academic', 'Unconfirmed role'],
+        4 => ['Staff', 'Junior professional', 'Student', 'Academic', 'Others'],
     ];
 
-    const FALLBACK = [1 => 'Director', 2 => 'Manager', 3 => 'Consultant', 4 => 'Unconfirmed role'];
+    const FALLBACK = [1 => 'Director', 2 => 'Manager', 3 => 'Consultant', 4 => 'Others'];
 
     /** Urutan pencocokan (beda dengan urutan tampil). */
     const RULES = [

@@ -29,7 +29,7 @@ class JobTierClassifier
         1 => ['roles' => 'Owner, Commissioner, C suite, President Director, Director',         'action' => 'Priority relationship', 'color' => '#1d1d1f', 'text' => '#ffffff'],
         2 => ['roles' => 'General Manager, Head, Senior Manager, Manager',                    'action' => 'Targeted engagement',   'color' => '#4b5058', 'text' => '#ffffff'],
         3 => ['roles' => 'Superintendent, Supervisor, engineer, geologist, analyst, sales and consultant', 'action' => 'Event nurture', 'color' => '#8e0f15', 'text' => '#ffffff'],
-        4 => ['roles' => 'Staff, junior professional, student, academic or unconfirmed role', 'action' => 'Standard nurture',      'color' => '#3c1016', 'text' => '#ffffff'],
+        4 => ['roles' => 'Staff, junior professional, student, academic and others', 'action' => 'Standard nurture',      'color' => '#3c1016', 'text' => '#ffffff'],
     ];
 
     /**
