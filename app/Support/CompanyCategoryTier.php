@@ -16,6 +16,7 @@ class CompanyCategoryTier
     const TIERS = [
         'Minerals Producers & Processing, Power Plant, Smelter, Coal Mining, Contractor' => [
             'Minerals Producers', 'Coal Mining', 'Mining Contractor', 'Smelter', 'Power Plant',
+            'Coal & Minerals Trading',
         ],
         'Supplier, Distributor, Manufacturer, Technology' => [
             'Supplier/Distributor/Manufacturer', 'Technology',
@@ -26,8 +27,8 @@ class CompanyCategoryTier
         'Association, Organization, Government, Media, Academic' => [
             'Association/Organization/Government/Academic', 'Media',
         ],
-        'Consultants, Investor, Financial Services, Trading, Law Firm' => [
-            'Consultants', 'Investor', 'Financial Services', 'Coal & Minerals Trading', 'Law Firm',
+        'Consultants, Investor, Financial Services, Law Firm' => [
+            'Consultants', 'Investor', 'Financial Services', 'Law Firm',
         ],
     ];
 
