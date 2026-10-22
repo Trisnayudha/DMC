@@ -89,7 +89,7 @@ Route::get('web-view-sponsor', function () {
     return view('maps');
 });
 
-Route::get('survey/the-71st-djakarta-mining-club-networking-event', function () {
+Route::get('survey/indonesia-energy-market-briefing-2026', function () {
     // return redirect()->away('https://docs.google.com/forms/d/1QqFD5UTk-PQvoQucvscDZeqwIktAkhNRBivbgIVP8Ig');
     return view('survey.index');
 });

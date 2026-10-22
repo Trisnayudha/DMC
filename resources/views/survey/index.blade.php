@@ -193,8 +193,8 @@
             <div class="page-header">
                 <img src="{{ asset('image/dmc.png') }}">
                 <div class="page-title">
-                    The 71st Djakarta Mining Club Networking Event<br>
-                    <span style="color: var(--dmc-red-dark)"> PwC's Mine 2026: Ambition to Action</span>
+                    Indonesian Energy Market Briefing 2026<br>
+                    {{-- <span style="color: var(--dmc-red-dark)"> PwC's Mine 2026: Ambition to Action</span> --}}
                 </div>
             </div>
 
@@ -206,14 +206,12 @@
                         <small class="text-muted">* Required</small>
                     </div>
 
-                    <img src="{{ asset('image/the71banner.png') }}" class="banner-img">
+                    <img src="{{ asset('image/banner_mccloskey_v7.png') }}" class="banner-img">
 
                     <!-- INTRO TEXT -->
                     <div class="intro-text mb-4">
                         <p>
-                            <strong>Thank you for attending the 71st Djakarta Mining Club Networking Event – PwC's Mine
-                                2026: Ambition to
-                                Action.</strong>
+                            <strong>Thank you for attending the Indonesian Energy Market Briefing 2026.</strong>
                         </p>
                         <p>
                             We kindly invite you to take a few moments to complete our post-event survey.
