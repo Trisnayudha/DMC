@@ -404,6 +404,7 @@ class SponsorCountRepresentativeController extends Controller
             // Daftarkan sebagai member pending + kirim WA ke Mba Dira
             if (!empty($request->register_as_member)) {
                 $user->status_member = 'pending';
+                $user->isStatus      = 'Active'; // wajib supaya muncul di menu Members DMC
                 $user->save();
 
                 $sponsor = Sponsor::find($request->sponsor_id);
