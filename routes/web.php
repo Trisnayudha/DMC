@@ -568,6 +568,9 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('leads/search-members', [MemberLeadFollowUpController::class, 'searchMembers'])->name('admin.member_leads.search_members');
     Route::post('leads', [MemberLeadFollowUpController::class, 'store'])->name('admin.member_leads.store');
     Route::post('leads/{id}/follow-up', [MemberLeadFollowUpController::class, 'logFollowUp'])->name('admin.member_leads.log_follow_up');
+    Route::get('leads/{id}/notes', [MemberLeadFollowUpController::class, 'notes'])->name('admin.member_leads.notes');
+    Route::post('leads/{id}/notes', [MemberLeadFollowUpController::class, 'storeNote'])->name('admin.member_leads.store_note');
+    Route::post('leads/{id}/channel', [MemberLeadFollowUpController::class, 'updateChannel'])->name('admin.member_leads.update_channel');
     Route::post('leads/{id}/result', [MemberLeadFollowUpController::class, 'markResult'])->name('admin.member_leads.mark_result');
     Route::post('leads/{id}/do-not-send', [MemberLeadFollowUpController::class, 'markDoNotSend'])->name('admin.member_leads.do_not_send');
 

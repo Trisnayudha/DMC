@@ -275,7 +275,7 @@ class CompanyModel extends Model
                     \App\Models\MemberLeadFollowUp::firstOrCreate(
                         ['user_id' => $company->users_id, 'result' => \App\Models\MemberLeadFollowUp::RESULT_PENDING],
                         [
-                            'deadline_at'     => now()->addHours(48),
+                            'deadline_at'     => \App\Models\MemberLeadFollowUp::deadlineFor('sponsorkit', now()),
                             'created_by_id'   => auth()->id(),
                             'created_by_name' => $leadAdmin ? $leadAdmin->name : 'System',
                         ]

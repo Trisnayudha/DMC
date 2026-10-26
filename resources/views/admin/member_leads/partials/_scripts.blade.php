@@ -22,7 +22,7 @@
         $('#fl-member-name').text(btn.data('member-name') || '-');
         $('#fl-date').val(nowLocal);
         $('#fl-channel').val(btn.data('channel') || '');
-        $('#fl-notes').val(btn.data('notes') || '');
+        $('#fl-notes').val('');
         $('#followUpLogModal').modal('show');
     });
 
@@ -46,6 +46,110 @@
                     toastr.error(res.message || 'Failed to log follow-up.');
                     btn.prop('disabled', false);
                 }
+            },
+            error: function(xhr) {
+                toastr.error((xhr.responseJSON && xhr.responseJSON.message) || 'An error occurred.');
+                btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // =========================================================
+    // NOTES HISTORY (per step, e.g. prospect's reply)
+    // =========================================================
+    var notesChanged = false;
+
+    function escapeHtml(text) {
+        return $('<div>').text(text == null ? '' : text).html();
+    }
+
+    function loadLeadNotes(url) {
+        var list = $('#ln-list');
+        list.html('<div class="text-muted small">Loading...</div>');
+        $.get(url, function(res) {
+            if (!res.notes.length) {
+                list.html('<div class="text-muted small">No notes yet.</div>');
+                return;
+            }
+            list.html(res.notes.map(function(n) {
+                return '<div class="border rounded p-2 mb-2">'
+                    + '<div class="small text-muted mb-1">'
+                    + '<span class="badge badge-light border mr-1">' + escapeHtml(n.step_label) + '</span>'
+                    + escapeHtml(n.at) + ' · ' + escapeHtml(n.by)
+                    + '</div>'
+                    + '<div style="white-space:pre-wrap;">' + escapeHtml(n.note) + '</div>'
+                    + '</div>';
+            }).join(''));
+        }).fail(function() {
+            list.html('<div class="text-danger small">Failed to load notes.</div>');
+        });
+    }
+
+    $(document).on('click', '.btn-open-notes-modal', function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        $('#ln-btn-submit').data('store-url', btn.data('store-url')).data('list-url', btn.data('list-url'));
+        $('#ln-member-name').text(btn.data('member-name') || '-');
+        $('#ln-step').val(btn.data('default-step') || '');
+        $('#ln-note').val('');
+        notesChanged = false;
+        loadLeadNotes(btn.data('list-url'));
+        $('#leadNotesModal').modal('show');
+    });
+
+    $('#leadNotesModal').on('hidden.bs.modal', function() {
+        if (notesChanged) location.reload();
+    });
+
+    $(document).on('click', '#ln-btn-submit', function() {
+        var btn = $(this);
+        var note = $('#ln-note').val().trim();
+        if (note === '') {
+            toastr.warning('Please write the note first.');
+            return;
+        }
+        btn.prop('disabled', true);
+        $.ajax({
+            url: btn.data('store-url'),
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}', step: $('#ln-step').val(), note: note },
+            success: function(res) {
+                toastr.success(res.message);
+                notesChanged = true;
+                $('#ln-note').val('');
+                loadLeadNotes(btn.data('list-url'));
+            },
+            error: function(xhr) {
+                toastr.error((xhr.responseJSON && xhr.responseJSON.message) || 'An error occurred.');
+            },
+            complete: function() {
+                btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // =========================================================
+    // EDIT CHANNEL
+    // =========================================================
+    $(document).on('click', '.btn-open-channel-modal', function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        $('#lc-btn-submit').data('url', btn.data('url'));
+        $('#lc-member-name').text(btn.data('member-name') || '-');
+        $('#lc-channel').val(btn.data('channel') || '');
+        $('#leadChannelModal').modal('show');
+    });
+
+    $(document).on('click', '#lc-btn-submit', function() {
+        var btn = $(this);
+        btn.prop('disabled', true);
+        $.ajax({
+            url: btn.data('url'),
+            method: 'POST',
+            data: { _token: '{{ csrf_token() }}', channel: $('#lc-channel').val() },
+            success: function(res) {
+                toastr.success(res.message);
+                location.reload();
             },
             error: function(xhr) {
                 toastr.error((xhr.responseJSON && xhr.responseJSON.message) || 'An error occurred.');

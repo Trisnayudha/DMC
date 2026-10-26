@@ -18,6 +18,7 @@
                     <select id="dns-reason-category" class="form-control">
                         <option value="Competitor">Competitor</option>
                         <option value="Unqualified Lead">Unqualified Lead</option>
+                        <option value="Already Sponsor">Already Sponsor</option>
                         <option value="Other">Other</option>
                     </select>
                 </div>

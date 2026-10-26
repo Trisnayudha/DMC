@@ -22,7 +22,7 @@ class MemberLeadFollowUpController extends Controller
         $picId  = $request->get('pic_id');
         $search = trim((string) $request->get('search'));
 
-        $query = MemberLeadFollowUp::approvedMember()->with(['user.profile', 'user.company'])->orderBy('created_at', 'desc');
+        $query = MemberLeadFollowUp::approvedMember()->with(['user.profile', 'user.company', 'notesHistory'])->orderBy('created_at', 'desc');
 
         // 'do_not_send' is its own tab, independent of win/pending/loss — a
         // flagged lead can be in any result state, so it filters on the flag
@@ -148,14 +148,15 @@ class MemberLeadFollowUpController extends Controller
 
         $admin = auth()->user();
 
-        MemberLeadFollowUp::create([
+        $lead = MemberLeadFollowUp::create([
             'user_id'         => $user->id,
-            'deadline_at'     => now()->addHours(48),
-            'notes'           => $request->filled('notes') ? $request->notes : null,
+            'deadline_at'     => MemberLeadFollowUp::deadlineFor('sponsorkit', now()),
             'result'          => MemberLeadFollowUp::RESULT_PENDING,
             'created_by_id'   => auth()->id(),
             'created_by_name' => $admin ? $admin->name : 'Staff',
         ]);
+
+        $this->addNote($lead, null, $request->notes);
 
         return response()->json([
             'success' => true,
@@ -193,9 +194,6 @@ class MemberLeadFollowUpController extends Controller
         if ($request->filled('channel')) {
             $lead->channel = $request->channel;
         }
-        if ($request->filled('notes')) {
-            $lead->notes = $request->notes;
-        }
 
         if ($stepKey === 'sponsorkit') {
             $lead->sponsorkit_sent_at = $date;
@@ -217,23 +215,95 @@ class MemberLeadFollowUpController extends Controller
         }
 
         // Rolling SLA: the deadline for the NEXT step is set relative to
-        // whichever step was just completed here — not from lead creation
-        // anymore. The very first deadline (lead created -> Send Sponsor
-        // Kit) is a 48h *internal* action and is set elsewhere (on lead
-        // creation, see UsersController::verifyMember() /
-        // CompanyModel::booted()). Every transition THIS method handles
-        // (sponsor kit sent -> Follow-up 1, Follow-up 1 -> Follow-up 2) is
-        // instead waiting on an *external* response from the prospect, so
-        // it gets a full 7 days rather than 48h. Once Follow Up 2 (the last
-        // defined step) is done there's nothing left to be late for, so the
-        // deadline is cleared and the row stops turning red.
-        $lead->deadline_at = $lead->nextStepKey() ? $date->copy()->addDays(7) : null;
+        // whichever step was just completed here (3 days to Follow-up 1,
+        // 5 days to Follow-up 2 — see MemberLeadFollowUp::SLA_HOURS; the
+        // first 48h deadline is set on lead creation). Once Follow-up 2 is
+        // done there's nothing left to be late for, so the deadline is
+        // cleared and the row stops turning red. Weekends don't count.
+        $lead->deadline_at = MemberLeadFollowUp::deadlineFor($lead->nextStepKey(), $date);
 
         $lead->save();
+
+        $this->addNote($lead, $stepKey, $request->notes);
 
         return response()->json([
             'success' => true,
             'message' => MemberLeadFollowUp::stepLabel($stepKey) . ' logged successfully.',
+        ]);
+    }
+
+    /**
+     * Notes history modal: list every note for this lead (newest first).
+     */
+    public function notes($id)
+    {
+        $lead = MemberLeadFollowUp::with('notesHistory')->findOrFail($id);
+
+        return response()->json([
+            'notes' => $lead->notesHistory->map(function ($note) {
+                return [
+                    'step_label' => $note->stepLabel(),
+                    'note'       => $note->note,
+                    'by'         => $note->created_by_name ?: '-',
+                    'at'         => optional($note->created_at)->format('d M Y H:i'),
+                ];
+            })->values(),
+        ]);
+    }
+
+    /**
+     * Add a note at any time — e.g. the prospect replied after the sponsor
+     * kit / a follow-up — tagged with the step it belongs to.
+     */
+    public function storeNote(Request $request, $id)
+    {
+        $request->validate([
+            'step' => 'nullable|in:' . implode(',', array_keys(MemberLeadFollowUp::SLA_HOURS)),
+            'note' => 'required|string|max:2000',
+        ]);
+
+        $lead = MemberLeadFollowUp::findOrFail($id);
+        $this->addNote($lead, $request->step, $request->note);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Note added.',
+        ]);
+    }
+
+    /**
+     * Fix the channel after the fact (e.g. forgot to pick it when logging).
+     */
+    public function updateChannel(Request $request, $id)
+    {
+        $request->validate([
+            'channel' => 'nullable|in:call,whatsapp,email,other',
+        ]);
+
+        $lead = MemberLeadFollowUp::findOrFail($id);
+        $lead->channel = $request->filled('channel') ? $request->channel : null;
+        $lead->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Channel updated.',
+        ]);
+    }
+
+    private function addNote(MemberLeadFollowUp $lead, ?string $step, ?string $note): void
+    {
+        $note = trim((string) $note);
+        if ($note === '') {
+            return;
+        }
+
+        $admin = auth()->user();
+
+        $lead->notesHistory()->create([
+            'step'            => $step,
+            'note'            => $note,
+            'created_by_id'   => auth()->id(),
+            'created_by_name' => $admin ? $admin->name : 'Staff',
         ]);
     }
 

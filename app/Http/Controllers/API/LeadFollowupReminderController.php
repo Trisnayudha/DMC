@@ -59,10 +59,10 @@ class LeadFollowupReminderController extends Controller
 
             if ($step === 'sponsorkit') {
                 $startedAt = $lead->created_at;
-                $fallbackDeadline = $startedAt->copy()->addHours(48);
+                $fallbackDeadline = MemberLeadFollowUp::deadlineFor($step, $startedAt);
             } else {
                 $startedAt = $step === 'follow_up_1' ? $lead->sponsorkit_sent_at : $lead->first_follow_up_at;
-                $fallbackDeadline = $startedAt->copy()->addDays(7);
+                $fallbackDeadline = MemberLeadFollowUp::deadlineFor($step, $startedAt);
             }
 
             if ($startedAt->lessThan($since)) {

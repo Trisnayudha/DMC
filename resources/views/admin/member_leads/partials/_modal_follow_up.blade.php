@@ -13,7 +13,7 @@
                 <div class="form-group">
                     <label>Date &amp; Time</label>
                     <input type="datetime-local" id="fl-date" class="form-control">
-                    <small class="text-muted">Defaults to now — change it if this action was already done earlier (the time is also used to calculate the next 48-hour SLA).</small>
+                    <small class="text-muted">Defaults to now — change it if this action was already done earlier (the time is also used to calculate the next step's SLA; weekends are not counted).</small>
                 </div>
                 <div class="form-group">
                     <label>Channel</label>
@@ -27,7 +27,8 @@
                 </div>
                 <div class="form-group mb-0">
                     <label>Notes</label>
-                    <textarea id="fl-notes" rows="3" class="form-control" placeholder="Follow-up outcome..."></textarea>
+                    <textarea id="fl-notes" rows="3" class="form-control" placeholder="Follow-up outcome / prospect reply..."></textarea>
+                    <small class="text-muted">Saved to this lead's notes history under this step.</small>
                 </div>
             </div>
             <div class="modal-footer">

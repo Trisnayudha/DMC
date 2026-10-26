@@ -22,7 +22,7 @@
                     <div class="card-header">
                         <h4>Over SLA
                             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                                title="Pending leads past their SLA deadline: 48h after verification (waiting to send sponsor kit), then 7 days after sponsor kit sent or after each follow-up (waiting on prospect response)."
+                                title="Pending leads past their SLA deadline: 48h after verification to send the sponsor kit, 3 days from sponsor kit to Follow-up 1, 5 days from Follow-up 1 to Follow-up 2. Saturdays and Sundays are not counted."
                                 data-toggle="tooltip"></i>
                         </h4>
                     </div>

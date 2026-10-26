@@ -5,7 +5,7 @@
         <h4 class="mb-0">
             <i class="fas fa-bullseye mr-1"></i>Lead Follow-Up
             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                title="Automatically created when a member with Explore Marketing (company.explore) is approved (approved members only). Members approved earlier can be added manually with the Add Member to Lead button. Follow-up SLA: 48h after verification (waiting to send sponsor kit), then 7 days after sponsor kit sent or after each follow-up (waiting on prospect response)."
+                title="Automatically created when a member with Explore Marketing (company.explore) is approved (approved members only). Members approved earlier can be added manually with the Add Member to Lead button. Follow-up SLA: 48h after verification to send the sponsor kit, 3 days from sponsor kit to Follow-up 1, 5 days from Follow-up 1 to Follow-up 2. Saturdays and Sundays are not counted."
                 data-toggle="tooltip"></i>
         </h4>
         <div class="card-header-action">
@@ -115,6 +115,8 @@
                             $isPending = $item->result === \App\Models\MemberLeadFollowUp::RESULT_PENDING;
                             $isOverSla = $isPending && $item->deadline_at && $item->deadline_at->isPast();
                             $nextStepKey = $item->nextStepKey();
+                            $latestNote = $item->notesHistory->first();
+                            $lastDoneStep = $item->second_follow_up_at ? 'follow_up_2' : ($item->first_follow_up_at ? 'follow_up_1' : ($item->sponsorkit_sent_at ? 'sponsorkit' : ''));
                         @endphp
                         <tr @if ($item->do_not_send) style="background-color:#fbeaea;" @elseif ($isOverSla) style="background-color:#fff5f5;" @endif>
                             <td>{{ $no++ }}</td>
@@ -141,8 +143,30 @@
                                 @endif
                             </td>
                             <td class="text-nowrap"><small>{{ $item->pic_name ?: '-' }}</small></td>
-                            <td><small>{{ $item->channel ? ucfirst($item->channel) : '-' }}</small></td>
-                            <td><span class="cell-truncate" title="{{ $item->notes }}">{{ $item->notes ?: '—' }}</span></td>
+                            <td class="text-nowrap">
+                                <small>{{ $item->channel ? ucfirst($item->channel) : '-' }}</small>
+                                <a href="#" class="text-muted ml-1 btn-open-channel-modal" title="Edit channel" data-toggle="tooltip"
+                                    data-member-name="{{ optional($member)->name }}"
+                                    data-channel="{{ $item->channel }}"
+                                    data-url="{{ route('admin.member_leads.update_channel', $item->id) }}"><i class="fas fa-pen" style="font-size:9px;"></i></a>
+                            </td>
+                            <td>
+                                @if ($latestNote)
+                                    <span class="cell-truncate" title="{{ $latestNote->stepLabel() }}: {{ $latestNote->note }}">
+                                        <span class="text-muted">[{{ $latestNote->stepLabel() }}]</span> {{ $latestNote->note }}
+                                    </span>
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                                <br>
+                                <a href="#" class="small btn-open-notes-modal"
+                                    data-member-name="{{ optional($member)->name }}"
+                                    data-default-step="{{ $lastDoneStep }}"
+                                    data-list-url="{{ route('admin.member_leads.notes', $item->id) }}"
+                                    data-store-url="{{ route('admin.member_leads.store_note', $item->id) }}">
+                                    <i class="fas fa-history mr-1"></i>{{ $item->notesHistory->count() ? $item->notesHistory->count() . ' note(s)' : 'Add note' }}
+                                </a>
+                            </td>
                             <td class="text-nowrap" style="font-size:11px;">
                                 @if ($item->do_not_send)
                                     <div class="text-danger font-weight-bold" title="Flagged by {{ $item->do_not_send_by_name }} on {{ optional($item->do_not_send_at)->format('d M Y H:i') }}{{ $item->do_not_send_reason ? ' — ' . $item->do_not_send_reason : '' }}" data-toggle="tooltip">
@@ -173,71 +197,81 @@
                                 @endif
                             </td>
                             <td class="text-nowrap">
-                                @php
-                                    $hasAnyLeadAction = ($isPending && $nextStepKey) || $isPending || $item->do_not_send || !$item->sponsorkit_sent_at;
-                                @endphp
-                                @if ($hasAnyLeadAction)
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-light border py-1 px-2" type="button"
-                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v text-muted"></i>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light border py-1 px-2" type="button"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v text-muted"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right shadow-sm">
+                                        <button type="button"
+                                            class="dropdown-item btn-open-notes-modal"
+                                            data-member-name="{{ optional($member)->name }}"
+                                            data-default-step="{{ $lastDoneStep }}"
+                                            data-list-url="{{ route('admin.member_leads.notes', $item->id) }}"
+                                            data-store-url="{{ route('admin.member_leads.store_note', $item->id) }}">
+                                            <i class="fas fa-history mr-2 text-secondary"></i>Notes / Reply
                                         </button>
-                                        <div class="dropdown-menu dropdown-menu-right shadow-sm">
-                                            @if ($isPending && $nextStepKey)
-                                                <button type="button"
-                                                    class="dropdown-item btn-open-follow-up-log-modal"
-                                                    data-lead-id="{{ $item->id }}"
-                                                    data-member-name="{{ optional($member)->name }}"
-                                                    data-step-key="{{ $nextStepKey }}"
-                                                    data-step-label="{{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}"
-                                                    data-channel="{{ $item->channel }}"
-                                                    data-notes="{{ $item->notes }}"
-                                                    data-log-url="{{ route('admin.member_leads.log_follow_up', $item->id) }}">
-                                                    <i class="fas {{ $nextStepKey === 'sponsorkit' ? 'fa-gift' : 'fa-comment-dots' }} mr-2 text-secondary"></i>
-                                                    Log {{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}
-                                                </button>
+                                        <button type="button"
+                                            class="dropdown-item btn-open-channel-modal"
+                                            data-member-name="{{ optional($member)->name }}"
+                                            data-channel="{{ $item->channel }}"
+                                            data-url="{{ route('admin.member_leads.update_channel', $item->id) }}">
+                                            <i class="fas fa-pen mr-2 text-secondary"></i>Edit Channel
+                                        </button>
+                                        @if ($isPending || $item->do_not_send || !$item->sponsorkit_sent_at)
+                                            <div class="dropdown-divider"></div>
+                                        @endif
+                                        @if ($isPending && $nextStepKey)
+                                            <button type="button"
+                                                class="dropdown-item btn-open-follow-up-log-modal"
+                                                data-lead-id="{{ $item->id }}"
+                                                data-member-name="{{ optional($member)->name }}"
+                                                data-step-key="{{ $nextStepKey }}"
+                                                data-step-label="{{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}"
+                                                data-channel="{{ $item->channel }}"
+                                                data-log-url="{{ route('admin.member_leads.log_follow_up', $item->id) }}">
+                                                <i class="fas {{ $nextStepKey === 'sponsorkit' ? 'fa-gift' : 'fa-comment-dots' }} mr-2 text-secondary"></i>
+                                                Log {{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}
+                                            </button>
+                                        @endif
+                                        @if ($isPending)
+                                            <button type="button"
+                                                class="dropdown-item btn-mark-lead-result"
+                                                data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
+                                                data-result="win">
+                                                <i class="fas fa-check mr-2 text-success"></i>Mark as Win
+                                            </button>
+                                            <button type="button"
+                                                class="dropdown-item btn-mark-lead-result"
+                                                data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
+                                                data-result="loss">
+                                                <i class="fas fa-times mr-2 text-secondary"></i>Mark as Loss
+                                            </button>
+                                        @endif
+                                        @if ($item->do_not_send)
+                                            @if ($isPending || $nextStepKey)
+                                                <div class="dropdown-divider"></div>
                                             @endif
+                                            <button type="button"
+                                                class="dropdown-item btn-toggle-do-not-send"
+                                                data-url="{{ route('admin.member_leads.do_not_send', $item->id) }}"
+                                                data-do-not-send="0">
+                                                <i class="fas fa-undo mr-2 text-danger"></i>Remove Do Not Send Flag
+                                            </button>
+                                        @elseif (!$item->sponsorkit_sent_at)
                                             @if ($isPending)
-                                                <button type="button"
-                                                    class="dropdown-item btn-mark-lead-result"
-                                                    data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
-                                                    data-result="win">
-                                                    <i class="fas fa-check mr-2 text-success"></i>Mark as Win
-                                                </button>
-                                                <button type="button"
-                                                    class="dropdown-item btn-mark-lead-result"
-                                                    data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
-                                                    data-result="loss">
-                                                    <i class="fas fa-times mr-2 text-secondary"></i>Mark as Loss
-                                                </button>
+                                                <div class="dropdown-divider"></div>
                                             @endif
-                                            @if ($item->do_not_send)
-                                                @if ($isPending || $nextStepKey)
-                                                    <div class="dropdown-divider"></div>
-                                                @endif
-                                                <button type="button"
-                                                    class="dropdown-item btn-toggle-do-not-send"
-                                                    data-url="{{ route('admin.member_leads.do_not_send', $item->id) }}"
-                                                    data-do-not-send="0">
-                                                    <i class="fas fa-undo mr-2 text-danger"></i>Remove Do Not Send Flag
-                                                </button>
-                                            @elseif (!$item->sponsorkit_sent_at)
-                                                @if ($isPending)
-                                                    <div class="dropdown-divider"></div>
-                                                @endif
-                                                <button type="button"
-                                                    class="dropdown-item text-danger btn-open-do-not-send-modal"
-                                                    data-lead-id="{{ $item->id }}"
-                                                    data-member-name="{{ optional($member)->name }}"
-                                                    data-url="{{ route('admin.member_leads.do_not_send', $item->id) }}">
-                                                    <i class="fas fa-ban mr-2"></i>Flag as Do Not Send
-                                                </button>
-                                            @endif
-                                        </div>
+                                            <button type="button"
+                                                class="dropdown-item text-danger btn-open-do-not-send-modal"
+                                                data-lead-id="{{ $item->id }}"
+                                                data-member-name="{{ optional($member)->name }}"
+                                                data-url="{{ route('admin.member_leads.do_not_send', $item->id) }}">
+                                                <i class="fas fa-ban mr-2"></i>Flag as Do Not Send
+                                            </button>
+                                        @endif
                                     </div>
-                                @else
-                                    <span class="text-muted">—</span>
-                                @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

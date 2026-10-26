@@ -1429,7 +1429,7 @@ class UsersController extends Controller
                 $lead = MemberLeadFollowUp::firstOrCreate(
                     ['user_id' => $user->id, 'result' => MemberLeadFollowUp::RESULT_PENDING],
                     [
-                        'deadline_at'     => $verifiedAt->copy()->addHours(48),
+                        'deadline_at'     => MemberLeadFollowUp::deadlineFor('sponsorkit', $verifiedAt),
                         'created_by_id'   => auth()->id(),
                         'created_by_name' => $leadAdmin ? $leadAdmin->name : 'Staff',
                     ]
@@ -1438,7 +1438,7 @@ class UsersController extends Controller
                 // Lead lama yang dibuat sebelum approve (saat registrasi) dan
                 // belum disentuh: SLA 48 jam dihitung dari approve, bukan registrasi.
                 if (!$lead->wasRecentlyCreated && !$lead->sponsorkit_sent_at) {
-                    $lead->deadline_at = $verifiedAt->copy()->addHours(48);
+                    $lead->deadline_at = MemberLeadFollowUp::deadlineFor('sponsorkit', $verifiedAt);
                     $lead->save();
                 }
             } catch (\Throwable $e) {

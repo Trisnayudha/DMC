@@ -37,6 +37,8 @@
     @include('admin.member_leads.partials._modal_follow_up')
     @include('admin.member_leads.partials._modal_do_not_send')
     @include('admin.member_leads.partials._modal_add_lead')
+    @include('admin.member_leads.partials._modal_notes')
+    @include('admin.member_leads.partials._modal_channel')
 @endsection
 
 @include('admin.member_leads.partials._scripts')
