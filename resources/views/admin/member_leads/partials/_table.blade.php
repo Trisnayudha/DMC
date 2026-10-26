@@ -113,7 +113,7 @@
                             }
 
                             $isPending = $item->result === \App\Models\MemberLeadFollowUp::RESULT_PENDING;
-                            $isOverSla = $isPending && $item->deadline_at && $item->deadline_at->isPast();
+                            $isOverSla = $item->isOverSla();
                             $nextStepKey = $item->nextStepKey();
                             $latestNote = $item->notesHistory->first();
                             $lastDoneStep = $item->second_follow_up_at ? 'follow_up_2' : ($item->first_follow_up_at ? 'follow_up_1' : ($item->sponsorkit_sent_at ? 'sponsorkit' : ''));
@@ -123,6 +123,10 @@
                             <td class="text-nowrap"><small>{{ $item->created_at ? $item->created_at->format('d M Y H:i') : '-' }}</small></td>
                             <td>
                                 <span class="cell-truncate font-weight-bold" title="{{ optional($member)->name }}">{{ optional($member)->name ?? '(deleted user)' }}</span>
+                                @if ($jobTitle = optional(optional($member)->profile)->job_title)
+                                    <br>
+                                    <span class="cell-truncate" style="font-size:10.5px;" title="{{ $jobTitle }}">{{ $jobTitle }}</span>
+                                @endif
                                 <br>
                                 <span class="cell-truncate text-muted" style="font-size:10.5px;" title="{{ optional($member)->email }}">{{ optional($member)->email }}</span>
                             </td>

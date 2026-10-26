@@ -55,10 +55,7 @@ class MemberLeadFollowUpController extends Controller
         $countWin       = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_WIN)->count();
         $countLoss      = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
         $countDoNotSend = MemberLeadFollowUp::approvedMember()->where('do_not_send', true)->count();
-        $countOverSla   = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING)
-            ->whereNotNull('deadline_at')
-            ->where('deadline_at', '<', now())
-            ->count();
+        $countOverSla   = MemberLeadFollowUp::approvedMember()->overSla()->count();
 
         // Lead Performance (SOP §7): Conversion Rate = Win ÷ Total Lead.
         $countTotalLeads = $countPending + $countWin + $countLoss;

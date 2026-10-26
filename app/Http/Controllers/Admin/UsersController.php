@@ -326,7 +326,7 @@ class UsersController extends Controller
             };
             $stats['countLeads'] = MemberLeadFollowUp::approvedMember()->count();
             $stats['countLeadsPendingFollowUp'] = $pending()->count();
-            $stats['countLeadsOverSla'] = $pending()->whereNotNull('deadline_at')->where('deadline_at', '<', now())->count();
+            $stats['countLeadsOverSla'] = MemberLeadFollowUp::approvedMember()->overSla()->count();
         } catch (\Throwable $e) {
             Log::warning('stats: lead stats failed: ' . $e->getMessage());
         }

@@ -63,6 +63,26 @@ class MemberLeadFollowUp extends Model
         return $this->hasMany(MemberLeadFollowUpNote::class, 'lead_id')->orderBy('created_at', 'desc')->orderBy('id', 'desc');
     }
 
+    /**
+     * Pending leads past their deadline. Leads flagged "Do Not Send" are
+     * intentionally not being pursued, so they're never over SLA.
+     */
+    public function scopeOverSla($query)
+    {
+        return $query->where('member_lead_follow_ups.result', self::RESULT_PENDING)
+            ->where('member_lead_follow_ups.do_not_send', false)
+            ->whereNotNull('member_lead_follow_ups.deadline_at')
+            ->where('member_lead_follow_ups.deadline_at', '<', now());
+    }
+
+    public function isOverSla(): bool
+    {
+        return $this->result === self::RESULT_PENDING
+            && !$this->do_not_send
+            && $this->deadline_at
+            && $this->deadline_at->isPast();
+    }
+
     /** Deadline for $stepKey counted from $start, or null once there's no step left. */
     public static function deadlineFor(?string $stepKey, $start)
     {
