@@ -39,7 +39,7 @@ class CompanyCategoryTier
     ];
 
     /** Grup untuk Others, Not set & kategori yang tidak dikenal. */
-    const FALLBACK = 'Consultants, Investor, Financial Services, Law Firm';
+    const FALLBACK = 'Association, Organization, Government, Media, Academic';
 
     /** Nama grup untuk satu label kategori (hasil CompanyModel::categoryLabel). */
     public static function tierFor(string $categoryLabel): string
