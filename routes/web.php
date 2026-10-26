@@ -568,6 +568,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('leads', [MemberLeadFollowUpController::class, 'index'])->name('admin.member_leads.index');
     Route::post('leads/bulk/follow-up', [MemberLeadBulkController::class, 'followUp'])->name('admin.member_leads.bulk_follow_up');
     Route::post('leads/bulk/temperature', [MemberLeadBulkController::class, 'temperature'])->name('admin.member_leads.bulk_temperature');
+    Route::get('leads/export', [MemberLeadFollowUpController::class, 'export'])->name('admin.member_leads.export');
     Route::get('leads/search-members', [MemberLeadFollowUpController::class, 'searchMembers'])->name('admin.member_leads.search_members');
     Route::post('leads', [MemberLeadFollowUpController::class, 'store'])->name('admin.member_leads.store');
     Route::post('leads/{id}/follow-up', [MemberLeadFollowUpController::class, 'logFollowUp'])->name('admin.member_leads.log_follow_up');

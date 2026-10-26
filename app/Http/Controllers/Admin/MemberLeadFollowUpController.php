@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\MemberLeadFollowUpExport;
 use App\Http\Controllers\Controller;
 use App\Models\CmsUser;
 use App\Models\MemberLeadFollowUp;
@@ -9,6 +10,7 @@ use App\Models\User;
 use App\Services\LeadTemperatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MemberLeadFollowUpController extends Controller
 {
@@ -28,50 +30,11 @@ class MemberLeadFollowUpController extends Controller
 
     public function index(Request $request)
     {
-        $result = $request->get('result', MemberLeadFollowUp::RESULT_PENDING);
-        $picId  = $request->get('pic_id');
-        $temperature = $request->get('temperature');
-        $followUp  = $request->get('follow_up');
-        $dateField = array_key_exists($request->get('date_field'), self::DATE_FIELDS) ? $request->get('date_field') : 'created_at';
-        $dateFrom  = $request->get('date_from');
-        $dateTo    = $request->get('date_to');
-        $search = trim((string) $request->get('search'));
+        $filters = $this->filters($request);
 
-        $query = MemberLeadFollowUp::approvedMember()->with(['user.profile', 'user.company', 'notesHistory'])->orderBy('created_at', 'desc');
-
-        // 'do_not_send' is its own tab, independent of win/pending/loss — a
-        // flagged lead can be in any result state, so it filters on the flag
-        // instead of the result column.
-        if ($result === 'do_not_send') {
-            $query->where('do_not_send', true);
-        } elseif (in_array($result, [MemberLeadFollowUp::RESULT_PENDING, MemberLeadFollowUp::RESULT_WIN, MemberLeadFollowUp::RESULT_LOSS], true)) {
-            $query->where('result', $result);
-        } else {
-            $result = 'all';
-        }
-
-        if ($picId) {
-            $query->where('pic_id', $picId);
-        }
-
-        if (in_array($temperature, ['hot', 'warm', 'cold'], true)) {
-            $query->where('temperature', $temperature);
-        }
-
-        $this->applyFollowUpFilter($query, $followUp);
-        $this->applyDateFilter($query, $dateField, $dateFrom, $dateTo);
-
-        if ($search !== '') {
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhereHas('company', function ($q2) use ($search) {
-                        $q2->where('company_name', 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        $list = $query->get();
+        $list = $this->filteredQuery($filters)
+            ->with(['user.profile', 'user.company', 'notesHistory'])
+            ->get();
 
         $countPending   = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
         $countWin       = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_WIN)->count();
@@ -93,16 +56,8 @@ class MemberLeadFollowUpController extends Controller
 
         $pics = CmsUser::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
-        return view('admin.member_leads.index', compact(
+        return view('admin.member_leads.index', array_merge($filters, compact(
             'list',
-            'result',
-            'picId',
-            'temperature',
-            'followUp',
-            'dateField',
-            'dateFrom',
-            'dateTo',
-            'search',
             'countPending',
             'countWin',
             'countLoss',
@@ -113,7 +68,81 @@ class MemberLeadFollowUpController extends Controller
             'countTotalLeads',
             'conversionRate',
             'pics'
-        ));
+        )));
+    }
+
+    /**
+     * Excel export of the leads currently shown — same tab + filters as the page.
+     */
+    public function export(Request $request)
+    {
+        $filters = $this->filters($request);
+
+        $leads = $this->filteredQuery($filters)
+            ->with(['user.profile', 'user.company', 'notesHistory'])
+            ->get();
+
+        $filename = 'lead-follow-up-' . $filters['result'] . '-' . date('Y-m-d') . '.xlsx';
+
+        return Excel::download(new MemberLeadFollowUpExport($leads), $filename);
+    }
+
+    /** Normalised filter values from the query string (shared by index + export). */
+    private function filters(Request $request): array
+    {
+        $result = $request->get('result', MemberLeadFollowUp::RESULT_PENDING);
+        if (!in_array($result, ['do_not_send', MemberLeadFollowUp::RESULT_PENDING, MemberLeadFollowUp::RESULT_WIN, MemberLeadFollowUp::RESULT_LOSS], true)) {
+            $result = 'all';
+        }
+
+        return [
+            'result'      => $result,
+            'picId'       => $request->get('pic_id'),
+            'temperature' => $request->get('temperature'),
+            'followUp'    => $request->get('follow_up'),
+            'dateField'   => array_key_exists($request->get('date_field'), self::DATE_FIELDS) ? $request->get('date_field') : 'created_at',
+            'dateFrom'    => $request->get('date_from'),
+            'dateTo'      => $request->get('date_to'),
+            'search'      => trim((string) $request->get('search')),
+        ];
+    }
+
+    private function filteredQuery(array $filters)
+    {
+        $query = MemberLeadFollowUp::approvedMember()->orderBy('created_at', 'desc');
+
+        // 'do_not_send' is its own tab, independent of win/pending/loss — a
+        // flagged lead can be in any result state, so it filters on the flag
+        // instead of the result column.
+        if ($filters['result'] === 'do_not_send') {
+            $query->where('do_not_send', true);
+        } elseif ($filters['result'] !== 'all') {
+            $query->where('result', $filters['result']);
+        }
+
+        if ($filters['picId']) {
+            $query->where('pic_id', $filters['picId']);
+        }
+
+        if (in_array($filters['temperature'], ['hot', 'warm', 'cold'], true)) {
+            $query->where('temperature', $filters['temperature']);
+        }
+
+        $this->applyFollowUpFilter($query, $filters['followUp']);
+        $this->applyDateFilter($query, $filters['dateField'], $filters['dateFrom'], $filters['dateTo']);
+
+        $search = $filters['search'];
+        if ($search !== '') {
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhereHas('company', function ($q2) use ($search) {
+                        $q2->where('company_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        return $query;
     }
 
     /**

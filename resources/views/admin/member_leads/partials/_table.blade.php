@@ -9,6 +9,10 @@
                 data-toggle="tooltip"></i>
         </h4>
         <div class="card-header-action">
+            <a href="{{ route('admin.member_leads.export', request()->query()) }}" class="btn btn-sm btn-outline-success mr-1"
+                title="Export the leads currently shown (current tab + filters) to Excel" data-toggle="tooltip">
+                <i class="fas fa-file-excel mr-1"></i> Export Excel
+            </a>
             <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addLeadModal">
                 <i class="fas fa-plus mr-1"></i> Add Member to Lead
             </button>
