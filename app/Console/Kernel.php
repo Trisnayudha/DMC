@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call([WhatsappBlastingController::class, 'sendWhatsAppMessagesAsync'])->everyMinute();
+        $schedule->command('leads:rescore-temperature')->dailyAt('01:00')->withoutOverlapping();
     }
 
 

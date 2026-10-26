@@ -39,6 +39,13 @@ class MemberLeadFollowUp extends Model
         'second_follow_up_at' => 'datetime',
         'do_not_send' => 'boolean',
         'do_not_send_at' => 'datetime',
+        'temperature_score' => 'integer',
+        'score_company_title' => 'boolean',
+        'score_attendance_history' => 'boolean',
+        'score_digital_engagement' => 'boolean',
+        'score_followup_response' => 'boolean',
+        'score_price_agenda_inquiry' => 'boolean',
+        'score_budget_timeline' => 'boolean',
     ];
 
     /**
@@ -153,6 +160,66 @@ class MemberLeadFollowUp extends Model
             $remaining -= $available;
             $date = $endOfDay;
         }
+    }
+
+    /**
+     * Log whichever step is next (Send Sponsor Kit → Follow-up 1 →
+     * Follow-up 2) at $date. Returns the step logged, or null when there's
+     * nothing to log (all done, or flagged "Do Not Send").
+     */
+    public function logNextStep($date, ?string $channel, ?string $note, $admin): ?string
+    {
+        $stepKey = $this->nextStepKey();
+        if (!$stepKey) {
+            return null;
+        }
+
+        if ($channel) {
+            $this->channel = $channel;
+        }
+
+        if ($stepKey === 'sponsorkit') {
+            $this->sponsorkit_sent_at = $date;
+        } elseif ($stepKey === 'follow_up_1') {
+            $this->first_follow_up_at = $date;
+        } else {
+            $this->second_follow_up_at = $date;
+        }
+
+        // Auto-assign PIC to whoever performs the FIRST action on this lead —
+        // stays locked to that person for accountability; later actions by
+        // other admins don't reassign it.
+        if (!$this->pic_id && $admin) {
+            $this->pic_id   = $admin->id;
+            $this->pic_name = $admin->name;
+        }
+
+        // Rolling SLA: the deadline for the NEXT step is set relative to the
+        // step just completed (3 days to Follow-up 1, 5 days to Follow-up 2 —
+        // see SLA_HOURS; the first 48h deadline is set on lead creation).
+        // Once Follow-up 2 is done the deadline is cleared. Weekends don't count.
+        $this->deadline_at = self::deadlineFor($this->nextStepKey(), $date);
+
+        $this->save();
+
+        $this->addNote($stepKey, $note, $admin);
+
+        return $stepKey;
+    }
+
+    public function addNote(?string $step, ?string $note, $admin): void
+    {
+        $note = trim((string) $note);
+        if ($note === '') {
+            return;
+        }
+
+        $this->notesHistory()->create([
+            'step'            => $step,
+            'note'            => $note,
+            'created_by_id'   => $admin ? $admin->id : null,
+            'created_by_name' => $admin ? $admin->name : 'Staff',
+        ]);
     }
 
     public static function stepLabel(string $key): string

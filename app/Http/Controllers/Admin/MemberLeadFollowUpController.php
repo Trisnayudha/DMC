@@ -6,11 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\CmsUser;
 use App\Models\MemberLeadFollowUp;
 use App\Models\User;
+use App\Services\LeadTemperatureService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class MemberLeadFollowUpController extends Controller
 {
+    /** Columns the date range filter can apply to. */
+    const DATE_FIELDS = [
+        'created_at'          => 'Created',
+        'deadline_at'         => 'Deadline',
+        'sponsorkit_sent_at'  => 'Sponsor Kit',
+        'first_follow_up_at'  => 'Follow-up 1',
+        'second_follow_up_at' => 'Follow-up 2',
+    ];
+
     public function __construct()
     {
         // auth handled by cms_auth route middleware
@@ -20,6 +30,11 @@ class MemberLeadFollowUpController extends Controller
     {
         $result = $request->get('result', MemberLeadFollowUp::RESULT_PENDING);
         $picId  = $request->get('pic_id');
+        $temperature = $request->get('temperature');
+        $followUp  = $request->get('follow_up');
+        $dateField = array_key_exists($request->get('date_field'), self::DATE_FIELDS) ? $request->get('date_field') : 'created_at';
+        $dateFrom  = $request->get('date_from');
+        $dateTo    = $request->get('date_to');
         $search = trim((string) $request->get('search'));
 
         $query = MemberLeadFollowUp::approvedMember()->with(['user.profile', 'user.company', 'notesHistory'])->orderBy('created_at', 'desc');
@@ -39,6 +54,13 @@ class MemberLeadFollowUpController extends Controller
             $query->where('pic_id', $picId);
         }
 
+        if (in_array($temperature, ['hot', 'warm', 'cold'], true)) {
+            $query->where('temperature', $temperature);
+        }
+
+        $this->applyFollowUpFilter($query, $followUp);
+        $this->applyDateFilter($query, $dateField, $dateFrom, $dateTo);
+
         if ($search !== '') {
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -57,6 +79,14 @@ class MemberLeadFollowUpController extends Controller
         $countDoNotSend = MemberLeadFollowUp::approvedMember()->where('do_not_send', true)->count();
         $countOverSla   = MemberLeadFollowUp::approvedMember()->overSla()->count();
 
+        // Counts shown on the quick "Due today" / "Need follow-up" filter pills.
+        $countDueToday = MemberLeadFollowUp::approvedMember();
+        $this->applyFollowUpFilter($countDueToday, 'today');
+        $countDueToday = $countDueToday->count();
+        $countNeedFollowUp = MemberLeadFollowUp::approvedMember();
+        $this->applyFollowUpFilter($countNeedFollowUp, 'need');
+        $countNeedFollowUp = $countNeedFollowUp->count();
+
         // Lead Performance (SOP §7): Conversion Rate = Win ÷ Total Lead.
         $countTotalLeads = $countPending + $countWin + $countLoss;
         $conversionRate  = $countTotalLeads > 0 ? round($countWin / $countTotalLeads * 100, 1) : null;
@@ -67,16 +97,54 @@ class MemberLeadFollowUpController extends Controller
             'list',
             'result',
             'picId',
+            'temperature',
+            'followUp',
+            'dateField',
+            'dateFrom',
+            'dateTo',
             'search',
             'countPending',
             'countWin',
             'countLoss',
             'countDoNotSend',
             'countOverSla',
+            'countDueToday',
+            'countNeedFollowUp',
             'countTotalLeads',
             'conversionRate',
             'pics'
         ));
+    }
+
+    /**
+     * "Due today" = next step's deadline falls today; "Need follow-up" = due
+     * today or already overdue. Only pending, not-flagged leads that still
+     * have a step left (deadline_at is cleared once Follow-up 2 is done).
+     */
+    private function applyFollowUpFilter($query, ?string $followUp): void
+    {
+        if (!in_array($followUp, ['today', 'need'], true)) {
+            return;
+        }
+
+        $query->where('result', MemberLeadFollowUp::RESULT_PENDING)
+            ->where('do_not_send', false)
+            ->whereNotNull('deadline_at')
+            ->where('deadline_at', '<=', now()->endOfDay());
+
+        if ($followUp === 'today') {
+            $query->where('deadline_at', '>=', now()->startOfDay());
+        }
+    }
+
+    private function applyDateFilter($query, string $dateField, ?string $dateFrom, ?string $dateTo): void
+    {
+        if ($dateFrom) {
+            $query->where($dateField, '>=', Carbon::parse($dateFrom)->startOfDay());
+        }
+        if ($dateTo) {
+            $query->where($dateField, '<=', Carbon::parse($dateTo)->endOfDay());
+        }
     }
 
     /**
@@ -153,7 +221,7 @@ class MemberLeadFollowUpController extends Controller
             'created_by_name' => $admin ? $admin->name : 'Staff',
         ]);
 
-        $this->addNote($lead, null, $request->notes);
+        $lead->addNote(null, $request->notes, $admin);
 
         return response()->json([
             'success' => true,
@@ -187,41 +255,7 @@ class MemberLeadFollowUpController extends Controller
         }
 
         $date = $request->filled('date') ? Carbon::parse($request->date) : now();
-
-        if ($request->filled('channel')) {
-            $lead->channel = $request->channel;
-        }
-
-        if ($stepKey === 'sponsorkit') {
-            $lead->sponsorkit_sent_at = $date;
-        } elseif ($stepKey === 'follow_up_1') {
-            $lead->first_follow_up_at = $date;
-        } else {
-            $lead->second_follow_up_at = $date;
-        }
-
-        // Auto-assign PIC to whoever performs the FIRST action on this lead —
-        // stays locked to that person for accountability. Manual re-assign
-        // UI was removed; later actions by other admins don't reassign it.
-        if (!$lead->pic_id) {
-            $admin = auth()->user();
-            if ($admin) {
-                $lead->pic_id   = $admin->id;
-                $lead->pic_name = $admin->name;
-            }
-        }
-
-        // Rolling SLA: the deadline for the NEXT step is set relative to
-        // whichever step was just completed here (3 days to Follow-up 1,
-        // 5 days to Follow-up 2 — see MemberLeadFollowUp::SLA_HOURS; the
-        // first 48h deadline is set on lead creation). Once Follow-up 2 is
-        // done there's nothing left to be late for, so the deadline is
-        // cleared and the row stops turning red. Weekends don't count.
-        $lead->deadline_at = MemberLeadFollowUp::deadlineFor($lead->nextStepKey(), $date);
-
-        $lead->save();
-
-        $this->addNote($lead, $stepKey, $request->notes);
+        $lead->logNextStep($date, $request->channel, $request->notes, auth()->user());
 
         return response()->json([
             'success' => true,
@@ -260,7 +294,7 @@ class MemberLeadFollowUpController extends Controller
         ]);
 
         $lead = MemberLeadFollowUp::findOrFail($id);
-        $this->addNote($lead, $request->step, $request->note);
+        $lead->addNote($request->step, $request->note, auth()->user());
 
         return response()->json([
             'success' => true,
@@ -287,21 +321,56 @@ class MemberLeadFollowUpController extends Controller
         ]);
     }
 
-    private function addNote(MemberLeadFollowUp $lead, ?string $step, ?string $note): void
+    /**
+     * Temperature checklist modal: current boxes + which auto boxes the
+     * data already proves (those are shown locked). Recomputes first so the
+     * auto categories are fresh.
+     */
+    public function temperature($id)
     {
-        $note = trim((string) $note);
-        if ($note === '') {
-            return;
+        $lead = MemberLeadFollowUp::with('user')->findOrFail($id);
+        LeadTemperatureService::recompute($lead);
+
+        return response()->json($this->temperaturePayload($lead));
+    }
+
+    public function updateTemperature(Request $request, $id)
+    {
+        $request->validate([
+            'checked'   => 'nullable|array',
+            'checked.*' => 'in:' . implode(',', array_keys(LeadTemperatureService::POINTS)),
+        ]);
+
+        $lead = MemberLeadFollowUp::with('user')->findOrFail($id);
+        LeadTemperatureService::setFlags($lead, $request->input('checked', []));
+
+        return response()->json(array_merge($this->temperaturePayload($lead), [
+            'success' => true,
+            'message' => 'Temperature updated: ' . strtoupper($lead->temperature) . ' (' . $lead->temperature_score . ').',
+        ]));
+    }
+
+    private function temperaturePayload(MemberLeadFollowUp $lead): array
+    {
+        $proven = LeadTemperatureService::provenFields($lead);
+
+        $items = [];
+        foreach (LeadTemperatureService::POINTS as $field => $points) {
+            $items[] = [
+                'field'   => $field,
+                'label'   => LeadTemperatureService::LABELS[$field],
+                'points'  => $points,
+                'checked' => (bool) $lead->{$field},
+                'auto'    => in_array($field, LeadTemperatureService::AUTO_FIELDS, true),
+                'locked'  => in_array($field, $proven, true),
+            ];
         }
 
-        $admin = auth()->user();
-
-        $lead->notesHistory()->create([
-            'step'            => $step,
-            'note'            => $note,
-            'created_by_id'   => auth()->id(),
-            'created_by_name' => $admin ? $admin->name : 'Staff',
-        ]);
+        return [
+            'temperature' => $lead->temperature,
+            'score'       => $lead->temperature_score,
+            'items'       => $items,
+        ];
     }
 
     public function markResult(Request $request, $id)

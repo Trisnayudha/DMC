@@ -39,6 +39,8 @@
     @include('admin.member_leads.partials._modal_add_lead')
     @include('admin.member_leads.partials._modal_notes')
     @include('admin.member_leads.partials._modal_channel')
+    @include('admin.member_leads.partials._modal_temperature')
+    @include('admin.member_leads.partials._modal_bulk')
 @endsection
 
 @include('admin.member_leads.partials._scripts')

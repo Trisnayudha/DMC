@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\SponsorCountRepresentativeController;
 use App\Http\Controllers\Admin\SponsorRepresentativeController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\MemberCompanyFollowUpController;
+use App\Http\Controllers\Admin\MemberLeadBulkController;
 use App\Http\Controllers\Admin\MemberLeadFollowUpController;
 use App\Http\Controllers\Admin\VideosController;
 use App\Http\Controllers\Admin\WhatsappBlastingController;
@@ -565,11 +566,15 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('company-follow-ups/verified-company', [MemberCompanyFollowUpController::class, 'lookupVerifiedCompany'])->name('admin.member_follow_ups.verified_company');
 
     Route::get('leads', [MemberLeadFollowUpController::class, 'index'])->name('admin.member_leads.index');
+    Route::post('leads/bulk/follow-up', [MemberLeadBulkController::class, 'followUp'])->name('admin.member_leads.bulk_follow_up');
+    Route::post('leads/bulk/temperature', [MemberLeadBulkController::class, 'temperature'])->name('admin.member_leads.bulk_temperature');
     Route::get('leads/search-members', [MemberLeadFollowUpController::class, 'searchMembers'])->name('admin.member_leads.search_members');
     Route::post('leads', [MemberLeadFollowUpController::class, 'store'])->name('admin.member_leads.store');
     Route::post('leads/{id}/follow-up', [MemberLeadFollowUpController::class, 'logFollowUp'])->name('admin.member_leads.log_follow_up');
     Route::get('leads/{id}/notes', [MemberLeadFollowUpController::class, 'notes'])->name('admin.member_leads.notes');
     Route::post('leads/{id}/notes', [MemberLeadFollowUpController::class, 'storeNote'])->name('admin.member_leads.store_note');
+    Route::get('leads/{id}/temperature', [MemberLeadFollowUpController::class, 'temperature'])->name('admin.member_leads.temperature');
+    Route::post('leads/{id}/temperature', [MemberLeadFollowUpController::class, 'updateTemperature'])->name('admin.member_leads.update_temperature');
     Route::post('leads/{id}/channel', [MemberLeadFollowUpController::class, 'updateChannel'])->name('admin.member_leads.update_channel');
     Route::post('leads/{id}/result', [MemberLeadFollowUpController::class, 'markResult'])->name('admin.member_leads.mark_result');
     Route::post('leads/{id}/do-not-send', [MemberLeadFollowUpController::class, 'markDoNotSend'])->name('admin.member_leads.do_not_send');

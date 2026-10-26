@@ -47,38 +47,90 @@
             </div>
         </div>
 
-        {{-- Search + PIC filter --}}
-        <form action="{{ url('admin/leads') }}" method="GET"
-            class="d-flex flex-wrap align-items-end mb-3 border-top pt-3" style="gap:10px;">
-            <input type="hidden" name="result" value="{{ $result }}">
-            <div class="form-group mb-0" style="min-width:220px; flex:1 1 220px;">
-                <label class="mb-1 small text-muted">Search</label>
-                <input type="text" name="search" value="{{ $search }}" class="form-control form-control-sm"
-                    placeholder="Name, email, or company...">
-            </div>
-            <div class="form-group mb-0">
-                <label class="mb-1 small text-muted">PIC</label>
-                <select name="pic_id" class="form-control form-control-sm">
-                    <option value="">All PIC</option>
-                    @foreach ($pics as $pic)
-                        <option value="{{ $pic->id }}" {{ (string) $picId === (string) $pic->id ? 'selected' : '' }}>
-                            {{ $pic->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="form-group mb-0">
-                <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter mr-1"></i> Filter</button>
-                <a href="{{ url('admin/leads?result=' . $result) }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-times mr-1"></i> Clear
-                </a>
-            </div>
-        </form>
+        @include('admin.member_leads.partials._filters')
+
+        {{-- Bulk action bar — always visible; buttons enable once rows are ticked --}}
+        <div id="bulk-bar" class="bulk-bar mb-2">
+            <span class="bulk-bar-hint" id="bulk-hint">
+                <i class="far fa-check-square mr-1"></i> Tick leads in the table to log a follow-up / send kit or set temperature in bulk
+            </span>
+            <span class="bulk-bar-count d-none" id="bulk-selected">
+                <span id="bulk-count">0</span> selected
+            </span>
+            <button type="button" class="bulk-btn bulk-btn-primary" id="bulk-btn-follow-up" disabled
+                data-toggle="modal" data-target="#bulkFollowUpModal">
+                <i class="fas fa-paper-plane"></i> Bulk Follow-up / Send Kit
+            </button>
+            <button type="button" class="bulk-btn btn-open-bulk-temperature" id="bulk-btn-temperature" disabled>
+                <i class="fas fa-thermometer-half"></i> Bulk Temperature
+            </button>
+            <button type="button" class="bulk-btn-link d-none" id="bulk-clear">Clear selection</button>
+        </div>
+
+        <style>
+            .bulk-bar {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+                border: 1px dashed #d5dae5;
+                border-radius: 10px;
+                background: #fff;
+                transition: all .15s;
+            }
+            .bulk-bar.has-selection {
+                border-style: solid;
+                border-color: #6777ef;
+                background: #f3f4fe;
+            }
+            .bulk-bar-hint {
+                font-size: 12px;
+                color: #8a94a6;
+                margin-right: auto;
+            }
+            .bulk-bar-count {
+                font-size: 13px;
+                font-weight: 700;
+                color: #4a57c9;
+                margin-right: auto;
+            }
+            .bulk-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                height: 32px;
+                padding: 0 14px;
+                border: 1px solid #6777ef;
+                border-radius: 8px;
+                background: #fff;
+                color: #6777ef;
+                font-size: 12.5px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            .bulk-btn-primary {
+                background: #6777ef;
+                color: #fff;
+            }
+            .bulk-btn:disabled {
+                opacity: .45;
+                cursor: not-allowed;
+            }
+            .bulk-btn-link {
+                border: none;
+                background: none;
+                font-size: 12px;
+                color: #8a94a6;
+                cursor: pointer;
+            }
+        </style>
 
         <div class="table-responsive lead-table-wrap">
             <table class="table table-hover">
                 <thead>
                     <tr>
+                        <th width="10px"><input type="checkbox" id="bulk-select-all" title="Select all"></th>
                         <th width="10px">No</th>
                         <th class="text-nowrap">Created</th>
                         <th>Member</th>
@@ -92,6 +144,11 @@
                             Progress
                             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
                                 title="Sponsor Kit Sent → Follow-up 1 → Follow-up 2." data-toggle="tooltip"></i>
+                        </th>
+                        <th class="text-nowrap">
+                            Temp
+                            <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
+                                title="SOP lead score (max 100): Company &amp; title fit 30, Attendance history 15, Digital engagement 15, Follow-up response 15, Price/agenda inquiry 15, Budget &amp; timeline 10. HOT 70-100, WARM 40-69, COLD 0-39. Click the badge to update." data-toggle="tooltip"></i>
                         </th>
                         <th width="90px">Result</th>
                         <th width="150px" class="text-nowrap">Actions</th>
@@ -119,6 +176,7 @@
                             $lastDoneStep = $item->second_follow_up_at ? 'follow_up_2' : ($item->first_follow_up_at ? 'follow_up_1' : ($item->sponsorkit_sent_at ? 'sponsorkit' : ''));
                         @endphp
                         <tr @if ($item->do_not_send) style="background-color:#fbeaea;" @elseif ($isOverSla) style="background-color:#fff5f5;" @endif>
+                            <td><input type="checkbox" class="bulk-select" value="{{ $item->id }}"></td>
                             <td>{{ $no++ }}</td>
                             <td class="text-nowrap"><small>{{ $item->created_at ? $item->created_at->format('d M Y H:i') : '-' }}</small></td>
                             <td>
@@ -190,6 +248,14 @@
                                     <i class="fas {{ $item->second_follow_up_at ? 'fa-check-circle' : 'fa-circle' }} mr-1"></i>
                                     Follow-up 2: {{ optional($item->second_follow_up_at)->format('d M Y H:i') ?: '-' }}
                                 </div>
+                            </td>
+                            <td class="text-nowrap">
+                                <a href="#" class="badge temp-badge temp-{{ $item->temperature ?: 'cold' }} btn-open-temperature-modal"
+                                    data-member-name="{{ optional($member)->name }}"
+                                    data-get-url="{{ route('admin.member_leads.temperature', $item->id) }}"
+                                    data-save-url="{{ route('admin.member_leads.update_temperature', $item->id) }}">
+                                    {{ strtoupper($item->temperature ?: 'cold') }} · {{ (int) $item->temperature_score }}
+                                </a>
                             </td>
                             <td>
                                 @if ($item->result === \App\Models\MemberLeadFollowUp::RESULT_WIN)
@@ -280,7 +346,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="12" class="text-center text-muted py-4">No data available.</td>
+                            <td colspan="14" class="text-center text-muted py-4">No data available.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -340,6 +406,16 @@
         line-height: 1;
         border-radius: 5px;
     }
+
+    /* Lead temperature badges — same palette as the SOP scoring chart */
+    .lead-table-wrap .temp-badge {
+        font-size: 9.5px;
+        padding: .25em .5em;
+        font-weight: 700;
+    }
+    .temp-hot  { background: #f3e3da; color: #a96b45; }
+    .temp-warm { background: #e0ecea; color: #2f6b66; }
+    .temp-cold { background: #e9eae8; color: #4f5b5c; }
 
     /* Small pill badges (result, over-SLA) */
     .lead-table-wrap .mini-badge {
