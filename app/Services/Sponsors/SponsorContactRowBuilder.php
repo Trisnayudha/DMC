@@ -27,7 +27,7 @@ class SponsorContactRowBuilder
         foreach ($sponsor->members as $member) {
             $this->addContact($rows, [
                 'name'      => $member->name,
-                'title'     => $member->status_member,
+                'title'     => $member->job_title,
                 'email'     => $member->email,
                 'phone'     => $member->fullphone,
                 'instagram' => null,

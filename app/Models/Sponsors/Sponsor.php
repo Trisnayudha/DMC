@@ -83,7 +83,7 @@ class Sponsor extends Model
     public function members()
     {
         return $this->belongsToMany(\App\Models\User::class, 'payment', 'sponsor_id', 'member_id')
-            ->select(['users.id', 'users.name', 'users.email', 'users.status_member', 'profiles.fullphone'])
+            ->select(['users.id', 'users.name', 'users.email', 'users.status_member', 'profiles.fullphone', 'profiles.job_title'])
             ->leftJoin('profiles', 'profiles.users_id', '=', 'users.id')
             ->distinct();
     }
