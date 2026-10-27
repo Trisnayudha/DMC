@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Sponsors\Sponsor;
+use App\Services\Sponsors\SponsorAddressParser;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -26,6 +27,7 @@ class SponsorExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             ->get();
 
         $this->rows = collect();
+        $addressParser = new SponsorAddressParser();
 
         foreach ($sponsors as $sponsor) {
             // Konversi contract_start & contract_end ke format "May 2024 - June 2025"
@@ -40,6 +42,9 @@ class SponsorExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
                 }
             }
 
+            // Tabel sponsors tidak punya kolom city/country/postal_code, jadi diambil dari address
+            $location = $addressParser->parse($sponsor->address);
+
             if ($sponsor->pics->count() > 0) {
                 foreach ($sponsor->pics as $pic) {
                     $this->rows->push([
@@ -51,9 +56,9 @@ class SponsorExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
                         'email_pic'       => $pic->email,
                         'mobile_phone'    => $pic->phone,
                         'address'         => $sponsor->address,
-                        'city'            => $sponsor->city ?? '',
-                        'country'         => $sponsor->country ?? '',
-                        'postal_code'     => $sponsor->postal_code ?? '',
+                        'city'            => $location['city'],
+                        'country'         => $location['country'],
+                        'postal_code'     => $location['postal_code'],
                         'office_number'   => $sponsor->office_number ?? '',
                         'website'         => $sponsor->company_website,
                     ]);
@@ -68,9 +73,9 @@ class SponsorExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
                     'email_pic'       => '',
                     'mobile_phone'    => '',
                     'address'         => $sponsor->address,
-                    'city'            => $sponsor->city ?? '',
-                    'country'         => $sponsor->country ?? '',
-                    'postal_code'     => $sponsor->postal_code ?? '',
+                    'city'            => $location['city'],
+                    'country'         => $location['country'],
+                    'postal_code'     => $location['postal_code'],
                     'office_number'   => $sponsor->office_number ?? '',
                     'website'         => $sponsor->company_website,
                 ]);
