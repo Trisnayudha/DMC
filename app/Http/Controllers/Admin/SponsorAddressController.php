@@ -4,49 +4,45 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Sponsors\SponsorAddress;
+use App\Services\Sponsors\SponsorAddressGeocoder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class SponsorAddressController extends Controller
 {
+    private $geocoder;
+
+    public function __construct(SponsorAddressGeocoder $geocoder)
+    {
+        $this->geocoder = $geocoder;
+    }
+
     public function show($id)
     {
-        $jsonResponse = $this->getCountry();
-        $countryData = json_decode($jsonResponse->getContent(), true);
-
-        $data['country'] = $countryData;
+        $data['country'] = $this->geocoder->countries();
         $data['sponsor_id'] = $id;
         $data['data'] = SponsorAddress::where('sponsor_id', $id)->orderBy('id', 'desc')->get();
         return view('admin.sponsor-address.sponsor', $data);
     }
 
+    // Dipanggil dari modal: address → lat, lng, country, link gmaps
+    public function geocode(Request $request)
+    {
+        $request->validate(['address' => 'required|string|max:1000']);
+
+        return response()->json($this->geocoder->geocode($request->address));
+    }
+
     public function store(Request $request)
     {
-        $save = new SponsorAddress();
-        $save->link_gmaps = $request->link_gmaps;
-        $save->address = $request->address;
-        $save->country = $request->country;
-        $save->sponsor_id = $request->sponsor_id;
-        $save->lat = $request->lat;
-        $save->lang = $request->lang;
+        $this->validateAddress($request);
 
-        // Cari flag berdasarkan country
-        $countryData = json_decode($this->getCountry()->getContent(), true);
-        $flag = null;
-        foreach ($countryData as $item) {
-            if ($item['country'] === $request->country) {
-                $flag = $item['flag'];
-                break;
-            }
-        }
+        $address = new SponsorAddress();
+        $address->sponsor_id = $request->sponsor_id;
+        $this->fillAddress($address, $request);
+        $address->save();
 
-        if ($flag) {
-            $save->image_country = $flag;
-            $save->save();
-            return redirect()->back()->with('success', 'Successfully added address.');
-        } else {
-            return response()->json(['error' => 'Country not found'], 404);
-        }
+        return redirect()->back()->with('success', 'Successfully added address.');
     }
 
     public function edit($id)
@@ -60,27 +56,15 @@ class SponsorAddressController extends Controller
 
     public function update(Request $request, $id)
     {
-        $update = SponsorAddress::find($id);
-        if (!$update) {
-            return response()->json(['error' => 'Address not found'], 404);
+        $address = SponsorAddress::find($id);
+        if (!$address) {
+            return redirect()->back()->with('error', 'Address not found.');
         }
 
-        $update->link_gmaps = $request->link_gmaps;
-        $update->address = $request->address;
-        $update->country = $request->country;
-        $update->lat = $request->lat;
-        $update->lang = $request->lang;
+        $this->validateAddress($request);
+        $this->fillAddress($address, $request);
+        $address->save();
 
-        // Update flag berdasarkan country
-        $countryData = json_decode($this->getCountry()->getContent(), true);
-        foreach ($countryData as $item) {
-            if ($item['country'] === $request->country) {
-                $update->image_country = $item['flag'];
-                break;
-            }
-        }
-
-        $update->save();
         return redirect()->back()->with('success', 'Successfully updated address.');
     }
 
@@ -95,16 +79,53 @@ class SponsorAddressController extends Controller
         return response()->json(['success' => 'Successfully deleted address']);
     }
 
-    private function getCountry()
+    private function validateAddress(Request $request)
     {
-        $jsonFileUrl = public_path('country-flag-flagcdn.json');
+        $request->validate([
+            'address'     => 'required|string|max:1000',
+            'coordinates' => ['nullable', 'regex:/^\s*-?\d{1,3}(\.\d+)?\s*,\s*-?\d{1,3}(\.\d+)?\s*$/'],
+            'country'     => 'nullable|string',
+        ], [
+            'coordinates.regex' => 'Coordinates must be "lat, lng", e.g. -6.2281, 106.8071',
+        ]);
+    }
 
-        if (file_exists($jsonFileUrl)) {
-            $jsonContents = file_get_contents($jsonFileUrl);
-            $jsonData = json_decode($jsonContents);
-            return response()->json($jsonData);
+    /**
+     * Field yang kosong di form diisi otomatis dari address, supaya tetap
+     * lengkap walaupun admin langsung klik Save tanpa "Find Location".
+     */
+    private function fillAddress(SponsorAddress $address, Request $request)
+    {
+        $addressChanged = $address->address !== $request->address;
+        $address->address = $request->address;
+
+        $lookup = null;
+        if (!$request->filled('coordinates') || !$request->filled('country')) {
+            $lookup = $this->geocoder->geocode($request->address);
+        }
+
+        if ($request->filled('coordinates')) {
+            [$lat, $lng] = array_map('trim', explode(',', $request->coordinates));
         } else {
-            return response()->json(['error' => 'File JSON not found'], 404);
+            $lat = $lookup['lat'] ?? 0;
+            $lng = $lookup['lng'] ?? 0;
+        }
+        $address->lat = $lat;
+        $address->lang = $lng;
+
+        $address->country = $request->filled('country') ? $request->country : ($lookup['country'] ?? '');
+        $address->image_country = $this->geocoder->flagFor($address->country);
+
+        // Website menampilkan bendera, jadi country wajib ketemu
+        if (!$address->image_country) {
+            throw ValidationException::withMessages([
+                'country' => 'Country could not be detected from the address, please select it manually.',
+            ]);
+        }
+
+        // Link embed lama (hasil copy manual dari Google Maps) dipertahankan selama address tidak berubah
+        if ($addressChanged || !$address->link_gmaps) {
+            $address->link_gmaps = $this->geocoder->embedLink($request->address);
         }
     }
 }

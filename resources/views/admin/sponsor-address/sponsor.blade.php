@@ -55,6 +55,7 @@
                                                 <th width="10px">No</th>
                                                 <th>Address</th>
                                                 <th>Country</th>
+                                                <th>Coordinates</th>
                                                 <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
@@ -65,6 +66,7 @@
                                                     <td>{{ $no++ }}</td>
                                                     <td>{{ $post->address }}</td>
                                                     <td>{{ $post->country }}</td>
+                                                    <td class="text-nowrap">{{ $post->lat + 0 }}, {{ $post->lang + 0 }}</td>
                                                     <td>
                                                         <button class="btn btn-success edit-sponsor"
                                                             data-id="{{ $post->id }}" title="Edit">
@@ -100,32 +102,39 @@
                         class="form-horizontal" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="sponsor_id" id="sponsor_id" value="{{ $sponsor_id }}">
-                        <input type="hidden" name="id" id="address_id">
+                        <input type="hidden" name="_method" id="form_method" value="POST">
                         <div class="form-group">
-                            <label for=""> Link Gmaps </label>
-                            <input type="text" name="link_gmaps" id="link_gmaps" class="form-control">
+                            <label for="address">Address</label>
+                            <textarea name="address" id="address" class="form-control" rows="3" style="height: auto"
+                                placeholder="e.g. Prosperity Tower 10th floor, District 8 SCBD, Jl. Jend. Sudirman Kav. 52-53, Jakarta Selatan"
+                                required></textarea>
+                            <div class="d-flex align-items-center mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="btn-find-location">
+                                    <i class="fas fa-map-marker-alt"></i> Find Location
+                                </button>
+                                <small id="geocode-status" class="ml-2"></small>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for=""> Address </label>
-                            <input type="text" name="address" id="address" class="form-control">
+                        <div class="form-group" id="map-preview-wrap" style="display: none">
+                            <iframe id="map-preview" class="w-100 rounded border-0" height="200" loading="lazy"></iframe>
                         </div>
-                        <div class="form-group">
-                            <label for="">Lat</label>
-                            <input type="text" name="lat" id="lat" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="">Lang</label>
-                            <input type="text" name="lang" id="lang" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="code">Country</label>
-                            <select name="country" id="country" class="form-control select2">
-                                <option value="">Select</option>
-                                @foreach ($country as $item)
-                                    <option value="{{ $item['country'] }}">
-                                        {{ $item['country'] }}</option>
-                                @endforeach
-                            </select>
+                        <div class="row">
+                            <div class="form-group col-md-7">
+                                <label for="coordinates">Coordinates (lat, lng)</label>
+                                <input type="text" name="coordinates" id="coordinates" class="form-control"
+                                    placeholder="-6.2281521, 106.8071746">
+                                <small class="text-muted">Auto-filled. Pin off? Paste from Google Maps (right-click &rarr; copy).</small>
+                            </div>
+                            <div class="form-group col-md-5">
+                                <label for="country">Country</label>
+                                <select name="country" id="country" class="form-control select2">
+                                    <option value="">Auto detect</option>
+                                    @foreach ($country as $item)
+                                        <option value="{{ $item['country'] }}">
+                                            {{ $item['country'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -151,9 +160,72 @@
                 }
             });
 
+            var storeUrl = "{{ route('sponsors-address.store') }}";
+            var lastLookup = '';
+
+            function showPreview(coordinates) {
+                var valid = /^\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*$/.test(coordinates || '');
+                $('#map-preview-wrap').toggle(valid);
+                if (valid) {
+                    $('#map-preview').attr('src', 'https://maps.google.com/maps?q=' + encodeURIComponent(coordinates.replace(/\s/g, '')) + '&z=16&output=embed');
+                }
+            }
+
+            function setStatus(text, cls) {
+                $('#geocode-status').attr('class', 'ml-2 ' + cls).text(text);
+            }
+
+            function resetForm() {
+                $('#addEditCategoryForm').trigger('reset');
+                $('#country').val('').trigger('change');
+                setStatus('', '');
+                showPreview('');
+                lastLookup = '';
+            }
+
+            function findLocation() {
+                var address = $.trim($('#address').val());
+                if (!address || address === lastLookup) return;
+                lastLookup = address;
+
+                setStatus('Searching...', 'text-muted');
+                $.post("{{ route('sponsors-address.geocode') }}", { address: address })
+                    .done(function(res) {
+                        if (res.country) $('#country').val(res.country).trigger('change');
+
+                        if (res.lat === null) {
+                            setStatus('Location not found. Paste coordinates from Google Maps.', 'text-danger');
+                            return;
+                        }
+
+                        $('#coordinates').val(res.lat + ', ' + res.lng);
+                        showPreview(res.lat + ', ' + res.lng);
+                        if (res.precise) {
+                            setStatus('Location found.', 'text-success');
+                        } else {
+                            setStatus('Approximate area only. Check the map, paste exact coordinates if needed.', 'text-warning');
+                        }
+                    })
+                    .fail(function() {
+                        setStatus('Lookup failed, try again.', 'text-danger');
+                        lastLookup = '';
+                    });
+            }
+
+            $('#btn-find-location').on('click', function() {
+                lastLookup = '';
+                findLocation();
+            });
+            $('#address').on('blur', findLocation);
+            $('#coordinates').on('change', function() {
+                showPreview($(this).val());
+            });
+
             // Add New
             $('#addNewCategory').click(function() {
-                $('#addEditCategoryForm').trigger("reset");
+                resetForm();
+                $('#addEditCategoryForm').attr('action', storeUrl);
+                $('#form_method').val('POST');
                 $('#ajaxCategoryModel').html("Add Sponsor Address");
                 $('#category-model').modal('show');
             });
@@ -163,14 +235,21 @@
                 var id = $(this).data('id');
 
                 $.get("{{ url('admin/sponsors-address') }}/" + id + "/edit", function(data) {
+                    resetForm();
+                    $('#addEditCategoryForm').attr('action', "{{ url('admin/sponsors-address') }}/" + id);
+                    $('#form_method').val('PUT');
                     $('#ajaxCategoryModel').html("Edit Sponsor Address");
                     $('#category-model').modal('show');
                     $('#sponsor_id').val(data.sponsor_id);
-                    $('#link_gmaps').val(data.link_gmaps);
                     $('#address').val(data.address);
-                    $('#lat').val(data.lat);
-                    $('#lang').val(data.lang);
-                    $('#country').val(data.country);
+                    lastLookup = $.trim(data.address);
+                    $('#country').val(data.country).trigger('change');
+
+                    if (parseFloat(data.lat) !== 0 || parseFloat(data.lang) !== 0) {
+                        var coordinates = parseFloat(data.lat) + ', ' + parseFloat(data.lang);
+                        $('#coordinates').val(coordinates);
+                        showPreview(coordinates);
+                    }
                 });
             });
 

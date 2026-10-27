@@ -359,6 +359,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::delete('sponsors/benefits/marks/{markId}', [SponsorBenefitController::class, 'removeMark'])
         ->name('sponsors.benefit.removeMark');
 
+    Route::post('sponsors-address/geocode', [SponsorAddressController::class, 'geocode'])->name('sponsors-address.geocode');
     Route::resource('sponsors-address', SponsorAddressController::class);
     Route::get('sponsors-representative/{$id}', [SponsorRepresentativeController::class, 'show'])->name('sponsors-representative.show');
     // 1) Tampilkan daftar sponsor representative berdasarkan sponsor_id
