@@ -56,6 +56,9 @@ return [
 
     'asset_url' => env('ASSET_URL', null),
 
+    // Website member (DMC-FE-v2) — dipakai untuk membangun link publik, mis. link pendaftaran member source.
+    'frontend_url' => env('FRONTEND_URL', 'https://www.djakarta-miningclub.com'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

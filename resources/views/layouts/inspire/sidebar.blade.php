@@ -82,6 +82,13 @@
             </a>
         </li>
 
+        <li class="{{ request()->is('admin/member-sources*') ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('admin.member_sources.index') }}">
+                <i class="fas fa-link"></i>
+                <span>Member Sources</span>
+            </a>
+        </li>
+
         <li class="{{ request()->is('admin/interview-schedule*') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('admin.interview-schedule.sponsor.index') }}">
                 <i class="fas fa-microphone-alt"></i>

@@ -630,6 +630,13 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('company-subcategories/{id}/update', [App\Http\Controllers\Admin\CompanySubcategoryController::class, 'update'])->name('admin.company_subcategories.update');
     Route::post('company-subcategories/{id}/toggle', [App\Http\Controllers\Admin\CompanySubcategoryController::class, 'toggleActive'])->name('admin.company_subcategories.toggle');
 
+    // Member Sources (link pendaftaran member per event/referral)
+    Route::get('member-sources', [App\Http\Controllers\Admin\MemberSourceController::class, 'index'])->name('admin.member_sources.index');
+    Route::post('member-sources', [App\Http\Controllers\Admin\MemberSourceController::class, 'store'])->name('admin.member_sources.store');
+    Route::post('member-sources/{id}/update', [App\Http\Controllers\Admin\MemberSourceController::class, 'update'])->name('admin.member_sources.update');
+    Route::post('member-sources/{id}/toggle', [App\Http\Controllers\Admin\MemberSourceController::class, 'toggleActive'])->name('admin.member_sources.toggle');
+    Route::post('member-sources/{id}/delete', [App\Http\Controllers\Admin\MemberSourceController::class, 'destroy'])->name('admin.member_sources.destroy');
+
     // CMS Users
     Route::get('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'index'])->name('admin.cms_users.index');
     Route::post('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'store'])->name('admin.cms_users.store');
