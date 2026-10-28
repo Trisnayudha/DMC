@@ -310,7 +310,7 @@
                                                     style="background:#f39c12;color:#fff;"
                                                     data-id="{{ $er->sponsor_id }}"
                                                     data-name="{{ $er->sponsor ? $er->sponsor->name : '' }}"
-                                                    data-toggle="tooltip" title="Renewal Follow-up">
+                                                    data-toggle="tooltip" title="{{ $canManageSponsors ? 'Renewal Follow-up' : 'Generate Renewal Form' }}">
                                                     <i class="fas fa-phone-volume"></i>
                                                 </button>
                                                 <button class="btn btn-sm btn-primary action-icon-btn update-contract-btn"
@@ -321,6 +321,7 @@
                                                     data-toggle="tooltip" title="Confirm Renewal / Renew Contract">
                                                     <i class="fas fa-file-signature"></i>
                                                 </button>
+                                                @if ($canManageSponsors)
                                                 <button class="btn btn-sm btn-warning action-icon-btn not-renewed-btn"
                                                     data-id="{{ $er->sponsor_id }}"
                                                     data-name="{{ $er->sponsor ? $er->sponsor->name : '' }}"
@@ -329,14 +330,19 @@
                                                     data-toggle="tooltip" title="Mark Not Renewed">
                                                     <i class="fas fa-times-circle"></i>
                                                 </button>
+                                                @endif
                                                 <a href="{{ route('sponsors.renewal-form.preview', $er->sponsor_id) }}"
                                                     target="_blank"
                                                     class="btn btn-sm btn-outline-secondary action-icon-btn"
                                                     data-toggle="tooltip" title="Preview Renewal Form">
                                                     <i class="fas fa-file-pdf"></i>
                                                 </a>
-                                                @include('admin.sponsor.annual-report._edit-contract-btn', ['r' => $er])
+                                                @if ($canManageSponsors)
+                                                    @include('admin.sponsor.annual-report._edit-contract-btn', ['r' => $er])
+                                                @endif
                                             </div>
+                                        @elseif (!$canManageSponsors)
+                                            <span class="text-muted">—</span>
                                         @else
                                             {{-- Kontrak ini sudah expired dan followup_status-nya bukan pending
                                                  lagi — datanya (quotation/invoice/paid) ada di record baru

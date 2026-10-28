@@ -18,6 +18,12 @@ class HomeController extends Controller
 
     public function index()
     {
+        if (!auth()->user()->isSuperadmin()) {
+            return view('admin.cms_users.team_dashboard', [
+                'navigation' => \App\Support\CmsAccess::navigation(auth()->user()),
+            ]);
+        }
+
         $kpi = $this->kpiData();
         $membership = $this->membershipSectionData();
         $event      = $this->eventSectionData();

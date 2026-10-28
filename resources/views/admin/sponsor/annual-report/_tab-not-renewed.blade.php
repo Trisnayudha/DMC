@@ -65,6 +65,7 @@
                                             @endif
                                         </td>
                                         <td style="padding:12px 16px;">
+                                            @if ($canManageSponsors)
                                             <button class="btn btn-sm btn-success action-icon-btn update-contract-btn"
                                                 data-sponsor-id="{{ $n->sponsor_id }}"
                                                 data-contract-start="{{ $reactivateStart }}"
@@ -74,6 +75,9 @@
                                                 data-toggle="tooltip" title="Reactivate Sponsor / Confirm New Contract">
                                                 <i class="fas fa-redo-alt"></i>
                                             </button>
+                                            @else
+                                            <span class="text-muted">—</span>
+                                            @endif
                                         </td>
                                     </tr>
                                     @empty

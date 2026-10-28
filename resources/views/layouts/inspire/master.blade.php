@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="{{ asset('stisla/assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('stisla/assets/css/components.css') }}">
     <link rel="stylesheet" href="{{ asset('stisla/assets/css/custom.css') }}">
+    <link rel="stylesheet" href="{{ asset('stisla/assets/css/cms-sidebar.css') }}">
 
     <!-- summernote -->
     <link rel="stylesheet" href="{{ asset('plugins/summernote/summernote-bs4.min.css') }}">
@@ -118,6 +119,7 @@
     <!-- Template JS File -->
     <script src="{{ asset('stisla/assets/js/scripts.js') }}"></script>
     <script src="{{ asset('stisla/assets/js/custom.js') }}"></script>
+    <script src="{{ asset('stisla/assets/js/cms-sidebar.js') }}"></script>
     <!-- JS Libraies -->
     <script src="{{ asset('stisla/plugins/jquery-sparkline/jquery.sparkline.min.js') }}"></script>
     <script src="{{ asset('stisla/plugins/chart.js/dist/Chart.min.js') }}"></script>
@@ -137,7 +139,9 @@
         });
     </script>
 
-    @include('partials._quick_search')
+    @if (auth()->user()->canAccessModule('quick_search'))
+        @include('partials._quick_search')
+    @endif
     @yield('client_scripts')
     @stack('bottom')
 </body>

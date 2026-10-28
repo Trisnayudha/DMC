@@ -18,6 +18,39 @@ class FinancialReportController extends Controller
         // auth handled by cms_auth route middleware
     }
 
+    /** List events that have a priced ticket, including events without payments yet. */
+    public function events(Request $request)
+    {
+        $search = trim((string) $request->input('search', ''));
+        $events = Events::query()
+            ->whereNotNull('slug')->where('slug', '!=', '')
+            ->where(function ($query) {
+                $query->whereExists(function ($tickets) {
+                    $tickets->selectRaw('1')->from('events_tickets as t')
+                        ->whereColumn('t.events_id', 'events.id')
+                        ->where(function ($priced) {
+                            $priced->where('t.price_rupiah', '>', 0)->orWhere('t.price_dollar', '>', 0);
+                        });
+                })->orWhereExists(function ($payments) {
+                    $payments->selectRaw('1')->from('payment as p')
+                        ->join('events_tickets as t', 't.id', '=', 'p.tickets_id')
+                        ->whereColumn('p.events_id', 'events.id')
+                        ->where('p.status_registration', 'Paid Off')
+                        ->whereNotNull('p.payment_method')
+                        ->where(function ($priced) {
+                            $priced->where('t.price_rupiah', '>', 0)->orWhere('t.price_dollar', '>', 0);
+                        });
+                });
+            })
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->orderByDesc('start_date')->orderByDesc('id')
+            ->paginate(15)->appends($request->except('page'));
+
+        return view('admin.events.financial-report-events', compact('events', 'search'));
+    }
+
     /**
      * Base query: PAID OFF + has payment_method + exclude free (price > 0)
      * Includes joins for tickets/users/profiles/company.

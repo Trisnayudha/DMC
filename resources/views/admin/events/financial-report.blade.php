@@ -7,8 +7,10 @@
                 <h1>Financial Report</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item"><a href="{{ route('events-details', ['slug' => $slug]) }}">Event Detail</a>
-                    </div>
+                    <div class="breadcrumb-item"><a href="{{ route('admin.financial_reports.index') }}">Paid Events</a></div>
+                    @if (auth()->user()->canAccessModule('events'))
+                        <div class="breadcrumb-item"><a href="{{ route('events-details', ['slug' => $slug]) }}">Event Detail</a></div>
+                    @endif
                     <div class="breadcrumb-item active">Financial Report</div>
                 </div>
             </div>

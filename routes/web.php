@@ -424,6 +424,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('/events/wa-template', [EventsDetailParticipantController::class, 'generateWaTemplate'])
         ->name('events-generate-wa-template');
 
+    Route::get('financial-reports', [\App\Http\Controllers\Admin\FinancialReportController::class, 'events'])->name('admin.financial_reports.index');
+
     Route::get('/events/{slug}/financial-report', [\App\Http\Controllers\Admin\FinancialReportController::class, 'index'])
         ->name('events-financial-report');
 
@@ -638,6 +640,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('member-sources/{id}/delete', [App\Http\Controllers\Admin\MemberSourceController::class, 'destroy'])->name('admin.member_sources.destroy');
 
     // CMS Users
+    Route::post('cms-users/permissions', [App\Http\Controllers\Admin\CmsUsersController::class, 'updatePermissions'])->name('admin.cms_users.permissions');
     Route::get('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'index'])->name('admin.cms_users.index');
     Route::post('cms-users', [App\Http\Controllers\Admin\CmsUsersController::class, 'store'])->name('admin.cms_users.store');
     Route::post('cms-users/{id}/update', [App\Http\Controllers\Admin\CmsUsersController::class, 'update'])->name('admin.cms_users.update');

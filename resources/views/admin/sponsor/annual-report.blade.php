@@ -1,3 +1,7 @@
+{{-- Finance Team hanya punya izin sponsor_annual_report: lihat, download, generate/preview
+     renewal form, dan Confirm Renewal (cms_access.shared_actions). Follow-up log, Mark
+     Not Renewed, Edit Contract dan Reactivate tetap butuh izin Sponsors. --}}
+@php $canManageSponsors = auth()->user()->canAccessModule('sponsors'); @endphp
 @extends('layouts.inspire.master')
 
 {{--
@@ -13,7 +17,9 @@
             <h1>Annual Report {{ $year }}</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></div>
-                <div class="breadcrumb-item"><a href="{{ route('sponsors.index') }}">Sponsors</a></div>
+                @if ($canManageSponsors)
+                    <div class="breadcrumb-item"><a href="{{ route('sponsors.index') }}">Sponsors</a></div>
+                @endif
                 <div class="breadcrumb-item active">Annual Report {{ $year }}</div>
             </div>
         </div>
@@ -23,9 +29,11 @@
             {{-- Top action bar --}}
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" style="gap:8px;">
                 <div class="d-flex align-items-center" style="gap:8px;">
-                    <a href="{{ route('sponsors.index') }}" class="btn btn-light border">
-                        <i class="fas fa-arrow-left mr-1"></i> Back to Sponsors
-                    </a>
+                    @if ($canManageSponsors)
+                        <a href="{{ route('sponsors.index') }}" class="btn btn-light border">
+                            <i class="fas fa-arrow-left mr-1"></i> Back to Sponsors
+                        </a>
+                    @endif
                     <h2 class="section-title mb-0">Sponsors Annual Report</h2>
                 </div>
                 <a href="{{ route('sponsors.downloadAnnualReport', ['year' => $year]) }}"

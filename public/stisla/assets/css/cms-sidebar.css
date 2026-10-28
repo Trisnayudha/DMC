@@ -1,0 +1,35 @@
+/* Compact navigation, using the existing Stisla colors and sidebar behavior. */
+body:not(.sidebar-mini) .main-sidebar .sidebar-brand:not(.sidebar-brand-sm) {
+    height: 82px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.main-sidebar .sidebar-brand img { width: 70px; border: 0; }
+.main-sidebar .sidebar-brand strong { color: #34395e; margin-left: 4px; }
+.cms-menu-search { padding: 0 14px 10px; }
+.cms-menu-search-field {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 36px;
+    margin: 0;
+    padding: 0 11px;
+    border: 1px solid #e7eaf1;
+    border-radius: 6px;
+    background: #f8f9fc;
+    color: #98a3b2;
+}
+.cms-menu-search-field:focus-within { border-color: #6777ef; box-shadow: 0 0 0 3px rgba(103,119,239,.12); }
+.cms-menu-search-field i { font-size: 12px; }
+.cms-menu-search-field input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: #34395e; font-size: 12px; }
+.cms-menu-search-field input::placeholder { color: #9aa4b2; }
+body:not(.sidebar-mini) .main-sidebar .sidebar-menu > li.menu-header { padding: 8px 19px 4px; font-size: 10px; letter-spacing: .09em; }
+body:not(.sidebar-mini) .main-sidebar .sidebar-menu > li.menu-header:not(:first-child) { margin-top: 4px; }
+body:not(.sidebar-mini) .main-sidebar .sidebar-menu > li > a { height: 42px; padding: 0 19px; font-size: 12.5px; letter-spacing: 0; }
+body:not(.sidebar-mini) .main-sidebar .sidebar-menu > li > a i { width: 20px; margin-right: 15px; font-size: 13px; }
+body:not(.sidebar-mini) .main-sidebar .sidebar-menu li ul.dropdown-menu li a { height: 34px; padding-left: 54px; font-size: 12px; letter-spacing: 0; }
+.main-sidebar .sidebar-menu [hidden], .cms-menu-empty[hidden] { display: none !important; }
+body:not(.sidebar-mini) .main-sidebar .sidebar-menu.is-searching > li:not([hidden]) > .dropdown-menu { display: block !important; }
+.main-sidebar .cms-menu-empty { padding: 8px 19px; color: #98a3b2; font-size: 12px; }
+.main-sidebar .sidebar-menu a:focus-visible { outline: 2px solid #6777ef; outline-offset: -3px; }

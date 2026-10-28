@@ -356,7 +356,8 @@
                     </form>
                 </div>
 
-                {{-- ═══ STEP 2 — Follow-up ═══ --}}
+                {{-- ═══ STEP 2 — Follow-up ═══ (khusus izin Sponsors; Finance dari Annual Report cuma Step 1) --}}
+                @if ($canManageSponsors ?? true)
                 <div>
                     <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
                         <i class="fas fa-phone-volume mr-1"></i> Step 2 — Follow-up
@@ -415,6 +416,7 @@
                         </form>
                     </div>
                 </div>
+                @endif
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

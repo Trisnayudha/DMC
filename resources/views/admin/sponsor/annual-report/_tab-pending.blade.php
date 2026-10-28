@@ -152,7 +152,7 @@
                                                     style="background:#f39c12;color:#fff;"
                                                     data-id="{{ $p->sponsor_id }}"
                                                     data-name="{{ $p->sponsor ? $p->sponsor->name : '' }}"
-                                                    data-toggle="tooltip" title="Renewal Follow-up">
+                                                    data-toggle="tooltip" title="{{ $canManageSponsors ? 'Renewal Follow-up' : 'Generate Renewal Form' }}">
                                                     <i class="fas fa-phone-volume"></i>
                                                 </button>
                                                 <button class="btn btn-sm btn-primary action-icon-btn update-contract-btn"
@@ -163,6 +163,7 @@
                                                     data-toggle="tooltip" title="Confirm Renewal / Renew Contract">
                                                     <i class="fas fa-file-signature"></i>
                                                 </button>
+                                                @if ($canManageSponsors)
                                                 <button class="btn btn-sm btn-warning action-icon-btn not-renewed-btn"
                                                     data-id="{{ $p->sponsor_id }}"
                                                     data-name="{{ $p->sponsor ? $p->sponsor->name : '' }}"
@@ -171,6 +172,7 @@
                                                     data-toggle="tooltip" title="Mark Not Renewed">
                                                     <i class="fas fa-times-circle"></i>
                                                 </button>
+                                                @endif
                                                 <a href="{{ route('sponsors.renewal-form.preview', $p->sponsor_id) }}"
                                                     target="_blank"
                                                     class="btn btn-sm btn-outline-secondary action-icon-btn"

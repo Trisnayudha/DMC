@@ -30,6 +30,9 @@
                 </div>
             @endif
 
+            @if ($errors->any())
+                <div class="alert alert-danger"><ul class="mb-0">@foreach ($errors->all() as $message)<li>{{ $message }}</li>@endforeach</ul></div>
+            @endif
             <div class="row">
                 <div class="col-lg-8">
                     <div class="card">
@@ -45,6 +48,7 @@
                                             <th width="40">#</th>
                                             <th>Nama</th>
                                             <th>Email</th>
+                                            <th>Level</th>
                                             <th width="80" class="text-center">Status</th>
                                             <th width="120" class="text-center">Aksi</th>
                                         </tr>
@@ -68,6 +72,7 @@
                                                     </div>
                                                 </td>
                                                 <td><span class="text-muted">{{ $admin->email }}</span></td>
+                                                <td><span class="badge badge-light">{{ $admin->roleLabel() }}</span></td>
                                                 <td class="text-center">
                                                     @if ($admin->is_active)
                                                         <span class="badge badge-success" style="font-size:11px;">Active</span>
@@ -81,6 +86,7 @@
                                                             data-id="{{ $admin->id }}"
                                                             data-name="{{ $admin->name }}"
                                                             data-email="{{ $admin->email }}"
+                                                            data-role="{{ $admin->role }}"
                                                             title="Edit" style="padding:4px 8px;">
                                                             <i class="fas fa-pen" style="font-size:11px;"></i>
                                                         </button>
@@ -143,6 +149,12 @@
                                         required placeholder="Min 6 karakter">
                                     @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
+                                <div class="form-group">
+                                    <label class="small font-weight-bold" for="newCmsRole">Level</label>
+                                    <select name="role" id="newCmsRole" class="form-control" required>
+                                        @foreach ($roles as $value => $label)<option value="{{ $value }}" {{ old('role', 'event_team') === $value ? 'selected' : '' }}>{{ $label }}</option>@endforeach
+                                    </select>
+                                </div>
                                 <button type="submit" class="btn btn-primary btn-block btn-sm">
                                     <i class="fas fa-plus mr-1"></i> Tambah Admin
                                 </button>
@@ -151,6 +163,7 @@
                     </div>
                 </div>
             </div>
+            @include('admin.cms_users._permissions')
         </div>
     </section>
 </div>
@@ -175,6 +188,12 @@
                         <input type="email" name="email" id="editEmail" class="form-control form-control-sm" required>
                     </div>
                     <div class="form-group">
+                        <label class="small font-weight-bold" for="editRole">Level</label>
+                        <select name="role" id="editRole" class="form-control" required>
+                            @foreach ($roles as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label class="small font-weight-bold">Password <small class="text-muted font-weight-normal">(kosongkan jika tidak diubah)</small></label>
                         <input type="password" name="password" class="form-control form-control-sm" placeholder="••••••••">
                     </div>
@@ -195,6 +214,7 @@
         var id = $(this).data('id');
         $('#editName').val($(this).data('name'));
         $('#editEmail').val($(this).data('email'));
+        $('#editRole').val($(this).data('role'));
         $('#editCmsUserForm').attr('action', '/admin/cms-users/' + id + '/update');
         $('#editCmsUserModal').modal('show');
     });

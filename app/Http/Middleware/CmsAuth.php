@@ -23,6 +23,8 @@ class CmsAuth
             return redirect()->route('cms.login')->with('error', 'Account is deactivated.');
         }
 
+        abort_unless(\App\Support\CmsAccess::allowsRoute(Auth::user(), $request->route()), 403, 'Anda tidak memiliki akses ke menu atau aksi ini.');
+
         return $next($request);
     }
 }
