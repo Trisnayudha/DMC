@@ -144,7 +144,7 @@ class CmsAccessControlTest extends TestCase
             'member_team' => ['Data Tampung', 'Members DMC', 'Follow-Up', 'Database', 'Company Settings', 'Member Sources', 'Member Conversion', 'Lucky Draw', 'Membership Tier Banners', 'Mailchimp Unsubscribes', 'Events'],
             'marketing_team' => ['News', 'Digital Edition', 'Videos Highlight', 'Advertisement', 'Email Management', 'Notifications', 'Whatsapp'],
             'secretariat_team' => ['Sponsors', 'Scholarship'],
-            'finance_team' => ['Payment & Financial Report', 'Sponsors Annual Report'],
+            'finance_team' => ['Payment & Financial Report', 'Invoice VA Mandiri', 'Sponsors Annual Report'],
         ];
         $sections = [
             'member_team' => ['Main', 'Member', 'Data & Settings', 'Engagement', 'Membership', 'Event'],

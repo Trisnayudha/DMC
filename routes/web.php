@@ -426,6 +426,18 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
 
     Route::get('financial-reports', [\App\Http\Controllers\Admin\FinancialReportController::class, 'events'])->name('admin.financial_reports.index');
 
+    // Invoice Finance — dibayar lewat VA Mandiri (Xendit)
+    Route::get('finance-invoices', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'index'])->name('admin.finance_invoices.index');
+    Route::get('finance-invoices/create', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'create'])->name('admin.finance_invoices.create');
+    Route::post('finance-invoices', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'store'])->name('admin.finance_invoices.store');
+    Route::get('finance-invoices/sponsors/{id}', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'sponsorData'])->name('admin.finance_invoices.sponsor_data');
+    Route::get('finance-invoices/events/{id}/tickets', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'eventTickets'])->name('admin.finance_invoices.event_tickets');
+    Route::get('finance-invoices/{id}', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'show'])->name('admin.finance_invoices.show');
+    Route::get('finance-invoices/{id}/pdf', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'pdf'])->name('admin.finance_invoices.pdf');
+    Route::post('finance-invoices/{id}/send-email', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'sendEmail'])->name('admin.finance_invoices.send_email');
+    Route::post('finance-invoices/{id}/regenerate-va', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'regenerateVa'])->name('admin.finance_invoices.regenerate_va');
+    Route::post('finance-invoices/{id}/cancel', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'cancel'])->name('admin.finance_invoices.cancel');
+
     Route::get('/events/{slug}/financial-report', [\App\Http\Controllers\Admin\FinancialReportController::class, 'index'])
         ->name('events-financial-report');
 

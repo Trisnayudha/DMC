@@ -53,6 +53,7 @@ return [
         'scholarship' => ['Scholarship', 'Secretariat Team', 'scholarship', 'graduation-cap', ['ScholarshipController']],
         // Financial Team
         'payments' => ['Payment & Financial Report', 'Financial Team', 'financial-reports', 'credit-card', ['PaymentController', 'InvoiceController', 'FinancialReportController']],
+        'finance_invoices' => ['Invoice VA Mandiri', 'Financial Team', 'finance-invoices', 'file-invoice-dollar', ['FinanceInvoiceController']],
         // System
         'edit_logs' => ['User Edit Logs', 'System', 'users/edit-logs', 'history', []],
         'quick_search' => ['Quick Search (member & event history)', 'System', 'quick-search', 'search', ['QuickSearchController']],
@@ -82,7 +83,7 @@ return [
         'Content' => ['news', 'news_categories', 'program', 'digital_editions', 'videos'],
         'Campaign & Communication' => ['advertisement', 'marketing_ads', 'emails', 'notifications', 'wa_campaign', 'wa_database', 'wa_template', 'wa_blasting', 'wa_sender'],
         'Sponsor & Scholarship' => ['sponsors', 'interviews', 'scholarship'],
-        'Finance' => ['payments', 'sponsor_annual_report'],
+        'Finance' => ['payments', 'finance_invoices', 'sponsor_annual_report'],
         'System' => ['edit_logs', 'quick_search', 'cms_users', 'ngrok'],
     ],
     // Aksi milik modul lain yang juga boleh dipakai pemegang modul di sini.
@@ -116,7 +117,7 @@ return [
         'event_team' => ['events', 'event_sponsors', 'event_categories', 'event_tickets', 'event_conferences', 'event_highlights', 'event_schedules', 'event_speakers', 'event_rundown', 'partnership_events', 'event_conversions', 'lucky_draw_items', 'lucky_draw_entries'],
         'marketing_team' => ['news', 'news_categories', 'program', 'digital_editions', 'videos', 'advertisement', 'marketing_ads', 'emails', 'notifications', 'wa_campaign', 'wa_database', 'wa_template', 'wa_blasting', 'wa_sender'],
         'secretariat_team' => ['sponsors', 'sponsor_annual_report', 'scholarship'],
-        'finance_team' => ['payments', 'sponsor_annual_report'],
+        'finance_team' => ['payments', 'finance_invoices', 'sponsor_annual_report'],
     ],
     'upload_modules' => ['news', 'program', 'digital_editions', 'videos', 'events', 'advertisement', 'marketing_ads', 'sponsors', 'membership'],
 ];

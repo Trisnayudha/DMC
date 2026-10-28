@@ -15,6 +15,7 @@ use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Payments\PaymentUsersVA;
 use App\Repositories\Company;
+use App\Services\FinanceInvoiceService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -125,6 +126,16 @@ class XenditCallbackController extends Controller
 
         $normalizedStatus = $this->normalizeSessionStatus($rawStatus);
         $paymentMethod = $this->reverseChannelMap($channelCode);
+
+        // Invoice Finance (VA Mandiri) punya tabel sendiri, bukan payment tiket.
+        if (FinanceInvoiceService::isFinanceReference($referenceId)) {
+            try {
+                return response()->json(FinanceInvoiceService::handleCallback($referenceId, $normalizedStatus, $amount), 200);
+            } catch (\Exception $msg) {
+                Log::error('Finance invoice webhook failed', ['reference_id' => $referenceId, 'error' => $msg->getMessage()]);
+                return response()->json(['api_status' => 0, 'api_message' => $msg->getMessage()], 500);
+            }
+        }
 
         try {
             $res = $this->handlePaidOrExpired($referenceId, $normalizedStatus, $paymentMethod, $amount);
