@@ -57,7 +57,17 @@
                             <div class="stat-label">Free/Invitation</div>
                         </div>
                     </div>
+                    <div class="stat-card stat-teal">
+                        <div class="stat-icon"><i class="fas fa-building"></i></div>
+                        <div class="stat-info">
+                            <div class="stat-number">{{ $companyCount }}</div>
+                            <div class="stat-label">Perusahaan</div>
+                        </div>
+                    </div>
                 </div>
+
+                {{-- ── RINGKASAN PERUSAHAAN (ikut filter pill & pencarian tabel) ── --}}
+                @include('admin.events.partials._participant-company-summary')
 
                 {{-- ── MAIN CARD ── --}}
                 <div class="card shadow-sm border-0">
@@ -199,7 +209,8 @@
                                                 <code
                                                     style="font-size:.78rem; color:#6366f1;">{{ $post->code_payment }}</code>
                                             </td>
-                                            <td data-pkg="{{ $pkg }}" data-member="{{ $isMember ? '1' : '0' }}">
+                                            <td data-pkg="{{ $pkg }}" data-member="{{ $isMember ? '1' : '0' }}"
+                                                data-company-key="{{ $post->company_key }}" data-company="{{ trim((string) $post->company_name) }}">
                                                 <div class="pkg-cell">
                                                     <span class="pkg-badge {{ $regClass }}">
                                                         <i class="fas {{ $regIcon }} mr-1"></i>{{ $regLabel }}
@@ -514,9 +525,15 @@
         /* ── STAT GRID ── */
         .stat-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(7, 1fr);
             gap: 1rem;
             margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1400px) {
+            .stat-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         @media (max-width: 992px) {
@@ -569,6 +586,10 @@
 
         .stat-yellow {
             background: linear-gradient(135deg, #faeb8b 0%, #a2d80d 100%);
+        }
+
+        .stat-teal {
+            background: linear-gradient(135deg, #5eead4 0%, #0d9488 100%);
         }
 
         .stat-icon {

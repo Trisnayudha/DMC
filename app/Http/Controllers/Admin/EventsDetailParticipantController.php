@@ -98,6 +98,13 @@ class EventsDetailParticipantController extends Controller
         $freeCount      = $findParticipant->filter(fn($p) => str_contains(strtolower($p->package ?? ''), 'free'))->count();
         $paidCount      = $findParticipant->filter(fn($p) => in_array(strtolower($p->package ?? ''), ['member', 'nonmember', 'premium']))->count();
 
+        // Ringkasan perusahaan: dihitung ulang di browser mengikuti filter pill/pencarian,
+        // di sini cuma kunci normalisasi per baris + total awal (semua peserta).
+        foreach ($findParticipant as $p) {
+            $p->company_key = $this->companyKey($p->company_name);
+        }
+        $companyCount = $findParticipant->pluck('company_key')->filter()->unique()->count();
+
         $data = [
             'list'           => $findParticipant,
             'date'           => $findEvent->start_date,
@@ -108,8 +115,24 @@ class EventsDetailParticipantController extends Controller
             'sponsorCount'   => $sponsorCount,
             'freeCount'      => $freeCount,
             'paidCount'      => $paidCount,
+            'companyCount'   => $companyCount,
         ];
         return view('admin.events.event-detail-participant', $data);
+    }
+
+    /**
+     * Kunci pembanding nama perusahaan: huruf kecil, tanpa tanda baca dan tanpa
+     * bentuk badan usaha (PT, Tbk, CV), supaya "PT Berlian Cranserco" dan
+     * "Berlian Cranserco, PT." terhitung satu perusahaan. Kosong = tanpa perusahaan.
+     */
+    private function companyKey($companyName): string
+    {
+        $key = strtolower(trim((string) $companyName));
+        $key = preg_replace('/[^a-z0-9&]+/', ' ', $key);
+        $key = preg_replace('/\b(pt|tbk|cv|persero)\b/', ' ', $key);
+        $key = trim(preg_replace('/\s+/', ' ', $key));
+
+        return in_array($key, ['', '-', 'na', 'n a', 'none'], true) ? '' : $key;
     }
 
     public function generateWaTemplate(Request $request)
