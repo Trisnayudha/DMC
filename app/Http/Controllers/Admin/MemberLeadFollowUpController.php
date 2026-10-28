@@ -17,7 +17,6 @@ class MemberLeadFollowUpController extends Controller
     /** Columns the date range filter can apply to. */
     const DATE_FIELDS = [
         'created_at'          => 'Created',
-        'deadline_at'         => 'Deadline',
         'sponsorkit_sent_at'  => 'Sponsor Kit',
         'first_follow_up_at'  => 'Follow-up 1',
         'second_follow_up_at' => 'Follow-up 2',
@@ -31,14 +30,21 @@ class MemberLeadFollowUpController extends Controller
     public function index(Request $request)
     {
         $filters = $this->filters($request);
+        $perPage = in_array($request->input('per_page'), [10, 25, 50, '10', '25', '50'], true)
+            ? (int) $request->input('per_page') : 10;
+        $page = filter_var($request->input('page', 1), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 1;
 
         $list = $this->filteredQuery($filters)
             ->with(['user.profile', 'user.company', 'notesHistory'])
-            ->get();
+            ->paginate($perPage, ['*'], 'page', $page)
+            ->appends($request->except('page'));
 
-        $countPending   = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
-        $countWin       = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_WIN)->count();
-        $countLoss      = MemberLeadFollowUp::approvedMember()->where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
+        $eligible = MemberLeadFollowUp::approvedMember()->where('do_not_send', false);
+        $countPending   = (clone $eligible)->where('result', MemberLeadFollowUp::RESULT_PENDING)->count();
+        $countWin       = (clone $eligible)->where('result', MemberLeadFollowUp::RESULT_WIN)->count();
+        $countLoss      = (clone $eligible)->where('result', MemberLeadFollowUp::RESULT_LOSS)->count();
+        $countEligible  = (clone $eligible)->count();
+        $temperatureCounts = (clone $eligible)->selectRaw('temperature, COUNT(*) AS total')->groupBy('temperature')->pluck('total', 'temperature');
         $countDoNotSend = MemberLeadFollowUp::approvedMember()->where('do_not_send', true)->count();
         $countOverSla   = MemberLeadFollowUp::approvedMember()->overSla()->count();
 
@@ -51,13 +57,14 @@ class MemberLeadFollowUpController extends Controller
         $countNeedFollowUp = $countNeedFollowUp->count();
 
         // Lead Performance (SOP §7): Conversion Rate = Win ÷ Total Lead.
-        $countTotalLeads = $countPending + $countWin + $countLoss;
+        $countTotalLeads = MemberLeadFollowUp::approvedMember()->count();
         $conversionRate  = $countTotalLeads > 0 ? round($countWin / $countTotalLeads * 100, 1) : null;
 
         $pics = CmsUser::where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
         return view('admin.member_leads.index', array_merge($filters, compact(
             'list',
+            'perPage',
             'countPending',
             'countWin',
             'countLoss',
@@ -66,6 +73,8 @@ class MemberLeadFollowUpController extends Controller
             'countDueToday',
             'countNeedFollowUp',
             'countTotalLeads',
+            'countEligible',
+            'temperatureCounts',
             'conversionRate',
             'pics'
         )));
@@ -90,7 +99,7 @@ class MemberLeadFollowUpController extends Controller
     /** Normalised filter values from the query string (shared by index + export). */
     private function filters(Request $request): array
     {
-        $result = $request->get('result', MemberLeadFollowUp::RESULT_PENDING);
+        $result = $request->get('result', 'all');
         if (!in_array($result, ['do_not_send', MemberLeadFollowUp::RESULT_PENDING, MemberLeadFollowUp::RESULT_WIN, MemberLeadFollowUp::RESULT_LOSS], true)) {
             $result = 'all';
         }
@@ -99,6 +108,8 @@ class MemberLeadFollowUpController extends Controller
             'result'      => $result,
             'picId'       => $request->get('pic_id'),
             'temperature' => $request->get('temperature'),
+            'eligibility' => in_array($request->get('eligibility'), ['eligible', 'do_not_send'], true) ? $request->get('eligibility') : '',
+            'channel'     => in_array($request->get('channel'), ['email', 'whatsapp', 'call', 'other'], true) ? $request->get('channel') : '',
             'followUp'    => $request->get('follow_up'),
             'dateField'   => array_key_exists($request->get('date_field'), self::DATE_FIELDS) ? $request->get('date_field') : 'created_at',
             'dateFrom'    => $request->get('date_from'),
@@ -109,7 +120,7 @@ class MemberLeadFollowUpController extends Controller
 
     private function filteredQuery(array $filters)
     {
-        $query = MemberLeadFollowUp::approvedMember()->orderBy('created_at', 'desc');
+        $query = MemberLeadFollowUp::approvedMember()->orderBy('created_at', 'desc')->orderBy('id', 'desc');
 
         // 'do_not_send' is its own tab, independent of win/pending/loss — a
         // flagged lead can be in any result state, so it filters on the flag
@@ -117,7 +128,14 @@ class MemberLeadFollowUpController extends Controller
         if ($filters['result'] === 'do_not_send') {
             $query->where('do_not_send', true);
         } elseif ($filters['result'] !== 'all') {
-            $query->where('result', $filters['result']);
+            $query->where('result', $filters['result'])->where('do_not_send', false);
+        }
+
+        if ($filters['eligibility'] !== '') {
+            $query->where('do_not_send', $filters['eligibility'] === 'do_not_send');
+        }
+        if ($filters['channel'] !== '') {
+            $query->where('channel', $filters['channel']);
         }
 
         if ($filters['picId']) {
@@ -125,7 +143,7 @@ class MemberLeadFollowUpController extends Controller
         }
 
         if (in_array($filters['temperature'], ['hot', 'warm', 'cold'], true)) {
-            $query->where('temperature', $filters['temperature']);
+            $query->where('temperature', $filters['temperature'])->where('do_not_send', false);
         }
 
         $this->applyFollowUpFilter($query, $filters['followUp']);
@@ -136,6 +154,10 @@ class MemberLeadFollowUpController extends Controller
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhereHas('profile', function ($profile) use ($search) {
+                        $profile->where('phone', 'like', "%{$search}%")
+                            ->orWhere('fullphone', 'like', "%{$search}%");
+                    })
                     ->orWhereHas('company', function ($q2) use ($search) {
                         $q2->where('company_name', 'like', "%{$search}%");
                     });

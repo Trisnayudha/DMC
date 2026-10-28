@@ -9,6 +9,13 @@
         $('#lead-filter-form').submit();
     });
 
+    $(document).on('change', '#lead-per-page', function() {
+        var url = new URL(window.location.href);
+        url.searchParams.set('per_page', this.value);
+        url.searchParams.delete('page');
+        window.location.assign(url.toString());
+    });
+
     // =========================================================
     // LOG FOLLOW-UP (Sponsor Kit Sent / Follow-up 1 / Follow-up 2)
     // =========================================================
@@ -214,6 +221,7 @@
         $('#bulk-selected, #bulk-clear').toggleClass('d-none', count === 0);
         $('#bulk-btn-follow-up, #bulk-btn-temperature').prop('disabled', count === 0);
         $('#bulk-select-all').prop('checked', count > 0 && count === $('.bulk-select').length);
+        $('#bulk-select-all').prop('indeterminate', count > 0 && count < $('.bulk-select').length);
     }
 
     $(document).on('change', '.bulk-select', refreshBulkBar);

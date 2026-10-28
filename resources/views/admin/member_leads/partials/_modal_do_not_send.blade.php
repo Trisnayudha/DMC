@@ -19,6 +19,10 @@
                         <option value="Competitor">Competitor</option>
                         <option value="Unqualified Lead">Unqualified Lead</option>
                         <option value="Already Sponsor">Already Sponsor</option>
+                        <option value="Existing Member">Existing Member</option>
+                        <option value="Not Relevant">Not Relevant</option>
+                        <option value="Duplicate Lead">Duplicate Lead</option>
+                        <option value="Do Not Contact / Opt-out">Do Not Contact / Opt-out</option>
                         <option value="Other">Other</option>
                     </select>
                 </div>

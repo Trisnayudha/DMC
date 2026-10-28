@@ -259,31 +259,4 @@ class CompanyModel extends Model
         return in_array($normalized, ['agree', 'aggree', 'true', '1'], true);
     }
 
-    protected static function booted()
-    {
-        static::saved(function ($company) {
-            if ($company->users_id && $company->isLeadExplore() && \Illuminate\Support\Facades\Schema::hasTable('member_lead_follow_ups')) {
-                try {
-                    // Lead hanya untuk member yang sudah approved. Saat masih
-                    // pending/declined tidak dibuat; begitu di-approve,
-                    // UsersController::verifyMember() yang membuatnya.
-                    if (!\App\Models\User::where('id', $company->users_id)->where('status_member', 'active')->exists()) {
-                        return;
-                    }
-
-                    $leadAdmin = auth()->user();
-                    \App\Models\MemberLeadFollowUp::firstOrCreate(
-                        ['user_id' => $company->users_id, 'result' => \App\Models\MemberLeadFollowUp::RESULT_PENDING],
-                        [
-                            'deadline_at'     => \App\Models\MemberLeadFollowUp::deadlineFor('sponsorkit', now()),
-                            'created_by_id'   => auth()->id(),
-                            'created_by_name' => $leadAdmin ? $leadAdmin->name : 'System',
-                        ]
-                    );
-                } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('CompanyModel saved event: lead auto-create failed for user ' . $company->users_id . ': ' . $e->getMessage());
-                }
-            }
-        });
-    }
 }

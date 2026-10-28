@@ -1355,6 +1355,7 @@ class UsersController extends Controller
     public function verifyMember(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        $isNewApproval = $user->status_member !== 'active';
 
         // Modal verify juga boleh mengoreksi email — simpan yang lama supaya
         // contact Mailchimp-nya bisa ikut dipindahkan (no-op kalau member ini
@@ -1418,12 +1419,11 @@ class UsersController extends Controller
         $company = CompanyModel::where('users_id', $user->id)->first();
         $profile = ProfileModel::where('users_id', $user->id)->first();
 
-        // Explore Marketing → auto-create a lead follow-up task, SLA 2x24h from
-        // now. firstOrCreate on ['user_id','result'=>pending] won't duplicate an
-        // already-open lead, but starts a fresh one if a prior lead for this
-        // member was already resolved (win/loss). Never let this block the
-        // actual verify — degrades quietly if the migration hasn't landed yet.
-        if ($company && $company->isLeadExplore() && Schema::hasTable('member_lead_follow_ups')) {
+        // Only an explicit transition to approved membership can create a lead.
+        // Editing data or verifying an already-active member must not reopen a
+        // resolved lead or reset the deadline of an existing one. Explore
+        // Marketing consent remains required for automatic lead creation.
+        if ($isNewApproval && $company && $company->isLeadExplore() && Schema::hasTable('member_lead_follow_ups')) {
             try {
                 $leadAdmin = auth()->user();
                 $lead = MemberLeadFollowUp::firstOrCreate(

@@ -205,8 +205,8 @@ class PartnershipEventVisitorController extends Controller
             }
 
             // 3 consent checkbox sama persis dengan form registrasi member
-            // publik (FormMemberController::store()) — 'explore' di company
-            // memicu auto-create Lead Follow-Up lewat CompanyModel::booted().
+            // publik (FormMemberController::store()). Consent 'explore' disimpan
+            // untuk pembuatan lead saat member di-approve di Members DMC.
             $company = CompanyModel::updateOrCreate(
                 ['users_id' => $user->id],
                 array_merge(
