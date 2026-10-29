@@ -441,7 +441,8 @@
                 html += '<div class="d-flex align-items-start py-2 px-2" style="gap:10px;border-bottom:1px dashed #eee;">' +
                     '<span class="badge" style="background:#f39c12;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + (idx + 1) + '</span>' +
                     '<div style="flex:1;min-width:0;">' +
-                    '<div style="font-size:13px;font-weight:600;color:#333;">Follow Up ' + (idx + 1) + '</div>' +
+                    '<div style="font-size:13px;font-weight:600;color:#333;">Follow Up ' + (idx + 1) +
+                    (f.confirmed ? ' <span class="badge badge-success ml-1" style="font-size:10px;"><i class="fas fa-check mr-1"></i>Confirmed Renewal</span>' : '') + '</div>' +
                     '<div style="font-size:12px;color:#555;">' + f.followed_up_at +
                     (f.created_by ? ' <span class="text-muted">| ' + $('<span>').text(f.created_by).html() + '</span>' : '') +
                     (f.channel ? ' <span class="text-muted">&middot; via ' + f.channel + '</span>' : '') + '</div>' +
@@ -513,6 +514,7 @@
             $('#followupDate').val(new Date().toISOString().slice(0, 10));
             $('#followupNotes').val('');
             $('#followupProof').val('');
+            $('#followupConfirmed').prop('checked', false);
             $('#followupModal').modal('show');
             // Muat daftar sponsor dulu (butuh last-paid USD), lalu pilih & muat datanya
             loadSponsorOptions(function() {
@@ -587,6 +589,7 @@
                     toastr.success(response.message, 'Success', { positionClass: 'toast-top-right' });
                     $('#followupNotes').val('');
                     $('#followupProof').val('');
+                    $('#followupConfirmed').prop('checked', false);
                     loadRenewalData(sponsorId);
                 },
                 error: function(xhr) {

@@ -57,9 +57,9 @@ class NewSponsorFinanceNotifier
             'sponsor'    => $sponsor,
             'package'    => sponsor_package_label($sponsor->package) . ' Sponsorship',
             'period'     => self::formatMonth($sponsor->contract_start) . ' – ' . self::formatMonth($sponsor->contract_end),
-            'pics'       => $sponsor->pics,
-            'billings'   => $sponsor->billings,
-            'created_by' => auth()->user()->name ?? '-',
+            'pics'       => SponsorContacts::unique($sponsor->pics),
+            'billings'   => SponsorContacts::unique($sponsor->billings),
+            'created_by' => SponsorContacts::cmsUserName(),
             'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->format('d F Y, H:i') . ' WIB',
         ];
     }

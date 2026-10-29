@@ -15,13 +15,15 @@ class SponsorFollowup extends Model
         'followed_up_at',
         'channel',
         'notes',
+        'confirmed_renewal',
         'kmk_rate',
         'proof_path',
         'created_by',
     ];
 
     protected $casts = [
-        'followed_up_at' => 'date',
+        'followed_up_at'    => 'date',
+        'confirmed_renewal' => 'boolean',
     ];
 
     public function sponsor()

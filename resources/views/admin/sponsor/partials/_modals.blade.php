@@ -408,6 +408,17 @@
                                 <input type="file" name="proof" id="followupProof" class="form-control-file" accept=".jpg,.jpeg,.png,.pdf" required>
                                 <small class="text-muted">Required — chat/email screenshot or document (JPG/PNG/PDF, max 5 MB)</small>
                             </div>
+                            <div class="form-group border rounded p-2" style="background:#eafaf0;">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" name="confirmed" value="1" id="followupConfirmed" class="custom-control-input">
+                                    <label class="custom-control-label font-weight-600" for="followupConfirmed">
+                                        Sponsor confirmed renewal
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block" style="margin-left:24px;">
+                                    Tick this if the sponsor has confirmed they will renew — Finance (Selma) will be emailed to issue the invoice in Accurate. Upload the confirmation as proof.
+                                </small>
+                            </div>
                             <div class="text-right">
                                 <button type="submit" class="btn" style="background:#f39c12;color:#fff;" id="followupSubmitBtn">
                                     <i class="fas fa-save mr-1"></i> Save Follow-up

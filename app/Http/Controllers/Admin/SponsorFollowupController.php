@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorFollowup;
 use App\Models\Sponsors\SponsorRenewalForm;
+use App\Services\Sponsors\RenewalConfirmedFinanceNotifier;
 use Illuminate\Http\Request;
 
 /**
@@ -35,6 +36,7 @@ class SponsorFollowupController extends Controller
                 'followed_up_at' => $f->followed_up_at->format('d M Y'),
                 'channel'        => $f->channel,
                 'notes'          => $f->notes,
+                'confirmed'      => (bool) $f->confirmed_renewal,
                 'proof_url'      => asset('storage/' . $f->proof_path),
                 'created_by'     => $f->creator ? $f->creator->name : null,
             ]);
@@ -81,6 +83,7 @@ class SponsorFollowupController extends Controller
             'followed_up_at' => 'required|date',
             'channel'        => 'nullable|in:whatsapp,email,call,meeting,other',
             'notes'          => 'nullable|string|max:1000',
+            'confirmed'      => 'nullable|boolean',
             'proof'          => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ], [
             'proof.required' => 'Follow-up proof is required.',
@@ -106,19 +109,28 @@ class SponsorFollowupController extends Controller
 
         $proofPath = $request->file('proof')->store('sponsor-followups', 'public');
 
-        SponsorFollowup::create([
-            'sponsor_id'     => $sponsor->id,
-            'renewal_year'   => $validated['renewal_year'],
-            'followed_up_at' => $validated['followed_up_at'],
-            'channel'        => $validated['channel'] ?? null,
-            'notes'          => $validated['notes'] ?? null,
-            'proof_path'     => $proofPath,
-            'created_by'     => auth()->id(),
+        $confirmed = !empty($validated['confirmed']);
+
+        $followup = SponsorFollowup::create([
+            'sponsor_id'        => $sponsor->id,
+            'renewal_year'      => $validated['renewal_year'],
+            'followed_up_at'    => $validated['followed_up_at'],
+            'channel'           => $validated['channel'] ?? null,
+            'notes'             => $validated['notes'] ?? null,
+            'confirmed_renewal' => $confirmed,
+            'proof_path'        => $proofPath,
+            'created_by'        => auth()->id(),
         ]);
+
+        // Sponsor sudah konfirmasi renew → kabari finance untuk issue invoice (manual di Accurate)
+        if ($confirmed) {
+            RenewalConfirmedFinanceNotifier::send($sponsor, $followup);
+        }
 
         return response()->json([
             'success'  => true,
-            'message'  => 'Follow-up #' . $sequence . ' for ' . $sponsor->name . ' recorded.',
+            'message'  => 'Follow-up #' . $sequence . ' for ' . $sponsor->name . ' recorded.'
+                . ($confirmed ? ' Finance has been notified to issue the invoice.' : ''),
             'sequence' => $sequence,
         ]);
     }

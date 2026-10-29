@@ -11,6 +11,7 @@ use App\Models\Sponsors\SponsorFollowup;
 use App\Models\Sponsors\SponsorPic;
 use App\Models\Sponsors\SponsorRenewal;
 use App\Models\Sponsors\SponsorRenewalForm;
+use App\Services\Sponsors\RenewalFormSecretariatNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -86,17 +87,23 @@ class SponsorRenewalFormController extends Controller
     {
         $data = $this->buildData($sponsorId);
 
-        $pdf = Pdf::setOptions([
+        return $this->buildPdf($data)->download($this->pdfFilename($data['sponsor']));
+    }
+
+    private function buildPdf(array $data)
+    {
+        return Pdf::setOptions([
                 'isRemoteEnabled'      => true,
                 'isHtml5ParserEnabled' => true,
                 'defaultFont'          => 'sans-serif',
             ])
             ->loadView('admin.sponsor.renewal-form', $data)
             ->setPaper('a4', 'portrait');
+    }
 
-        $filename = 'renewal-form-' . str_replace(' ', '-', strtolower($data['sponsor']->name)) . '.pdf';
-
-        return $pdf->download($filename);
+    private function pdfFilename(Sponsor $sponsor): string
+    {
+        return 'renewal-form-' . str_replace(' ', '-', strtolower($sponsor->name)) . '.pdf';
     }
 
     /**
@@ -276,6 +283,8 @@ class SponsorRenewalFormController extends Controller
             $this->notifyRenewalFormGenerated($sponsor, $form);
         }
 
+        $this->emailRenewalFormToSecretariat($sponsor, $form, (bool) $existing);
+
         return response()->json([
             'success'     => true,
             'message'     => $existing
@@ -283,6 +292,22 @@ class SponsorRenewalFormController extends Controller
                 : 'Renewal form ' . $formNumber . ' for ' . $sponsor->name . ' generated successfully.',
             'form_number' => $formNumber,
         ]);
+    }
+
+    /**
+     * Kirim PDF renewal form ke tim secretariat. Dikirim juga saat regenerate supaya
+     * secretariat selalu pegang versi PDF terbaru.
+     */
+    private function emailRenewalFormToSecretariat(Sponsor $sponsor, SponsorRenewalForm $form, bool $isUpdate): void
+    {
+        try {
+            $data = $this->buildData($sponsor->id);
+            $pdf  = $this->buildPdf($data)->output();
+
+            RenewalFormSecretariatNotifier::send($data['sponsor'], $form, $pdf, $this->pdfFilename($sponsor), $isUpdate);
+        } catch (\Throwable $e) {
+            Log::warning('Secretariat renewal-form email failed: ' . $e->getMessage());
+        }
     }
 
     /**

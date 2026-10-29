@@ -9,4 +9,6 @@ return [
     'booth_giveaway_enabled' => env('BOOTH_GIVEAWAY_ENABLED', false),
     // Penerima email "sponsor baru" untuk dibuatkan invoice (pisahkan dengan koma)
     'finance_notification_email' => env('FINANCE_NOTIFICATION_EMAIL'),
+    // Penerima email PDF renewal form (pisahkan dengan koma)
+    'secretariat_notification_email' => env('SECRETARIAT_NOTIFICATION_EMAIL'),
 ];
