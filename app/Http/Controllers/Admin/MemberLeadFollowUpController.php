@@ -174,17 +174,22 @@ class MemberLeadFollowUpController extends Controller
      */
     private function applyFollowUpFilter($query, ?string $followUp): void
     {
-        if (!in_array($followUp, ['today', 'need'], true)) {
+        if (!in_array($followUp, ['today', 'need', 'overdue', 'tomorrow'], true)) {
             return;
         }
 
         $query->where('result', MemberLeadFollowUp::RESULT_PENDING)
             ->where('do_not_send', false)
-            ->whereNotNull('deadline_at')
-            ->where('deadline_at', '<=', now()->endOfDay());
+            ->whereNotNull('deadline_at');
 
-        if ($followUp === 'today') {
-            $query->where('deadline_at', '>=', now()->startOfDay());
+        if ($followUp === 'overdue') {
+            $query->where('deadline_at', '<', now());
+        } elseif ($followUp === 'tomorrow') {
+            $query->whereBetween('deadline_at', [now()->addDay()->startOfDay(), now()->addDay()->endOfDay()]);
+        } elseif ($followUp === 'today') {
+            $query->whereBetween('deadline_at', [now()->startOfDay(), now()->endOfDay()]);
+        } else {
+            $query->where('deadline_at', '<=', now()->endOfDay());
         }
     }
 
@@ -427,7 +432,7 @@ class MemberLeadFollowUpController extends Controller
     public function markResult(Request $request, $id)
     {
         $request->validate([
-            'result' => 'required|in:win,loss',
+            'result' => 'required|in:pending,win,loss',
         ]);
 
         $lead = MemberLeadFollowUp::findOrFail($id);

@@ -38,15 +38,21 @@ class EventController extends Controller
     {
         // auth handled by cms_auth route middleware
     }
-    public function index()
+    public function index(Request $request)
     {
-        $list = EventsService::showAll();
+        $sponsorId = $request->input('sponsor_id');
+        $list = Events::orderBy('id', 'desc')
+            ->when($sponsorId, function ($query) use ($sponsorId) {
+                $query->whereIn('id', DB::table('event_sponsors')->where('sponsors_id', $sponsorId)->select('events_id'));
+            })->get();
         foreach ($list as $item) {
             $item->share_url = EventsService::buildShareUrl($item);
         }
 
         $data = [
-            'list' => $list
+            'list' => $list,
+            'sponsors' => Sponsor::orderBy('name')->get(['id', 'name']),
+            'sponsorId' => $sponsorId,
         ];
         return view('admin.events.event', $data);
     }

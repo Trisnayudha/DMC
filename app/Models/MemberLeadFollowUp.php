@@ -49,9 +49,9 @@ class MemberLeadFollowUp extends Model
     ];
 
     /**
-     * SLA (dalam jam kerja, Sabtu/Minggu tidak dihitung) untuk menyelesaikan
-     * step berikutnya: lead masuk → Send Sponsor Kit 48 jam, Sponsor Kit →
-     * Follow-up 1 3 hari, Follow-up 1 → Follow-up 2 5 hari.
+     * SLA untuk menyelesaikan
+     * step berikutnya: lead masuk → Send Sponsor Kit 48 jam kalender, Sponsor Kit →
+     * Follow-up 1 3 hari kerja, Follow-up 1 → Follow-up 2 5 hari kerja.
      */
     const SLA_HOURS = [
         'sponsorkit'  => 48,
@@ -93,7 +93,13 @@ class MemberLeadFollowUp extends Model
     /** Deadline for $stepKey counted from $start, or null once there's no step left. */
     public static function deadlineFor(?string $stepKey, $start)
     {
-        return $stepKey ? self::slaDeadline($start, self::SLA_HOURS[$stepKey]) : null;
+        if (!$stepKey || !$start) {
+            return null;
+        }
+
+        return $stepKey === 'sponsorkit'
+            ? $start->copy()->addHours(48)
+            : $start->copy()->addWeekdays($stepKey === 'follow_up_1' ? 3 : 5);
     }
 
     /**
@@ -133,33 +139,6 @@ class MemberLeadFollowUp extends Model
             return 'follow_up_2';
         }
         return null;
-    }
-
-    /**
-     * SLA deadline that only counts weekday time — Sabtu/Minggu libur, jadi
-     * jamnya tidak dihitung. Contoh: 48 jam dari Jumat 10:00 → Selasa 10:00;
-     * dari Sabtu 15:00 → Rabu 00:00 (mulai dihitung Senin 00:00).
-     */
-    public static function slaDeadline($start, int $hours)
-    {
-        $date = $start->copy();
-        $remaining = $hours * 3600;
-
-        while (true) {
-            if ($date->isWeekend()) {
-                $date = $date->next(\Carbon\Carbon::MONDAY)->startOfDay();
-            }
-
-            $endOfDay = $date->copy()->addDay()->startOfDay();
-            $available = $endOfDay->getTimestamp() - $date->getTimestamp();
-
-            if ($remaining <= $available) {
-                return $date->addSeconds($remaining);
-            }
-
-            $remaining -= $available;
-            $date = $endOfDay;
-        }
     }
 
     /**

@@ -54,6 +54,16 @@
                                         Add Event</a>
                                 </div>
 
+                                <form method="GET" action="{{ route('events') }}" class="form-inline mb-3">
+                                    <label for="sponsor-filter" class="mr-2">Sponsor Company</label>
+                                    <select name="sponsor_id" id="sponsor-filter" class="form-control mr-2" onchange="this.form.submit()">
+                                        <option value="">All Sponsors</option>
+                                        @foreach ($sponsors as $sponsor)
+                                            <option value="{{ $sponsor->id }}" {{ (string) $sponsorId === (string) $sponsor->id ? 'selected' : '' }}>{{ $sponsor->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Filter</button>
+                                </form>
                                 <div class="table-responsive">
                                     <table id="laravel_crud" class="table table-bordered table-hover">
                                         <thead>

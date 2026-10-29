@@ -27,6 +27,14 @@
             </select>
         </label>
         <label class="lf-field">
+            <i class="far fa-calendar-alt" aria-hidden="true"></i>
+            <select name="follow_up" class="lead-auto-submit" aria-label="Follow-up deadline">
+                @foreach (['' => 'Follow-up: All', 'today' => 'Due Today', 'overdue' => 'Overdue', 'tomorrow' => 'Due Tomorrow'] as $value => $label)
+                    <option value="{{ $value }}" {{ $followUp === $value ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+        </label>
+        <label class="lf-field">
             <i class="fas fa-ban" aria-hidden="true"></i>
             <select name="eligibility" class="lead-auto-submit" aria-label="Follow-up eligibility">
                 <option value="">Follow-up Eligibility</option>

@@ -24,6 +24,7 @@
                 <th rowspan="2" scope="col">Created</th>
                 <th rowspan="2" scope="col">Name &amp; Position</th>
                 <th rowspan="2" scope="col">Company</th>
+                <th rowspan="2" scope="col">Email</th>
                 <th rowspan="2" scope="col">Phone</th>
                 <th rowspan="2" scope="col">Channel</th>
                 <th rowspan="2" scope="col">Temperature <i class="fas fa-info-circle text-muted" title="HOT 70–100, WARM 40–69, COLD 0–39. Click a score to update." data-toggle="tooltip"></i></th>
@@ -73,6 +74,7 @@
                                 @endif
                             </td>
                             <td><span class="cell-truncate" title="{{ optional(optional($member)->company)->company_name }}">{{ optional(optional($member)->company)->company_name }}</span></td>
+                            <td>@if (optional($member)->email)<a href="mailto:{{ $member->email }}">{{ $member->email }}</a>@else — @endif</td>
                             <td class="text-nowrap">
                                 {{ $phone }}
                                 @if ($waDigits !== '')
@@ -195,18 +197,26 @@
                                                 Log {{ \App\Models\MemberLeadFollowUp::stepLabel($nextStepKey) }}
                                             </button>
                                         @endif
-                                        @if ($isPending)
+                                        @if ($item->result !== 'win')
                                             <button type="button"
                                                 class="dropdown-item btn-mark-lead-result"
                                                 data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
                                                 data-result="win">
                                                 <i class="fas fa-check mr-2 text-success"></i>Mark as Win
                                             </button>
+                                        @endif
+                                        @if ($item->result !== 'loss')
                                             <button type="button"
                                                 class="dropdown-item btn-mark-lead-result"
                                                 data-url="{{ route('admin.member_leads.mark_result', $item->id) }}"
                                                 data-result="loss">
                                                 <i class="fas fa-times mr-2 text-secondary"></i>Mark as Loss
+                                            </button>
+                                        @endif
+                                        @if (!$isPending)
+                                            <button type="button" class="dropdown-item btn-mark-lead-result"
+                                                data-url="{{ route('admin.member_leads.mark_result', $item->id) }}" data-result="pending">
+                                                <i class="fas fa-undo mr-2 text-secondary"></i>Mark as Pending
                                             </button>
                                         @endif
                                         @if ($item->do_not_send)
@@ -237,7 +247,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="16" class="text-center text-muted py-4">No leads match these filters. Try clearing the filters or add a member to lead.</td>
+                            <td colspan="17" class="text-center text-muted py-4">No leads match these filters. Try clearing the filters or add a member to lead.</td>
                         </tr>
                     @endforelse
                 </tbody>
