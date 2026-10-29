@@ -43,7 +43,7 @@
     .lead-management .lead-utilities .btn { font-size:11px; padding:5px 10px; box-shadow:none; }
     .lead-sla-count { color:#b86628; }
     .lead-table-wrap { border:1px solid #e7eaf1; border-radius:7px; background:#fff; }
-    .lead-management .lead-table { width:100%; min-width:1560px; table-layout:fixed; margin:0; border-collapse:separate; border-spacing:0; }
+    .lead-management .lead-table { width:100%; min-width:1822px; table-layout:fixed; margin:0; border-collapse:separate; border-spacing:0; }
     .lead-management .lead-table thead th { background:#f3f5f8; color:#35415a; font-size:10px; font-weight:700; white-space:nowrap; vertical-align:middle; border-top:0; border-bottom:1px solid #e7eaf1; border-right:1px solid #fff; padding:8px; height:auto; }
     .lead-management .lead-table thead th i { color:#6777ef; margin-right:4px; }
     .lead-management .lead-table tbody td { font-size:11px; line-height:1.45; color:#536078; padding:7px 8px; height:auto; border-top:0; border-bottom:1px solid #edf0f5; border-right:1px solid #f3f5f9; vertical-align:middle; }
@@ -53,6 +53,7 @@
     .lead-management .lead-table .lead-excluded:hover { background:#ffe7e9; }
     .lead-table input[type=checkbox] { accent-color:#6777ef; width:13px; height:13px; vertical-align:middle; cursor:pointer; }
     .lead-table .cell-truncate { display:inline-block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:middle; }
+    .lead-table .lead-email, .lead-table .lead-phone, .lead-table .lead-pic { overflow-wrap:anywhere; }
     .lead-table .font-weight-bold { color:#26334e; }
     .lead-table .lead-note { display:inline-block; vertical-align:middle; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .lead-table .btn-icon { width:21px; height:21px; padding:0; display:inline-flex; align-items:center; justify-content:center; font-size:13px; border-radius:4px; margin-left:3px; }

@@ -13,7 +13,7 @@
 <div class="table-responsive lead-table-wrap" role="region" aria-label="Lead follow-up table" tabindex="0">
     <table class="table table-sm table-hover lead-table">
         <colgroup>
-            @foreach ([32, 30, 78, 152, 128, 128, 76, 88, 76, 105, 100, 100, 100, 76, 140, 48] as $width)
+            @foreach ([32, 40, 90, 155, 135, 150, 155, 105, 110, 85, 120, 110, 110, 120, 110, 140, 55] as $width)
                 <col style="width: {{ $width }}px;">
             @endforeach
         </colgroup>
@@ -74,9 +74,9 @@
                                 @endif
                             </td>
                             <td><span class="cell-truncate" title="{{ optional(optional($member)->company)->company_name }}">{{ optional(optional($member)->company)->company_name }}</span></td>
-                            <td>@if (optional($member)->email)<a href="mailto:{{ $member->email }}">{{ $member->email }}</a>@else — @endif</td>
-                            <td class="text-nowrap">
-                                {{ $phone }}
+                            <td class="lead-email">@if (optional($member)->email)<a href="mailto:{{ $member->email }}">{{ $member->email }}</a>@else — @endif</td>
+                            <td>
+                                <span class="lead-phone">{{ $phone }}</span>
                                 @if ($waDigits !== '')
                                     <a href="https://wa.me/{{ $waDigits }}" target="_blank" rel="noopener"
                                         class="btn btn-icon btn-outline-success" title="Chat via WhatsApp" data-toggle="tooltip">
@@ -139,7 +139,7 @@
                                     <span class="lead-dash">—</span>
                                 @endif
                             </td>
-                            <td class="text-nowrap"><small>{{ $item->pic_name ?: '-' }}</small></td>
+                            <td class="lead-pic"><small>{{ $item->pic_name ?: '-' }}</small></td>
                             <td>
                                 @if ($item->do_not_send && $item->do_not_send_reason)
                                     <span class="lead-note" title="{{ $item->do_not_send_reason }}">{{ $item->do_not_send_reason }}</span>
