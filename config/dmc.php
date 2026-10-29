@@ -7,4 +7,6 @@ return [
     'active_booth_event_slug' => env('ACTIVE_BOOTH_EVENT_SLUG', 'international-critical-minerals-metals-summit-indonesia-2026'),
     'active_booth_event_id' => env('ACTIVE_BOOTH_EVENT_ID', 70),
     'booth_giveaway_enabled' => env('BOOTH_GIVEAWAY_ENABLED', false),
+    // Penerima email "sponsor baru" untuk dibuatkan invoice (pisahkan dengan koma)
+    'finance_notification_email' => env('FINANCE_NOTIFICATION_EMAIL'),
 ];

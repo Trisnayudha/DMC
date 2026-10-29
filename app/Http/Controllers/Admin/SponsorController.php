@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\WhatsappApi;
 use App\Helpers\ScrapeHelper;
+use App\Services\Sponsors\NewSponsorFinanceNotifier;
 use App\Services\Sponsors\SponsorBenefitService;
 use App\Support\QrCode;
 use Maatwebsite\Excel\Facades\Excel;
@@ -320,6 +321,9 @@ class SponsorController extends Controller
         }
 
         $this->storeBillings($request, $sponsor);
+
+        // Kabari finance via email supaya invoice sponsor baru bisa langsung dibuat
+        NewSponsorFinanceNotifier::send($sponsor);
 
         return redirect()->route('sponsors.index')->with('success', 'Sponsor saved successfully');
     }
