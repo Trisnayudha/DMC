@@ -39,9 +39,6 @@
                                 <a href="#" id="editRenewalFormRefLink" target="_blank" class="btn btn-sm btn-outline-secondary mb-1">
                                     <i class="fas fa-eye"></i> View
                                 </a>
-                                <button type="button" id="editRenewalFormRefUseBtn" class="btn btn-sm btn-outline-primary mb-1">
-                                    <i class="fas fa-arrow-down"></i> Use as Quotation No.
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -101,6 +98,31 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>VAT / PPN</label>
+                                    <select name="vat_percent" id="editVatPercent" class="form-control">
+                                        <option value="0">0% (No VAT)</option>
+                                        <option value="11">11%</option>
+                                    </select>
+                                    <small class="text-muted" id="editVatHint"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PPh 23
+                                        <small class="text-muted font-weight-normal">(withheld by the sponsor)</small>
+                                    </label>
+                                    <select name="pph23_percent" id="editPph23Percent" class="form-control">
+                                        <option value="0">0% (Not withheld)</option>
+                                        <option value="2">2%</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- Hitungan live: Amount → VAT → Grand Total → potongan PPh 23 → Net Received. --}}
+                        <div id="editTaxSummary" class="border rounded px-3 py-2 mb-3" style="display:none;background:#f8f9fb;font-size:12.5px;"></div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">

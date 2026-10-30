@@ -12,6 +12,33 @@
             }
         }
 
+        // Data inti kontrak dikunci di Edit Contract; yang bisa diubah hanya VAT, PPh 23,
+        // Invoice Sent Date, Paid Date & Notes. Field terkunci tetap ikut terkirim (lihat submit).
+        var EDIT_LOCKED_FIELDS = '#editContractStart, #editContractEnd, #editPackage, #editRenewalType, '
+            + '#editAmountUsd, #editAmountIdr, #editQuotationNumber, #editQuotationDate, #editInvoiceNumber, #editInvoiceDate';
+        $(function() { $(EDIT_LOCKED_FIELDS).prop('disabled', true); });
+
+        // Ringkasan pajak per mata uang: Amount, VAT, Grand Total, potongan PPh 23 (dari
+        // amount sebelum VAT) dan Net Received. Disembunyikan kalau belum ada amount.
+        function updateEditTaxSummary() {
+            var vat = parseFloat($('#editVatPercent').val()) || 0;
+            var pph = parseFloat($('#editPph23Percent').val()) || 0;
+            var fmt = function(n) { return Math.round(n).toLocaleString('id-ID'); };
+            var rows = [];
+            [['IDR', parseFloat($('#editAmountIdr').val())], ['USD', parseFloat($('#editAmountUsd').val())]].forEach(function(c) {
+                var cur = c[0], base = c[1];
+                if (isNaN(base) || base <= 0) return;
+                var vatAmt = base * vat / 100, pphAmt = base * pph / 100;
+                var html = '<div class="mb-1"><strong>' + cur + '</strong> &middot; Amount ' + fmt(base);
+                if (vat > 0) html += ' + VAT ' + vat + '% ' + fmt(vatAmt) + ' = <strong>Grand Total ' + fmt(base + vatAmt) + '</strong>';
+                if (pph > 0) html += ' &minus; PPh 23 ' + pph + '% ' + fmt(pphAmt);
+                html += ' &rarr; <span class="text-success font-weight-bold">' + (pph > 0 ? 'Net Received ' : 'Total ') + cur + ' ' + fmt(base + vatAmt - pphAmt) + '</span></div>';
+                rows.push(html);
+            });
+            $('#editTaxSummary').html(rows.join('')).toggle(rows.length > 0);
+        }
+        $(document).on('input change', '#editAmountUsd, #editAmountIdr, #editVatPercent, #editPph23Percent', updateEditTaxSummary);
+
         // Open Edit modal, prefilled from the row's data-* attributes.
         // Reads each attribute individually (dash-case key, matching the
         // pattern used by .update-contract-btn / .not-renewed-btn elsewhere
@@ -35,6 +62,10 @@
             $('#editInvoiceSentDate').val($btn.attr('data-invoice-sent-date') || '');
             $('#editPaidDate').val($btn.attr('data-paid-date') || '');
             $('#editNotes').val($btn.attr('data-notes') || '');
+            $('#editVatPercent').val(parseFloat($btn.attr('data-vat-percent')) > 0 ? String(parseInt($btn.attr('data-vat-percent'), 10)) : '0');
+            $('#editPph23Percent').val(parseFloat($btn.attr('data-pph23-percent')) > 0 ? String(parseInt($btn.attr('data-pph23-percent'), 10)) : '0');
+            $('#editVatHint').text('');
+            updateEditTaxSummary();
             toggleEditRenewedFields($btn.attr('data-status'));
             $('#editRenewalFormRef').hide();
             $('#editRenewalModal').modal('show');
@@ -64,6 +95,15 @@
                     var vat = parseFloat(f.vat_percent);
                     $('#editRenewalFormRefVat').text(vat > 0 ? ' · VAT ' + vat + '%' : '');
 
+                    // Kontrak yang tercatat 0% padahal renewal form tahun yang sama kena VAT
+                    // (dikonfirmasi sebelum VAT ikut disimpan): isi VAT dari form, tersimpan saat Save.
+                    if (vat > 0 && $('#editVatPercent').val() === '0'
+                        && String(f.renewal_year) === String($btn.attr('data-renewal-year'))) {
+                        $('#editVatPercent').val(String(parseInt(vat, 10)));
+                        $('#editVatHint').text('Prefilled from renewal form ' + (f.form_number || '') + ' — click Save Changes to keep it.');
+                        updateEditTaxSummary();
+                    }
+
                     if (f.notes) {
                         $('#editRenewalFormRefNotes').text(f.notes);
                         $('#editRenewalFormRefNotesWrap').show();
@@ -72,9 +112,6 @@
                     }
 
                     $('#editRenewalFormRefLink').attr('href', '/admin/sponsors/' + sponsorId + '/renewal-form/preview');
-                    $('#editRenewalFormRefUseBtn').off('click').on('click', function() {
-                        $('#editQuotationNumber').val(f.form_number || '');
-                    });
                     $('#editRenewalFormRef').show();
                 });
             }
@@ -84,10 +121,14 @@
         $('#editRenewalForm').on('submit', function(e) {
             e.preventDefault();
             var id = $('#editRenewalId').val();
+            // Field disabled tidak ikut serialize — aktifkan sebentar supaya nilainya tetap terkirim.
+            var $locked = $(EDIT_LOCKED_FIELDS).prop('disabled', false);
+            var payload = $(this).serialize();
+            $locked.prop('disabled', true);
             $.ajax({
                 url: '/admin/sponsors/contract-history/' + id,
                 method: 'PATCH',
-                data: $(this).serialize(),
+                data: payload,
                 success: function(response) {
                     if (response.success) {
                         toastr.success(response.message, 'Success', { positionClass: 'toast-top-right' });

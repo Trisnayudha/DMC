@@ -68,12 +68,31 @@ class SponsorContractHistoryController extends Controller
             'invoice_number'   => 'nullable|string|max:30|unique:sponsor_renewals,invoice_number,' . $renewal->id,
             'invoice_sent_date' => 'nullable|date|after_or_equal:invoice_date',
             'paid_date'        => 'nullable|date|after_or_equal:invoice_date',
+            'vat_percent'      => 'nullable|numeric|min:0|max:100',
+            'pph23_percent'    => 'nullable|numeric|min:0|max:100',
             'notes'            => 'nullable|string|max:1000',
         ]);
 
-        // Kolom invoice_sent_date baru ada setelah migration 2026_10_30_150000.
-        if (!Schema::hasColumn('sponsor_renewals', 'invoice_sent_date')) {
-            unset($validated['invoice_sent_date']);
+        // Kolom baru (migration 2026_10_30_140000/150000/160000) di-skip kalau belum dijalankan.
+        foreach (['invoice_sent_date', 'vat_percent', 'pph23_percent'] as $column) {
+            if (!Schema::hasColumn('sponsor_renewals', $column)) {
+                unset($validated[$column]);
+            }
+        }
+        foreach (['vat_percent', 'pph23_percent'] as $column) {
+            if (array_key_exists($column, $validated) && $validated[$column] === null) {
+                $validated[$column] = 0;
+            }
+        }
+
+        $start = Carbon::createFromFormat('Y-m', $validated['contract_start']);
+        $end   = Carbon::createFromFormat('Y-m', $validated['contract_end']);
+
+        if ($end->lt($start)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Contract end must be after contract start.',
+            ], 422);
         }
 
         DB::transaction(function () use ($renewal, $validated) {
