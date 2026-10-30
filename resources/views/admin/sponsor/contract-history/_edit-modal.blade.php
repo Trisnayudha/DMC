@@ -138,6 +138,14 @@
                                     <input type="date" name="paid_date" id="editPaidDate" class="form-control">
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Invoice Sent Date
+                                        <small class="text-muted font-weight-normal">(when the invoice was sent to the sponsor)</small>
+                                    </label>
+                                    <input type="date" name="invoice_sent_date" id="editInvoiceSentDate" class="form-control">
+                                </div>
+                            </div>
                         </div>
                     </div>
 

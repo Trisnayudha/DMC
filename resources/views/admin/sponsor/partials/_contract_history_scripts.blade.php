@@ -32,6 +32,7 @@
             $('#editQuotationDate').val($btn.attr('data-quotation-date') || '');
             $('#editInvoiceNumber').val($btn.attr('data-invoice-number') || '');
             $('#editInvoiceDate').val($btn.attr('data-invoice-date') || '');
+            $('#editInvoiceSentDate').val($btn.attr('data-invoice-sent-date') || '');
             $('#editPaidDate').val($btn.attr('data-paid-date') || '');
             $('#editNotes').val($btn.attr('data-notes') || '');
             toggleEditRenewedFields($btn.attr('data-status'));

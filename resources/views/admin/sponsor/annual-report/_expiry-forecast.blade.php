@@ -237,6 +237,13 @@
                                                     ? 'Paid on ' . $fuR->paid_date->format('d M Y') . ' (' . $fuR->payment_turnaround_days . 'd)'
                                                     : 'Unpaid, ' . $fuR->payment_turnaround_days . 'd since invoice';
                                             }
+                                            // Kapan invoice dikirim ke sponsor (null sebelum migration / belum dikirim).
+                                            $fuInvoiceSent = null;
+                                            if ($fuR && $fuR->invoice_date && !$fuR->paid_date) {
+                                                $fuInvoiceSent = $fuR->invoice_sent_date
+                                                    ? 'Invoice sent ' . $fuR->invoice_sent_date->format('d M Y')
+                                                    : 'Invoice not sent yet';
+                                            }
                                         @endphp
                                         @if($fu === 'renewed')
                                             <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:#47c363;">
@@ -250,6 +257,11 @@
                                                     <i class="fas fa-money-check-alt" style="font-size:9px;"></i> {{ $fuTurnaround }}
                                                 </div>
                                             @endif
+                                            @if($fuInvoiceSent)
+                                                <div style="font-size:10px;margin-top:2px;color:{{ $fuR->invoice_sent_date ? '#888' : '#e74c3c' }};">
+                                                    <i class="fas fa-paper-plane" style="font-size:9px;"></i> {{ $fuInvoiceSent }}
+                                                </div>
+                                            @endif
                                         @elseif($fu === 'upgraded')
                                             <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:#6777ef;">
                                                 <i class="fas fa-arrow-up" style="font-size:10px;"></i> Upgraded
@@ -260,6 +272,11 @@
                                             @if($fuTurnaround)
                                                 <div style="font-size:10px;font-weight:600;margin-top:2px;color:{{ $fuR->paid_date ? '#47c363' : '#f39c12' }};">
                                                     <i class="fas fa-money-check-alt" style="font-size:9px;"></i> {{ $fuTurnaround }}
+                                                </div>
+                                            @endif
+                                            @if($fuInvoiceSent)
+                                                <div style="font-size:10px;margin-top:2px;color:{{ $fuR->invoice_sent_date ? '#888' : '#e74c3c' }};">
+                                                    <i class="fas fa-paper-plane" style="font-size:9px;"></i> {{ $fuInvoiceSent }}
                                                 </div>
                                             @endif
                                         @elseif($fu === 'stopped')

@@ -89,6 +89,11 @@
                             </div>
                         </div>
                     </div>
+                    {{-- VAT ikut renewal form: hanya tampil kalau form-nya kena VAT (> 0%). --}}
+                    <input type="hidden" name="vat_percent" id="modalVatPercent" value="0">
+                    <div id="modalVatInfo" class="alert alert-light border py-2 px-3" style="display:none;font-size:13px;">
+                        <i class="fas fa-receipt mr-1"></i> <span></span>
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -104,7 +109,7 @@
                     </div>
                     <hr>
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Invoice Date
                                     <small class="text-muted font-weight-normal">(optional)</small>
@@ -112,26 +117,36 @@
                                 <input type="date" name="invoice_date" id="modalInvoiceDate" class="form-control">
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Invoice Number
                                     <small class="text-muted font-weight-normal">(optional)</small>
                                 </label>
                                 <input type="text" name="invoice_number" id="modalInvoiceNumber"
                                     class="form-control" placeholder="e.g. INV/2026/07/014" style="font-family:monospace;">
-                                <small class="text-muted">Invoice not issued yet? Leave blank — it can be filled in later via Contract History.</small>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Invoice Sent Date
+                                    <small class="text-muted font-weight-normal">(optional)</small>
+                                </label>
+                                <input type="date" name="invoice_sent_date" id="modalInvoiceSentDate" class="form-control">
+                                <small class="text-muted">The date the invoice was sent to the sponsor.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Paid Date
                                     <small class="text-muted font-weight-normal">(optional)</small>
                                 </label>
                                 <input type="date" name="paid_date" id="modalPaidDate" class="form-control">
-                                <small class="text-muted">Not paid yet? Leave blank — it can be filled in later via Contract History.</small>
                             </div>
                         </div>
                     </div>
+                    <small class="text-muted d-block mb-3">Invoice not issued, sent or paid yet? Leave the fields blank — they can be filled in later via Contract History.</small>
                     <div class="form-group">
                         <label>Notes / Final Confirmation</label>
                         <textarea name="notes" id="modalNotes" class="form-control" rows="2" placeholder="e.g. Confirmed - Gold Sponsorship USD 3.500"></textarea>

@@ -22,18 +22,21 @@ class SponsorRenewal extends Model
         'renewal_type',
         'amount_usd',
         'amount_idr',
+        'vat_percent',
         'is_current',
         'notes',
         'quotation_number',
         'quotation_date',
         'invoice_date',
         'invoice_number',
+        'invoice_sent_date',
         'paid_date',
     ];
 
     protected $casts = [
-        'quotation_date' => 'date',
-        'invoice_date'   => 'date',
+        'quotation_date'    => 'date',
+        'invoice_date'      => 'date',
+        'invoice_sent_date' => 'date',
         'paid_date'      => 'date',
     ];
 

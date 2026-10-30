@@ -7,6 +7,7 @@ use App\Models\Sponsors\SponsorRenewal;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Riwayat contract (sponsor_renewals) lintas sponsor, dengan kemampuan edit
@@ -65,18 +66,14 @@ class SponsorContractHistoryController extends Controller
             'quotation_date'   => 'nullable|date',
             'invoice_date'     => 'nullable|date',
             'invoice_number'   => 'nullable|string|max:30|unique:sponsor_renewals,invoice_number,' . $renewal->id,
+            'invoice_sent_date' => 'nullable|date|after_or_equal:invoice_date',
             'paid_date'        => 'nullable|date|after_or_equal:invoice_date',
             'notes'            => 'nullable|string|max:1000',
         ]);
 
-        $start = Carbon::createFromFormat('Y-m', $validated['contract_start']);
-        $end   = Carbon::createFromFormat('Y-m', $validated['contract_end']);
-
-        if ($end->lt($start)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Contract end must be after contract start.',
-            ], 422);
+        // Kolom invoice_sent_date baru ada setelah migration 2026_10_30_150000.
+        if (!Schema::hasColumn('sponsor_renewals', 'invoice_sent_date')) {
+            unset($validated['invoice_sent_date']);
         }
 
         DB::transaction(function () use ($renewal, $validated) {

@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use App\Helpers\WhatsappApi;
 use App\Helpers\ScrapeHelper;
@@ -623,10 +624,12 @@ class SponsorController extends Controller
             'amount_usd'        => 'nullable|numeric|min:0',
             'amount_idr'        => 'nullable|numeric|min:0',
             'kmk_rate'          => 'nullable|integer|min:1',
+            'vat_percent'       => 'nullable|numeric|min:0|max:100',
             'notes'             => 'nullable|string|max:1000',
             'quotation_number'  => 'nullable|string|max:30|unique:sponsor_renewals,quotation_number',
             'invoice_date'      => 'nullable|date',
             'invoice_number'    => 'nullable|string|max:30|unique:sponsor_renewals,invoice_number',
+            'invoice_sent_date' => 'nullable|date|after_or_equal:invoice_date',
             'paid_date'         => 'nullable|date|after_or_equal:invoice_date',
         ]);
 
@@ -649,7 +652,7 @@ class SponsorController extends Controller
                 ->where('is_current', 1)
                 ->update(['is_current' => 0]);
 
-            SponsorRenewal::create([
+            $renewal = [
                 'sponsor_id'       => $sponsor->id,
                 'renewal_year'     => $start->year,
                 'contract_start'   => $validated['contract_start'],
@@ -666,7 +669,16 @@ class SponsorController extends Controller
                 'invoice_date'     => $validated['invoice_date'],
                 'invoice_number'   => $validated['invoice_number'],
                 'paid_date'        => $validated['paid_date'] ?? null,
-            ]);
+            ];
+            // Kolom vat_percent baru ada setelah migration 2026_10_30_140000 dijalankan.
+            if (Schema::hasColumn('sponsor_renewals', 'vat_percent')) {
+                $renewal['vat_percent'] = $validated['vat_percent'] ?? 0;
+            }
+            // invoice_sent_date: migration 2026_10_30_150000.
+            if (Schema::hasColumn('sponsor_renewals', 'invoice_sent_date')) {
+                $renewal['invoice_sent_date'] = $validated['invoice_sent_date'] ?? null;
+            }
+            SponsorRenewal::create($renewal);
 
             $sponsor->contract_start = $validated['contract_start'];
             $sponsor->contract_end   = $validated['contract_end'];
@@ -754,6 +766,17 @@ class SponsorController extends Controller
         }
         if (!empty($validated['amount_idr'])) {
             $amountLine .= '• IDR: *IDR ' . number_format($validated['amount_idr'], 0, '.', '.') . "*\n";
+        }
+        $vat = (float) ($validated['vat_percent'] ?? 0);
+        if ($amountLine && $vat > 0) {
+            $vatLabel = rtrim(rtrim(number_format($vat, 2, '.', ''), '0'), '.');
+            $amountLine .= '• VAT: *' . $vatLabel . "%*\n";
+            if (!empty($validated['amount_idr'])) {
+                $amountLine .= '• Grand Total IDR (incl. VAT): *IDR ' . number_format(round($validated['amount_idr'] * (1 + $vat / 100)), 0, '.', '.') . "*\n";
+            }
+            if (!empty($validated['amount_usd'])) {
+                $amountLine .= '• Grand Total USD (incl. VAT): *USD ' . number_format(round($validated['amount_usd'] * (1 + $vat / 100)), 0, '.', '.') . "*\n";
+            }
         }
         if (!$amountLine) {
             $amountLine = "• _Belum dicantumkan_\n";

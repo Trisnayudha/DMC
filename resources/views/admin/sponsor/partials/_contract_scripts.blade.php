@@ -65,6 +65,25 @@
 
         $('#modalAmountUsd').on('input', autoFillIdr);
         $('#modalKmkRate').on('change', autoFillIdr);
+
+        // VAT dari renewal form: info + Grand Total cuma tampil kalau VAT > 0%.
+        function updateModalVatInfo() {
+            var vat = parseFloat($('#modalVatPercent').val());
+            if (!vat || vat <= 0) {
+                $('#modalVatInfo').hide();
+                return;
+            }
+            var usd = parseFloat($('#modalAmountUsd').val());
+            var idr = parseFloat($('#modalAmountIdr').val());
+            var parts = [];
+            if (!isNaN(idr) && idr > 0) parts.push('IDR ' + Math.round(idr * (1 + vat / 100)).toLocaleString('id-ID'));
+            if (!isNaN(usd) && usd > 0) parts.push('USD ' + Math.round(usd * (1 + vat / 100)).toLocaleString('id-ID'));
+            $('#modalVatInfo').show().find('span').text(
+                'VAT ' + vat + '% (from renewal form)' + (parts.length ? ' — Grand Total: ' + parts.join(' · ') : '')
+            );
+        }
+        $('#modalAmountUsd, #modalAmountIdrDisplay').on('input', updateModalVatInfo);
+        $('#modalKmkRate').on('change', updateModalVatInfo);
         $('#btnRefreshKmkRate').on('click', fetchKmkRate);
 
         // Open Update Contract modal
@@ -81,8 +100,11 @@
             $('#modalAmountIdr').val('');
             $('#modalAmountIdrDisplay').val('');
             $('#modalNotes').val('');
+            $('#modalVatPercent').val('0');
+            $('#modalVatInfo').hide();
             $('#modalInvoiceDate').val(new Date().toISOString().slice(0, 10));
             $('#modalInvoiceNumber').val('');
+            $('#modalInvoiceSentDate').val('');
             $('#modalPaidDate').val('');
             $('#modalQuotationNumber').val('').attr('placeholder', 'Loading...');
             $('#quotationNumberHint').text('');
@@ -125,6 +147,8 @@
                         $('#modalQuotationNumber').val(f.form_number);
                         $('#quotationNumberHint').text('From renewal form ' + f.form_number + ' (editable)');
                     }
+                    $('#modalVatPercent').val(parseFloat(f.vat_percent) > 0 ? parseFloat(f.vat_percent) : 0);
+                    updateModalVatInfo();
                 }
             }).fail(function() {
                 fetchKmkRate();

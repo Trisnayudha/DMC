@@ -22,6 +22,7 @@
     data-quotation-date="{{ $r->quotation_date ? $r->quotation_date->format('Y-m-d') : '' }}"
     data-invoice-date="{{ $r->invoice_date ? $r->invoice_date->format('Y-m-d') : '' }}"
     data-invoice-number="{{ $r->invoice_number }}"
+    data-invoice-sent-date="{{ $r->invoice_sent_date ? $r->invoice_sent_date->format('Y-m-d') : '' }}"
     data-paid-date="{{ $r->paid_date ? $r->paid_date->format('Y-m-d') : '' }}"
     data-notes="{{ $r->notes }}"
     data-toggle="tooltip"

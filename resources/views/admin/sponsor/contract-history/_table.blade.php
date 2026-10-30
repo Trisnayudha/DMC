@@ -77,6 +77,9 @@
                                         @if($r->invoice_number)
                                             <div style="font-family:monospace;">{{ $r->invoice_number }}</div>
                                             <div class="text-muted">{{ $r->invoice_date ? $r->invoice_date->format('d M Y') : '—' }}</div>
+                                            <div class="{{ $r->invoice_sent_date ? 'text-success' : 'text-warning' }}">
+                                                {{ $r->invoice_sent_date ? 'Sent ' . $r->invoice_sent_date->format('d M Y') : 'Not sent yet' }}
+                                            </div>
                                         @else
                                             <span class="text-muted">—</span>
                                         @endif
@@ -111,6 +114,7 @@
                                             data-quotation-date="{{ $r->quotation_date ? $r->quotation_date->format('Y-m-d') : '' }}"
                                             data-invoice-date="{{ $r->invoice_date ? $r->invoice_date->format('Y-m-d') : '' }}"
                                             data-invoice-number="{{ $r->invoice_number }}"
+                                            data-invoice-sent-date="{{ $r->invoice_sent_date ? $r->invoice_sent_date->format('Y-m-d') : '' }}"
                                             data-paid-date="{{ $r->paid_date ? $r->paid_date->format('Y-m-d') : '' }}"
                                             data-notes="{{ $r->notes }}"
                                             data-toggle="tooltip" title="Edit record">
