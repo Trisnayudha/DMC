@@ -322,7 +322,7 @@ class SponsorController extends Controller
 
         $this->storeBillings($request, $sponsor);
 
-        // Kabari finance via email supaya invoice sponsor baru bisa langsung dibuat
+        // Kabari finance via email supaya invoice sponsor baru bisa langsung dibuat (draft maupun publish)
         NewSponsorFinanceNotifier::send($sponsor);
 
         return redirect()->route('sponsors.index')->with('success', 'Sponsor saved successfully');

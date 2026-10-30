@@ -31,6 +31,11 @@
             Sponsor baru <strong>{{ $sponsor->name }}</strong> baru saja ditambahkan ke sistem DMC.
             Mohon tim finance membuatkan invoice berdasarkan detail di bawah ini.
         </div>
+        @if ($sponsor->status === 'draft')
+            <div class="alert-box" style="background:#fff3cd;border-left-color:#ffc107;">
+                Status sponsor masih <strong>DRAFT</strong> (belum tampil di website).
+            </div>
+        @endif
 
         <h3>Detail Sponsor</h3>
         <table class="info">

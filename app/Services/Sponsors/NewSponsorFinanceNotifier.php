@@ -8,8 +8,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Kirim email ke tim finance setiap ada sponsor baru dibuat di CMS,
- * supaya finance bisa langsung buatkan invoice-nya.
+ * Kirim email ke tim finance setiap ada sponsor baru dibuat di CMS (draft maupun
+ * publish), supaya finance bisa langsung buatkan invoice-nya.
  *
  * Penerima diatur lewat env FINANCE_NOTIFICATION_EMAIL (boleh lebih dari satu,
  * pisahkan dengan koma). Kalau kosong, notifikasi di-skip.

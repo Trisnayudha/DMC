@@ -2,7 +2,7 @@
 
 namespace App\Models\Sponsors;
 
-use App\Models\User;
+use App\Models\CmsUser;
 use Illuminate\Database\Eloquent\Model;
 
 class SponsorFollowup extends Model
@@ -33,6 +33,7 @@ class SponsorFollowup extends Model
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        // created_by diisi auth()->id() dari guard cms → id di cms_users, bukan users
+        return $this->belongsTo(CmsUser::class, 'created_by');
     }
 }

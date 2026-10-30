@@ -27,6 +27,7 @@ class SponsorBenefitUsageMark extends Model
 
     public function createdBy()
     {
-        return $this->belongsTo(\App\Models\User::class, 'created_by');
+        // created_by diisi Auth::id() dari guard cms → id di cms_users, bukan users
+        return $this->belongsTo(\App\Models\CmsUser::class, 'created_by');
     }
 }
