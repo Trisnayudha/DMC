@@ -39,12 +39,14 @@
        selalu patuh sama box-sizing, kalau kepeleset dianggap content-box beneran
        maka padding numpuk di LUAR 210mm dan konten kepotong di tepi kertas
        (kejadian kemarin). Math manual ini aman berapa pun dukungan dompdf-nya. */
+    /* Tanpa min-height: 265mm + padding pas 297mm, sisa pembulatan dompdf sedikit
+       aja udah nyeret halaman kosong ke-2. Margin dirapetin biar form lebih lebar
+       dan muat 1 lembar A4. */
     .page-container {
-        width: 192mm;  /* 210mm - 9mm kiri - 9mm kanan */
-        min-height: 265mm;  /* 297mm - 16mm atas - 16mm bawah */
+        width: 196mm;  /* 210mm - 7mm kiri - 7mm kanan */
         margin: 0 auto;
         background: #fff;
-        padding: 16mm 9mm;
+        padding: 9mm 7mm;
     }
     /* Tombol aksi — hanya di layar (browser preview), tidak ikut ke PDF */
     .preview-toolbar {
@@ -109,9 +111,9 @@
        cuma saran; tanpa ini dompdf bisa nyoba nge-lebarin kolom TOTAL ngikutin
        konten (nested currency-table di dalamnya), dorong dia kepotong di tepi
        kertas kayak yang kejadian kemarin. */
-    .custom-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 10.5px; line-height: 1.3; }
+    .custom-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 10px; line-height: 1.2; }
     .custom-table th,
-    .custom-table td { border: 1px solid #000; padding: 6px 8px; }
+    .custom-table td { border: 1px solid #000; padding: 4px 8px; }
     .custom-table th {
         background-color: #0044ff;
         color: #fff;
@@ -122,10 +124,10 @@
     .text-center  { text-align: center; }
     .val-middle   { vertical-align: middle; }
     .font-bold    { font-weight: bold; }
-    .desc-cell    { vertical-align: top; padding: 6px 8px; }
-    .desc-main-title { font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
-    .item-title   { font-weight: bold; margin-top: 5px; margin-bottom: 2px; }
-    .item-sub     { padding-left: 2px; margin-bottom: 1px; }
+    .desc-cell    { vertical-align: top; padding: 5px 8px; }
+    .desc-main-title { font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+    .item-title   { font-weight: bold; margin-top: 3px; margin-bottom: 1px; }
+    .item-sub     { padding-left: 2px; }
     /* Selector diawali .custom-table biar specificity-nya ngalahin ".custom-table td"
        di atas, nggak gantung ke urutan aturan CSS (nested table ini duduk di dalam
        sel .custom-table, jadi kena juga selector induknya kalau nggak dikalahin). */
@@ -293,10 +295,10 @@
     <table class="custom-table">
         <thead>
             <tr>
-                <th style="width:15%;">PERIOD</th>
-                <th style="width:50%;">DESCRIPTION</th>
-                <th style="width:15%;">QTY</th>
-                <th style="width:20%;">TOTAL</th>
+                <th style="width:13%;">PERIOD</th>
+                <th style="width:54%;">DESCRIPTION</th>
+                <th style="width:14%;">QTY</th>
+                <th style="width:19%;">TOTAL</th>
             </tr>
         </thead>
         <tbody>
