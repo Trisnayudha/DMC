@@ -727,6 +727,8 @@ class CompanyDatabaseController extends Controller
         /** @var EloquentCollection<int, CompanyModel> $rows */
         $rows = $query->orderByDesc('updated_at')->get();
 
+        $memberCompanyNames = $this->memberCompanyNames();
+
         // Preload subcategory pivot untuk semua company id sekaligus (hindari N+1).
         $subcatByCompany = DB::table('company_subcategory_company')
             ->whereIn('company_id', $rows->pluck('id')->all())
@@ -788,6 +790,9 @@ class CompanyDatabaseController extends Controller
                     'updated_at' => $best ? $best->updated_at : null,
                 ];
             })
+            // Company unverified yang user-nya cuma pendaftar event (tidak ada yang
+            // Active/Pending member) tidak masuk database. Yang sudah verified tetap tampil.
+            ->filter(fn($g) => $g->is_verified || isset($memberCompanyNames[$g->normalized_name]))
             ->sort(function ($a, $b) {
                 if ($a->incomplete_records !== $b->incomplete_records) {
                     return $b->incomplete_records <=> $a->incomplete_records;
@@ -800,6 +805,20 @@ class CompanyDatabaseController extends Controller
                 return strcmp($a->company_name, $b->company_name);
             })
             ->values();
+    }
+
+    /** Nama company (lowercase, trimmed) yang punya minimal satu user Active/Pending, sebagai key. */
+    private function memberCompanyNames(): array
+    {
+        return DB::table('company')
+            ->join('users', 'users.id', 'company.users_id')
+            ->whereIn('users.status_member', ['active', 'pending'])
+            ->whereNotNull('company.company_name')
+            ->selectRaw('DISTINCT LOWER(TRIM(company.company_name)) AS k')
+            ->pluck('k')
+            ->filter(fn($k) => $k !== '')
+            ->flip()
+            ->all();
     }
 
     private function applyScope(Collection $groups, string $scope): Collection

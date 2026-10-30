@@ -168,6 +168,8 @@
 
                 </div>
 
+                @include('admin.company_database.partials._category_tier_card')
+
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center" style="gap:12px;">
                         <h4 class="mb-0">Company Sync Center</h4>
@@ -558,9 +560,29 @@
             </div>
         </div>
     </div>
+    @include('admin.company_database.partials._modal_company_category')
+    @include('admin.company_database.partials._category_tier_styles')
 @endsection
 
 @push('bottom')
+    @include('admin.company_database.partials._category_tier_script')
+    <script>
+        // Company Category Tier butuh Chart.js v4, tapi Verified Trend di halaman ini
+        // memakai v2 dari layout (window.Chart). v4 dimuat lalu window.Chart dikembalikan ke v2.
+        (function() {
+            var chartV2 = window.Chart;
+            $.ajax({ url: 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js', dataType: 'script', cache: true })
+                .done(function() {
+                    var chartV4 = window.Chart;
+                    window.Chart = chartV2;
+                    window.initCompanyCategoryTierChart(chartV4);
+                })
+                .fail(function() {
+                    window.Chart = chartV2;
+                    $('#company-category-loading').text('Gagal memuat chart.');
+                });
+        })();
+    </script>
     <script>
         $(document).ready(function() {
             if ($.fn.select2) {

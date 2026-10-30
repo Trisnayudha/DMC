@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\DigitalEditionController;
 use App\Http\Controllers\Admin\CompanyDatabaseController;
 use App\Http\Controllers\Admin\SponsorInterviewScheduleController as AdminSponsorInterviewScheduleController;
 use App\Http\Controllers\Admin\EventCategoryController;
+use App\Http\Controllers\Admin\ContactInquiryController;
 use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\EventRegistrantController;
 use App\Http\Controllers\Admin\EventsConferenceController;
 use App\Http\Controllers\Admin\EventsDetailController;
 use App\Http\Controllers\Admin\EventsDetailParticipantController;
@@ -61,6 +63,7 @@ use App\Http\Controllers\Admin\SponsorExportController;
 use App\Http\Controllers\Admin\LuckyDrawItemController;
 use App\Http\Controllers\Admin\LuckyDrawEntryController;
 use App\Http\Controllers\Admin\PartnershipEventVisitorController;
+use App\Http\Controllers\Admin\PartnershipVisitorDatabaseController;
 use App\Http\Controllers\Admin\EventConversionController;
 use App\Http\Controllers\Admin\MailchimpUnsubscribeController;
 use App\Http\Controllers\DmcMemberSurveyController;
@@ -580,6 +583,9 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::post('company-follow-ups/{id}/update', [MemberCompanyFollowUpController::class, 'update'])->name('admin.member_follow_ups.update');
     Route::get('company-follow-ups/verified-company', [MemberCompanyFollowUpController::class, 'lookupVerifiedCompany'])->name('admin.member_follow_ups.verified_company');
 
+    Route::get('event-registrants', [EventRegistrantController::class, 'index'])->name('admin.event_registrants.index');
+    Route::get('inquiry-database', [ContactInquiryController::class, 'index'])->name('admin.inquiries.index');
+
     Route::get('leads', [MemberLeadFollowUpController::class, 'index'])->name('admin.member_leads.index');
     Route::post('leads/bulk/follow-up', [MemberLeadBulkController::class, 'followUp'])->name('admin.member_leads.bulk_follow_up');
     Route::post('leads/bulk/temperature', [MemberLeadBulkController::class, 'temperature'])->name('admin.member_leads.bulk_temperature');
@@ -605,6 +611,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('lucky-draw/entries', [LuckyDrawEntryController::class, 'index'])->name('admin.lucky_draw.entries.index');
 
     // Partnership Event Visitors
+    Route::get('partnership-visitors', [PartnershipVisitorDatabaseController::class, 'index'])->name('admin.partnership_visitors.index');
     Route::get('partnership-events', [PartnershipEventVisitorController::class, 'index'])->name('admin.partnership_events.index');
     Route::get('partnership-events/import-template', [PartnershipEventVisitorController::class, 'importTemplate'])->name('admin.partnership_events.import_template');
     Route::get('partnership-events/{slug}', [PartnershipEventVisitorController::class, 'show'])->name('admin.partnership_events.show');
@@ -618,6 +625,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
 
     // Event & Member Conversion Analytics
     Route::get('event-conversions', [EventConversionController::class, 'index'])->name('admin.event_conversions.index');
+    Route::get('event-conversions/diagram', [EventConversionController::class, 'diagram'])->name('admin.event_conversions.diagram');
     Route::get('event-conversions/{id}/members', [EventConversionController::class, 'convertedMembers'])->name('admin.event_conversions.members');
     Route::get('event-conversions/export', [EventConversionController::class, 'export'])->name('admin.event_conversions.export');
 

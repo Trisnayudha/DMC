@@ -12,6 +12,11 @@
                 </div>
             </div>
             <div class="section-body">
+                @if (auth()->user()->canAccessModule('event_conversions'))
+                    <div id="conversion-diagram" data-url="{{ route('admin.event_conversions.diagram') }}">
+                        <div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat Member Conversion...</div>
+                    </div>
+                @endif
                 <h2 class="section-title">Event </h2>
                 <div class="row">
                     <div class="col-lg-12">
@@ -72,6 +77,8 @@
                                                 <th>Date Event</th>
                                                 <th>Image</th>
                                                 <th>Nama</th>
+                                                <th>Category</th>
+                                                <th>Registrant</th>
                                                 <th>Status</th>
                                                 <th width="15%">Aksi</th>
                                             </tr>
@@ -81,12 +88,37 @@
                                             @foreach ($list as $post)
                                                 <tr>
                                                     <td>{{ $no++ }}</td>
-                                                    <td>{{ date('d, F', strtotime($post->start_date)) }}</td>
+                                                    <td data-order="{{ $post->start_date }}" class="text-nowrap">{{ date('d F Y', strtotime($post->start_date)) }}</td>
                                                     <td>
                                                         <img alt="image" src="{{ asset($post->image) }}"
                                                             class="rounded-circle" width="35" data-toggle="tooltip">
                                                     </td>
                                                     <td>{{ $post->name }}</td>
+                                                    <td class="text-nowrap">
+                                                        @php
+                                                            $typeClass = [
+                                                                'DMC Event' => 'badge-primary',
+                                                                'DMC Partnership Event' => 'badge-info',
+                                                                'Partnership Event' => 'badge-light',
+                                                            ][$post->event_type] ?? 'badge-secondary';
+                                                        @endphp
+                                                        {{-- Label tampilan saja; nilai event_type di DB tetap. --}}
+                                                        @php $typeLabel = ['DMC Event' => 'Event DMC', 'DMC Partnership Event' => 'Event DMC Partnership', 'Partnership Event' => 'Event Partnership'][$post->event_type] ?? $post->event_type; @endphp
+                                                        <span class="badge {{ $typeClass }}">{{ $typeLabel ?: '-' }}</span>
+                                                    </td>
+                                                    @if ($post->registrant_total)
+                                                        <td data-order="{{ $post->registrant_total }}" class="text-nowrap">
+                                                            <strong>{{ number_format($post->registrant_total) }}</strong>
+                                                            <small class="text-muted d-block">{{ number_format($post->registrant_attended) }} attendance</small>
+                                                        </td>
+                                                    @else
+                                                        <td data-order="{{ $post->visitor_total }}" class="text-nowrap">
+                                                            <strong>{{ number_format($post->visitor_total) }}</strong>
+                                                            @if ($post->visitor_total)
+                                                                <small class="text-muted d-block">booth visitors</small>
+                                                            @endif
+                                                        </td>
+                                                    @endif
                                                     <td>
                                                         <div class="badge {{ $post->status == 'publish' ? 'badge-success' : 'badge-warning' }}"
                                                             style="text-transform: uppercase">
@@ -94,8 +126,6 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <a href="#" class="btn btn-primary" title="View Tickets">
-                                                            <span>Ticket</span></a>
                                                         <a href="javascript:void(0)" class="btn btn-success btn-share"
                                                             data-slug="{{ $post->slug }}"
                                                             data-url="{{ $post->share_url }}">
@@ -194,6 +224,21 @@
 
 
         });
+        // Diagram Member Conversion: dimuat terpisah karena hitungan metriknya berat.
+        function loadConversionDiagram(year) {
+            var $box = $('#conversion-diagram');
+            if (!$box.length) { return; }
+            $box.css('opacity', 0.5);
+            $.get($box.data('url'), year ? { year: year } : {})
+                .done(function (html) { $box.html(html); })
+                .fail(function () { $box.html('<div class="alert alert-light">Member Conversion gagal dimuat.</div>'); })
+                .always(function () { $box.css('opacity', ''); });
+        }
+        loadConversionDiagram();
+        $(document).on('change', '#conversion-diagram-year', function () {
+            loadConversionDiagram($(this).val());
+        });
+
         // Handle Share Button Click
         $(document).on('click', '.btn-share', function() {
             const url = $(this).data('url');

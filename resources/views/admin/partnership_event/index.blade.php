@@ -84,6 +84,12 @@
                                                     <a href="{{ url('visit/' . $event->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Buka Form Booth Visitor (Link untuk QR Code)">
                                                         <i class="fas fa-external-link-alt"></i> Form Booth
                                                     </a>
+                                                    {{-- Partnership Event tidak tampil di list Event DMC, jadi edit event dari sini. --}}
+                                                    @if (auth()->user()->canAccessModule('events'))
+                                                        <a href="{{ route('events.edit', $event->id) }}" class="btn btn-sm btn-outline-success" title="Edit Event">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </a>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>

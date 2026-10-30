@@ -32,6 +32,20 @@ class EventConversionController extends Controller
      */
     public function index(Request $request)
     {
+        return view('admin.event_conversions.index', $this->conversionData($request));
+    }
+
+    /**
+     * Diagram saja (HTML partial), dimuat lewat AJAX di halaman DMC Main Event
+     * supaya list event tidak ikut menunggu hitungan metrik.
+     */
+    public function diagram(Request $request)
+    {
+        return view('admin.event_conversions.partials._diagram_embed', $this->conversionData($request));
+    }
+
+    private function conversionData(Request $request): array
+    {
         $selectedYear = $request->query('year');
         $selectedType = $request->query('type', 'all'); // 'all', 'owned', 'supporting'
         $search = trim((string) $request->query('search', ''));
@@ -212,7 +226,7 @@ class EventConversionController extends Controller
             ];
         });
 
-        return view('admin.event_conversions.index', [
+        return [
             'events'              => $metrics['processedEvents'],
             'years'               => $years,
             'selectedYear'        => $selectedYear,
@@ -225,7 +239,7 @@ class EventConversionController extends Controller
             'annualAttendance'    => $metrics['annualAttendance'],
             'annualConversion'    => $metrics['annualConversion'],
             'eventParticipation'  => $metrics['eventParticipation'],
-        ]);
+        ];
     }
 
     /**

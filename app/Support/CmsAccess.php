@@ -112,6 +112,10 @@ class CmsAccess
     /** Navigation, dashboard shortcuts and role checklists share the same menu definitions. */
     public static function navigation(CmsUser $user): array
     {
+        $layout = config('cms_access.team_menus.' . $user->role);
+        if (is_array($layout)) {
+            return self::teamMenuNavigation($user, $layout);
+        }
         $groups = [];
         // Modul yang tampil sebagai link di dalam submenu modul lain tidak dirender sendiri.
         $nested = [];
@@ -192,5 +196,64 @@ class CmsAccess
             return $ordered;
         }
         return $groups;
+    }
+
+    /** Sidebar dari cms_access.team_menus: header per menu, link langsung per sub menu. */
+    private static function teamMenuNavigation(CmsUser $user, array $layout): array
+    {
+        $modules = self::modules();
+        [$label, , $path, $icon] = $modules['dashboard'];
+        $nav = ['Main' => [['key' => 'dashboard', 'label' => $label, 'path' => $path, 'icon' => $icon]]];
+        foreach ($layout as $menu => $links) {
+            foreach ($links as $link) {
+                if (self::allows($user, $link[2])) {
+                    $nav[$menu][] = ['key' => $link[2], 'label' => $link[0], 'path' => $link[1], 'icon' => $link[3] ?? $modules[$link[2]][3]];
+                }
+            }
+        }
+        return self::markActiveLink($nav);
+    }
+
+    /**
+     * Tandai tepat satu link aktif. Path + query string harus cocok (link dengan query
+     * paling spesifik menang, jadi "New Member" mengalahkan "Members"); kalau tidak ada
+     * yang cocok (mis. halaman detail), pakai link pertama dari modul halaman ini.
+     */
+    private static function markActiveLink(array $nav): array
+    {
+        $request = request();
+        $currentModule = self::moduleForRoute($request->route());
+        $parentPath = config('cms_access.menu_parents.' . $currentModule);
+        $best = null;
+        $bestScore = -1;
+        $fallback = null;
+        foreach ($nav as $group => $items) {
+            foreach ($items as $i => $item) {
+                $nav[$group][$i]['active'] = false;
+                $isFallback = $parentPath ? $item['path'] === $parentPath : $item['key'] === $currentModule;
+                if ($fallback === null && $isFallback) {
+                    $fallback = [$group, $i];
+                }
+                $parts = explode('?', $item['path'], 2);
+                if (!$request->is('admin/' . $parts[0])) {
+                    continue;
+                }
+                parse_str($parts[1] ?? '', $query);
+                foreach ($query as $name => $value) {
+                    if ((string) $request->query($name) !== (string) $value) {
+                        continue 2;
+                    }
+                }
+                if (count($query) > $bestScore) {
+                    $best = [$group, $i];
+                    $bestScore = count($query);
+                }
+            }
+        }
+        $active = $best ?? $fallback;
+        if ($active) {
+            $nav[$active[0]][$active[1]]['active'] = true;
+        }
+        return $nav;
     }
 }

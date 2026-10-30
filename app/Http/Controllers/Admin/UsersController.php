@@ -120,6 +120,7 @@ class UsersController extends Controller
             'countSelfEdited'    => $countSelfEdited,
             'countActiveWithoutPassword' => $countActiveWithoutPassword,
             'countCompaniesVerified'     => $countCompaniesVerified,
+            'countMemberFollowUps'       => MemberCompanyFollowUp::where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP)->count(),
             'countProspecting'           => $countProspecting,
             'companyNames'       => CompanyModel::whereNotNull('company_name')
                 ->whereRaw("TRIM(company_name) <> ''")

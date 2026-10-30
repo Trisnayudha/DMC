@@ -129,6 +129,15 @@
                             class="badge {{ request('status_member') === 'deactivated' ? 'badge-light' : 'badge-secondary' }} ml-1">{{ $countDeactivated }}</span>
                     @endif
                 </a>
+                @if (auth()->user()->canAccessModule('member_followups'))
+                    <a href="{{ route('admin.member_follow_ups.index') }}" class="btn btn-sm btn-outline-info"
+                        title="Member yang pindah company / ganti job title dan perlu di-follow-up">
+                        <i class="fas fa-exchange-alt mr-1"></i> Member Follow Up
+                        @if ($countMemberFollowUps > 0)
+                            <span class="badge badge-info ml-1">{{ $countMemberFollowUps }}</span>
+                        @endif
+                    </a>
+                @endif
             </div>
         </div>
 

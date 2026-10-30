@@ -41,12 +41,27 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $sponsorId = $request->input('sponsor_id');
-        $list = Events::orderBy('id', 'desc')
+        // Partnership Event punya halaman sendiri (Event Partnership), tidak ikut di list Event DMC.
+        $list = Events::where(function ($query) {
+                $query->whereNull('event_type')->orWhere('event_type', '!=', 'Partnership Event');
+            })
+            ->orderBy('id', 'desc')
             ->when($sponsorId, function ($query) use ($sponsorId) {
                 $query->whereIn('id', DB::table('event_sponsors')->where('sponsors_id', $sponsorId)->select('events_id'));
             })->get();
+        // Pendaftar: event DMC dari payment, Partnership Event dari booth visitors.
+        $registrations = DB::table('payment')->whereNotNull('events_id')->groupBy('events_id')
+            ->selectRaw('events_id, COUNT(*) AS total')->pluck('total', 'events_id');
+        // Attendance = check-in (users_event.present), sama dengan hitungan di detail participant.
+        $attendance = DB::table('users_event')->whereNotNull('present')->groupBy('events_id')
+            ->selectRaw('events_id, COUNT(*) AS total')->pluck('total', 'events_id');
+        $visitors = DB::table('partnership_event_visitors')->groupBy('events_id')
+            ->selectRaw('events_id, COUNT(*) AS total')->pluck('total', 'events_id');
         foreach ($list as $item) {
             $item->share_url = EventsService::buildShareUrl($item);
+            $item->registrant_total = (int) ($registrations[$item->id] ?? 0);
+            $item->registrant_attended = (int) ($attendance[$item->id] ?? 0);
+            $item->visitor_total = (int) ($visitors[$item->id] ?? 0);
         }
 
         $data = [

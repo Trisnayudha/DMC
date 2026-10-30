@@ -5,7 +5,7 @@
 <aside id="sidebar-wrapper">
     <div class="sidebar-brand">
         <a href="{{ route('home') }}" class="brand-link" aria-label="DMC Dashboard">
-            <img src="{{ asset('image/dmc.png') }}" alt="Djakarta Mining Club"> <strong>DMC</strong>
+            <img src="{{ asset('image/dmc.png') }}" alt="Djakarta Mining Club">
         </a>
     </div>
     <div class="sidebar-brand sidebar-brand-sm"><a href="{{ route('home') }}" aria-label="DMC Dashboard">DMC</a></div>
@@ -41,8 +41,9 @@
                             </ul>
                         </li>
                     @else
-                        <li class="cms-menu-item {{ $activeModule === $item['key'] ? 'active' : '' }}" data-menu-group="{{ $groupId }}" data-menu-label="{{ $item['label'] }}">
-                            <a class="nav-link" href="{{ url('admin/' . $item['path']) }}" aria-label="{{ $item['label'] }}" @if ($activeModule === $item['key']) aria-current="page" @endif><i class="fas fa-{{ $item['icon'] }}" aria-hidden="true"></i><span>{{ $item['label'] }}</span></a>
+                        @php $itemActive = $item['active'] ?? $activeModule === $item['key']; @endphp
+                        <li class="cms-menu-item {{ $itemActive ? 'active' : '' }}" data-menu-group="{{ $groupId }}" data-menu-label="{{ $item['label'] }}">
+                            <a class="nav-link" href="{{ url('admin/' . $item['path']) }}" aria-label="{{ $item['label'] }}" @if ($itemActive) aria-current="page" @endif><i class="fas fa-{{ $item['icon'] }}" aria-hidden="true"></i><span>{{ $item['label'] }}</span></a>
                         </li>
                     @endif
                 @endforeach

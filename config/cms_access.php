@@ -20,6 +20,8 @@ return [
         'lucky_draw_entries' => ['Entries / Winners', 'Member Team', 'lucky-draw/entries', 'gift', ['LuckyDrawEntryController'], 'Lucky Draw'],
         'membership' => ['Membership Tier Banners', 'Member Team', 'membership-tier-banners', 'id-card', ['MembershipTierBannerController']],
         'mailchimp' => ['Mailchimp Unsubscribes', 'Member Team', 'mailchimp/unsubscribes', 'envelope-open', ['MailchimpUnsubscribeController']],
+        'event_registrants' => ['Event Registrant', 'Member Team', 'event-registrants', 'user-check', ['EventRegistrantController']],
+        'inquiries' => ['Inquiry Database', 'Member Team', 'inquiry-database', 'question-circle', ['ContactInquiryController']],
         // Event Team
         'events' => ['Events List', 'Event Team', 'events', 'calendar-alt', ['EventController', 'EventsDetailController', 'EventsDetailParticipantController', 'SpecialEventController'], 'Events'],
         'event_sponsors' => ['Sponsor Invitation', 'Event Team', 'events/sponsor', 'handshake', ['EventsRegisterSponsorController'], 'Events'],
@@ -30,7 +32,7 @@ return [
         'event_schedules' => ['Schedule', 'Event Team', 'events/schedule', 'clock', ['EventsScheduleController'], 'Events'],
         'event_speakers' => ['Speakers', 'Event Team', 'events/speakers', 'microphone', ['EventsSpeakersController'], 'Events'],
         'event_rundown' => ['Rundown', 'Event Team', 'events/rundown', 'list', ['EventsRundownController'], 'Events'],
-        'partnership_events' => ['Partnership Event', 'Event Team', 'partnership-events', 'handshake', ['PartnershipEventVisitorController']],
+        'partnership_events' => ['Partnership Event', 'Event Team', 'partnership-events', 'handshake', ['PartnershipEventVisitorController', 'PartnershipVisitorDatabaseController']],
         // Marketing Team
         'news' => ['News List', 'Marketing Team', 'news', 'newspaper', ['NewsController', 'NewsPartnerController'], 'News'],
         'news_categories' => ['News Category', 'Marketing Team', 'news/category', 'tags', ['NewsCategoryController'], 'News'],
@@ -75,7 +77,7 @@ return [
     // Sub-kategori (header sidebar) untuk user tim. Urutan header mengikuti menu
     // pertama di team_defaults; menu yang tidak terdaftar masuk "Lainnya".
     'sections' => [
-        'Member' => ['member_intake', 'members', 'member_followups', 'leads'],
+        'Member' => ['member_intake', 'members', 'member_followups', 'leads', 'event_registrants', 'inquiries'],
         'Data & Settings' => ['master_database', 'company_database', 'company_categories', 'company_subcategories', 'member_sources'],
         'Engagement' => ['event_conversions', 'lucky_draw_items', 'lucky_draw_entries'],
         'Membership' => ['membership', 'mailchimp'],
@@ -85,6 +87,39 @@ return [
         'Sponsor & Scholarship' => ['sponsors', 'interviews', 'scholarship'],
         'Finance' => ['payments', 'finance_invoices', 'sponsor_annual_report'],
         'System' => ['edit_logs', 'quick_search', 'cms_users', 'ngrok'],
+    ],
+    // Susunan sidebar tetap untuk satu tim (menggantikan sections + urutan team_defaults).
+    // Format: header => [[label, path, modul izin, icon (opsional)], ...]. Satu modul boleh
+    // muncul di beberapa link (mis. Members difilter per status). Link yang modulnya tidak
+    // diizinkan disembunyikan; modul di luar daftar ini tidak tampil di sidebar tim tsb.
+    // Modul tanpa link sidebar sendiri (dibuka dari halaman lain) → path link sidebar yang disorot.
+    'menu_parents' => [
+        'member_followups' => 'users',
+        'partnership_events' => 'partnership-events',
+    ],
+    'team_menus' => [
+        'member_team' => [
+            'Membership' => [
+                ['New Member', 'users?status_member=pending', 'members', 'user-clock'],
+                ['Active Member', 'users?status_member=active', 'members', 'user-check'],
+            ],
+            'General Database' => [
+                ['Members', 'users', 'members'],
+                ['Inquiry Database', 'inquiry-database', 'inquiries'],
+                ['Event Registrant', 'event-registrants', 'event_registrants'],
+                ['Event Partnership', 'partnership-visitors', 'partnership_events'],
+                ['Company Database', 'company-database', 'company_database'],
+                ['Data Tampung', 'member', 'member_intake'],
+                ['Unsubscribe Mailchimp', 'mailchimp/unsubscribes', 'mailchimp'],
+            ],
+            'Potential Sponsors' => [
+                ['Lead Follow Up', 'leads', 'leads'],
+            ],
+            'Events' => [
+                ['Event DMC', 'events', 'events'],
+                ['Event Partnership', 'partnership-events', 'partnership_events'],
+            ],
+        ],
     ],
     // Aksi milik modul lain yang juga boleh dipakai pemegang modul di sini.
     // Annual Report (Finance): generate/preview renewal form + Confirm Renewal
@@ -115,7 +150,7 @@ return [
     ],
     // Initial access requested for each team. Dashboard is available to everyone.
     'team_defaults' => [
-        'member_team' => ['member_intake', 'members', 'member_followups', 'leads', 'master_database', 'company_database', 'company_categories', 'company_subcategories', 'member_sources', 'event_conversions', 'lucky_draw_items', 'lucky_draw_entries', 'membership', 'mailchimp', 'events'],
+        'member_team' => ['member_intake', 'members', 'member_followups', 'leads', 'event_registrants', 'inquiries', 'company_database', 'event_conversions', 'mailchimp', 'events', 'partnership_events'],
         'event_team' => ['events', 'event_sponsors', 'event_categories', 'event_tickets', 'event_conferences', 'event_highlights', 'event_schedules', 'event_speakers', 'event_rundown', 'partnership_events', 'event_conversions', 'lucky_draw_items', 'lucky_draw_entries'],
         'marketing_team' => ['news', 'news_categories', 'program', 'digital_editions', 'videos', 'advertisement', 'marketing_ads', 'emails', 'notifications', 'wa_campaign', 'wa_database', 'wa_template', 'wa_blasting', 'wa_sender'],
         'secretariat_team' => ['sponsors', 'sponsor_annual_report', 'scholarship'],

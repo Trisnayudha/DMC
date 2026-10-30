@@ -75,7 +75,7 @@
     @include('admin.users.partials._modal_deactivate')
     @include('admin.member_follow_ups.partials._modal_flag')
     @include('admin.users.partials._modal_registration_breakdown')
-    @include('admin.users.partials._modal_company_category')
+    @include('admin.company_database.partials._modal_company_category')
     @include('admin.users.partials._modal_job_tier')
 @endsection
 
