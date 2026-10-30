@@ -35,7 +35,7 @@
         <i class="fas fa-chevron-down text-muted" style="font-size:12px"></i>
     </div>
 
-    <div class="collapse" id="sponsor-{{ $sponsor->id }}">
+    <div class="collapse {{ session('open_sponsor') === $sponsor->id ? 'show' : '' }}" id="sponsor-{{ $sponsor->id }}">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-sm table-hover mb-0" style="font-size:13px">
@@ -47,6 +47,7 @@
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Social</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,7 +55,7 @@
                             @include('admin.sponsor.contact_directory._contact_row')
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-3" style="font-size:12px">
+                                <td colspan="7" class="text-center text-muted py-3" style="font-size:12px">
                                     <i class="fas fa-user-slash"></i> No contacts for this sponsor
                                 </td>
                             </tr>

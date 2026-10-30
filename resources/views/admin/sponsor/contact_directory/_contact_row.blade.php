@@ -53,4 +53,29 @@
             <span class="text-muted">-</span>
         @endif
     </td>
+    <td class="align-middle text-right" style="padding-right:16px">
+        {{-- Edit untuk baris yang punya record PIC / representative / member; billing diedit di form Edit Sponsor. --}}
+        @php
+            $picIds    = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'pic');
+            $repIds    = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'representative');
+            $memberIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'member');
+        @endphp
+        @if($picIds || $repIds || $memberIds)
+            <button type="button" class="btn btn-sm btn-outline-primary btn-edit-contact" title="Edit kontak"
+                data-sponsor-id="{{ $sponsor->id }}"
+                data-sponsor-name="{{ $sponsor->branding_name ?: $sponsor->name }}"
+                data-pic-ids='@json($picIds)'
+                data-rep-ids='@json($repIds)'
+                data-member-ids='@json($memberIds)'
+                data-has-billing="{{ \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'billing') ? 1 : 0 }}"
+                data-name="{{ $contact['name'] }}"
+                data-title="{{ $contact['title'] }}"
+                data-email="{{ $contact['email'] }}"
+                data-phone="{{ $contact['phone'] }}"
+                data-instagram="{{ $contact['instagram'] }}"
+                data-linkedin="{{ $contact['linkedin'] }}">
+                <i class="fas fa-pen"></i>
+            </button>
+        @endif
+    </td>
 </tr>

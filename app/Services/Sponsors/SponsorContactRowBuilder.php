@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
  * pernah di-dedup. Member dimasukkan lebih dulu agar datanya menang,
  * field kosong diisi dari sumber lain, dan role berprioritas tertinggi
  * (pic > billing > representative) yang menempel di baris gabungan.
+ * 'sources' mencatat record asal tiap baris (dipakai edit di Contact Directory).
  */
 class SponsorContactRowBuilder
 {
@@ -34,6 +35,7 @@ class SponsorContactRowBuilder
                 'linkedin'  => null,
                 'role'      => 'representative',
                 'user_id'   => $member->id,
+                'sources'   => [['type' => 'member', 'id' => $member->id]],
             ]);
         }
 
@@ -47,6 +49,7 @@ class SponsorContactRowBuilder
                 'linkedin'  => null,
                 'role'      => 'pic',
                 'user_id'   => null,
+                'sources'   => [['type' => 'pic', 'id' => $pic->id]],
             ]);
         }
 
@@ -60,6 +63,7 @@ class SponsorContactRowBuilder
                 'linkedin'  => null,
                 'role'      => 'billing',
                 'user_id'   => null,
+                'sources'   => [['type' => 'billing', 'id' => $billing->id]],
             ]);
         }
 
@@ -73,6 +77,7 @@ class SponsorContactRowBuilder
                 'linkedin'  => $rep->linkedin,
                 'role'      => 'representative',
                 'user_id'   => null,
+                'sources'   => [['type' => 'representative', 'id' => $rep->id]],
             ]);
         }
 
@@ -99,6 +104,7 @@ class SponsorContactRowBuilder
                         $existing[$field] = $contact[$field];
                     }
                 }
+                $existing['sources'] = array_merge($existing['sources'], $contact['sources']);
                 if (self::ROLE_PRIORITY[$contact['role']] < self::ROLE_PRIORITY[$existing['role']]) {
                     $existing['role'] = $contact['role'];
                 }
@@ -109,5 +115,17 @@ class SponsorContactRowBuilder
 
         $contact['email_key'] = $emailKey;
         $rows->push($contact);
+    }
+
+    /** ID record sumber per tipe dari satu baris, mis. sourceIds($row, 'pic'). */
+    public static function sourceIds(array $row, string $type): array
+    {
+        $ids = [];
+        foreach ($row['sources'] ?? [] as $source) {
+            if ($source['type'] === $type) {
+                $ids[] = $source['id'];
+            }
+        }
+        return $ids;
     }
 }

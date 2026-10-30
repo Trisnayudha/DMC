@@ -301,6 +301,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('sponsors.contact-directory');
     Route::get('sponsors/contact-directory/export', [SponsorContactDirectoryController::class, 'export'])
         ->name('sponsors.contact-directory.export');
+    Route::post('sponsors/contact-directory/update', [SponsorContactDirectoryController::class, 'update'])
+        ->name('sponsors.contact-directory.update');
     Route::get('sponsors/kmk-rate', [SponsorController::class, 'getKmkRate'])
         ->name('sponsors.kmk-rate');
     Route::get('sponsors/next-quotation-number', [SponsorController::class, 'getNextQuotationNumber'])
