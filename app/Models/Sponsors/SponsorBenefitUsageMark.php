@@ -6,6 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class SponsorBenefitUsageMark extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'Benefit Mark';
+
+    public function sponsorLogSponsorId(): ?int
+    {
+        $usage = $this->usage;
+        return $usage ? (int) $usage->sponsor_id : null;
+    }
+
     protected $table = 'sponsor_benefit_usage_marks';
 
     protected $fillable = [

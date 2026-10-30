@@ -10,6 +10,7 @@ use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
+use App\Models\Sponsors\SponsorLog;
 use App\Models\User;
 use App\Services\Sponsors\SponsorContactRowBuilder;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -209,6 +210,7 @@ class SponsorCountRepresentativeController extends Controller
             $register->events_id  = $eventId;
             $register->payment_id = $payment->id;
             $register->save();
+            $this->logRepresentativeEvent($sponsorId, $payment, $findUser->name, $findEvent->name);
 
             if (!empty($sendEmail)) {
                 $data = [
@@ -268,6 +270,7 @@ class SponsorCountRepresentativeController extends Controller
             ->where('payment.id', $paymentId)
             ->select(
                 'payment.id',
+                'payment.sponsor_id',
                 'payment.code_payment',
                 'payment.qr_code',
                 'users.name',
@@ -355,6 +358,15 @@ class SponsorCountRepresentativeController extends Controller
         if (empty($sent)) {
             return response()->json(['success' => false, 'message' => 'Please select at least one channel (Email or WA).'], 422);
         }
+
+        SponsorLog::record(
+            $payment->sponsor_id ? (int) $payment->sponsor_id : null,
+            'Representative Event',
+            $payment->id,
+            'ticket_resent',
+            null,
+            'Ticket ' . $payment->code_payment . ' (' . $payment->name . ', ' . $payment->event_name . ') resent via ' . implode(' & ', $sent)
+        );
 
         return response()->json(['success' => true, 'message' => 'Ticket resent via ' . implode(' & ', $sent) . '.']);
     }
@@ -501,6 +513,7 @@ class SponsorCountRepresentativeController extends Controller
         $register->events_id  = $findEvent->id;
         $register->payment_id = $payment->id;
         $register->save();
+        $this->logRepresentativeEvent($request->sponsor_id, $payment, $user->name, $findEvent->name);
 
         if (!empty($request->send_email)) {
             $data = [
@@ -564,6 +577,7 @@ class SponsorCountRepresentativeController extends Controller
         $payment->link                = $linkPay;
         $payment->pic_id              = Auth::id();
         $payment->save();
+        $this->logRepresentativeEvent($request->sponsor_id, $payment, $user->name, $findEvent->name);
 
         if (!empty($request->send_email)) {
             $date = date('d-m-Y H:i:s');
@@ -592,5 +606,24 @@ class SponsorCountRepresentativeController extends Controller
                 $message->subject('[Ticket #' . $codePayment . '] Waiting for Payment – ' . $findEvent->subject_name);
             });
         }
+    }
+
+    /** Daftarkan representative ke event menulis ke payment/users (tabel umum), jadi dicatat manual. */
+    private function logRepresentativeEvent($sponsorId, Payment $payment, ?string $personName, ?string $eventName): void
+    {
+        SponsorLog::record(
+            $sponsorId ? (int) $sponsorId : null,
+            'Representative Event',
+            $payment->id,
+            'registered',
+            [
+                'person'  => ['old' => null, 'new' => $personName],
+                'event'   => ['old' => null, 'new' => $eventName],
+                'package' => ['old' => null, 'new' => $payment->package],
+                'status'  => ['old' => null, 'new' => $payment->status_registration],
+                'code'    => ['old' => null, 'new' => $payment->code_payment],
+            ],
+            $personName . ' registered for ' . $eventName
+        );
     }
 }

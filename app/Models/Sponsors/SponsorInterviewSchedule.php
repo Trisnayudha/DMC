@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class SponsorInterviewSchedule extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'Interview';
+
     use HasFactory;
 
     protected $fillable = [

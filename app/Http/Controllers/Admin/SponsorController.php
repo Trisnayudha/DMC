@@ -356,7 +356,8 @@ class SponsorController extends Controller
     private function syncBillings(Request $request, Sponsor $sponsor)
     {
         if (!$request->has('billing') || !is_array($request->input('billing.name'))) {
-            SponsorBilling::where('sponsor_id', $sponsor->id)->delete();
+            // Per record (bukan delete massal) supaya tercatat di Sponsor Log.
+            SponsorBilling::where('sponsor_id', $sponsor->id)->get()->each->delete();
             return;
         }
 
@@ -394,7 +395,7 @@ class SponsorController extends Controller
 
         $toDelete = array_diff($oldBillingIds, $submittedIds);
         if (!empty($toDelete)) {
-            SponsorBilling::whereIn('id', $toDelete)->delete();
+            SponsorBilling::whereIn('id', $toDelete)->get()->each->delete();
         }
     }
 
@@ -515,12 +516,12 @@ class SponsorController extends Controller
             if (!empty($oldPicIds)) {
                 $toDelete = array_diff($oldPicIds, $submittedPicIds);
                 if (!empty($toDelete)) {
-                    SponsorPic::whereIn('id', $toDelete)->delete();
+                    SponsorPic::whereIn('id', $toDelete)->get()->each->delete();
                 }
             }
         } else {
             // Jika tidak ada input PIC, hapus semua PIC untuk sponsor ini
-            SponsorPic::where('sponsor_id', $sponsor->id)->delete();
+            SponsorPic::where('sponsor_id', $sponsor->id)->get()->each->delete();
         }
 
         $this->syncBillings($request, $sponsor);
@@ -919,7 +920,19 @@ class SponsorController extends Controller
                     'qr_code' => $db
                 ];
 
-                Payment::updateOrCreate(['member_id' => $findUser->id, 'events_id' => $findEvent->id], $paymentData);
+                $payment = Payment::updateOrCreate(['member_id' => $findUser->id, 'events_id' => $findEvent->id], $paymentData);
+                \App\Models\Sponsors\SponsorLog::record(
+                    $findSponsor ? (int) $findSponsor->id : null,
+                    'Representative Event',
+                    $payment->id,
+                    'registered',
+                    [
+                        'person' => ['old' => null, 'new' => $findUser->name],
+                        'event'  => ['old' => null, 'new' => $findEvent->name],
+                        'code'   => ['old' => null, 'new' => $payment->code_payment],
+                    ],
+                    $findUser->name . ' registered for ' . $findEvent->name
+                );
 
                 $data = [
                     'code_payment' => $codePayment,

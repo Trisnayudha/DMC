@@ -7,6 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sponsor extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'Sponsor';
+
+    public function sponsorLogSponsorId(): ?int
+    {
+        return $this->id ? (int) $this->id : null;
+    }
+
     use HasFactory;
     protected $fillable = [
         'name',

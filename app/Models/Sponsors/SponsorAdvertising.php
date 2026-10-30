@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class SponsorAdvertising extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'Advertising';
+
     use HasFactory;
     protected $table = 'sponsors_advertising';
 

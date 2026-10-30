@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\Model;
  */
 class SponsorRenewalForm extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'Renewal Form';
+
     protected $table = 'sponsor_renewal_forms';
 
     protected $fillable = [

@@ -62,7 +62,8 @@ class EventsRegisterSponsorController extends Controller
      */
     public function destroy(Request $request)
     {
-        $data = EventSponsors::where('id', $request->id)->delete();
+        // Per record supaya tercatat di Sponsor Log.
+        EventSponsors::where('id', $request->id)->get()->each->delete();
         // activity()->log('Menghapus Data Kategori');
         return response()->json(['success' => true]);
     }

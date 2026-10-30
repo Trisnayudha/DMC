@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class SponsorPic extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'PIC';
+
     protected $table = 'sponsors_pic';
 
     protected $fillable = [

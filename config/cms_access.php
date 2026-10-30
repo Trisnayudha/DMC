@@ -49,7 +49,7 @@ return [
         'wa_blasting' => ['Blasting', 'Marketing Team', 'whatsapp/blasting', 'paper-plane', ['WhatsappBlastingController'], 'Whatsapp'],
         'wa_sender' => ['Sender', 'Marketing Team', 'whatsapp/sender', 'comment', ['WhatsappSenderController'], 'Whatsapp'],
         // Secretariat Team
-        'sponsors' => ['Sponsors', 'Secretariat Team', 'sponsors', 'handshake', ['SponsorController', 'SponsorBenefitController', 'SponsorExportController', 'SponsorPhotosVideosActivityController', 'SocialMediaEngagementController', 'SponsorAddressController', 'SponsorAdvertisingController', 'SponsorRepresentativeController', 'SponsorCountRepresentativeController', 'SponsorContactDirectoryController', 'SponsorContractHistoryController', 'SponsorRenewalFormController', 'SponsorFollowupController']],
+        'sponsors' => ['Sponsors', 'Secretariat Team', 'sponsors', 'handshake', ['SponsorController', 'SponsorBenefitController', 'SponsorExportController', 'SponsorPhotosVideosActivityController', 'SocialMediaEngagementController', 'SponsorAddressController', 'SponsorAdvertisingController', 'SponsorRepresentativeController', 'SponsorCountRepresentativeController', 'SponsorContactDirectoryController', 'SponsorContractHistoryController', 'SponsorRenewalFormController', 'SponsorFollowupController', 'SponsorLogController']],
         'sponsor_annual_report' => ['Renewal Status', 'Secretariat Team', 'sponsors/annual-report', 'chart-bar', ['SponsorAnnualReportController']],
         'interviews' => ['Interview Schedule', 'Secretariat Team', 'interview-schedule/sponsor', 'microphone-alt', ['SponsorInterviewScheduleController']],
         'scholarship' => ['Scholarship', 'Secretariat Team', 'scholarship', 'graduation-cap', ['ScholarshipController']],
@@ -72,6 +72,7 @@ return [
             ['Renewal Status', 'sponsors/annual-report', 'sponsor_annual_report'],
             ['Nearing Contract', 'sponsors/nearing-contract'],
             ['Contract History', 'sponsors/contract-history'],
+            ['Sponsor Log', 'sponsors/logs'],
         ],
     ],
     // Sub-kategori (header sidebar) untuk user tim. Urutan header mengikuti menu

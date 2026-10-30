@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class SocialMediaEngagement extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'Social Media';
+
     use HasFactory;
 
     protected $fillable = [

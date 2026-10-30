@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\SpecialEventController;
 use App\Http\Controllers\Admin\SponsorAddressController;
 use App\Http\Controllers\Admin\SponsorAnnualReportController;
 use App\Http\Controllers\Admin\SponsorFollowupController;
+use App\Http\Controllers\Admin\SponsorLogController;
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
 use App\Http\Controllers\Admin\SponsorBenefitController;
 use App\Http\Controllers\Admin\SponsorContactDirectoryController;
@@ -318,6 +319,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('sponsors.renewal-form');
     Route::post('sponsors/{sponsor}/renewal-form', [SponsorRenewalFormController::class, 'store'])
         ->name('sponsors.renewal-form.store');
+    Route::get('sponsors/logs', [SponsorLogController::class, 'index'])
+        ->name('sponsors.logs');
     Route::get('sponsors/contract-history', [SponsorContractHistoryController::class, 'index'])
         ->name('sponsors.contract-history');
     Route::patch('sponsors/contract-history/{renewal}', [SponsorContractHistoryController::class, 'update'])

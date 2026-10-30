@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class SponsorPhotoVideo extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'Photo/Video';
+
     use HasFactory;
 
     protected $fillable = [

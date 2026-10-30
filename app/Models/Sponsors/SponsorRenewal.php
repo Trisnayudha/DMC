@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class SponsorRenewal extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'Contract';
+
     protected $table = 'sponsor_renewals';
 
     protected $fillable = [
@@ -57,4 +61,5 @@ class SponsorRenewal extends Model
         $end = $this->paid_date ?? now();
         return (int) $this->invoice_date->diffInDays($end, false);
     }
+
 }

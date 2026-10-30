@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class SponsorFollowup extends Model
 {
+    use \App\Traits\LogsSponsorActivity;
+
+    protected $sponsorLogSubject = 'Renewal Follow-up';
+
     protected $table = 'sponsor_followups';
 
     protected $fillable = [
