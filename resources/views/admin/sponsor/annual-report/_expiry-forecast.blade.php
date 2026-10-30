@@ -305,6 +305,17 @@
                                                             {{ $er->last_followup->followed_up_at->format('d M Y') }}{{ $er->last_followup->creator ? ' | ' . $er->last_followup->creator->name : '' }}
                                                         </div>
                                                     @endif
+                                                    {{-- Sponsor sudah konfirmasi renew (dicatat tim secretariat), kontrak belum di-renew. --}}
+                                                    @if($er->confirmed_followup ?? null)
+                                                        <div style="margin-top:4px;">
+                                                            <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;color:#fff;background:#47c363;">
+                                                                <i class="fas fa-check-double" style="font-size:9px;"></i> Confirmed Renewal
+                                                            </span>
+                                                            <div style="font-size:10px;color:#888;">
+                                                                {{ $er->confirmed_followup->followed_up_at->format('d M Y') }}{{ $er->confirmed_followup->creator ? ' | ' . $er->confirmed_followup->creator->name : '' }}
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             @else
                                                 <div style="margin-top:6px;font-size:10px;color:#aaa;">
@@ -363,6 +374,38 @@
                                                  diarahkan ke situ supaya nggak nyunting record lama yang sudah
                                                  nggak relevan / kosong. --}}
                                             <div class="d-flex" style="gap:4px;">
+                                                {{-- Sudah renewed: tetap bisa lihat renewal form & riwayat follow-up,
+                                                     plus modal Renew Contract dalam mode lihat saja (isi dari kontrak
+                                                     yang sudah dikonfirmasi) supaya tidak tercipta kontrak dobel. --}}
+                                                @if(in_array($fu, ['renewed', 'upgraded']))
+                                                <button class="btn btn-sm action-icon-btn followup-btn"
+                                                    style="background:#f39c12;color:#fff;"
+                                                    data-id="{{ $er->sponsor_id }}"
+                                                    data-name="{{ $er->sponsor ? $er->sponsor->name : '' }}"
+                                                    data-toggle="tooltip" title="Renewal Form & Follow-up History">
+                                                    <i class="fas fa-phone-volume"></i>
+                                                </button>
+                                                @php $cr = $er->followup_record ?? $er; @endphp
+                                                <button class="btn btn-sm btn-primary action-icon-btn view-contract-btn"
+                                                    data-sponsor-id="{{ $cr->sponsor_id }}"
+                                                    data-renewal-year="{{ $cr->renewal_year }}"
+                                                    data-contract-start="{{ $cr->contract_start }}"
+                                                    data-contract-end="{{ $cr->contract_end }}"
+                                                    data-package="{{ $cr->package }}"
+                                                    data-renewal-type="{{ $cr->renewal_type }}"
+                                                    data-amount-usd="{{ $cr->amount_usd }}"
+                                                    data-amount-idr="{{ $cr->amount_idr }}"
+                                                    data-vat-percent="{{ $cr->vat_percent ?? '' }}"
+                                                    data-quotation-number="{{ $cr->quotation_number }}"
+                                                    data-invoice-date="{{ $cr->invoice_date ? $cr->invoice_date->format('Y-m-d') : '' }}"
+                                                    data-invoice-number="{{ $cr->invoice_number }}"
+                                                    data-invoice-sent-date="{{ $cr->invoice_sent_date ? $cr->invoice_sent_date->format('Y-m-d') : '' }}"
+                                                    data-paid-date="{{ $cr->paid_date ? $cr->paid_date->format('Y-m-d') : '' }}"
+                                                    data-notes="{{ $cr->notes }}"
+                                                    data-toggle="tooltip" title="View Confirmed Renewal">
+                                                    <i class="fas fa-file-signature"></i>
+                                                </button>
+                                                @endif
                                                 @include('admin.sponsor.annual-report._edit-contract-btn', [
                                                     'r' => $er->followup_record ?? $er,
                                                     'isSuccessor' => (bool) $er->followup_record,

@@ -86,9 +86,57 @@
         $('#modalKmkRate').on('change', updateModalVatInfo);
         $('#btnRefreshKmkRate').on('click', fetchKmkRate);
 
+        // Mode lihat saja untuk modal Renew Contract (sponsor yang sudah renewed):
+        // semua field dikunci & tombol submit disembunyikan supaya tidak bikin kontrak dobel.
+        function setRenewModalReadonly(readonly) {
+            var $form = $('#updateContractForm');
+            $form.find('input:not([type=hidden]), select, textarea').prop('disabled', readonly);
+            $('#btnRefreshKmkRate').toggle(!readonly);
+            $form.find('button[type=submit]').toggle(!readonly);
+            $('#updateContractModalLabel').text(readonly ? 'Confirmed Renewal (view only)' : 'Renew Contract');
+        }
+
+        $(document).on('click', '.view-contract-btn', function(e) {
+            e.preventDefault();
+            var d = $(this).data();
+            setRenewModalReadonly(true);
+            $('#modalSponsorId').val(d.sponsorId);
+            $('#modalContractStart').val(d.contractStart || '');
+            $('#modalContractEnd').val(d.contractEnd || '');
+            $('#modalPackage').val(d.package || 'silver');
+            $('#modalRenewalType').val(d.renewalType || 'renewal');
+            $('#modalAmountUsd').val(d.amountUsd !== '' && d.amountUsd != null ? parseFloat(d.amountUsd) : '');
+            setIdrValue(d.amountIdr || '');
+            $('#modalQuotationNumber').val(d.quotationNumber || '').attr('placeholder', '');
+            $('#quotationNumberHint').text('');
+            $('#modalInvoiceDate').val(d.invoiceDate || '');
+            $('#modalInvoiceNumber').val(d.invoiceNumber || '');
+            $('#modalInvoiceSentDate').val(d.invoiceSentDate || '');
+            $('#modalPaidDate').val(d.paidDate || '');
+            $('#modalNotes').val(d.notes || '');
+            $('#modalKmkRate').val('').attr('placeholder', '—');
+            $('#modalVatPercent').val(parseFloat(d.vatPercent) > 0 ? parseFloat(d.vatPercent) : 0);
+            updateModalVatInfo();
+            $('#updateContractModal').modal('show');
+
+            // KMK rate tidak disimpan di kontrak — ambil dari renewal form tahun yang sama.
+            $.get('/admin/sponsors/' + d.sponsorId + '/renewal-form/latest', { year: d.renewalYear }, function(res) {
+                var f = res.form;
+                if (!f) return;
+                if (f.kmk_rate) $('#modalKmkRate').val(f.kmk_rate);
+                // Kontrak yang dikonfirmasi sebelum VAT ikut disimpan tercatat 0%:
+                // pakai VAT dari renewal form-nya.
+                if (!(parseFloat(d.vatPercent) > 0) && parseFloat(f.vat_percent) > 0) {
+                    $('#modalVatPercent').val(parseFloat(f.vat_percent));
+                }
+                updateModalVatInfo();
+            });
+        });
+
         // Open Update Contract modal
         $(document).on('click', '.update-contract-btn', function(e) {
             e.preventDefault();
+            setRenewModalReadonly(false);
             var year = new Date().getFullYear();
             var sponsorId = $(this).data('sponsor-id');
             $('#modalSponsorId').val(sponsorId);

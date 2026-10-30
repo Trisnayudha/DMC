@@ -339,6 +339,8 @@ class SponsorAnnualReportController extends Controller
                 $er->followup_count  = $f->count();
                 $er->first_followup  = $f->first();
                 $er->last_followup   = $f->last();
+                // Follow-up yang ditandai "confirmed renewal" oleh tim secretariat (kalau ada).
+                $er->confirmed_followup = $f->where('confirmed_renewal', true)->last();
             });
         });
     }
@@ -381,6 +383,7 @@ class SponsorAnnualReportController extends Controller
             $f = $followups->get($p->sponsor_id, collect());
             $p->followup_count = $f->count();
             $p->last_followup  = $f->last();
+            $p->confirmed_followup = $f->where('confirmed_renewal', true)->last();
         });
 
         return $pending;

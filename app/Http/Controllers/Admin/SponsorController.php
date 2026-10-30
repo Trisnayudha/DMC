@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Helpers\WhatsappApi;
 use App\Helpers\ScrapeHelper;
 use App\Services\Sponsors\NewSponsorFinanceNotifier;
+use App\Services\Sponsors\RenewalPipelineStage;
 use App\Services\Sponsors\SponsorBenefitService;
 use App\Support\QrCode;
 use Maatwebsite\Excel\Facades\Excel;
@@ -214,15 +215,29 @@ class SponsorController extends Controller
         $type   = $request->get('type');
         $search = trim((string) $request->get('search', ''));
 
+        $from = Carbon::now()->format('Y-m');
+        $to   = Carbon::now()->addMonths(3)->format('Y-m');
+
+        // Sponsor yang kontrak lamanya berakhir di jendela ini tapi sudah di-renew
+        // (contract_end sponsor sudah pindah ke periode baru) tetap ditampilkan,
+        // supaya status Invoice Sent / Paid kelihatan.
+        $renewedInWindow = SponsorRenewal::where('renewal_status', 'renewed')
+            ->whereBetween('contract_end', [$from, $to])
+            ->pluck('sponsor_id');
+
         $data = Sponsor::with(['renewals', 'currentRenewal', 'firstPic'])
             ->where('status', 'publish')
             ->whereNotNull('contract_end')
-            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') >= ?", [Carbon::now()->format('Y-m-01')])
-            ->whereRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') <= ?", [Carbon::now()->addMonths(3)->format('Y-m-01')])
+            ->where(function ($q) use ($from, $to, $renewedInWindow) {
+                $q->whereBetween('contract_end', [$from, $to])
+                  ->orWhereIn('id', $renewedInWindow);
+            })
             ->when($type, fn($q) => $q->where('package', $type))
             ->when($search, fn($q) => $q->where('name', 'like', '%' . $search . '%'))
-            ->orderByRaw("STR_TO_DATE(CONCAT(contract_end, '-01'), '%Y-%m-%d') ASC")
             ->get();
+
+        RenewalPipelineStage::attach($data, $from, $to);
+        $data = $data->sortBy('expiring_end')->values();
 
         return view('admin.sponsor.nearing_contract', compact('data', 'type', 'search'));
     }

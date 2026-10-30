@@ -127,6 +127,14 @@
                                                         Last: {{ $p->last_followup->followed_up_at->format('d M') }}{{ $p->last_followup->creator ? ' by ' . $p->last_followup->creator->name : '' }}
                                                     </div>
                                                 @endif
+                                                @if($p->confirmed_followup ?? null)
+                                                    <div style="margin-top:4px;">
+                                                        <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;color:#fff;background:#47c363;">
+                                                            <i class="fas fa-check-double" style="font-size:9px;"></i> Confirmed Renewal
+                                                        </span>
+                                                        <span style="font-size:10px;color:#888;">{{ $p->confirmed_followup->followed_up_at->format('d M') }}</span>
+                                                    </div>
+                                                @endif
                                             @else
                                                 <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#6c757d;background:#f0f1f5;">
                                                     <i class="fas fa-user-slash" style="font-size:10px;"></i> Not Contacted

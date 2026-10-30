@@ -63,7 +63,7 @@
                                 <thead>
                                     <tr>
                                         <th width="10px">No</th>
-                                        <th>Name Sponsor</th>
+                                        <th>Sponsor Name</th>
                                         <th style="width:90px">Package</th>
                                         <th style="width:130px">Contract End</th>
                                         <th style="width:170px">Time Left</th>
@@ -76,7 +76,10 @@
                                     @php $no = 1; @endphp
                                     @foreach ($data as $post)
                                         @php
-                                            $endDate  = \Carbon\Carbon::createFromFormat('Y-m', $post->contract_end)->endOfMonth();
+                                            // expiring_end = kontrak yang sedang berakhir (bisa kontrak lama yang sudah di-renew).
+                                            $expiringEnd = $post->expiring_end ?? $post->contract_end;
+                                            $stage       = $post->pipeline_stage ?? null;
+                                            $endDate  = \Carbon\Carbon::createFromFormat('Y-m', $expiringEnd)->endOfMonth();
                                             $daysLeft = (int) now()->diffInDays($endDate, false);
                                             if ($daysLeft <= 30) {
                                                 $rowBorder   = 'border-left: 4px solid #dc3545;';
@@ -92,6 +95,9 @@
                                                 $urgencyText = 'Upcoming';
                                             }
                                             $pct = max(0, min(100, round((90 - $daysLeft) / 90 * 100)));
+                                            if ($stage) {
+                                                $rowBorder = 'border-left: 4px solid ' . $stage['color'] . ';';
+                                            }
 
                                             $currentR = $post->renewals->where('is_current', 1)->first()
                                                 ?? $post->renewals->sortByDesc('contract_start')->first();
@@ -145,18 +151,27 @@
                                             </td>
                                             <td>
                                                 <div class="font-weight-bold text-{{ $badgeColor }}">
-                                                    {{ \Carbon\Carbon::createFromFormat('Y-m', $post->contract_end)->format('M Y') }}
+                                                    {{ $endDate->format('M Y') }}
                                                 </div>
-                                                <small class="text-muted" style="font-size:11px">{{ $post->contract_end }}</small>
+                                                <small class="text-muted" style="font-size:11px">{{ $expiringEnd }}</small>
                                             </td>
                                             <td>
+                                                {{-- Status proses renewal (RenewalPipelineStage); kalau belum ada proses, label urgensi. --}}
                                                 <div class="d-flex align-items-center mb-1" style="gap:6px">
-                                                    <span class="badge badge-{{ $badgeColor }}">{{ $urgencyText }}</span>
-                                                    <span class="text-muted" style="font-size:12px">{{ $daysLeft }} days left</span>
+                                                    @if ($stage)
+                                                        <span class="badge" style="background:{{ $stage['color'] }};color:#fff;">{{ $stage['label'] }}</span>
+                                                    @else
+                                                        <span class="badge badge-{{ $badgeColor }}">{{ $urgencyText }}</span>
+                                                    @endif
+                                                    <span class="text-muted" style="font-size:12px">{{ $daysLeft >= 0 ? $daysLeft . ' days left' : 'Ended' }}</span>
                                                 </div>
                                                 <div class="progress" style="height:5px;border-radius:3px">
-                                                    <div class="progress-bar bg-{{ $badgeColor }}" style="width:{{ $pct }}%"></div>
+                                                    <div class="progress-bar {{ $stage ? '' : 'bg-' . $badgeColor }}"
+                                                        style="width:{{ $pct }}%;{{ $stage ? 'background:' . $stage['color'] . ';' : '' }}"></div>
                                                 </div>
+                                                @if ($stage)
+                                                    <div style="font-size:11px;color:#888;margin-top:3px;">{{ $stage['detail'] }}</div>
+                                                @endif
                                             </td>
                                             <td>
                                                 <div class="d-flex align-items-center" style="gap:8px">
