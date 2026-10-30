@@ -133,6 +133,7 @@ return [
         'SponsorController@getKmkRate' => ['sponsor_annual_report'],
         'SponsorController@getNextQuotationNumber' => ['sponsor_annual_report'],
         'SponsorRenewalFormController@preview' => ['sponsor_annual_report'],
+        'SponsorRenewalFormController@draftPreview' => ['sponsor_annual_report'],
         'SponsorRenewalFormController@generate' => ['sponsor_annual_report'],
         'SponsorRenewalFormController@latest' => ['sponsor_annual_report'],
         'SponsorRenewalFormController@store' => ['sponsor_annual_report'],

@@ -59,17 +59,19 @@ class SponsorFollowupController extends Controller
                 'created_by'       => $rf->creator ? $rf->creator->name : null,
             ]);
 
-        $pic = $sponsor->firstPic;
+        $contact = $sponsor->billingContact();
 
         return response()->json([
             'success'      => true,
             'followups'    => $followups,
             'renewalForms' => $renewalForms,
-            'pic'          => $pic ? [
-                'name'  => $pic->name,
-                'title' => $pic->title,
-                'email' => $pic->email,
-                'phone' => $pic->phone,
+            'billing'      => $contact ? [
+                'name'     => $contact->name,
+                'title'    => $contact->title,
+                'email'    => $contact->email,
+                'phone'    => $contact->phone,
+                // true = sponsor belum punya billing contact, field diisi dari PIC
+                'from_pic' => !$sponsor->firstBilling,
             ] : null,
         ]);
     }

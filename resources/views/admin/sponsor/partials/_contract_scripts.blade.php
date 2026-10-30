@@ -199,7 +199,7 @@
         // ══ Renewal Process: Step 1 Generate Renewal Form → Step 2 Follow-up ══
         var followupData        = []; // all follow-ups for the open sponsor
         var renewalFormData     = []; // all renewal forms for the open sponsor
-        var picData             = null; // current PIC {name, title, email, phone} for the open sponsor
+        var billingData         = null; // billing contact {name, title, email, phone, from_pic} for the open sponsor
         var sponsorOptionsData  = []; // {id, name, last_amount_usd, last_amount_idr}
         var sponsorOptionsReady = false;
         var rfEditMode          = false; // true while the visible form is editing an already-generated renewal form
@@ -335,14 +335,16 @@
             });
         }
 
-        // Isi ulang field PIC dari data sponsor yang sedang dibuka (baik saat generate
-        // baru maupun saat edit form yang sudah ada — PIC melekat ke sponsor, bukan form).
+        // Isi ulang field billing contact dari sponsor yang sedang dibuka (baik saat generate
+        // baru maupun edit form — kontak melekat ke sponsor, bukan form). Kalau sponsor belum
+        // punya billing contact, diisi dari PIC (from_pic).
         function fillPicFields() {
-            var p = picData || {};
-            $('#rfPicName').val(p.name || '');
-            $('#rfPicTitle').val(p.title || '');
-            $('#rfPicEmail').val(p.email || '');
-            $('#rfPicPhone').val(p.phone || '');
+            var b = billingData || {};
+            $('#rfBillingName').val(b.name || '');
+            $('#rfBillingTitle').val(b.title || '');
+            $('#rfBillingEmail').val(b.email || '');
+            $('#rfBillingPhone').val(b.phone || '');
+            $('#rfBillingFromPic').toggle(!!b.from_pic);
         }
 
         // Reset the empty Generate form for a fresh year (form number + KMK + auto USD)
@@ -482,12 +484,12 @@
             $.get('/admin/sponsors/' + sponsorId + '/followups', function(res) {
                 followupData    = res.followups || [];
                 renewalFormData = res.renewalForms || [];
-                picData         = res.pic || null;
+                billingData     = res.billing || null;
                 refreshRenewalUI();
             }).fail(function() {
                 followupData = [];
                 renewalFormData = [];
-                picData = null;
+                billingData = null;
                 $('#followupTimeline').html('<div class="text-center text-danger py-3" style="font-size:12px;">Failed to load renewal data.</div>');
             });
         }
@@ -524,6 +526,34 @@
         });
 
         // Submit: Generate Renewal Form (Step 1)
+        // Preview draft: kirim isian form (POST) ke tab baru — tidak menyimpan & tidak kirim email.
+        $('#rfDraftPreviewBtn').on('click', function() {
+            var sponsorId = $('#followupSponsorId').val();
+            if (!sponsorId) return;
+            var fields = {
+                _token:        '{{ csrf_token() }}',
+                renewal_year:  $('#renewalYear').val(),
+                form_number:   $('#rfFormNumber').val(),
+                kmk_rate:      $('#rfKmkRate').val(),
+                kmk_number:    $('#rfKmkNumber').val(),
+                amount_usd:    $('#rfAmountUsd').val(),
+                amount_idr:    $('#rfAmountIdr').val(),
+                vat_percent:   $('#rfVatPercent').val(),
+                generated_at:  $('#rfGeneratedAt').val(),
+                billing_name:  $('#rfBillingName').val(),
+                billing_title: $('#rfBillingTitle').val(),
+                billing_email: $('#rfBillingEmail').val(),
+                billing_phone: $('#rfBillingPhone').val(),
+                notes:         $('#rfNotes').val(),
+            };
+            var $form = $('<form method="POST" target="_blank" style="display:none;"></form>')
+                .attr('action', '/admin/sponsors/' + sponsorId + '/renewal-form/draft-preview');
+            $.each(fields, function(name, value) {
+                $form.append($('<input type="hidden">').attr('name', name).val(value == null ? '' : value));
+            });
+            $form.appendTo('body').submit().remove();
+        });
+
         $('#renewalFormForm').on('submit', function(e) {
             e.preventDefault();
             var sponsorId = $('#followupSponsorId').val();
@@ -541,10 +571,10 @@
                     amount_idr:   $('#rfAmountIdr').val(),
                     vat_percent:  $('#rfVatPercent').val(),
                     generated_at: $('#rfGeneratedAt').val(),
-                    pic_name:     $('#rfPicName').val(),
-                    pic_title:    $('#rfPicTitle').val(),
-                    pic_email:    $('#rfPicEmail').val(),
-                    pic_phone:    $('#rfPicPhone').val(),
+                    billing_name:  $('#rfBillingName').val(),
+                    billing_title: $('#rfBillingTitle').val(),
+                    billing_email: $('#rfBillingEmail').val(),
+                    billing_phone: $('#rfBillingPhone').val(),
                     notes:        $('#rfNotes').val(),
                 },
                 success: function(response) {

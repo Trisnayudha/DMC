@@ -311,35 +311,40 @@
                             </div>
                         </div>
                         <hr>
+                        {{-- Billing contact: bisa diubah pemegang izin Sponsors; Finance hanya lihat. --}}
+                        @php $canEditBilling = auth()->user()->canAccessModule('sponsors'); @endphp
                         <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
-                            <i class="fas fa-id-card mr-1"></i> PIC Contact
-                            <small class="text-muted font-weight-normal text-uppercase" style="letter-spacing:normal;">(can be corrected here)</small>
+                            <i class="fas fa-id-card mr-1"></i> Billing Contact
+                            <small class="text-muted font-weight-normal text-uppercase" style="letter-spacing:normal;">{{ $canEditBilling ? '(can be corrected here)' : '(read only)' }}</small>
+                        </div>
+                        <div class="small text-warning mb-2" id="rfBillingFromPic" style="display:none;">
+                            <i class="fas fa-info-circle mr-1"></i>No billing contact on file — prefilled from the PIC.{{ $canEditBilling ? ' Saving will set this as the billing contact.' : '' }}
                         </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>PIC Name</label>
-                                    <input type="text" id="rfPicName" class="form-control" placeholder="PIC Name">
+                                    <label>Billing Name</label>
+                                    <input type="text" id="rfBillingName" class="form-control" placeholder="Billing Name" {{ $canEditBilling ? '' : 'readonly' }}>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>PIC Title</label>
-                                    <input type="text" id="rfPicTitle" class="form-control" placeholder="e.g. Marketing Manager">
+                                    <label>Billing Title</label>
+                                    <input type="text" id="rfBillingTitle" class="form-control" placeholder="e.g. Finance Manager" {{ $canEditBilling ? '' : 'readonly' }}>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>PIC Email</label>
-                                    <input type="email" id="rfPicEmail" class="form-control" placeholder="pic@company.com">
+                                    <label>Billing Email</label>
+                                    <input type="email" id="rfBillingEmail" class="form-control" placeholder="billing@company.com" {{ $canEditBilling ? '' : 'readonly' }}>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>PIC Phone</label>
-                                    <input type="text" id="rfPicPhone" class="form-control" placeholder="e.g. 0812xxxxxxx">
+                                    <label>Billing Phone</label>
+                                    <input type="text" id="rfBillingPhone" class="form-control" placeholder="e.g. 0812xxxxxxx" {{ $canEditBilling ? '' : 'readonly' }}>
                                 </div>
                             </div>
                         </div>
@@ -349,6 +354,10 @@
                                 placeholder="e.g. Proposal Gold Sponsorship 2026, sent via email to the PIC..."></textarea>
                         </div>
                         <div class="text-right">
+                            {{-- Preview PDF dari isian saat ini (belum disimpan, tanpa email) --}}
+                            <button type="button" class="btn btn-light border mr-1" id="rfDraftPreviewBtn">
+                                <i class="fas fa-eye mr-1"></i> Preview
+                            </button>
                             <button type="submit" class="btn" style="background:#47c363;color:#fff;" id="rfSubmitBtn">
                                 <i class="fas fa-file-signature mr-1"></i> Generate Renewal Form
                             </button>
@@ -356,8 +365,8 @@
                     </form>
                 </div>
 
-                {{-- ═══ STEP 2 — Follow-up ═══ (khusus izin Sponsors; Finance dari Annual Report cuma Step 1) --}}
-                @if ($canManageSponsors ?? true)
+                {{-- ═══ STEP 2 — Follow-up ═══ Riwayat terlihat semua yang buka modal (termasuk Finance);
+                     form tambah follow-up khusus izin Sponsors. --}}
                 <div>
                     <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
                         <i class="fas fa-phone-volume mr-1"></i> Step 2 — Follow-up
@@ -376,6 +385,7 @@
                         </div>
 
                         {{-- New follow-up form --}}
+                        @if ($canManageSponsors ?? true)
                         <form id="followupForm" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
@@ -425,9 +435,9 @@
                                 </button>
                             </div>
                         </form>
+                        @endif
                     </div>
                 </div>
-                @endif
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

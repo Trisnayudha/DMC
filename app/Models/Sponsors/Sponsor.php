@@ -89,6 +89,17 @@ class Sponsor extends Model
         return $this->hasMany(SponsorBilling::class, 'sponsor_id');
     }
 
+    public function firstBilling()
+    {
+        return $this->hasOne(SponsorBilling::class, 'sponsor_id')->oldest('id');
+    }
+
+    /** Kontak untuk renewal form & tagihan: billing contact pertama, kalau belum ada pakai PIC. */
+    public function billingContact()
+    {
+        return $this->firstBilling ?: $this->firstPic;
+    }
+
     public function members()
     {
         return $this->belongsToMany(\App\Models\User::class, 'payment', 'sponsor_id', 'member_id')

@@ -71,6 +71,17 @@
         box-shadow: 0 2px 8px rgba(103,119,239,.4);
     }
     .preview-toolbar a.secondary { background: #495057; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+    .preview-toolbar .draft-badge {
+        display: inline-flex;
+        align-items: center;
+        background: #fff3cd;
+        color: #856404;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 9px 16px;
+        border-radius: 8px;
+        border: 1px solid #ffe08a;
+    }
     @media print { .preview-toolbar { display: none !important; } }
 
     /* HEADER — table-based, bukan flex: dompdf (v2.0.8) cuma CSS 2.1-compliant,
@@ -162,7 +173,9 @@
     document.body.classList.add('is-live-preview');
 </script>
 @php
-    $pic = $sponsor->firstPic;
+    // Attention / Approved by: billing contact, kalau belum ada pakai PIC.
+    // Draft preview: pakai billing contact yang sedang diketik di form.
+    $pic = $contactOverride ?? $sponsor->billingContact();
 
     $monthNames = [
         '01'=>'January','02'=>'February','03'=>'March','04'=>'April',
@@ -208,10 +221,15 @@
     // Nominal pajaknya doang (bukan grand total) — ditampilin di baris "VAT X%".
     $vatAmountIdr  = ($vatPercent > 0 && $totalIdr !== null) ? $totalIdr * ($vatPercent / 100) : null;
 
+    // Periode: periode renewal dari renewal form (RenewalPeriod); tanpa renewal form
+    // baru fallback ke kontrak berjalan.
     $periodLabel = '—';
-    if ($renewal && $renewal->contract_start && $renewal->contract_end) {
-        [$sy, $sm] = explode('-', $renewal->contract_start);
-        [$ey, $em] = explode('-', $renewal->contract_end);
+    [$periodStart, $periodEnd] = !empty($renewalPeriod[0]) && !empty($renewalPeriod[1])
+        ? $renewalPeriod
+        : ($renewal ? [$renewal->contract_start, $renewal->contract_end] : [null, null]);
+    if ($periodStart && $periodEnd) {
+        [$sy, $sm] = explode('-', $periodStart);
+        [$ey, $em] = explode('-', $periodEnd);
         // Satu paragraf, wrap alami — muat 1 baris kalau kolomnya cukup lebar (kaya
         // referensi invoice lama), pecah sendiri ke baris ke-2 kalau kepanjangan.
         $periodLabel = ($monthNames[$sm] ?? $sm) . ' ' . $sy . ' - ' . ($monthNames[$em] ?? $em) . ' ' . $ey;
@@ -228,7 +246,12 @@
 
 @if(!empty($isPreview))
     <div class="preview-toolbar">
-        <a href="{{ route('sponsors.renewal-form', $sponsor->id) }}">&#128190; Download PDF</a>
+        @if(!empty($isDraft))
+            {{-- Draft belum disimpan: Download PDF mengunduh versi tersimpan, jadi disembunyikan. --}}
+            <span class="draft-badge">Draft preview &mdash; not saved</span>
+        @else
+            <a href="{{ route('sponsors.renewal-form', $sponsor->id) }}">&#128190; Download PDF</a>
+        @endif
         <a href="javascript:window.print()" class="secondary">&#128424; Print</a>
     </div>
 @endif
