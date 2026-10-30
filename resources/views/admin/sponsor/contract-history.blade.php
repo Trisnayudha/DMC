@@ -29,7 +29,7 @@
                     <h2 class="section-title mb-0">Contract History</h2>
                 </div>
                 <a href="{{ route('sponsors.annual-report') }}" class="btn btn-warning">
-                    <i class="fas fa-chart-bar mr-1"></i> Annual Report
+                    <i class="fas fa-chart-bar mr-1"></i> Renewal Status
                 </a>
             </div>
 

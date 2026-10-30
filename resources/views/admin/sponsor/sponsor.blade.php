@@ -29,7 +29,7 @@
                     </a>
                     <a href="{{ route('sponsors.annual-report') }}"
                        class="btn btn-warning">
-                        <i class="fas fa-chart-bar mr-1"></i> Annual Report
+                        <i class="fas fa-chart-bar mr-1"></i> Renewal Status
                     </a>
                     <a href="{{ route('sponsors.contract-history') }}"
                        class="btn btn-light border">
@@ -43,6 +43,9 @@
                 {{-- Package count + benefit usage stat cards --}}
                 @include('admin.sponsor.partials._stats')
 
+                {{-- Sponsors Management table with filters --}}
+                @include('admin.sponsor.partials._table')
+
                 {{-- Top 5 Attend + Engagement Count tables --}}
                 @include('admin.sponsor.partials._summary_tables')
 
@@ -53,9 +56,6 @@
 
                 {{-- Recent Sponsor Inquiries --}}
                 @include('admin.sponsor.partials._inquiries')
-
-                {{-- Sponsors Management table with filters --}}
-                @include('admin.sponsor.partials._table')
 
             </div>
         </section>

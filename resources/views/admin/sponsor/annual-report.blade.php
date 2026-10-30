@@ -14,13 +14,13 @@
 <div class="content-wrapper">
     <section class="section">
         <div class="section-header">
-            <h1>Annual Report {{ $year }}</h1>
+            <h1>Renewal Status {{ $year }}</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></div>
                 @if ($canManageSponsors)
                     <div class="breadcrumb-item"><a href="{{ route('sponsors.index') }}">Sponsors</a></div>
                 @endif
-                <div class="breadcrumb-item active">Annual Report {{ $year }}</div>
+                <div class="breadcrumb-item active">Renewal Status {{ $year }}</div>
             </div>
         </div>
 
@@ -34,7 +34,7 @@
                             <i class="fas fa-arrow-left mr-1"></i> Back to Sponsors
                         </a>
                     @endif
-                    <h2 class="section-title mb-0">Sponsors Annual Report</h2>
+                    <h2 class="section-title mb-0">Sponsors Renewal Status</h2>
                 </div>
                 <a href="{{ route('sponsors.downloadAnnualReport', ['year' => $year]) }}"
                    class="btn btn-success">

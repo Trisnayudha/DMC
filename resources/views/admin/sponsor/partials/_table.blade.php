@@ -8,7 +8,7 @@
                 <h4 class="mb-0">Sponsors Management</h4>
                 <div class="d-flex flex-wrap" style="gap:6px">
                     <a href="{{ route('sponsors.annual-report') }}" class="btn btn-sm btn-warning">
-                        <i class="fas fa-chart-bar"></i> Annual Report
+                        <i class="fas fa-chart-bar"></i> Renewal Status
                     </a>
                     <a href="{{ route('sponsors.contract-history') }}" class="btn btn-sm btn-light border">
                         <i class="fas fa-file-contract"></i> Contract History
@@ -175,7 +175,7 @@
                         <thead>
                             <tr>
                                 <th width="10px">No</th>
-                                <th>Name Sponsor</th>
+                                <th>Sponsor Name</th>
                                 <th>Package</th>
                                 <th>Status Display</th>
                                 <th>Renewal Info</th>
@@ -188,7 +188,8 @@
                                 <tr>
                                     <td>{{ $no++ }}</td>
                                     <td>
-                                        <div class="font-weight-bold">{{ $post->name }}</div>
+                                        {{-- Branding name (disamakan dengan nama company member); nama resmi jadi fallback. --}}
+                                        <div class="font-weight-bold" title="{{ $post->name }}">{{ $post->branding_name ?: $post->name }}</div>
                                         @if ($post->firstPic)
                                             @php $pic = $post->firstPic; @endphp
                                             <div class="d-flex align-items-center mt-1" style="gap:6px;">

@@ -50,11 +50,11 @@ return [
         'wa_sender' => ['Sender', 'Marketing Team', 'whatsapp/sender', 'comment', ['WhatsappSenderController'], 'Whatsapp'],
         // Secretariat Team
         'sponsors' => ['Sponsors', 'Secretariat Team', 'sponsors', 'handshake', ['SponsorController', 'SponsorBenefitController', 'SponsorExportController', 'SponsorPhotosVideosActivityController', 'SocialMediaEngagementController', 'SponsorAddressController', 'SponsorAdvertisingController', 'SponsorRepresentativeController', 'SponsorCountRepresentativeController', 'SponsorContactDirectoryController', 'SponsorContractHistoryController', 'SponsorRenewalFormController', 'SponsorFollowupController']],
-        'sponsor_annual_report' => ['Sponsors Annual Report', 'Secretariat Team', 'sponsors/annual-report', 'chart-bar', ['SponsorAnnualReportController']],
+        'sponsor_annual_report' => ['Renewal Status', 'Secretariat Team', 'sponsors/annual-report', 'chart-bar', ['SponsorAnnualReportController']],
         'interviews' => ['Interview Schedule', 'Secretariat Team', 'interview-schedule/sponsor', 'microphone-alt', ['SponsorInterviewScheduleController']],
         'scholarship' => ['Scholarship', 'Secretariat Team', 'scholarship', 'graduation-cap', ['ScholarshipController']],
         // Financial Team
-        'payments' => ['Payment & Financial Report', 'Financial Team', 'financial-reports', 'credit-card', ['PaymentController', 'InvoiceController', 'FinancialReportController']],
+        'payments' => ['Expenses Report', 'Financial Team', 'financial-reports', 'credit-card', ['PaymentController', 'InvoiceController', 'FinancialReportController']],
         'finance_invoices' => ['Invoice VA Mandiri', 'Financial Team', 'finance-invoices', 'file-invoice-dollar', ['FinanceInvoiceController']],
         // System
         'edit_logs' => ['User Edit Logs', 'System', 'users/edit-logs', 'history', []],
@@ -69,8 +69,8 @@ return [
             ['Sponsors List', 'sponsors'],
             ['Contact Directory', 'sponsors/contact-directory'],
             ['Representative Attendance', 'sponsors-representative-count'],
+            ['Renewal Status', 'sponsors/annual-report', 'sponsor_annual_report'],
             ['Nearing Contract', 'sponsors/nearing-contract'],
-            ['Annual Report', 'sponsors/annual-report', 'sponsor_annual_report'],
             ['Contract History', 'sponsors/contract-history'],
         ],
     ],
