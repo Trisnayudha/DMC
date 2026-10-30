@@ -25,29 +25,29 @@
 <body>
 <div class="card">
     <div class="header">
-        <h2>✅ Renewal Confirmed — Mohon Issue Invoice</h2>
+        <h2>✅ Renewal Confirmed — Please Issue Invoice</h2>
     </div>
     <div class="body">
         <div class="alert-box">
-            <strong>{{ $sponsor->name }}</strong> sudah <strong>konfirmasi renewal</strong> untuk tahun {{ $followup->renewal_year }}
-            berdasarkan follow-up tim secretariat. Mohon dibuatkan invoice-nya di Accurate.
-            Bukti konfirmasi terlampir.
+            <strong>{{ $sponsor->name }}</strong> has <strong>confirmed the renewal</strong> for {{ $followup->renewal_year }}
+            following the Secretariat team's follow-up. Please issue the invoice in Accurate.
+            The confirmation proof is attached.
         </div>
 
-        <h3>Detail Sponsor</h3>
+        <h3>Sponsor Details</h3>
         <table class="info">
-            <tr><td class="label">Nama Perusahaan</td><td><strong>{{ $sponsor->name }}</strong></td></tr>
-            <tr><td class="label">Paket</td><td>{{ $package }}</td></tr>
-            <tr><td class="label">Kontrak Berakhir</td><td>{{ $contractEnd }}</td></tr>
-            <tr><td class="label">Alamat</td><td>{!! nl2br(e($sponsor->address ?: '-')) !!}</td></tr>
-            <tr><td class="label">Email Perusahaan</td><td>{{ $sponsor->email ?: '-' }}</td></tr>
+            <tr><td class="label">Company Name</td><td><strong>{{ $sponsor->name }}</strong></td></tr>
+            <tr><td class="label">Package</td><td>{{ $package }}</td></tr>
+            <tr><td class="label">Contract Ends</td><td>{{ $contractEnd }}</td></tr>
+            <tr><td class="label">Address</td><td>{!! nl2br(e($sponsor->address ?: '-')) !!}</td></tr>
+            <tr><td class="label">Company Email</td><td>{{ $sponsor->email ?: '-' }}</td></tr>
         </table>
 
-        <h3>Nilai Renewal (Renewal Form)</h3>
+        <h3>Renewal Value (Renewal Form)</h3>
         @if ($form)
             <table class="info">
-                <tr><td class="label">No. Form</td><td><strong>{{ $form->form_number }}</strong></td></tr>
-                <tr><td class="label">Tahun Renewal</td><td>{{ $form->renewal_year }}</td></tr>
+                <tr><td class="label">Form No.</td><td><strong>{{ $form->form_number }}</strong></td></tr>
+                <tr><td class="label">Renewal Year</td><td>{{ $form->renewal_year }}</td></tr>
                 <tr><td class="label">KMK Rate</td><td>IDR {{ number_format($form->kmk_rate, 0, ',', '.') }}/USD</td></tr>
                 <tr><td class="label">KMK Number</td><td>{{ $form->kmk_number ?: '-' }}</td></tr>
                 @if ($form->amount_usd)
@@ -59,26 +59,26 @@
                 <tr><td class="label">VAT / PPN</td><td>{{ (float) $form->vat_percent > 0 ? rtrim(rtrim(number_format($form->vat_percent, 2, '.', ''), '0'), '.') . '%' : '0% (No VAT)' }}</td></tr>
             </table>
         @else
-            <div class="warn-box">Renewal form untuk tahun {{ $followup->renewal_year }} tidak ditemukan — mohon cek nilai ke tim sponsorship.</div>
+            <div class="warn-box">No renewal form found for {{ $followup->renewal_year }} — please confirm the amount with the Sponsorship team.</div>
         @endif
 
-        <h3>Hasil Follow-up</h3>
+        <h3>Follow-up Result</h3>
         <table class="info">
-            <tr><td class="label">Tanggal</td><td>{{ $followup->followed_up_at->format('d F Y') }}</td></tr>
+            <tr><td class="label">Date</td><td>{{ $followup->followed_up_at->format('d F Y') }}</td></tr>
             <tr><td class="label">Channel</td><td>{{ $followup->channel ? ucfirst($followup->channel) : '-' }}</td></tr>
             @if ($followup->notes)
                 <tr><td class="label">Notes</td><td>{!! nl2br(e($followup->notes)) !!}</td></tr>
             @endif
-            <tr><td class="label">Dikonfirmasi oleh</td><td>{{ $confirmedBy }}</td></tr>
-            <tr><td class="label">Waktu</td><td>{{ $sentAt }}</td></tr>
+            <tr><td class="label">Confirmed By</td><td>{{ $confirmedBy }}</td></tr>
+            <tr><td class="label">Time</td><td>{{ $sentAt }}</td></tr>
         </table>
 
         <h3>Billing Contact</h3>
         @if ($billings->isEmpty())
-            <div class="empty">Belum ada data billing — silakan konfirmasi ke tim sponsorship.</div>
+            <div class="empty">No billing contact on file — please confirm with the Sponsorship team.</div>
         @else
             <table class="contacts">
-                <tr><th>Nama</th><th>Jabatan</th><th>Email</th><th>Phone</th></tr>
+                <tr><th>Name</th><th>Title</th><th>Email</th><th>Phone</th></tr>
                 @foreach ($billings as $billing)
                     <tr>
                         <td>{{ $billing->name }}</td>
@@ -92,10 +92,10 @@
 
         <h3>PIC / Contact Person</h3>
         @if ($pics->isEmpty())
-            <div class="empty">Belum ada data PIC.</div>
+            <div class="empty">No PIC on file.</div>
         @else
             <table class="contacts">
-                <tr><th>Nama</th><th>Jabatan</th><th>Email</th><th>Phone</th></tr>
+                <tr><th>Name</th><th>Title</th><th>Email</th><th>Phone</th></tr>
                 @foreach ($pics as $pic)
                     <tr>
                         <td>{{ $pic->name }}</td>
@@ -108,7 +108,7 @@
         @endif
     </div>
     <div class="footer">
-        Email ini dikirim otomatis oleh DMC Finance Notification System. Jangan balas email ini.
+        This email was sent automatically by the DMC Finance Notification System. Please do not reply.
     </div>
 </div>
 </body>

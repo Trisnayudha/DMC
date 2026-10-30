@@ -444,17 +444,17 @@ class SponsorCountRepresentativeController extends Controller
                     $wa->phone   = '6281385080008';
                     $wa->message =
                         "📋 *[Member Verification Request]*\n\n" .
-                        "Halo Mbak Dira, ada permintaan verifikasi member baru dari sistem DMC.\n\n" .
-                        "*Nama:* {$user->name}\n" .
+                        "Hi Dira, there is a new member verification request from the DMC system.\n\n" .
+                        "*Name:* {$user->name}\n" .
                         "*Email:* {$user->email}\n" .
-                        "*No. HP:* " . ($request->phone ?: '-') . "\n" .
+                        "*Phone:* " . ($request->phone ?: '-') . "\n" .
                         "*Job Title:* " . ($request->job_title ?: '-') . "\n" .
-                        "*Perusahaan:* {$sponsorName} *(Sponsor)*\n\n" .
-                        "Kontak ini baru saja didaftarkan sebagai peserta event *{$findEvent->name}* " .
-                        "dan belum pernah terdaftar sebagai member DMC sebelumnya.\n\n" .
-                        "Mohon dilakukan verifikasi & approval pada laporan mingguan member. " .
-                        "Status saat ini: *PENDING*\n\n" .
-                        "Terima kasih! 🙏";
+                        "*Company:* {$sponsorName} *(Sponsor)*\n\n" .
+                        "This contact has just been registered as an attendee of *{$findEvent->name}* " .
+                        "and has not been registered as a DMC member before.\n\n" .
+                        "Please verify and approve it in the weekly member report. " .
+                        "Current status: *PENDING*\n\n" .
+                        "Thank you! 🙏";
                     $wa->WhatsappMessage();
                 } catch (\Exception $e) {
                     // WA gagal tidak boleh block proses registrasi

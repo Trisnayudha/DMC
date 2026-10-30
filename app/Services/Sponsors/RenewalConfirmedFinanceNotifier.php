@@ -34,7 +34,7 @@ class RenewalConfirmedFinanceNotifier
                 ->first();
 
             $subject   = '[DMC Finance] Renewal Confirmed — ' . $sponsor->name
-                . ($form ? ' (' . $form->form_number . ')' : '') . ' — mohon issue invoice';
+                . ($form ? ' (' . $form->form_number . ')' : '') . ' — Please Issue Invoice';
             $proofPath = $followup->proof_path ? Storage::disk('public')->path($followup->proof_path) : null;
 
             Mail::send('email.finance-renewal-confirmed', self::buildData($sponsor, $followup, $form), function ($message) use ($recipients, $subject, $proofPath) {

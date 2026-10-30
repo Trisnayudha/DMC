@@ -27,7 +27,7 @@ class NewSponsorFinanceNotifier
             $sponsor->load(['pics', 'billings']);
 
             $send              = new EmailSender();
-            $send->subject     = '[DMC Finance] Sponsor Baru — ' . $sponsor->name . ' (mohon dibuatkan invoice)';
+            $send->subject     = '[DMC Finance] New Sponsor — ' . $sponsor->name . ' (Please Issue Invoice)';
             $send->template    = 'email.finance-new-sponsor';
             $send->data        = self::buildData($sponsor);
             $send->from        = env('EMAIL_SENDER');

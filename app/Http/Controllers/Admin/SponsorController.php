@@ -794,23 +794,23 @@ class SponsorController extends Controller
             }
         }
         if (!$amountLine) {
-            $amountLine = "• _Belum dicantumkan_\n";
+            $amountLine = "• _Not specified_\n";
         }
 
         $picSection = '';
         if ($pic) {
             $picSection  = "👤 *PIC / Contact Person*\n";
-            $picSection .= '• Nama: ' . $pic->name . "\n";
-            if ($pic->title)  $picSection .= '• Jabatan: ' . $pic->title . "\n";
+            $picSection .= '• Name: ' . $pic->name . "\n";
+            if ($pic->title)  $picSection .= '• Title: ' . $pic->title . "\n";
             if ($pic->email)  $picSection .= '• Email: ' . $pic->email . "\n";
             if ($pic->phone)  $picSection .= '• Phone: ' . $pic->phone . "\n";
         } else {
-            $picSection = "👤 *PIC:* _Data tidak tersedia_\n";
+            $picSection = "👤 *PIC:* _Not available_\n";
         }
 
         $notesLine = '';
         if (!empty($validated['notes'])) {
-            $notesLine = "\n📝 *Catatan:* " . $validated['notes'] . "\n";
+            $notesLine = "\n📝 *Notes:* " . $validated['notes'] . "\n";
         }
 
         $now = Carbon::now()->setTimezone('Asia/Jakarta')->format('d F Y, H:i') . ' WIB';
@@ -822,23 +822,23 @@ class SponsorController extends Controller
             "🏢 *SPONSOR CONTRACT UPDATE*\n",
             "━━━━━━━━━━━━━━━━━━━━━\n",
             "📋 *Djakarta Mining Club*\n",
-            "Berikut informasi renewal/update kontrak sponsor yang baru dicatat di sistem:\n\n",
-            "🏷️ *Detail Sponsor*\n",
-            '• Perusahaan: *' . $sponsor->name . "*\n",
-            '• Paket: *' . $packageLabel . " Sponsorship*\n",
-            '• Tipe: *' . $renewalType . "*\n",
-            '• Periode: *' . $periode . "*\n",
+            "A sponsor contract renewal/update has just been recorded in the system:\n\n",
+            "🏷️ *Sponsor Details*\n",
+            '• Company: *' . $sponsor->name . "*\n",
+            '• Package: *' . $packageLabel . " Sponsorship*\n",
+            '• Type: *' . $renewalType . "*\n",
+            '• Period: *' . $periode . "*\n",
             $quotLine,
             "\n",
-            "💰 *Nilai Sponsorship*\n",
+            "💰 *Sponsorship Value*\n",
             $amountLine,
             "\n",
             $picSection,
             $notesLine,
             $formLine,
             "\n━━━━━━━━━━━━━━━━━━━━━\n",
-            "🕐 _Diperbarui: " . $now . "_\n\n",
-            "⚠️ _Jika pembayaran sudah diproses secara manual atau sponsor sudah melunasi, mohon abaikan pesan ini._\n\n",
+            "🕐 _Updated: " . $now . "_\n\n",
+            "⚠️ _If the payment has already been processed manually or the sponsor has paid in full, please disregard this message._\n\n",
             "_— DMC Finance Notification System_",
         ]);
     }

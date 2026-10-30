@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sponsor Baru</title>
+    <title>New Sponsor</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f6f7f7; margin: 0; padding: 24px; color: #333; }
         .card { max-width: 640px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
@@ -24,45 +24,45 @@
 <body>
 <div class="card">
     <div class="header">
-        <h2>🏢 Sponsor Baru — Mohon Dibuatkan Invoice</h2>
+        <h2>🏢 New Sponsor — Please Issue Invoice</h2>
     </div>
     <div class="body">
         <div class="alert-box">
-            Sponsor baru <strong>{{ $sponsor->name }}</strong> baru saja ditambahkan ke sistem DMC.
-            Mohon tim finance membuatkan invoice berdasarkan detail di bawah ini.
+            A new sponsor, <strong>{{ $sponsor->name }}</strong>, has just been added to the DMC system.
+            Please issue the invoice based on the details below.
         </div>
         @if ($sponsor->status === 'draft')
             <div class="alert-box" style="background:#fff3cd;border-left-color:#ffc107;">
-                Status sponsor masih <strong>DRAFT</strong> (belum tampil di website).
+                This sponsor is still in <strong>DRAFT</strong> status (not yet shown on the website).
             </div>
         @endif
 
-        <h3>Detail Sponsor</h3>
+        <h3>Sponsor Details</h3>
         <table class="info">
-            <tr><td class="label">Nama Perusahaan</td><td><strong>{{ $sponsor->name }}</strong></td></tr>
+            <tr><td class="label">Company Name</td><td><strong>{{ $sponsor->name }}</strong></td></tr>
             @if ($sponsor->branding_name)
                 <tr><td class="label">Branding Name</td><td>{{ $sponsor->branding_name }}</td></tr>
             @endif
-            <tr><td class="label">Paket</td><td><strong>{{ $package }}</strong></td></tr>
-            <tr><td class="label">Periode Kontrak</td><td><strong>{{ $period }}</strong></td></tr>
+            <tr><td class="label">Package</td><td><strong>{{ $package }}</strong></td></tr>
+            <tr><td class="label">Contract Period</td><td><strong>{{ $period }}</strong></td></tr>
             <tr><td class="label">Status</td><td>{{ ucfirst($sponsor->status ?? '-') }}</td></tr>
-            <tr><td class="label">Alamat</td><td>{!! nl2br(e($sponsor->address ?: '-')) !!}</td></tr>
+            <tr><td class="label">Address</td><td>{!! nl2br(e($sponsor->address ?: '-')) !!}</td></tr>
             @if ($sponsor->location_office)
-                <tr><td class="label">Lokasi Kantor</td><td>{{ $sponsor->location_office }}</td></tr>
+                <tr><td class="label">Office Location</td><td>{{ $sponsor->location_office }}</td></tr>
             @endif
-            <tr><td class="label">Email Perusahaan</td><td>{{ $sponsor->email ?: '-' }}</td></tr>
+            <tr><td class="label">Company Email</td><td>{{ $sponsor->email ?: '-' }}</td></tr>
             <tr><td class="label">Website</td><td>{{ $sponsor->company_website ?: '-' }}</td></tr>
             @if ($sponsor->company_category)
-                <tr><td class="label">Kategori</td><td>{{ $sponsor->company_category }}</td></tr>
+                <tr><td class="label">Category</td><td>{{ $sponsor->company_category }}</td></tr>
             @endif
         </table>
 
         <h3>PIC / Contact Person</h3>
         @if ($pics->isEmpty())
-            <div class="empty">Belum ada data PIC.</div>
+            <div class="empty">No PIC on file.</div>
         @else
             <table class="contacts">
-                <tr><th>Nama</th><th>Jabatan</th><th>Email</th><th>Phone</th></tr>
+                <tr><th>Name</th><th>Title</th><th>Email</th><th>Phone</th></tr>
                 @foreach ($pics as $pic)
                     <tr>
                         <td>{{ $pic->name }}</td>
@@ -76,10 +76,10 @@
 
         <h3>Billing Contact</h3>
         @if ($billings->isEmpty())
-            <div class="empty">Belum ada data billing — silakan konfirmasi ke tim sponsorship.</div>
+            <div class="empty">No billing contact on file — please confirm with the Sponsorship team.</div>
         @else
             <table class="contacts">
-                <tr><th>Nama</th><th>Jabatan</th><th>Email</th><th>Phone</th></tr>
+                <tr><th>Name</th><th>Title</th><th>Email</th><th>Phone</th></tr>
                 @foreach ($billings as $billing)
                     <tr>
                         <td>{{ $billing->name }}</td>
@@ -92,12 +92,12 @@
         @endif
 
         <table class="info" style="margin-top:18px;">
-            <tr><td class="label">Dibuat oleh</td><td>{{ $created_by }}</td></tr>
-            <tr><td class="label">Waktu</td><td>{{ $created_at }}</td></tr>
+            <tr><td class="label">Created By</td><td>{{ $created_by }}</td></tr>
+            <tr><td class="label">Time</td><td>{{ $created_at }}</td></tr>
         </table>
     </div>
     <div class="footer">
-        Email ini dikirim otomatis oleh DMC Finance Notification System. Jangan balas email ini.
+        This email was sent automatically by the DMC Finance Notification System. Please do not reply.
     </div>
 </div>
 </body>

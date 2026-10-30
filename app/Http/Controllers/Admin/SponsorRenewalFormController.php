@@ -473,34 +473,34 @@ class SponsorRenewalFormController extends Controller
                 : '-';
 
             $lines = [
-                '📄 *RENEWAL FORM DIBUAT*',
+                '📄 *RENEWAL FORM GENERATED*',
                 '',
                 'Sponsor: *' . $sponsor->name . '* (' . sponsor_package_label($sponsor->package ?? '-') . ')',
-                'Kontrak berakhir: ' . $contractEnd,
-                'No. Form: *' . $form->form_number . '*',
-                'Tahun renewal: ' . $form->renewal_year,
+                'Contract ends: ' . $contractEnd,
+                'Form No.: *' . $form->form_number . '*',
+                'Renewal year: ' . $form->renewal_year,
             ];
             if ($form->kmk_rate) {
                 $lines[] = 'KMK Rate: IDR ' . number_format($form->kmk_rate, 0, '.', '.') . '/USD';
             }
             if ($form->kmk_number) {
-                $lines[] = 'KMK Nomor: ' . $form->kmk_number;
+                $lines[] = 'KMK Number: ' . $form->kmk_number;
             }
             if ($form->amount_usd) {
-                $lines[] = 'Nilai: USD ' . number_format($form->amount_usd, 0, '.', '.');
+                $lines[] = 'Value: USD ' . number_format($form->amount_usd, 0, '.', '.');
             }
             if ($form->amount_idr) {
-                $lines[] = 'Nilai: IDR ' . number_format($form->amount_idr, 0, '.', '.');
+                $lines[] = 'Value: IDR ' . number_format($form->amount_idr, 0, '.', '.');
             }
             if ($form->notes) {
                 $lines[] = 'Notes: ' . $form->notes;
             }
-            $lines[] = 'Oleh: ' . (auth()->user()->name ?? '-');
+            $lines[] = 'By: ' . (auth()->user()->name ?? '-');
             $lines[] = '';
             $lines[] = '📎 *Renewal Form (proposal):*';
             $lines[] = config('app.url') . '/admin/sponsors/' . $sponsor->id . '/renewal-form/preview';
             $lines[] = '';
-            $lines[] = '_Langkah berikutnya: follow-up ke sponsor sampai ada keputusan (renew / not renew)._';
+            $lines[] = '_Next step: follow up with the sponsor until a decision is made (renew / not renew)._';
 
             $wa = new WhatsappApi();
             $wa->phone   = self::WA_GROUP;
