@@ -415,6 +415,14 @@
             // VAT cuma ditampilin kalau memang diisi (> 0%) — defaultnya nggak kena VAT.
             var vat = parseFloat(form.vat_percent);
             $('#rfGenVat').text(vat > 0 ? (amt.length ? ' · ' : '') + 'VAT ' + vat + '%' : '');
+            // Email terakhir ke secretariat; email_count > 1 = sudah ada update yang terkirim ulang.
+            if (form.emailed_ago) {
+                var emailedText = (form.email_count > 1 ? 'Latest update sent to ' : 'Sent to ')
+                    + form.emailed_to + ' · ' + form.emailed_ago;
+                $('#rfGenEmailed').attr('title', form.emailed_at).show().find('span').text(emailedText);
+            } else {
+                $('#rfGenEmailed').hide();
+            }
             $('#rfPreviewBtn').attr('href', '/admin/sponsors/' + sponsorId + '/renewal-form/preview');
         }
 

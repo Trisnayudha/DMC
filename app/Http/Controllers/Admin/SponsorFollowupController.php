@@ -57,6 +57,11 @@ class SponsorFollowupController extends Controller
                 'generated_at'     => $rf->generated_at ? $rf->generated_at->format('d M Y') : null,
                 'generated_at_iso' => $rf->generated_at ? $rf->generated_at->format('Y-m-d') : null,
                 'created_by'       => $rf->creator ? $rf->creator->name : null,
+                // Jejak email ke secretariat (null sebelum migration emailed_* / belum pernah terkirim).
+                'emailed_ago'      => $rf->emailed_at ? $rf->emailed_at->copy()->locale('en')->diffForHumans() : null,
+                'emailed_at'       => $rf->emailed_at ? $rf->emailed_at->format('d M Y, H:i') : null,
+                'emailed_to'       => $rf->emailed_to,
+                'email_count'      => (int) $rf->email_count,
             ]);
 
         $contact = $sponsor->billingContact();

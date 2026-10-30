@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Renewal form / proposal sponsor.
@@ -433,12 +434,32 @@ class SponsorRenewalFormController extends Controller
             $data = $this->buildData($sponsor->id);
             $pdf  = $this->buildPdf($data)->output();
 
-            RenewalFormSecretariatNotifier::send($data['sponsor'], $form, $pdf, $this->pdfFilename($sponsor), $isUpdate, $changes);
+            $sentTo = RenewalFormSecretariatNotifier::send($data['sponsor'], $form, $pdf, $this->pdfFilename($sponsor), $isUpdate, $changes);
+            if ($sentTo) {
+                $this->markEmailed($form, $sentTo);
+            }
         } catch (\Throwable $e) {
             Log::warning('Secretariat renewal-form email failed: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Catat pengiriman email (ditampilkan di Step 1). saveQuietly: bukan perubahan
+     * isi form, jadi nggak perlu masuk Sponsor Log. Di-skip kalau migration kolom
+     * emailed_* belum dijalankan.
+     */
+    private function markEmailed(SponsorRenewalForm $form, array $recipients): void
+    {
+        if (!Schema::hasColumn('sponsor_renewal_forms', 'emailed_at')) {
+            return;
+        }
+
+        $form->forceFill([
+            'emailed_at'  => now(),
+            'emailed_to'  => implode(', ', $recipients),
+            'email_count' => (int) $form->email_count + 1,
+        ])->saveQuietly();
+    }
 
     /**
      * Kabari grup WhatsApp bahwa renewal form / proposal sudah dibuat, lengkap dengan

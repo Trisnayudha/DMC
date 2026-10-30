@@ -201,6 +201,9 @@
                                     <span id="rfGenAmount"></span>
                                     <span id="rfGenVat"></span>
                                 </div>
+                                <div id="rfGenEmailed" class="text-muted" style="display:none;font-size:12px;margin-top:6px;">
+                                    <i class="fas fa-envelope mr-1"></i> <span></span>
+                                </div>
                             </div>
                             <div class="flex-shrink-0" style="display:flex;gap:6px;">
                                 <a href="#" target="_blank" id="rfPreviewBtn" class="btn btn-sm btn-light border">

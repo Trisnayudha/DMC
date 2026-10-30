@@ -33,6 +33,7 @@ class SponsorRenewalForm extends Model
 
     protected $casts = [
         'generated_at' => 'date',
+        'emailed_at'   => 'datetime',
     ];
 
     public function sponsor()

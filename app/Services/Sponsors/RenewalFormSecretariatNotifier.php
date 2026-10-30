@@ -19,12 +19,13 @@ class RenewalFormSecretariatNotifier
 {
     /**
      * @param array $changes perubahan saat update: [label => ['old' => ..., 'new' => ...]]
+     * @return string[] penerima kalau email terkirim, kosong kalau di-skip/gagal
      */
-    public static function send(Sponsor $sponsor, SponsorRenewalForm $form, string $pdfContent, string $pdfFilename, bool $isUpdate = false, array $changes = []): void
+    public static function send(Sponsor $sponsor, SponsorRenewalForm $form, string $pdfContent, string $pdfFilename, bool $isUpdate = false, array $changes = []): array
     {
         $recipients = self::recipients();
         if (empty($recipients)) {
-            return;
+            return [];
         }
 
         // Subjek sama untuk generate & update (pakai tahun renewal, bukan nomor form yang
@@ -50,7 +51,10 @@ class RenewalFormSecretariatNotifier
             });
         } catch (\Throwable $e) {
             Log::warning('Secretariat renewal-form email failed', ['sponsor_id' => $sponsor->id, 'error' => $e->getMessage()]);
+            return [];
         }
+
+        return $recipients;
     }
 
     /** Message-ID tetap per renewal form (tanpa < >), dipakai sebagai akar thread email. */
