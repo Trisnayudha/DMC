@@ -1,6 +1,6 @@
 {{-- Finance Team hanya punya izin sponsor_annual_report: lihat, download, generate/preview
-     renewal form, dan Confirm Renewal (cms_access.shared_actions). Follow-up log, Mark
-     Not Renewed, Edit Contract dan Reactivate tetap butuh izin Sponsors. --}}
+     renewal form, Confirm Renewal dan Edit Contract Record (cms_access.shared_actions).
+     Follow-up log, Mark Not Renewed dan Reactivate tetap butuh izin Sponsors. --}}
 @php $canManageSponsors = auth()->user()->canAccessModule('sponsors'); @endphp
 @extends('layouts.inspire.master')
 

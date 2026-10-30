@@ -337,12 +337,8 @@
                                                     data-toggle="tooltip" title="Preview Renewal Form">
                                                     <i class="fas fa-file-pdf"></i>
                                                 </a>
-                                                @if ($canManageSponsors)
-                                                    @include('admin.sponsor.annual-report._edit-contract-btn', ['r' => $er])
-                                                @endif
+                                                @include('admin.sponsor.annual-report._edit-contract-btn', ['r' => $er])
                                             </div>
-                                        @elseif (!$canManageSponsors)
-                                            <span class="text-muted">—</span>
                                         @else
                                             {{-- Kontrak ini sudah expired dan followup_status-nya bukan pending
                                                  lagi — datanya (quotation/invoice/paid) ada di record baru

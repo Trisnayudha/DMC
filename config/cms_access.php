@@ -88,10 +88,12 @@ return [
     ],
     // Aksi milik modul lain yang juga boleh dipakai pemegang modul di sini.
     // Annual Report (Finance): generate/preview renewal form + Confirm Renewal
-    // (input invoice number/date & paid date). Follow-up log, Mark Not Renewed
-    // dan halaman Sponsors lain tetap khusus izin Sponsors.
+    // (input invoice number/date & paid date) + Edit Contract Record (mis. isi
+    // paid date belakangan). Follow-up log, Mark Not Renewed dan halaman Sponsors
+    // lain tetap khusus izin Sponsors.
     'shared_actions' => [
         'SponsorController@updateContract' => ['sponsor_annual_report'],
+        'SponsorContractHistoryController@update' => ['sponsor_annual_report'],
         'SponsorController@getKmkRate' => ['sponsor_annual_report'],
         'SponsorController@getNextQuotationNumber' => ['sponsor_annual_report'],
         'SponsorRenewalFormController@preview' => ['sponsor_annual_report'],

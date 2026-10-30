@@ -184,6 +184,10 @@ Route::post('summary-attandance', [PublicController::class, 'summaryAttandance']
 // App\Http\Controllers\API\LeadFollowupReminderController.
 Route::get('/lead-followup-reminders', [\App\Http\Controllers\API\LeadFollowupReminderController::class, 'index'])
     ->middleware(['lead.reminder.key', 'throttle:30,1']);
+// Read-only feed for wa-gateway: sponsors whose renewal form still needs generating — see
+// App\Http\Controllers\API\SponsorRenewalReminderController. Same bearer key as above.
+Route::get('/sponsor-renewal-reminders', [\App\Http\Controllers\API\SponsorRenewalReminderController::class, 'index'])
+    ->middleware(['lead.reminder.key', 'throttle:30,1']);
 Route::get('/attendance-by-package', [PublicController::class, 'attendanceByPackage']);
 Route::get('/user-detail-by-codepayment/{codepayment}', [PublicController::class, 'userDetailByCodepayment']);
 Route::post('/registration-report', [PublicController::class, 'registrationReport']);
