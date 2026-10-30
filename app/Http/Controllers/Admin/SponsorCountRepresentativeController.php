@@ -28,6 +28,7 @@ class SponsorCountRepresentativeController extends Controller
     {
         $year         = $request->get('year', now()->year);
         $filterSponsor = $request->get('company', '');
+        $filterEvent   = $request->get('event', '');
 
         $sponsorList = Sponsor::where('status', 'publish')->orderBy('name')->get();
 
@@ -71,6 +72,17 @@ class SponsorCountRepresentativeController extends Controller
         if (!empty($filterSponsor)) {
             $representativesQuery->where('sponsors.name', $filterSponsor);
         }
+        if (!empty($filterEvent)) {
+            $representativesQuery->where('payment.events_id', $filterEvent);
+        }
+
+        // Pilihan filter event: event yang punya pendaftar perwakilan sponsor di tahun ini.
+        $eventFilterOptions = Events::whereIn('id', \Illuminate\Support\Facades\DB::table('payment')
+                ->whereNotNull('sponsor_id')
+                ->whereYear('created_at', $year)
+                ->select('events_id'))
+            ->orderBy('start_date', 'desc')
+            ->get(['id', 'name', 'start_date']);
 
         $representatives = $representativesQuery
             ->orderBy('events.start_date', 'desc')
@@ -90,6 +102,9 @@ class SponsorCountRepresentativeController extends Controller
             ->whereYear('payment.created_at', $year)
             ->whereNotNull('users_event.present')
             ->whereNotNull('payment.sponsor_id')
+            ->when($filterEvent, function ($q) use ($filterEvent) {
+                $q->where('payment.events_id', $filterEvent);
+            })
             ->pluck('payment.sponsor_id')
             ->unique();
 
@@ -150,6 +165,8 @@ class SponsorCountRepresentativeController extends Controller
             'sponsorList'           => $sponsorList,
             'year'                  => $year,
             'filterSponsor'         => $filterSponsor,
+            'filterEvent'           => $filterEvent,
+            'eventFilterOptions'    => $eventFilterOptions,
             'nonAttendSponsors'     => $nonAttendSponsors,
             'events'                => $events,
             'allSponsorsWithMembers' => $allSponsorsWithMembers,

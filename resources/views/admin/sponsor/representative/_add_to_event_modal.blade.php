@@ -5,7 +5,7 @@
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="addToEventModalLabel">
-                    <i class="fas fa-calendar-plus"></i> Register Sponsor Contact to Event
+                    <i class="fas fa-calendar-plus"></i> Add Representative to Event
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>

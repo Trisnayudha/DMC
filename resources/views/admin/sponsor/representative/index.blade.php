@@ -39,9 +39,20 @@
                                 @endforeach
                             </select>
 
+                            <label class="mb-0 mr-1 ml-2">Event:</label>
+                            <select name="event" class="form-control form-control-sm" style="min-width:220px">
+                                <option value="">— All Events —</option>
+                                @foreach ($eventFilterOptions as $eventOption)
+                                    <option value="{{ $eventOption->id }}"
+                                        {{ (string) $filterEvent === (string) $eventOption->id ? 'selected' : '' }}>
+                                        {{ $eventOption->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+
                             <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i>
                                 Filter</button>
-                            @if ($filterSponsor || $year != now()->year)
+                            @if ($filterSponsor || $filterEvent || $year != now()->year)
                                 <a href="{{ route('sponsors.representative.index') }}"
                                     class="btn btn-light btn-sm">Reset</a>
                             @endif
@@ -59,7 +70,7 @@
                                     <small class="text-muted">Active sponsors only</small>
                                 </div>
                                 <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addToEventModal">
-                                    <i class="fas fa-calendar-plus"></i> Add Member to Event
+                                    <i class="fas fa-calendar-plus"></i> Add Representative to Event
                                 </button>
                             </div>
                             <div class="card-body">
