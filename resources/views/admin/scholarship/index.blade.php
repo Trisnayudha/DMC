@@ -1,253 +1,195 @@
 @extends('layouts.inspire.master')
 
+@php
+    // [label, field, tipe]. Tipe: text | date | long (esai, dibuka lewat modal) | file (link dokumen) | link.
+    $columns = [
+        ['Date Register', 'created_at', 'date'],
+        ['Name', 'nama', 'text'],
+        ['Email', 'email', 'text'],
+        ['Phone', 'no_telp', 'text'],
+        ['Mobile', 'no_hp', 'text'],
+        ['Place of Birth', 'lahir', 'text'],
+        ['Date of Birth', 'ttl', 'text'],
+        ['Address', 'alamat', 'text'],
+        ['City', 'kota', 'text'],
+        ['Postal Code', 'kode_pos', 'text'],
+        ["Father's Name", 'nama_ayah', 'text'],
+        ["Mother's Name", 'nama_ibu', 'text'],
+        ['House', 'rumah', 'text'],
+        ['House (Other)', 'rumah_lainnya', 'text'],
+        ['Education Funding', 'biaya_pendidikan', 'text'],
+        ['Education Funding (Other)', 'biaya_pendidikan_lainnya', 'text'],
+        ['UKT', 'ukt', 'text'],
+        ['UKT (Other)', 'ukt_lainnya', 'text'],
+        ['Other Scholarship', 'beasiswa', 'text'],
+        ['Other Scholarship (Detail)', 'beasiswa_lainnya', 'text'],
+        ['University', 'nama_kampus', 'text'],
+        ['Faculty', 'fakultas', 'text'],
+        ['Major', 'jurusan', 'text'],
+        ['Semester', 'semester', 'text'],
+        ['IP', 'indeks_prestasi', 'text'],
+        ['IPK', 'indeks_prestasi_kumulatif', 'text'],
+        ['Tuition Fee', 'nominal_biaya', 'text'],
+        ['Reason', 'alasan', 'long'],
+        ['Achievements', 'prestasi', 'long'],
+        ['LinkedIn', 'linkedin', 'link'],
+        ['KTA', 'kta', 'file'],
+        ['Transcript (IPK)', 'ipk', 'file'],
+        ['KTP', 'ktp', 'file'],
+        ['KK', 'kk', 'file'],
+        ['Salary Slip', 'slip_gaji', 'file'],
+        ['BOP', 'bop', 'file'],
+        ['Achievement Certificate', 'sertifikat_prestasi', 'file'],
+        ['Photo', 'pas_foto', 'file'],
+    ];
+
+    // Esai disimpan sebagai HTML dari editor form publik → ditampilkan sebagai teks biasa.
+    $plainText = function ($html) {
+        $text = str_ireplace(['</p>', '<br>', '<br/>', '<br />'], "\n", (string) $html);
+        $text = html_entity_decode(strip_tags($text), ENT_QUOTES, 'UTF-8');
+        return trim(preg_replace("/\n{3,}/", "\n\n", str_replace("\u{a0}", ' ', $text)));
+    };
+@endphp
+
 @section('content')
     <div class="content-wrapper">
         <section class="section">
             <div class="section-header">
-                <h1>Event Detail Participant Management</h1>
+                <h1>Scholarship Applicants</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active"><a href="">Event Detail Participant Management</a>
-                    </div>
+                    <div class="breadcrumb-item active">Scholarship</div>
                 </div>
             </div>
             <div class="section-body">
-                <h2 class="section-title">Event Detail Participant</h2>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Event Detail Participant Management</h4>
-                            </div>
-                            <div class="card-body">
-                                @if ($errors->any())
-                                    <div class="alert alert-warning">
-                                        <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
-                                        <ul>
-                                            @foreach ($errors->all() as $error)
-                                                <li>{{ $error }}</li>
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Scholarship Applicants <span class="badge badge-light ml-1">{{ count($list) }}</span></h4>
+                    </div>
+                    <div class="card-body">
+                        @if (session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif
+
+                        <div class="table-responsive">
+                            <table id="scholarship-table" class="table table-sm table-bordered table-hover scholarship-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        @foreach ($columns as [$label])
+                                            <th>{{ $label }}</th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($list as $post)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            @foreach ($columns as [$label, $field, $type])
+                                                @php $value = $post->{$field} ?? null; @endphp
+                                                @if ($type === 'date')
+                                                    <td data-order="{{ $value }}">{{ $value ? date('d M Y H:i', strtotime($value)) : '-' }}</td>
+                                                @elseif ($type === 'long')
+                                                    @php $text = $plainText($value); @endphp
+                                                    <td class="cell-long" data-export="{{ $text }}">
+                                                        @if ($text !== '')
+                                                            <span class="cell-snippet">{{ \Illuminate\Support\Str::limit(str_replace("\n", ' ', $text), 60) }}</span>
+                                                            <button type="button" class="btn btn-link btn-sm p-0 ml-1 btn-read-more"
+                                                                data-title="{{ $label }} — {{ $post->nama }}" data-text="{{ $text }}">Read</button>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                @elseif ($type === 'file' || $type === 'link')
+                                                    <td data-export="{{ $value }}">
+                                                        @if ($value)
+                                                            <a href="{{ $value }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary py-0">
+                                                                <i class="fas fa-{{ $type === 'file' ? 'file-alt' : 'external-link-alt' }}"></i> Open
+                                                            </a>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
+                                                @else
+                                                    <td title="{{ $value }}">{{ $value !== null && $value !== '' ? $value : '-' }}</td>
+                                                @endif
                                             @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-
-                                @if (session('success'))
-                                    <div class="alert alert-success">{{ session('success') }}</div>
-                                @endif
-
-                                @if (session('error'))
-                                    <div class="alert alert-danger">{{ session('error') }}</div>
-                                @endif
-
-
-                                <div class="table-responsive">
-                                    <table id="laravel_crud" class="table table-bordered table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th width="10px">No</th>
-                                                <th>Date Register </th>
-                                                <th>nama</th>
-                                                <th>nama_ayah
-                                                </th>
-                                                <th>no_telp
-                                                </th>
-                                                <th>email
-                                                </th>
-                                                <th>alamat
-                                                </th>
-                                                <th>lahir
-                                                </th>
-                                                <th>ttl
-                                                </th>
-                                                <th>nama_ibu
-                                                </th>
-                                                <th>no_hp
-                                                </th>
-                                                <th>kota
-                                                </th>
-                                                <th>kode_pos
-                                                </th>
-                                                <th>rumah
-                                                </th>
-                                                <th>rumah_lainnya
-                                                </th>
-                                                <th>biaya_pendidikan
-                                                </th>
-                                                <th>biaya_pendidikan_lainnya
-                                                </th>
-                                                <th>ukt
-                                                </th>
-                                                <th>ukt_lainnya
-                                                </th>
-                                                <th>beasiswa
-                                                </th>
-                                                <th>beasiswa_lainnya
-                                                </th>
-                                                <th>alasan
-                                                </th>
-                                                <th>nama_kampus
-                                                </th>
-                                                <th>jurusan
-                                                </th>
-                                                <th>indeks_prestasi
-                                                </th>
-                                                <th>fakultas
-                                                </th>
-                                                <th>semester
-                                                </th>
-                                                <th>indeks_prestasi_kumulatif
-                                                </th>
-                                                <th>prestasi
-                                                </th>
-                                                <th>kta
-                                                </th>
-                                                <th>ipk
-                                                </th>
-                                                <th>ktp
-                                                </th>
-                                                <th>kk
-                                                </th>
-                                                <th>slip_gaji
-                                                </th>
-                                                <th>bop
-                                                </th>
-                                                <th>sertifikat_prestasi
-                                                </th>
-                                                <th>nominal_biaya
-                                                </th>
-                                                <th>pas_foto
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php $no = 1; ?>
-                                            @foreach ($list as $post)
-                                                <tr id="row_{{ $post->id }}">
-                                                    <td>{{ $no++ }}</td>
-                                                    <td>{{ date('d,F Y H:i', strtotime($post->created_at)) }}</td>
-                                                    <td>{{ $post->nama }}</td>
-                                                    <td>{{ $post->nama_ayah }}</td>
-                                                    <td>{{ $post->no_telp }}</td>
-                                                    <td>{{ $post->email }}</td>
-                                                    <td>{{ $post->alamat }}</td>
-                                                    <td>{{ $post->lahir }}</td>
-                                                    <td>{{ $post->ttl }}</td>
-                                                    <td>{{ $post->nama_ibu }}</td>
-                                                    <td>{{ $post->no_hp }}</td>
-                                                    <td>{{ $post->kota }}</td>
-                                                    <td>{{ $post->kode_pos }}</td>
-                                                    <td>{{ $post->rumah }}</td>
-                                                    <td>{{ $post->rumah_lainnya }}</td>
-                                                    <td>{{ $post->biaya_pendidikan }}</td>
-                                                    <td>{{ $post->biaya_pendidikan_lainnya }}</td>
-                                                    <td>{{ $post->ukt }}</td>
-                                                    <td>{{ $post->ukt_lainnya }}</td>
-                                                    <td>{{ $post->beasiswa }}</td>
-                                                    <td>{{ $post->beasiswa_lainnya }}</td>
-                                                    <td>{!! $post->alasan !!}</td>
-                                                    <td>{{ $post->nama_kampus }}</td>
-                                                    <td>{{ $post->jurusan }}</td>
-                                                    <td>{{ $post->indeks_prestasi }}</td>
-                                                    <td>{{ $post->fakultas }}</td>
-                                                    <td>{{ $post->semester }}</td>
-                                                    <td>{{ $post->indeks_prestasi_kumulatif }}</td>
-                                                    <td>{!! $post->prestasi !!}</td>
-                                                    <td>{{ $post->kta }}</td>
-                                                    <td>{{ $post->ipk }}</td>
-                                                    <td>{{ $post->ktp }}</td>
-                                                    <td>{{ $post->kk }}</td>
-                                                    <td>{{ $post->slip_gaji }}</td>
-                                                    <td>{{ $post->bop }}</td>
-                                                    <td>{{ $post->sertifikat_prestasi }}</td>
-                                                    <td>{{ $post->nominal_biaya }}</td>
-                                                    <td>{{ $post->pas_foto }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
     </div>
-    <div id="loader" style="display:none">
-        <div class="loader"></div>
+
+    {{-- Teks lengkap kolom esai (Reason / Achievements) --}}
+    <div class="modal fade" id="scholarshipTextModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scholarship-text-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body" id="scholarship-text-body" style="white-space:pre-line;"></div>
+            </div>
+        </div>
     </div>
 @endsection
 
 @push('top')
     <style>
-        #loader {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: rgba(255, 255, 255, 0.8);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Satu baris per sel; isi kepanjangan dipotong "…" (isi lengkap di tooltip / export). */
+        .scholarship-table th,
+        .scholarship-table td {
+            white-space: nowrap;
+            vertical-align: middle;
+            font-size: 12.5px;
         }
-
-        .loader {
-            border: 16px solid #f3f3f3;
-            border-top: 16px solid #3498db;
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            animation: spin 2s linear infinite;
+        .scholarship-table td {
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+        .scholarship-table td.cell-long { max-width: 320px; }
+        .scholarship-table .cell-snippet { color: #6c757d; }
     </style>
 @endpush
 
 @push('bottom')
     <script>
-        $('#modal-2').click(function() {
-            $('#example').modal('show');
-        });
         $(document).ready(function() {
-            $('#laravel_crud').DataTable({
+            // Export memakai data-export (teks esai utuh / URL dokumen), bukan teks tombol di sel.
+            var exportOptions = {
+                format: {
+                    body: function(data, row, column, node) {
+                        var full = $(node).attr('data-export');
+                        return full !== undefined ? full : $(node).text().trim();
+                    }
+                }
+            };
+            $('#scholarship-table').DataTable({
                 dom: 'Bfrtip',
-                pageLength: 20, // Set the number of rows to be displayed on each page
+                pageLength: 20,
+                autoWidth: false,
+                order: [[1, 'desc']],
                 buttons: [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5',
-                    'pdfHtml5'
+                    { extend: 'copyHtml5', exportOptions: exportOptions },
+                    { extend: 'excelHtml5', exportOptions: exportOptions },
+                    { extend: 'csvHtml5', exportOptions: exportOptions },
+                    { extend: 'pdfHtml5', exportOptions: exportOptions, orientation: 'landscape', pageSize: 'A3' }
                 ]
             });
-        });
 
-
-        $(document).ready(function() {
-            $(".send").click(function() {
-                $("#loader").show();
-                setTimeout(() => {
-                    $("#loader").hide();
-                }, 120000);
-            });
-        });
-        $(document).ready(function() {
-            $(document).on("click", ".present", function() {
-                $("#loader").show();
-                setTimeout(() => {
-                    $("#loader").hide();
-                }, 15000);
+            $(document).on('click', '.btn-read-more', function() {
+                $('#scholarship-text-title').text($(this).data('title'));
+                $('#scholarship-text-body').text($(this).data('text'));
+                $('#scholarshipTextModal').modal('show');
             });
         });
     </script>
