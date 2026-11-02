@@ -171,7 +171,7 @@ class CmsAccessControlTest extends TestCase
             $this->assertSame(array_column($links, 0), array_column($items, 'label'));
             $this->assertSame(array_column($links, 1), array_column($items, 'path'));
         }
-        $this->assertArrayHasKey('Follow-Up', $navigation['Member Team — Lainnya']);
+        $this->assertArrayHasKey('Follow-Up', $navigation['Admin Settings']);
         $this->assertArrayHasKey('cms_users', $navigation['System']);
         $this->assertSame('Expenses Report', $navigation['Financial Team']['payments']['label']);
         $this->assertContains('Renewal Status', array_column($navigation['Secretariat Team']['sponsors']['children'], 'label'));

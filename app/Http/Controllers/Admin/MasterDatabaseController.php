@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class MasterDatabaseController extends Controller
 {
@@ -15,6 +16,7 @@ class MasterDatabaseController extends Controller
     public function index(Request $request)
     {
         $mode = $request->query('mode', 'deduped'); // deduped | duplicates | raw
+        $memberRegistered = Schema::hasColumn('users', 'member_registered_at') ? 'u.member_registered_at' : 'NULL';
 
         $baseSql = "
         SELECT
@@ -28,6 +30,10 @@ class MasterDatabaseController extends Controller
             SELECT
                 u.id AS id,
                 'users' AS source,
+                u.status_member AS member_status,
+                u.source AS user_source,
+                {$memberRegistered} AS member_registered_at,
+                EXISTS(SELECT 1 FROM payment p WHERE p.member_id = u.id AND p.events_id IS NOT NULL) AS has_event,
                 u.created_at AS created_at,
                 u.name AS name,
                 pr.job_title AS job_title,
@@ -51,6 +57,10 @@ class MasterDatabaseController extends Controller
             SELECT
                 x.id AS id,
                 'xtwp' AS source,
+                NULL AS member_status,
+                NULL AS user_source,
+                NULL AS member_registered_at,
+                0 AS has_event,
                 x.created_at AS created_at,
                 x.name AS name,
                 x.job_title AS job_title,
@@ -80,6 +90,12 @@ class MasterDatabaseController extends Controller
 
         $list = DB::select($sql);
 
+        $breakdown = array_fill_keys(['intake', 'active', 'pending', 'declined', 'deactivated', 'event', 'other'], 0);
+        foreach ($list as $row) {
+            $row->category = self::categoryFor($row);
+            $breakdown[$row->category]++;
+        }
+
         // counts (biar summary bener & jadi bukti mode jalan)
         $totalRaw = DB::selectOne("SELECT COUNT(*) AS c FROM ({$baseSql}) t")->c;
         $totalDeduped = DB::selectOne("SELECT COUNT(*) AS c FROM ({$baseSql}) t WHERE t.rn=1")->c;
@@ -91,6 +107,25 @@ class MasterDatabaseController extends Controller
             'totalRaw' => $totalRaw,
             'totalDeduped' => $totalDeduped,
             'totalDuplicatesRows' => $totalDuplicateRows,
+            'breakdown' => $breakdown,
         ]);
+    }
+
+    public static function categoryFor(object $row): string
+    {
+        if ($row->source === 'xtwp') {
+            return 'intake';
+        }
+        $status = strtolower(trim((string) $row->member_status));
+        if (in_array($status, ['active', 'pending', 'declined', 'deactivated'], true)) {
+            return $status;
+        }
+        $source = strtolower(trim((string) $row->user_source));
+        $eventSource = strpos($source, 'event') === 0 || strpos($source, 'dmc event') === 0
+            || strpos($source, 'ep/') === 0 || strpos($source, 'e/') === 0;
+        if ($status === '' && empty($row->member_registered_at) && ($eventSource || $row->has_event)) {
+            return 'event';
+        }
+        return 'other';
     }
 }

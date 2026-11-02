@@ -189,7 +189,7 @@ class CmsAccess
                 $ordered['Member Team — ' . $section] = $items;
             }
             if ($remaining) {
-                $ordered['Member Team — Lainnya'] = $remaining;
+                $ordered['Admin Settings'] = $remaining;
             }
             unset($groups['Main'], $groups['Member Team']);
             return array_merge($ordered, $groups);
