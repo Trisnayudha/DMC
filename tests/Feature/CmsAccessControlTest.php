@@ -48,6 +48,32 @@ class CmsAccessControlTest extends TestCase
         ]);
     }
 
+    public function test_mark_not_renewed_records_contract_and_status_changes(): void
+    {
+        Schema::create('sponsors', function ($table) {
+            $table->id(); $table->string('name'); $table->string('package'); $table->string('status'); $table->timestamps();
+        });
+        Schema::create('sponsor_renewals', function ($table) {
+            $table->id(); $table->unsignedBigInteger('sponsor_id'); $table->integer('renewal_year');
+            $table->string('contract_start'); $table->string('contract_end'); $table->string('package');
+            $table->string('renewal_status'); $table->string('renewal_type')->nullable();
+            $table->decimal('amount_usd')->nullable(); $table->decimal('amount_idr')->nullable();
+            $table->text('notes')->nullable(); $table->boolean('is_current'); $table->timestamps();
+        });
+        (require database_path('migrations/2026_10_30_120000_create_sponsor_logs_table.php'));
+        (new \CreateSponsorLogsTable)->up();
+        DB::table('sponsors')->insert(['id' => 1, 'name' => 'Test Sponsor', 'package' => 'gold', 'status' => 'publish']);
+        DB::table('sponsor_renewals')->insert(['sponsor_id' => 1, 'renewal_year' => 2025, 'contract_start' => '2025-01', 'contract_end' => '2025-12', 'package' => 'gold', 'renewal_status' => 'renewed', 'is_current' => 1]);
+        $this->actingAs(CmsUser::find(1), 'cms')->postJson('/admin/sponsors/1/mark-not-renewed', [
+            'renewal_year' => 2026, 'contract_start' => '2026-01', 'contract_end' => '2026-12', 'notes' => 'Decision recorded',
+        ])->assertOk();
+        $this->assertDatabaseHas('sponsor_logs', ['sponsor_id' => 1, 'subject' => 'Contract', 'action' => 'created', 'description' => 'Marked as not renewed for 2026', 'cms_user_id' => 1]);
+        $this->assertDatabaseHas('sponsor_logs', ['sponsor_id' => 1, 'subject' => 'Contract', 'action' => 'updated']);
+        $this->assertDatabaseHas('sponsor_logs', ['sponsor_id' => 1, 'subject' => 'Sponsor', 'action' => 'updated']);
+        $entry = DB::table('sponsor_logs')->where('subject', 'Contract')->where('action', 'created')->first();
+        $this->assertSame('not_renewed', json_decode($entry->changes, true)['renewal_status']['new']);
+    }
+
     public function test_migration_preserves_existing_access_and_new_accounts_default_to_a_team(): void
     {
         $this->assertTrue(CmsUser::find(1)->isSuperadmin());
@@ -135,6 +161,20 @@ class CmsAccessControlTest extends TestCase
     {
         unset($navigation['Main']);
         return array_column(array_merge(...array_map('array_values', array_values($navigation))), 'label');
+    }
+
+    public function test_superadmin_uses_member_team_layout_and_keeps_other_modules(): void
+    {
+        $navigation = CmsAccess::navigation(CmsUser::find(1));
+        foreach (config('cms_access.team_menus.member_team') as $section => $links) {
+            $items = $navigation['Member Team — ' . $section];
+            $this->assertSame(array_column($links, 0), array_column($items, 'label'));
+            $this->assertSame(array_column($links, 1), array_column($items, 'path'));
+        }
+        $this->assertArrayHasKey('Follow-Up', $navigation['Member Team — Lainnya']);
+        $this->assertArrayHasKey('cms_users', $navigation['System']);
+        $this->assertSame('Expenses Report', $navigation['Financial Team']['payments']['label']);
+        $this->assertContains('Renewal Status', array_column($navigation['Secretariat Team']['sponsors']['children'], 'label'));
     }
 
     public function test_team_menus_follow_requested_order_and_keep_extra_grants_visible(): void

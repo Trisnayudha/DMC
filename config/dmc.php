@@ -11,6 +11,8 @@ return [
     'finance_notification_email' => env('FINANCE_NOTIFICATION_EMAIL'),
     // Penerima email PDF renewal form (pisahkan dengan koma)
     'secretariat_notification_email' => env('SECRETARIAT_NOTIFICATION_EMAIL'),
-    // Pengirim email PDF renewal form ke secretariat (domain harus diizinkan server SMTP)
+    // Pengirim notifikasi sponsor; alamat harus diizinkan oleh server SMTP.
     'secretariat_notification_from' => env('SECRETARIAT_NOTIFICATION_FROM', 'secretariat@djakarta-miningclub.com'),
+    'billing_notification_from' => env('BILLING_NOTIFICATION_FROM', 'billing@djakarta-miningclub.com'),
+    'notification_from_name' => env('EMAIL_NAME', 'Djakarta Mining Club'),
 ];

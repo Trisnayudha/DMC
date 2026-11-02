@@ -35,7 +35,7 @@ class RenewalFormSecretariatNotifier
 
         try {
             Mail::send('email.secretariat-renewal-form', self::buildData($sponsor, $form, $isUpdate, $changes), function ($message) use ($recipients, $subject, $pdfContent, $pdfFilename, $threadId, $isUpdate) {
-                $message->from(config('dmc.secretariat_notification_from'), env('EMAIL_NAME'));
+                $message->from(config('dmc.billing_notification_from'), config('dmc.notification_from_name'));
                 $message->to($recipients);
                 $message->subject($subject);
                 $message->attachData($pdfContent, $pdfFilename, ['mime' => 'application/pdf']);

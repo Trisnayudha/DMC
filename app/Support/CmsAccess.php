@@ -158,6 +158,42 @@ class CmsAccess
             $event['label'] = 'Events';
             $groups['Event Team']['Events'] = $event;
         }
+        // Superadmin sees the same Member Team shortcuts and ordering as the team,
+        // followed by the remaining modules that are not in its fixed layout.
+        if ($user->isSuperadmin()) {
+            $layout = config('cms_access.team_menus.member_team', []);
+            $memberNav = self::teamMenuNavigation($user, $layout);
+            unset($memberNav['Main']);
+            $included = [];
+            foreach ($layout as $links) {
+                foreach ($links as $link) {
+                    $included[$link[2]] = true;
+                }
+            }
+            $remaining = $groups['Member Team'] ?? [];
+            foreach ($remaining as $key => &$item) {
+                if (isset($item['children'])) {
+                    $item['children'] = array_values(array_filter($item['children'], function ($child) use ($included) {
+                        return !isset($included[$child['key']]);
+                    }));
+                    if (!$item['children']) {
+                        unset($remaining[$key]);
+                    }
+                } elseif (isset($included[$item['key']])) {
+                    unset($remaining[$key]);
+                }
+            }
+            unset($item);
+            $ordered = isset($groups['Main']) ? ['Main' => $groups['Main']] : [];
+            foreach ($memberNav as $section => $items) {
+                $ordered['Member Team — ' . $section] = $items;
+            }
+            if ($remaining) {
+                $ordered['Member Team — Lainnya'] = $remaining;
+            }
+            unset($groups['Main'], $groups['Member Team']);
+            return array_merge($ordered, $groups);
+        }
         // Team menus follow the agreed order instead of jumping between the
         // Superadmin's per-team groups, split into the sub-categories from
         // cms_access.sections. Custom grants remain visible.

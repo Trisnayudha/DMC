@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Kabari secretariat kalau pembayaran kontrak sponsor sudah diterima (Paid Date
- * terisi). Penerima & pengirim sama dengan notifikasi renewal form
- * (SECRETARIAT_NOTIFICATION_EMAIL / dmc.secretariat_notification_from).
+ * terisi). Penerima dan pengirim sama dengan notifikasi renewal form.
  */
 class PaymentReceivedSecretariatNotifier
 {
@@ -28,7 +27,7 @@ class PaymentReceivedSecretariatNotifier
 
         try {
             Mail::send('email.secretariat-payment-received', self::buildData($renewal), function ($message) use ($recipients, $subject) {
-                $message->from(config('dmc.secretariat_notification_from'), env('EMAIL_NAME'));
+                $message->from(config('dmc.billing_notification_from'), config('dmc.notification_from_name'));
                 $message->to($recipients);
                 $message->subject($subject);
             });

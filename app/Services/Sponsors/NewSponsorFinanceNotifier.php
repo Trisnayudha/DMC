@@ -30,8 +30,8 @@ class NewSponsorFinanceNotifier
             $send->subject     = '[DMC Finance] New Sponsor — ' . $sponsor->name . ' (Please Issue Invoice)';
             $send->template    = 'email.finance-new-sponsor';
             $send->data        = self::buildData($sponsor);
-            $send->from        = env('EMAIL_SENDER');
-            $send->name_sender = env('EMAIL_NAME');
+            $send->from        = config('dmc.secretariat_notification_from');
+            $send->name_sender = config('dmc.notification_from_name');
             $send->to          = $recipients;
             $send->name        = 'Finance Team';
             $result            = $send->sendEmail();

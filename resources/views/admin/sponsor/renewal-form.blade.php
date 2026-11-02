@@ -220,6 +220,7 @@
     $grandTotalIdr = ($vatPercent > 0 && $totalIdr !== null) ? $totalIdr * (1 + $vatPercent / 100) : null;
     // Nominal pajaknya doang (bukan grand total) — ditampilin di baris "VAT X%".
     $vatAmountIdr  = ($vatPercent > 0 && $totalIdr !== null) ? $totalIdr * ($vatPercent / 100) : null;
+    $vatAmountUsd  = ($vatPercent > 0 && $totalUsd !== null) ? $totalUsd * ($vatPercent / 100) : null;
 
     // Periode: periode renewal dari renewal form (RenewalPeriod); tanpa renewal form
     // baru fallback ke kontrak berjalan.
@@ -369,6 +370,12 @@
                         <span style="display:inline-block;width:80px;">Rate:</span> IDR {{ number_format($kursRate, 0, '.', '.') }}
                     @endif
                 </td>
+                @if($vatPercent <= 0)
+                <td class="bg-dark val-middle">Total In IDR</td>
+                <td class="val-middle font-bold">
+                    <table class="currency-table"><tr><td>IDR</td><td>{{ $totalIdr !== null ? number_format($totalIdr, 0, '.', '.') : '—' }}</td></tr></table>
+                </td>
+                @else
                 <td class="bg-dark val-middle">Total In USD</td>
                 <td class="val-middle font-bold">
                     <table class="currency-table"><tr>
@@ -376,6 +383,7 @@
                         <td>{{ $amountUsd ? number_format($amountUsd, 0, '.', '.') : '—' }}</td>
                     </tr></table>
                 </td>
+                @endif
             </tr>
             <tr>
                 <td colspan="2" class="val-middle">
@@ -385,6 +393,17 @@
                         KMK Number {{ now()->format('Y') }}/MK/EF.2/{{ now()->format('Y') }}
                     @endif
                 </td>
+                @if($vatPercent > 0 && $totalUsd !== null)
+                <td class="bg-dark val-middle">VAT {{ rtrim(rtrim(number_format($vatPercent, 2, '.', ''), '0'), '.') }}%</td>
+                <td class="val-middle font-bold">
+                    <table class="currency-table"><tr><td>USD</td><td>{{ number_format($vatAmountUsd, 0, '.', '.') }}</td></tr></table>
+                </td>
+                @elseif($vatPercent <= 0)
+                <td class="bg-dark val-middle">Total In USD</td>
+                <td class="val-middle font-bold">
+                    <table class="currency-table"><tr><td>USD</td><td>{{ $totalUsd !== null ? number_format($totalUsd, 0, '.', '.') : '—' }}</td></tr></table>
+                </td>
+                @else
                 <td class="bg-dark val-middle">Total In IDR</td>
                 <td class="val-middle font-bold">
                     <table class="currency-table"><tr>
@@ -400,11 +419,13 @@
                         </td>
                     </tr></table>
                 </td>
+                @endif
             </tr>
             {{-- VAT/Grand Total — cuma muncul kalau sponsor ini emang dikenakan VAT
                  (vat_percent > 0 di renewal form-nya). Default 0% = baris ini nggak
                  tampil sama sekali, Total In USD/IDR di atas sudah final. --}}
             @if($vatPercent > 0)
+            @if($totalUsd === null)
             <tr>
                 <td colspan="2" class="val-middle"></td>
                 <td class="bg-dark val-middle">VAT {{ rtrim(rtrim(number_format($vatPercent, 2, '.', ''), '0'), '.') }}%</td>
@@ -415,6 +436,19 @@
                     </tr></table>
                 </td>
             </tr>
+            @endif
+            @if($grandTotalUsd !== null)
+            <tr>
+                <td colspan="2" class="val-middle"></td>
+                <td class="bg-dark val-middle">Grand Total USD</td>
+                <td class="val-middle font-bold">
+                    <table class="currency-table"><tr>
+                        <td>USD</td>
+                        <td>{{ number_format($grandTotalUsd, 0, '.', '.') }}</td>
+                    </tr></table>
+                </td>
+            </tr>
+            @endif
             <tr>
                 <td colspan="2" class="val-middle"></td>
                 <td class="bg-dark val-middle">Grand Total IDR</td>
@@ -422,16 +456,6 @@
                     <table class="currency-table"><tr>
                         <td>IDR</td>
                         <td>{{ $grandTotalIdr !== null ? number_format($grandTotalIdr, 0, '.', '.') : '—' }}</td>
-                    </tr></table>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" class="val-middle"></td>
-                <td class="bg-dark val-middle">Grand Total USD</td>
-                <td class="val-middle font-bold">
-                    <table class="currency-table"><tr>
-                        <td>USD</td>
-                        <td>{{ $grandTotalUsd !== null ? number_format($grandTotalUsd, 0, '.', '.') : '—' }}</td>
                     </tr></table>
                 </td>
             </tr>

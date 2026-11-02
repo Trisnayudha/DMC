@@ -71,6 +71,9 @@ trait LogsSponsorActivity
 
     protected function writeSponsorLog(string $action, array $changes): void
     {
-        SponsorLog::record($this->sponsorLogSponsorId(), $this->sponsorLogSubject(), $this->getKey(), $action, $changes);
+        $description = $this instanceof \App\Models\Sponsors\SponsorRenewal && $action === 'created' && $this->renewal_status === 'not_renewed'
+            ? 'Marked as not renewed for ' . $this->renewal_year
+            : null;
+        SponsorLog::record($this->sponsorLogSponsorId(), $this->sponsorLogSubject(), $this->getKey(), $action, $changes, $description);
     }
 }

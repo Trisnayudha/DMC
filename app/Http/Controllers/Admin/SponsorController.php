@@ -665,7 +665,7 @@ class SponsorController extends Controller
         DB::transaction(function () use ($sponsor, $validated, $start, $quotationNumber) {
             SponsorRenewal::where('sponsor_id', $sponsor->id)
                 ->where('is_current', 1)
-                ->update(['is_current' => 0]);
+                ->get()->each->update(['is_current' => 0]);
 
             $renewal = [
                 'sponsor_id'       => $sponsor->id,
@@ -873,7 +873,7 @@ class SponsorController extends Controller
             // Kontrak berjalan tidak lagi aktif karena sponsor berhenti.
             SponsorRenewal::where('sponsor_id', $sponsor->id)
                 ->where('is_current', 1)
-                ->update(['is_current' => 0]);
+                ->get()->each->update(['is_current' => 0]);
 
             SponsorRenewal::create([
                 'sponsor_id'     => $sponsor->id,

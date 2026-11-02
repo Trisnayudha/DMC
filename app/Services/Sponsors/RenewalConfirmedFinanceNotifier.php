@@ -38,7 +38,7 @@ class RenewalConfirmedFinanceNotifier
             $proofPath = $followup->proof_path ? Storage::disk('public')->path($followup->proof_path) : null;
 
             Mail::send('email.finance-renewal-confirmed', self::buildData($sponsor, $followup, $form), function ($message) use ($recipients, $subject, $proofPath) {
-                $message->from(env('EMAIL_SENDER'), env('EMAIL_NAME'));
+                $message->from(config('dmc.secretariat_notification_from'), config('dmc.notification_from_name'));
                 $message->to($recipients);
                 $message->subject($subject);
                 if ($proofPath && is_file($proofPath)) {
@@ -59,12 +59,16 @@ class RenewalConfirmedFinanceNotifier
 
     private static function buildData(Sponsor $sponsor, SponsorFollowup $followup, ?SponsorRenewalForm $form): array
     {
+        $renewalPeriod = $form ? RenewalPeriod::forForm($sponsor, $form)['renewal'] : [null, null];
         return [
             'sponsor'     => $sponsor,
             'followup'    => $followup,
             'form'        => $form,
             'package'     => sponsor_package_label($sponsor->package) . ' Sponsorship',
             'contractEnd' => self::formatMonth($sponsor->contract_end),
+            'renewalPeriod' => $renewalPeriod[0] && $renewalPeriod[1]
+                ? self::formatMonth($renewalPeriod[0]) . ' – ' . self::formatMonth($renewalPeriod[1])
+                : '-',
             'pics'        => SponsorContacts::unique($sponsor->pics),
             'billings'    => SponsorContacts::unique($sponsor->billings),
             'confirmedBy' => SponsorContacts::cmsUserName($followup->created_by),

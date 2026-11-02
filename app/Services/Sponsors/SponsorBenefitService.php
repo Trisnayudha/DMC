@@ -39,7 +39,7 @@ class SponsorBenefitService
         SponsorBenefitUsage::where('sponsor_id', $sponsor->id)
             ->where('status', 'unused')
             ->where('period', '!=', $periodStr)
-            ->delete();
+            ->get()->each->delete();
 
         $created = 0;
 
