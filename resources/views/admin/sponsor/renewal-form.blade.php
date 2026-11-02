@@ -46,7 +46,7 @@
         width: 196mm;  /* 210mm - 7mm kiri - 7mm kanan */
         margin: 0 auto;
         background: #fff;
-        padding: 9mm 7mm;
+        padding: 6mm 7mm; /* atas-bawah 9→6mm, sisanya dipakai ruang tanda tangan */
     }
     /* Tombol aksi — hanya di layar (browser preview), tidak ikut ke PDF */
     .preview-toolbar {
@@ -147,8 +147,9 @@
     .custom-table .currency-table td:last-child { text-align: right; }
     .bg-dark { background-color: #4a4a4a; color: #fff; font-weight: bold; text-align: center; }
 
-    /* FOOTER — spacing dirapetin (25→14, 50→18, 75→40px) biar baris "Approved by"
-       nggak nyempil sendirian ke halaman 2, masih cukup ruang buat tanda tangan. */
+    /* FOOTER — ruang tanda tangan 40→80px. Biar tinggi total tetap sama (tetap
+       1 lembar A4), margin-top approval-block 18→0 ("Approved by" sejajar
+       "Notes:") dan padding atas-bawah page-container 9→6mm. */
     .footer-section { margin-top: 14px; }
     .footer-section::after { content: ""; display: table; clear: both; }
     .notes-block {
@@ -159,8 +160,8 @@
         line-height: 1.5;
     }
     .notes-title { font-weight: bold; margin-bottom: 4px; }
-    .approval-block { float: right; width: 320px; text-align: center; margin-top: 18px; }
-    .approved-text { font-style: italic; font-size: 12px; margin-bottom: 40px; }
+    .approval-block { float: right; width: 320px; text-align: center; margin-top: 0; }
+    .approved-text { font-style: italic; font-size: 12px; margin-bottom: 80px; }
     .signature-line { border-top: 1px solid #000; padding-top: 5px; font-size: 12px; }
 </style>
 </head>
