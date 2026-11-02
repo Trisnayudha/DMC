@@ -371,9 +371,9 @@
                     @endif
                 </td>
                 @if($vatPercent <= 0)
-                <td class="bg-dark val-middle">Total In IDR</td>
+                <td class="bg-dark val-middle">Total In USD</td>
                 <td class="val-middle font-bold">
-                    <table class="currency-table"><tr><td>IDR</td><td>{{ $totalIdr !== null ? number_format($totalIdr, 0, '.', '.') : '—' }}</td></tr></table>
+                    <table class="currency-table"><tr><td>USD</td><td>{{ $totalUsd !== null ? number_format($totalUsd, 0, '.', '.') : '—' }}</td></tr></table>
                 </td>
                 @else
                 <td class="bg-dark val-middle">Total In USD</td>
@@ -399,9 +399,9 @@
                     <table class="currency-table"><tr><td>USD</td><td>{{ number_format($vatAmountUsd, 0, '.', '.') }}</td></tr></table>
                 </td>
                 @elseif($vatPercent <= 0)
-                <td class="bg-dark val-middle">Total In USD</td>
+                <td class="bg-dark val-middle">Total In IDR</td>
                 <td class="val-middle font-bold">
-                    <table class="currency-table"><tr><td>USD</td><td>{{ $totalUsd !== null ? number_format($totalUsd, 0, '.', '.') : '—' }}</td></tr></table>
+                    <table class="currency-table"><tr><td>IDR</td><td>{{ $totalIdr !== null ? number_format($totalIdr, 0, '.', '.') : '—' }}</td></tr></table>
                 </td>
                 @else
                 <td class="bg-dark val-middle">Total In IDR</td>
