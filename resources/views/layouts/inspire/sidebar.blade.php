@@ -28,12 +28,12 @@
                 @endif
                 @foreach ($items as $item)
                     @if (isset($item['children']))
-                        @php $parentActive = in_array($activeModule, array_column($item['children'], 'key'), true); @endphp
+                        @php $parentActive = in_array(true, array_column($item['children'], 'active'), true) || in_array($activeModule, array_column($item['children'], 'key'), true); @endphp
                         <li class="dropdown cms-menu-item {{ $parentActive ? 'active' : '' }}" data-menu-group="{{ $groupId }}" data-menu-label="{{ $item['label'] }}">
                             <a href="#" class="nav-link has-dropdown" data-toggle="dropdown" aria-label="{{ $item['label'] }}"><i class="fas fa-{{ $item['icon'] }}" aria-hidden="true"></i><span>{{ $item['label'] }}</span></a>
                             <ul class="dropdown-menu">
                                 @foreach ($item['children'] as $child)
-                                    @php $childActive = !empty($child['exact']) ? request()->is('admin/' . $child['path']) : $activeModule === $child['key']; @endphp
+                                    @php $childActive = $child['active'] ?? (!empty($child['exact']) ? request()->is('admin/' . $child['path']) : $activeModule === $child['key']); @endphp
                                     <li class="cms-submenu-item {{ $childActive ? 'active' : '' }}" data-menu-label="{{ $child['label'] }}">
                                         <a class="nav-link" href="{{ url('admin/' . $child['path']) }}" @if ($childActive) aria-current="page" @endif>{{ $child['label'] }}</a>
                                     </li>

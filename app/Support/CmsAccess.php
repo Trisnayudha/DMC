@@ -167,7 +167,9 @@ class CmsAccess
             $included = [];
             foreach ($layout as $links) {
                 foreach ($links as $link) {
-                    $included[$link[2]] = true;
+                    foreach ($link['children'] ?? [$link] as $child) {
+                        $included[$child[2]] = true;
+                    }
                 }
             }
             $remaining = $groups['Member Team'] ?? [];
@@ -242,6 +244,18 @@ class CmsAccess
         $nav = ['Main' => [['key' => 'dashboard', 'label' => $label, 'path' => $path, 'icon' => $icon]]];
         foreach ($layout as $menu => $links) {
             foreach ($links as $link) {
+                if (isset($link['children'])) {
+                    $children = [];
+                    foreach ($link['children'] as $child) {
+                        if (self::allows($user, $child[2])) {
+                            $children[] = ['key' => $child[2], 'label' => $child[0], 'path' => $child[1], 'icon' => $child[3] ?? $modules[$child[2]][3]];
+                        }
+                    }
+                    if ($children) {
+                        $nav[$menu][] = ['label' => $link['label'], 'icon' => $link['icon'], 'children' => $children];
+                    }
+                    continue;
+                }
                 if (self::allows($user, $link[2])) {
                     $nav[$menu][] = ['key' => $link[2], 'label' => $link[0], 'path' => $link[1], 'icon' => $link[3] ?? $modules[$link[2]][3]];
                 }
@@ -265,6 +279,14 @@ class CmsAccess
         $fallback = null;
         foreach ($nav as $group => $items) {
             foreach ($items as $i => $item) {
+                if (isset($item['children'])) {
+                    foreach ($item['children'] as $childIndex => $child) {
+                        $path = explode('?', $child['path'], 2)[0];
+                        $childActive = $request->is('admin/' . $path) || ($child['key'] === $currentModule && (!$parentPath || $child['path'] === $parentPath));
+                        $nav[$group][$i]['children'][$childIndex]['active'] = $childActive;
+                    }
+                    continue;
+                }
                 $nav[$group][$i]['active'] = false;
                 $isFallback = $parentPath ? $item['path'] === $parentPath : $item['key'] === $currentModule;
                 if ($fallback === null && $isFallback) {

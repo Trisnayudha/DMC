@@ -105,13 +105,16 @@ return [
                 ['Active Member', 'users?status_member=active', 'members', 'user-check'],
             ],
             'General Database' => [
-                ['Members', 'users', 'members'],
-                ['Inquiry Database', 'inquiry-database', 'inquiries'],
-                ['Event Registrant', 'event-registrants', 'event_registrants'],
-                ['Event Partnership', 'partnership-visitors', 'partnership_events'],
+                ['label' => 'Master Database', 'icon' => 'database', 'children' => [
+                    ['Master Database', 'master-database', 'master_database'],
+                    ['Members', 'users', 'members'],
+                    ['Event Registrant', 'event-registrants', 'event_registrants'],
+                    ['Event Partnership', 'partnership-visitors', 'partnership_events'],
+                    ['Data Tampung', 'member', 'member_intake'],
+                ]],
+            ],
+            'Company Database' => [
                 ['Company Database', 'company-database', 'company_database'],
-                ['Data Tampung', 'member', 'member_intake'],
-                ['Unsubscribe Mailchimp', 'mailchimp/unsubscribes', 'mailchimp'],
             ],
             'Potential Sponsors' => [
                 ['Lead Follow Up', 'leads', 'leads'],
@@ -119,6 +122,12 @@ return [
             'Events' => [
                 ['Event DMC', 'events', 'events'],
                 ['Event Partnership', 'partnership-events', 'partnership_events'],
+            ],
+            'Website Inquiry' => [
+                ['Website Inquiry', 'inquiry-database', 'inquiries'],
+            ],
+            'Unsubscribe Mailchimp' => [
+                ['Unsubscribe Mailchimp', 'mailchimp/unsubscribes', 'mailchimp'],
             ],
         ],
     ],
@@ -152,7 +161,7 @@ return [
     ],
     // Initial access requested for each team. Dashboard is available to everyone.
     'team_defaults' => [
-        'member_team' => ['member_intake', 'members', 'member_followups', 'leads', 'event_registrants', 'inquiries', 'company_database', 'event_conversions', 'mailchimp', 'events', 'partnership_events'],
+        'member_team' => ['member_intake', 'members', 'member_followups', 'leads', 'event_registrants', 'inquiries', 'master_database', 'company_database', 'event_conversions', 'mailchimp', 'events', 'partnership_events'],
         'event_team' => ['events', 'event_sponsors', 'event_categories', 'event_tickets', 'event_conferences', 'event_highlights', 'event_schedules', 'event_speakers', 'event_rundown', 'partnership_events', 'event_conversions', 'lucky_draw_items', 'lucky_draw_entries'],
         'marketing_team' => ['news', 'news_categories', 'program', 'digital_editions', 'videos', 'advertisement', 'marketing_ads', 'emails', 'notifications', 'wa_campaign', 'wa_database', 'wa_template', 'wa_blasting', 'wa_sender'],
         'secretariat_team' => ['sponsors', 'sponsor_annual_report', 'scholarship'],

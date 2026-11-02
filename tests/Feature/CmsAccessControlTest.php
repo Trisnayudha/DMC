@@ -48,6 +48,28 @@ class CmsAccessControlTest extends TestCase
         ]);
     }
 
+    public function test_master_database_menu_respects_member_team_permission(): void
+    {
+        $member = $this->team('member_team');
+        CmsRole::find('member_team')->update(['permissions' => ['members']]);
+        $children = CmsAccess::navigation($member->fresh())['General Database'][0]['children'];
+        $this->assertNotContains('Master Database', array_column($children, 'label'));
+        CmsRole::find('member_team')->update(['permissions' => ['members', 'master_database']]);
+        $member = $member->fresh();
+        $this->assertTrue(CmsAccess::allowsRoute($member, Route::getRoutes()->match(\Illuminate\Http\Request::create('/admin/master-database'))));
+        $children = CmsAccess::navigation($member)['General Database'][0]['children'];
+        $this->assertSame(['Master Database', 'Members'], array_column($children, 'label'));
+    }
+
+    public function test_member_team_inquiry_has_its_own_section(): void
+    {
+        $member = $this->team('member_team');
+        CmsRole::find('member_team')->update(['permissions' => ['members', 'inquiries']]);
+        $navigation = CmsAccess::navigation($member->fresh());
+        $this->assertNotContains('Website Inquiry', array_column($navigation['General Database'], 'label'));
+        $this->assertSame(['Website Inquiry'], array_column($navigation['Website Inquiry'], 'label'));
+    }
+
     public function test_mark_not_renewed_records_contract_and_status_changes(): void
     {
         Schema::create('sponsors', function ($table) {
@@ -168,8 +190,15 @@ class CmsAccessControlTest extends TestCase
         $navigation = CmsAccess::navigation(CmsUser::find(1));
         foreach (config('cms_access.team_menus.member_team') as $section => $links) {
             $items = $navigation['Member Team — ' . $section];
-            $this->assertSame(array_column($links, 0), array_column($items, 'label'));
-            $this->assertSame(array_column($links, 1), array_column($items, 'path'));
+            foreach ($links as $index => $link) {
+                if (isset($link['children'])) {
+                    $this->assertSame($link['label'], $items[$index]['label']);
+                    $this->assertSame(array_column($link['children'], 1), array_column($items[$index]['children'], 'path'));
+                } else {
+                    $this->assertSame($link[0], $items[$index]['label']);
+                    $this->assertSame($link[1], $items[$index]['path']);
+                }
+            }
         }
         $this->assertArrayHasKey('Follow-Up', $navigation['Admin Settings']);
         $this->assertArrayHasKey('cms_users', $navigation['System']);
