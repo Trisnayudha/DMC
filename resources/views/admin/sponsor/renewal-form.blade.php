@@ -97,13 +97,17 @@
     .header-divider { border: none; border-top: 2px solid #000; margin: 0 0 12px 0; }
 
     /* SUB-HEADER */
-    .sub-header-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+    /* Sisi kiri kotak RENEWAL FORM segaris dengan garis kiri kolom QTY. Bukan 67%
+       (13+54) karena dompdf nambahin padding+border sel (8+8+1px) ke tiap kolom main
+       table lalu diskalakan balik ke lebar tabel → garis QTY jatuh di ±65.6%.
+       Kalau padding .custom-table atau lebar kolom th diubah, angka ini ikut dihitung ulang. */
+    .sub-header-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-bottom: 14px; }
     .sub-header-table td { border: none; padding: 0; vertical-align: top; }
-    .meta-side { width: 58%; padding-right: 20px; }
+    .meta-side { width: 65.6%; }
     .meta-table { width: 100%; border-collapse: collapse; font-size: 11.5px; line-height: 1.4; }
     .sub-header-table .meta-table td { padding: 2px 0; vertical-align: top; }
     .meta-table td:first-child { width: 120px; color: #000; }
-    .title-box-side { width: 42%; }
+    .title-box-side { width: 34.4%; }
     /* Nggak dikasih width:100% + box-sizing — div block polos (width:auto) udah
        otomatis ngisi penuh sel induknya termasuk border+padding-nya, tanpa
        gantung ke box-sizing sama sekali. */
@@ -145,7 +149,7 @@
     .custom-table .currency-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
     .custom-table .currency-table td { border: none; padding: 0 4px; }
     .custom-table .currency-table td:last-child { text-align: right; }
-    .bg-dark { background-color: #4a4a4a; color: #fff; font-weight: bold; text-align: center; }
+    .bg-dark { background-color: #4a4a4a; color: #fff; font-weight: bold; text-align: left; }
 
     /* FOOTER — ruang tanda tangan 40→80px. Biar tinggi total tetap sama (tetap
        1 lembar A4), margin-top approval-block 18→0 ("Approved by" sejajar
@@ -395,7 +399,7 @@
                     @endif
                 </td>
                 @if($vatPercent > 0 && $totalUsd !== null)
-                <td class="bg-dark val-middle">VAT {{ rtrim(rtrim(number_format($vatPercent, 2, '.', ''), '0'), '.') }}%</td>
+                <td class="bg-dark val-middle">VAT</td>
                 <td class="val-middle font-bold">
                     <table class="currency-table"><tr><td>USD</td><td>{{ number_format($vatAmountUsd, 0, '.', '.') }}</td></tr></table>
                 </td>
@@ -429,7 +433,7 @@
             @if($totalUsd === null)
             <tr>
                 <td colspan="2" class="val-middle"></td>
-                <td class="bg-dark val-middle">VAT {{ rtrim(rtrim(number_format($vatPercent, 2, '.', ''), '0'), '.') }}%</td>
+                <td class="bg-dark val-middle">VAT</td>
                 <td class="val-middle font-bold">
                     <table class="currency-table"><tr>
                         <td>IDR</td>
@@ -441,7 +445,7 @@
             @if($grandTotalUsd !== null)
             <tr>
                 <td colspan="2" class="val-middle"></td>
-                <td class="bg-dark val-middle">Grand Total USD</td>
+                <td class="bg-dark val-middle">Grand Total In USD</td>
                 <td class="val-middle font-bold">
                     <table class="currency-table"><tr>
                         <td>USD</td>
@@ -452,7 +456,7 @@
             @endif
             <tr>
                 <td colspan="2" class="val-middle"></td>
-                <td class="bg-dark val-middle">Grand Total IDR</td>
+                <td class="bg-dark val-middle">Grand Total In IDR</td>
                 <td class="val-middle font-bold">
                     <table class="currency-table"><tr>
                         <td>IDR</td>
@@ -470,9 +474,9 @@
             <div class="notes-title">Notes:</div>
             <div>Confirmation no longer than 14 Day after Renewal form / Proposal Received</div>
             @if($vatPercent > 0)
-                <div>Price is inclusive of {{ rtrim(rtrim(number_format($vatPercent, 2, '.', ''), '0'), '.') }}% VAT — see Grand Total</div>
+                <div>Prices include VAT</div>
             @else
-                <div>Price are exclude VAT</div>
+                <div>Prices exclude VAT</div>
             @endif
             <div>Payments available on Bank transfer and Credit Cards</div>
         </div>
