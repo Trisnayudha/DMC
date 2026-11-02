@@ -44,6 +44,7 @@ class SponsorRenewal extends Model
         'amount_idr',
         'vat_percent',
         'pph23_percent',
+        'pph23_amount',
         'is_current',
         'notes',
         'quotation_number',
@@ -89,19 +90,21 @@ class SponsorRenewal extends Model
     /**
      * Rincian pajak per mata uang: base (amount), VAT, Grand Total (incl. VAT),
      * PPh 23 yang dipotong dari base, dan Net Received (Grand Total − PPh 23).
-     * Mata uang tanpa amount bernilai null.
+     * Mata uang tanpa amount bernilai null. PPh 23 IDR pakai nominal yang diisi
+     * finance (pph23_amount) kalau ada; USD pakai persen turunannya.
      */
     public function taxBreakdown(): array
     {
         $vat  = (float) $this->vat_percent;
         $pph  = (float) $this->pph23_percent;
-        $calc = function ($amount) use ($vat, $pph) {
+        $pphIdr = $this->pph23_amount !== null ? (float) $this->pph23_amount : null;
+        $calc = function ($amount, $fixedPph = null) use ($vat, $pph) {
             if ($amount === null || $amount === '') {
                 return null;
             }
             $base   = (float) $amount;
             $vatAmt = $base * $vat / 100;
-            $pphAmt = $base * $pph / 100;
+            $pphAmt = $fixedPph !== null ? $fixedPph : $base * $pph / 100;
 
             return [
                 'base'  => $base,
@@ -115,8 +118,9 @@ class SponsorRenewal extends Model
         return [
             'vatPercent'   => $vat,
             'pph23Percent' => $pph,
+            'pph23Withheld' => $pph > 0 || $pphIdr > 0,
             'usd'          => $calc($this->amount_usd),
-            'idr'          => $calc($this->amount_idr),
+            'idr'          => $calc($this->amount_idr, $pphIdr),
         ];
     }
 }

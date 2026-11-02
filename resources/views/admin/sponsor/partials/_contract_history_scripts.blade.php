@@ -15,29 +15,65 @@
         // Data inti kontrak dikunci di Edit Contract; yang bisa diubah hanya VAT, PPh 23,
         // Invoice Sent Date, Paid Date & Notes. Field terkunci tetap ikut terkirim (lihat submit).
         var EDIT_LOCKED_FIELDS = '#editContractStart, #editContractEnd, #editPackage, #editRenewalType, '
-            + '#editAmountUsd, #editAmountIdr, #editQuotationNumber, #editQuotationDate, #editInvoiceNumber, #editInvoiceDate';
+            + '#editAmountUsdDisplay, #editAmountIdrDisplay, #editQuotationNumber, #editQuotationDate, #editInvoiceNumber, #editInvoiceDate';
         $(function() { $(EDIT_LOCKED_FIELDS).prop('disabled', true); });
 
-        // Ringkasan pajak per mata uang: Amount, VAT, Grand Total, potongan PPh 23 (dari
-        // amount sebelum VAT) dan Net Received. Disembunyikan kalau belum ada amount.
+        // Saran PPh 23 = 2% dari Amount IDR sebelum VAT. Cuma saran — nominal di input
+        // yang disimpan, finance bebas koreksi.
+        function pph23Suggestion() {
+            var base = parseFloat($('#editAmountIdr').val());
+            return !isNaN(base) && base > 0 ? Math.round(base * 2 / 100) : null;
+        }
+        // Format angka gaya Indonesia (62.520.500); kosong kalau bukan angka > 0.
+        function fmtId(n) {
+            var num = parseFloat(n);
+            return !isNaN(num) && num > 0 ? num.toLocaleString('id-ID', { maximumFractionDigits: 2 }) : '';
+        }
+        // Isi hidden (angka mentah, yang dikirim) + display terformat sekaligus.
+        function setEditAmount(id, value) {
+            var num = parseFloat(value);
+            $('#' + id).val(!isNaN(num) && num > 0 ? num : '');
+            $('#' + id + 'Display').val(fmtId(value));
+        }
+
+        $('#btnPph23Suggest').on('click', function() {
+            var s = pph23Suggestion();
+            if (s !== null) { setEditAmount('editPph23Amount', s); updateEditTaxSummary(); }
+        });
+        // Ketik nominal PPh 23: titik/koma diabaikan, angka mentah ke hidden, format ulang saat blur.
+        $('#editPph23AmountDisplay').on('input', function() {
+            var raw = $(this).val().replace(/[^\d]/g, '');
+            $('#editPph23Amount').val(raw);
+            updateEditTaxSummary();
+        }).on('blur', function() {
+            setEditAmount('editPph23Amount', $('#editPph23Amount').val());
+        });
+
+        // Ringkasan pajak per mata uang: Amount, VAT, Grand Total, potongan PPh 23 dan Net
+        // Received. PPh IDR = nominal di input; USD pakai rasio nominal / Amount IDR.
+        // Disembunyikan kalau belum ada amount.
         function updateEditTaxSummary() {
+            var s = pph23Suggestion();
+            $('#editPph23Hint').text(s !== null ? '2% of Amount IDR before VAT = IDR ' + s.toLocaleString('id-ID') + ' (editable)' : '');
             var vat = parseFloat($('#editVatPercent').val()) || 0;
-            var pph = parseFloat($('#editPph23Percent').val()) || 0;
+            var pphIdr = parseFloat($('#editPph23Amount').val()) || 0;
+            var amountIdr = parseFloat($('#editAmountIdr').val()) || 0;
+            var pph = pphIdr > 0 && amountIdr > 0 ? pphIdr / amountIdr * 100 : 0;
             var fmt = function(n) { return Math.round(n).toLocaleString('id-ID'); };
             var rows = [];
             [['IDR', parseFloat($('#editAmountIdr').val())], ['USD', parseFloat($('#editAmountUsd').val())]].forEach(function(c) {
                 var cur = c[0], base = c[1];
                 if (isNaN(base) || base <= 0) return;
-                var vatAmt = base * vat / 100, pphAmt = base * pph / 100;
+                var vatAmt = base * vat / 100, pphAmt = cur === 'IDR' ? pphIdr : base * pph / 100;
                 var html = '<div class="mb-1"><strong>' + cur + '</strong> &middot; Amount ' + fmt(base);
                 if (vat > 0) html += ' + VAT ' + vat + '% ' + fmt(vatAmt) + ' = <strong>Grand Total ' + fmt(base + vatAmt) + '</strong>';
-                if (pph > 0) html += ' &minus; PPh 23 ' + pph + '% ' + fmt(pphAmt);
+                if (pph > 0) html += ' &minus; PPh 23 ' + fmt(pphAmt);
                 html += ' &rarr; <span class="text-success font-weight-bold">' + (pph > 0 ? 'Net Received ' : 'Total ') + cur + ' ' + fmt(base + vatAmt - pphAmt) + '</span></div>';
                 rows.push(html);
             });
             $('#editTaxSummary').html(rows.join('')).toggle(rows.length > 0);
         }
-        $(document).on('input change', '#editAmountUsd, #editAmountIdr, #editVatPercent, #editPph23Percent', updateEditTaxSummary);
+        $(document).on('change', '#editVatPercent', updateEditTaxSummary);
 
         // Open Edit modal, prefilled from the row's data-* attributes.
         // Reads each attribute individually (dash-case key, matching the
@@ -53,8 +89,8 @@
             $('#editContractEnd').val($btn.attr('data-contract-end') || '');
             $('#editPackage').val($btn.attr('data-package') || '');
             $('#editRenewalType').val($btn.attr('data-renewal-type') || '');
-            $('#editAmountUsd').val($btn.attr('data-amount-usd') || '');
-            $('#editAmountIdr').val($btn.attr('data-amount-idr') || '');
+            setEditAmount('editAmountUsd', $btn.attr('data-amount-usd'));
+            setEditAmount('editAmountIdr', $btn.attr('data-amount-idr'));
             $('#editQuotationNumber').val($btn.attr('data-quotation-number') || '');
             $('#editQuotationDate').val($btn.attr('data-quotation-date') || '');
             $('#editInvoiceNumber').val($btn.attr('data-invoice-number') || '');
@@ -63,7 +99,12 @@
             $('#editPaidDate').val($btn.attr('data-paid-date') || '');
             $('#editNotes').val($btn.attr('data-notes') || '');
             $('#editVatPercent').val(parseFloat($btn.attr('data-vat-percent')) > 0 ? String(parseInt($btn.attr('data-vat-percent'), 10)) : '0');
-            $('#editPph23Percent').val(parseFloat($btn.attr('data-pph23-percent')) > 0 ? String(parseInt($btn.attr('data-pph23-percent'), 10)) : '0');
+            // Nominal tersimpan diutamakan; data lama yang cuma punya persen dihitung ulang dari Amount IDR.
+            var pphAmt = parseFloat($btn.attr('data-pph23-amount'));
+            var pphPct = parseFloat($btn.attr('data-pph23-percent'));
+            var idrAmt = parseFloat($btn.attr('data-amount-idr'));
+            if (!(pphAmt > 0) && pphPct > 0 && idrAmt > 0) pphAmt = Math.round(idrAmt * pphPct / 100);
+            setEditAmount('editPph23Amount', pphAmt > 0 ? Math.round(pphAmt) : '');
             $('#editVatHint').text('');
             updateEditTaxSummary();
             toggleEditRenewedFields($btn.attr('data-status'));

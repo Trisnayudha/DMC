@@ -69,17 +69,25 @@ class SponsorContractHistoryController extends Controller
             'invoice_sent_date' => 'nullable|date|after_or_equal:invoice_date',
             'paid_date'        => 'nullable|date|after_or_equal:invoice_date',
             'vat_percent'      => 'nullable|numeric|min:0|max:100',
-            'pph23_percent'    => 'nullable|numeric|min:0|max:100',
+            'pph23_amount'     => 'nullable|numeric|min:0',
             'notes'            => 'nullable|string|max:1000',
         ]);
 
-        // Kolom baru (migration 2026_10_30_140000/150000/160000) di-skip kalau belum dijalankan.
-        foreach (['invoice_sent_date', 'vat_percent', 'pph23_percent'] as $column) {
+        // PPh 23 diisi sebagai nominal IDR (bisa dikoreksi finance); persennya diturunkan
+        // dari Amount IDR sebelum VAT, dipakai buat hitungan sisi USD.
+        $pphAmount = isset($validated['pph23_amount']) && (float) $validated['pph23_amount'] > 0
+            ? (float) $validated['pph23_amount'] : null;
+        $amountIdr = (float) ($validated['amount_idr'] ?? 0);
+        $validated['pph23_amount']  = $pphAmount;
+        $validated['pph23_percent'] = ($pphAmount && $amountIdr > 0) ? round($pphAmount / $amountIdr * 100, 2) : 0;
+
+        // Kolom baru (migration 2026_10_30_140000/150000/160000, 2026_11_02_120000) di-skip kalau belum dijalankan.
+        foreach (['invoice_sent_date', 'vat_percent', 'pph23_percent', 'pph23_amount'] as $column) {
             if (!Schema::hasColumn('sponsor_renewals', $column)) {
                 unset($validated[$column]);
             }
         }
-        foreach (['vat_percent', 'pph23_percent'] as $column) {
+        foreach (['vat_percent'] as $column) {
             if (array_key_exists($column, $validated) && $validated[$column] === null) {
                 $validated[$column] = 0;
             }

@@ -76,10 +76,10 @@
                         <tr><td class="label">VAT {{ $pct($tax['vatPercent']) }}</td><td>{{ $currency }} {{ $money($row['vat']) }}</td></tr>
                         <tr><td class="label">Grand Total ({{ $currency }})</td><td><strong>{{ $currency }} {{ $money($row['grand']) }}</strong> <span style="color:#888;">(incl. VAT)</span></td></tr>
                     @endif
-                    @if ($tax['pph23Percent'] > 0)
-                        <tr><td class="label">PPh 23 {{ $pct($tax['pph23Percent']) }} withheld</td><td>- {{ $currency }} {{ $money($row['pph23']) }}</td></tr>
+                    @if ($tax['pph23Withheld'])
+                        <tr><td class="label">PPh 23 withheld</td><td>- {{ $currency }} {{ $money($row['pph23']) }}</td></tr>
                     @endif
-                    <tr class="total"><td class="label">{{ $tax['pph23Percent'] > 0 ? 'Net Received' : 'Total' }} ({{ $currency }})</td><td>{{ $currency }} {{ $money($row['net']) }}</td></tr>
+                    <tr class="total"><td class="label">{{ $tax['pph23Withheld'] ? 'Net Received' : 'Total' }} ({{ $currency }})</td><td>{{ $currency }} {{ $money($row['net']) }}</td></tr>
                     @if (!$loop->last)<tr><td colspan="2" style="padding:6px 0;"></td></tr>@endif
                 @endforeach
             </table>

@@ -88,13 +88,22 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Amount USD</label>
-                                    <input type="number" name="amount_usd" id="editAmountUsd" class="form-control" step="0.01" min="0">
+                                    {{-- Display terformat (3.500) + hidden angka mentah yang dikirim. --}}
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text">USD</span></div>
+                                        <input type="text" id="editAmountUsdDisplay" class="form-control">
+                                    </div>
+                                    <input type="hidden" name="amount_usd" id="editAmountUsd">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Amount IDR</label>
-                                    <input type="number" name="amount_idr" id="editAmountIdr" class="form-control" step="1" min="0">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
+                                        <input type="text" id="editAmountIdrDisplay" class="form-control">
+                                    </div>
+                                    <input type="hidden" name="amount_idr" id="editAmountIdr">
                                 </div>
                             </div>
                         </div>
@@ -114,10 +123,17 @@
                                     <label>PPh 23
                                         <small class="text-muted font-weight-normal">(withheld by the sponsor)</small>
                                     </label>
-                                    <select name="pph23_percent" id="editPph23Percent" class="form-control">
-                                        <option value="0">0% (Not withheld)</option>
-                                        <option value="2">2%</option>
-                                    </select>
+                                    {{-- Nominal IDR langsung, bisa dikoreksi finance kalau ada selisih
+                                         pembulatan. Tombol 2% cuma ngisi saran dari Amount IDR sebelum VAT. --}}
+                                    <div class="input-group">
+                                        <div class="input-group-prepend"><span class="input-group-text">IDR</span></div>
+                                        <input type="text" id="editPph23AmountDisplay" class="form-control" inputmode="numeric" placeholder="0 = not withheld">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary" id="btnPph23Suggest">2%</button>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="pph23_amount" id="editPph23Amount">
+                                    <small class="text-muted" id="editPph23Hint"></small>
                                 </div>
                             </div>
                         </div>

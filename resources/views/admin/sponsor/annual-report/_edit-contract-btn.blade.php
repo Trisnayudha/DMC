@@ -21,6 +21,7 @@
     data-renewal-year="{{ $r->renewal_year }}"
     data-vat-percent="{{ $r->vat_percent }}"
     data-pph23-percent="{{ $r->pph23_percent }}"
+    data-pph23-amount="{{ $r->pph23_amount }}"
     data-quotation-number="{{ $r->quotation_number }}"
     data-quotation-date="{{ $r->quotation_date ? $r->quotation_date->format('Y-m-d') : '' }}"
     data-invoice-date="{{ $r->invoice_date ? $r->invoice_date->format('Y-m-d') : '' }}"
