@@ -993,6 +993,7 @@
             var activeFilter = 'all';
 
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                if (settings.nTable.id !== 'laravel_crud') return true;
                 if (activeFilter === 'all') return true;
                 var $cell = $(table.row(dataIndex).node()).find('td[data-pkg]');
                 var pkg = ($cell.attr('data-pkg') || '').toString();
