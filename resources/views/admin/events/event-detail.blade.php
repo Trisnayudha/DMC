@@ -233,14 +233,14 @@
                                         </button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item"
-                                                href="{{ route('events-details', ['slug' => $slug, 'params' => 'paid']) }}">Paid</a>
+                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'paid'], request()->only('sponsor_id'))) }}">Paid</a>
                                             <a class="dropdown-item"
-                                                href="{{ route('events-details', ['slug' => $slug, 'params' => 'sponsor']) }}">Sponsor</a>
+                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'sponsor'], request()->only('sponsor_id'))) }}">Sponsor</a>
                                             <a class="dropdown-item"
-                                                href="{{ route('events-details', ['slug' => $slug, 'params' => 'free']) }}">Free</a>
+                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'free'], request()->only('sponsor_id'))) }}">Free</a>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item"
-                                                href="{{ route('events-details', ['slug' => $slug, 'params' => 'potential_member']) }}">
+                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'potential_member'], request()->only('sponsor_id'))) }}">
                                                 <i class="fas fa-star text-warning mr-1"></i> Potential Member
                                             </a>
 
@@ -260,6 +260,19 @@
                                 </div>
                             </div>
                             <div class="card-body">
+                                <form method="GET" action="{{ route('events-details', ['slug' => $slug]) }}" class="form-inline mb-3">
+                                    @if (request()->filled('params'))
+                                        <input type="hidden" name="params" value="{{ request('params') }}">
+                                    @endif
+                                    <label for="sponsor-company-filter" class="mr-2">Sponsor Company</label>
+                                    <select name="sponsor_id" id="sponsor-company-filter" class="form-control mr-2" onchange="this.form.submit()">
+                                        <option value="">All Sponsors</option>
+                                        @foreach ($sponsorCompanies as $company)
+                                            <option value="{{ $company->id }}" {{ (string) request('sponsor_id') === (string) $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Filter</button>
+                                </form>
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
@@ -309,7 +322,7 @@
 
                                 </div>
                                 <div class="float-right ml-3">
-                                    <a href="{{ route('events-details-export', array_merge(['slug' => $slug], request()->only('params'))) }}"
+                                    <a href="{{ route('events-details-export', array_merge(['slug' => $slug], request()->only('params', 'sponsor_id'))) }}"
                                         class="btn {{ request('params') === 'potential_member' ? 'btn-warning' : 'btn-outline-success' }}">
                                         <i class="fas fa-file-excel"></i>
                                         @if(request('params') === 'potential_member')
@@ -411,8 +424,8 @@
                                                     <td>{{ $post->pic_name ? $post->pic_name : 'System' }}</td>
                                                     <!-- Kolom Sponsor -->
                                                     <td class="text-center">
-                                                        @if (!empty($post->sponsor_id))
-                                                            <span class="badge badge-success">SP</span>
+                                                        @if (!empty($post->sponsor_company_id))
+                                                            <span class="badge badge-success">{{ $post->sponsor_name }}</span>
                                                         @else
                                                             <button type="button"
                                                                 class="btn btn-sm btn-outline-primary assign-btn"

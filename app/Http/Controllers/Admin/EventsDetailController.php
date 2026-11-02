@@ -42,7 +42,7 @@ class EventsDetailController extends Controller
             $params = $request->params;
             $event = Events::where('slug', $slug)->first();
             if ($event) {
-                $list = PaymentService::listPaymentRegister($event->id, $params);
+                $list = PaymentService::listPaymentRegister($event->id, $params, $request->input('sponsor_id'));
                 $countAll = PaymentService::countRegister(null, $event->id);
                 $countAllApprove = PaymentService::countRegisterApprove(null, $event->id);
                 $countSponsor = PaymentService::countRegister('sponsor', $event->id);
@@ -64,7 +64,8 @@ class EventsDetailController extends Controller
                     'date' => $event->end_date,
                     'chartCategoryData' => $usersCategory,
                     'chartJobTitle' => $usersJobTitle,
-                    'sponsors' => $sponsors
+                    'sponsors' => $sponsors,
+                    'sponsorCompanies' => Sponsor::where('status', 'publish')->orderBy('name')->get(['id', 'name']),
                 ];
                 return view('admin.events.event-detail', $data);
             } else {
@@ -88,7 +89,7 @@ class EventsDetailController extends Controller
                 ->with('error', 'Event tidak ditemukan.');
         }
 
-        $rows = PaymentService::listPaymentRegister($event->id, $request->params);
+        $rows = PaymentService::listPaymentRegister($event->id, $request->params, $request->input('sponsor_id'));
 
         $filename = 'peserta-' . $slug . '-' . date('Ymd-His') . '.xlsx';
         return Excel::download(new EventParticipantsExport($rows), $filename);

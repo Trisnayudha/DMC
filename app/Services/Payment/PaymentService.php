@@ -6,15 +6,18 @@ use App\Models\Payments\Payment;
 
 class PaymentService extends Payment
 {
-    public static function listPaymentRegister($events_id, $params)
+    public static function listPaymentRegister($events_id, $params, $sponsorId = null)
     {
         $packages = ['nonmember', 'member', 'onsite', 'table', 'free', 'sponsor'];
         $query = Payment::join('users as member_users', 'member_users.id', '=', 'payment.member_id')
             ->leftJoin('company', 'company.users_id', '=', 'member_users.id')
             ->leftJoin('profiles', 'profiles.users_id', '=', 'member_users.id')
             ->leftJoin('cms_users as pic_users', 'pic_users.id', '=', 'payment.pic_id')
-            ->leftJoin('event_sponsors', 'event_sponsors.code_access', 'payment.sponsor_code')
-            ->leftJoin('sponsors', 'sponsors.id', 'event_sponsors.sponsors_id')
+            ->leftJoin('event_sponsors', function ($join) {
+                $join->on('event_sponsors.code_access', '=', 'payment.sponsor_code')
+                    ->on('event_sponsors.events_id', '=', 'payment.events_id');
+            })
+            ->leftJoin('sponsors', 'sponsors.id', '=', \Illuminate\Support\Facades\DB::raw('COALESCE(payment.sponsor_id, event_sponsors.sponsors_id)'))
             ->where('payment.events_id', $events_id)
             ->select(
                 'member_users.*',
@@ -25,10 +28,15 @@ class PaymentService extends Payment
                 'payment.created_at as register',
                 'pic_users.name as pic_name',
                 'sponsors.name as sponsor_name',
+                'sponsors.id as sponsor_company_id',
                 'company.id as company_id_ref', // dipakai export untuk lookup subcategory
                 'member_users.status_member as status_member' // keanggotaan ASLI (bukan cara daftar)
             )
             ->orderBy('payment.created_at', 'desc');
+
+        if ($sponsorId !== null && $sponsorId !== '') {
+            $query->where('sponsors.id', $sponsorId)->where('sponsors.status', 'publish');
+        }
 
         if ($params === 'paid') {
             $query->whereIn('payment.package', ['onsite', 'nonmember', 'member', 'table']);
