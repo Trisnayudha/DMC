@@ -89,8 +89,20 @@
                             </div>
                         </div>
                     </div>
-                    {{-- VAT ikut renewal form: hanya tampil kalau form-nya kena VAT (> 0%). --}}
-                    <input type="hidden" name="vat_percent" id="modalVatPercent" value="0">
+                    {{-- VAT default ikut renewal form, tapi tetap bisa diganti: ada kasus
+                         renewal form-nya 0% tapi invoice-nya kena VAT (atau sebaliknya). --}}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>VAT / PPN <small class="text-muted">(for the invoice)</small></label>
+                                <select name="vat_percent" id="modalVatPercent" class="form-control">
+                                    <option value="0" selected>0% (No VAT)</option>
+                                    <option value="11">11%</option>
+                                </select>
+                                <small id="modalVatHint" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                    </div>
                     <div id="modalVatInfo" class="alert alert-light border py-2 px-3" style="display:none;font-size:13px;">
                         <i class="fas fa-receipt mr-1"></i> <span></span>
                     </div>

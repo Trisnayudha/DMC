@@ -66,7 +66,17 @@
         $('#modalAmountUsd').on('input', autoFillIdr);
         $('#modalKmkRate').on('change', autoFillIdr);
 
-        // VAT dari renewal form: info + Grand Total cuma tampil kalau VAT > 0%.
+        // Set dropdown VAT; nilai di luar opsi (mis. data lama) ditambahkan sebagai opsi
+        // biar nggak jadi kosong / ke-reset diam-diam pas disimpan.
+        function setModalVat(value) {
+            var vat = parseFloat(value) > 0 ? String(parseFloat(value)) : '0';
+            if ($('#modalVatPercent option[value="' + vat + '"]').length === 0) {
+                $('#modalVatPercent').append('<option value="' + vat + '">' + vat + '%</option>');
+            }
+            $('#modalVatPercent').val(vat);
+        }
+
+        // Info Grand Total cuma tampil kalau VAT > 0%.
         function updateModalVatInfo() {
             var vat = parseFloat($('#modalVatPercent').val());
             if (!vat || vat <= 0) {
@@ -79,10 +89,11 @@
             if (!isNaN(idr) && idr > 0) parts.push('IDR ' + Math.round(idr * (1 + vat / 100)).toLocaleString('id-ID'));
             if (!isNaN(usd) && usd > 0) parts.push('USD ' + Math.round(usd * (1 + vat / 100)).toLocaleString('id-ID'));
             $('#modalVatInfo').show().find('span').text(
-                'VAT ' + vat + '% (from renewal form)' + (parts.length ? ' — Grand Total: ' + parts.join(' · ') : '')
+                'VAT ' + vat + '%' + (parts.length ? ' — Grand Total: ' + parts.join(' · ') : '')
             );
         }
         $('#modalAmountUsd, #modalAmountIdrDisplay').on('input', updateModalVatInfo);
+        $('#modalVatPercent').on('change', updateModalVatInfo);
         $('#modalKmkRate').on('change', updateModalVatInfo);
         $('#btnRefreshKmkRate').on('click', fetchKmkRate);
 
@@ -115,7 +126,8 @@
             $('#modalPaidDate').val(d.paidDate || '');
             $('#modalNotes').val(d.notes || '');
             $('#modalKmkRate').val('').attr('placeholder', '—');
-            $('#modalVatPercent').val(parseFloat(d.vatPercent) > 0 ? parseFloat(d.vatPercent) : 0);
+            setModalVat(d.vatPercent);
+            $('#modalVatHint').text('');
             updateModalVatInfo();
             $('#updateContractModal').modal('show');
 
@@ -127,7 +139,7 @@
                 // Kontrak yang dikonfirmasi sebelum VAT ikut disimpan tercatat 0%:
                 // pakai VAT dari renewal form-nya.
                 if (!(parseFloat(d.vatPercent) > 0) && parseFloat(f.vat_percent) > 0) {
-                    $('#modalVatPercent').val(parseFloat(f.vat_percent));
+                    setModalVat(f.vat_percent);
                 }
                 updateModalVatInfo();
             });
@@ -148,7 +160,8 @@
             $('#modalAmountIdr').val('');
             $('#modalAmountIdrDisplay').val('');
             $('#modalNotes').val('');
-            $('#modalVatPercent').val('0');
+            setModalVat(0);
+            $('#modalVatHint').text('');
             $('#modalVatInfo').hide();
             $('#modalInvoiceDate').val(new Date().toISOString().slice(0, 10));
             $('#modalInvoiceNumber').val('');
@@ -195,7 +208,8 @@
                         $('#modalQuotationNumber').val(f.form_number);
                         $('#quotationNumberHint').text('From renewal form ' + f.form_number + ' (editable)');
                     }
-                    $('#modalVatPercent').val(parseFloat(f.vat_percent) > 0 ? parseFloat(f.vat_percent) : 0);
+                    setModalVat(f.vat_percent);
+                    $('#modalVatHint').text('Renewal form: ' + (parseFloat(f.vat_percent) > 0 ? parseFloat(f.vat_percent) + '%' : '0% (No VAT)') + ' — change if the invoice differs');
                     updateModalVatInfo();
                 }
             }).fail(function() {
