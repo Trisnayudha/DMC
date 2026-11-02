@@ -22,16 +22,12 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     /** @var \Illuminate\Support\Collection */
     private $rows;
 
-    /** @var bool */
-    private $isUnregist;
-
     /** @var int running row number */
     private $no = 0;
 
-    public function __construct($rows, bool $isUnregist = false)
+    public function __construct($rows)
     {
-        $this->rows       = $rows;
-        $this->isUnregist = $isUnregist;
+        $this->rows = $rows;
     }
 
     public function collection()
@@ -41,13 +37,6 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
 
     public function headings(): array
     {
-        if ($this->isUnregist) {
-            return [
-                'No', 'Date', 'Name', 'Company', 'Job Title', 'Email',
-                'Phone', 'Address', 'Category', 'Exported',
-            ];
-        }
-
         return [
             'No', 'Date Register', 'Source', 'Name', 'Tier', 'Status Member', 'Job Title', 'Job Tier',
             'Company', 'Email', 'Alternative Email', 'Phone', 'Office', 'Address', 'Website',
@@ -59,21 +48,6 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     public function map($row): array
     {
         $no = ++$this->no;
-
-        if ($this->isUnregist) {
-            return [
-                $no,
-                $this->formatDate($row->created_at),
-                $row->name,
-                $row->company_name,
-                $row->job_title,
-                $row->email,
-                $row->fullphone ?? $row->phone,
-                $row->address,
-                $this->category($row),
-                $row->exported_at ? $this->formatDate($row->exported_at) : 'No',
-            ];
-        }
 
         return [
             $no,

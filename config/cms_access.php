@@ -161,7 +161,7 @@ return [
     ],
     // Initial access requested for each team. Dashboard is available to everyone.
     'team_defaults' => [
-        'member_team' => ['member_intake', 'members', 'member_followups', 'leads', 'event_registrants', 'inquiries', 'master_database', 'company_database', 'event_conversions', 'mailchimp', 'events', 'partnership_events'],
+        'member_team' => ['member_intake', 'members', 'member_followups', 'leads', 'event_registrants', 'inquiries', 'master_database', 'quick_search', 'company_database', 'event_conversions', 'mailchimp', 'events', 'partnership_events'],
         'event_team' => ['events', 'event_sponsors', 'event_categories', 'event_tickets', 'event_conferences', 'event_highlights', 'event_schedules', 'event_speakers', 'event_rundown', 'partnership_events', 'event_conversions', 'lucky_draw_items', 'lucky_draw_entries'],
         'marketing_team' => ['news', 'news_categories', 'program', 'digital_editions', 'videos', 'advertisement', 'marketing_ads', 'emails', 'notifications', 'wa_campaign', 'wa_database', 'wa_template', 'wa_blasting', 'wa_sender'],
         'secretariat_team' => ['sponsors', 'sponsor_annual_report', 'scholarship'],

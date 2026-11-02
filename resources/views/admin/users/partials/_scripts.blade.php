@@ -881,52 +881,42 @@
     // font/padding kecil + icon-only actions supaya muat tanpa scroll horizontal
     // di layar desktop biasa.
     //
-    // Registered-members view = server-side processing (usersData() AJAX, 25
-    // baris/request, bukan ~3000 baris sekaligus). "Unregistered" tab tetap
-    // client-side seperti semula — sumber data & kolomnya beda, datanya jauh
-    // lebih kecil (dibatasi tahun berjalan), bukan yang lambat.
+    // Server-side processing (usersData() AJAX, 25 baris/request, bukan ~3000
+    // baris sekaligus).
     $(document).ready(function() {
-        if ('{{ request('filter') }}' !== 'unregist') {
-            window.membersTable = $('#laravel_crud').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: '{{ route('users.data') }}',
-                    data: function(d) {
-                        d.status_member = '{{ request('status_member') }}';
-                        d.filter        = '{{ request('filter') }}';
-                        d.date_from     = '{{ request('date_from') }}';
-                        d.date_to       = '{{ request('date_to') }}';
-                        d.month         = '{{ request('month') }}';
-                        d.year          = '{{ request('year') }}';
-                        d.source        = @json(array_values((array) request('source', [])));
-                        d.job_tier      = '{{ request('job_tier') }}';
-                    }
-                },
-                dom: 'frtip',
-                pageLength: 25,
-                order: [[1, 'desc']],
-                searchDelay: 400,
-                columnDefs: [
-                    { targets: [0, 4, 5, 6, 10, 12, 13, 14, 15, 16], orderable: false },
-                ],
-                drawCallback: function() {
-                    $('#laravel_crud tbody [data-toggle="tooltip"]').tooltip();
-                },
-            });
-        } else {
-            $('#laravel_crud').DataTable({
-                dom: 'frtip',
-                pageLength: 25,
-                order: [[0, 'asc']],
-            });
-        }
+        window.membersTable = $('#laravel_crud').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '{{ route('users.data') }}',
+                data: function(d) {
+                    d.status_member = '{{ request('status_member') }}';
+                    d.filter        = '{{ request('filter') }}';
+                    d.date_from     = '{{ request('date_from') }}';
+                    d.date_to       = '{{ request('date_to') }}';
+                    d.month         = '{{ request('month') }}';
+                    d.year          = '{{ request('year') }}';
+                    d.source        = @json(array_values((array) request('source', [])));
+                    d.job_tier      = '{{ request('job_tier') }}';
+                }
+            },
+            dom: 'frtip',
+            pageLength: 25,
+            order: [[1, 'desc']],
+            searchDelay: 400,
+            columnDefs: [
+                { targets: [0, 4, 5, 6, 10, 12, 13, 14, 15, 16], orderable: false },
+            ],
+            drawCallback: function() {
+                $('#laravel_crud tbody [data-toggle="tooltip"]').tooltip();
+            },
+        });
     });
 
     // Dipakai oleh semua action (verify/decline/deactivate/reactivate/2-step/edit/
     // follow-up) sebagai pengganti location.reload() — refresh isi tabel di tempat,
     // tetap di halaman/sort/search yang sama. Fallback ke reload penuh kalau
-    // membersTable belum/tidak ada (mis. tab Unregistered).
+    // membersTable belum ada.
     function refreshMembersTable() {
         if (window.membersTable) {
             window.membersTable.ajax.reload(null, false);

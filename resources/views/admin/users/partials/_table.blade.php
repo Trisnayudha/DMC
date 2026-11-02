@@ -12,8 +12,6 @@
                     {{ now()->format('F Y') }}</span>
             @elseif (request('filter') === 'self_edited')
                 <span class="text-warning"><i class="fas fa-user-edit mr-1"></i>Self-Edited by User</span>
-            @elseif (request('filter') === 'password_null')
-                <span class="text-warning"><i class="fas fa-key mr-1"></i>Active Members Without Password</span>
             @elseif (request('filter') === 'company_verified')
                 <span class="text-info"><i class="fas fa-building mr-1"></i>Companies Verified</span>
             @elseif (request('filter') === 'two_step_verified')
@@ -21,7 +19,7 @@
             @elseif (request('filter') === 'prospecting')
                 <span class="text-warning"><i class="fas fa-star mr-1"></i>Prospecting — Open to Sponsorship</span>
             @elseif (request('status_member') === 'declined')
-                <span class="text-danger"><i class="fas fa-ban mr-1"></i>Disqualified Applications</span>
+                <span class="text-danger"><i class="fas fa-ban mr-1"></i>Declined Applications</span>
             @elseif (request('status_member') === 'deactivated')
                 <span class="text-secondary"><i class="fas fa-user-slash mr-1"></i>Deactivated Members</span>
             @else
@@ -29,20 +27,18 @@
             @endif
         </h4>
 
-        @if (request('filter') !== 'unregist')
-            <div class="d-none d-md-flex align-items-center" style="gap:6px; font-size:12px;">
-                <span class="text-muted mr-1">Email/Phone verify:</span>
-                <span class="badge badge-primary" title="Email only verified">
-                    <i class="fas fa-envelope mr-1"></i>{{ $countVerifyEmail }}
-                </span>
-                <span class="badge badge-info" title="Phone only verified">
-                    <i class="fas fa-phone mr-1"></i>{{ $countVerifyPhone }}
-                </span>
-                <span class="badge badge-success" title="Both verified">
-                    <i class="fas fa-check-double mr-1"></i>{{ $countDoubleVerify }}
-                </span>
-            </div>
-        @endif
+        <div class="d-none d-md-flex align-items-center" style="gap:6px; font-size:12px;">
+            <span class="text-muted mr-1">Email/Phone verify:</span>
+            <span class="badge badge-primary" title="Email only verified">
+                <i class="fas fa-envelope mr-1"></i>{{ $countVerifyEmail }}
+            </span>
+            <span class="badge badge-info" title="Phone only verified">
+                <i class="fas fa-phone mr-1"></i>{{ $countVerifyPhone }}
+            </span>
+            <span class="badge badge-success" title="Both verified">
+                <i class="fas fa-check-double mr-1"></i>{{ $countDoubleVerify }}
+            </span>
+        </div>
     </div>
 
     <div class="card-body">
@@ -88,11 +84,6 @@
                     <i class="fas fa-star mr-1"></i> Prospecting
                     <span class="badge badge-light ml-1">{{ $countProspecting }}</span>
                 </a>
-                <a href="{{ url('admin/users?filter=unregist') }}"
-                    class="btn btn-sm {{ request('filter') === 'unregist' ? 'btn-danger' : 'btn-outline-danger' }}">
-                    <i class="fas fa-user-times mr-1"></i> Unregistered
-                    <span class="badge badge-light ml-1">{{ $countUnRegistered }}</span>
-                </a>
                 <a href="{{ url('admin/users?filter=self_edited') }}"
                     class="btn btn-sm {{ request('filter') === 'self_edited' ? 'btn-warning' : 'btn-outline-warning' }}"
                     title="User yang mengubah data sendiri via apps/web">
@@ -102,19 +93,10 @@
                             class="badge {{ request('filter') === 'self_edited' ? 'badge-light' : 'badge-warning' }} ml-1">{{ $countSelfEdited }}</span>
                     @endif
                 </a>
-                <a href="{{ url('admin/users?filter=password_null') }}"
-                    class="btn btn-sm {{ request('filter') === 'password_null' ? 'btn-warning' : 'btn-outline-warning' }}"
-                    title="Member aktif yang password-nya masih kosong">
-                    <i class="fas fa-key mr-1"></i> Password NULL
-                    @if (($countActiveWithoutPassword ?? 0) > 0)
-                        <span
-                            class="badge {{ request('filter') === 'password_null' ? 'badge-light' : 'badge-warning' }} ml-1">{{ $countActiveWithoutPassword }}</span>
-                    @endif
-                </a>
                 <a href="{{ url('admin/users?status_member=declined') }}"
                     class="btn btn-sm {{ request('status_member') === 'declined' ? 'btn-danger' : 'btn-outline-danger' }}"
-                    title="Applicant yang sudah di-decline">
-                    <i class="fas fa-ban mr-1"></i> Disqualified
+                    title="Declined applicants">
+                    <i class="fas fa-ban mr-1"></i> Declined
                     @if (($countDeclined ?? 0) > 0)
                         <span
                             class="badge {{ request('status_member') === 'declined' ? 'badge-light' : 'badge-danger' }} ml-1">{{ $countDeclined }}</span>
@@ -259,11 +241,7 @@
              desktop screen. --}}
         <div class="table-responsive member-table-wrap">
 
-            @if (request('filter') === 'unregist')
-                @include('admin.users.partials._table_unregistered')
-            @else
-                @include('admin.users.partials._table_members')
-            @endif
+            @include('admin.users.partials._table_members')
 
         </div>
 

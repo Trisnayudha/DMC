@@ -63,10 +63,6 @@ class UsersController extends Controller
             ])
             ->count();
 
-        $countUnRegistered = MemberModel::where('created_at', '>=', Carbon::now()->startOfYear())
-            ->whereNull('register_as')
-            ->count();
-
         $countVerifyEmail = User::whereNotNull('isStatus')
             ->whereNotNull('verify_email')->whereNull('verify_phone')->count();
 
@@ -81,11 +77,6 @@ class UsersController extends Controller
             ->distinct('user_id')
             ->count('user_id');
 
-        $countActiveWithoutPassword = User::whereNotNull('isStatus')
-            ->where('status_member', 'active')
-            ->whereNull('password')
-            ->count();
-
         $countCompaniesVerified = CompanyModel::countVerifiedCompanies();
 
         $countProspecting = User::whereNotNull('users.isStatus')
@@ -98,27 +89,18 @@ class UsersController extends Controller
             ->where('two_step_verified', true)
             ->count();
 
-        // Tab "Unregistered" pakai partial server-rendered terpisah
-        // (_table_unregistered.blade.php, sumber data MemberModel, bukan
-        // User) — bukan AJAX DataTables seperti tabel utama, jadi $list-nya
-        // memang perlu dihitung di sini, hanya saat tab ini aktif.
-        $list = $request->filter === 'unregist' ? $this->buildFilteredMemberList($request) : null;
-
         return view('admin.users.index', [
-            'list'                => $list,
             'sources'            => $this->sourceColorMap(),
             'countActiveMember'  => $countActiveMember,
             'countPendingMember' => $countPendingMember,
             'countDeclined'      => $countDeclined,
             'countDeactivated'   => $countDeactivated,
             'countNewThisMonth'  => $countNewThisMonth,
-            'countUnRegistered'  => $countUnRegistered,
             'countVerifyEmail'   => $countVerifyEmail,
             'countVerifyPhone'   => $countVerifyPhone,
             'countDoubleVerify'  => $countDoubleVerify,
             'countTwoStepVerified' => $countTwoStepVerified,
             'countSelfEdited'    => $countSelfEdited,
-            'countActiveWithoutPassword' => $countActiveWithoutPassword,
             'countCompaniesVerified'     => $countCompaniesVerified,
             'countMemberFollowUps'       => MemberCompanyFollowUp::where('status', MemberCompanyFollowUp::STATUS_NEEDS_FOLLOW_UP)->count(),
             'countProspecting'           => $countProspecting,
@@ -416,8 +398,6 @@ class UsersController extends Controller
      * Query dasar member ter-filter (join + tab/date filters), dipakai bersama oleh
      * buildFilteredMemberList() (export, initial-load-free path) dan usersData()
      * (AJAX pagination) supaya keduanya selalu melihat baris yang sama persis.
-     * Tidak menangani filter=unregist — itu sumber datanya beda (MemberModel), lihat
-     * buildFilteredMemberList().
      */
     private function buildMemberQuery(Request $request)
     {
@@ -447,10 +427,6 @@ class UsersController extends Controller
                 ->values()
                 ->all();
             $query->whereIn('users.id', $selfEditedIds);
-        }
-
-        if ($filter == 'password_null') {
-            $query->whereNull('users.password');
         }
 
         if ($filter == 'company_verified') {
@@ -533,27 +509,6 @@ class UsersController extends Controller
      */
     private function buildFilteredMemberList(Request $request)
     {
-        $filter   = $request->filter;
-        $dateFrom = $request->date_from;
-        $dateTo   = $request->date_to;
-        $month    = $request->month;
-        $year     = $request->year;
-
-        if ($filter == 'unregist') {
-            $query = MemberModel::whereNull('register_as');
-
-            if ($dateFrom) $query->whereDate('created_at', '>=', $dateFrom);
-            if ($dateTo)   $query->whereDate('created_at', '<=', $dateTo);
-            if ($month)    $query->whereMonth('created_at', $month);
-            if ($year)     $query->whereYear('created_at', $year);
-
-            if (!$dateFrom && !$dateTo && !$month && !$year) {
-                $query->where('created_at', '>=', Carbon::now()->startOfYear());
-            }
-
-            return $query->orderBy('id', 'desc')->get();
-        }
-
         $list = $this->buildMemberQuery($request)
             ->orderBy('users.id', 'desc')
             ->select(
@@ -1019,13 +974,10 @@ class UsersController extends Controller
      */
     public function exportExcel(Request $request)
     {
-        $list       = $this->buildFilteredMemberList($request);
-        $isUnregist = $request->filter === 'unregist';
+        $list     = $this->buildFilteredMemberList($request);
+        $filename = 'users-members-' . date('Ymd-His') . '.xlsx';
 
-        $filename = 'users-' . ($isUnregist ? 'unregistered' : 'members')
-            . '-' . date('Ymd-His') . '.xlsx';
-
-        return Excel::download(new UsersExport($list, $isUnregist), $filename);
+        return Excel::download(new UsersExport($list), $filename);
     }
 
     public function store(Request $request)
