@@ -52,12 +52,12 @@ class CmsAccessControlTest extends TestCase
     {
         $member = $this->team('member_team');
         CmsRole::find('member_team')->update(['permissions' => ['members']]);
-        $children = CmsAccess::navigation($member->fresh())['General Database'][0]['children'];
+        $children = CmsAccess::navigation($member->fresh())['Master Database'][0]['children'];
         $this->assertNotContains('Master Database', array_column($children, 'label'));
         CmsRole::find('member_team')->update(['permissions' => ['members', 'master_database']]);
         $member = $member->fresh();
         $this->assertTrue(CmsAccess::allowsRoute($member, Route::getRoutes()->match(\Illuminate\Http\Request::create('/admin/master-database'))));
-        $children = CmsAccess::navigation($member)['General Database'][0]['children'];
+        $children = CmsAccess::navigation($member)['Master Database'][0]['children'];
         $this->assertSame(['Master Database', 'Members'], array_column($children, 'label'));
     }
 
@@ -66,7 +66,7 @@ class CmsAccessControlTest extends TestCase
         $member = $this->team('member_team');
         CmsRole::find('member_team')->update(['permissions' => ['members', 'inquiries']]);
         $navigation = CmsAccess::navigation($member->fresh());
-        $this->assertNotContains('Website Inquiry', array_column($navigation['General Database'], 'label'));
+        $this->assertNotContains('Website Inquiry', array_column($navigation['Master Database'], 'label'));
         $this->assertSame(['Website Inquiry'], array_column($navigation['Website Inquiry'], 'label'));
     }
 

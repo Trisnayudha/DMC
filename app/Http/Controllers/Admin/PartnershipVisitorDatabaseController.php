@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Event Partnership (General Database): semua booth visitor dari semua
+ * Event Partnership (Master Database): semua booth visitor dari semua
  * Partnership Event dalam satu tabel. Kelola visitor per event (tambah, import,
  * register as member) tetap di halaman Partnership Event masing-masing.
  */

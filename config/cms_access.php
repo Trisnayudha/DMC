@@ -104,7 +104,7 @@ return [
                 ['New Member', 'users?status_member=pending', 'members', 'user-clock'],
                 ['Active Member', 'users?status_member=active', 'members', 'user-check'],
             ],
-            'General Database' => [
+            'Master Database' => [
                 ['label' => 'Master Database', 'icon' => 'database', 'children' => [
                     ['Master Database', 'master-database', 'master_database'],
                     ['Members', 'users', 'members'],

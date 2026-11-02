@@ -235,8 +235,8 @@
                     $sourceCards = [
                         'members' => ['Members', 'Active members', 'success'],
                         'events' => ['Event Registrant', 'Event participants who never registered as members', 'primary'],
-                        'partnership' => ['Event Partnership', 'Contacts found only in event partnership data', 'warning'],
-                        'intake' => ['Data Tampung', 'Contacts found only in Data Tampung', 'info'],
+                        'partnership' => ['Event Partnership', 'Event partnership contacts who are not members', 'warning'],
+                        'intake' => ['Data Tampung', 'Data Tampung contacts who are not members', 'info'],
                     ];
                     $cards = [
                         'active' => ['Active Member', '', 'success'],
@@ -254,7 +254,8 @@
                     <span class="contact-caption">All sources combined, each person counted once.</span>
                 </button>
                 <h2 class="section-title mt-0">Contacts by Group</h2>
-                <p class="text-muted">Each person appears in one card only. Click a card to see its list.</p>
+                <p class="text-muted">The other cards count only people who are not in Members (any status). Click a
+                    card to see its list.</p>
                 <div class="contact-grid">
                     @foreach ($sourceCards as $key => [$label, $caption, $color])
                         <div class="contact-card">
@@ -264,7 +265,7 @@
                                 data-filter-label="{{ $key === 'members' ? 'Members — Active' : $label }}">
                                 <span class="contact-label">{{ $label }}</span>
                                 <span
-                                    class="contact-number {{ $key === 'members' ? 'contact-active' : '' }}">{{ number_format($key === 'members' ? $breakdown['active'] : $groupCounts[$key]) }}</span>
+                                    class="contact-number {{ $key === 'members' ? 'contact-active' : '' }}">{{ number_format($key === 'members' ? $breakdown['active'] : $nonMemberCounts[$key]) }}</span>
                                 <span class="contact-caption">{{ $caption }}</span>
                             </button>
                             <div class="contact-details">
@@ -279,13 +280,8 @@
                                     <div class="contact-detail"><span>All statuses</span><strong>{{ number_format($groupCounts['members']) }}</strong></div>
                                 @else
                                     <div class="contact-detail"><span>Full list</span><strong>{{ number_format($sourceCounts[$key]) }}</strong></div>
-                                    @foreach ($sourceCards as $group => [$groupLabel])
-                                        @if (!empty($sourceOverlap[$key][$group]))
-                                            <div class="contact-detail"><span>Already in
-                                                    {{ $groupLabel }}</span><strong>−{{ number_format($sourceOverlap[$key][$group]) }}</strong>
-                                            </div>
-                                        @endif
-                                    @endforeach
+                                    <div class="contact-detail"><span>Already in Members</span><strong>−{{ number_format($sourceCounts[$key] - $nonMemberCounts[$key]) }}</strong>
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -294,14 +290,10 @@
                 @if ($groupCounts['other'])
                     <p class="alert alert-warning">{{ number_format($groupCounts['other']) }} contacts have no identified
                         source. They are included in the total but not in any card above.</p>
-                @else
-                    <p class="text-muted small">Members (all statuses) {{ number_format($groupCounts['members']) }} + Event
-                        Registrant {{ number_format($groupCounts['events']) }} + Event Partnership
-                        {{ number_format($groupCounts['partnership']) }} + Data Tampung
-                        {{ number_format($groupCounts['intake']) }} = {{ number_format($totalDeduped) }} unique contacts.</p>
                 @endif
                 <p class="text-muted small mb-4">Contacts are matched by email: the same email in several lists counts
-                    as one person. Records without an email are counted one by one.</p>
+                    as one person. Records without an email are counted one by one. A non-member found in several lists
+                    appears in each of those cards.</p>
 
                 <div class="row">
                     <div class="col-lg-12">
@@ -413,14 +405,17 @@
                                                         <div class="src-tags">
                                                             @if ($post->contact_group === 'other')
                                                                 <span class="src-tag src-other">Other / Unknown</span>
-                                                            @else
-                                                                <span class="src-tag src-{{ $post->contact_group }}"
-                                                                    title="Counted under {{ $sourceCards[$post->contact_group][0] }}">{{ $sourceCards[$post->contact_group][0] }}</span>
                                                             @endif
+                                                            {{-- Members outranks every other card; a non-member counts in each list it is in. --}}
                                                             @foreach ($sourceCards as $key => [$label])
-                                                                @if ($key !== $post->contact_group && $post->{'in_' . $key})
-                                                                    <span class="src-tag src-{{ $key }} is-also"
-                                                                        title="Also found in {{ $label }}">{{ $label }}</span>
+                                                                @if ($post->{'in_' . $key})
+                                                                    @if ($post->in_members && $key !== 'members')
+                                                                        <span class="src-tag src-{{ $key }} is-also"
+                                                                            title="Also found in {{ $label }}">{{ $label }}</span>
+                                                                    @else
+                                                                        <span class="src-tag src-{{ $key }}"
+                                                                            title="Counted under {{ $label }}">{{ $label }}</span>
+                                                                    @endif
                                                                 @endif
                                                             @endforeach
                                                             @if ($post->dup_count > 1)
@@ -532,7 +527,10 @@
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
                 if (settings.nTable.id !== 'laravel_crud') return true;
                 var row = $(table.row(dataIndex).node());
-                return (!selectedSource || row.attr('data-contact-group') === selectedSource) &&
+                var sources = (row.attr('data-sources') || '').split(' ');
+                var inCard = sources.indexOf(selectedSource) !== -1 &&
+                    (selectedSource === 'members' || sources.indexOf('members') === -1);
+                return (!selectedSource || inCard) &&
                     (!selectedStatus || row.attr('data-member-status') === selectedStatus);
             });
             $('#laravel_crud').on('click', '.master-address-toggle', function() {

@@ -143,14 +143,14 @@ class MasterDatabaseController extends Controller
         $sourceMatched = ['events' => 0, 'intake' => 0];
         $eventOnlyCount = 0;
         $groupCounts = array_fill_keys(['members', 'events', 'partnership', 'intake', 'other'], 0);
-        // $sourceOverlap[source][group]: contacts in this source that are counted under another card.
-        $sourceOverlap = array_fill_keys(['events', 'partnership', 'intake'], []);
+        // Non-member cards are measured against Members (all statuses) only, so a
+        // non-member found in several sources is counted in each of those cards.
+        $nonMemberCounts = array_fill_keys(['events', 'partnership', 'intake'], 0);
         foreach ($people as $row) {
-            $group = self::contactGroupFor($row);
-            $groupCounts[$group]++;
-            foreach ($sourceOverlap as $key => $counts) {
-                if ($row->{'in_' . $key} && $group !== $key) {
-                    $sourceOverlap[$key][$group] = ($counts[$group] ?? 0) + 1;
+            $groupCounts[self::contactGroupFor($row)]++;
+            foreach ($nonMemberCounts as $key => $count) {
+                if ($row->{'in_' . $key} && !$row->in_members) {
+                    $nonMemberCounts[$key]++;
                 }
             }
             foreach ($sourceCounts as $key => $count) {
@@ -182,7 +182,7 @@ class MasterDatabaseController extends Controller
             'breakdown' => $breakdown,
             'sourceCounts' => $sourceCounts,
             'groupCounts' => $groupCounts,
-            'sourceOverlap' => $sourceOverlap,
+            'nonMemberCounts' => $nonMemberCounts,
             'sourceMatched' => $sourceMatched,
             'eventOnlyCount' => $eventOnlyCount,
         ]);

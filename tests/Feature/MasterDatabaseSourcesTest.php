@@ -39,7 +39,8 @@ class MasterDatabaseSourcesTest extends TestCase
         $data = (new MasterDatabaseController())->index(Request::create('/admin/master-database'))->getData();
         // Matching is by email only: a different name on the same email is still the same contact.
         $this->assertSame(3, (int) $data['totalDeduped']);
-        $this->assertSame(['members' => 1], $data['sourceOverlap']['intake']);
+        // Non-member cards only exclude Members: "No email" (intake) and "Other visitor" (partnership).
+        $this->assertSame(['events' => 0, 'partnership' => 1, 'intake' => 1], $data['nonMemberCounts']);
         $review = (new MasterDatabaseController())->index(Request::create('/admin/master-database?mode=duplicates'))->getData();
         $this->assertCount(4, $review['list']);
         DB::table('users')->insert(['id' => 2, 'name' => 'Event Only', 'email' => 'event@example.test', 'status_member' => null]);
