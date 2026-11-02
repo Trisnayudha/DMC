@@ -646,6 +646,11 @@ class SponsorController extends Controller
             'invoice_number'    => 'nullable|string|max:30|unique:sponsor_renewals,invoice_number',
             'invoice_sent_date' => 'nullable|date|after_or_equal:invoice_date',
             'paid_date'         => 'nullable|date|after_or_equal:invoice_date',
+        ], [
+            'quotation_number.unique'          => 'Quotation Number ":input" is already used by another contract.',
+            'invoice_number.unique'            => 'Invoice Number ":input" is already used by another contract.',
+            'invoice_sent_date.after_or_equal' => 'Invoice Sent Date cannot be earlier than the Invoice Date.',
+            'paid_date.after_or_equal'         => 'Paid Date cannot be earlier than the Invoice Date.',
         ]);
 
         $start = Carbon::createFromFormat('Y-m', $validated['contract_start']);

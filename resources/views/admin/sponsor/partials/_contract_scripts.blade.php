@@ -235,7 +235,13 @@
                     }
                 },
                 error: function(xhr) {
-                    let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'An error occurred while updating the contract.';
+                    // Error validasi: tampilkan pesan field-nya, bukan "The given data was invalid."
+                    let msg = 'An error occurred while updating the contract.';
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        msg = Object.values(xhr.responseJSON.errors).map(function(e) { return e[0]; }).join('<br>');
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
                     toastr.error(msg, 'Error', { positionClass: 'toast-top-right' });
                 }
             });
