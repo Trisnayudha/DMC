@@ -14,9 +14,9 @@ use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
 use App\Models\User;
+use App\Services\Events\EventAudienceStats;
 use App\Services\Events\EventsService;
 use App\Services\Payment\PaymentService;
-use App\Services\Users\UsersService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Exception;
@@ -48,8 +48,6 @@ class EventsDetailController extends Controller
                 $countSponsor = PaymentService::countRegister('sponsor', $event->id);
                 $countPaid = PaymentService::countRegister(['nonmember', 'member', 'onsite', 'table', 'Premium'], $event->id);
                 $countFree = PaymentService::countRegister('free', $event->id);
-                $usersCategory = UsersService::showChartCategory($event->id);
-                $usersJobTitle = UsersService::showChartJobTitle($event->id);
                 $users = User::orderBy('id', 'desc')->get();
                 $sponsors = Sponsor::where('status', 'publish')->orderBy('name', 'asc')->get();
                 $data = [
@@ -62,8 +60,7 @@ class EventsDetailController extends Controller
                     'free' => $countFree,
                     'paid' => $countPaid,
                     'date' => $event->end_date,
-                    'chartCategoryData' => $usersCategory,
-                    'chartJobTitle' => $usersJobTitle,
+                    'audience' => EventAudienceStats::forEvent($event->id),
                     'sponsors' => $sponsors,
                     'sponsorCompanies' => Sponsor::where('status', 'publish')->orderBy('name')->get(['id', 'name']),
                 ];

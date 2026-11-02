@@ -25,10 +25,10 @@
                                         <i class="fas fa-chart-line mr-1"></i> Conversion Funnel
                                     </a>
                                     <a data-collapse="#detail-registration" class="btn btn-icon btn-info" href="#"><i
-                                            class="fas fa-{{ $date <= date('Y-m-d') ? 'minus' : 'plus' }}"></i></a>
+                                            class="fas fa-plus"></i></a>
                                 </div>
                             </div>
-                            <div class="collapse {{ $date <= date('Y-m-d') ? ' show' : '' }}" id="detail-registration">
+                            <div class="collapse" id="detail-registration">
                                 <div class="card-body" style="background: #f8f9fa">
                                     <div class="row">
                                         <div class="col-lg-3 col-md-6 col-sm-6 col-12">
@@ -95,37 +95,7 @@
 
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col-12 col-md-6 col-lg-6">
-                                            <div class="card">
-                                                <div class="card-header">
-                                                    @php
-                                                        $evtCatTooltip = implode('<br>', \App\Support\CompanyCategoryTier::tooltipLines());
-                                                    @endphp
-                                                    <h4>
-                                                        Category Company
-                                                        <i class="fas fa-info-circle text-muted ml-1"
-                                                            style="font-size:13px;cursor:help;" data-toggle="tooltip"
-                                                            data-html="true" data-placement="bottom"
-                                                            title="{!! $evtCatTooltip !!}"></i>
-                                                    </h4>
-                                                </div>
-                                                <div class="card-body">
-                                                    <canvas id="chartCategory" width="400" height="400"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-6 col-lg-6">
-                                            <div class="card">
-                                                <div class="card-header">
-                                                    <h4>Job Title</h4>
-                                                </div>
-                                                <div class="card-body">
-                                                    <canvas id="chartJobTitle" width="400" height="400"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    @include('admin.events.partials._audience_charts')
                                 </div>
 
                             </div>
@@ -1139,36 +1109,67 @@
         selectCountry.addEventListener("change", handleCountryChange.bind(this));
 
         // Pie Chart Code
-        $(document).ready(function() {
-            // Dummy data for chartCategory
-            var chartCategoryData = {!! json_encode($chartCategoryData) !!};
-            console.log(chartCategoryData)
-            var chartCategoryCtx = document.getElementById('chartCategory').getContext('2d');
-            var chartCategory = new Chart(chartCategoryCtx, {
+        // Company Category & Job Tier (layout Chart.js v2). Detail Registration starts
+        // collapsed, so the charts are drawn on first open (a hidden canvas has no size).
+        $('#detail-registration').one('shown.bs.collapse', function() {
+            var audience = @json($audience);
+            var pct = function(n) {
+                return audience.total ? (Math.round(n * 1000 / audience.total) / 10).toLocaleString('id-ID') : '0';
+            };
+            var tooltip = function(labels) {
+                return {
+                    callbacks: {
+                        label: function(item, data) {
+                            var n = data.datasets[0].data[item.index];
+                            return ' ' + labels[item.index] + ': ' + n + ' (' + pct(n) + '%)';
+                        }
+                    }
+                };
+            };
+
+            var groups = audience.categories;
+            new Chart(document.getElementById('audienceCategoryChart'), {
                 type: 'doughnut',
-                data: chartCategoryData,
+                data: {
+                    labels: groups.map(function(g) { return g.label; }),
+                    datasets: [{
+                        data: groups.map(function(g) { return g.count; }),
+                        backgroundColor: groups.map(function(g) { return g.color; }),
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                    }]
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    cutoutPercentage: 55,
+                    legend: { display: false },
+                    tooltips: tooltip(groups.map(function(g) { return g.label + ' ' + g.name; })),
                 }
             });
 
-            // Dummy data for chartJobTitle
-            var chartJobTitleData = {!! json_encode($chartJobTitle) !!};
-            console.log(chartJobTitleData)
-            var chartJobTitleCtx = document.getElementById('chartJobTitle').getContext('2d');
-            var chartJobTitle = new Chart(chartJobTitleCtx, {
-                type: 'doughnut',
-                data: chartJobTitleData,
+            var tiers = audience.tiers;
+            new Chart(document.getElementById('audienceTierChart'), {
+                type: 'horizontalBar',
+                data: {
+                    labels: tiers.map(function(t) { return t.label; }),
+                    datasets: [{
+                        data: tiers.map(function(t) { return t.count; }),
+                        backgroundColor: tiers.map(function(t) { return t.color; }),
+                        maxBarThickness: 26,
+                    }]
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    legend: {
-                        display: false // Hide the legends
+                    legend: { display: false },
+                    tooltips: tooltip(tiers.map(function(t) { return t.label + ' ' + t.roles; })),
+                    scales: {
+                        xAxes: [{ ticks: { beginAtZero: true, precision: 0 }, gridLines: { color: '#eef0f3' } }],
+                        yAxes: [{ gridLines: { display: false } }]
                     }
                 }
             });
-
         });
 
         $(document).ready(function() {
