@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorFollowup;
 use App\Models\Sponsors\SponsorRenewal;
+use App\Models\Sponsors\SponsorRenewalForm;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -33,6 +34,7 @@ class SponsorAnnualReportController extends Controller
         $expiryForecast = $this->expiryForecast($year);
         $this->applyFollowUpStatus($expiryForecast);
         $this->attachFollowupLog($expiryForecast, $year);
+        $this->attachRenewalStep($expiryForecast);
 
         [$monthlyStats, $monthlyDetails] = $this->monthlyActivity($year);
 
@@ -341,6 +343,56 @@ class SponsorAnnualReportController extends Controller
                 $er->last_followup   = $f->last();
                 // Follow-up yang ditandai "confirmed renewal" oleh tim secretariat (kalau ada).
                 $er->confirmed_followup = $f->where('confirmed_renewal', true)->last();
+            });
+        });
+    }
+
+    /**
+     * Tahap proses renewal per kontrak expiring (renewal_step), dipakai kolom Status:
+     * - Request Form  : belum ada renewal form untuk siklus berikutnya
+     * - Finalize Form : renewal form sudah di-generate (atau kontrak sudah renewed,
+     *                   invoice belum dikirim)
+     * - Invoice Sent  : kontrak baru punya invoice_sent_date
+     * - Paid          : kontrak baru punya paid_date
+     * Kontrak yang stopped (Not Renew) tidak diberi tahap.
+     */
+    private function attachRenewalStep(Collection $expiryForecast): void
+    {
+        $sponsorIds = $expiryForecast->flatten()->pluck('sponsor_id')->unique();
+        if ($sponsorIds->isEmpty()) {
+            return;
+        }
+
+        $forms = SponsorRenewalForm::whereIn('sponsor_id', $sponsorIds)
+            ->get(['id', 'sponsor_id', 'renewal_year', 'form_number'])
+            ->keyBy(fn($f) => $f->sponsor_id . '-' . $f->renewal_year);
+
+        $expiryForecast->each(function ($group) use ($forms) {
+            $group->each(function ($er) use ($forms) {
+                $er->renewal_step = null;
+                if (($er->followup_status ?? 'pending') === 'stopped' || !$er->contract_end) {
+                    return;
+                }
+
+                $rec = $er->followup_record;
+                if ($rec && $rec->paid_date) {
+                    $er->renewal_step = ['label' => 'Paid', 'color' => '#47c363', 'icon' => 'fa-check-circle'];
+                    return;
+                }
+                if ($rec && $rec->invoice_sent_date) {
+                    $er->renewal_step = ['label' => 'Invoice Sent', 'color' => '#6777ef', 'icon' => 'fa-paper-plane'];
+                    return;
+                }
+
+                // Renewal form siklus berikutnya: renewal_year = tahun kontrak baru mulai;
+                // fallback ke tahun kontrak lama habis (form dibuat dengan tahun berjalan).
+                $endYear   = (int) substr($er->contract_end, 0, 4);
+                $nextYear  = (int) Carbon::createFromFormat('Y-m', $er->contract_end)->addMonth()->format('Y');
+                $form      = $forms->get($er->sponsor_id . '-' . $nextYear) ?? $forms->get($er->sponsor_id . '-' . $endYear);
+
+                $er->renewal_step = ($form || $rec)
+                    ? ['label' => 'Finalize Form', 'color' => '#fd7e14', 'icon' => 'fa-file-signature', 'detail' => $form ? $form->form_number : null]
+                    : ['label' => 'Request Form', 'color' => '#3abaf4', 'icon' => 'fa-file-alt'];
             });
         });
     }

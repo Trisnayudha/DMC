@@ -249,6 +249,7 @@
                                             <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:#47c363;">
                                                 <i class="fas fa-check" style="font-size:10px;"></i> Renewed
                                             </span>
+                                            @include('admin.sponsor.annual-report._renewal-step-badge', ['step' => $er->renewal_step ?? null])
                                             <div style="font-size:10px;color:#888;margin-top:3px;">
                                                 {{ $fuInvoice ?? (sponsor_package_label($fuR->package ?? '') . ($fuPeriod ? ' · ' . $fuPeriod : '')) }}
                                             </div>
@@ -266,6 +267,7 @@
                                             <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;background:#6777ef;">
                                                 <i class="fas fa-arrow-up" style="font-size:10px;"></i> Upgraded
                                             </span>
+                                            @include('admin.sponsor.annual-report._renewal-step-badge', ['step' => $er->renewal_step ?? null])
                                             <div style="font-size:10px;color:#888;margin-top:3px;">
                                                 {{ $fuInvoice ?? (sponsor_package_label($er->package ?? '?') . ' → ' . sponsor_package_label($fuR->package ?? '?') . ($fuPeriod ? ' · ' . $fuPeriod : '')) }}
                                             </div>
@@ -288,6 +290,7 @@
                                             @endif
                                         @else
                                             @include('admin.sponsor.annual-report._pending-stage-badge', ['stage' => $er->pending_stage ?? 'upcoming'])
+                                            @include('admin.sponsor.annual-report._renewal-step-badge', ['step' => $er->renewal_step ?? null])
                                             {{-- Alur follow-up: Renewal Form Submitted → Follow Up N → tanggal | PIC --}}
                                             @if(($er->followup_count ?? 0) > 0)
                                                 <div style="margin-top:6px;border-left:2px solid #e9ecef;padding-left:8px;">
