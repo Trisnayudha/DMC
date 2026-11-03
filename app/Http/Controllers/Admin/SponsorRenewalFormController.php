@@ -147,7 +147,7 @@ class SponsorRenewalFormController extends Controller
     {
         $data = $this->buildData($sponsorId);
 
-        return $this->buildPdf($data)->download($this->pdfFilename($data['sponsor']));
+        return $this->buildPdf($data)->download($this->pdfFilename($data['sponsor'], $data['renewalForm']));
     }
 
     private function buildPdf(array $data)
@@ -161,9 +161,16 @@ class SponsorRenewalFormController extends Controller
             ->setPaper('a4', 'portrait');
     }
 
-    private function pdfFilename(Sponsor $sponsor): string
+    /**
+     * Format: "[Quotation Number] [Company Name].pdf", mis. "2026DMC27 SEEQUENT ULC.pdf".
+     * Karakter yang nggak valid di nama file (/ \ : * ? " < > |) dibuang.
+     */
+    private function pdfFilename(Sponsor $sponsor, ?SponsorRenewalForm $form): string
     {
-        return 'renewal-form-' . str_replace(' ', '-', strtolower($sponsor->name)) . '.pdf';
+        $name = trim(($form && $form->form_number ? $form->form_number . ' ' : '') . $sponsor->name);
+        $name = trim(preg_replace('/\s+/', ' ', preg_replace('/[\/\\\\:*?"<>|]/', '', $name)));
+
+        return ($name !== '' ? $name : 'Renewal Form') . '.pdf';
     }
 
     /**
@@ -434,7 +441,7 @@ class SponsorRenewalFormController extends Controller
             $data = $this->buildData($sponsor->id);
             $pdf  = $this->buildPdf($data)->output();
 
-            $sentTo = RenewalFormSecretariatNotifier::send($data['sponsor'], $form, $pdf, $this->pdfFilename($sponsor), $isUpdate, $changes);
+            $sentTo = RenewalFormSecretariatNotifier::send($data['sponsor'], $form, $pdf, $this->pdfFilename($sponsor, $form), $isUpdate, $changes);
             if ($sentTo) {
                 $this->markEmailed($form, $sentTo);
             }

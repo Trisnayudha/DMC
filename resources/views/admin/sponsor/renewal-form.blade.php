@@ -148,8 +148,11 @@
        sel .custom-table, jadi kena juga selector induknya kalau nggak dikalahin). */
     .custom-table .currency-table { width: 100%; table-layout: fixed; border-collapse: collapse; }
     .custom-table .currency-table td { border: none; padding: 0 4px; }
+    .custom-table .currency-table td:first-child { width: 24px; }
     .custom-table .currency-table td:last-child { text-align: right; }
-    .bg-dark { background-color: #4a4a4a; color: #fff; font-weight: bold; text-align: left; }
+    /* nowrap: label "Grand Total In USD/IDR" harus muat 1 baris — makanya kolom
+       QTY (tempat label ini) dilebarin 14→18% dan TOTAL dikecilin 19→15%. */
+    .bg-dark { background-color: #4a4a4a; color: #fff; font-weight: bold; text-align: left; white-space: nowrap; }
 
     /* FOOTER — ruang tanda tangan 40→80px. Biar tinggi total tetap sama (tetap
        1 lembar A4), margin-top approval-block 18→0 ("Approved by" sejajar
@@ -326,8 +329,8 @@
             <tr>
                 <th style="width:13%;">PERIOD</th>
                 <th style="width:54%;">DESCRIPTION</th>
-                <th style="width:14%;">QTY</th>
-                <th style="width:19%;">TOTAL</th>
+                <th style="width:18%;">QTY</th>
+                <th style="width:15%;">TOTAL</th>
             </tr>
         </thead>
         <tbody>
