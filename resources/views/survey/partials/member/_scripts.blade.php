@@ -1,4 +1,4 @@
-<script src="https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 <script>
     (function() {
         var form = document.getElementById('member-survey-form');
@@ -14,14 +14,15 @@
 
         /* ---------- Phone ---------- */
         var phoneInput = document.getElementById('phone');
-        var iti = window.intlTelInput(phoneInput, {
+        // Phone widget is optional: if the CDN fails, the form still works as a plain input
+        var iti = window.intlTelInput ? window.intlTelInput(phoneInput, {
             initialCountry: 'id',
             separateDialCode: true,
             autoPlaceholder: 'polite',
             placeholderNumberType: 'MOBILE',
             preferredCountries: ['id', 'au', 'sg', 'my'],
-            utilsScript: 'https://cdn.tutorialjinni.com/intl-tel-input/17.0.8/js/utils.js'
-        });
+            utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.min.js'
+        }) : null;
 
         /* ---------- Choice cards ---------- */
         function syncChoiceGroup(group) {
@@ -75,7 +76,7 @@
             pane.querySelectorAll('.form-control-dark[required]').forEach(function(input) {
                 var value = input.value.trim();
                 var valid = value !== '' && (input.type !== 'email' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value));
-                var target = input === phoneInput ? input.closest('.iti') : input;
+                var target = input === phoneInput ? (input.closest('.iti') || input) : input;
 
                 target.classList.remove('is-invalid');
                 if (!valid) {
@@ -158,7 +159,7 @@
                 }
             }
 
-            if (iti.getNumber()) phoneInput.value = iti.getNumber();
+            if (iti && iti.getNumber()) phoneInput.value = iti.getNumber();
             isSubmitting = true;
             btnSubmit.disabled = true;
             btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
