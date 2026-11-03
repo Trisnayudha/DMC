@@ -32,7 +32,7 @@
 
             {{-- BANNER --}}
             <div class="survey-banner">
-                <img src="{{ asset('image/survey/banner-dmc-2026.png') }}" alt="DMC Survey Banner 2027">
+                <img src="{{ asset('image/survey/banner-dmc-2027.png') }}" alt="DMC Survey Banner 2027">
             </div>
 
             @if (session('ok'))
