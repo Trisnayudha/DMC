@@ -64,7 +64,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                <small class="text-muted">From renewal form (editable); refresh button = live rate</small>
+                                <small class="text-muted" id="modalKmkHint">No renewal form yet — refresh button = live rate</small>
                             </div>
                         </div>
                     </div>
@@ -89,8 +89,8 @@
                             </div>
                         </div>
                     </div>
-                    {{-- VAT default ikut renewal form, tapi tetap bisa diganti: ada kasus
-                         renewal form-nya 0% tapi invoice-nya kena VAT (atau sebaliknya). --}}
+                    {{-- KMK, amount, VAT & Quotation Number dikunci kalau renewal form tahun ini
+                         sudah ada (lockRenewalFormFields) — kalau beda, betulkan di renewal form-nya. --}}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">

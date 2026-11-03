@@ -107,9 +107,23 @@
             $('#updateContractModalLabel').text(readonly ? 'Confirmed Renewal (view only)' : 'Renew Contract');
         }
 
+        // Nilai yang berasal dari renewal form (KMK, amount, VAT, Quotation Number) dikunci
+        // supaya kontrak selalu sama dengan renewal form yang dikirim ke sponsor.
+        // Input pakai readonly (tetap ikut ter-submit); select VAT di-disable lalu
+        // di-enable sebentar saat serialize di handler submit.
+        function lockRenewalFormFields(locked) {
+            $('#modalKmkRate, #modalAmountUsd, #modalAmountIdrDisplay, #modalQuotationNumber').prop('readonly', locked);
+            $('#modalVatPercent').prop('disabled', locked);
+            $('#btnRefreshKmkRate').toggle(!locked);
+            $('#modalKmkHint').text(locked
+                ? 'From renewal form (locked)'
+                : 'No renewal form yet — refresh button = live rate');
+        }
+
         $(document).on('click', '.view-contract-btn', function(e) {
             e.preventDefault();
             var d = $(this).data();
+            lockRenewalFormFields(false);
             setRenewModalReadonly(true);
             $('#modalSponsorId').val(d.sponsorId);
             $('#modalContractStart').val(d.contractStart || '');
@@ -149,6 +163,7 @@
         $(document).on('click', '.update-contract-btn', function(e) {
             e.preventDefault();
             setRenewModalReadonly(false);
+            lockRenewalFormFields(false);
             var year = new Date().getFullYear();
             var sponsorId = $(this).data('sponsor-id');
             $('#modalSponsorId').val(sponsorId);
@@ -201,16 +216,15 @@
                     } else {
                         autoFillIdr();
                     }
-                    // Quotation Number = nomor renewal form (dokumen yang sama). Tetap
-                    // bisa diedit; kalau nomor sudah dipakai (mis. sponsor sudah pernah
-                    // di-confirm), backend akan menolak dan admin bisa ganti manual.
+                    // Quotation Number = nomor renewal form (dokumen yang sama).
                     if (f.form_number) {
                         $('#modalQuotationNumber').val(f.form_number);
-                        $('#quotationNumberHint').text('From renewal form ' + f.form_number + ' (editable)');
+                        $('#quotationNumberHint').text('From renewal form ' + f.form_number + ' (locked)');
                     }
                     setModalVat(f.vat_percent);
-                    $('#modalVatHint').text('Renewal form: ' + (parseFloat(f.vat_percent) > 0 ? parseFloat(f.vat_percent) + '%' : '0% (No VAT)') + ' — change if the invoice differs');
+                    $('#modalVatHint').text('From renewal form (locked) — to change it, update the renewal form first');
                     updateModalVatInfo();
+                    lockRenewalFormFields(true);
                 }
             }).fail(function() {
                 fetchKmkRate();
@@ -221,10 +235,14 @@
         $('#updateContractForm').on('submit', function(e) {
             e.preventDefault();
             let sponsorId = $('#modalSponsorId').val();
+            // Select yang di-disable (VAT terkunci) nggak ikut serialize — enable sebentar.
+            let $lockedVat = $('#modalVatPercent:disabled').prop('disabled', false);
+            let formData = $(this).serialize();
+            $lockedVat.prop('disabled', true);
             $.ajax({
                 url: '/admin/sponsors/' + sponsorId + '/update-contract',
                 method: 'POST',
-                data: $(this).serialize(),
+                data: formData,
                 success: function(response) {
                     if (response.success) {
                         toastr.success(response.message, 'Success', { positionClass: 'toast-top-right' });
