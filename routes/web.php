@@ -107,7 +107,7 @@ Route::get('survey-sponsor', function () {
 });
 
 Route::post('/survey/the-71st-djakarta-mining-club-networking-event', [SurveyController::class, 'store'])->name('survey.store');
-Route::post('/survey-member', [DmcMemberSurveyController::class, 'store'])->name('survey.dmc.store');
+Route::post('/survey-member', [DmcMemberSurveyController::class, 'store'])->name('survey.member.store');
 // web.php
 Route::post('/survey/sponsor', [SponsorSurveyController::class, 'store'])->name('survey.dmc.store');
 

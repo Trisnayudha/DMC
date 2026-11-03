@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use App\Helpers\WhatsappApi;
 use App\Models\DmcMemberSurvey;
 
 class DmcMemberSurveyController extends Controller
 {
+    private const WA_GROUP = '120363429875185608@g.us';
+
     /**
      * Show DMC Member Survey Form
      */
@@ -140,10 +144,75 @@ class DmcMemberSurveyController extends Controller
         $data['user_agent'] = substr($request->userAgent() ?? '', 0, 255);
 
         // ===== SAVE =====
-        DmcMemberSurvey::create($data);
+        $survey = DmcMemberSurvey::create($data);
+
+        $this->notifySurveySubmitted($survey);
 
         return back()
             ->with('ok', true)
             ->withInput([]);
+    }
+
+    /**
+     * Kirim isi survey ke group WA supaya tim bisa langsung cek jawabannya.
+     * Gagal kirim tidak boleh menggagalkan submit.
+     */
+    private function notifySurveySubmitted(DmcMemberSurvey $survey): void
+    {
+        try {
+            $list = function ($values) {
+                $values = array_filter((array) $values);
+                return $values ? implode(', ', $values) : '-';
+            };
+            $text = function ($value) {
+                $value = trim((string) $value);
+                return $value !== '' ? $value : '-';
+            };
+
+            $emailGoal = $list($survey->email_primary_goal);
+            if ($survey->email_primary_goal_other) {
+                $emailGoal .= ' (' . $survey->email_primary_goal_other . ')';
+            }
+
+            $lines = [
+                '📝 *NEW MEMBER SURVEY 2027*',
+                '',
+                '*1. Member Information Update*',
+                'Full Name: *' . $text($survey->full_name) . '*',
+                'Company / Organization: ' . $text($survey->company),
+                'Position / Title: ' . $text($survey->position),
+                'Email: ' . $text($survey->email),
+                'Mobile Number: ' . $text($survey->phone),
+                'LinkedIn / Professional Profile: ' . $text($survey->linkedin),
+                '',
+                '*2. Program Expectations & Input*',
+                'Event types: ' . $list($survey->event_types),
+                'Topics of interest: ' . $text($survey->topics_interest),
+                'Speaker wishlist: ' . $text($survey->speaker_wishlist),
+                'Award nominee: ' . $text($survey->nominee_name) . ' / ' . $text($survey->nominee_company),
+                'Suggestions to improve past events: ' . $text($survey->event_improvement),
+                '',
+                '*3. Marketing & Communication Awareness*',
+                'Social media familiarity: ' . $list($survey->social_familiarity),
+                'Platforms followed: ' . $list($survey->platforms),
+                'App & website awareness: ' . $list($survey->app_awareness),
+                'Usage frequency: ' . $list($survey->usage_frequency),
+                'Email primary goal: ' . $emailGoal,
+                'Best day for emails: ' . $list($survey->email_best_day),
+                'Communication suggestions: ' . $text($survey->communication_feedback),
+                '',
+                '*4. Additional Feedback*',
+                $text($survey->additional_feedback),
+                '',
+                '_Survey ID #' . $survey->id . ' · ' . $survey->created_at->format('d M Y H:i') . '_',
+            ];
+
+            $wa = new WhatsappApi();
+            $wa->phone   = self::WA_GROUP;
+            $wa->message = implode("\n", $lines);
+            $wa->WhatsappMessageGroup();
+        } catch (\Exception $e) {
+            Log::warning('WA member survey notification failed: ' . $e->getMessage());
+        }
     }
 }

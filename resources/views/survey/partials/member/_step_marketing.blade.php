@@ -1,0 +1,73 @@
+<div class="step-pane" data-step="3">
+    <h2 class="panel-header-title">3. Marketing & Communication Awareness</h2>
+
+    <div class="form-group">
+        <label>How familiar are you with our social media channels? <span class="req-star">*</span></label>
+        @include('survey.partials.member._choice', [
+            'name' => 'social_familiarity',
+            'type' => 'radio',
+            'options' => ['Very familiar', 'Somewhat familiar', 'Not familiar'],
+            'required' => true,
+        ])
+    </div>
+
+    <div class="form-group">
+        <label>Which social media platforms do you follow us on? <small><i>(Select all that apply)</i></small></label>
+        @include('survey.partials.member._choice', [
+            'name' => 'platforms',
+            'type' => 'checkbox',
+            'options' => ['LinkedIn', 'Instagram', 'Facebook', 'Twitter', 'YouTube', 'WhatsApp', 'Other'],
+        ])
+    </div>
+
+    <div class="form-group">
+        <label>Are you aware of the Djakarta Mining Club mobile app and website? <span class="req-star">*</span></label>
+        @include('survey.partials.member._choice', [
+            'name' => 'app_awareness',
+            'type' => 'radio',
+            'options' => ['Yes, both', 'Yes, mobile app only', 'Yes, website only', 'No'],
+            'required' => true,
+        ])
+    </div>
+
+    <div class="form-group" id="usage-frequency-group">
+        <label>If yes, how often do you use the mobile app or visit the website?</label>
+        @include('survey.partials.member._choice', [
+            'name' => 'usage_frequency',
+            'type' => 'radio',
+            'options' => ['Frequently', 'Occasionally', 'Rarely'],
+        ])
+    </div>
+
+    <div class="form-group">
+        <label>What is your primary goal when opening emails from the Djakarta Mining Club?</label>
+        @include('survey.partials.member._choice', [
+            'name' => 'email_primary_goal',
+            'type' => 'radio',
+            'options' => [
+                'Seeking information on upcoming events (Registration / Agenda)',
+                'Obtaining industry news and updates',
+                'Looking for networking opportunities',
+                'Other',
+            ],
+            'cols' => 1,
+        ])
+        <input type="text" name="email_primary_goal_other" id="email_primary_goal_other"
+            class="form-control-dark mt-2" placeholder="If other, please specify"
+            value="{{ old('email_primary_goal_other') }}">
+    </div>
+
+    <div class="form-group">
+        <label>What day is the best for you to receive industry-related emails?</label>
+        @include('survey.partials.member._choice', [
+            'name' => 'email_best_day',
+            'type' => 'radio',
+            'options' => ['Monday–Wednesday', 'Thursday–Friday', 'Saturday–Sunday', 'Time is not an issue'],
+        ])
+    </div>
+
+    <div class="form-group">
+        <label for="communication_feedback">Suggestions to improve communication and engagement</label>
+        <textarea name="communication_feedback" id="communication_feedback" rows="3" class="form-control-dark">{{ old('communication_feedback') }}</textarea>
+    </div>
+</div>
