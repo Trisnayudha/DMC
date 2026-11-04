@@ -206,7 +206,7 @@
                         <small class="text-muted">* Required</small>
                     </div>
 
-                    <img src="{{ asset('image/banner_mccloskey_v7.png') }}" class="banner-img">
+                    <img src="{{ asset('image/banner_mccloskey_v8.png') }}" class="banner-img">
 
                     <!-- INTRO TEXT -->
                     <div class="intro-text mb-4">

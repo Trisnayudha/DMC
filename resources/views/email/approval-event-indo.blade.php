@@ -114,7 +114,7 @@
 
     <div class="body">
         <div class="header-email">
-            <img src="{{ asset('image/banner_mccloskey_v7.png') }}" alt="Djakarta Mining Club" class="img-logo"
+            <img src="{{ asset('image/banner_mccloskey_v8.png') }}" alt="Djakarta Mining Club" class="img-logo"
                 style="width:100%;height:auto;display:block;">
         </div>
         <div class="body-email">
