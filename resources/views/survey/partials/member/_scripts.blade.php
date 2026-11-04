@@ -32,7 +32,14 @@
         }
 
         form.querySelectorAll('[data-choice-group]').forEach(function(group) {
-            group.addEventListener('change', function() {
+            group.addEventListener('change', function(event) {
+                if (group.dataset.choiceGroup === 'platforms' && event.target.checked) {
+                    var none = "I don't follow any";
+                    group.querySelectorAll('input').forEach(function(input) {
+                        if ((event.target.value === none && input !== event.target) ||
+                            (event.target.value !== none && input.value === none)) input.checked = false;
+                    });
+                }
                 syncChoiceGroup(group);
                 group.classList.remove('is-invalid');
                 toggleConditionalFields();
@@ -59,13 +66,15 @@
                 var input = document.getElementById(name === 'event_types' ? 'event_types_other' : 'event_improvement_other');
                 var selected = form.querySelector('input[name="' + name + '[]"][value="Other"]:checked');
                 input.style.display = selected ? '' : 'none';
-                if (!selected) input.value = '';
+                input.required = !!selected;
+                if (!selected) { input.value = ''; input.classList.remove('is-invalid'); }
             });
 
             var otherInput = document.getElementById('email_primary_goal_other');
             var isOther = checkedValue('email_primary_goal') === 'Other';
             otherInput.style.display = isOther ? '' : 'none';
-            if (!isOther) otherInput.value = '';
+            otherInput.required = isOther;
+            if (!isOther) { otherInput.value = ''; otherInput.classList.remove('is-invalid'); }
         }
 
         /* ---------- Validation ---------- */

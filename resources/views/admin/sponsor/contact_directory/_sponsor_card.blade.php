@@ -1,5 +1,6 @@
+@php($sponsorDisplayName = $sponsor->branding_name ?: $sponsor->name)
 <div class="card mb-2 sponsor-card"
-     data-name="{{ strtolower($sponsor->name) }}"
+     data-name="{{ strtolower($sponsorDisplayName) }}"
      data-package="{{ $sponsor->package }}">
     <div class="card-header py-2 d-flex align-items-center justify-content-between"
          style="cursor:pointer; border-left: 4px solid
@@ -13,10 +14,10 @@
                 background:@if($sponsor->package === 'platinum') #4e73df @elseif($sponsor->package === 'gold') #f6c23e @else #858796 @endif;
                 color:#fff;font-size:14px;font-weight:700;
                 display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                {{ strtoupper(substr($sponsor->name, 0, 1)) }}
+                {{ strtoupper(substr($sponsorDisplayName, 0, 1)) }}
             </div>
             <div>
-                <div class="font-weight-bold" style="font-size:14px">{{ $sponsor->name }}</div>
+                <div class="font-weight-bold" style="font-size:14px">{{ $sponsorDisplayName }}</div>
                 <div style="font-size:11px;margin-top:1px">
                     <span class="badge badge-sm
                         @if($sponsor->package === 'platinum') badge-primary
@@ -37,6 +38,11 @@
 
     <div class="collapse {{ session('open_sponsor') === $sponsor->id ? 'show' : '' }}" id="sponsor-{{ $sponsor->id }}">
         <div class="card-body p-0">
+            <div class="px-3 py-2 border-bottom text-right">
+                <button type="button" class="btn btn-sm btn-primary btn-add-contact" data-sponsor-id="{{ $sponsor->id }}" data-sponsor-name="{{ $sponsorDisplayName }}">
+                    <i class="fas fa-plus mr-1"></i>Add Contact
+                </button>
+            </div>
             <div class="table-responsive">
                 <table class="table table-sm table-hover mb-0" style="font-size:13px">
                     <thead>

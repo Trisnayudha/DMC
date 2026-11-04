@@ -46,7 +46,7 @@ class SponsorContactDirectoryExport implements FromCollection, WithHeadings, Sho
                 }
 
                 $rows->push([
-                    'Sponsor'          => $sponsor->name,
+                    'Sponsor'          => $sponsor->branding_name ?: $sponsor->name,
                     'Package'          => sponsor_package_label($sponsor->package),
                     'Name'             => $contact['name'] ?? '-',
                     'Role'             => self::ROLE_LABELS[$contact['role']] ?? $contact['role'],

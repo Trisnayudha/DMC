@@ -40,6 +40,7 @@ class DmcMemberSurveyController extends Controller
             'Facebook',
             'YouTube',
             'WhatsApp Channel',
+            "I don't follow any",
         ];
 
         $preferredChannels = [
@@ -68,11 +69,11 @@ class DmcMemberSurveyController extends Controller
              * ========================= */
             'event_types'   => 'required|array|min:1',
             'event_types.*' => ['string', Rule::in($eventTypes)],
-            'event_types_other' => 'nullable|string|max:255',
+            'event_types_other' => [Rule::requiredIf(in_array('Other', (array) $request->input('event_types', []), true)), 'nullable', 'string', 'max:255'],
             'nominee_reason' => 'nullable|string|max:255',
             'event_improvement_aspects' => 'nullable|array',
             'event_improvement_aspects.*' => ['string', Rule::in(['Event Topics & Content', 'Speakers & Presentations', 'Event Format & Duration', 'Networking Opportunities', 'Venue & Facilities', 'Other'])],
-            'event_improvement_other' => 'nullable|string|max:255',
+            'event_improvement_other' => [Rule::requiredIf(in_array('Other', (array) $request->input('event_improvement_aspects', []), true)), 'nullable', 'string', 'max:255'],
             'email_frequency' => 'nullable|array|max:1',
             'email_frequency.*' => ['string', Rule::in(['1 email per week', '2 emails per week', '3 emails per week', 'Only for important announcements and event updates'])],
 
@@ -84,7 +85,7 @@ class DmcMemberSurveyController extends Controller
 
             'email_primary_goal'        => 'nullable|array',
             'email_primary_goal.*'      => 'string',
-            'email_primary_goal_other'  => 'nullable|string|max:255',
+            'email_primary_goal_other'  => [Rule::requiredIf(in_array('Other', (array) $request->input('email_primary_goal', []), true)), 'nullable', 'string', 'max:255'],
 
             'email_best_day'            => 'nullable|array',
             'email_best_day.*'          => 'string',
@@ -105,7 +106,11 @@ class DmcMemberSurveyController extends Controller
                 ]),
             ],
 
-            'platforms'   => 'nullable|array',
+            'platforms' => ['nullable', 'array', function ($attribute, $value, $fail) {
+                if (is_array($value) && in_array("I don't follow any", $value, true) && count($value) > 1) {
+                    $fail("I don't follow any cannot be selected with other platforms.");
+                }
+            }],
             'platforms.*' => ['string', Rule::in($socialPlatforms)],
 
             'app_awareness'   => 'required|array|min:1',

@@ -59,6 +59,45 @@ class MemberSurveyRevisionTest extends TestCase
         (new DmcMemberSurveyController)->store(Request::create('/survey-member', 'POST', $this->input(['email_frequency' => ['Every day']])));
     }
 
+    public function test_all_other_answers_require_a_description(): void
+    {
+        foreach (['event_types_other', 'event_improvement_other', 'email_primary_goal_other'] as $field) {
+            $input = $this->input(['email_primary_goal' => ['Other'], 'email_primary_goal_other' => 'Something else']);
+            $input[$field] = '   ';
+            try {
+                (new DmcMemberSurveyController)->store(Request::create('/survey-member', 'POST', $input));
+                $this->fail("Missing description was accepted: {$field}");
+            } catch (ValidationException $exception) {
+                $this->assertArrayHasKey($field, $exception->errors());
+            }
+        }
+    }
+
+    public function test_none_option_cannot_be_combined_with_platforms(): void
+    {
+        try {
+            (new DmcMemberSurveyController)->store(Request::create('/survey-member', 'POST', $this->input([
+                'platforms' => ["I don't follow any", 'LinkedIn'],
+            ])));
+            $this->fail('Conflicting platform choices were accepted.');
+        } catch (ValidationException $exception) {
+            $this->assertArrayHasKey('platforms', $exception->errors());
+        }
+    }
+
+    public function test_none_option_is_saved_and_other_descriptions_are_optional_when_not_selected(): void
+    {
+        $mock = \Mockery::mock('overload:App\\Helpers\\WhatsappApi');
+        $mock->shouldReceive('WhatsappMessageGroup')->once();
+        (new DmcMemberSurveyController)->store(Request::create('/survey-member', 'POST', $this->input([
+            'event_types' => ['Workshops'], 'event_types_other' => null,
+            'event_improvement_aspects' => [], 'event_improvement_other' => null,
+            'email_primary_goal' => [], 'email_primary_goal_other' => null,
+            'platforms' => ["I don't follow any"],
+        ])));
+        $this->assertSame(["I don't follow any"], DmcMemberSurvey::firstOrFail()->platforms);
+    }
+
     protected function tearDown(): void
     {
         DB::purge('survey_test');

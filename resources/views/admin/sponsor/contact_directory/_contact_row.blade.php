@@ -57,6 +57,7 @@
         {{-- Edit untuk baris yang punya record PIC / representative / member; billing diedit di form Edit Sponsor. --}}
         @php
             $picIds    = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'pic');
+            $billingIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'billing');
             $repIds    = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'representative');
             $memberIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'member');
         @endphp
@@ -77,5 +78,17 @@
                 <i class="fas fa-pen"></i>
             </button>
         @endif
+        @foreach(['pic' => $picIds, 'billing' => $billingIds] as $sourceRole => $sourceIds)
+            @foreach($sourceIds as $sourceId)
+                <form method="POST" action="{{ route('sponsors.contact-directory.destroy') }}" class="d-inline remove-contact-form" data-role="{{ strtoupper($sourceRole) }}" data-name="{{ $contact['name'] }}">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="sponsor_id" value="{{ $sponsor->id }}">
+                    <input type="hidden" name="role" value="{{ $sourceRole }}">
+                    <input type="hidden" name="contact_id" value="{{ $sourceId }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove {{ strtoupper($sourceRole) }} contact"><i class="fas fa-trash-alt mr-1"></i>Remove {{ strtoupper($sourceRole) }}</button>
+                </form>
+            @endforeach
+        @endforeach
     </td>
 </tr>

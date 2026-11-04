@@ -10,6 +10,7 @@
             'required' => true,
         ])
         <input type="text" name="event_types_other" id="event_types_other" class="form-control-dark mt-2" placeholder="If other, please specify" value="{{ old('event_types_other') }}">
+        <div class="invalid-feedback-custom">Please specify your answer.</div>
     </div>
 
     <div class="form-group">
@@ -39,5 +40,6 @@
             'options' => ['Event Topics & Content', 'Speakers & Presentations', 'Event Format & Duration', 'Networking Opportunities', 'Venue & Facilities', 'Other'],
         ])
         <input type="text" name="event_improvement_other" id="event_improvement_other" class="form-control-dark mt-2" placeholder="If other, please specify" value="{{ old('event_improvement_other') }}">
+        <div class="invalid-feedback-custom">Please specify your answer.</div>
     </div>
 </div>

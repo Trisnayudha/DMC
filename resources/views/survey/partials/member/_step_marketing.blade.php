@@ -16,7 +16,7 @@
         @include('survey.partials.member._choice', [
             'name' => 'platforms',
             'type' => 'checkbox',
-            'options' => ['LinkedIn', 'Instagram', 'Facebook', 'YouTube', 'WhatsApp Channel'],
+            'options' => ['LinkedIn', 'Instagram', 'Facebook', 'YouTube', 'WhatsApp Channel', "I don't follow any"],
         ])
     </div>
 
@@ -55,6 +55,7 @@
         <input type="text" name="email_primary_goal_other" id="email_primary_goal_other"
             class="form-control-dark mt-2" placeholder="If other, please specify"
             value="{{ old('email_primary_goal_other') }}">
+        <div class="invalid-feedback-custom">Please specify your answer.</div>
     </div>
 
     <div class="form-group">

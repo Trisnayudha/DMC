@@ -7,12 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorLog;
+use App\Models\Sponsors\SponsorBilling;
 use App\Models\Sponsors\SponsorPic;
 use App\Models\Sponsors\SponsorRepresentative;
 use App\Models\User;
 use App\Services\Sponsors\SponsorContactRowBuilder;
 use App\Support\JobTierClassifier;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -48,6 +50,36 @@ class SponsorContactDirectoryController extends Controller
         $filename = 'sponsor-contact-directory-' . $suffix . '-' . now()->format('Y-m-d') . '.xlsx';
 
         return Excel::download(new SponsorContactDirectoryExport($sponsors, $role), $filename);
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'sponsor_id' => 'required|integer|exists:sponsors,id',
+            'role' => ['required', Rule::in(['pic', 'billing'])],
+            'name' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
+        ]);
+        $model = $data['role'] === 'pic' ? SponsorPic::class : SponsorBilling::class;
+        $model::create(collect($data)->except('role')->all());
+
+        return back()->with('success', 'Contact added successfully.')->with('open_sponsor', (int) $data['sponsor_id']);
+    }
+
+    public function destroy(Request $request)
+    {
+        $data = $request->validate([
+            'sponsor_id' => 'required|integer|exists:sponsors,id',
+            'role' => ['required', Rule::in(['pic', 'billing'])],
+            'contact_id' => 'required|integer',
+        ]);
+        $model = $data['role'] === 'pic' ? SponsorPic::class : SponsorBilling::class;
+        $contact = $model::where('sponsor_id', $data['sponsor_id'])->findOrFail($data['contact_id']);
+        $contact->delete();
+
+        return back()->with('success', 'Contact removed successfully.')->with('open_sponsor', (int) $data['sponsor_id']);
     }
 
     /**
@@ -169,14 +201,17 @@ class SponsorContactDirectoryController extends Controller
     {
         $query = Sponsor::with(['pics', 'billings', 'representatives', 'members'])
             ->where('status', 'publish')
-            ->orderBy('name');
+            ->orderByRaw("COALESCE(NULLIF(branding_name, ''), name)");
 
         if ($package) {
             $query->where('package', $package);
         }
 
         if ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where(function ($query) use ($search) {
+                $query->where('branding_name', 'like', '%' . $search . '%')
+                    ->orWhere('name', 'like', '%' . $search . '%');
+            });
         }
 
         $sponsors = $query->get();

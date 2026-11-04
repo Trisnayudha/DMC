@@ -46,10 +46,28 @@
     </section>
 </div>
 @include('admin.sponsor.contact_directory._edit_modal')
+@include('admin.sponsor.contact_directory._add_modal')
 @endsection
 
 @push('bottom')
 <script>
+    $(document).on('click', '.btn-add-contact', function() {
+        $('#addContactModal form')[0].reset();
+        $('#ac-sponsor-id').val($(this).data('sponsorId'));
+        $('#ac-sponsor-name').text($(this).data('sponsorName'));
+        $('#addContactModal').modal('show');
+    });
+    $(document).on('submit', '.remove-contact-form', function() {
+        return confirm('Remove the ' + $(this).data('role') + ' record for ' + $(this).data('name') + '? Other contact records and member profiles will remain.');
+    });
+
+    @if ($errors->any() && old('contact_action') === 'add')
+        var oldSponsorId = @json(old('sponsor_id'));
+        var oldSponsorButton = $('.btn-add-contact').filter(function() { return String($(this).data('sponsorId')) === String(oldSponsorId); }).first();
+        $('#ac-sponsor-name').text(oldSponsorButton.data('sponsorName') || 'Sponsor');
+        $('#addContactModal').modal('show');
+    @endif
+
     // Rotate chevron on collapse toggle
     $(document).on('click', '[data-toggle="collapse"]', function() {
         var icon = $(this).find('.fa-chevron-down, .fa-chevron-up');
