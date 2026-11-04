@@ -7,17 +7,19 @@
                 display:flex;align-items:center;justify-content:center;flex-shrink:0">
                 {{ strtoupper(substr($contact['name'] ?? '?', 0, 1)) }}
             </div>
-            <span class="font-weight-bold">{{ $contact['name'] ?? '-' }}</span>
+            <span class="font-weight-bold">{{ trim(($contact['salutation'] ?? '') . ' ' . ($contact['name'] ?? '-')) }}</span>
         </div>
     </td>
     <td class="align-middle" style="white-space:nowrap">
-        @if($contact['role'] === 'pic')
-            <span class="badge badge-primary">Primary Contact (PIC)</span>
-        @elseif($contact['role'] === 'billing')
-            <span class="badge badge-warning">Billing</span>
-        @else
-            <span class="badge badge-light border">Representative Profile</span>
-        @endif
+        @php
+            $rowPicIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'pic');
+            $rowCcIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'cc');
+            $rowBillingIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'billing');
+        @endphp
+        @if($rowPicIds)<span class="badge badge-primary">Primary Contact (PIC)</span>@endif
+        @if($rowCcIds)<span class="badge badge-info">CC</span>@endif
+        @if($rowBillingIds)<span class="badge badge-warning">Billing</span>@endif
+        @if(!$rowPicIds && !$rowCcIds && !$rowBillingIds)<span class="badge badge-light border">Representative Profile</span>@endif
     </td>
     <td class="align-middle text-muted" style="font-size:12px">{{ $contact['title'] ?: '-' }}</td>
     <td class="align-middle">
@@ -54,21 +56,25 @@
         @endif
     </td>
     <td class="align-middle text-right" style="padding-right:16px">
-        {{-- Edit untuk baris yang punya record PIC / representative / member; billing diedit di form Edit Sponsor. --}}
+        {{-- Edit sumber kontak yang tergabung dalam baris ini. --}}
         @php
             $picIds    = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'pic');
+            $ccIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'cc');
             $billingIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'billing');
             $repIds    = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'representative');
             $memberIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'member');
         @endphp
-        @if($picIds || $repIds || $memberIds)
+        @if($picIds || $ccIds || $billingIds || $repIds || $memberIds)
             <button type="button" class="btn btn-sm btn-outline-primary btn-edit-contact" title="Edit kontak"
                 data-sponsor-id="{{ $sponsor->id }}"
                 data-sponsor-name="{{ $sponsor->branding_name ?: $sponsor->name }}"
                 data-pic-ids='@json($picIds)'
+                data-cc-ids='@json($ccIds)'
+                data-billing-ids='@json($billingIds)'
                 data-rep-ids='@json($repIds)'
                 data-member-ids='@json($memberIds)'
                 data-has-billing="{{ \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'billing') ? 1 : 0 }}"
+                data-salutation="{{ $contact['salutation'] ?? '' }}"
                 data-name="{{ $contact['name'] }}"
                 data-title="{{ $contact['title'] }}"
                 data-email="{{ $contact['email'] }}"
@@ -78,7 +84,7 @@
                 <i class="fas fa-pen"></i>
             </button>
         @endif
-        @foreach(['pic' => $picIds, 'billing' => $billingIds] as $sourceRole => $sourceIds)
+        @foreach(['pic' => $picIds, 'cc' => $ccIds, 'billing' => $billingIds] as $sourceRole => $sourceIds)
             @foreach($sourceIds as $sourceId)
                 <form method="POST" action="{{ route('sponsors.contact-directory.destroy') }}" class="d-inline remove-contact-form" data-role="{{ strtoupper($sourceRole) }}" data-name="{{ $contact['name'] }}">
                     @csrf

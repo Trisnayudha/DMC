@@ -72,6 +72,7 @@ class SponsorFollowupController extends Controller
             'renewalForms' => $renewalForms,
             'billing'      => $contact ? [
                 'name'     => $contact->name,
+                'salutation' => $contact->salutation,
                 'title'    => $contact->title,
                 'email'    => $contact->email,
                 'phone'    => $contact->phone,

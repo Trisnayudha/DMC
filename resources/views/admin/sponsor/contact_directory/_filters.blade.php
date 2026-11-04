@@ -32,6 +32,7 @@
                     <a class="dropdown-item" href="{{ route('sponsors.contact-directory.export', $exportParams + ['role' => 'pic']) }}">
                         <i class="fas fa-user-tie mr-1 text-muted"></i> PICs Only
                     </a>
+                    <a class="dropdown-item" href="{{ route('sponsors.contact-directory.export', $exportParams + ['role' => 'cc']) }}"><i class="fas fa-envelope mr-1 text-muted"></i> CC Only</a>
                     <a class="dropdown-item" href="{{ route('sponsors.contact-directory.export', $exportParams + ['role' => 'billing']) }}">
                         <i class="fas fa-file-invoice-dollar mr-1 text-muted"></i> Billing Only
                     </a>

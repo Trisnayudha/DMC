@@ -10,15 +10,16 @@ use Illuminate\Support\Collection;
  * Identitas baris ditentukan email (lowercase+trim); tanpa email tidak
  * pernah di-dedup. Member dimasukkan lebih dulu agar datanya menang,
  * field kosong diisi dari sumber lain, dan role berprioritas tertinggi
- * (pic > billing > representative) yang menempel di baris gabungan.
+ * (pic > cc > billing > representative) yang menempel di baris gabungan.
  * 'sources' mencatat record asal tiap baris (dipakai edit di Contact Directory).
  */
 class SponsorContactRowBuilder
 {
     const ROLE_PRIORITY = [
         'pic'            => 1,
-        'billing'        => 2,
-        'representative' => 3,
+        'cc'             => 2,
+        'billing'        => 3,
+        'representative' => 4,
     ];
 
     public function build(Sponsor $sponsor): Collection
@@ -42,6 +43,7 @@ class SponsorContactRowBuilder
         foreach ($sponsor->pics as $pic) {
             $this->addContact($rows, [
                 'name'      => $pic->name,
+                'salutation' => $pic->salutation,
                 'title'     => $pic->title,
                 'email'     => $pic->email,
                 'phone'     => $pic->phone,
@@ -53,9 +55,18 @@ class SponsorContactRowBuilder
             ]);
         }
 
+        foreach ($sponsor->ccContacts as $cc) {
+            $this->addContact($rows, [
+                'name' => $cc->name, 'salutation' => $cc->salutation, 'title' => $cc->title,
+                'email' => $cc->email, 'phone' => $cc->phone, 'instagram' => null, 'linkedin' => null,
+                'role' => 'cc', 'user_id' => null, 'sources' => [['type' => 'cc', 'id' => $cc->id]],
+            ]);
+        }
+
         foreach ($sponsor->billings as $billing) {
             $this->addContact($rows, [
                 'name'      => $billing->name,
+                'salutation' => $billing->salutation,
                 'title'     => $billing->title,
                 'email'     => $billing->email,
                 'phone'     => $billing->phone,
@@ -99,7 +110,7 @@ class SponsorContactRowBuilder
 
             if ($existingIndex !== false) {
                 $existing = $rows[$existingIndex];
-                foreach (['name', 'title', 'email', 'phone', 'instagram', 'linkedin', 'user_id'] as $field) {
+                foreach (['name', 'salutation', 'title', 'email', 'phone', 'instagram', 'linkedin', 'user_id'] as $field) {
                     if (empty($existing[$field]) && !empty($contact[$field])) {
                         $existing[$field] = $contact[$field];
                     }

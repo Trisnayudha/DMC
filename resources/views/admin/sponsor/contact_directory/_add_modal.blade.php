@@ -10,8 +10,9 @@
             </div>
             <div class="modal-body">
                 <div class="form-group"><label for="ac-role">Contact type</label>
-                    <select class="form-control" id="ac-role" name="role" required><option value="pic" {{ old('role') === 'pic' ? 'selected' : '' }}>Primary Contact (PIC)</option><option value="billing" {{ old('role') === 'billing' ? 'selected' : '' }}>Billing</option></select>
+                    <select class="form-control" id="ac-role" name="role" required><option value="pic" {{ old('role') === 'pic' ? 'selected' : '' }}>Primary Contact (PIC)</option><option value="cc" {{ old('role') === 'cc' ? 'selected' : '' }}>CC</option><option value="billing" {{ old('role') === 'billing' ? 'selected' : '' }}>Billing</option></select>
                 </div>
+                <div class="form-group"><label for="ac-salutation">Salutation</label><select class="form-control" id="ac-salutation" name="salutation"><option value="">— Select —</option>@foreach (['Mr', 'Ms', 'Mrs'] as $option)<option value="{{ $option }}" {{ old('salutation') === $option ? 'selected' : '' }}>{{ $option }}</option>@endforeach</select></div>
                 <div class="form-group"><label for="ac-name">Name <span class="text-danger">*</span></label><input class="form-control" id="ac-name" name="name" value="{{ old('name') }}" required maxlength="255"></div>
                 <div class="form-group"><label for="ac-title">Title / Position</label><input class="form-control" id="ac-title" name="title" value="{{ old('title') }}" maxlength="255"></div>
                 <div class="form-group"><label for="ac-email">Email</label><input type="email" class="form-control" id="ac-email" name="email" value="{{ old('email') }}" maxlength="255"></div>

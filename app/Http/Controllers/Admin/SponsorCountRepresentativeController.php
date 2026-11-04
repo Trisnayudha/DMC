@@ -47,6 +47,7 @@ class SponsorCountRepresentativeController extends Controller
             'profiles.job_title as representative_job_title',
             'company.company_name as representative_company',
             'company.address as representative_address',
+            'sponsors.id as sponsor_id',
             'sponsors.name as company',
             'payment.created_at as attend_time',
             'events.name as event_name',
@@ -66,21 +67,29 @@ class SponsorCountRepresentativeController extends Controller
                     ->on('users_event.users_id', '=', 'users.id');
             })
             ->where('sponsors.status', 'publish')
-            ->whereNotNull('payment.sponsor_id')
-            ->whereYear('payment.created_at', $year);
+            ->whereNotNull('payment.sponsor_id');
 
         if (!empty($filterSponsor)) {
             $representativesQuery->where('sponsors.name', $filterSponsor);
         }
         if (!empty($filterEvent)) {
             $representativesQuery->where('payment.events_id', $filterEvent);
+        } else {
+            $representativesQuery->whereYear('payment.created_at', $year);
         }
 
-        // Pilihan filter event: event yang punya pendaftar perwakilan sponsor di tahun ini.
-        $eventFilterOptions = Events::whereIn('id', \Illuminate\Support\Facades\DB::table('payment')
-                ->whereNotNull('sponsor_id')
-                ->whereYear('created_at', $year)
-                ->select('events_id'))
+        // Include events without sponsor registrations and events registered for in this year.
+        $eventFilterOptions = Events::where('event_type', 'DMC Event')
+            ->where(function ($query) use ($year, $filterEvent) {
+                $query->whereYear('start_date', $year)
+                    ->orWhereIn('id', \Illuminate\Support\Facades\DB::table('payment')
+                        ->whereNotNull('sponsor_id')
+                        ->whereYear('created_at', $year)
+                        ->select('events_id'));
+                if ($filterEvent) {
+                    $query->orWhere('id', $filterEvent);
+                }
+            })
             ->orderBy('start_date', 'desc')
             ->get(['id', 'name', 'start_date']);
 
@@ -89,30 +98,45 @@ class SponsorCountRepresentativeController extends Controller
             ->orderBy('payment.created_at', 'desc')
             ->get();
 
-        /*
-         |---------------------------------------------------------------------------------
-         | Sponsors with no representative attendance this year
-         |---------------------------------------------------------------------------------
-         */
-        $attendedSponsorIds = \Illuminate\Support\Facades\DB::table('payment')
-            ->join('users_event', function ($join) {
+        // For a selected event, registration alone is enough; no check-in is required.
+        // The all-events view retains its existing annual attendance definition.
+        $participatingSponsorIds = \Illuminate\Support\Facades\DB::table('payment')
+            ->whereNotNull('payment.sponsor_id');
+        if ($filterEvent) {
+            $participatingSponsorIds->join('users', 'payment.member_id', '=', 'users.id')
+                ->where('payment.events_id', $filterEvent);
+        } else {
+            $participatingSponsorIds->join('users_event', function ($join) {
                 $join->on('users_event.payment_id', '=', 'payment.id')
                     ->on('users_event.users_id', '=', 'payment.member_id');
-            })
-            ->whereYear('payment.created_at', $year)
-            ->whereNotNull('users_event.present')
-            ->whereNotNull('payment.sponsor_id')
-            ->when($filterEvent, function ($q) use ($filterEvent) {
-                $q->where('payment.events_id', $filterEvent);
-            })
-            ->pluck('payment.sponsor_id')
-            ->unique();
+            })->whereYear('payment.created_at', $year)
+                ->whereNotNull('users_event.present');
+        }
 
         $nonAttendSponsors = Sponsor::with(['pics', 'representatives', 'members'])
             ->where('status', 'publish')
-            ->whereNotIn('id', $attendedSponsorIds)
+            ->whereNotIn('id', $participatingSponsorIds->select('payment.sponsor_id'))
+            ->when($filterSponsor, function ($query) use ($filterSponsor) {
+                $query->where('name', $filterSponsor);
+            })
             ->orderBy('name')
             ->get();
+
+        $eventSummary = null;
+        if ($filterEvent) {
+            $bySponsor = $representatives->groupBy('sponsor_id');
+            $summarySponsors = $sponsorList->when($filterSponsor, function ($items) use ($filterSponsor) {
+                return $items->where('name', $filterSponsor);
+            });
+            $eventSummary = ['registered' => [], 'not_registered' => [], 'attended' => [], 'not_attended' => []];
+            foreach ($summarySponsors as $sponsor) {
+                $people = $bySponsor->get($sponsor->id, collect());
+                $present = $people->filter(function ($person) { return !empty($person->present); });
+                $entry = ['name' => $sponsor->branding_name ?: $sponsor->name, 'people' => $people, 'present' => $present];
+                $eventSummary[$people->isNotEmpty() ? 'registered' : 'not_registered'][] = $entry;
+                $eventSummary[$present->isNotEmpty() ? 'attended' : 'not_attended'][] = $entry;
+            }
+        }
 
         // Events for the "Add to Event" modal (only DMC Event and DMC Partnership Event)
         $events = Events::whereIn('event_type', ['DMC Event', 'DMC Partnership Event'])
@@ -122,7 +146,7 @@ class SponsorCountRepresentativeController extends Controller
 
         // All publish sponsors with their contacts (member + PIC + rep + billing,
         // dedup by email, data user diutamakan) for the modal selector
-        $allSponsorsWithMembers = Sponsor::with(['members', 'pics', 'representatives', 'billings'])
+        $allSponsorsWithMembers = Sponsor::with(['members', 'pics', 'representatives', 'billings', 'ccContacts'])
             ->where('status', 'publish')
             ->orderBy('name')
             ->get();
@@ -168,6 +192,7 @@ class SponsorCountRepresentativeController extends Controller
             'filterEvent'           => $filterEvent,
             'eventFilterOptions'    => $eventFilterOptions,
             'nonAttendSponsors'     => $nonAttendSponsors,
+            'eventSummary'           => $eventSummary,
             'events'                => $events,
             'allSponsorsWithMembers' => $allSponsorsWithMembers,
             'sponsorContactsMap'    => $sponsorContactsMap,

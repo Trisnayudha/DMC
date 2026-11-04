@@ -26,7 +26,7 @@
                             class="form-inline flex-wrap" style="gap:8px">
                             <label class="mb-0 mr-1">Year:</label>
                             <input type="number" name="year" class="form-control form-control-sm"
-                                value="{{ $year }}" min="2000" max="{{ now()->year }}" style="width:90px">
+                                value="{{ $year }}" min="2000" max="{{ now()->year + 5 }}" style="width:90px">
 
                             <label class="mb-0 mr-1 ml-2">Sponsor:</label>
                             <select name="company" class="form-control form-control-sm" style="min-width:200px">
@@ -59,6 +59,8 @@
                         </form>
                     </div>
                 </div>
+
+                @include('admin.sponsor.representative._event_summary')
 
                 <!-- Attendance Table -->
                 <div class="row">
@@ -138,17 +140,16 @@
                         <div class="card">
                             <div class="card-header">
                                 <h4>
-                                    Sponsors with No Representative Attendance — {{ $year }}
+                                    {{ $filterEvent ? 'Sponsors with No Registration for This Event' : 'Sponsors with No Representative Attendance — ' . $year }}
                                     <span class="badge badge-warning ml-1">{{ $nonAttendSponsors->count() }}</span>
                                 </h4>
-                                <small class="text-muted">Active sponsors with no event attendance this year — contact info
-                                    shown for follow-up</small>
+                                <small class="text-muted">{{ $filterEvent ? 'Active sponsors without a representative registered for the selected event.' : 'Active sponsors with no event attendance this year — contact info shown for follow-up.' }}</small>
                             </div>
                             <div class="card-body p-0">
                                 @if ($nonAttendSponsors->isEmpty())
                                     <div class="text-center text-muted py-4">
                                         <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
-                                        All active sponsors have attendance records this year.
+                                        {{ $filterEvent ? 'All matching active sponsors have a representative registered for this event.' : 'All matching active sponsors have attendance records this year.' }}
                                     </div>
                                 @else
                                     <div class="table-responsive">
@@ -446,6 +447,7 @@
         // ── Helpers ──────────────────────────────────────────────────────────
         function roleLabel(role) {
             if (role === 'pic')     return '<span class="badge badge-primary ml-1">PIC</span>';
+            if (role === 'cc')      return '<span class="badge badge-info ml-1">CC</span>';
             if (role === 'billing') return '<span class="badge badge-warning ml-1">Billing</span>';
             return '<span class="badge badge-secondary ml-1">Rep</span>';
         }

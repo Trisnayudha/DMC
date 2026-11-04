@@ -28,6 +28,10 @@ class SponsorContactDirectoryActionsTest extends TestCase
         require_once database_path('migrations/2026_06_12_161120_create_sponsors_billing.php');
         (new \CreateSponsorsPic)->up();
         (new \CreateSponsorsBilling)->up();
+        require_once database_path('migrations/2026_11_04_010000_add_salutation_to_sponsor_contacts.php');
+        (new \AddSalutationToSponsorContacts)->up();
+        require_once database_path('migrations/2026_11_04_020000_create_sponsors_cc_contacts.php');
+        (new \CreateSponsorsCcContacts)->up();
         require_once database_path('migrations/2026_10_30_120000_create_sponsor_logs_table.php');
         (new \CreateSponsorLogsTable)->up();
         DB::table('sponsors')->insert([['id' => 1, 'name' => 'One'], ['id' => 2, 'name' => 'Two']]);
@@ -38,7 +42,7 @@ class SponsorContactDirectoryActionsTest extends TestCase
 
     public function test_add_and_remove_pic_and_billing_are_logged_and_scoped(): void
     {
-        foreach (['pic' => 'sponsors_pic', 'billing' => 'sponsors_billing'] as $role => $table) {
+        foreach (['pic' => 'sponsors_pic', 'cc' => 'sponsors_cc_contacts', 'billing' => 'sponsors_billing'] as $role => $table) {
             $this->post('/admin/sponsors/contact-directory', ['sponsor_id' => 1, 'role' => $role, 'name' => 'Contact', 'email' => 'contact@example.test'])->assertRedirect();
             $id = DB::table($table)->where('sponsor_id', 1)->value('id');
             $this->assertNotNull($id);
@@ -46,7 +50,7 @@ class SponsorContactDirectoryActionsTest extends TestCase
             $this->assertDatabaseHas($table, ['id' => $id, 'sponsor_id' => 1]);
             $this->delete('/admin/sponsors/contact-directory', ['sponsor_id' => 1, 'role' => $role, 'contact_id' => $id])->assertRedirect();
             $this->assertDatabaseMissing($table, ['id' => $id]);
-            $subject = $role === 'pic' ? 'PIC' : 'Billing';
+            $subject = ['pic' => 'PIC', 'cc' => 'CC Contact', 'billing' => 'Billing'][$role];
             $this->assertDatabaseHas('sponsor_logs', ['sponsor_id' => 1, 'subject' => $subject, 'action' => 'created']);
             $this->assertDatabaseHas('sponsor_logs', ['sponsor_id' => 1, 'subject' => $subject, 'action' => 'deleted']);
         }
@@ -92,6 +96,45 @@ class SponsorContactDirectoryActionsTest extends TestCase
         $sponsor->branding_name = null;
         $this->assertSame('One', (new \App\Exports\SponsorContactDirectoryExport(collect([$sponsor])))->collection()[0]['Sponsor']);
         $this->assertStringContainsString('>One</div>', view('admin.sponsor.contact_directory._sponsor_card', ['sponsor' => $sponsor])->render());
+    }
+
+    public function test_salutation_can_be_added_and_changed_for_pic_and_billing(): void
+    {
+        Schema::create('sponsors_representative', function ($table) { $table->id(); $table->unsignedBigInteger('sponsor_id'); });
+        Schema::create('users', function ($table) { $table->id(); });
+        Schema::create('payment', function ($table) { $table->id(); $table->unsignedBigInteger('member_id'); $table->unsignedBigInteger('sponsor_id'); });
+        foreach (['pic' => 'sponsors_pic', 'cc' => 'sponsors_cc_contacts', 'billing' => 'sponsors_billing'] as $role => $table) {
+            $this->post('/admin/sponsors/contact-directory', ['sponsor_id' => 1, 'role' => $role, 'name' => 'Contact', 'salutation' => 'Ms'])->assertRedirect();
+            $id = DB::table($table)->value('id');
+            $this->assertDatabaseHas($table, ['id' => $id, 'salutation' => 'Ms']);
+            $key = ['pic' => 'pic_ids', 'cc' => 'cc_ids', 'billing' => 'billing_ids'][$role];
+            $this->post('/admin/sponsors/contact-directory/update', ['sponsor_id' => 1, $key => [$id], 'name' => 'Contact', 'salutation' => 'Mrs'])->assertRedirect();
+            $this->assertDatabaseHas($table, ['id' => $id, 'salutation' => 'Mrs']);
+        }
+        $this->post('/admin/sponsors/contact-directory', ['sponsor_id' => 1, 'role' => 'pic', 'name' => 'Contact', 'salutation' => 'Dr'])->assertSessionHasErrors('salutation');
+    }
+
+    public function test_cc_and_pic_for_same_email_are_visible_and_exportable(): void
+    {
+        Schema::create('sponsors_representative', function ($table) { $table->id(); $table->unsignedBigInteger('sponsor_id'); });
+        Schema::create('users', function ($table) { $table->id(); $table->string('name'); $table->string('email'); $table->string('status_member'); });
+        Schema::create('profiles', function ($table) { $table->id(); $table->unsignedBigInteger('users_id'); $table->string('fullphone')->nullable(); $table->string('job_title')->nullable(); });
+        Schema::create('payment', function ($table) { $table->id(); $table->unsignedBigInteger('sponsor_id'); $table->unsignedBigInteger('member_id'); });
+        foreach (['pic', 'cc'] as $role) {
+            $this->post('/admin/sponsors/contact-directory', ['sponsor_id' => 1, 'role' => $role, 'name' => 'Same Person', 'salutation' => 'Ms', 'email' => 'same@example.test'])->assertRedirect();
+        }
+        $data = (new \App\Http\Controllers\Admin\SponsorContactDirectoryController)->index(\Illuminate\Http\Request::create('/admin/sponsors/contact-directory'))->getData();
+        $sponsor = $data['sponsors']->firstWhere('id', 1);
+        $this->assertCount(1, $sponsor->contactRows);
+        $this->assertSame(1, $data['totalCcs']);
+        $html = view('admin.sponsor.contact_directory._contact_row', ['sponsor' => $sponsor, 'contact' => $sponsor->contactRows->first()])->render();
+        $this->assertStringContainsString('Primary Contact (PIC)', $html);
+        $this->assertStringContainsString('>CC</span>', $html);
+        $rows = (new \App\Exports\SponsorContactDirectoryExport(collect([$sponsor]), 'cc'))->collection();
+        $this->assertCount(1, $rows);
+        $this->assertSame('CC', $rows[0]['Role']);
+        $all = (new \App\Exports\SponsorContactDirectoryExport(collect([$sponsor])))->collection();
+        $this->assertSame('Primary Contact (PIC), CC', $all[0]['Role']);
     }
 
     public function test_other_contact_types_and_unauthorized_users_are_rejected(): void

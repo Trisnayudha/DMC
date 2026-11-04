@@ -21,6 +21,29 @@ class SponsorRenewalFormTotalsTest extends TestCase
         $this->assertStringNotContainsString('Grand Total IDR', $html);
     }
 
+    public function test_renewal_form_uses_the_contact_salutation_in_attention_and_approval(): void
+    {
+        $sponsor = new \App\Models\Sponsors\Sponsor(['name' => 'Example', 'package' => 'gold']);
+        $html = view('admin.sponsor.renewal-form', [
+            'sponsor' => $sponsor, 'renewalForm' => null, 'renewal' => null,
+            'contactOverride' => (object) ['salutation' => 'Mrs', 'name' => 'Jane', 'title' => null, 'phone' => null, 'email' => null],
+            'kursRate' => 17000, 'packageBenefits' => [],
+        ])->render();
+        $this->assertSame(2, substr_count($html, 'Mrs Jane'));
+    }
+
+    public function test_renewal_form_uses_pic_salutation_when_there_is_no_billing_contact(): void
+    {
+        $sponsor = new \App\Models\Sponsors\Sponsor(['name' => 'Example', 'package' => 'gold']);
+        $sponsor->setRelation('firstBilling', null);
+        $sponsor->setRelation('firstPic', new \App\Models\Sponsors\SponsorPic(['salutation' => 'Mr', 'name' => 'John']));
+        $html = view('admin.sponsor.renewal-form', [
+            'sponsor' => $sponsor, 'renewalForm' => null, 'renewal' => null,
+            'kursRate' => 17000, 'packageBenefits' => [],
+        ])->render();
+        $this->assertSame(2, substr_count($html, 'Mr John'));
+    }
+
     public function test_usd_vat_totals_follow_the_requested_order(): void
     {
         $sponsor = new \App\Models\Sponsors\Sponsor(['name' => 'Example', 'package' => 'gold']);

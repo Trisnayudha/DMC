@@ -1,5 +1,5 @@
 <div class="row mb-3">
-    <div class="col-lg-3 col-md-6 col-sm-6">
+    <div class="col-xl col-md-4 col-sm-6">
         <div class="card card-statistic-1">
             <div class="card-icon bg-primary"><i class="fas fa-building"></i></div>
             <div class="card-wrap">
@@ -8,7 +8,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 col-sm-6">
+    <div class="col-xl col-md-4 col-sm-6">
         <div class="card card-statistic-1">
             <div class="card-icon bg-secondary"><i class="fas fa-user-tie"></i></div>
             <div class="card-wrap">
@@ -17,7 +17,13 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 col-sm-6">
+    <div class="col-xl col-md-4 col-sm-6">
+        <div class="card card-statistic-1">
+            <div class="card-icon bg-info"><i class="fas fa-envelope"></i></div>
+            <div class="card-wrap"><div class="card-header"><h4>CC Contacts</h4></div><div class="card-body">{{ $totalCcs }}</div></div>
+        </div>
+    </div>
+    <div class="col-xl col-md-4 col-sm-6">
         <div class="card card-statistic-1">
             <div class="card-icon bg-warning"><i class="fas fa-file-invoice-dollar"></i></div>
             <div class="card-wrap">
@@ -26,7 +32,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 col-sm-6">
+    <div class="col-xl col-md-4 col-sm-6">
         <div class="card card-statistic-1">
             <div class="card-icon bg-success"><i class="fas fa-user-friends"></i></div>
             <div class="card-wrap">

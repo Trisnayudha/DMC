@@ -83,9 +83,11 @@
     // (PIC & member: phone, representative: social). Email member = login, tidak diubah.
     $(document).on('click', '.btn-edit-contact', function() {
         var d = $(this).data();
-        var picIds = d.picIds || [], repIds = d.repIds || [], memberIds = d.memberIds || [];
+        var picIds = d.picIds || [], ccIds = d.ccIds || [], billingIds = d.billingIds || [], repIds = d.repIds || [], memberIds = d.memberIds || [];
         var $ids = $('#ec-source-ids').empty();
         picIds.forEach(function(id) { $ids.append($('<input type="hidden" name="pic_ids[]">').val(id)); });
+        ccIds.forEach(function(id) { $ids.append($('<input type="hidden" name="cc_ids[]">').val(id)); });
+        billingIds.forEach(function(id) { $ids.append($('<input type="hidden" name="billing_ids[]">').val(id)); });
         repIds.forEach(function(id) { $ids.append($('<input type="hidden" name="rep_ids[]">').val(id)); });
         memberIds.forEach(function(id) { $ids.append($('<input type="hidden" name="member_ids[]">').val(id)); });
 
@@ -94,20 +96,23 @@
         ['name', 'title', 'email', 'phone', 'instagram', 'linkedin'].forEach(function(f) {
             $('#ec-' + f).val(d[f] == null ? '' : d[f]);
         });
-        var memberOnly = memberIds.length > 0 && !picIds.length && !repIds.length;
+        $('#ec-salutation').val(d.salutation || '');
+        $('.ec-salutation').toggle(picIds.length > 0 || ccIds.length > 0 || billingIds.length > 0);
+        var memberOnly = memberIds.length > 0 && !picIds.length && !ccIds.length && !billingIds.length && !repIds.length;
         $('#ec-email').prop('readonly', memberOnly);
-        $('.ec-pic-only').toggle(picIds.length > 0 || memberIds.length > 0);
+        $('.ec-pic-only').toggle(picIds.length > 0 || ccIds.length > 0 || billingIds.length > 0 || memberIds.length > 0);
         $('.ec-rep-only').toggle(repIds.length > 0);
 
         var scope = [];
         if (picIds.length) scope.push('PIC');
+        if (ccIds.length) scope.push('CC');
+        if (billingIds.length) scope.push('Billing');
         if (repIds.length) scope.push('Representative');
         if (memberIds.length) scope.push('member profile');
         $('#ec-scope').text('This will update the ' + scope.join(' & ') + ' record for this sponsor.');
 
         var notes = [];
         if (memberIds.length) notes.push('Member profile: name, job title and phone will be updated as well; the member email stays unchanged (used for login).');
-        if (d.hasBilling) notes.push('This contact is also the billing contact — billing details are edited from the Edit Sponsor form.');
         $('#ec-note').text(notes.join(' ')).toggle(notes.length > 0);
 
         $('#editContactModal').modal('show');

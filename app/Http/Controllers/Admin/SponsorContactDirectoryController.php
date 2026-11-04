@@ -8,6 +8,7 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorLog;
 use App\Models\Sponsors\SponsorBilling;
+use App\Models\Sponsors\SponsorCcContact;
 use App\Models\Sponsors\SponsorPic;
 use App\Models\Sponsors\SponsorRepresentative;
 use App\Models\User;
@@ -28,13 +29,14 @@ class SponsorContactDirectoryController extends Controller
 
         $sponsors = $this->getSponsorsWithContactRows($search, $package);
 
-        $totalPics     = $sponsors->sum(function ($s) { return $s->contactRows->where('role', 'pic')->count(); });
-        $totalBillings = $sponsors->sum(function ($s) { return $s->contactRows->where('role', 'billing')->count(); });
+        $totalPics     = $sponsors->sum(function ($s) { return $s->contactRows->filter(function ($row) { return SponsorContactRowBuilder::sourceIds($row, 'pic'); })->count(); });
+        $totalCcs = $sponsors->sum(function ($s) { return $s->contactRows->filter(function ($row) { return SponsorContactRowBuilder::sourceIds($row, 'cc'); })->count(); });
+        $totalBillings = $sponsors->sum(function ($s) { return $s->contactRows->filter(function ($row) { return SponsorContactRowBuilder::sourceIds($row, 'billing'); })->count(); });
         $totalReps     = $sponsors->sum(function ($s) { return $s->contactRows->where('role', 'representative')->count(); });
 
         return view('admin.sponsor.contact_directory', compact(
             'sponsors', 'search', 'package',
-            'totalPics', 'totalBillings', 'totalReps'
+            'totalPics', 'totalCcs', 'totalBillings', 'totalReps'
         ));
     }
 
@@ -56,13 +58,14 @@ class SponsorContactDirectoryController extends Controller
     {
         $data = $request->validate([
             'sponsor_id' => 'required|integer|exists:sponsors,id',
-            'role' => ['required', Rule::in(['pic', 'billing'])],
+            'role' => ['required', Rule::in(['pic', 'cc', 'billing'])],
             'name' => 'required|string|max:255',
+            'salutation' => ['nullable', Rule::in(['Mr', 'Ms', 'Mrs'])],
             'title' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:50',
         ]);
-        $model = $data['role'] === 'pic' ? SponsorPic::class : SponsorBilling::class;
+        $model = ['pic' => SponsorPic::class, 'cc' => SponsorCcContact::class, 'billing' => SponsorBilling::class][$data['role']];
         $model::create(collect($data)->except('role')->all());
 
         return back()->with('success', 'Contact added successfully.')->with('open_sponsor', (int) $data['sponsor_id']);
@@ -72,10 +75,10 @@ class SponsorContactDirectoryController extends Controller
     {
         $data = $request->validate([
             'sponsor_id' => 'required|integer|exists:sponsors,id',
-            'role' => ['required', Rule::in(['pic', 'billing'])],
+            'role' => ['required', Rule::in(['pic', 'cc', 'billing'])],
             'contact_id' => 'required|integer',
         ]);
-        $model = $data['role'] === 'pic' ? SponsorPic::class : SponsorBilling::class;
+        $model = ['pic' => SponsorPic::class, 'cc' => SponsorCcContact::class, 'billing' => SponsorBilling::class][$data['role']];
         $contact = $model::where('sponsor_id', $data['sponsor_id'])->findOrFail($data['contact_id']);
         $contact->delete();
 
@@ -84,7 +87,7 @@ class SponsorContactDirectoryController extends Controller
 
     /**
      * Edit satu baris kontak: semua record PIC, representative & profil member yang
-     * tergabung di baris itu diperbarui sekaligus. Billing tetap lewat form Edit Sponsor.
+     * tergabung di baris itu diperbarui sekaligus, termasuk billing.
      * PIC/representative tercatat di Sponsor Log lewat model; member juga di user_edit_logs.
      */
     public function update(Request $request)
@@ -93,6 +96,11 @@ class SponsorContactDirectoryController extends Controller
             'sponsor_id'   => 'required|exists:sponsors,id',
             'pic_ids'      => 'array',
             'pic_ids.*'    => 'integer',
+            'cc_ids' => 'array',
+            'cc_ids.*' => 'integer',
+            'billing_ids' => 'array',
+            'billing_ids.*' => 'integer',
+            'salutation' => ['nullable', Rule::in(['Mr', 'Ms', 'Mrs'])],
             'rep_ids'      => 'array',
             'rep_ids.*'    => 'integer',
             'member_ids'   => 'array',
@@ -107,18 +115,22 @@ class SponsorContactDirectoryController extends Controller
         $sponsorId = (int) $validated['sponsor_id'];
 
         $pics = SponsorPic::where('sponsor_id', $sponsorId)->whereIn('id', $validated['pic_ids'] ?? [])->get();
+        $ccContacts = SponsorCcContact::where('sponsor_id', $sponsorId)->whereIn('id', $validated['cc_ids'] ?? [])->get();
+        $billings = SponsorBilling::where('sponsor_id', $sponsorId)->whereIn('id', $validated['billing_ids'] ?? [])->get();
         $reps = SponsorRepresentative::where('sponsor_id', $sponsorId)->whereIn('id', $validated['rep_ids'] ?? [])->get();
         // Member hanya yang memang terhubung ke sponsor ini (didaftarkan lewat payment sponsor).
         $members = User::whereIn('id', $validated['member_ids'] ?? [])
             ->whereIn('id', DB::table('payment')->where('sponsor_id', $sponsorId)->select('member_id'))
             ->get();
 
-        if ($pics->isEmpty() && $reps->isEmpty() && $members->isEmpty()) {
+        if ($pics->isEmpty() && $ccContacts->isEmpty() && $billings->isEmpty() && $reps->isEmpty() && $members->isEmpty()) {
             return back()->with('error', 'Contact not found for this sponsor.');
         }
 
-        DB::transaction(function () use ($pics, $reps, $members, $validated, $sponsorId) {
+        DB::transaction(function () use ($pics, $ccContacts, $billings, $reps, $members, $validated, $sponsorId) {
             $this->updatePics($pics, $validated);
+            $this->updatePics($ccContacts, $validated);
+            $this->updatePics($billings, $validated);
             $this->updateReps($reps, $validated);
             foreach ($members as $member) {
                 $this->updateMember($member, $validated, $sponsorId);
@@ -135,6 +147,7 @@ class SponsorContactDirectoryController extends Controller
         foreach ($pics as $pic) {
             $pic->update([
                 'name'  => $data['name'],
+                'salutation' => array_key_exists('salutation', $data) ? $data['salutation'] : $pic->salutation,
                 'title' => $data['title'] ?? null,
                 'email' => $data['email'] ?? null,
                 'phone' => $data['phone'] ?? null,
@@ -199,7 +212,7 @@ class SponsorContactDirectoryController extends Controller
 
     private function getSponsorsWithContactRows($search, $package)
     {
-        $query = Sponsor::with(['pics', 'billings', 'representatives', 'members'])
+        $query = Sponsor::with(['pics', 'ccContacts', 'billings', 'representatives', 'members'])
             ->where('status', 'publish')
             ->orderByRaw("COALESCE(NULLIF(branding_name, ''), name)");
 

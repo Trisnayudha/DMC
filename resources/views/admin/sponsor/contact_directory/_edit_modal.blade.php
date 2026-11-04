@@ -11,6 +11,7 @@
             </div>
             <div class="modal-body">
                 <p class="small text-muted mb-3" id="ec-scope"></p>
+                <div class="form-group ec-salutation"><label for="ec-salutation">Salutation</label><select class="form-control" id="ec-salutation" name="salutation"><option value="">— Select —</option><option value="Mr">Mr</option><option value="Ms">Ms</option><option value="Mrs">Mrs</option></select></div>
                 <div class="form-group">
                     <label>Name <span class="text-danger">*</span></label>
                     <input type="text" name="name" id="ec-name" class="form-control" required maxlength="255">

@@ -10,6 +10,7 @@ class SponsorContactDirectoryExport implements FromCollection, WithHeadings, Sho
 {
     const ROLE_LABELS = [
         'pic'            => 'Primary Contact (PIC)',
+        'cc'             => 'CC',
         'billing'        => 'Billing',
         'representative' => 'Representative Profile',
     ];
@@ -41,15 +42,21 @@ class SponsorContactDirectoryExport implements FromCollection, WithHeadings, Sho
 
         foreach ($this->sponsors as $sponsor) {
             foreach ($sponsor->contactRows as $contact) {
-                if ($this->role !== 'all' && $contact['role'] !== $this->role) {
+                if ($this->role !== 'all' && $contact['role'] !== $this->role && !\App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, $this->role)) {
                     continue;
                 }
 
+                $roles = [];
+                foreach (['pic', 'cc', 'billing', 'representative'] as $type) {
+                    if ($contact['role'] === $type || \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, $type)) {
+                        $roles[] = self::ROLE_LABELS[$type];
+                    }
+                }
                 $rows->push([
                     'Sponsor'          => $sponsor->branding_name ?: $sponsor->name,
                     'Package'          => sponsor_package_label($sponsor->package),
                     'Name'             => $contact['name'] ?? '-',
-                    'Role'             => self::ROLE_LABELS[$contact['role']] ?? $contact['role'],
+                    'Role'             => $this->role === 'all' ? implode(', ', $roles) : (self::ROLE_LABELS[$this->role] ?? $contact['role']),
                     'Title / Position' => $contact['title'] ?: '-',
                     'Email'            => $contact['email'] ?: '-',
                     'Phone'            => $contact['phone'] ?: '-',

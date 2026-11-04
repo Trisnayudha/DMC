@@ -27,8 +27,9 @@
                     </span>
                     <span class="text-muted ml-1">
                         {{ $sponsor->contactRows->count() }} contact{{ $sponsor->contactRows->count() === 1 ? '' : 's' }}
-                        &middot; {{ $sponsor->contactRows->where('role', 'pic')->count() }} PIC
-                        &middot; {{ $sponsor->contactRows->where('role', 'billing')->count() }} Billing
+                        &middot; {{ $sponsor->contactRows->filter(function ($row) { return \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($row, 'pic'); })->count() }} PIC
+                        &middot; {{ $sponsor->contactRows->filter(function ($row) { return \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($row, 'cc'); })->count() }} CC
+                        &middot; {{ $sponsor->contactRows->filter(function ($row) { return \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($row, 'billing'); })->count() }} Billing
                     </span>
                 </div>
             </div>

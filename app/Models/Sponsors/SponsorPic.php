@@ -16,6 +16,7 @@ class SponsorPic extends Model
     protected $fillable = [
         'sponsor_id',
         'name',
+        'salutation',
         'title',
         'email',
         'phone',

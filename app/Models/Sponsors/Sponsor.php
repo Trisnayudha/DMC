@@ -89,6 +89,11 @@ class Sponsor extends Model
         return $this->hasMany(SponsorBilling::class, 'sponsor_id');
     }
 
+    public function ccContacts()
+    {
+        return $this->hasMany(SponsorCcContact::class, 'sponsor_id');
+    }
+
     public function firstBilling()
     {
         return $this->hasOne(SponsorBilling::class, 'sponsor_id')->oldest('id');

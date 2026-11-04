@@ -450,6 +450,7 @@
         // punya billing contact, diisi dari PIC (from_pic).
         function fillPicFields() {
             var b = billingData || {};
+            $('#rfBillingSalutation').val(b.salutation || '');
             $('#rfBillingName').val(b.name || '');
             $('#rfBillingTitle').val(b.title || '');
             $('#rfBillingEmail').val(b.email || '');
@@ -658,6 +659,7 @@
                 amount_idr:    $('#rfAmountIdr').val(),
                 vat_percent:   $('#rfVatPercent').val(),
                 generated_at:  $('#rfGeneratedAt').val(),
+                billing_salutation: $('#rfBillingSalutation').val(),
                 billing_name:  $('#rfBillingName').val(),
                 billing_title: $('#rfBillingTitle').val(),
                 billing_email: $('#rfBillingEmail').val(),
@@ -689,6 +691,7 @@
                     amount_idr:   $('#rfAmountIdr').val(),
                     vat_percent:  $('#rfVatPercent').val(),
                     generated_at: $('#rfGeneratedAt').val(),
+                    billing_salutation: $('#rfBillingSalutation').val(),
                     billing_name:  $('#rfBillingName').val(),
                     billing_title: $('#rfBillingTitle').val(),
                     billing_email: $('#rfBillingEmail').val(),

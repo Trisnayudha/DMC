@@ -350,6 +350,10 @@
                         <div class="small text-warning mb-2" id="rfBillingFromPic" style="display:none;">
                             <i class="fas fa-info-circle mr-1"></i>No billing contact on file — prefilled from the PIC.{{ $canEditBilling ? ' Saving will set this as the billing contact.' : '' }}
                         </div>
+                        <div class="form-group">
+                            <label for="rfBillingSalutation">Salutation</label>
+                            <select id="rfBillingSalutation" class="form-control" {{ $canEditBilling ? '' : 'disabled' }}><option value="">— Select —</option><option value="Mr">Mr</option><option value="Ms">Ms</option><option value="Mrs">Mrs</option></select>
+                        </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">

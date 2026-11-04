@@ -106,6 +106,7 @@ class SponsorRenewalFormController extends Controller
             'vat_percent'   => 'nullable|numeric|min:0|max:100',
             'notes'         => 'nullable|string|max:1000',
             'generated_at'  => 'nullable|date',
+            'billing_salutation' => 'nullable|in:Mr,Ms,Mrs',
             'billing_name'  => 'nullable|string|max:255',
             'billing_title' => 'nullable|string|max:255',
             'billing_email' => 'nullable|string|max:255',
@@ -129,12 +130,13 @@ class SponsorRenewalFormController extends Controller
 
         // Billing contact yang sedang diketik ikut ke baris Attention (kosong = kontak tersimpan).
         $typed = array_filter([
+            'salutation' => $input['billing_salutation'] ?? null,
             'name'  => $input['billing_name'] ?? null,
             'title' => $input['billing_title'] ?? null,
             'email' => $input['billing_email'] ?? null,
             'phone' => $input['billing_phone'] ?? null,
         ]);
-        $contactOverride = $typed ? (object) array_merge(['name' => null, 'title' => null, 'email' => null, 'phone' => null], $typed) : null;
+        $contactOverride = $typed ? (object) array_merge(['salutation' => null, 'name' => null, 'title' => null, 'email' => null, 'phone' => null], $typed) : null;
 
         return view('admin.sponsor.renewal-form', $data + [
             'isPreview'       => true,
@@ -291,6 +293,7 @@ class SponsorRenewalFormController extends Controller
             'vat_percent'  => 'nullable|numeric|min:0|max:100',
             'notes'        => 'nullable|string|max:1000',
             'generated_at' => 'nullable|date',
+            'billing_salutation' => 'nullable|in:Mr,Ms,Mrs',
             'billing_name'  => 'nullable|string|max:255',
             'billing_title' => 'nullable|string|max:255',
             'billing_email' => 'nullable|email|max:255',
@@ -340,6 +343,7 @@ class SponsorRenewalFormController extends Controller
             if ($hasBillingInput && auth()->user()->canAccessModule('sponsors')) {
                 $billing = $sponsor->firstBilling ?? new SponsorBilling(['sponsor_id' => $sponsor->id]);
                 $billing->fill([
+                    'salutation' => array_key_exists('billing_salutation', $validated) ? $validated['billing_salutation'] : $billing->salutation,
                     'name'  => $validated['billing_name'] ?? $billing->name,
                     'title' => $validated['billing_title'] ?? $billing->title,
                     'email' => $validated['billing_email'] ?? $billing->email,
@@ -400,6 +404,7 @@ class SponsorRenewalFormController extends Controller
     {
         $contact = $sponsor->billingContact();
         return [
+            'Billing Salutation' => $contact ? (string) $contact->salutation : '',
             'Billing Name'  => $contact ? (string) $contact->name : '',
             'Billing Title' => $contact ? (string) $contact->title : '',
             'Billing Email' => $contact ? (string) $contact->email : '',

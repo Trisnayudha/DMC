@@ -299,7 +299,7 @@
                         <td style="vertical-align:top; padding-top:4px;">Attention</td>
                         <td style="padding-top:4px;">
                             @if($pic)
-                                {{ $pic->name }}<br>
+                                {{ trim(($pic->salutation ?? '') . ' ' . $pic->name) }}<br>
                                 @if($pic->title) {{ $pic->title }}<br> @endif
                                 <strong>{{ $sponsor->name }}</strong><br>
                                 @if($sponsor->address) {{ $sponsor->address }}<br> @endif
@@ -486,7 +486,7 @@
         <div class="approval-block">
             <div class="approved-text">Approved by</div>
             <div class="signature-line">
-                @if($pic) {{ $pic->name }} @else {{ $sponsor->name }} @endif
+                @if($pic) {{ trim(($pic->salutation ?? '') . ' ' . $pic->name) }} @else {{ $sponsor->name }} @endif
             </div>
         </div>
     </div>
