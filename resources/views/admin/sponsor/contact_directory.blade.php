@@ -47,6 +47,7 @@
 </div>
 @include('admin.sponsor.contact_directory._edit_modal')
 @include('admin.sponsor.contact_directory._add_modal')
+@include('admin.sponsor.contact_directory._add_roles_modal')
 @endsection
 
 @push('bottom')
@@ -57,6 +58,43 @@
         $('#ac-sponsor-name').text($(this).data('sponsorName'));
         $('#addContactModal').modal('show');
     });
+    $(document).on('click', '.btn-add-role', function() {
+        var d = $(this).data();
+        var existing = d.existingRoles || [];
+        $('#addRolesModal form')[0].reset();
+        $('#ar-validation').hide();
+        $('#ar-sponsor-id').val(d.sponsorId);
+        $('#ar-email').val(d.email);
+        $('#ar-sponsor-name').text(d.sponsorName);
+        $('#ar-contact-name').text(d.name);
+        $('#ar-contact-email').text(d.email);
+        $('#addRolesModal input[name="roles[]"]').each(function() {
+            var taken = existing.indexOf(this.value) !== -1;
+            $(this).prop('disabled', taken).prop('checked', false);
+            $(this).closest('label').find('.ar-existing').toggle(taken);
+        });
+        $('#addRolesModal').modal('show');
+    });
+    $('#addRolesModal form').on('submit', function(event) {
+        if (!$(this).find('input[name="roles[]"]:checked').length) {
+            event.preventDefault();
+            $('#ar-validation').show();
+        }
+    });
+    @if ($errors->any() && old('contact_action') === 'add_roles')
+        var roleSponsor = @json(old('sponsor_id'));
+        var roleEmail = @json(old('email'));
+        var roleButton = $('.btn-add-role').filter(function() {
+            return String($(this).data('sponsorId')) === String(roleSponsor) && String($(this).data('email')).toLowerCase() === String(roleEmail).toLowerCase();
+        }).first();
+        if (roleButton.length) {
+            roleButton.trigger('click');
+            var oldRoles = @json(old('roles', []));
+            $('#addRolesModal input[name="roles[]"]').each(function() {
+                if (!this.disabled && oldRoles.indexOf(this.value) !== -1) this.checked = true;
+            });
+        }
+    @endif
     $(document).on('submit', '.remove-contact-form', function() {
         return confirm('Remove the ' + $(this).data('role') + ' record for ' + $(this).data('name') + '? Other contact records and member profiles will remain.');
     });

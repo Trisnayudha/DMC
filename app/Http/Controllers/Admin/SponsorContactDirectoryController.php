@@ -16,6 +16,7 @@ use App\Services\Sponsors\SponsorContactRowBuilder;
 use App\Support\JobTierClassifier;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -69,6 +70,47 @@ class SponsorContactDirectoryController extends Controller
         $model::create(collect($data)->except('role')->all());
 
         return back()->with('success', 'Contact added successfully.')->with('open_sponsor', (int) $data['sponsor_id']);
+    }
+
+    public function addRoles(Request $request)
+    {
+        $data = $request->validate([
+            'sponsor_id' => 'required|integer|exists:sponsors,id',
+            'email' => 'required|email|max:255',
+            'roles' => 'required|array|min:1|max:3',
+            'roles.*' => ['required', 'distinct', Rule::in(['pic', 'cc', 'billing'])],
+        ]);
+        $email = mb_strtolower(trim($data['email']));
+        $models = ['pic' => SponsorPic::class, 'cc' => SponsorCcContact::class, 'billing' => SponsorBilling::class];
+
+        DB::transaction(function () use ($data, $email, $models) {
+            // Serialize role additions per sponsor and read the contact from trusted records.
+            $sponsor = Sponsor::whereKey($data['sponsor_id'])->lockForUpdate()->firstOrFail();
+            $sponsor->load(['pics', 'ccContacts', 'billings', 'representatives', 'members']);
+            $contact = (new SponsorContactRowBuilder())->build($sponsor)->first(function ($row) use ($email) {
+                return mb_strtolower(trim($row['email'] ?? '')) === $email;
+            });
+            if (!$contact) {
+                throw ValidationException::withMessages(['email' => 'This contact could not be found for this sponsor.']);
+            }
+            foreach ($data['roles'] as $role) {
+                if (SponsorContactRowBuilder::sourceIds($contact, $role)) {
+                    throw ValidationException::withMessages(['roles' => 'One of the selected roles already exists for this contact.']);
+                }
+            }
+            foreach ($data['roles'] as $role) {
+                $models[$role]::create([
+                    'sponsor_id' => $sponsor->id,
+                    'salutation' => $contact['salutation'] ?? null,
+                    'name' => $contact['name'],
+                    'title' => $contact['title'] ?? null,
+                    'email' => trim($contact['email']),
+                    'phone' => $contact['phone'] ?? null,
+                ]);
+            }
+        });
+
+        return back()->with('success', 'Contact roles added successfully.')->with('open_sponsor', (int) $data['sponsor_id']);
     }
 
     public function destroy(Request $request)

@@ -303,6 +303,7 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('sponsors.contact-directory.export');
     Route::post('sponsors/contact-directory', [SponsorContactDirectoryController::class, 'store'])->name('sponsors.contact-directory.store');
     Route::delete('sponsors/contact-directory', [SponsorContactDirectoryController::class, 'destroy'])->name('sponsors.contact-directory.destroy');
+    Route::post('sponsors/contact-directory/roles', [SponsorContactDirectoryController::class, 'addRoles'])->name('sponsors.contact-directory.roles');
     Route::post('sponsors/contact-directory/update', [SponsorContactDirectoryController::class, 'update'])
         ->name('sponsors.contact-directory.update');
     Route::get('sponsors/kmk-rate', [SponsorController::class, 'getKmkRate'])

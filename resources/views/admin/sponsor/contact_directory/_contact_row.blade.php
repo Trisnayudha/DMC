@@ -19,7 +19,8 @@
         @if($rowPicIds)<span class="badge badge-primary">Primary Contact (PIC)</span>@endif
         @if($rowCcIds)<span class="badge badge-info">CC</span>@endif
         @if($rowBillingIds)<span class="badge badge-warning">Billing</span>@endif
-        @if(!$rowPicIds && !$rowCcIds && !$rowBillingIds)<span class="badge badge-light border">Representative Profile</span>@endif
+        @if(\App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'representative'))<span class="badge badge-light border">Representative</span>@endif
+        @if(\App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'member'))<span class="badge badge-light border">Member</span>@endif
     </td>
     <td class="align-middle text-muted" style="font-size:12px">{{ $contact['title'] ?: '-' }}</td>
     <td class="align-middle">
@@ -64,6 +65,16 @@
             $repIds    = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'representative');
             $memberIds = \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, 'member');
         @endphp
+        @if(empty($contact['email']) && (!$picIds || !$ccIds || !$billingIds))
+            <span title="Add an email to this contact before assigning roles"><button type="button" class="btn btn-sm btn-outline-secondary" disabled><i class="fas fa-plus mr-1"></i>Add Role</button></span>
+        @elseif(!empty($contact['email']) && (!$picIds || !$ccIds || !$billingIds))
+            <button type="button" class="btn btn-sm btn-outline-success btn-add-role" title="Add PIC, CC or Billing role"
+                data-sponsor-id="{{ $sponsor->id }}" data-sponsor-name="{{ $sponsor->branding_name ?: $sponsor->name }}"
+                data-name="{{ $contact['name'] }}" data-email="{{ $contact['email'] }}"
+                data-existing-roles='@json(array_values(array_filter([ $picIds ? "pic" : null, $ccIds ? "cc" : null, $billingIds ? "billing" : null ])))'>
+                <i class="fas fa-plus mr-1"></i>Add Role
+            </button>
+        @endif
         @if($picIds || $ccIds || $billingIds || $repIds || $memberIds)
             <button type="button" class="btn btn-sm btn-outline-primary btn-edit-contact" title="Edit kontak"
                 data-sponsor-id="{{ $sponsor->id }}"

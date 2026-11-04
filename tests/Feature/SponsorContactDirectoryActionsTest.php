@@ -137,6 +137,56 @@ class SponsorContactDirectoryActionsTest extends TestCase
         $this->assertSame('Primary Contact (PIC), CC', $all[0]['Role']);
     }
 
+    public function test_roles_can_be_added_to_an_existing_member_using_its_verified_email(): void
+    {
+        Schema::create('sponsors_representative', function ($table) { $table->id(); $table->unsignedBigInteger('sponsor_id'); $table->string('name'); $table->string('email')->nullable(); $table->string('job_title')->nullable(); $table->string('instagram')->nullable(); $table->string('linkedin')->nullable(); });
+        Schema::create('users', function ($table) { $table->id(); $table->string('name'); $table->string('email'); $table->string('status_member'); });
+        Schema::create('profiles', function ($table) { $table->id(); $table->unsignedBigInteger('users_id'); $table->string('fullphone')->nullable(); $table->string('job_title')->nullable(); });
+        Schema::create('payment', function ($table) { $table->id(); $table->unsignedBigInteger('sponsor_id'); $table->unsignedBigInteger('member_id'); });
+        DB::table('users')->insert(['id' => 7, 'name' => 'Member Name', 'email' => 'member@example.test', 'status_member' => 'active']);
+        DB::table('profiles')->insert(['users_id' => 7, 'fullphone' => '081234', 'job_title' => 'Director']);
+        DB::table('payment')->insert(['member_id' => 7, 'sponsor_id' => 1]);
+        $this->post('/admin/sponsors/contact-directory/roles', [
+            'sponsor_id' => 1, 'email' => 'MEMBER@example.test', 'roles' => ['pic', 'billing'], 'name' => 'Tampered',
+        ])->assertRedirect()->assertSessionHasNoErrors();
+        foreach (['sponsors_pic', 'sponsors_billing'] as $table) {
+            $this->assertDatabaseHas($table, ['sponsor_id' => 1, 'name' => 'Member Name', 'title' => 'Director', 'phone' => '081234', 'email' => 'member@example.test']);
+        }
+        $this->post('/admin/sponsors/contact-directory/roles', [
+            'sponsor_id' => 1, 'email' => 'member@example.test', 'roles' => ['cc', 'pic'],
+        ])->assertSessionHasErrors('roles');
+        $this->assertDatabaseCount('sponsors_cc_contacts', 0);
+        $this->post('/admin/sponsors/contact-directory/roles', [
+            'sponsor_id' => 2, 'email' => 'member@example.test', 'roles' => ['cc'],
+        ])->assertSessionHasErrors('email');
+        $this->post('/admin/sponsors/contact-directory/roles', [
+            'sponsor_id' => 1, 'email' => 'member@example.test', 'roles' => ['cc'],
+        ])->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('sponsors_cc_contacts', ['sponsor_id' => 1, 'name' => 'Member Name', 'email' => 'member@example.test']);
+        $data = (new \App\Http\Controllers\Admin\SponsorContactDirectoryController)->index(\Illuminate\Http\Request::create('/admin/sponsors/contact-directory'))->getData();
+        $sponsor = $data['sponsors']->firstWhere('id', 1);
+        $this->assertCount(1, $sponsor->contactRows);
+        $html = view('admin.sponsor.contact_directory._contact_row', ['sponsor' => $sponsor, 'contact' => $sponsor->contactRows->first()])->render();
+        foreach (['Primary Contact (PIC)', '>CC</span>', '>Billing</span>', '>Member</span>'] as $label) {
+            $this->assertStringContainsString($label, $html);
+        }
+    }
+
+    public function test_roles_can_be_added_to_a_representative_without_a_member_account(): void
+    {
+        Schema::create('sponsors_representative', function ($table) { $table->id(); $table->unsignedBigInteger('sponsor_id'); $table->string('name'); $table->string('email')->nullable(); $table->string('job_title')->nullable(); $table->string('instagram')->nullable(); $table->string('linkedin')->nullable(); });
+        Schema::create('users', function ($table) { $table->id(); $table->string('name'); $table->string('email'); $table->string('status_member'); });
+        Schema::create('profiles', function ($table) { $table->id(); $table->unsignedBigInteger('users_id'); $table->string('fullphone')->nullable(); $table->string('job_title')->nullable(); });
+        Schema::create('payment', function ($table) { $table->id(); $table->unsignedBigInteger('sponsor_id'); $table->unsignedBigInteger('member_id'); });
+        DB::table('sponsors_representative')->insert(['sponsor_id' => 1, 'name' => 'Representative', 'email' => 'rep@example.test', 'job_title' => 'Manager']);
+        $data = (new \App\Http\Controllers\Admin\SponsorContactDirectoryController)->index(\Illuminate\Http\Request::create('/admin/sponsors/contact-directory'))->getData();
+        $sponsor = $data['sponsors']->firstWhere('id', 1);
+        $html = view('admin.sponsor.contact_directory._contact_row', ['sponsor' => $sponsor, 'contact' => $sponsor->contactRows->first()])->render();
+        $this->assertStringContainsString('Add Role', $html);
+        $this->post('/admin/sponsors/contact-directory/roles', ['sponsor_id' => 1, 'email' => 'rep@example.test', 'roles' => ['cc']])->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('sponsors_cc_contacts', ['sponsor_id' => 1, 'name' => 'Representative', 'title' => 'Manager', 'email' => 'rep@example.test']);
+    }
+
     public function test_other_contact_types_and_unauthorized_users_are_rejected(): void
     {
         $this->post('/admin/sponsors/contact-directory', ['sponsor_id' => 1, 'role' => 'representative', 'name' => 'Contact'])->assertSessionHasErrors('role');
@@ -145,6 +195,7 @@ class SponsorContactDirectoryActionsTest extends TestCase
         $user = CmsUser::where('email', 'secretariat@example.test')->first();
         $this->actingAs($user, 'cms')->post('/admin/sponsors/contact-directory', ['sponsor_id' => 1, 'role' => 'pic', 'name' => 'Contact'])->assertForbidden();
         $this->delete('/admin/sponsors/contact-directory', ['sponsor_id' => 1, 'role' => 'pic', 'contact_id' => 1])->assertForbidden();
+        $this->post('/admin/sponsors/contact-directory/roles', ['sponsor_id' => 1, 'email' => 'contact@example.test', 'roles' => ['pic']])->assertForbidden();
     }
 
     protected function tearDown(): void
