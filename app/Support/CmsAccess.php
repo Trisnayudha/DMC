@@ -151,6 +151,27 @@ class CmsAccess
                 $groups[$group][$key] = $item;
             }
         }
+        // Finance uses its own menu labels; other roles keep the shared labels.
+        if ($user->role === 'finance_team') {
+            $labels = ['payments' => 'Events Payment', 'sponsor_annual_report' => 'Sponsors Financial Report'];
+            foreach ($groups as &$entries) {
+                foreach ($entries as &$item) {
+                    if (isset($item['key'], $labels[$item['key']])) {
+                        $item['label'] = $labels[$item['key']];
+                    }
+                    if (isset($item['children'])) {
+                        foreach ($item['children'] as &$child) {
+                            if (isset($labels[$child['key']])) {
+                                $child['label'] = $labels[$child['key']];
+                            }
+                        }
+                        unset($child);
+                    }
+                }
+                unset($item);
+            }
+            unset($entries);
+        }
         // When a team can only access the event list, show it as one direct menu.
         if (isset($groups['Event Team']['Events']['children']) && count($groups['Event Team']['Events']['children']) === 1
             && $groups['Event Team']['Events']['children'][0]['key'] === 'events') {

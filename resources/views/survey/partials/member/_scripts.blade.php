@@ -55,6 +55,13 @@
                 syncChoiceGroup(usageGroup.querySelector('[data-choice-group]'));
             }
 
+            ['event_types', 'event_improvement_aspects'].forEach(function(name) {
+                var input = document.getElementById(name === 'event_types' ? 'event_types_other' : 'event_improvement_other');
+                var selected = form.querySelector('input[name="' + name + '[]"][value="Other"]:checked');
+                input.style.display = selected ? '' : 'none';
+                if (!selected) input.value = '';
+            });
+
             var otherInput = document.getElementById('email_primary_goal_other');
             var isOther = checkedValue('email_primary_goal') === 'Other';
             otherInput.style.display = isOther ? '' : 'none';

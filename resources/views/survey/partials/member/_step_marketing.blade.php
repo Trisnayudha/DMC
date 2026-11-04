@@ -16,7 +16,7 @@
         @include('survey.partials.member._choice', [
             'name' => 'platforms',
             'type' => 'checkbox',
-            'options' => ['LinkedIn', 'Instagram', 'Facebook', 'Twitter', 'YouTube', 'WhatsApp', 'Other'],
+            'options' => ['LinkedIn', 'Instagram', 'Facebook', 'YouTube', 'WhatsApp Channel'],
         ])
     </div>
 
@@ -58,11 +58,11 @@
     </div>
 
     <div class="form-group">
-        <label>What day is the best for you to receive industry-related emails?</label>
+        <label>How many emails would you prefer to receive from DMC per week?</label>
         @include('survey.partials.member._choice', [
-            'name' => 'email_best_day',
+            'name' => 'email_frequency',
             'type' => 'radio',
-            'options' => ['Monday–Wednesday', 'Thursday–Friday', 'Saturday–Sunday', 'Time is not an issue'],
+            'options' => ['1 email per week', '2 emails per week', '3 emails per week', 'Only for important announcements and event updates'],
         ])
     </div>
 

@@ -27,6 +27,11 @@ class DmcMemberSurvey extends Model
          * 2. PROGRAM EXPECTATION
          * ========================= */
         'event_types',
+        'event_types_other',
+        'nominee_reason',
+        'event_improvement_aspects',
+        'event_improvement_other',
+        'email_frequency',
         'topics_interest',
         'speaker_wishlist',
         'nominee_name',
@@ -67,6 +72,8 @@ class DmcMemberSurvey extends Model
      */
     protected $casts = [
         'event_types'         => 'array',
+        'event_improvement_aspects' => 'array',
+        'email_frequency' => 'array',
         'social_familiarity'  => 'array',
         'platforms'           => 'array',
         'app_awareness'       => 'array',
