@@ -2,7 +2,7 @@
     <td style="padding-left:16px;white-space:nowrap">
         <div class="d-flex align-items-center" style="gap:8px">
             <div style="width:28px;height:28px;border-radius:50%;
-                background:@if($contact['role'] === 'pic') #4e73df @elseif($contact['role'] === 'billing') #f6c23e @else #858796 @endif;
+                background:@if($contact['role'] === 'pic') #4e73df @elseif($contact['role'] === 'cc') #3abaf4 @elseif($contact['role'] === 'billing') #f6c23e @else #858796 @endif;
                 color:#fff;font-size:11px;font-weight:600;
                 display:flex;align-items:center;justify-content:center;flex-shrink:0">
                 {{ strtoupper(substr($contact['name'] ?? '?', 0, 1)) }}
