@@ -15,6 +15,7 @@
         </div>
 
         <div class="section-body">
+            @if ($errors->any())<div class="alert alert-warning"><ul class="mb-0">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
             <h2 class="section-title">Edit Sponsor</h2>
             <div class="row">
                 <div class="col-lg-8">
@@ -320,6 +321,30 @@
                             </div>
                             <!-- End Section Sponsor PIC -->
 
+                            <div class="card mt-4">
+                                <div class="card-header"><h4>Sponsor CC Contact Information</h4></div>
+                                <div class="card-body">
+                                    <input type="hidden" name="cc_contacts_present" value="1">
+                                    <div class="table-responsive"><table class="table table-bordered" id="ccTable">
+                                        <thead><tr><th>Salutation</th><th>Name</th><th>Title</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead>
+                                        <tbody>
+                                            @php($ccRows = old('cc_contacts', $sponsor->ccContacts->map(function ($contact) { return $contact->only(['id', 'salutation', 'name', 'title', 'email', 'phone']); })->all()))
+                                            @foreach ($ccRows as $key => $cc)
+                                                <tr>
+                                                    <td><select name="cc_contacts[{{ $key }}][salutation]" class="form-control"><option value="">—</option>@foreach(['Mr', 'Ms', 'Mrs'] as $salutation)<option value="{{ $salutation }}" {{ ($cc['salutation'] ?? '') === $salutation ? 'selected' : '' }}>{{ $salutation }}</option>@endforeach</select></td>
+                                                    <td><input type="hidden" name="cc_contacts[{{ $key }}][id]" value="{{ $cc['id'] ?? '' }}"><input type="text" name="cc_contacts[{{ $key }}][name]" value="{{ $cc['name'] ?? '' }}" class="form-control" required maxlength="255"></td>
+                                                    <td><input type="text" name="cc_contacts[{{ $key }}][title]" value="{{ $cc['title'] ?? '' }}" class="form-control" maxlength="255"></td>
+                                                    <td><input type="email" name="cc_contacts[{{ $key }}][email]" value="{{ $cc['email'] ?? '' }}" class="form-control" maxlength="255"></td>
+                                                    <td><input type="text" name="cc_contacts[{{ $key }}][phone]" value="{{ $cc['phone'] ?? '' }}" class="form-control" maxlength="50"></td>
+                                                    <td><button type="button" class="btn btn-danger remove-cc">Remove</button></td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table></div>
+                                    <button type="button" class="btn btn-primary" id="addCc">Add CC</button>
+                                </div>
+                            </div>
+
                             <!-- Section Sponsor Billing -->
                             <div class="card mt-4">
                                 <div class="card-header">
@@ -483,6 +508,21 @@
                 $(document).on('click', '.remove-pic', function() {
                     $(this).closest('tr').remove();
                 });
+                var ccIndex = Date.now();
+                $('#addCc').click(function() {
+                    var key = 'new_' + ccIndex++;
+                    var prefix = 'cc_contacts[' + key + ']';
+                    var row = `<tr>
+                        <td><select name="${prefix}[salutation]" class="form-control"><option value="">—</option><option value="Mr">Mr</option><option value="Ms">Ms</option><option value="Mrs">Mrs</option></select></td>
+                        <td><input type="text" name="${prefix}[name]" class="form-control" required maxlength="255"></td>
+                        <td><input type="text" name="${prefix}[title]" class="form-control" maxlength="255"></td>
+                        <td><input type="email" name="${prefix}[email]" class="form-control" maxlength="255"></td>
+                        <td><input type="text" name="${prefix}[phone]" class="form-control" maxlength="50"></td>
+                        <td><button type="button" class="btn btn-danger remove-cc">Remove</button></td>
+                    </tr>`;
+                    $('#ccTable tbody').append(row);
+                });
+                $(document).on('click', '.remove-cc', function() { $(this).closest('tr').remove(); });
                 $('#addBilling').click(function() {
                     var row = `<tr>
                         <td><input type="text" name="billing[name][]" class="form-control"></td>

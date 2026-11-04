@@ -23,7 +23,7 @@ class SponsorExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
         $sponsors = Sponsor::where('status', 'publish')
             ->orderByRaw("FIELD(package, 'platinum','gold','silver')")
             ->orderBy('sort')
-            ->with('pics')
+            ->with(['pics', 'ccContacts', 'billings'])
             ->get();
 
         $this->rows = collect();
@@ -45,39 +45,37 @@ class SponsorExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             // Tabel sponsors tidak punya kolom city/country/postal_code, jadi diambil dari address
             $location = $addressParser->parse($sponsor->address);
 
-            if ($sponsor->pics->count() > 0) {
-                foreach ($sponsor->pics as $pic) {
-                    $this->rows->push([
-                        'type_of_sponsor' => $sponsor->package,
-                        'sponsor_period'  => $period,
-                        'company'         => $sponsor->name,
-                        'name_pic'        => $pic->name,
-                        'position_pic'    => $pic->title,
-                        'email_pic'       => $pic->email,
-                        'mobile_phone'    => $pic->phone,
-                        'address'         => $sponsor->address,
-                        'city'            => $location['city'],
-                        'country'         => $location['country'],
-                        'postal_code'     => $location['postal_code'],
-                        'office_number'   => $sponsor->office_number ?? '',
-                        'website'         => $sponsor->company_website,
-                    ]);
-                }
-            } else {
+            // One row per contact position, keeping all contacts when role counts differ.
+            $pics = $sponsor->pics->values();
+            $ccs = $sponsor->ccContacts->values();
+            $billings = $sponsor->billings->values();
+            $rowCount = max(1, $pics->count(), $ccs->count(), $billings->count());
+            for ($index = 0; $index < $rowCount; $index++) {
+                $pic = $pics->get($index);
+                $cc = $ccs->get($index);
+                $billing = $billings->get($index);
                 $this->rows->push([
                     'type_of_sponsor' => $sponsor->package,
-                    'sponsor_period'  => $period,
-                    'company'         => $sponsor->name,
-                    'name_pic'        => '',
-                    'position_pic'    => '',
-                    'email_pic'       => '',
-                    'mobile_phone'    => '',
-                    'address'         => $sponsor->address,
-                    'city'            => $location['city'],
-                    'country'         => $location['country'],
-                    'postal_code'     => $location['postal_code'],
-                    'office_number'   => $sponsor->office_number ?? '',
-                    'website'         => $sponsor->company_website,
+                    'sponsor_period' => $period,
+                    'company' => $sponsor->name,
+                    'name_pic' => $pic->name ?? '',
+                    'position_pic' => $pic->title ?? '',
+                    'email_pic' => $pic->email ?? '',
+                    'mobile_phone' => $pic->phone ?? '',
+                    'address' => $sponsor->address,
+                    'city' => $location['city'],
+                    'country' => $location['country'],
+                    'postal_code' => $location['postal_code'],
+                    'office_number' => $sponsor->office_number ?? '',
+                    'website' => $sponsor->company_website,
+                    'name_cc' => $cc ? trim(($cc->salutation ?? '') . ' ' . $cc->name) : '',
+                    'position_cc' => $cc->title ?? '',
+                    'email_cc' => $cc->email ?? '',
+                    'phone_cc' => $cc->phone ?? '',
+                    'name_billing' => $billing ? trim(($billing->salutation ?? '') . ' ' . $billing->name) : '',
+                    'position_billing' => $billing->title ?? '',
+                    'email_billing' => $billing->email ?? '',
+                    'phone_billing' => $billing->phone ?? '',
                 ]);
             }
         }
@@ -101,6 +99,14 @@ class SponsorExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             'Postal Code',
             'Office Number',
             'Website',
+            'Name CC',
+            'Position CC',
+            'Email CC',
+            'Phone CC',
+            'Name Billing',
+            'Position Billing',
+            'Email Billing',
+            'Phone Billing',
         ];
     }
 
@@ -111,12 +117,12 @@ class SponsorExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
                 $sheet = $event->sheet->getDelegate();
 
                 // Bold header dan center alignment
-                $sheet->getStyle('A1:M1')->getFont()->setBold(true);
-                $sheet->getStyle('A1:M1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle('A1:U1')->getFont()->setBold(true);
+                $sheet->getStyle('A1:U1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                 // Atur border untuk seluruh sel
                 $highestRow = $sheet->getHighestRow();
-                $sheet->getStyle("A1:M{$highestRow}")->applyFromArray([
+                $sheet->getStyle("A1:U{$highestRow}")->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,

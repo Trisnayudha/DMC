@@ -41,6 +41,7 @@ use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\MemberCompanyFollowUpController;
 use App\Http\Controllers\Admin\MemberLeadBulkController;
 use App\Http\Controllers\Admin\MemberLeadFollowUpController;
+use App\Http\Controllers\Admin\MemberSurveyResponseController;
 use App\Http\Controllers\Admin\VideosController;
 use App\Http\Controllers\Admin\WhatsappBlastingController;
 use App\Http\Controllers\Admin\WhatsappCampaignController;
@@ -275,6 +276,9 @@ Route::post('admin/login', [\App\Http\Controllers\Auth\CmsLoginController::class
 Route::post('admin/logout', [\App\Http\Controllers\Auth\CmsLoginController::class, 'logout'])->name('cms.logout');
 
 Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
+    Route::get('member-surveys', [MemberSurveyResponseController::class, 'index'])->name('admin.member-surveys.index');
+    Route::get('member-surveys/{memberSurvey}', [MemberSurveyResponseController::class, 'show'])->name('admin.member-surveys.show');
+
     //Notification
     Route::get('notification', [NotificationController::class, 'index'])->name('notification');
     Route::post('notification/add', [NotificationController::class, 'store']);

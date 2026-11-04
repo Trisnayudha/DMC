@@ -14,6 +14,7 @@ return [
         'company_database' => ['Company Database', 'Member Team', 'company-database', 'building', ['CompanyDatabaseController'], 'Database'],
         'company_categories' => ['Company Categories', 'Member Team', 'company-categories', 'tags', ['CompanyCategoryController'], 'Company Settings'],
         'company_subcategories' => ['Company Subcategories', 'Member Team', 'company-subcategories', 'sitemap', ['CompanySubcategoryController'], 'Company Settings'],
+        'member_surveys' => ['Member Survey', 'Member Team', 'member-surveys', 'poll', ['MemberSurveyResponseController']],
         'member_sources' => ['Member Sources', 'Member Team', 'member-sources', 'link', ['MemberSourceController']],
         'event_conversions' => ['Member Conversion', 'Member Team', 'event-conversions', 'chart-line', ['EventConversionController']],
         'lucky_draw_items' => ['Prizes', 'Member Team', 'lucky-draw/items', 'gift', ['LuckyDrawItemController'], 'Lucky Draw'],
@@ -103,6 +104,7 @@ return [
             'Membership' => [
                 ['New Member', 'users?status_member=pending', 'members', 'user-clock'],
                 ['Active Member', 'users?status_member=active', 'members', 'user-check'],
+                ['Member Survey', 'member-surveys', 'member_surveys', 'poll'],
             ],
             'Master Database' => [
                 ['label' => 'Master Database', 'icon' => 'database', 'children' => [

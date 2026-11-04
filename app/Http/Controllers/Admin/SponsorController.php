@@ -11,6 +11,8 @@ use App\Models\Profiles\ProfileModel;
 use App\Models\Sponsors\SocialMediaEngagement;
 use App\Models\Sponsors\Sponsor;
 use App\Models\Sponsors\SponsorBilling;
+use App\Models\Sponsors\SponsorCcContact;
+use Illuminate\Validation\Rule;
 use App\Models\Sponsors\SponsorPic;
 use App\Models\Sponsors\SponsorRenewal;
 use App\Models\User;
@@ -416,6 +418,31 @@ class SponsorController extends Controller
     }
 
 
+    private function syncCcContacts(Request $request, Sponsor $sponsor): void
+    {
+        // Older forms and callers that do not submit this section leave CC contacts intact.
+        if (!$request->has('cc_contacts_present')) {
+            return;
+        }
+        $existing = $sponsor->ccContacts()->get()->keyBy('id');
+        $submittedIds = [];
+        foreach ($request->input('cc_contacts', []) as $item) {
+            $contact = !empty($item['id']) ? $existing->get($item['id']) : null;
+            $fields = [
+                'name' => $item['name'], 'salutation' => $item['salutation'] ?? null,
+                'title' => $item['title'] ?? null, 'email' => $item['email'] ?? null,
+                'phone' => $item['phone'] ?? null,
+            ];
+            if ($contact) {
+                $contact->update($fields);
+            } else {
+                $contact = SponsorCcContact::create($fields + ['sponsor_id' => $sponsor->id]);
+            }
+            $submittedIds[] = $contact->id;
+        }
+        $existing->except($submittedIds)->each->delete();
+    }
+
     public function edit($id)
     {
         $sponsor = Sponsor::find($id);
@@ -442,7 +469,14 @@ class SponsorController extends Controller
             'image'          => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'video'          => 'nullable|url',
             'contract_start' => 'nullable|date_format:Y-m',
-            'contract_end'   => 'nullable|date_format:Y-m'
+            'contract_end'   => 'nullable|date_format:Y-m',
+            'cc_contacts' => 'nullable|array',
+            'cc_contacts.*.id' => ['nullable', 'integer', 'distinct', Rule::exists('sponsors_cc_contacts', 'id')->where('sponsor_id', $id)],
+            'cc_contacts.*.name' => 'required|string|max:255',
+            'cc_contacts.*.salutation' => ['nullable', Rule::in(['Mr', 'Ms', 'Mrs'])],
+            'cc_contacts.*.title' => 'nullable|string|max:255',
+            'cc_contacts.*.email' => 'nullable|email|max:255',
+            'cc_contacts.*.phone' => 'nullable|string|max:50',
         ]);
         // Ambil data sponsor yang akan diupdate
         $sponsor = Sponsor::findOrFail($id);
@@ -541,6 +575,7 @@ class SponsorController extends Controller
         }
 
         $this->syncBillings($request, $sponsor);
+        $this->syncCcContacts($request, $sponsor);
 
         return redirect()->route('sponsors.index')->with('success', 'Sponsor updated successfully');
     }
