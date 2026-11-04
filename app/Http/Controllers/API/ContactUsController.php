@@ -105,6 +105,72 @@ class ContactUsController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * Contact Us web format baru: Name, Job Title, Company, Business Email, Phone, Message.
+     * Endpoint lama (indexV2) dibiarkan karena mobile app masih pakai format firstName/lastName.
+     */
+    public function indexWebV2(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'jobTitle' => 'required|string|max:255',
+            'company' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'message' => 'required|string|max:1000',
+        ], [
+            'name.required' => 'Name is required',
+            'jobTitle.required' => 'Job Title is required',
+            'company.required' => 'Company is required',
+            'email.required' => 'Business Email is required',
+            'email.email' => 'Invalid email format',
+            'phone.required' => 'Phone Number is required',
+            'message.required' => 'Message is required',
+        ]);
+
+        if ($validator->fails()) {
+            $response['status'] = 422;
+            $response['message'] = 'Invalid data';
+            $response['errors'] = $validator->errors();
+            return response()->json($response);
+        }
+
+        $data = $request->only(['name', 'jobTitle', 'company', 'email', 'phone', 'message']);
+
+        $this->saveInquiry([
+            'source'     => ContactInquiry::SOURCE_WEB,
+            'users_id'   => optional(User::where('email', $data['email'])->first())->id,
+            'first_name' => $data['name'],
+            'job_title'  => $data['jobTitle'],
+            'company'    => $data['company'],
+            'email'      => $data['email'],
+            'phone'      => $data['phone'],
+            'message'    => $data['message'],
+        ]);
+
+        // Key 'message' bentrok dengan variabel bawaan view email, jadi dikirim sebagai 'inquiryMessage'.
+        $send = new EmailSender();
+        $send->to = 'yudha@indonesiaminer.com';
+        $send->from = env('EMAIL_SENDER');
+        $send->data = [
+            'name' => $data['name'],
+            'jobTitle' => $data['jobTitle'],
+            'company' => $data['company'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'inquiryMessage' => $data['message'],
+        ];
+        $send->subject = 'Contact Us DMC Web';
+        $send->template = 'email.contact-us-web-v2';
+        $send->sendEmail();
+
+        $response['status'] = 200;
+        $response['message'] = 'Success';
+        $response['payload'] = $send;
+
+        return response()->json($response);
+    }
+
     /** Simpan inquiry ke DB; kalau gagal, email tetap terkirim seperti sebelumnya. */
     private function saveInquiry(array $attributes): void
     {

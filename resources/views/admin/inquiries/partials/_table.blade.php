@@ -58,8 +58,8 @@
                                 <span class="badge {{ $inquiry->source === 'apps' ? 'badge-warning' : 'badge-info' }}">{{ $inquiry->source === 'apps' ? 'Apps' : 'Website' }}</span>
                             </td>
                             <td>{{ $inquiry->full_name ?: '-' }}</td>
-                            <td>{{ optional(optional($profile)->company)->company_name ?: '-' }}</td>
-                            <td>{{ optional($profile)->job_title ?: '-' }}</td>
+                            <td>{{ $inquiry->company ?: (optional(optional($profile)->company)->company_name ?: '-') }}</td>
+                            <td>{{ $inquiry->job_title ?: (optional($profile)->job_title ?: '-') }}</td>
                             <td>{{ $inquiry->email ?: '-' }}</td>
                             <td class="text-nowrap">{{ $inquiry->phone ?: '-' }}</td>
                             <td>{{ $inquiry->category ?: '-' }}</td>

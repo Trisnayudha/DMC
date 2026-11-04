@@ -16,6 +16,8 @@ class ContactInquiry extends Model
         'users_id',
         'first_name',
         'last_name',
+        'job_title',
+        'company',
         'email',
         'phone',
         'category',

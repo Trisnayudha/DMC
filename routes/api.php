@@ -247,6 +247,7 @@ Route::prefix('web')->group(function () {
     Route::post('profile/update_profile', [ProfileController::class, 'update_profile']);
 
     Route::post('/contact_us', [ContactUsController::class, 'indexV2']);
+    Route::post('/v2/contact_us', [ContactUsController::class, 'indexWebV2']);
 
     Route::post('check/email/paid', [API_WEBEventsController::class, 'checkUserRegister']);
 
