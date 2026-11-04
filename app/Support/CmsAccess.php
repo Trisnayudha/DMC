@@ -153,7 +153,7 @@ class CmsAccess
         }
         // Finance uses its own menu labels; other roles keep the shared labels.
         if ($user->role === 'finance_team') {
-            $labels = ['payments' => 'Events Payment', 'sponsor_annual_report' => 'Sponsors Financial Report'];
+            $labels = ['payments' => 'Event Payments', 'sponsor_annual_report' => 'Sponsorship Financial Reports'];
             foreach ($groups as &$entries) {
                 foreach ($entries as &$item) {
                     if (isset($item['key'], $labels[$item['key']])) {

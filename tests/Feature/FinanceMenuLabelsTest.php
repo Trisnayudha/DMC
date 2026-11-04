@@ -20,8 +20,8 @@ class FinanceMenuLabelsTest extends TestCase
 
         $financeNav = CmsAccess::navigation($finance);
         $otherNav = CmsAccess::navigation($other);
-        $this->assertSame('Events Payment', $financeNav['Finance']['payments']['label']);
-        $this->assertSame('Sponsors Financial Report', $financeNav['Finance']['sponsors']['label']);
+        $this->assertSame('Event Payments', $financeNav['Finance']['payments']['label']);
+        $this->assertSame('Sponsorship Financial Reports', $financeNav['Finance']['sponsors']['label']);
         $this->assertSame('Expenses Report', $otherNav['Finance']['payments']['label']);
         $this->assertSame('Renewal Status', $otherNav['Finance']['sponsors']['label']);
     }
