@@ -17,7 +17,10 @@ class SponsorRepresentativeEventFilterTest extends TestCase
             'driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '',
         ]]);
         Schema::create('sponsors', function ($table) {
-            $table->id(); $table->string('name'); $table->string('status');
+            $table->id(); $table->string('name'); $table->string('branding_name')->nullable(); $table->string('status');
+        });
+        Schema::create('company_categories', function ($table) {
+            $table->id(); $table->string('name'); $table->integer('sort_order')->default(0);
         });
         Schema::create('events', function ($table) {
             $table->id(); $table->string('name'); $table->string('slug'); $table->string('event_type');
@@ -108,6 +111,19 @@ class SponsorRepresentativeEventFilterTest extends TestCase
     {
         DB::table('users_event')->insert(['payment_id' => 2, 'users_id' => 2, 'present' => '2026-05-01 10:00:00']);
         $this->assertSame(['No Registration', 'Registered'], $this->directory(['year' => 2026])['nonAttendSponsors']->pluck('name')->all());
+    }
+
+    public function test_sponsor_selectors_use_branding_name_and_fall_back_to_official_name(): void
+    {
+        DB::table('sponsors')->where('id', 1)->update(['branding_name' => 'Alpha Brand']);
+        DB::table('sponsors')->where('id', 2)->update(['branding_name' => '']);
+
+        $data = $this->directory(['year' => 2026, 'company' => 'Registered']);
+        $this->assertSame([1, 3, 2], $data['sponsorList']->pluck('id')->all());
+        $this->assertSame([1, 3, 2], $data['allSponsorsWithMembers']->pluck('id')->all());
+        $html = view('admin.sponsor.representative._add_to_event_modal', $data)->render();
+        $this->assertStringContainsString('data-name="Alpha Brand"', $html);
+        $this->assertStringContainsString('data-name="Other Event"', $html);
     }
 
     protected function tearDown(): void

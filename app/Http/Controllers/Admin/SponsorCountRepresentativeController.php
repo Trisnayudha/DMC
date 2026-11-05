@@ -30,7 +30,9 @@ class SponsorCountRepresentativeController extends Controller
         $filterSponsor = $request->get('company', '');
         $filterEvent   = $request->get('event', '');
 
-        $sponsorList = Sponsor::where('status', 'publish')->orderBy('name')->get();
+        $sponsorList = Sponsor::where('status', 'publish')
+            ->orderByRaw("COALESCE(NULLIF(branding_name, ''), name)")
+            ->get();
 
         /*
          |---------------------------------------------------------------------------------
@@ -148,7 +150,7 @@ class SponsorCountRepresentativeController extends Controller
         // dedup by email, data user diutamakan) for the modal selector
         $allSponsorsWithMembers = Sponsor::with(['members', 'pics', 'representatives', 'billings', 'ccContacts'])
             ->where('status', 'publish')
-            ->orderBy('name')
+            ->orderByRaw("COALESCE(NULLIF(branding_name, ''), name)")
             ->get();
 
         $builder = new SponsorContactRowBuilder();
