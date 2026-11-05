@@ -33,14 +33,14 @@
                         <form method="GET" action="{{ route('admin.partnership_events.index') }}" class="mb-3">
                             <div class="form-row align-items-end">
                                 <div class="form-group col-md-5 mb-2">
-                                    <label class="mb-1">Cari Event</label>
+                                    <label class="mb-1">Search Event</label>
                                     <input type="text" name="search" class="form-control" value="{{ $search }}"
-                                        placeholder="contoh: Mining Indonesia 2026">
+                                        placeholder="e.g. Mining Indonesia 2026">
                                 </div>
                                 <div class="form-group col-md-2 mb-2">
-                                    <label for="year" class="mb-1">Tahun</label>
+                                    <label for="year" class="mb-1">Year</label>
                                     <select name="year" id="year" class="form-control">
-                                        <option value="">Semua Tahun</option>
+                                        <option value="">All Years</option>
                                         @foreach ($years as $availableYear)
                                             <option value="{{ $availableYear }}" {{ $year == (string) $availableYear ? 'selected' : '' }}>{{ $availableYear }}</option>
                                         @endforeach
@@ -105,7 +105,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="9" class="text-center text-muted">
-                                                Tidak ada event yang sesuai dengan filter.
+                                                No events match the selected filters.
                                             </td>
                                         </tr>
                                     @endforelse
