@@ -5,14 +5,14 @@
             class="btn btn-icon btn-outline-success btn-reactivate-member"
             data-url="{{ route('users.reactivate', $post->user_id) }}"
             data-name="{{ $post->name }}"
-            title="Reactivate member ini" data-toggle="tooltip">
+            title="Reactivate member" data-toggle="tooltip">
             <i class="fas fa-undo"></i>
         </button>
     @elseif ($isActive)
         <button type="button"
             class="btn btn-icon btn-success btn-verify-member"
             data-url="{{ route('users.verify', $post->user_id) }}"
-            disabled title="Sudah verified" data-toggle="tooltip">
+            disabled title="Verified" data-toggle="tooltip">
             <i class="fas fa-check"></i>
         </button>
         <button type="button"
@@ -20,7 +20,7 @@
             data-url="{{ route('users.toggle_two_step', $post->user_id) }}"
             data-name="{{ $post->name }}"
             data-verified="{{ !empty($post->two_step_verified) ? '1' : '0' }}"
-            title="{{ !empty($post->two_step_verified) ? 'Sudah Verifikasi 2-Langkah oleh ' . ($post->two_step_verified_by ?? 'Staff') . ' — Klik untuk batalkan' : 'Tandai Verifikasi 2-Langkah oleh Staff (LinkedIn/Telfon)' }}"
+            title="{{ !empty($post->two_step_verified) ? '2-step verified by ' . ($post->two_step_verified_by ?? 'Staff') . ' — Click to undo' : 'Mark as 2-step verified by staff (LinkedIn/phone)' }}"
             data-toggle="tooltip">
             <i class="fas {{ !empty($post->two_step_verified) ? 'fa-check-circle' : 'fa-user-check' }}"></i>
         </button>
@@ -28,7 +28,7 @@
             class="btn btn-icon btn-outline-secondary btn-deactivate-member"
             data-url="{{ route('users.deactivate', $post->user_id) }}"
             data-name="{{ $post->name }}"
-            title="Deactivate member ini" data-toggle="tooltip">
+            title="Deactivate member" data-toggle="tooltip">
             <i class="fas fa-user-slash"></i>
         </button>
     @elseif ($isDeclined)
@@ -63,7 +63,7 @@
             data-member-job-title="{{ $post->job_title }}"
             data-member-phone="{{ $post->fullphone ?? $post->phone }}"
             data-payload='@json($declinedPayload)'
-            title="Aplikasi ini sudah di-decline — klik untuk re-review" data-toggle="tooltip">
+            title="Application declined — click to review again" data-toggle="tooltip">
             <i class="fas fa-redo"></i>
         </button>
     @else
@@ -98,7 +98,7 @@
             data-member-job-title="{{ $post->job_title }}"
             data-member-phone="{{ $post->fullphone ?? $post->phone }}"
             data-payload='@json($companyPayload)'
-            title="{{ $companyVerified ? 'Verifikasi member' : 'Company belum verified — klik untuk selesaikan dulu' }}"
+            title="{{ $companyVerified ? 'Verify member' : 'Company not verified — click to complete verification first' }}"
             data-toggle="tooltip">
             @if (!$companyVerified)
                 <i class="fas fa-exclamation-triangle"></i>

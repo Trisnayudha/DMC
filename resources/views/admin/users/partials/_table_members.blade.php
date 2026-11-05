@@ -29,7 +29,7 @@
             <th width="60px">
                 WA/Spon.
                 <i class="fas fa-info-circle text-muted ml-1"
-                    title="WA Updates: member setuju menerima update via WhatsApp. Open to Sponsorship: member bersedia menerima penawaran paket sponsorship."
+                    title="WA Updates: member agrees to receive updates via WhatsApp. Open to Sponsorship: member is open to receiving sponsorship offers."
                     data-toggle="tooltip"></i>
             </th>
             <th width="80px">

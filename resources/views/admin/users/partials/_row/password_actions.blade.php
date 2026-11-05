@@ -27,7 +27,7 @@
         data-status-member="{{ $post->status_member }}"
         data-tier="{{ strtolower((string) ($post->tier ?? 'reguler')) }}"
         data-update-url="{{ route('users.update', $post->user_id) }}"
-        title="Edit data user" data-toggle="tooltip">
+        title="Edit user details" data-toggle="tooltip">
         <i class="fas fa-edit"></i>
     </button>
     <button type="button"
@@ -35,7 +35,7 @@
         data-user-id="{{ $post->user_id }}"
         data-name="{{ $post->name }}"
         data-logs-url="{{ route('users.logs', $post->user_id) }}"
-        title="Lihat riwayat perubahan" data-toggle="tooltip">
+        title="View change history" data-toggle="tooltip">
         <i class="fas fa-history"></i>
     </button>
     <button type="button"
@@ -47,7 +47,7 @@
         data-current-job-title="{{ $post->job_title }}"
         data-new-job-title="{{ $openFollowUp->new_job_title ?? '' }}"
         data-notes="{{ $openFollowUp->notes ?? '' }}"
-        title="{{ $openFollowUp ? 'Follow-up pending — klik untuk edit' : 'Tandai member ini pindah company' }}"
+        title="{{ $openFollowUp ? 'Follow-up pending — click to edit' : 'Mark this member as having changed company' }}"
         data-toggle="tooltip">
         <i class="fas fa-exchange-alt"></i>
     </button>

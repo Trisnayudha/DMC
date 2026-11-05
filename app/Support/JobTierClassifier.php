@@ -101,7 +101,7 @@ class JobTierClassifier
     /** Tooltip badge job tier di tabel Members. */
     public static function tooltip(int $tier, bool $manual): string
     {
-        return self::description($tier) . ' · ' . ($manual ? 'diset manual' : 'otomatis dari job title') . '. Klik untuk ubah.';
+        return self::description($tier) . ' · ' . ($manual ? 'set manually' : 'automatically assigned from job title') . '. Click to change.';
     }
 
     public static function color(?int $tier): string

@@ -56,7 +56,7 @@
 
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0"><i class="fas fa-history mr-2"></i>Riwayat Perubahan Data User</h4>
+                        <h4 class="mb-0"><i class="fas fa-history mr-2"></i>User Change History</h4>
                     </div>
                     <div class="card-body">
 
@@ -64,26 +64,26 @@
                         <form method="GET" action="{{ route('admin.user_edit_logs') }}" class="mb-3">
                             <div class="form-row align-items-end">
                                 <div class="form-group col-md-3 mb-2">
-                                    <label class="small text-muted mb-1">Sumber</label>
+                                    <label class="small text-muted mb-1">Source</label>
                                     <select name="source" class="form-control form-control-sm">
-                                        <option value="">Semua</option>
+                                        <option value="">All</option>
                                         <option value="self" {{ request('source') === 'self' ? 'selected' : '' }}>Self-edit (User)</option>
                                         <option value="admin" {{ request('source') === 'admin' ? 'selected' : '' }}>Admin</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-3 mb-2">
-                                    <label class="small text-muted mb-1">Field Kritis Saja</label>
+                                    <label class="small text-muted mb-1">Critical Fields Only</label>
                                     <select name="critical" class="form-control form-control-sm">
-                                        <option value="">Semua field</option>
+                                        <option value="">All fields</option>
                                         <option value="1" {{ request('critical') === '1' ? 'selected' : '' }}>Critical only</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-2 mb-2">
-                                    <label class="small text-muted mb-1">Dari</label>
+                                    <label class="small text-muted mb-1">From</label>
                                     <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
                                 </div>
                                 <div class="form-group col-md-2 mb-2">
-                                    <label class="small text-muted mb-1">Sampai</label>
+                                    <label class="small text-muted mb-1">To</label>
                                     <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
                                 </div>
                                 <div class="form-group col-md-2 mb-2">
@@ -100,12 +100,12 @@
                             <table class="table table-bordered table-hover table-sm" id="edit-logs-table">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th width="140">Waktu</th>
+                                        <th width="140">Time</th>
                                         <th>User</th>
-                                        <th width="160">Sumber / Admin</th>
+                                        <th width="160">Source / Admin</th>
                                         <th>Field</th>
-                                        <th>Sebelum</th>
-                                        <th>Sesudah</th>
+                                        <th>Before</th>
+                                        <th>After</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -157,21 +157,21 @@
                                                     @if ($diff['old'])
                                                         <span class="text-danger" style="font-size:12px;">{{ $diff['old'] }}</span>
                                                     @else
-                                                        <span class="text-muted font-italic" style="font-size:12px;">(kosong)</span>
+                                                        <span class="text-muted font-italic" style="font-size:12px;">(empty)</span>
                                                     @endif
                                                 </td>
                                                 <td>
                                                     @if ($diff['new'])
                                                         <span class="text-success" style="font-size:12px;">{{ $diff['new'] }}</span>
                                                     @else
-                                                        <span class="text-muted font-italic" style="font-size:12px;">(kosong)</span>
+                                                        <span class="text-muted font-italic" style="font-size:12px;">(empty)</span>
                                                     @endif
                                                 </td>
                                             </tr>
                                         @endforeach
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center text-muted py-4">Tidak ada log perubahan ditemukan.</td>
+                                            <td colspan="6" class="text-center text-muted py-4">No change logs found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -181,7 +181,7 @@
                         {{-- Pagination --}}
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <small class="text-muted">
-                                Menampilkan {{ $logs->firstItem() }}–{{ $logs->lastItem() }} dari {{ $logs->total() }} entri log
+                                Showing {{ $logs->firstItem() }}–{{ $logs->lastItem() }} of {{ $logs->total() }} log entries
                             </small>
                             {{ $logs->appends(request()->query())->links() }}
                         </div>

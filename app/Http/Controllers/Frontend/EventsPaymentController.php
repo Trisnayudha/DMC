@@ -164,19 +164,21 @@ class EventsPaymentController extends Controller
                     $send = new WhatsappApi();
                     $send->phone = '120363422942310672';
                     $send->message = '
-Registration Notification,
+Registration Notification
 
-Hai ada pendaftaran GRATIS dari ' . $inputData['name'] . '
-Detail Informasinya:
-Nama: ' . $inputData['name'] . '
+A new complimentary registration has been received.
+Registration Details:
+Name: ' . $inputData['name'] . '
 Company: ' . $inputData['company_name'] . '
 Job Title: ' . $inputData['job_title'] . '
 Email: ' . $inputData['email'] . '
 Phone: ' . $inputData['phone'] . '
 Address: ' . $inputData['address'] . '
 
-Thank you
-Best Regards Bot DMC Website
+Thank you.
+
+Kind regards,
+DMC Bot
 ';
                     $send->WhatsappMessageGroup();
                     $send = new EmailSender();
@@ -222,19 +224,21 @@ Best Regards Bot DMC Website
                         $send = new WhatsappApi();
                         $send->phone = '120363422942310672';
                         $send->message = '
-Registration Notification,
+Registration Notification
 
-Hai ada pendaftaran GRATIS dari ' . $inputData['name'] . '
-Detail Informasinya:
-Nama: ' . $inputData['name'] . '
+A new complimentary registration has been received.
+Registration Details:
+Name: ' . $inputData['name'] . '
 Company: ' . $inputData['company_name'] . '
 Job Title: ' . $inputData['job_title'] . '
 Email: ' . $inputData['email'] . '
 Phone: ' . $inputData['phone'] . '
 Address: ' . $inputData['address'] . '
 
-Thank you
-Best Regards Bot DMC Website
+Thank you.
+
+Kind regards,
+DMC Bot
 ';
                         $send->WhatsappMessageGroup();
                         $send->phone = '120363429723388586';
@@ -410,7 +414,7 @@ Best Regards Bot DMC Website
                 ];
 
                 $detailWa[] = "
-Nama : {$table['name']}
+Name: {$table['name']}
 Email: {$table['email']}
 Phone Number: {$table['phone']}
 Company: {$table['company']}
@@ -422,15 +426,17 @@ Job Title: {$table['job_title']}
             // $send->phone = '083829314436';
             $send->phone = '120363422942310672';
             $send->message = "
-Registration Notification,
+Registration Notification
 
-Hai ada pendaftaran multiple dari {$name_contact}
-Detail Informasinya:
+Multiple registrations have been received from {$name_contact}.
+Registration Details:
 " . implode(" ", $detailWa) . "
 " . ($referral ? "Referral: {$referral}" : "") . "
 
-Thank you
-Best Regards Bot DMC Website
+Thank you.
+
+Kind regards,
+DMC Bot
 ";
             $send->WhatsappMessageGroup();
             $send->phone = '120363429723388586';

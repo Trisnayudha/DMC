@@ -257,7 +257,7 @@ Email: ' . $emails[$index] . '
 Phone Number: ' . $phones[$index] . '
 Company: ' . $companies[$index] . '
 Job Title: ' . $job_titles[$index] . '
-Code Payment: ' . $payment->code_payment;
+Payment Code: ' . $payment->code_payment;
 
             $dataEmail[] = [
                 'name' => $names[$index],
@@ -370,22 +370,25 @@ Code Payment: ' . $payment->code_payment;
             $send = new WhatsappApi();
             $send->phone = '120363422942310672';
             $send->message = "
-Paid Registration Notification,
+Paid Registration Notification
 
-Ada pendaftaran baru (PAID)
-Metode Pembayaran: {$paymentMethodLabel}
+A new paid registration has been received.
+Payment Method: {$paymentMethodLabel}
 Event: {$findEvent->name}
 
-Detail Informasi Peserta:
+Participant Details:
 " . implode("\n---------------------\n", $detailWa) . "
 
-Total Bayar: Rp. " . number_format($totalPrice, 0, ',', '.') . "
+Total Amount: Rp. " . number_format($totalPrice, 0, ',', '.') . "
 " . ($payment_method == 'CREDIT_CARD'
-                ? "Link Pembayaran: {$linkPay}"
-                : "Nomor Virtual Account: " . ($save_va->account_number ?? '-')) . "
+                ? "Payment Link: {$linkPay}"
+                : "Virtual Account Number: " . ($save_va->account_number ?? '-')) . "
 " . ($referral ? "Referral: {$referral}" : "") . "
 
-Terima kasih.
+Thank you.
+
+Kind regards,
+DMC Bot
 ";
             $send->WhatsappMessageGroup();
             $send->phone = '120363429723388586';
@@ -422,15 +425,17 @@ Terima kasih.
             $send = new WhatsappApi();
             $send->phone = '120363422942310672';
             $send->message = '
-Registration Notification,
+Registration Notification
 
-Hai ada pendaftaran GRATIS
-Detail Informasinya:
+A new complimentary registration has been received.
+Registration Details:
 ' . implode("\n---------------------\n", $detailWa) . '
 ' . ($referral ? "Referral: {$referral}" : '') . '
 
-Thank you
-Best Regards Bot DMC Website
+Thank you.
+
+Kind regards,
+DMC Bot
 ';
             $send->WhatsappMessageGroup();
 

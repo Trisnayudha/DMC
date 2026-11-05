@@ -162,10 +162,11 @@ class PaymentController extends Controller
                 $send->phone = '120363422942310672';  // Nomor admin
                 // $send->phone = '083829314436';  // Nomor admin
                 $send->message = "
-Paid Registration Notification,
+Paid Registration Notification
 
-Ada pendaftaran baru (PAID) dengan metode pembayaran: $payment_method
-Detail Informasi:
+A new paid registration has been received.
+Payment Method: $payment_method
+Registration Details:
 Name: $findUsers->name
 Email: $findUsers->email
 Phone: $profileModel->phone
@@ -173,10 +174,13 @@ Company: $companyModel->company_name
 Job Title: $profileModel->job_title" .
                     ($request->referral ? "\nReferral: {$request->referral}" : "") . "
 
-Code Payment: $codePayment
-Total Bayar: Rp. " . number_format($createVA['expected_amount'], 0, ',', '.') . "
+Payment Code: $codePayment
+Total Amount: Rp. " . number_format($createVA['expected_amount'], 0, ',', '.') . "
 
-Terima kasih.
+Thank you.
+
+Kind regards,
+DMC Bot
 ";
                 $send->WhatsappMessageGroup();
                 $send->phone = '120363429723388586';
@@ -308,10 +312,11 @@ Terima kasih.
                 $send->phone = '120363422942310672';  // Nomor admin
                 // $send->phone = '083829314436';  // Nomor admin
                 $send->message = "
-Paid Registration Notification,
+Paid Registration Notification
 
-Ada pendaftaran baru (PAID) dengan metode pembayaran: $payment_method
-Detail Informasi:
+A new paid registration has been received.
+Payment Method: $payment_method
+Registration Details:
 Name: $findUsers->name
 Email: $findUsers->email
 Phone: $profileModel->phone
@@ -319,10 +324,13 @@ Company: $companyModel->company_name
 Job Title: $profileModel->job_title" .
                     ($request->referral ? "\nReferral: {$request->referral}" : "") . "
 
-Code Payment: $codePayment
-Total Bayar: Rp. " . number_format($findTicket->price_rupiah, 0, ',', '.') . "
+Payment Code: $codePayment
+Total Amount: Rp. " . number_format($findTicket->price_rupiah, 0, ',', '.') . "
 
-Terima kasih.
+Thank you.
+
+Kind regards,
+DMC Bot
 ";
                 $send->WhatsappMessage();
                 $send->phone = '120363429723388586';
@@ -621,23 +629,27 @@ Terima kasih.
                     $send->phone = '120363422942310672';  // Nomor admin
                     // $send->phone = '083829314436';  // Nomor admin
                     $send->message = "
-Paid Registration Notification,
+Paid Registration Notification
 
-Ada pendaftaran baru (PAID) dengan metode pembayaran: $payment_method
-Detail Informasi:
+A new paid registration has been received.
+Payment Method: $payment_method
+Registration Details:
 Name: $name
 Email: $email
 Phone: $phone
 Company: $company
 Job Title: $job_title
 
-Code Payment: $codePayment
-Total Bayar: Rp. " . number_format($finalPrice, 0, ',', '.') . "
+Payment Code: $codePayment
+Total Amount: Rp. " . number_format($finalPrice, 0, ',', '.') . "
 " . ($payment_method == 'CREDIT_CARD'
-                        ? "Link Pembayaran: $linkPay"
-                        : "Nomor Virtual Account: " . ($save_va->account_number ?? '-')) . "
+                        ? "Payment Link: $linkPay"
+                        : "Virtual Account Number: " . ($save_va->account_number ?? '-')) . "
 
-Terima kasih.
+Thank you.
+
+Kind regards,
+DMC Bot
 ";
                     $send->WhatsappMessageGroup();
                     $send->phone = '120363429723388586';
@@ -674,19 +686,21 @@ Terima kasih.
                     // $send->phone = '081332178421'; // Nomor admin
                     $send->phone = '120363422942310672'; // Nomor admin
                     $send->message = "
-    Registration Notification,
+Registration Notification
 
-    Hai ada pendaftaran GRATIS
-    Detail Informasinya:
-    Name: $name
-    Email: $email
-    Phone Number: $phone
-    Company: $company
-    Job Title: $job_title
+A new complimentary registration has been received.
+Registration Details:
+Name: $name
+Email: $email
+Phone Number: $phone
+Company: $company
+Job Title: $job_title
 
-    Thank you
-    Best Regards Bot DMC Website
-    ";
+Thank you.
+
+Kind regards,
+DMC Bot
+";
                     $send->WhatsappMessage();
                     $send->phone = '120363429723388586';
                     $send->WhatsappMessageGroup();
