@@ -6,7 +6,7 @@
         <div class="section-body">
             <div class="card"><div class="card-body">
                 <h5>Hi, {{ auth()->user()->name }}</h5>
-                <p class="mb-0">Level: <strong>{{ auth()->user()->roleLabel() }}</strong>. Pilih menu yang tersedia untuk tim Anda.</p>
+                <p class="mb-0">Level: <strong>{{ auth()->user()->roleLabel() }}</strong>. Select a menu available to your team.</p>
             </div></div>
             @php $hasMenu = false; @endphp
             @foreach ($navigation as $group => $items)
@@ -22,7 +22,7 @@
                 @endif
             @endforeach
             @unless ($hasMenu)
-                <div class="alert alert-info">Akses menu tim belum diatur. Hubungi Superadmin untuk mengaktifkan menu yang diperlukan.</div>
+                <div class="alert alert-info">Your team's menu access has not been configured. Contact a superadmin to enable the menus you need.</div>
             @endunless
         </div>
     </section>

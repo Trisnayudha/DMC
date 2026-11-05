@@ -13,8 +13,8 @@
     <div class="cms-menu-search hide-sidebar-mini" role="search">
         <label class="cms-menu-search-field" for="cms-menu-search-input">
             <i class="fas fa-search" aria-hidden="true"></i>
-            <span class="sr-only">Cari menu</span>
-            <input type="search" id="cms-menu-search-input" placeholder="Cari menu..." autocomplete="off" aria-controls="cms-sidebar-menu" aria-describedby="cms-menu-search-status">
+            <span class="sr-only">Search menu</span>
+            <input type="search" id="cms-menu-search-input" placeholder="Search menu..." autocomplete="off" aria-controls="cms-sidebar-menu" aria-describedby="cms-menu-search-status">
         </label>
         <span id="cms-menu-search-status" class="sr-only" role="status" aria-live="polite"></span>
     </div>
@@ -49,6 +49,6 @@
                 @endforeach
             @endforeach
         </ul>
-        <p class="cms-menu-empty hide-sidebar-mini" id="cms-menu-empty" hidden>Menu tidak ditemukan.</p>
+        <p class="cms-menu-empty hide-sidebar-mini" id="cms-menu-empty" hidden>No matching menu items found.</p>
     </nav>
 </aside>
