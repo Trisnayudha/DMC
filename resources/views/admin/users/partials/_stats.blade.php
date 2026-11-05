@@ -23,7 +23,7 @@
                     <div class="card-header">
                         <h4>Companies Verified
                             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                                title="Jumlah company unik yang terverifikasi (dedup per nama company, sama seperti angka di halaman Company Database)."
+                                title="Number of unique verified companies, deduplicated by company name, as shown in Company Database."
                                 data-toggle="tooltip"></i>
                         </h4>
                     </div>
@@ -53,7 +53,7 @@
                     <div class="card-header">
                         <h4>Prospecting
                             <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                                title="Member yang bersedia menerima penawaran sponsorship (Open to Sponsorship)."
+                                title="Members open to receiving sponsorship offers."
                                 data-toggle="tooltip"></i>
                         </h4>
                     </div>
@@ -111,8 +111,8 @@
     <div class="alert alert-warning alert-dismissible show fade d-flex align-items-center py-2 mb-3" style="gap:10px;">
         <i class="fas fa-exclamation-triangle fa-lg"></i>
         <div class="flex-grow-1">
-            <strong>{{ $countSelfEdited }} user</strong> telah mengubah data mereka sendiri melalui apps/website.
-            <a href="{{ url('admin/users?filter=self_edited') }}" class="font-weight-bold ml-2">Lihat daftar →</a>
+            <strong>{{ $countSelfEdited }} user</strong> updated their own details through the app or website.
+            <a href="{{ url('admin/users?filter=self_edited') }}" class="font-weight-bold ml-2">View list →</a>
         </div>
         <button type="button" class="close ml-2" data-dismiss="alert"><span>×</span></button>
     </div>
@@ -125,9 +125,9 @@
 <div class="card member-stats-card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="mb-0">
-            <i class="fas fa-chart-bar mr-1"></i>Statistik &amp; Chart
+            <i class="fas fa-chart-bar mr-1"></i>Statistics &amp; Charts
             <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                title="Verification SLA, Leads, chart registrasi & validasi, Job Tier, Company Category Tier, Members by Source. Data baru dimuat saat dibuka."></i>
+                title="Verification SLA, leads, registration and validation charts, Job Tier, Company Category Tier and Members by Source. Data loads when opened."></i>
         </h4>
         <button type="button" class="btn btn-sm btn-outline-primary" id="member-stats-toggle"
             data-toggle="collapse" data-target="#member-stats-collapse"
@@ -138,7 +138,7 @@
     <div class="collapse" id="member-stats-collapse">
         <div class="card-body" id="member-stats-body">
             <div class="text-center text-muted py-5" id="member-stats-loading">
-                <span class="spinner-border spinner-border-sm mr-2"></span>Memuat statistik...
+                <span class="spinner-border spinner-border-sm mr-2"></span>Loading statistics...
             </div>
         </div>
     </div>
@@ -185,7 +185,7 @@
             function loadStats() {
                 state = 'loading';
                 $('#member-stats-body').html(
-                    '<div class="text-center text-muted py-5"><span class="spinner-border spinner-border-sm mr-2"></span>Memuat statistik...</div>'
+                    '<div class="text-center text-muted py-5"><span class="spinner-border spinner-border-sm mr-2"></span>Loading statistics...</div>'
                 );
 
                 // Query string halaman ikut dikirim: Members by Source mengikuti filter tabel.
@@ -200,7 +200,7 @@
                     .fail(function() {
                         state = 'idle';
                         $('#member-stats-body').html(
-                            '<div class="text-center text-muted py-4">Gagal memuat statistik. '
+                            '<div class="text-center text-muted py-4">Failed to load statistics. '
                             + '<a href="#" id="member-stats-retry">Coba lagi</a></div>'
                         );
                     });

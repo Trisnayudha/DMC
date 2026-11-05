@@ -1,23 +1,23 @@
-{{-- Modal: Bulk Import Verifikasi 2-Langkah --}}
+{{-- Modal: Bulk Import 2-Step Verification --}}
 <div class="modal fade" tabindex="-1" role="dialog" id="bulkTwoStepImportModal">
     <div class="modal-dialog modal-md modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-user-check mr-2"></i>Bulk Import Verifikasi 2-Langkah</h5>
+                <h5 class="modal-title"><i class="fas fa-user-check mr-2"></i>Bulk Import 2-Step Verification</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <p class="small text-muted">
-                    Upload file berisi kolom <strong>Email</strong> dan <strong>Status</strong>
-                    (Verified / Not Verified). Email dicocokkan persis ke email member yang sudah
-                    terdaftar — email yang tidak ditemukan akan dilaporkan, tidak dibuat member baru.
+                    Upload a file with <strong>Email</strong> and <strong>Status</strong> columns
+                    (Verified / Not Verified). Emails must exactly match existing members.
+                    Unmatched emails will be reported; no new members will be created.
                 </p>
                 <form action="{{ route('users.bulk_two_step_import') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group">
-                        <label class="small text-muted">Pilih file .xlsx / .xls / .csv</label>
+                        <label class="small text-muted">Select an .xlsx / .xls / .csv file</label>
                         <input type="file" name="file" id="bulk_two_step_file" class="form-control-file" required>
                     </div>
                     <button type="submit" class="btn btn-success btn-block">

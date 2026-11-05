@@ -4,7 +4,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-history mr-2"></i>Riwayat Perubahan — <span id="logs-user-name">-</span>
+                    <i class="fas fa-history mr-2"></i>Change History — <span id="logs-user-name">-</span>
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -13,20 +13,20 @@
             <div class="modal-body p-0">
                 <div id="logs-loading" class="text-center py-4">
                     <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2 text-muted">Memuat log...</p>
+                    <p class="mt-2 text-muted">Loading logs...</p>
                 </div>
                 <div id="logs-empty" class="text-center py-4 text-muted" style="display:none;">
-                    Belum ada riwayat perubahan.
+                    No change history yet.
                 </div>
                 <div id="logs-content" style="display:none;">
                     <table class="table table-sm table-hover mb-0">
                         <thead class="thead-light">
                             <tr>
-                                <th>Waktu</th>
+                                <th>Time</th>
                                 <th>Admin</th>
                                 <th>Field</th>
-                                <th>Sebelum</th>
-                                <th>Sesudah</th>
+                                <th>Before</th>
+                                <th>After</th>
                             </tr>
                         </thead>
                         <tbody id="logs-tbody"></tbody>
@@ -34,7 +34,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

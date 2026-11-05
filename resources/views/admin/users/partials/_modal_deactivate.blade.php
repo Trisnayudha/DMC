@@ -10,18 +10,17 @@
             </div>
             <div class="modal-body">
                 <p class="mb-3">
-                    Deactivate <strong id="dm-member-name">-</strong>? Member tidak bisa login dan mendapat harga
-                    nonmember.
+                    Deactivate <strong id="dm-member-name">-</strong>? The member will not be able to log in and will receive non-member pricing.
                 </p>
                 <input type="hidden" id="dm-url">
                 <div class="form-group mb-0">
                     <label>Reason <span class="text-danger">*</span></label>
                     <textarea id="dm-reason" rows="3" class="form-control"
-                        placeholder="Kenapa member ini di-deactivate? (mis. akun testing, member meninggal, akun duplikat...)"></textarea>
+                        placeholder="Why is this member being deactivated? (e.g. test account, deceased member, duplicate account...)"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-outline-danger" id="dm-btn-submit">
                     <i class="fas fa-user-slash mr-1"></i> Deactivate
                 </button>

@@ -14,7 +14,7 @@
             </div>
             <div class="modal-body">
                 <div id="cc-modal-loading" class="text-center text-muted py-5">
-                    <span class="spinner-border spinner-border-sm mr-2"></span>Memuat...
+                    <span class="spinner-border spinner-border-sm mr-2"></span>Loading...
                 </div>
                 <div id="cc-modal-content" style="display:none;">
                     <div class="reg-stat-row mb-3">
@@ -29,12 +29,12 @@
                     </div>
 
                     <div id="cc-modal-category-section" class="mb-3" style="display:none;">
-                        <div class="reg-section-label">Category Detail <span class="font-weight-normal text-lowercase">(klik untuk filter)</span></div>
+                        <div class="reg-section-label">Category Detail <span class="font-weight-normal text-lowercase">(click to filter)</span></div>
                         <div class="reg-chip-row" id="cc-modal-category-chips"></div>
                     </div>
 
                     <div id="cc-modal-subcategory-section" class="mb-3" style="display:none;">
-                        <div class="reg-section-label">Subcategory <span class="font-weight-normal text-lowercase">(klik untuk filter; satu company bisa punya lebih dari satu)</span></div>
+                        <div class="reg-section-label">Subcategory <span class="font-weight-normal text-lowercase">(click to filter; a company can have more than one)</span></div>
                         <div class="reg-chip-row" id="cc-modal-subcategory-chips"></div>
                     </div>
 
@@ -43,7 +43,7 @@
                         <div class="reg-search-wrap">
                             <i class="fas fa-search"></i>
                             <input type="text" id="cc-modal-search" class="form-control form-control-sm"
-                                placeholder="Cari company, kota, negara...">
+                                placeholder="Search company, city, country...">
                         </div>
                     </div>
 
@@ -91,7 +91,7 @@
                 // Category Detail — hanya berguna kalau isinya lebih dari satu kategori (mode grup).
                 var $cat = $('#cc-modal-category-chips').empty();
                 if (res.category_breakdown.length > 1) {
-                    $cat.append(chip('category', '', 'Semua', res.total, true));
+                    $cat.append(chip('category', '', 'All', res.total, true));
                     res.category_breakdown.forEach(function(c) {
                         $cat.append(chip('category', c.name, c.name, c.count, false));
                     });
@@ -102,7 +102,7 @@
 
                 var $sub = $('#cc-modal-subcategory-chips').empty();
                 if (res.subcategories.length) {
-                    $sub.append(chip('subcategory', '', 'Semua', res.total, true));
+                    $sub.append(chip('subcategory', '', 'All', res.total, true));
                     res.subcategories
                         .slice()
                         .sort(function(a, b) { return b.count - a.count; })
@@ -140,12 +140,12 @@
                         + '<td class="text-center">' + (c.is_verified
                             ? '<span class="reg-status-badge" style="background:#0ca30c;">Verified</span>'
                             : '<span class="reg-status-badge" style="background:#adb5bd;">Unverified</span>') + '</td>'
-                        + '<td class="text-right"><a href="' + esc(c.database_url) + '" target="_blank" rel="noopener" title="Buka di Company Database"><i class="fas fa-external-link-alt"></i></a></td>'
+                        + '<td class="text-right"><a href="' + esc(c.database_url) + '" target="_blank" rel="noopener" title="Open in Company Database"><i class="fas fa-external-link-alt"></i></a></td>'
                         + '</tr>';
                 }).join('');
 
-                $('#cc-modal-tbody').html(html || '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada company yang cocok.</td></tr>');
-                $('#cc-modal-list-note').text('(' + fmt(rows.length) + ' dari ' + fmt(state.companies.length) + ')');
+                $('#cc-modal-tbody').html(html || '<tr><td colspan="8" class="text-center text-muted py-4">No matching companies found.</td></tr>');
+                $('#cc-modal-list-note').text('(' + fmt(rows.length) + ' of ' + fmt(state.companies.length) + ')');
             }
 
             /** params: { tier: '<nama grup>' } atau { category: '<nama kategori>' } */
@@ -153,7 +153,7 @@
                 $('#cc-modal-kind').text(params.tier ? 'Company Category Tier' : 'Company Category');
                 $('#cc-modal-category').text(params.tier || params.category);
                 $('#cc-modal-content').hide();
-                $('#cc-modal-loading').html('<span class="spinner-border spinner-border-sm mr-2"></span>Memuat...').show();
+                $('#cc-modal-loading').html('<span class="spinner-border spinner-border-sm mr-2"></span>Loading...').show();
                 $('#cc-modal-search').val('');
                 state.categoryFilter = '';
                 state.subcategoryFilter = '';
@@ -175,7 +175,7 @@
                     })
                     .fail(function(xhr, status) {
                         if (status === 'abort') return;
-                        $('#cc-modal-loading').text('Gagal memuat detail kategori.');
+                        $('#cc-modal-loading').text('Failed to load category details.');
                     });
             };
 

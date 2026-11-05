@@ -144,8 +144,8 @@
                 }
 
                 var note = filtered.length !== regBreakdownMembers.length
-                    ? filtered.length + ' dari ' + regBreakdownMembers.length + ' ditampilkan'
-                    : (regBreakdownMembers.length + ' member' + (regBreakdownMembers.length !== regBreakdownTotal ? ' (dari ' + regBreakdownTotal + ' total, terbaru dulu)' : ''));
+                    ? filtered.length + ' of ' + regBreakdownMembers.length + ' shown'
+                    : (regBreakdownMembers.length + ' member' + (regBreakdownMembers.length !== regBreakdownTotal ? ' (of ' + regBreakdownTotal + ' total, newest first)' : ''));
                 $('#reg-breakdown-members-note').text(note);
             }
 
@@ -242,7 +242,7 @@
                     $('#reg-breakdown-content').show();
                 }).fail(function() {
                     $('#reg-breakdown-loading').hide();
-                    $('#reg-breakdown-empty').text('Gagal memuat breakdown.').show();
+                    $('#reg-breakdown-empty').text('Failed to load breakdown.').show();
                 });
             }
         })();
@@ -314,7 +314,7 @@
                             callbacks: {
                                 title: function(items) { var t = tiers[items[0].dataIndex]; return t.label + ' — ' + t.roles; },
                                 label: function(item) { return ' ' + fmt(item.raw) + ' member (' + pct(item.raw, composition.total) + '%)'; },
-                                footer: function() { return 'Klik untuk detail'; }
+                                footer: function() { return 'Click for details'; }
                             }
                         }
                     },

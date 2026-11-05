@@ -8,12 +8,12 @@
                 <div class="w-100">
                     <div class="d-flex align-items-center mb-2" style="gap:8px;">
                         <span id="vm-step-indicator-1" class="badge badge-primary" style="font-size:12px;">Step 1</span>
-                        <span style="font-size:11px; color:#adb5bd;">Verifikasi Company</span>
+                        <span style="font-size:11px; color:#adb5bd;">Verify Company</span>
                         <span style="color:#dee2e6; font-size:14px;">›</span>
                         <span id="vm-step-indicator-2" class="badge badge-light" style="font-size:12px;">Step 2</span>
-                        <span style="font-size:11px; color:#adb5bd;">Verifikasi Member</span>
+                        <span style="font-size:11px; color:#adb5bd;">Verify Member</span>
                     </div>
-                    <h5 class="modal-title mb-0" id="vm-modal-title">Verifikasi Member</h5>
+                    <h5 class="modal-title mb-0" id="vm-modal-title">Verify Member</h5>
                 </div>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-28px;">
                     <span aria-hidden="true">&times;</span>
@@ -27,24 +27,24 @@
                     {{-- Alert shown when company NOT verified --}}
                     <div id="vm-alert-company-not-verified" class="alert alert-warning mb-3">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
-                        <strong>Company belum terverifikasi.</strong><br>
-                        <small class="ml-4">Pastikan data company sudah benar sebelum memverifikasi member ini.
-                            Perubahan akan diterapkan ke semua user dengan company yang sama.</small>
+                        <strong>Company has not been verified.</strong><br>
+                        <small class="ml-4">Check the company details before verifying this member.
+                            Changes will apply to all users with the same company.</small>
                     </div>
                     {{-- Alert shown when company IS already verified --}}
                     <div id="vm-alert-company-verified" class="alert alert-success mb-3" style="display:none;">
                         <i class="fas fa-check-circle mr-2"></i>
-                        Company <strong id="vm-company-verified-label">-</strong> sudah terverifikasi.
+                        Company <strong id="vm-company-verified-label">-</strong> is verified.
                     </div>
 
                     {{-- User info (editable) --}}
                     <div class="border rounded p-3 mb-3">
                         <div class="small font-weight-bold text-primary mb-2">
-                            <i class="fas fa-user mr-1"></i>Informasi User — <span id="vm-member-name">-</span>
+                            <i class="fas fa-user mr-1"></i>User Information — <span id="vm-member-name">-</span>
                         </div>
                         <div class="form-row mb-0">
                             <div class="form-group col-md-6 mb-2">
-                                <label class="small mb-1">Nama</label>
+                                <label class="small mb-1">Name</label>
                                 <input type="text" id="vm-user-name" class="form-control form-control-sm">
                             </div>
                             <div class="form-group col-md-6 mb-2">
@@ -71,7 +71,7 @@
                     {{-- Company form section (hidden when company already verified) --}}
                     <div id="vm-company-form-section">
                         <div class="alert alert-light mb-3 py-2">
-                            Company saat ini: <strong id="vm-company-label">-</strong>
+                            Current company: <strong id="vm-company-label">-</strong>
                         </div>
 
                         <input type="hidden" id="vm-normalized-name">
@@ -98,12 +98,12 @@
                                 <label>Company Name</label>
                                 <div class="position-relative">
                                     <input type="text" id="vm-company-name" class="form-control" autocomplete="off"
-                                        placeholder="Ketik nama company atau pilih dari verified...">
+                                        placeholder="Enter a company name or select a verified company...">
                                     <div id="vm-company-suggestions" class="list-group position-absolute w-100"
                                         style="z-index:9999; display:none; max-height:180px; overflow-y:auto; top:100%; left:0; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
                                     </div>
                                 </div>
-                                <small class="text-muted">Ketik untuk saran dari company yang sudah verified.</small>
+                                <small class="text-muted">Type to see suggestions from verified companies.</small>
                             </div>
                         </div>
 
@@ -151,7 +151,7 @@
                             <div class="form-group col-md-12">
                                 <label>Full Office Number</label>
                                 <input type="text" id="vm-full-office-number" class="form-control" placeholder="e.g. +62 21 12345678">
-                                <small class="text-muted">Awali dengan kode negara (mis. <code>+62</code>) agar prefix terdeteksi otomatis.</small>
+                                <small class="text-muted">Start with the country code (e.g. <code>+62</code>) to detect the prefix automatically.</small>
                             </div>
                             <input type="hidden" id="vm-prefix-office-number">
                             <input type="hidden" id="vm-office-number">
@@ -159,8 +159,8 @@
                     </div>{{-- /vm-company-form-section --}}
 
                     <small class="text-muted d-block mt-1">
-                        <i class="fas fa-info-circle mr-1"></i>Status member akan berubah jadi
-                        <span class="badge badge-success">Active</span> dan data dikirim ke Mailchimp.
+                        <i class="fas fa-info-circle mr-1"></i>The member status will change to
+                        <span class="badge badge-success">Active</span> and the data will be sent to Mailchimp.
                     </small>
                     <div class="custom-control custom-checkbox mt-2">
                         <input type="checkbox" class="custom-control-input vm-send-notification-checkbox" id="vm-send-notification-1" checked>
@@ -172,14 +172,14 @@
                         <i class="fas fa-times-circle mr-1"></i> Decline
                     </button>
                     <div>
-                        <button type="button" class="btn btn-outline-secondary mr-1" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-outline-secondary mr-1" data-dismiss="modal">Cancel</button>
                         {{-- Shown when company NOT verified --}}
                         <button type="button" class="btn btn-success" id="vm-btn-verify-company">
-                            <i class="fas fa-check-circle mr-1"></i> Verifikasi Company & Lanjut
+                            <i class="fas fa-check-circle mr-1"></i> Verify Company & Continue
                         </button>
                         {{-- Shown when company already verified --}}
                         <button type="button" class="btn btn-warning px-4" id="vm-btn-verify-member-direct" style="display:none;">
-                            <i class="fas fa-shield-alt mr-1"></i> Verify Member Sekarang
+                            <i class="fas fa-shield-alt mr-1"></i> Verify Member Now
                         </button>
                     </div>
                 </div>
@@ -191,12 +191,12 @@
                     <div class="mb-3">
                         <span style="font-size:48px; color:#28a745;"><i class="fas fa-check-circle"></i></span>
                     </div>
-                    <h5 class="mb-1">Company berhasil diverifikasi!</h5>
+                    <h5 class="mb-1">Company verified successfully!</h5>
                     <p class="text-muted mb-3" id="vm-step2-company-label">-</p>
                     <div class="alert alert-light d-inline-block px-4 text-left">
-                        Lanjut verifikasi member <strong id="vm-step2-member-name">-</strong>?<br>
-                        <small class="text-muted">Status member akan berubah jadi
-                            <span class="badge badge-success">Active</span> dan data dikirim ke Mailchimp.</small>
+                        Continue verifying member <strong id="vm-step2-member-name">-</strong>?<br>
+                        <small class="text-muted">The member status will change to
+                            <span class="badge badge-success">Active</span> and the data will be sent to Mailchimp.</small>
                     </div>
                     <div class="custom-control custom-checkbox mt-2 text-left d-inline-block">
                         <input type="checkbox" class="custom-control-input vm-send-notification-checkbox" id="vm-send-notification-2" checked>
@@ -208,9 +208,9 @@
                         <i class="fas fa-times-circle mr-1"></i> Decline
                     </button>
                     <div>
-                        <button type="button" class="btn btn-outline-secondary mr-1" data-dismiss="modal">Nanti dulu</button>
+                        <button type="button" class="btn btn-outline-secondary mr-1" data-dismiss="modal">Not Now</button>
                         <button type="button" class="btn btn-warning px-4" id="vm-btn-verify-member">
-                            <i class="fas fa-shield-alt mr-1"></i> Verify Member Sekarang
+                            <i class="fas fa-shield-alt mr-1"></i> Verify Member Now
                         </button>
                     </div>
                 </div>
@@ -225,13 +225,13 @@
                     <h5 class="text-center mb-3">Decline Membership Application</h5>
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
-                        Kamu akan <strong>mendecline</strong> aplikasi membership dari
+                        You are about to <strong>decline</strong> the membership application from
                         <strong id="vm-decline-member-name">-</strong>.<br>
-                        <small>Centang opsi di bawah kalau mau kirim email notifikasi decline ke mereka.</small>
+                        <small>Select the option below to send a decline notification email.</small>
                     </div>
                     <div class="alert alert-light border py-2 small" id="vm-decline-email-preview">
                         <strong>Subject:</strong> Update on Your Djakarta Mining Club Membership Application<br>
-                        <span class="text-muted">Email akan dikirim ke: <strong id="vm-decline-member-email">-</strong></span>
+                        <span class="text-muted">The email will be sent to: <strong id="vm-decline-member-email">-</strong></span>
                     </div>
                     <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="vm-decline-send-notification" checked>
@@ -240,10 +240,10 @@
                 </div>
                 <div class="modal-footer d-flex justify-content-between">
                     <button type="button" class="btn btn-outline-secondary" id="vm-btn-decline-cancel">
-                        <i class="fas fa-arrow-left mr-1"></i> Kembali
+                        <i class="fas fa-arrow-left mr-1"></i> Back
                     </button>
                     <button type="button" class="btn btn-danger px-4" id="vm-btn-decline-confirm">
-                        <i class="fas fa-times-circle mr-1"></i> Ya, Decline & Kirim Email
+                        <i class="fas fa-times-circle mr-1"></i> Yes, Decline & Send Email
                     </button>
                 </div>
             </div>

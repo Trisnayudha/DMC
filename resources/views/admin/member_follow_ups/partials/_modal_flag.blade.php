@@ -11,14 +11,14 @@
             <div class="modal-body">
                 <p class="mb-3">
                     Member: <strong id="fu-member-name">-</strong><br>
-                    <small class="text-muted">Company saat ini: <span id="fu-current-company">-</span></small><br>
-                    <small class="text-muted">Job title saat ini: <span id="fu-current-job-title">-</span></small>
+                    <small class="text-muted">Current company: <span id="fu-current-company">-</span></small><br>
+                    <small class="text-muted">Current job title: <span id="fu-current-job-title">-</span></small>
                 </p>
                 <input type="hidden" id="fu-user-id">
                 <div class="form-group">
-                    <label>Company Terbaru <span class="text-danger">*</span></label>
+                    <label>New Company <span class="text-danger">*</span></label>
                     <input type="text" id="fu-new-company-name" class="form-control" list="fu-company-datalist"
-                        placeholder="Ketik nama company terbaru...">
+                        placeholder="Enter the new company name...">
                     <datalist id="fu-company-datalist">
                         @foreach ($companyNames ?? [] as $name)
                             <option value="{{ $name }}"></option>
@@ -26,17 +26,17 @@
                     </datalist>
                 </div>
                 <div class="form-group">
-                    <label>Job Title Baru <span class="text-muted small">(opsional — kosongkan jika sama)</span></label>
+                    <label>New Job Title <span class="text-muted small">(optional — leave blank if unchanged)</span></label>
                     <input type="text" id="fu-new-job-title" class="form-control"
-                        placeholder="Job title di company baru...">
+                        placeholder="Job title at the new company...">
                 </div>
                 <div class="form-group mb-0">
-                    <label>Notes (opsional)</label>
-                    <textarea id="fu-notes" rows="3" class="form-control" placeholder="Info tambahan untuk follow up..."></textarea>
+                    <label>Notes (optional)</label>
+                    <textarea id="fu-notes" rows="3" class="form-control" placeholder="Additional information for follow-up..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-warning" id="fu-btn-submit">
                     <i class="fas fa-exchange-alt mr-1"></i> Mark as Need Follow Up
                 </button>
@@ -64,7 +64,7 @@
             var btn = $(this);
             var newCompany = $('#fu-new-company-name').val().trim();
             if (!newCompany) {
-                toastr.error('Company terbaru wajib diisi.');
+                toastr.error('New company is required.');
                 return;
             }
 
@@ -92,12 +92,12 @@
                             location.reload();
                         }
                     } else {
-                        toastr.error(res.message || 'Gagal menyimpan follow up.');
+                        toastr.error(res.message || 'Failed to save follow-up.');
                         btn.prop('disabled', false);
                     }
                 },
                 error: function(xhr) {
-                    var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Terjadi kesalahan.';
+                    var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'An error occurred.';
                     toastr.error(msg);
                     btn.prop('disabled', false);
                 }

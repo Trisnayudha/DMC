@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Edit Data User</h5>
+                <h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Edit User</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -13,7 +13,7 @@
                 <input type="hidden" id="eu-update-url">
 
                 <div class="form-group">
-                    <label class="small font-weight-bold">Nama</label>
+                    <label class="small font-weight-bold">Name</label>
                     <input type="text" id="eu-name" class="form-control">
                 </div>
                 <div class="form-group">
@@ -31,13 +31,13 @@
                 <div class="form-group">
                     <label class="small font-weight-bold">Job Tier</label>
                     <select id="eu-job-tier" class="form-control">
-                        <option value="auto">Auto (dari Job Title)</option>
+                        <option value="auto">Auto (from Job Title)</option>
                         @foreach (\App\Support\JobTierClassifier::TIERS as $tierNo => $tierMeta)
                             <option value="{{ $tierNo }}">{{ \App\Support\JobTierClassifier::description($tierNo) }}</option>
                         @endforeach
                     </select>
-                    <small class="form-text text-muted">Pilih tier tertentu untuk override manual; tier manual tidak berubah walau Job Title diedit.</small>
-                    <small id="eu-job-tier-inactive-note" class="form-text text-warning" style="display:none;">Job tier hanya diisi untuk member Active.</small>
+                    <small class="form-text text-muted">Select a tier to override it manually; the manual tier will not change when the job title is edited.</small>
+                    <small id="eu-job-tier-inactive-note" class="form-text text-warning" style="display:none;">Job tier is only set for active members.</small>
                 </div>
                 <div class="form-group">
                     <label class="small font-weight-bold">Phone</label>
@@ -45,7 +45,7 @@
                 </div>
 
                 <div class="border rounded p-3 mb-3">
-                    <div class="small font-weight-bold text-primary mb-3">Data Company</div>
+                    <div class="small font-weight-bold text-primary mb-3">Company Details</div>
 
                     <div class="form-row">
                         <div class="form-group col-md-4">
@@ -69,12 +69,12 @@
                             <label class="small font-weight-bold">Company Name</label>
                             <div class="position-relative">
                                 <input type="text" id="eu-company-name" class="form-control" autocomplete="off"
-                                    placeholder="Ketik nama company atau pilih dari verified...">
+                                    placeholder="Enter a company name or select a verified company...">
                                 <div id="eu-company-suggestions" class="list-group position-absolute w-100"
                                     style="z-index:9999; display:none; max-height:180px; overflow-y:auto; top:100%; left:0; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
                                 </div>
                             </div>
-                            <small class="text-muted">Suggestion hanya dari company yang sudah verified.</small>
+                            <small class="text-muted">Suggestions only include verified companies.</small>
                         </div>
                     </div>
 
@@ -122,7 +122,7 @@
                         <div class="form-group col-md-12">
                             <label class="small font-weight-bold">Full Office Number</label>
                             <input type="text" id="eu-full-office-number" class="form-control" placeholder="e.g. +62 21 12345678">
-                            <small class="text-muted">Awali dengan kode negara (mis. <code>+62</code>) agar prefix terdeteksi otomatis.</small>
+                            <small class="text-muted">Start with the country code (e.g. <code>+62</code>) to detect the prefix automatically.</small>
                         </div>
                         <input type="hidden" id="eu-prefix-office-number">
                         <input type="hidden" id="eu-office-number">
@@ -131,9 +131,9 @@
 
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label class="small font-weight-bold">Status Member</label>
+                        <label class="small font-weight-bold">Member Status</label>
                         <select id="eu-status-member" class="form-control">
-                            <option value="">-- tidak diubah --</option>
+                            <option value="">-- no change --</option>
                             <option value="active">Active</option>
                             <option value="pending">Pending</option>
                         </select>
@@ -141,16 +141,16 @@
                     <div class="form-group col-md-6">
                         <label class="small font-weight-bold">Tier</label>
                         <select id="eu-tier" class="form-control">
-                            <option value="reguler">Reguler</option>
+                            <option value="reguler">Regular</option>
                             <option value="black">Black</option>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="eu-btn-save">
-                    <i class="fas fa-save mr-1"></i> Simpan Perubahan
+                    <i class="fas fa-save mr-1"></i> Save Changes
                 </button>
             </div>
         </div>

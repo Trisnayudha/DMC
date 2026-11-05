@@ -34,7 +34,7 @@
                     <div class="alert alert-warning alert-dismissible show fade">
                         <div class="alert-body">
                             <button class="close" data-dismiss="alert"><span>×</span></button>
-                            <strong>Detail baris yang dilewati saat import:</strong>
+                            <strong>Details of rows skipped during import:</strong>
                             <ul class="mb-0 mt-1" style="max-height:200px; overflow-y:auto;">
                                 @foreach (session('import_errors') as $importError)
                                     <li>{{ $importError }}</li>

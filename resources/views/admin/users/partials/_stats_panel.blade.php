@@ -11,7 +11,7 @@
                 <h4 class="mb-0">
                     Verification SLA
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Item yang sedang di-review (admin sudah klik Verify, belum diselesaikan). Target: selesai < 24 jam."></i>
+                        title="Items under review (Verify clicked but not completed). Target: completion within 24 hours."></i>
                 </h4>
             </div>
             <div class="card-body">
@@ -55,7 +55,7 @@
                         </table>
                     </div>
                 @else
-                    <p class="text-muted text-center mb-0 small">Belum ada data verifikasi selesai dalam 30 hari terakhir.</p>
+                    <p class="text-muted text-center mb-0 small">No completed verifications in the last 30 days.</p>
                 @endif
             </div>
         </div>
@@ -68,7 +68,7 @@
                     <h4 class="mb-0">
                         <i class="fas fa-bullseye mr-1"></i>Leads
                         <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                            title="Member dengan Explore Marketing yang perlu di-follow-up sales/marketing."></i>
+                            title="Members interested in Explore Marketing who need sales or marketing follow-up."></i>
                     </h4>
                 </div>
                 <div class="card-body d-flex flex-column justify-content-center text-center">
@@ -101,7 +101,7 @@
                 <h4 class="mb-0">
                     New Member Validation
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip" data-html="true"
-                        title="Mengukur kecepatan admin memvalidasi member baru sejak tanggal daftar (target: 48 jam), untuk member yang daftar dalam 30 hari terakhir."></i>
+                        title="Measures time to validate new members from registration (target: 48 hours), for registrations in the last 30 days."></i>
                 </h4>
                 <span class="badge badge-primary">30 Days</span>
             </div>
@@ -129,7 +129,7 @@
                 <h4 class="mb-0">
                     Member Registrations
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Jumlah pendaftar baru per periode — untuk reporting cepat ke management."></i>
+                        title="New registrations per period for management reporting."></i>
                 </h4>
                 <div class="btn-group btn-group-sm" role="group">
                     <button type="button" class="btn btn-primary" id="reg-toggle-weekly">Weekly</button>
@@ -142,7 +142,7 @@
                     <canvas id="registrationsChart" style="cursor:pointer;"></canvas>
                 </div>
                 <small class="text-muted d-block text-center mt-2">
-                    <i class="fas fa-mouse-pointer mr-1"></i>Klik salah satu bar untuk lihat breakdown source periode itu
+                    <i class="fas fa-mouse-pointer mr-1"></i>Click a bar to see the source breakdown for that period
                 </small>
             </div>
         </div>
@@ -154,7 +154,7 @@
                 <h4 class="mb-0">
                     Verification Status
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Breakdown seluruh member berdasarkan status verifikasi saat ini."></i>
+                        title="Breakdown of all members by current verification status."></i>
                 </h4>
             </div>
             <div class="card-body">
@@ -194,7 +194,7 @@
                 <h4 class="mb-0">
                     Job Tier
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Komposisi member Active (hanya company yang sudah verified) berdasarkan position tier dari job title (otomatis atau diset manual). Klik bar, tier atau role untuk lihat detail & daftar member."></i>
+                        title="Active members at verified companies by job title tier (automatic or manual). Click a bar, tier or role for details and members."></i>
                 </h4>
                 <span class="badge badge-light">{{ number_format($memberComposition['total'], 0, ',', '.') }} Active · company verified</span>
             </div>
@@ -209,7 +209,7 @@
                     <div class="col-lg-5 mb-3 mb-lg-0">
                         <div style="position:relative; height:280px;">
                             <canvas id="jobTierChart" role="img" style="cursor:pointer;"
-                                aria-label="Jumlah member Active per job tier"></canvas>
+                                aria-label="Active members by job tier"></canvas>
                         </div>
                         <ul class="list-unstyled small mb-0 mt-3">
                             @foreach ($memberComposition['tiers'] as $tierRow)
@@ -227,7 +227,7 @@
                     @foreach ($memberComposition['tiers'] as $tierRow)
                         <div class="cc-tier-group">
                             <button type="button" class="company-category-item cc-tier" data-tier="{{ $tierRow['tier'] }}"
-                                title="{{ $tierRow['label'] }} — klik untuk detail">
+                                title="{{ $tierRow['label'] }} — click for details">
                                 <span class="cc-dot" style="background:{{ $tierRow['color'] }};"></span>
                                 <span class="cc-name">{{ $tierRow['label'] }} <span class="text-muted font-weight-normal">{{ $tierRow['action'] }}</span></span>
                                 <span class="cc-count">{{ number_format($tierRow['count'], 0, ',', '.') }}</span>
@@ -235,7 +235,7 @@
                             </button>
                             @foreach ($tierRow['roleCounts'] as $role => $roleCount)
                                 <button type="button" class="company-category-item cc-sub" data-tier="{{ $tierRow['tier'] }}"
-                                    data-role="{{ $role }}" title="{{ $role }} — klik untuk detail">
+                                    data-role="{{ $role }}" title="{{ $role }} — click for details">
                                     <span class="cc-name">{{ $role }}</span>
                                     <span class="cc-count">{{ number_format($roleCount, 0, ',', '.') }}</span>
                                     <span class="cc-pct">{{ $jobTierPct($roleCount) }}%</span>
@@ -257,7 +257,7 @@
                 <h4 class="mb-0">
                     Company Category × Job Tier
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Jumlah member Active (hanya company yang sudah verified) per company category, dipecah per job tier. Angka di ujung bar = total kategori."></i>
+                        title="Active members at verified companies by company category and job tier. Bar-end values show category totals."></i>
                 </h4>
                 <button type="button" class="btn btn-sm btn-outline-primary" id="company-category-tier-toggle"
                     data-toggle="collapse" data-target="#company-category-tier-collapse"
@@ -269,7 +269,7 @@
                 <div class="card-body">
                     <div style="position:relative; height:{{ max(260, count($memberComposition['categories']) * 24 + 60) }}px;">
                         <canvas id="companyCategoryTierChart" role="img"
-                            aria-label="Jumlah member Active per company category, dipecah per job tier"></canvas>
+                            aria-label="Active members by company category and job tier"></canvas>
                     </div>
                 </div>
             </div>
@@ -287,7 +287,7 @@
                 <h4 class="mb-0">
                     Members by Source
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Breakdown member, leads, dan konversi per channel pendaftaran. Mengikuti filter yang lagi aktif di tabel Members."></i>
+                        title="Members, leads and conversions by registration channel, using the active Members table filters."></i>
                 </h4>
                 @php
                     $activeSourceFilters = array_filter(request()->only(['date_from', 'date_to', 'month', 'year', 'source', 'status_member', 'filter']));
@@ -333,7 +333,7 @@
                                 @endforeach
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-3">Belum ada data.</td>
+                                    <td colspan="6" class="text-center text-muted py-3">No data available.</td>
                                 </tr>
                             @endforelse
                         </tbody>

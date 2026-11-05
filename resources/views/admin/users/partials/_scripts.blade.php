@@ -161,7 +161,7 @@
 
     function vmDoVerifyMember(url, $btn) {
         $('#vm-btn-verify-member, #vm-btn-verify-member-direct').prop('disabled', true)
-            .html('<span class="spinner-border spinner-border-sm mr-1"></span> Memverifikasi...');
+            .html('<span class="spinner-border spinner-border-sm mr-1"></span> Verifying...');
 
         // Step 1 dan Step 2 masing-masing punya checkbox notifikasi sendiri
         // (dua section berbeda di modal yang sama) — ambil dari yang lagi
@@ -188,14 +188,14 @@
                 showAlert('success', '<i class="fas fa-check-circle mr-1"></i>' + res.message);
             } else {
                 $('#vm-btn-verify-member, #vm-btn-verify-member-direct').prop('disabled', false)
-                    .html('<i class="fas fa-shield-alt mr-1"></i> Verify Member Sekarang');
-                showAlert('warning', (res && res.message) || 'Gagal verifikasi member.');
+                    .html('<i class="fas fa-shield-alt mr-1"></i> Verify Member Now');
+                showAlert('warning', (res && res.message) || 'Failed to verify member.');
             }
         })
         .fail(function(xhr) {
-            const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Gagal menghubungi server.';
+            const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to contact the server.';
             $('#vm-btn-verify-member, #vm-btn-verify-member-direct').prop('disabled', false)
-                .html('<i class="fas fa-shield-alt mr-1"></i> Verify Member Sekarang');
+                .html('<i class="fas fa-shield-alt mr-1"></i> Verify Member Now');
             showAlert('danger', msg);
         });
     }
@@ -215,7 +215,7 @@
             $.post(startVerificationUrl);
         }
 
-        $('#vm-modal-title').text('Verifikasi Member — ' + memberName);
+        $('#vm-modal-title').text('Verify Member — ' + memberName);
         $('#vm-member-name').text(memberName);
         $('#vm-step2-member-name').text(memberName);
         $('#vm-btn-verify-member').data('verify-url', url);
@@ -231,7 +231,7 @@
             $('#vm-company-form-section').hide();
             $('#vm-btn-verify-company').hide();
             $('#vm-btn-verify-member-direct').show().prop('disabled', false)
-                .html('<i class="fas fa-shield-alt mr-1"></i> Verify Member Sekarang');
+                .html('<i class="fas fa-shield-alt mr-1"></i> Verify Member Now');
 
             $('#vm-step-indicator-1').removeClass('badge-light').addClass('badge-primary');
             $('#vm-step-indicator-2').removeClass('badge-primary').addClass('badge-light');
@@ -248,7 +248,7 @@
             $('#vm-normalized-name').val($vmSourceBtn.attr('data-normalized-name') || '');
             $('#vm-company-form-section').show();
             $('#vm-btn-verify-company').show().prop('disabled', false)
-                .html('<i class="fas fa-check-circle mr-1"></i> Verifikasi Company & Lanjut');
+                .html('<i class="fas fa-check-circle mr-1"></i> Verify Company & Continue');
             $('#vm-btn-verify-member-direct').hide();
             $('#vm-company-suggestions').hide().empty();
 
@@ -335,13 +335,13 @@
         }
     });
 
-    // Step 1: Verifikasi Company & Lanjut
+    // Step 1: Verify Company & Continue
     $('#vm-btn-verify-company').on('click', function() {
         const companyName = $('#vm-company-name').val().trim();
-        if (!companyName) { showAlert('warning', 'Company name wajib diisi.'); return; }
+        if (!companyName) { showAlert('warning', 'Company name is required.'); return; }
 
         $(this).prop('disabled', true)
-            .html('<span class="spinner-border spinner-border-sm mr-1"></span> Menyimpan...');
+            .html('<span class="spinner-border spinner-border-sm mr-1"></span> Saving...');
 
         $.ajax({
             url: '{{ route('admin.company_database.update') }}',
@@ -367,11 +367,11 @@
         .done(function() {
             $('#vm-step-indicator-1').removeClass('badge-primary').addClass('badge-light');
             $('#vm-step-indicator-2').removeClass('badge-light').addClass('badge-primary');
-            $('#vm-step2-company-label').text('Company "' + companyName + '" berhasil diverifikasi.');
+            $('#vm-step2-company-label').text('Company "' + companyName + '" was verified successfully.');
             $('#vm-step-1').hide();
             $('#vm-step-2').show();
             $('#vm-btn-verify-member').prop('disabled', false)
-                .html('<i class="fas fa-shield-alt mr-1"></i> Verify Member Sekarang');
+                .html('<i class="fas fa-shield-alt mr-1"></i> Verify Member Now');
 
             if ($vmSourceBtn) {
                 $vmSourceBtn.attr('data-company-verified', '1')
@@ -379,9 +379,9 @@
             }
         })
         .fail(function(xhr) {
-            const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Gagal menyimpan data company.';
+            const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to save company details.';
             $('#vm-btn-verify-company').prop('disabled', false)
-                .html('<i class="fas fa-check-circle mr-1"></i> Verifikasi Company & Lanjut');
+                .html('<i class="fas fa-check-circle mr-1"></i> Verify Company & Continue');
             showAlert('danger', msg);
         });
     });
@@ -406,8 +406,8 @@
         const willSend = $('#vm-decline-send-notification').is(':checked');
         $('#vm-decline-email-preview').toggle(willSend);
         $('#vm-btn-decline-confirm').html(willSend
-            ? '<i class="fas fa-times-circle mr-1"></i> Ya, Decline & Kirim Email'
-            : '<i class="fas fa-times-circle mr-1"></i> Ya, Decline (tanpa email)');
+            ? '<i class="fas fa-times-circle mr-1"></i> Yes, Decline & Send Email'
+            : '<i class="fas fa-times-circle mr-1"></i> Yes, Decline (without email)');
     }
     $(document).on('change', '#vm-decline-send-notification', vmSyncDeclineButtonLabel);
 
@@ -443,11 +443,11 @@
                 } else {
                     $btn.prop('disabled', false);
                     vmSyncDeclineButtonLabel();
-                    showAlert('warning', (res && res.message) || 'Gagal decline member.');
+                    showAlert('warning', (res && res.message) || 'Failed to decline member.');
                 }
             })
             .fail(function(xhr) {
-                const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Gagal menghubungi server.';
+                const msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to contact the server.';
                 $btn.prop('disabled', false);
                 vmSyncDeclineButtonLabel();
                 showAlert('danger', msg);
@@ -486,12 +486,12 @@
                     showAlert('success', res.message);
                 } else {
                     $btn.prop('disabled', false).html(original);
-                    showAlert('warning', (res && res.message) || 'Sync gagal.');
+                    showAlert('warning', (res && res.message) || 'Sync failed.');
                 }
             })
             .fail(function(xhr) {
                 $btn.prop('disabled', false).html(original);
-                showAlert('danger', xhr.responseJSON?.message || 'Gagal menghubungi server.');
+                showAlert('danger', xhr.responseJSON?.message || 'Failed to contact the server.');
             });
     });
 
@@ -580,7 +580,7 @@
             .done(function(res) {
                 if (!res || !res.success) {
                     $sel.val(prev);
-                    showAlert('warning', (res && res.message) || 'Gagal mengubah job tier.');
+                    showAlert('warning', (res && res.message) || 'Failed to update job tier.');
                     return;
                 }
                 // 'auto' dikembalikan server sebagai tier hasil hitungan job title.
@@ -593,7 +593,7 @@
             })
             .fail(function(xhr) {
                 $sel.val(prev);
-                showAlert('danger', xhr.responseJSON?.message || 'Gagal menghubungi server.');
+                showAlert('danger', xhr.responseJSON?.message || 'Failed to contact the server.');
             })
             .always(function() {
                 $sel.prop('disabled', false);
@@ -644,7 +644,7 @@
         $('#eu-company-suggestions').hide().empty();
         $('#eu-status-member').val($btn.attr('data-status-member') || '').trigger('change');
         $('#eu-tier').val($btn.attr('data-tier') || 'reguler');
-        $('#eu-btn-save').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Simpan Perubahan');
+        $('#eu-btn-save').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Changes');
         $('#editUserModal').modal('show');
     });
 
@@ -653,10 +653,10 @@
         const name  = $('#eu-name').val().trim();
         const email = $('#eu-email').val().trim();
         if (!url) return;
-        if (!name || !email) { showAlert('warning', 'Nama dan email wajib diisi.'); return; }
+        if (!name || !email) { showAlert('warning', 'Name and email are required.'); return; }
 
         $(this).prop('disabled', true)
-            .html('<span class="spinner-border spinner-border-sm mr-1"></span> Menyimpan...');
+            .html('<span class="spinner-border spinner-border-sm mr-1"></span> Saving...');
 
         $.ajax({
             url, method: 'POST', dataType: 'json',
@@ -686,18 +686,18 @@
             if (res && res.success) {
                 $('#editUserModal').modal('hide');
                 const changed = res.changes && Object.keys(res.changes).length > 0
-                    ? ' (field diubah: ' + Object.keys(res.changes).join(', ') + ')'
+                    ? ' (fields changed: ' + Object.keys(res.changes).join(', ') + ')'
                     : '';
                 showAlert('success', '<i class="fas fa-check-circle mr-1"></i>' + res.message + changed);
                 refreshMembersTable();
             } else {
-                $('#eu-btn-save').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Simpan Perubahan');
-                showAlert('warning', (res && res.message) || 'Gagal menyimpan.');
+                $('#eu-btn-save').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Changes');
+                showAlert('warning', (res && res.message) || 'Failed to save.');
             }
         })
         .fail(function(xhr) {
-            $('#eu-btn-save').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Simpan Perubahan');
-            showAlert('danger', xhr.responseJSON?.message || 'Gagal menghubungi server.');
+            $('#eu-btn-save').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Changes');
+            showAlert('danger', xhr.responseJSON?.message || 'Failed to contact the server.');
         });
     });
 
@@ -716,13 +716,13 @@
         $('#userLogsModal').modal('show');
 
         const fieldLabels = {
-            name: 'Nama', email: 'Email', job_title: 'Job Title', job_tier: 'Job Tier', phone: 'Phone',
+            name: 'Name', email: 'Email', job_title: 'Job Title', job_tier: 'Job Tier', phone: 'Phone',
             prefix: 'Prefix', company_name: 'Company Name', company_website: 'Company Website',
             company_category: 'Company Category', company_other: 'Company Other',
             address: 'Address', city: 'City', portal_code: 'Postal Code', country: 'Country',
             prefix_office_number: 'Prefix Office Number', office_number: 'Office Number',
             full_office_number: 'Full Office Number', is_verified: 'Company Verified',
-            status_member: 'Status Member', tier: 'Tier'
+            status_member: 'Member Status', tier: 'Tier'
         };
 
         $.ajax({ url, method: 'GET', dataType: 'json' })
@@ -753,7 +753,7 @@
             })
             .fail(function() {
                 $('#logs-loading').hide();
-                $('#logs-empty').text('Gagal memuat log.').show();
+                $('#logs-empty').text('Failed to load logs.').show();
             });
     });
 
@@ -766,7 +766,7 @@
                 if (res && res.success && res.count !== null) {
                     var html = Number(res.count).toLocaleString();
                     if (res.unsubscribed) {
-                        html += ' <a href="{{ route('admin.mailchimp_unsubscribes.index') }}" class="badge badge-danger ml-2" style="font-size:11px; vertical-align:middle;" title="Lihat ' + res.unsubscribed + ' Kontak Unsubscribed"><i class="fas fa-user-slash mr-1"></i>' + res.unsubscribed + ' Unsub</a>';
+                        html += ' <a href="{{ route('admin.mailchimp_unsubscribes.index') }}" class="badge badge-danger ml-2" style="font-size:11px; vertical-align:middle;" title="View ' + res.unsubscribed + ' unsubscribed contacts"><i class="fas fa-user-slash mr-1"></i>' + res.unsubscribed + ' Unsub</a>';
                     }
                     $('#mc-contact-count').html(html);
                 } else {
@@ -796,7 +796,7 @@
     $(document).on('click', '#dm-btn-submit', function() {
         var reason = $('#dm-reason').val().trim();
         if (!reason) {
-            toastr.error('Reason wajib diisi.');
+            toastr.error('Reason is required.');
             return;
         }
 
@@ -813,12 +813,12 @@
                     $('#deactivateMemberModal').modal('hide');
                     refreshMembersTable();
                 } else {
-                    toastr.error(res.message || 'Gagal deactivate.');
+                    toastr.error(res.message || 'Failed to deactivate.');
                 }
                 btn.prop('disabled', false);
             },
             error: function(xhr) {
-                var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Terjadi kesalahan.';
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'An error occurred.';
                 toastr.error(msg);
                 btn.prop('disabled', false);
             }
@@ -828,7 +828,7 @@
     $(document).on('click', '.btn-reactivate-member', function() {
         var btn  = $(this);
         var name = btn.data('name');
-        if (!confirm('Reactivate "' + name + '"? Member akan kembali aktif.')) return;
+        if (!confirm('Reactivate "' + name + '"? The member will become active again.')) return;
 
         $.ajax({
             url: btn.data('url'),
@@ -839,10 +839,10 @@
                     toastr.success(res.message);
                     refreshMembersTable();
                 } else {
-                    toastr.error(res.message || 'Gagal reactivate.');
+                    toastr.error(res.message || 'Failed to reactivate.');
                 }
             },
-            error: function() { toastr.error('Terjadi kesalahan.'); }
+            error: function() { toastr.error('An error occurred.'); }
         });
     });
 
@@ -850,9 +850,9 @@
         var btn  = $(this);
         var name = btn.data('name');
         var isVerified = btn.data('verified') == '1';
-        var actionText = isVerified ? 'Batalkan status Verifikasi 2-Langkah' : 'Tandai Verifikasi 2-Langkah (manual check staff)';
+        var actionText = isVerified ? 'Remove 2-Step Verification status' : 'Mark as 2-Step Verified (manual staff check)';
 
-        if (!confirm(actionText + ' untuk "' + name + '"?')) return;
+        if (!confirm(actionText + ' for "' + name + '"?')) return;
 
         btn.prop('disabled', true);
         $.ajax({
@@ -864,12 +864,12 @@
                     toastr.success(res.message);
                     refreshMembersTable();
                 } else {
-                    toastr.error(res.message || 'Gagal mengubah status verifikasi.');
+                    toastr.error(res.message || 'Failed to update verification status.');
                     btn.prop('disabled', false);
                 }
             },
             error: function() {
-                toastr.error('Terjadi kesalahan.');
+                toastr.error('An error occurred.');
                 btn.prop('disabled', false);
             }
         });

@@ -15,7 +15,7 @@
             </div>
             <div class="modal-body">
                 <div id="jt-modal-loading" class="text-center text-muted py-5">
-                    <span class="spinner-border spinner-border-sm mr-2"></span>Memuat...
+                    <span class="spinner-border spinner-border-sm mr-2"></span>Loading...
                 </div>
                 <div id="jt-modal-content" style="display:none;">
                     <div class="reg-stat-row mb-3">
@@ -30,18 +30,18 @@
                     </div>
 
                     <div class="mb-3">
-                        <div class="reg-section-label">Role <span class="font-weight-normal text-lowercase">(klik untuk filter)</span></div>
+                        <div class="reg-section-label">Role <span class="font-weight-normal text-lowercase">(click to filter)</span></div>
                         <div class="reg-chip-row" id="jt-modal-role-chips"></div>
                     </div>
 
                     <div class="mb-3">
-                        <div class="reg-section-label">Company Category <span class="font-weight-normal text-lowercase">(klik untuk filter)</span></div>
+                        <div class="reg-section-label">Company Category <span class="font-weight-normal text-lowercase">(click to filter)</span></div>
                         <div class="reg-chip-row" id="jt-modal-category-chips"></div>
                     </div>
 
                     <div class="d-flex flex-wrap align-items-center justify-content-between mb-2" style="gap:8px;">
                         <h6 class="mb-0">
-                            Daftar Member <small class="text-muted font-weight-normal" id="jt-modal-list-note"></small>
+                            Member List <small class="text-muted font-weight-normal" id="jt-modal-list-note"></small>
                             <a href="#" target="_blank" rel="noopener" class="small ml-2" id="jt-modal-members-link">
                                 Buka di tabel Members <i class="fas fa-external-link-alt"></i>
                             </a>
@@ -49,7 +49,7 @@
                         <div class="reg-search-wrap">
                             <i class="fas fa-search"></i>
                             <input type="text" id="jt-modal-search" class="form-control form-control-sm"
-                                placeholder="Cari nama, email, job title, company...">
+                                placeholder="Search name, email, job title, company...">
                         </div>
                     </div>
 
@@ -58,7 +58,7 @@
                             <thead>
                                 <tr>
                                     <th style="width:40px;">#</th>
-                                    <th>Nama</th>
+                                    <th>Name</th>
                                     <th>Email</th>
                                     <th>Job Title</th>
                                     <th>Role</th>
@@ -109,10 +109,10 @@
             }
 
             function renderChips(res) {
-                var $roles = $('#jt-modal-role-chips').empty().append(chip('role', null, 'Semua', res.total));
+                var $roles = $('#jt-modal-role-chips').empty().append(chip('role', null, 'All', res.total));
                 res.roles_breakdown.forEach(function(r) { $roles.append(chip('role', r.name, r.name, r.count)); });
 
-                var $cats = $('#jt-modal-category-chips').empty().append(chip('category', null, 'Semua', res.total));
+                var $cats = $('#jt-modal-category-chips').empty().append(chip('category', null, 'All', res.total));
                 res.categories.forEach(function(c) { $cats.append(chip('category', c.name, c.name, c.count)); });
 
                 markActiveChips();
@@ -137,13 +137,13 @@
                         + '<td>' + cell(m.company) + '</td>'
                         + '<td>' + cell(m.category) + '</td>'
                         + '<td class="text-center">' + (m.manual
-                            ? '<span class="reg-status-badge" style="background:#b3720c;" title="Diset manual oleh admin">Manual</span>'
-                            : '<span class="reg-status-badge" style="background:#adb5bd;" title="Otomatis dari job title">Auto</span>') + '</td>'
+                            ? '<span class="reg-status-badge" style="background:#b3720c;" title="Set manually by an admin">Manual</span>'
+                            : '<span class="reg-status-badge" style="background:#adb5bd;" title="Automatically assigned from job title">Auto</span>') + '</td>'
                         + '</tr>';
                 }).join('');
 
-                $('#jt-modal-tbody').html(html || '<tr><td colspan="8" class="text-center text-muted py-4">Tidak ada member yang cocok.</td></tr>');
-                $('#jt-modal-list-note').text('(' + fmt(rows.length) + ' dari ' + fmt(state.members.length) + ')');
+                $('#jt-modal-tbody').html(html || '<tr><td colspan="8" class="text-center text-muted py-4">No matching members found.</td></tr>');
+                $('#jt-modal-list-note').text('(' + fmt(rows.length) + ' of ' + fmt(state.members.length) + ')');
             }
 
             /** params: { tier: 1-4, role: '<nama role>' | null } */
@@ -151,7 +151,7 @@
                 $('#jt-modal-title').text('T' + params.tier);
                 $('#jt-modal-roles').text('');
                 $('#jt-modal-content').hide();
-                $('#jt-modal-loading').html('<span class="spinner-border spinner-border-sm mr-2"></span>Memuat...').show();
+                $('#jt-modal-loading').html('<span class="spinner-border spinner-border-sm mr-2"></span>Loading...').show();
                 $('#jt-modal-search').val('');
                 state.roleFilter = params.role || null;
                 state.categoryFilter = null;
@@ -173,7 +173,7 @@
                     })
                     .fail(function(xhr, status) {
                         if (status === 'abort') return;
-                        $('#jt-modal-loading').text('Gagal memuat detail job tier.');
+                        $('#jt-modal-loading').text('Failed to load job tier details.');
                     });
             };
 

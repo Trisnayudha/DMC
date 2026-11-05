@@ -56,7 +56,7 @@ class BulkTwoStepVerificationImport implements ToCollection, WithHeadingRow
             $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
             if (!$user) {
                 $this->notFound++;
-                $this->errors[] = "Row {$rowNum}: email \"{$email}\" tidak ditemukan.";
+                $this->errors[] = "Row {$rowNum}: email \"{$email}\" not found.";
                 continue;
             }
 

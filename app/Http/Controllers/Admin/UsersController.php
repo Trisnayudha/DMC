@@ -790,7 +790,7 @@ class UsersController extends Controller
 
         $cellName = e($post->name);
         if (isset($selfEditMap[$post->user_id])) {
-            $cellName .= ' <i class="fas fa-user-edit text-warning ml-1" title="User mengubah data sendiri — '
+            $cellName .= ' <i class="fas fa-user-edit text-warning ml-1" title="User updated their own details — '
                 . e(\Carbon\Carbon::parse($selfEditMap[$post->user_id])->format('d M Y H:i'))
                 . '" data-toggle="tooltip"></i>';
         }
@@ -831,7 +831,7 @@ class UsersController extends Controller
             . '<button type="button" class="btn btn-icon btn-outline-secondary btn-import-mailchimp"'
             . ' data-url="' . e(route('users.import.mailchimp')) . '" data-user-id="' . e($post->user_id) . '" data-email="' . e($post->email) . '"'
             . ' data-tags=\'["Register of Membership ' . e(now()->format('d M Y')) . '"]\''
-            . ' title="Re-sync data member ini ke Mailchimp" data-toggle="tooltip"><i class="fas fa-sync-alt"></i></button>'
+            . ' title="Re-sync this member to Mailchimp" data-toggle="tooltip"><i class="fas fa-sync-alt"></i></button>'
             . '</div>';
 
         $cellMailchimp = $this->mailchimpStatusBadge($mailchimpStatuses, $post->email);
@@ -886,12 +886,12 @@ class UsersController extends Controller
 
         $user = User::findOrFail($id);
         if ($user->status_member !== 'active') {
-            return response()->json(['success' => false, 'message' => 'Job tier hanya untuk member Active.'], 422);
+            return response()->json(['success' => false, 'message' => 'Job tier is only available for active members.'], 422);
         }
 
         $profile = ProfileModel::hasJobTierColumn() ? ProfileModel::where('users_id', $user->id)->first() : null;
         if (!$profile) {
-            return response()->json(['success' => false, 'message' => 'Profile member tidak ditemukan.'], 422);
+            return response()->json(['success' => false, 'message' => 'Member profile not found.'], 422);
         }
 
         $manual = $request->input('job_tier') !== 'auto';
@@ -946,21 +946,21 @@ class UsersController extends Controller
     private function mailchimpStatusBadge(?array $statuses, $email): string
     {
         if ($statuses === null) {
-            return '<span class="text-muted" title="Status Mailchimp tidak bisa diambil" data-toggle="tooltip">—</span>';
+            return '<span class="text-muted" title="Mailchimp status could not be retrieved" data-toggle="tooltip">—</span>';
         }
 
         $status = $statuses[strtolower(trim((string) $email))] ?? null;
 
         $map = [
-            'subscribed'    => ['badge-success', 'Subscribed', 'Terdaftar & aktif menerima email'],
-            'unsubscribed'  => ['badge-warning', 'Unsubscribed', 'Pernah berhenti berlangganan (opt-out)'],
-            'cleaned'       => ['badge-danger', 'Cleaned', 'Email bounce / tidak valid di Mailchimp'],
-            'pending'       => ['badge-info', 'Pending', 'Menunggu konfirmasi double opt-in'],
-            'transactional' => ['badge-secondary', 'Transactional', 'Hanya email transaksional'],
+            'subscribed'    => ['badge-success', 'Subscribed', 'Subscribed and receiving emails'],
+            'unsubscribed'  => ['badge-warning', 'Unsubscribed', 'Previously unsubscribed (opted out)'],
+            'cleaned'       => ['badge-danger', 'Cleaned', 'Email bounced or is invalid in Mailchimp'],
+            'pending'       => ['badge-info', 'Pending', 'Awaiting double opt-in confirmation'],
+            'transactional' => ['badge-secondary', 'Transactional', 'Transactional emails only'],
         ];
 
         if ($status === null) {
-            return '<span class="badge badge-light border text-muted" title="Belum ada di audience Mailchimp (belum pernah masuk atau sudah di-archive)" data-toggle="tooltip">Not in list</span>';
+            return '<span class="badge badge-light border text-muted" title="Not in the Mailchimp audience (never added or archived)" data-toggle="tooltip">Not in list</span>';
         }
 
         $meta = $map[$status] ?? ['badge-secondary', ucfirst($status), $status];
@@ -1473,8 +1473,8 @@ class UsersController extends Controller
             }
         }
 
-        $message = 'Member verified dan data telah diimport ke Mailchimp.'
-            . ($request->boolean('send_notification', true) ? '' : ' Email notifikasi TIDAK dikirim (sesuai pilihan admin).');
+        $message = 'Member verified and data imported to Mailchimp.'
+            . ($request->boolean('send_notification', true) ? '' : ' Notification email was not sent, as selected by the admin.');
 
         return response()->json([
             'success' => true,
@@ -1515,8 +1515,8 @@ class UsersController extends Controller
         return response()->json([
             'success' => true,
             'message' => $sendNotification
-                ? 'Membership application declined dan email notifikasi telah dikirim.'
-                : 'Membership application declined. Email notifikasi TIDAK dikirim (sesuai pilihan admin).',
+                ? 'Membership application declined and notification email sent.'
+                : 'Membership application declined. Notification email was not sent, as selected by the admin.',
         ]);
     }
 
@@ -1544,8 +1544,8 @@ class UsersController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $user->name . ' berhasil di-deactivate'
-                . ($archived ? ' & di-archive dari Mailchimp.' : '. (Mailchimp: tidak ada kontak yang di-archive.)'),
+            'message' => $user->name . ' was deactivated'
+                . ($archived ? ' and archived from Mailchimp.' : '. (Mailchimp: no contact was archived.)'),
         ]);
     }
 
@@ -1566,8 +1566,8 @@ class UsersController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $user->name . ' berhasil di-reactivate'
-                . ($resubscribed ? ' & di-subscribe lagi ke Mailchimp.' : '. (Mailchimp: subscribe ulang gagal — perlu opt-in manual.)'),
+            'message' => $user->name . ' was reactivated'
+                . ($resubscribed ? ' and resubscribed to Mailchimp.' : '. (Mailchimp: resubscription failed; manual opt-in is required.)'),
         ]);
     }
 
@@ -1581,13 +1581,13 @@ class UsersController extends Controller
             $user->two_step_verified_at = null;
             $user->two_step_verified_by = null;
             $user->save();
-            $msg = 'Verifikasi 2-Langkah dibatalkan untuk ' . $user->name . '.';
+            $msg = '2-Step Verification removed for ' . $user->name . '.';
         } else {
             $user->two_step_verified = true;
             $user->two_step_verified_at = now();
             $user->two_step_verified_by = $admin ? $admin->name : 'Staff';
             $user->save();
-            $msg = $user->name . ' berhasil ditandai Verifikasi 2-Langkah (Staff).';
+            $msg = $user->name . ' was marked as 2-Step Verified by staff.';
         }
 
         return response()->json([
@@ -1619,10 +1619,10 @@ class UsersController extends Controller
         $import = new BulkTwoStepVerificationImport($admin ? $admin->name : 'Staff');
         Excel::import($import, $request->file('file'));
 
-        $message = "Import selesai. {$import->getVerified()} member ditandai verified, "
-            . "{$import->getUnverified()} dibatalkan verifikasinya, {$import->getUnchanged()} tidak berubah.";
+        $message = "Import complete. {$import->getVerified()} members marked verified, "
+            . "{$import->getUnverified()} unverified, {$import->getUnchanged()} unchanged.";
         if ($import->getNotFound() > 0) {
-            $message .= " {$import->getNotFound()} email tidak ditemukan.";
+            $message .= " {$import->getNotFound()} emails not found.";
         }
 
         if (!empty($import->getErrors())) {
@@ -1887,7 +1887,7 @@ class UsersController extends Controller
         }
 
         if (empty($changes)) {
-            return response()->json(['success' => true, 'message' => 'Tidak ada perubahan.']);
+            return response()->json(['success' => true, 'message' => 'No changes.']);
         }
 
         $admin = auth()->user();
@@ -1988,16 +1988,16 @@ class UsersController extends Controller
         // supaya alamat lama berhenti menerima campaign dan alamat baru yang
         // menerimanya. Dijalankan paling akhir: semua penulisan DB sudah
         // selesai, jadi Mailchimp lambat/error tidak menggagalkan edit-nya.
-        $message = 'Data user berhasil diperbarui.'
-            . ($openFollowUp ? ' Follow-up perusahaan otomatis ditutup & ditandai 2-Step Verified.' : '');
+        $message = 'User details updated successfully.'
+            . ($openFollowUp ? ' Company follow-up closed automatically and marked as 2-Step Verified.' : '');
         if (isset($changes['email'])) {
             $mailchimpResult = app(MemberVerificationService::class)
                 ->changeMailchimpEmail($user, (string) $changes['email']['old']);
 
             if ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_SWAPPED) {
-                $message .= ' Mailchimp: email lama di-archive, email baru di-subscribe.';
+                $message .= ' Mailchimp: old email archived and new email subscribed.';
             } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_FAILED) {
-                $message .= ' (Mailchimp: gagal memindahkan email — perlu dicek manual.)';
+                $message .= ' (Mailchimp: failed to move the email; please check manually.)';
             }
         }
 
@@ -2260,11 +2260,11 @@ class UsersController extends Controller
                 Log::warning('Import XLS - partial errors', ['errors' => $errorRows]);
             }
 
-            return back()->with('success', "Import selesai: {$success} berhasil, {$skipped} dilewati (kosong), {$errors} error. Cek log untuk detail error.");
+            return back()->with('success', "Import complete: {$success} imported, {$skipped} skipped (empty), {$errors} errors. Check the logs for details.");
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Import XLS gagal total', ['exception' => $e]);
-            return back()->withErrors('Gagal mengimpor data. Pesan: ' . $e->getMessage());
+            return back()->withErrors('Failed to import data. Message: ' . $e->getMessage());
         }
     }
 
@@ -2277,7 +2277,7 @@ class UsersController extends Controller
         $server = config('newsletter.server') ?: (explode('-', $apiKey)[1] ?? null);
 
         if (!$apiKey || !$listId || !$server) {
-            return response()->json(['success' => false, 'count' => null, 'message' => 'Mailchimp belum dikonfigurasi.']);
+            return response()->json(['success' => false, 'count' => null, 'message' => 'Mailchimp is not configured.']);
         }
 
         try {
@@ -2288,7 +2288,7 @@ class UsersController extends Controller
                 ]);
 
             if (!$resp->successful()) {
-                return response()->json(['success' => false, 'count' => null, 'message' => 'Gagal mengambil data Mailchimp.']);
+                return response()->json(['success' => false, 'count' => null, 'message' => 'Failed to retrieve Mailchimp data.']);
             }
 
             $stats = $resp->json('stats');
@@ -2361,7 +2361,7 @@ class UsersController extends Controller
         $userId = $request->input('user_id');
 
         if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return response()->json(['success' => false, 'message' => 'Email tidak valid.'], 422);
+            return response()->json(['success' => false, 'message' => 'Invalid email address.'], 422);
         }
 
         $user    = $userId ? User::find($userId) : User::where('email', $email)->first();
@@ -2388,7 +2388,7 @@ class UsersController extends Controller
         $server = explode('-', $apiKey)[1] ?? null;
 
         if (!$apiKey || !$server || !$listId) {
-            return response()->json(['success' => false, 'message' => 'Konfigurasi Mailchimp belum lengkap.'], 500);
+            return response()->json(['success' => false, 'message' => 'Mailchimp configuration is incomplete.'], 500);
         }
 
         try {
@@ -2403,7 +2403,7 @@ class UsersController extends Controller
 
             if (!$resp->successful()) {
                 $json   = $resp->json();
-                $detail = $json['detail'] ?? 'Gagal impor.';
+                $detail = $json['detail'] ?? 'Import failed.';
                 if (!empty($json['errors'])) {
                     $detail .= ' — ' . collect($json['errors'])->map(fn($e) => ($e['field'] ?? '') . ': ' . ($e['message'] ?? ''))->implode(' | ');
                 }
@@ -2412,7 +2412,7 @@ class UsersController extends Controller
 
             MemberVerificationService::forgetMailchimpStatusCache();
 
-            return response()->json(['success' => true, 'message' => 'Berhasil diimpor ke Mailchimp.']);
+            return response()->json(['success' => true, 'message' => 'Successfully imported to Mailchimp.']);
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
@@ -2427,8 +2427,8 @@ class UsersController extends Controller
         $email       = strtolower(trim((string) $m->email));
         $name        = trim((string)($m->name ?? ''));
         $companyName = trim((string)($m->company_name ?? ''));
-        if ($email === '')   return back()->with('error', 'Export gagal: email kosong.');
-        if ($companyName === '') return back()->with('error', 'Export gagal: company_name kosong.');
+        if ($email === '')   return back()->with('error', 'Export failed: email is empty.');
+        if ($companyName === '') return back()->with('error', 'Export failed: company_name is empty.');
 
         DB::beginTransaction();
         try {
@@ -2524,7 +2524,7 @@ class UsersController extends Controller
             return back()->with('success', "Export OK → user:{$user->id}, company:{$company->id}, profile:{$profile->id}");
         } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->with('error', 'Export gagal: ' . $e->getMessage());
+            return back()->with('error', 'Export failed: ' . $e->getMessage());
         }
     }
     protected function mcAddTags(string $email, array $tags): void

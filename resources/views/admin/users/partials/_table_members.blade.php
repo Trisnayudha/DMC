@@ -7,14 +7,14 @@
             <th width="90px">
                 Source
                 <i class="fas fa-info-circle text-muted ml-1"
-                    title="Channel pendaftaran member (website, apps, event, dll)."
+                    title="Member registration channel (website, app, event, etc.)."
                     data-toggle="tooltip"></i>
             </th>
             <th>Name</th>
             <th width="80px">
                 Status
                 <i class="fas fa-info-circle text-muted ml-1"
-                    title="Active = sudah diverifikasi admin. Pending = belum diverifikasi."
+                    title="Active = verified by an admin. Pending = not yet verified."
                     data-toggle="tooltip"></i>
             </th>
             <th width="70px">Actions</th>
@@ -35,7 +35,7 @@
             <th width="80px">
                 Mailchimp
                 <i class="fas fa-info-circle text-muted ml-1"
-                    title="Status email member di audience Mailchimp (di-cache ±10 menit; berubah otomatis setelah sync/archive dari CMS)."
+                    title="Member email status in the Mailchimp audience (cached for about 10 minutes; updates after sync or archive from the CMS)."
                     data-toggle="tooltip"></i>
             </th>
             <th width="70px">Password</th>

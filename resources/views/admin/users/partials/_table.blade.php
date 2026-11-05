@@ -72,7 +72,7 @@
                 </a>
                 <a href="{{ url('admin/users?filter=two_step_verified') }}"
                     class="btn btn-sm {{ request('filter') === 'two_step_verified' ? 'btn-info' : 'btn-outline-info' }}"
-                    title="Member yang sudah diverifikasi 2-langkah oleh staff (LinkedIn/Telfon)">
+                    title="Members verified in two steps by staff (LinkedIn/phone)">
                     <i class="fas fa-user-check mr-1"></i> 2-Step Verified
                     @if (($countTwoStepVerified ?? 0) > 0)
                         <span
@@ -86,7 +86,7 @@
                 </a>
                 <a href="{{ url('admin/users?filter=self_edited') }}"
                     class="btn btn-sm {{ request('filter') === 'self_edited' ? 'btn-warning' : 'btn-outline-warning' }}"
-                    title="User yang mengubah data sendiri via apps/web">
+                    title="Users who updated their own details through the app or website">
                     <i class="fas fa-user-edit mr-1"></i> Self-Edited
                     @if ($countSelfEdited > 0)
                         <span
@@ -104,7 +104,7 @@
                 </a>
                 <a href="{{ url('admin/users?status_member=deactivated') }}"
                     class="btn btn-sm {{ request('status_member') === 'deactivated' ? 'btn-secondary' : 'btn-outline-secondary' }}"
-                    title="Member yang di-deactivate (akun testing, meninggal, dll)">
+                    title="Deactivated members (test accounts, deceased members, etc.)">
                     <i class="fas fa-user-slash mr-1"></i> Deactivated
                     @if (($countDeactivated ?? 0) > 0)
                         <span
@@ -113,7 +113,7 @@
                 </a>
                 @if (auth()->user()->canAccessModule('member_followups'))
                     <a href="{{ route('admin.member_follow_ups.index') }}" class="btn btn-sm btn-outline-info"
-                        title="Member yang pindah company / ganti job title dan perlu di-follow-up">
+                        title="Members who changed company or job title and need follow-up">
                         <i class="fas fa-exchange-alt mr-1"></i> Member Follow Up
                         @if ($countMemberFollowUps > 0)
                             <span class="badge badge-info ml-1">{{ $countMemberFollowUps }}</span>
@@ -217,7 +217,7 @@
                 <div class="alert-body small">
                     <button class="close" data-dismiss="alert"><span>×</span></button>
                     <i class="fas fa-filter mr-1"></i>
-                    Filter aktif:
+                    Active filters:
                     @if (request('date_from'))
                         From <strong>{{ request('date_from') }}</strong>
                     @endif

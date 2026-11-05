@@ -12,7 +12,7 @@
                 <form action="{{ Route('users.import') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group">
-                        <label class="small text-muted">Pilih file .xlsx / .xls</label>
+                        <label class="small text-muted">Select an .xlsx / .xls file</label>
                         <input type="file" name="uploaded_file" id="uploaded_file" class="form-control-file">
                     </div>
                     <button type="submit" class="btn btn-success btn-block">
