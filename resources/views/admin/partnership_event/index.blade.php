@@ -37,6 +37,15 @@
                                     <input type="text" name="search" class="form-control" value="{{ $search }}"
                                         placeholder="contoh: Mining Indonesia 2026">
                                 </div>
+                                <div class="form-group col-md-2 mb-2">
+                                    <label for="year" class="mb-1">Tahun</label>
+                                    <select name="year" id="year" class="form-control">
+                                        <option value="">Semua Tahun</option>
+                                        @foreach ($years as $availableYear)
+                                            <option value="{{ $availableYear }}" {{ $year == (string) $availableYear ? 'selected' : '' }}>{{ $availableYear }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="form-group col-md-3 mb-2" style="display:flex; gap:8px;">
                                     <button type="submit" class="btn btn-primary btn-block">Filter</button>
                                     <a href="{{ route('admin.partnership_events.index') }}" class="btn btn-outline-secondary btn-block">Reset</a>
@@ -96,7 +105,7 @@
                                     @empty
                                         <tr>
                                             <td colspan="9" class="text-center text-muted">
-                                                Belum ada event dengan tipe "Partnership Event". Buat/tandai event tersebut lebih dulu di menu Events.
+                                                Tidak ada event yang sesuai dengan filter.
                                             </td>
                                         </tr>
                                     @endforelse

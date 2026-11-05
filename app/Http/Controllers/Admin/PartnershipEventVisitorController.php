@@ -41,15 +41,27 @@ class PartnershipEventVisitorController extends Controller
     public function index(Request $request)
     {
         $search = trim((string) $request->query('search', ''));
+        $year = (string) $request->query('year', '');
+
+        $years = Events::whereIn('event_type', $this->partnershipEventTypes)
+            ->whereNotNull('start_date')
+            ->distinct()
+            ->pluck('start_date')
+            ->map(fn ($date) => (int) substr((string) $date, 0, 4))
+            ->filter()
+            ->unique()
+            ->sortDesc()
+            ->values();
 
         $events = Events::whereIn('event_type', $this->partnershipEventTypes)
             ->when($search !== '', fn ($q) => $q->where('name', 'LIKE', '%' . $search . '%'))
+            ->when($year !== '', fn ($q) => $q->whereYear('start_date', $year))
             ->withCount(['partnershipEventVisitors as visitors_count'])
             ->orderBy('start_date', 'desc')
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.partnership_event.index', compact('events', 'search'));
+        return view('admin.partnership_event.index', compact('events', 'search', 'year', 'years'));
     }
 
     public function show(Request $request, $slug)
