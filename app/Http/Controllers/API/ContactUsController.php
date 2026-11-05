@@ -92,6 +92,7 @@ class ContactUsController extends Controller
 
         $send = new EmailSender();
         $send->to = 'yudha@indonesiaminer.com';
+        $send->cc = ['dian@djakarta-miningclub.com', 'andira@djakarta-miningclub.com'];
         $send->from = env('EMAIL_SENDER');
         $send->data = $data;
         $send->subject = 'Contact Us DMC Web';
@@ -151,6 +152,7 @@ class ContactUsController extends Controller
         // Key 'message' bentrok dengan variabel bawaan view email, jadi dikirim sebagai 'inquiryMessage'.
         $send = new EmailSender();
         $send->to = 'yudha@indonesiaminer.com';
+        $send->cc = ['dian@djakarta-miningclub.com', 'andira@djakarta-miningclub.com'];
         $send->from = env('EMAIL_SENDER');
         $send->data = [
             'name' => $data['name'],
