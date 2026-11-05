@@ -26,14 +26,14 @@
                         <div class="stat-icon"><i class="fas fa-clock"></i></div>
                         <div class="stat-info">
                             <div class="stat-number">{{ $absent }}</div>
-                            <div class="stat-label">Belum Hadir</div>
+                            <div class="stat-label">Not Checked In</div>
                         </div>
                     </div>
                     <div class="stat-card stat-green">
                         <div class="stat-icon"><i class="fas fa-id-badge"></i></div>
                         <div class="stat-info">
                             <div class="stat-number">{{ $memberCount }}</div>
-                            <div class="stat-label">Member (aktif)</div>
+                            <div class="stat-label">Active Members</div>
                         </div>
                     </div>
                     <div class="stat-card stat-amber">
@@ -61,7 +61,7 @@
                         <div class="stat-icon"><i class="fas fa-building"></i></div>
                         <div class="stat-info">
                             <div class="stat-number">{{ $companyCount }}</div>
-                            <div class="stat-label">Perusahaan</div>
+                            <div class="stat-label">Companies</div>
                         </div>
                     </div>
                 </div>
@@ -75,15 +75,15 @@
                         style="background:#fff; padding:1.25rem 1.5rem;">
                         <div>
                             <h5 class="mb-0 fw-bold" style="color:#1a202c;">
-                                <i class="fas fa-users text-primary mr-2"></i>Daftar Peserta
+                                <i class="fas fa-users text-primary mr-2"></i>Participant List
                             </h5>
-                            <small class="text-muted">Total {{ $list->count() }} peserta terdaftar</small>
+                            <small class="text-muted">{{ $list->count() }} registered participants</small>
                         </div>
 
                         {{-- Filter Pills --}}
                         <div class="filter-pills">
                             <button class="pill pill-all active" data-filter="all">
-                                <i class="fas fa-th-large mr-1"></i>Semua
+                                <i class="fas fa-th-large mr-1"></i>All
                                 <span class="pill-count">{{ $list->count() }}</span>
                             </button>
                             <button class="pill pill-member" data-filter="member">
@@ -95,11 +95,11 @@
                                 <span class="pill-count">{{ $nonMemberCount }}</span>
                             </button>
                             <button class="pill pill-paid" data-filter="paid">
-                                <i class="fas fa-money-bill-wave mr-1"></i>Berbayar
+                                <i class="fas fa-money-bill-wave mr-1"></i>Paid
                                 <span class="pill-count">{{ $paidCount }}</span>
                             </button>
                             <button class="pill pill-free" data-filter="free">
-                                <i class="fas fa-gift mr-1"></i>Free/Undangan
+                                <i class="fas fa-gift mr-1"></i>Free/Invitation
                                 <span class="pill-count">{{ $freeCount }}</span>
                             </button>
                             <button class="pill pill-sponsor" data-filter="sponsor">
@@ -143,26 +143,26 @@
                                 <thead>
                                     <tr>
                                         <th width="40">#</th>
-                                        <th>Tanggal Daftar</th>
-                                        <th>Kode</th>
-                                        <th>Package / Keanggotaan</th>
-                                        <th>Nama</th>
+                                        <th>Registration Date</th>
+                                        <th>Code</th>
+                                        <th>Package / Membership</th>
+                                        <th>Name</th>
                                         <th>Email</th>
-                                        <th>Jabatan</th>
-                                        <th>Perusahaan</th>
-                                        <th>No. Telepon</th>
-                                        <th>Alamat</th>
+                                        <th>Job Title</th>
+                                        <th>Company</th>
+                                        <th>Phone Number</th>
+                                        <th>Address</th>
                                         @if ($list[0]['end_date'] <= date('Y-m-d'))
-                                            <th>Kategori</th>
-                                            <th>Negara</th>
-                                            <th>No. Kantor</th>
+                                            <th>Category</th>
+                                            <th>Country</th>
+                                            <th>Office Number</th>
                                         @endif
                                         @if ($list[0]['end_date'] >= date('Y-m-d'))
-                                            <th>Email Konfirmasi</th>
-                                            <th>WA Konfirmasi</th>
-                                            <th>WA Manual</th>
+                                            <th>Confirmation Email</th>
+                                            <th>WhatsApp Confirmation</th>
+                                            <th>Manual WhatsApp</th>
                                         @endif
-                                        <th>Kehadiran</th>
+                                        <th>Attendance</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -177,11 +177,11 @@
                                                 $regClass = 'reg-sponsor';
                                                 $regIcon = 'fa-star';
                                             } elseif (str_contains($pkg, 'free')) {
-                                                $regLabel = 'Free/Undangan';
+                                                $regLabel = 'Free/Invitation';
                                                 $regClass = 'reg-free';
                                                 $regIcon = 'fa-gift';
                                             } elseif (in_array($pkg, ['member', 'nonmember', 'premium'])) {
-                                                $regLabel = 'Berbayar';
+                                                $regLabel = 'Paid';
                                                 $regClass = 'reg-paid';
                                                 $regIcon = 'fa-money-bill-wave';
                                             } else {
@@ -258,7 +258,7 @@
                                                                 value="{{ $post->payment_id }}">
                                                             <input type="hidden" name="method" value="confirmation">
                                                             <button class="action-btn btn-send send"
-                                                                title="Kirim Email Konfirmasi">
+                                                                title="Send Confirmation Email">
                                                                 <i class="fas fa-envelope"></i>
                                                             </button>
                                                         </form>
@@ -275,7 +275,7 @@
                                                 <td>
                                                     @if ($post->reminder_wa == null)
                                                         <button type="button" class="action-btn btn-wa open-modal"
-                                                            title="Kirim WA Konfirmasi"
+                                                            title="Send WhatsApp Confirmation"
                                                             data-users-id="{{ $post->users_id }}"
                                                             data-events-id="{{ $post->events_id }}"
                                                             data-payment-id="{{ $post->payment_id }}"
@@ -295,7 +295,7 @@
                                                 {{-- WA Manual --}}
                                                 <td>
                                                     <button type="button" class="action-btn btn-wa-manual open-wa-direct"
-                                                        title="WA Manual" data-users-id="{{ $post->users_id }}"
+                                                        title="Manual WhatsApp" data-users-id="{{ $post->users_id }}"
                                                         data-events-id="{{ $post->events_id }}"
                                                         data-payment-id="{{ $post->payment_id }}"
                                                         data-user-name="{{ $post->name }}"
@@ -329,14 +329,14 @@
                                                             value="{{ $post->payment_id }}">
                                                         <input type="hidden" name="method" value="present">
                                                         <button class="action-btn btn-present present"
-                                                            title="Tandai Hadir">
+                                                            title="Mark as Present">
                                                             <i class="fas fa-user-check"></i>
                                                         </button>
                                                     </form>
                                                 @else
                                                     <div class="present-info">
                                                         <span class="present-badge">
-                                                            <i class="fas fa-check mr-1"></i>Hadir
+                                                            <i class="fas fa-check mr-1"></i>Present
                                                         </span>
                                                         <div style="font-size:.75rem; color:#555; margin-top:3px;">
                                                             {{ date('d M H:i', strtotime($post->present)) }}
@@ -344,7 +344,7 @@
                                                         <small class="text-muted">{{ $post->name_present }}</small>
                                                         @if ($post->photo)
                                                             <button class="action-btn btn-photo btn-view-photo mt-1"
-                                                                data-photo="{{ $post->photo }}" title="Lihat Foto">
+                                                                data-photo="{{ $post->photo }}" title="View Photo">
                                                                 <i class="fas fa-image"></i>
                                                             </button>
                                                         @endif
@@ -367,7 +367,7 @@
     <div id="loader" style="display:none">
         <div class="loader-box">
             <div class="loader-ring"></div>
-            <div class="loader-text">Memproses...</div>
+            <div class="loader-text">Processing...</div>
         </div>
     </div>
 
@@ -383,15 +383,15 @@
                                 <i class="fab fa-whatsapp text-white"></i>
                             </div>
                             <div>
-                                <h5 class="modal-title mb-0 fw-bold">Kirim WA Konfirmasi</h5>
-                                <small class="text-muted">Periksa nomor sebelum mengirim</small>
+                                <h5 class="modal-title mb-0 fw-bold">Send WhatsApp Confirmation</h5>
+                                <small class="text-muted">Check the number before sending</small>
                             </div>
                         </div>
                         <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                     </div>
                     <div class="modal-body" style="padding:1.5rem;">
                         <div class="form-group mb-0">
-                            <label class="form-label fw-semibold">Nomor WhatsApp</label>
+                            <label class="form-label fw-semibold">WhatsApp Number</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-phone"></i></span>
@@ -406,9 +406,9 @@
                         <input type="hidden" name="method" value="confirmation_wa">
                     </div>
                     <div class="modal-footer border-0" style="padding:.75rem 1.5rem 1.25rem;">
-                        <button type="button" class="btn btn-light px-4" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-light px-4" data-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-success px-4">
-                            <i class="fab fa-whatsapp mr-1"></i>Kirim
+                            <i class="fab fa-whatsapp mr-1"></i>Send
                         </button>
                     </div>
                 </form>
@@ -426,8 +426,8 @@
                             <i class="fab fa-whatsapp text-white" style="font-size:1.3rem;"></i>
                         </div>
                         <div>
-                            <h5 class="modal-title mb-0 fw-bold">WA Manual — Generate & Copy</h5>
-                            <small class="text-muted">Generate template lalu copy ke WhatsApp</small>
+                            <h5 class="modal-title mb-0 fw-bold">Manual WhatsApp — Generate & Copy</h5>
+                            <small class="text-muted">Generate a template and copy it to WhatsApp</small>
                         </div>
                     </div>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
@@ -436,7 +436,7 @@
                 <div class="modal-body" style="padding:1.5rem;">
                     <div class="form-row">
                         <div class="form-group col-md-8">
-                            <label class="form-label fw-semibold">Nomor Tujuan</label>
+                            <label class="form-label fw-semibold">Recipient Number</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-phone"></i></span>
@@ -448,16 +448,16 @@
                                     </button>
                                 </div>
                             </div>
-                            <small class="text-muted">Akan diformat jadi 62xxxxxxxxx untuk wa.me</small>
+                            <small class="text-muted">Formatted as 62xxxxxxxxx for wa.me</small>
                         </div>
                         <div class="form-group col-md-4">
-                            <label class="form-label fw-semibold">Format wa.me</label>
+                            <label class="form-label fw-semibold">wa.me Format</label>
                             <input type="text" class="form-control bg-light" id="waNormPhone" readonly>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label fw-semibold">Link wa.me</label>
+                        <label class="form-label fw-semibold">wa.me Link</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-link"></i></span>
@@ -469,34 +469,34 @@
                                 </button>
                             </div>
                         </div>
-                        <small class="text-muted">Link tanpa pesan — buka chat kosong ke nomor ini.</small>
+                        <small class="text-muted">Open a chat with this number without a pre-filled message.</small>
                     </div>
 
                     <div class="form-group mb-1">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label fw-semibold mb-0">Template Pesan</label>
+                            <label class="form-label fw-semibold mb-0">Message Template</label>
                             <div>
                                 <button class="btn btn-outline-primary btn-sm mr-1" type="button" id="btnGenerate">
                                     <i class="fas fa-magic mr-1"></i>Generate
                                 </button>
                                 <button class="btn btn-outline-secondary btn-sm" type="button" id="btnCopyText">
-                                    <i class="fas fa-copy mr-1"></i>Copy Pesan
+                                    <i class="fas fa-copy mr-1"></i>Copy Message
                                 </button>
                             </div>
                         </div>
                         <textarea class="form-control" id="waDirectText" rows="9"
-                            placeholder="Klik 'Generate' untuk membuat template pesan..."></textarea>
+                            placeholder="Click 'Generate' to create a message template..."></textarea>
                         <div class="d-flex justify-content-between mt-1">
-                            <small class="text-muted"><span id="waTextCount">0</span> karakter</small>
-                            <small class="text-muted">Pengirim: <strong>08111937399</strong></small>
+                            <small class="text-muted"><span id="waTextCount">0</span> characters</small>
+                            <small class="text-muted">Sender: <strong>08111937399</strong></small>
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer border-0" style="padding:.75rem 1.5rem 1.25rem;">
-                    <button class="btn btn-light px-4" data-dismiss="modal">Tutup</button>
+                    <button class="btn btn-light px-4" data-dismiss="modal">Close</button>
                     <button class="btn btn-success px-4" id="waDirectOpen">
-                        <i class="fab fa-whatsapp mr-1"></i>Buka WhatsApp
+                        <i class="fab fa-whatsapp mr-1"></i>Open WhatsApp
                     </button>
                 </div>
             </div>
@@ -508,7 +508,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-0">
-                    <h6 class="modal-title fw-bold"><i class="fas fa-image mr-2 text-info"></i>Foto Peserta</h6>
+                    <h6 class="modal-title fw-bold"><i class="fas fa-image mr-2 text-info"></i>Participant Photo</h6>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <div class="modal-body text-center p-3">
@@ -958,9 +958,9 @@
                 pageLength: 25,
                 language: {
                     search: '<i class="fas fa-search"></i>',
-                    searchPlaceholder: 'Cari peserta...',
-                    lengthMenu: 'Tampilkan _MENU_ baris',
-                    info: 'Menampilkan _START_–_END_ dari _TOTAL_ peserta',
+                    searchPlaceholder: 'Search participants...',
+                    lengthMenu: 'Show _MENU_ entries',
+                    info: 'Showing _START_–_END_ of _TOTAL_ participants',
                     paginate: {
                         previous: '‹',
                         next: '›'
@@ -1090,20 +1090,20 @@
 
         $('#btnCopyPhone').on('click', async function() {
             const ok = await copyToClipboard($('#waDestPhone').val() || '');
-            $(this).html(ok ? '<i class="fas fa-check mr-1"></i>Tersalin!' :
+            $(this).html(ok ? '<i class="fas fa-check mr-1"></i>Copied!' :
                 '<i class="fas fa-copy mr-1"></i>Copy');
             setTimeout(() => $(this).html('<i class="fas fa-copy mr-1"></i>Copy'), 1800);
         });
 
         $('#btnCopyLink').on('click', async function() {
             const ok = await copyToClipboard($('#waLink').val() || '');
-            $(this).html(ok ? '<i class="fas fa-check mr-1"></i>Tersalin!' :
+            $(this).html(ok ? '<i class="fas fa-check mr-1"></i>Copied!' :
                 '<i class="fas fa-copy mr-1"></i>Copy');
             setTimeout(() => $(this).html('<i class="fas fa-copy mr-1"></i>Copy'), 1800);
         });
 
         $('#btnGenerate').on('click', async function() {
-            if (!(ctxUsersId && ctxEventsId && ctxPaymentId)) return alert('Data peserta tidak lengkap.');
+            if (!(ctxUsersId && ctxEventsId && ctxPaymentId)) return alert('Participant data is incomplete.');
             const norm = normalizePhone($('#waDestPhone').val());
             $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Generating...');
             try {
@@ -1116,7 +1116,7 @@
                 if (res && res.ok) {
                     $('#waDirectText').val(res.message);
                     $('#waTextCount').text(res.message.length);
-                    $(this).html('<i class="fas fa-check mr-1"></i>Berhasil!').removeClass(
+                    $(this).html('<i class="fas fa-check mr-1"></i>Success!').removeClass(
                         'btn-outline-primary').addClass('btn-success');
                     setTimeout(() => {
                         $(this).prop('disabled', false).html(
@@ -1124,11 +1124,11 @@
                             .removeClass('btn-success').addClass('btn-outline-primary');
                     }, 2000);
                 } else {
-                    alert('Gagal generate template.');
+                    alert('Failed to generate the template.');
                 }
             } catch (e) {
                 console.error(e);
-                alert('Error generate template.');
+                alert('Error generating the template.');
             } finally {
                 if ($(this).prop('disabled') && !$(this).hasClass('btn-success')) $(this).prop('disabled',
                     false).html('<i class="fas fa-magic mr-1"></i>Generate');
@@ -1137,14 +1137,14 @@
 
         $('#btnCopyText').on('click', async function() {
             const ok = await copyToClipboard($('#waDirectText').val() || '');
-            $(this).html(ok ? '<i class="fas fa-check mr-1"></i>Tersalin!' :
-                '<i class="fas fa-copy mr-1"></i>Copy Pesan');
-            setTimeout(() => $(this).html('<i class="fas fa-copy mr-1"></i>Copy Pesan'), 1800);
+            $(this).html(ok ? '<i class="fas fa-check mr-1"></i>Copied!' :
+                '<i class="fas fa-copy mr-1"></i>Copy Message');
+            setTimeout(() => $(this).html('<i class="fas fa-copy mr-1"></i>Copy Message'), 1800);
         });
 
         $('#waDirectOpen').on('click', function() {
             const link = $('#waLink').val();
-            if (!link) return alert('Link kosong / nomor tidak valid.');
+            if (!link) return alert('The link is empty or the phone number is invalid.');
             window.open(link, '_blank');
         });
 

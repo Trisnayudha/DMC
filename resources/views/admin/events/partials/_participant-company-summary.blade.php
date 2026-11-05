@@ -6,31 +6,31 @@
         style="background:#fff; padding:1.1rem 1.5rem; gap:8px;">
         <div>
             <h5 class="mb-0 fw-bold" style="color:#1a202c;">
-                <i class="fas fa-building text-teal mr-2"></i>Ringkasan Perusahaan
+                <i class="fas fa-building text-teal mr-2"></i>Company Summary
             </h5>
-            <small class="text-muted" id="company-summary-caption">Menghitung…</small>
+            <small class="text-muted" id="company-summary-caption">Calculating…</small>
         </div>
         <button type="button" class="btn btn-sm btn-light border" data-toggle="collapse"
             data-target="#company-summary-body" aria-expanded="false" aria-controls="company-summary-body">
-            <i class="fas fa-chevron-down mr-1"></i>Tampilkan / Sembunyikan
+            <i class="fas fa-chevron-down mr-1"></i>Show / Hide
         </button>
     </div>
     <div class="collapse" id="company-summary-body">
         <div class="card-body pt-0" style="padding:0 1.5rem 1.25rem;">
             <div class="company-summary-controls">
-                <button type="button" id="company-summary-clear" class="btn btn-sm btn-outline-secondary" hidden>Hapus filter perusahaan</button>
+                <button type="button" id="company-summary-clear" class="btn btn-sm btn-outline-secondary" hidden>Clear company filter</button>
             </div>
-            <p class="text-muted small mb-2">Klik nama perusahaan untuk memfilter daftar peserta.</p>
+            <p class="text-muted small mb-2">Click a company name to filter participants.</p>
             <div class="company-summary-wrap">
                 <table id="company-summary-table" class="table table-sm table-hover mb-0 company-summary-table">
                     <thead>
                         <tr>
                             <th width="40">#</th>
-                            <th>Perusahaan</th>
-                            <th class="text-center">Peserta</th>
+                            <th>Company</th>
+                            <th class="text-center">Participants</th>
                             <th class="text-center">Member</th>
                             <th class="text-center">Non Member</th>
-                            <th class="text-center">Free/Undangan</th>
+                            <th class="text-center">Free/Invitation</th>
                             <th class="text-center">Sponsor</th>
                         </tr>
                     </thead>
@@ -120,15 +120,15 @@
                 var rows = list.map(function(c, i) {
                     return [i + 1, '<button type="button" class="btn btn-link btn-sm p-0 company-summary-link" data-company-key="' + esc(c.key) + '">' + esc(c.label) + '</button>', c.total, c.member, c.nonmember, c.free, c.sponsor];
                 });
-                if (noCompany.total) rows.push(['', 'Tanpa nama perusahaan', noCompany.total, noCompany.member, noCompany.nonmember, noCompany.free, noCompany.sponsor]);
+                if (noCompany.total) rows.push(['', 'No company name', noCompany.total, noCompany.member, noCompany.nonmember, noCompany.free, noCompany.sponsor]);
                 if (summaryTable) summaryTable.clear().rows.add(rows).draw(false);
 
-                var filterLabel = $.trim($('.pill.active').clone().children('.pill-count').remove().end().text()) || 'Semua';
+                var filterLabel = $.trim($('.pill.active').clone().children('.pill-count').remove().end().text()) || 'All';
                 var search = api.search();
                 $('#company-summary-caption').html(
-                    '<strong>' + Object.keys(companies).length + '</strong> perusahaan dari <strong>' + participants + '</strong> peserta' +
+                    '<strong>' + Object.keys(companies).length + '</strong> companies from <strong>' + participants + '</strong> participants' +
                     ' · Filter: <strong>' + esc(filterLabel) + '</strong>' +
-                    (search ? ' · Cari: "' + esc(search) + '"' : '')
+                    (search ? ' · Search: "' + esc(search) + '"' : '')
                 );
                 $('#company-summary-clear').prop('hidden', selectedCompany === null);
             }
@@ -138,7 +138,7 @@
                     pageLength: 10,
                     order: [[2, 'desc']],
                     columnDefs: [{ targets: 0, orderable: false }, { targets: [2, 3, 4, 5, 6], className: 'text-center' }],
-                    language: { search: 'Cari perusahaan:', lengthMenu: 'Tampilkan _MENU_ perusahaan', info: 'Menampilkan _START_–_END_ dari _TOTAL_ perusahaan', infoEmpty: 'Tidak ada perusahaan', zeroRecords: 'Tidak ada perusahaan yang cocok', paginate: { previous: '‹', next: '›' } }
+                    language: { search: 'Search companies:', lengthMenu: 'Show _MENU_ companies', info: 'Showing _START_–_END_ of _TOTAL_ companies', infoEmpty: 'No companies found', zeroRecords: 'No matching companies found', paginate: { previous: '‹', next: '›' } }
                 });
                 if ($.fn.DataTable.isDataTable('#laravel_crud')) renderCompanySummary($('#laravel_crud').DataTable());
             });
