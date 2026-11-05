@@ -22,7 +22,7 @@
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>View News this month</h4>
+                                    <h4>Total Views of News Created This Month</h4>
                                 </div>
                                 <div class="card-body">
                                     {{ $countView }}
@@ -37,7 +37,7 @@
                             </div>
                             <div class="card-wrap">
                                 <div class="card-header">
-                                    <h4>All News this month</h4>
+                                    <h4>News Created This Month</h4>
                                 </div>
                                 <div class="card-body">
                                     {{ $totalView }}

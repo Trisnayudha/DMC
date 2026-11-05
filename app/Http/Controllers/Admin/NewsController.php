@@ -35,10 +35,12 @@ class NewsController extends Controller
         }
         $list = $query->get();
 
-        $currentMonth = Carbon::now()->month;
+        $now = Carbon::now();
+        $monthlyNews = News::where('created_at', '>=', $now->copy()->startOfMonth())
+            ->where('created_at', '<', $now->copy()->addMonthNoOverflow()->startOfMonth());
 
-        $countView = News::whereMonth('created_at', $currentMonth)->sum('views');
-        $totalView = News::whereMonth('created_at', $currentMonth)->count('id');
+        $countView = (clone $monthlyNews)->sum('views');
+        $totalView = (clone $monthlyNews)->count('id');
 
         return view('admin.news.index', [
             'totalView' => $totalView,
