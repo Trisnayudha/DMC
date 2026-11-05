@@ -126,6 +126,18 @@ class SponsorRepresentativeEventFilterTest extends TestCase
         $this->assertStringContainsString('data-name="Other Event"', $html);
     }
 
+    public function test_attendance_list_displays_branding_name_with_official_name_fallback(): void
+    {
+        DB::table('sponsors')->where('id', 1)->update(['branding_name' => 'Alpha Brand']);
+        DB::table('sponsors')->where('id', 2)->update(['branding_name' => '']);
+
+        $branded = $this->directory(['year' => 2026, 'event' => 1, 'company' => 'Registered']);
+        $fallback = $this->directory(['year' => 2026, 'event' => 2]);
+
+        $this->assertSame('Alpha Brand', $branded['representatives']->first()->company);
+        $this->assertSame('Other Event', $fallback['representatives']->first()->company);
+    }
+
     protected function tearDown(): void
     {
         DB::purge('representative_filter_test');

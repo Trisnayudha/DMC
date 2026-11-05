@@ -50,7 +50,7 @@ class SponsorCountRepresentativeController extends Controller
             'company.company_name as representative_company',
             'company.address as representative_address',
             'sponsors.id as sponsor_id',
-            'sponsors.name as company',
+            \Illuminate\Support\Facades\DB::raw("COALESCE(NULLIF(sponsors.branding_name, ''), sponsors.name) as company"),
             'payment.created_at as attend_time',
             'events.name as event_name',
             'events.start_date',
