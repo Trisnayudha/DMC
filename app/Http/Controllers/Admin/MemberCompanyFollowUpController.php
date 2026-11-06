@@ -175,7 +175,7 @@ class MemberCompanyFollowUpController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $user->name . ' berhasil ditandai perlu follow up.',
+            'message' => $user->name . ' was marked as needing follow-up.',
         ]);
     }
 
@@ -214,14 +214,14 @@ class MemberCompanyFollowUpController extends Controller
         $user     = $followUp->user;
 
         if (!$user) {
-            return response()->json(['success' => false, 'message' => 'User tidak ditemukan.'], 422);
+            return response()->json(['success' => false, 'message' => 'User not found.'], 422);
         }
 
         $newEmail = strtolower(trim($request->email));
         if ($newEmail !== strtolower(trim($user->email ?? ''))) {
             $emailExists = User::where('email', $newEmail)->where('id', '!=', $user->id)->exists();
             if ($emailExists) {
-                return response()->json(['success' => false, 'message' => 'Email sudah digunakan oleh akun lain.'], 422);
+                return response()->json(['success' => false, 'message' => 'This email address is already used by another account.'], 422);
             }
         }
 
@@ -336,7 +336,7 @@ class MemberCompanyFollowUpController extends Controller
         }
 
         if (empty($changes)) {
-            return response()->json(['success' => true, 'message' => 'Tidak ada perubahan.']);
+            return response()->json(['success' => true, 'message' => 'No changes were made.']);
         }
 
         $oldEmail      = (string) ($user->email ?? '');
@@ -451,16 +451,16 @@ class MemberCompanyFollowUpController extends Controller
         $followUp->verified_at      = now();
         $followUp->save();
 
-        $message = $user->name . ' berhasil diperbarui & ditandai Verified.'
-            . ($shouldAutoApprove ? ' Status member otomatis di-approve jadi Active.' : '');
+        $message = $user->name . ' was updated and marked as Verified.'
+            . ($shouldAutoApprove ? ' The member was automatically approved and set to Active.' : '');
 
         if (isset($changes['email'])) {
             $mailchimpResult = app(MemberVerificationService::class)->changeMailchimpEmail($user, $oldEmail);
 
             if ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_SWAPPED) {
-                $message .= ' Mailchimp: email lama di-archive, email baru di-subscribe.';
+                $message .= ' Mailchimp: the old email was archived and the new email was subscribed.';
             } elseif ($mailchimpResult === MemberVerificationService::MAILCHIMP_EMAIL_FAILED) {
-                $message .= ' (Mailchimp: gagal memindahkan email — perlu dicek manual.)';
+                $message .= ' (Mailchimp: the email could not be transferred and needs to be checked manually.)';
             }
         }
 

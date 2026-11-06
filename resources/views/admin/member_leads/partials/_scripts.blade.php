@@ -327,6 +327,7 @@
             $('#al-user').select2({
                 dropdownParent: $('#addLeadModal'),
                 placeholder: 'Search member...',
+                language: 'en',
                 minimumInputLength: 2,
                 ajax: {
                     url: '{{ route('admin.member_leads.search_members') }}',
@@ -349,7 +350,7 @@
         var btn = $(this);
         var userId = $('#al-user').val();
         if (!userId) {
-            toastr.error('Pilih member dulu.');
+            toastr.error('Please select a member first.');
             return;
         }
         btn.prop('disabled', true);
@@ -362,7 +363,7 @@
                     toastr.success(res.message);
                     location.reload();
                 } else {
-                    toastr.error(res.message || 'Gagal menambahkan lead.');
+                    toastr.error(res.message || 'Failed to add the lead.');
                     btn.prop('disabled', false);
                 }
             },

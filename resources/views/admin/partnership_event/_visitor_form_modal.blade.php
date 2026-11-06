@@ -5,7 +5,7 @@
             <form method="POST" id="visitorForm" action="">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="visitorFormModalTitle">Tambah Visitor</h5>
+                    <h5 class="modal-title" id="visitorFormModalTitle">Add Visitor</h5>
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <div class="modal-body">
@@ -19,7 +19,7 @@
                             <input type="text" name="name" id="vf_name" class="form-control">
                         </div>
                     </div>
-                    <small class="text-muted d-block mb-3" style="margin-top:-10px;">Isi minimal salah satu: Company Name, Name, Business Email, atau Mobile Number (di bawah).</small>
+                    <small class="text-muted d-block mb-3" style="margin-top:-10px;">Enter at least one: company name, name, business email, or mobile number (below).</small>
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
@@ -66,7 +66,7 @@
                         <div class="form-group col-md-4">
                             <label>Remarks</label>
                             <input type="text" name="remarks" id="vf_remarks" class="form-control"
-                                placeholder="contoh: visitor">
+                                placeholder="e.g. visitor">
                         </div>
                         <div class="form-group col-md-4">
                             <label>Merchandise</label>

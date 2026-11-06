@@ -10,20 +10,17 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-light" style="font-size:12px;">
-                        <strong>Format Excel:</strong> kolom
+                        <strong>Excel format:</strong> columns
                         <code>Company Name, Name, Job Title, Business Email, Mobile Number, Office Number, Website, Address, Remarks, Merchandise</code>.
                         <div class="mt-1 text-muted">
-                            Kolom <code>No</code> boleh ada, akan diabaikan. Row yang Company Name, Name, Business Email, DAN Mobile Number-nya kosong semua akan dilewati.
+                            The optional <code>No</code> column is ignored. Rows with no company name, name, business email, or mobile number will be skipped.
                         </div>
                         <div class="mt-1 text-muted">
-                            Row dengan <strong>Business Email</strong> (atau Mobile Number kalau email kosong) yang sudah ada di event
-                            <strong>{{ $event->name }}</strong> akan meng-update data visitor tersebut (bukan dobel). Khusus
-                            <strong>Remarks</strong> &amp; <strong>Merchandise</strong> digabung (mis. visitor hadir day1 &amp; day3),
-                            tidak ditimpa — cocok untuk tracking kehadiran per hari.
+                            Rows matching a visitor already in <strong>{{ $event->name }}</strong> by <strong>Business Email</strong> (or Mobile Number if email is blank) update that visitor instead of creating a duplicate. <strong>Remarks</strong> and <strong>Merchandise</strong> are combined rather than overwritten, so attendance across days can be tracked.
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="small font-weight-bold">File Excel (.xlsx, .xls, .csv)</label>
+                        <label class="small font-weight-bold">Excel File (.xlsx, .xls, .csv)</label>
                         <input type="file" name="file" class="form-control-file" accept=".xlsx,.xls,.csv" required>
                         <a href="{{ route('admin.partnership_events.import_template') }}" class="small mt-1 d-inline-block">
                             <i class="fas fa-download"></i> Download template

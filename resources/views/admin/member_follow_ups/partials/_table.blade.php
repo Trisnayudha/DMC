@@ -36,7 +36,7 @@
             <div class="form-group mb-0" style="min-width:220px; flex:1 1 220px;">
                 <label class="mb-1 small text-muted">Search</label>
                 <input type="text" name="q" value="{{ $q }}" class="form-control form-control-sm"
-                    placeholder="Nama, email, company, job title, notes...">
+                    placeholder="Name, email, company, job title, notes...">
             </div>
             <div class="form-group mb-0">
                 <label class="mb-1 small text-muted">From Date</label>
@@ -186,7 +186,7 @@
                                             data-current-job-title="{{ $item->previous_job_title }}"
                                             data-new-job-title="{{ $item->new_job_title }}"
                                             data-notes="{{ $item->notes }}"
-                                            title="Edit flag ini (belum menyimpan ke data member)" data-toggle="tooltip">
+                                            title="Edit this flag (changes are not yet saved to the member record)" data-toggle="tooltip">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button type="button"
@@ -212,7 +212,7 @@
                                             data-prefix-office-number="{{ optional($memberCompany)->prefix_office_number }}"
                                             data-office-number="{{ optional($memberCompany)->office_number }}"
                                             data-full-office-number="{{ optional($memberCompany)->full_office_number }}"
-                                            title="Edit data member & verify — update langsung, tanpa bikin akun baru" data-toggle="tooltip">
+                                            title="Edit and verify member details — updates the existing account" data-toggle="tooltip">
                                             <i class="fas fa-user-check"></i>
                                         </button>
                                     @endif
@@ -221,7 +221,7 @@
                                             class="btn btn-icon btn-outline-secondary btn-view-follow-up-logs"
                                             data-logs-url="{{ route('users.logs', $member->id) }}"
                                             data-name="{{ $member->name }}"
-                                            title="Riwayat perubahan member ini" data-toggle="tooltip">
+                                            title="View this member’s change history" data-toggle="tooltip">
                                             <i class="fas fa-history"></i>
                                         </button>
                                     @endif
@@ -230,7 +230,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="text-center text-muted py-4">Tidak ada data.</td>
+                            <td colspan="11" class="text-center text-muted py-4">No data found.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -15,8 +15,8 @@
             <div class="modal-body">
                 <div class="alert alert-light border py-2 mb-3 small">
                     <i class="fas fa-info-circle mr-1"></i>
-                    Menyimpan perubahan di sini akan meng-update data member ini langsung (bukan bikin akun baru),
-                    otomatis menandai <strong>Verifikasi 2-Langkah</strong>, dan menutup follow-up ini.
+                    Saving changes here updates the existing member account, automatically marks it as
+                    <strong>2-Step Verified</strong>, and closes this follow-up.
                     Flagged: company <strong id="efm-flagged-company">-</strong>
                     <span id="efm-flagged-job-title-wrap">/ job title <strong id="efm-flagged-job-title">-</strong></span>
                 </div>
@@ -24,7 +24,7 @@
                 <input type="hidden" id="efm-follow-up-id">
 
                 <div class="form-group">
-                    <label class="small font-weight-bold">Nama</label>
+                    <label class="small font-weight-bold">Name</label>
                     <input type="text" id="efm-name" class="form-control">
                 </div>
                 <div class="form-group">
@@ -41,7 +41,7 @@
                 </div>
 
                 <div class="border rounded p-3 mb-3">
-                    <div class="small font-weight-bold text-primary mb-3">Data Company</div>
+                    <div class="small font-weight-bold text-primary mb-3">Company Details</div>
 
                     <div class="form-row">
                         <div class="form-group col-md-4">
@@ -64,14 +64,14 @@
                         <div class="form-group col-md-8">
                             <label class="small font-weight-bold">Company Name</label>
                             <input type="text" id="efm-company-name" class="form-control" list="efm-company-datalist"
-                                placeholder="Ketik nama company...">
+                                placeholder="Enter company name...">
                             <datalist id="efm-company-datalist">
                                 @foreach ($companyNames ?? [] as $name)
                                     <option value="{{ $name }}"></option>
                                 @endforeach
                             </datalist>
                             <small class="text-success d-none" id="efm-company-autofilled">
-                                <i class="fas fa-check-circle mr-1"></i>Data company diisi otomatis dari company yang sudah terverifikasi.
+                                <i class="fas fa-check-circle mr-1"></i>Company details were filled in from a verified company.
                             </small>
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                         <div class="form-group col-md-6">
                             <label class="small font-weight-bold">Company Category</label>
                             <select id="efm-company-category" class="form-control">
-                                @include('partials._company_category_options', ['includeInactive' => true])
+                                @include('partials._company_category_options', ['includeInactive' => true, 'inactiveLabel' => 'Inactive categories — select a new category'])
                             </select>
                         </div>
                         <div class="form-group col-md-6 efm-company-other-wrap" style="display:none;">
@@ -120,7 +120,7 @@
                         <div class="form-group col-md-12">
                             <label class="small font-weight-bold">Full Office Number</label>
                             <input type="text" id="efm-full-office-number" class="form-control" placeholder="e.g. +62 21 12345678">
-                            <small class="text-muted">Awali dengan kode negara (mis. <code>+62</code>) agar prefix terdeteksi otomatis.</small>
+                            <small class="text-muted">Start with the country code (e.g. <code>+62</code>) to detect the prefix automatically.</small>
                         </div>
                         <input type="hidden" id="efm-prefix-office-number">
                         <input type="hidden" id="efm-office-number">
@@ -128,9 +128,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="efm-btn-submit">
-                    <i class="fas fa-user-check mr-1"></i> Simpan & Verify
+                    <i class="fas fa-user-check mr-1"></i> Save & Verify
                 </button>
             </div>
         </div>

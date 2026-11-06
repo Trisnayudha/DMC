@@ -23,7 +23,7 @@
 
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Event Partnership</h4>
+                        <h4 class="mb-0">Partnership Events</h4>
                         <a href="{{ route('admin.event_conversions.index', ['type' => 'supporting']) }}" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-chart-line mr-1"></i> Member Conversion Analytics
                         </a>
@@ -79,18 +79,18 @@
                                             <td>{{ $event->location ?: '-' }}</td>
                                             <td>
                                                 @if ($event->has_giveaway)
-                                                    <span class="badge badge-success" title="Giveaway booth aktif untuk event ini"><i class="fas fa-gift"></i> ON</span>
+                                                    <span class="badge badge-success" title="Booth giveaway is enabled for this event"><i class="fas fa-gift"></i> ON</span>
                                                 @else
-                                                    <span class="badge badge-secondary" title="Giveaway booth nonaktif">OFF</span>
+                                                    <span class="badge badge-secondary" title="Booth giveaway is disabled">OFF</span>
                                                 @endif
                                             </td>
                                             <td><span class="badge badge-primary">{{ $event->visitors_count }}</span></td>
                                             <td>
                                                 <div class="btn-group" role="group">
-                                                    <a href="{{ route('admin.partnership_events.show', $event->slug) }}" class="btn btn-sm btn-info" title="Kelola Visitor">
-                                                        <i class="fas fa-users"></i> Kelola
+                                                    <a href="{{ route('admin.partnership_events.show', $event->slug) }}" class="btn btn-sm btn-info" title="Manage visitors">
+                                                        <i class="fas fa-users"></i> Manage
                                                     </a>
-                                                    <a href="{{ url('visit/' . $event->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Buka Form Booth Visitor (Link untuk QR Code)">
+                                                    <a href="{{ url('visit/' . $event->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Open the booth visitor form (QR code link)">
                                                         <i class="fas fa-external-link-alt"></i> Form Booth
                                                     </a>
                                                     {{-- Partnership Event tidak tampil di list Event DMC, jadi edit event dari sini. --}}

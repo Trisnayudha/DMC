@@ -12,11 +12,11 @@
                     <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-3">Daftarkan <strong id="ram-visitor-name">-</strong> sebagai calon member?</p>
+                    <p class="mb-3">Register <strong id="ram-visitor-name">-</strong> as a prospective member?</p>
                     <div class="form-group">
                         <label for="ram_company_category">Company Category <span class="text-danger">*</span></label>
                         <select name="company_category" id="ram_company_category" class="form-control" required>
-                            @include('partials._company_category_options', ['includeInactive' => true])
+                            @include('partials._company_category_options', ['includeInactive' => true, 'inactiveLabel' => 'Inactive categories — select a new category'])
                         </select>
                     </div>
 
@@ -32,11 +32,11 @@
                         <input type="checkbox" class="custom-control-input" id="ram_explore" name="explore" value="agree">
                         <label class="custom-control-label" for="ram_explore">I would like to receive information about corporate sponsorship opportunities.</label>
                     </div>
-                    <small class="text-muted d-block mt-2">Sama seperti form registrasi member di web — centang "sponsorship opportunities" otomatis memasukkan member ini ke Lead Follow-Up.</small>
+                    <small class="text-muted d-block mt-2">As with the online registration form, selecting "sponsorship opportunities" adds this member to Lead Follow-Up.</small>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary">Daftarkan</button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Register</button>
                 </div>
             </form>
         </div>

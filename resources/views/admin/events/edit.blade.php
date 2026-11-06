@@ -26,7 +26,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h4>
-                                Keterangan event
+                                Event Details
                             </h4>
                         </div>
                         <div class="card-body">
@@ -37,8 +37,8 @@
                             ]) !!}
                             <input type="hidden" name="id" id="id" value="{{ $data->id }}">
                             <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
-                                {!! Form::label('Name Event *') !!}
-                                {!! Form::text('name', $data->name, ['class' => 'form-control', 'placeholder' => 'Nama Program']) !!}
+                                {!! Form::label('Event Name *') !!}
+                                {!! Form::text('name', $data->name, ['class' => 'form-control', 'placeholder' => 'Event name']) !!}
                                 @if ($errors->has('name'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('name') }}</strong>
@@ -46,9 +46,9 @@
                                 @endif
                             </div>
                             <div class="form-group{{ $errors->has('topic') ? ' has-error' : '' }}">
-                                {!! Form::label('Topic (untuk share link)') !!}
-                                {!! Form::text('topic', $data->topic, ['class' => 'form-control', 'placeholder' => 'Contoh: Ambition to Action']) !!}
-                                <small class="form-text text-muted">Dipakai pada share link, contoh: /events/2026/2/ambition-to-action</small>
+                                {!! Form::label('Topic (for share link)') !!}
+                                {!! Form::text('topic', $data->topic, ['class' => 'form-control', 'placeholder' => 'e.g. Ambition to Action']) !!}
+                                <small class="form-text text-muted">Used in the share link, e.g. /events/2026/2/ambition-to-action</small>
                                 @if ($errors->has('topic'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('topic') }}</strong>
@@ -57,7 +57,7 @@
                             </div>
                             <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
                                 {!! Form::label('Location *') !!}
-                                {!! Form::text('location', $data->location, ['class' => 'form-control', 'placeholder' => 'Tempat Kegiatan']) !!}
+                                {!! Form::text('location', $data->location, ['class' => 'form-control', 'placeholder' => 'Event location']) !!}
                                 @if ($errors->has('location'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('location') }}</strong>
@@ -66,7 +66,7 @@
                             </div>
                             <div class="form-group{{ $errors->has('maps') ? ' has-error' : '' }}">
                                 {!! Form::label('Google Maps (Link) *') !!}
-                                {!! Form::text('maps', $data->maps, ['class' => 'form-control', 'placeholder' => 'Tempat Kegiatan']) !!}
+                                {!! Form::text('maps', $data->maps, ['class' => 'form-control', 'placeholder' => 'Google Maps link']) !!}
                                 @if ($errors->has('maps'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('maps') }}</strong>
@@ -74,11 +74,11 @@
                                 @endif
                             </div>
                             <div class="form-group{{ $errors->has('description') ? ' has-error' : '' }}">
-                                {!! Form::label('Deskripsi *') !!}
+                                {!! Form::label('Description *') !!}
                                 {!! Form::textarea('description', $data->description, [
                                     'id' => 'my-editor',
                                     'class' => 'form-control my-editor',
-                                    'placeholder' => 'Berita',
+                                    'placeholder' => 'Event description',
                                 ]) !!}
                                 @if ($errors->has('description'))
                                     <span class="help-block">
@@ -87,11 +87,11 @@
                                 @endif
                             </div>
                             <div class="form-group{{ $errors->has('type') ? ' has-error' : '' }}">
-                                {!! Form::label('Tipe event') !!}
+                                {!! Form::label('Event Format') !!}
                                 {!! Form::select(
                                     'type',
                                     [
-                                        null => 'Type Select',
+                                        null => 'Select type',
                                         'Live' => 'Live Event',
                                         'Virtual' => 'Virtual/Online',
                                         'Hybrid' => 'Hybrid',
@@ -107,11 +107,11 @@
                                 @endif
                             </div>
                             <div class="form-group{{ $errors->has('event_type') ? ' has-error' : '' }}">
-                                {!! Form::label('Tipe event') !!}
+                                {!! Form::label('Event Type') !!}
                                 {!! Form::select(
                                     'event_type',
                                     [
-                                        null => 'Type Select',
+                                        null => 'Select type',
                                         'DMC Event' => 'DMC Event',
                                         'DMC Partnership Event' => 'DMC Partnership Event',
                                         'Partnership Event' => 'Partnership Event',
@@ -126,8 +126,8 @@
                                 @endif
                             </div>
                             <div class="form-group{{ $errors->has('link') ? ' has-error' : '' }}">
-                                {!! Form::label('link diinput kalau tipe event (partnership event)') !!}
-                                {!! Form::text('link', $data->link, ['class' => 'form-control', 'placeholder' => 'Link Registration']) !!}
+                                {!! Form::label('Registration Link (for partnership events)') !!}
+                                {!! Form::text('link', $data->link, ['class' => 'form-control', 'placeholder' => 'Registration link']) !!}
                                 @if ($errors->has('link'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('link') }}</strong>
@@ -135,11 +135,11 @@
                                 @endif
                             </div>
                             <div class="form-group{{ $errors->has('status_event') ? ' has-error' : '' }}">
-                                {!! Form::label('Status Event') !!}
+                                {!! Form::label('Event Pricing') !!}
                                 {!! Form::select(
                                     'status_event',
                                     [
-                                        null => 'Status Select',
+                                        null => 'Select pricing',
                                         'Free' => 'Free',
                                         'Paid' => 'Paid',
                                     ],
@@ -161,7 +161,7 @@
                         </div>
                         <div class="card-body">
                             <div class="form-group{{ $errors->has('image') ? ' has-error' : '' }}">
-                                {!! Form::label('Thumbnails *') !!}
+                                {!! Form::label('Thumbnail *') !!}
                                 <img src="{{ asset($data->image) }}" class="img-preview img-fluid mb-3 col-sm-5 d-block">
                                 <div class="input-group">
                                     <div class="custom-file">
@@ -178,7 +178,7 @@
                                 <img id="holder" style="margin-top:15px;max-height:100px;">
                             </div>
                             <div class="form-group{{ $errors->has('image') ? ' has-error' : '' }}">
-                                {!! Form::label('Image Banner *') !!}
+                                {!! Form::label('Banner Image *') !!}
                                 <img src="{{ asset($data->image_banner) }}"
                                     class="img-preview img-fluid mb-3 col-sm-5 d-block">
                                 <div class="input-group">
@@ -207,9 +207,9 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group{{ $errors->has('start_time') ? ' has-error' : '' }}">
-                                        {!! Form::label('Waktu Mulai *') !!}
+                                        {!! Form::label('Start Time *') !!}
                                         <div class="input-group clockpicker" data-autoclose="true">
-                                            {!! Form::text('start_time', $data->start_time, ['class' => 'form-control ', 'placeholder' => 'Waktu Mulai']) !!}
+                                            {!! Form::text('start_time', $data->start_time, ['class' => 'form-control ', 'placeholder' => 'Start Time']) !!}
                                             <span class="input-group-addon">
                                                 <span class="fa fa-clock-o"></span>
                                             </span>
@@ -221,9 +221,9 @@
                                         @endif
                                     </div>
                                     <div class="form-group{{ $errors->has('start_time') ? ' has-error' : '' }}">
-                                        {!! Form::label('Waktu Selesai *') !!}
+                                        {!! Form::label('End Time *') !!}
                                         <div class="input-group clockpicker" data-autoclose="true">
-                                            {!! Form::text('end_time', $data->end_time, ['class' => 'form-control ', 'placeholder' => 'Waktu Selesai']) !!}
+                                            {!! Form::text('end_time', $data->end_time, ['class' => 'form-control ', 'placeholder' => 'End Time']) !!}
                                             <span class="input-group-addon">
                                                 <span class="fa fa-clock-o"></span>
                                             </span>
@@ -235,7 +235,7 @@
                                         @endif
                                     </div>
                                     <div class="form-group{{ $errors->has('start_date') ? ' has-error' : '' }}">
-                                        {!! Form::label('Tanggal Mulai *') !!}
+                                        {!! Form::label('Start Date *') !!}
                                         <div class="input-group date">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
@@ -244,7 +244,7 @@
                                             </div>
                                             {!! Form::text('start_date', date('Y/m/d', strtotime($data->start_date)), [
                                                 'class' => 'form-control datepicker',
-                                                'placeholder' => 'Tanggal Selesai',
+                                                'placeholder' => 'Start Date',
                                             ]) !!}
                                         </div>
                                         @if ($errors->has('end_date'))
@@ -254,7 +254,7 @@
                                         @endif
                                     </div>
                                     <div class="form-group{{ $errors->has('end_date') ? ' has-error' : '' }}">
-                                        {!! Form::label('Tanggal Selesai *') !!}
+                                        {!! Form::label('End Date *') !!}
                                         <div class="input-group date">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
@@ -263,7 +263,7 @@
                                             </div>
                                             {!! Form::text('end_date', date('Y/m/d', strtotime($data->end_date)), [
                                                 'class' => 'form-control datepicker',
-                                                'placeholder' => 'Tanggal Selesai',
+                                                'placeholder' => 'End Date',
                                             ]) !!}
                                         </div>
                                         @if ($errors->has('end_date'))
@@ -302,7 +302,7 @@
                                 </div>
                                 <div class="card-body">
                                     {{-- <div class="form-group{{ $errors->has('category_id') ? ' has-error' : '' }}">
-                                        {!! Form::label('Kategori *') !!}
+                                        {!! Form::label('Category *') !!}
                                         {!! Form::select('category_id[]', $categories->pluck('category_name', 'id'), null, [
                                             'multiple' => 'multiple',
                                             'class' => 'form-control select2',
@@ -337,9 +337,9 @@
                 const ui = $.summernote.ui;
                 const opts = [
                     { label: 'None', val: '0' },
-                    { label: 'Kecil (6px)', val: '6px' },
-                    { label: 'Sedang (12px)', val: '12px' },
-                    { label: 'Besar (24px)', val: '24px' }
+                    { label: 'Small (6px)', val: '6px' },
+                    { label: 'Medium (12px)', val: '12px' },
+                    { label: 'Large (24px)', val: '24px' }
                 ];
 
                 function applySpacing(val) {
@@ -362,14 +362,14 @@
                 }
 
                 const items = opts.map(function(o) {
-                    return '<a class="dropdown-item" href="#" data-val="' + o.val + '">Spasi: ' + o.label + '</a>';
+                    return '<a class="dropdown-item" href="#" data-val="' + o.val + '">Spacing: ' + o.label + '</a>';
                 }).join('');
 
                 const button = ui.buttonGroup([
                     ui.button({
                         className: 'dropdown-toggle',
                         contents: '<i class="fas fa-arrows-alt-v"></i>',
-                        tooltip: 'Spasi atas/bawah paragraf',
+                        tooltip: 'Paragraph spacing above/below',
                         data: { toggle: 'dropdown' }
                     }),
                     ui.dropdown({
@@ -399,7 +399,7 @@
 
                 const button = ui.button({
                     contents: '<i class="fas fa-link"></i>',
-                    tooltip: 'Tambah / edit link pada gambar',
+                    tooltip: 'Add or edit image link',
                     click: function() {
                         const img = $editable.data('imglink-target');
                         if (!img) return;
@@ -407,7 +407,7 @@
                         const $parentA = $img.parent('a');
                         const current = $parentA.length ? $parentA.attr('href') : '';
                         const url = window.prompt(
-                            'URL link untuk gambar (kosongkan untuk hapus link):',
+                            'Image link URL (leave blank to remove the link):',
                             current || 'https://'
                         );
                         if (url === null) return; // batal
@@ -490,10 +490,9 @@
         <button type="button" id="uploadClose" class="upload-close" aria-label="Close">&times;</button>
         <div class="d-flex gap-2 align-items-center">
             <input type="text" id="lastUploadUrl" class="form-control form-control-sm" readonly
-                placeholder="URL hasil upload">
+                placeholder="Uploaded image URL">
             <button type="button" id="copyUrlBtn" class="btn btn-secondary btn-sm">Copy</button>
-            <button type="button" id="insertToEditor1" class="btn btn-outline-primary btn-sm">Insert ke
-                Deskripsi</button>
+            <button type="button" id="insertToEditor1" class="btn btn-outline-primary btn-sm">Insert into Description</button>
         </div>
         <small id="uploadMsg" class="text-muted d-block mt-1"></small>
     </div>
@@ -546,17 +545,17 @@
                 success: function(res) {
                     const url = res?.url || res?.data?.url;
                     if (!url) {
-                        setMsg('Upload sukses tapi URL tidak ditemukan di response.', true);
+                        setMsg('Upload succeeded, but no URL was returned.', true);
                         return;
                     }
                     $('#lastUploadUrl').val(url);
-                    setMsg('Upload berhasil. URL siap dipakai.');
+                    setMsg('Upload complete. The URL is ready to use.');
                     copyToClipboard(url).then(ok => {
-                        if (ok) setMsg('Upload berhasil. URL sudah di-copy ke clipboard.');
+                        if (ok) setMsg('Upload complete. The URL was copied to the clipboard.');
                     });
                 },
                 error: function(xhr) {
-                    const msg = xhr?.responseJSON?.message || 'Gagal upload. Coba lagi.';
+                    const msg = xhr?.responseJSON?.message || 'Upload failed. Please try again.';
                     setMsg(msg, true);
                 },
                 complete: function() {
@@ -570,7 +569,7 @@
             const url = $('#lastUploadUrl').val();
             if (!url) return;
             const ok = await copyToClipboard(url);
-            setMsg(ok ? 'URL copied to clipboard.' : 'Tidak bisa menyalin otomatis, copy manual ya.');
+            setMsg(ok ? 'URL copied to clipboard.' : 'Could not copy automatically. Please copy the URL manually.');
         });
 
         $(document).on('click', '#insertToEditor1', () => insertImageToEditor('#my-editor'));
@@ -607,15 +606,15 @@
         function insertImageToEditor(selector) {
             const url = $('#lastUploadUrl').val();
             if (!url) {
-                setMsg('Belum ada URL. Upload dulu.', true);
+                setMsg('No URL available. Please upload an image first.', true);
                 return;
             }
             try {
                 $(selector).summernote('editor.insertImage', url, img => img.attr('alt', 'uploaded'));
-                setMsg('Gambar dimasukkan ke editor.');
+                setMsg('Image inserted into the editor.');
             } catch (e) {
                 $(selector).summernote('editor.insertText', url);
-                setMsg('Editor tidak menerima image, URL disisipkan sebagai teks.');
+                setMsg('The editor could not insert the image, so the URL was inserted as text.');
             }
             setTimeout(() => showResultPanel(false), 1200);
         }

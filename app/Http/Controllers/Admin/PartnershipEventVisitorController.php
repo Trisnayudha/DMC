@@ -130,7 +130,7 @@ class PartnershipEventVisitorController extends Controller
 
         PartnershipEventVisitor::create($data);
 
-        return redirect()->back()->with('success', 'Visitor berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Visitor added successfully.');
     }
 
     public function update(Request $request, $slug, $id)
@@ -140,7 +140,7 @@ class PartnershipEventVisitorController extends Controller
 
         $visitor->update($this->validateVisitor($request));
 
-        return redirect()->back()->with('success', 'Visitor berhasil diupdate.');
+        return redirect()->back()->with('success', 'Visitor updated successfully.');
     }
 
     public function destroy($slug, $id)
@@ -148,7 +148,7 @@ class PartnershipEventVisitorController extends Controller
         $event = $this->findEvent($slug);
         PartnershipEventVisitor::where('events_id', $event->id)->findOrFail($id)->delete();
 
-        return redirect()->back()->with('success', 'Visitor berhasil dihapus.');
+        return redirect()->back()->with('success', 'Visitor deleted successfully.');
     }
 
     /**
@@ -174,7 +174,7 @@ class PartnershipEventVisitorController extends Controller
 
         $email = strtolower(trim((string) $visitor->business_email));
         if ($email === '') {
-            return redirect()->back()->with('error', 'Visitor ini belum punya Business Email — lengkapi emailnya dulu sebelum didaftarkan sebagai member.');
+            return redirect()->back()->with('error', 'This visitor has no business email. Add one before registering them as a member.');
         }
 
         $existingUser = User::where('email', $email)->first();
@@ -183,7 +183,7 @@ class PartnershipEventVisitorController extends Controller
             && (in_array($existingUser->status_member, ['active', 'pending', 'declined'], true)
                 || (!$isDeactivated && !$this->isProvisionalUser($existingUser)));
         if ($alreadyRegistered) {
-            return redirect()->back()->with('error', "Email {$email} sudah terdaftar sebagai member (status: " . ($existingUser->status_member ?: '-') . "). Tidak didaftarkan ulang.");
+            return redirect()->back()->with('error', "Email {$email} is already registered as a member (status: " . ($existingUser->status_member ?: '-') . "). They were not registered again.");
         }
 
         DB::beginTransaction();
@@ -266,10 +266,10 @@ class PartnershipEventVisitorController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal mendaftarkan visitor sebagai member, silakan coba lagi.');
+            return redirect()->back()->with('error', 'Failed to register the visitor as a member. Please try again.');
         }
 
-        return redirect()->back()->with('success', "Visitor berhasil didaftarkan sebagai calon member ({$email}). Email waiting-approval sudah dikirim, status: Pending Verification — lanjutkan verifikasi di menu Members DMC.");
+        return redirect()->back()->with('success', "Visitor registered as a prospective member ({$email}). A waiting-for-approval email was sent. Status: Pending Verification — continue verification in Members DMC.");
     }
 
     private function isProvisionalUser(User $user): bool
@@ -293,9 +293,9 @@ class PartnershipEventVisitorController extends Controller
         $import = new PartnershipEventVisitorImport($event->id);
         Excel::import($import, $request->file('file'));
 
-        $message = "Import selesai. {$import->getCreated()} visitor ditambahkan, {$import->getUpdated()} diupdate.";
+        $message = "Import complete. {$import->getCreated()} visitors added and {$import->getUpdated()} updated.";
         if ($import->getSkipped() > 0) {
-            $message .= " {$import->getSkipped()} row dilewati.";
+            $message .= " {$import->getSkipped()} rows skipped.";
         }
 
         if (!empty($import->getErrors())) {
@@ -311,8 +311,8 @@ class PartnershipEventVisitorController extends Controller
         $event->has_giveaway = !$event->has_giveaway;
         $event->save();
 
-        $status = $event->has_giveaway ? 'diaktifkan' : 'dinonaktifkan';
-        return redirect()->back()->with('success', "Giveaway untuk event \"{$event->name}\" berhasil {$status}.");
+        $status = $event->has_giveaway ? 'enabled' : 'disabled';
+        return redirect()->back()->with('success', "Giveaway for event \"{$event->name}\" was {$status}.");
     }
 
     /**
@@ -421,7 +421,7 @@ class PartnershipEventVisitorController extends Controller
 
         $validator->after(function ($validator) use ($request) {
             if (empty($request->company_name) && empty($request->name) && empty($request->business_email) && empty($request->mobile_number)) {
-                $validator->errors()->add('name', 'Isi minimal salah satu: Company Name, Name, Business Email, atau Mobile Number.');
+                $validator->errors()->add('name', 'Enter at least one: company name, name, business email, or mobile number.');
             }
         });
 

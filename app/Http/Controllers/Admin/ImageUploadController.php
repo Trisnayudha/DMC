@@ -21,7 +21,7 @@ class ImageUploadController extends Controller
             if (!$file->isValid()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'File upload tidak valid.'
+                    'message' => 'The uploaded file is invalid.'
                 ], 422);
             }
 

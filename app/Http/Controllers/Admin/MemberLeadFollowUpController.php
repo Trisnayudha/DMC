@@ -256,14 +256,14 @@ class MemberLeadFollowUpController extends Controller
         if ($user->status_member !== 'active') {
             return response()->json([
                 'success' => false,
-                'message' => 'Hanya member yang sudah approved (active) yang bisa dimasukkan ke Lead Follow-Up.',
+                'message' => 'Only approved (active) members can be added to Lead Follow-Up.',
             ], 422);
         }
 
         if (MemberLeadFollowUp::where('user_id', $user->id)->where('result', MemberLeadFollowUp::RESULT_PENDING)->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Member ini sudah ada di Lead Follow-Up (status pending).',
+                'message' => 'This member already has a pending lead in Lead Follow-Up.',
             ], 422);
         }
 
@@ -281,7 +281,7 @@ class MemberLeadFollowUpController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => $user->name . ' ditambahkan ke Lead Follow-Up.',
+            'message' => $user->name . ' was added to Lead Follow-Up.',
         ]);
     }
 

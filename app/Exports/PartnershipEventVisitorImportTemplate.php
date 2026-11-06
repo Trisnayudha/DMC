@@ -42,9 +42,9 @@ class PartnershipEventVisitorImportTemplate implements FromArray, WithHeadings, 
             'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'CC0000']],
         ]);
 
-        $sheet->getComment('A1')->getText()->createTextRun('Opsional. Nomor urut, tidak disimpan ke database.');
-        $sheet->getComment('B1')->getText()->createTextRun('Wajib diisi salah satu antara Company Name atau Name.');
-        $sheet->getComment('C1')->getText()->createTextRun('Wajib diisi salah satu antara Company Name atau Name.');
+        $sheet->getComment('A1')->getText()->createTextRun('Optional row number; not saved to the database.');
+        $sheet->getComment('B1')->getText()->createTextRun('Provide at least one of Company Name, Name, Business Email, or Mobile Number.');
+        $sheet->getComment('C1')->getText()->createTextRun('Provide at least one of Company Name, Name, Business Email, or Mobile Number.');
 
         return [];
     }

@@ -76,7 +76,7 @@ class PartnershipEventVisitorImport implements ToCollection, WithHeadingRow
 
             if (!$hasIdentity) {
                 if (!empty($data)) {
-                    $this->errors[] = "Row {$rowNum}: dilewati, Company Name/Name/Business Email/Mobile Number semuanya kosong.";
+                    $this->errors[] = "Row {$rowNum}: skipped because Company Name, Name, Business Email, and Mobile Number are all empty.";
                     $this->skipped++;
                 }
                 continue;

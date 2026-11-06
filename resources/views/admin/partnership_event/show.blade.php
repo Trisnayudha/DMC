@@ -68,7 +68,7 @@
                     <div class="col-md-4 mb-2 mb-md-0">
                         <div class="card mb-0">
                             <div class="card-body text-center py-3">
-                                <div style="font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:#adb5bd; font-weight:600;">Total Visitor</div>
+                                <div style="font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:#adb5bd; font-weight:600;">Total Visitors</div>
                                 <div style="font-size:26px; font-weight:700; color:#495057;">{{ $totalVisitors }}</div>
                             </div>
                         </div>
@@ -108,22 +108,22 @@
                             <form action="{{ route('admin.partnership_events.toggle_giveaway', $event->slug) }}" method="POST" class="mb-0">
                                 @csrf
                                 @if ($event->has_giveaway)
-                                    <button type="submit" class="btn btn-sm btn-success" title="Giveaway saat ini AKTIF untuk booth event ini. Klik untuk mematikan.">
+                                    <button type="submit" class="btn btn-sm btn-success" title="The booth giveaway is enabled. Click to disable it.">
                                         <i class="fas fa-gift"></i> Giveaway: <strong>ON</strong>
                                     </button>
                                 @else
-                                    <button type="submit" class="btn btn-sm btn-secondary" title="Giveaway saat ini NONAKTIF untuk booth event ini. Klik untuk menyalakan.">
+                                    <button type="submit" class="btn btn-sm btn-secondary" title="The booth giveaway is disabled. Click to enable it.">
                                         <i class="fas fa-ban"></i> Giveaway: <strong>OFF</strong>
                                     </button>
                                 @endif
                             </form>
 
-                            <a href="{{ route('admin.event_conversions.index', ['search' => $event->name, 'type' => 'supporting']) }}" class="btn btn-sm btn-outline-info" title="Lihat Analisis Konversi Member">
+                            <a href="{{ route('admin.event_conversions.index', ['search' => $event->name, 'type' => 'supporting']) }}" class="btn btn-sm btn-outline-info" title="View member conversion analytics">
                                 <i class="fas fa-chart-line"></i> Conversion Analytics
                             </a>
 
-                            <a href="{{ url('visit/' . $event->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Buka Form Booth Visitor / Salin Link untuk QR Code">
-                                <i class="fas fa-external-link-alt"></i> Buka Form Booth
+                            <a href="{{ url('visit/' . $event->slug) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Open the booth visitor form or copy its link for a QR code">
+                                <i class="fas fa-external-link-alt"></i> Open Booth Form
                             </a>
                         </div>
                     </div>
@@ -132,14 +132,14 @@
                         <form method="GET" action="{{ route('admin.partnership_events.show', $event->slug) }}" class="mb-3">
                             <div class="form-row align-items-end">
                                 <div class="form-group col-md-5 mb-2">
-                                    <label class="mb-1">Cari Visitor</label>
+                                    <label class="mb-1">Search Visitors</label>
                                     <input type="text" name="search" class="form-control" value="{{ $search }}"
                                         placeholder="Company Name / Name / Email">
                                 </div>
                                 <div class="form-group col-md-3 mb-2">
                                     <label class="mb-1">Membership</label>
                                     <select name="membership" class="form-control">
-                                        <option value="" {{ $membership === '' ? 'selected' : '' }}>Semua</option>
+                                        <option value="" {{ $membership === '' ? 'selected' : '' }}>All</option>
                                         <option value="member" {{ $membership === 'member' ? 'selected' : '' }}>Member</option>
                                         <option value="visitor" {{ $membership === 'visitor' ? 'selected' : '' }}>Non-Member (Visitor)</option>
                                     </select>
@@ -154,7 +154,7 @@
                         <div class="d-flex mb-3" style="gap:8px; flex-wrap:wrap;">
                             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#visitorFormModal"
                                 onclick="openAddVisitorModal()">
-                                <i class="fas fa-plus"></i> Tambah Visitor
+                                <i class="fas fa-plus"></i> Add Visitor
                             </button>
 
                             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#importModal">
@@ -221,7 +221,7 @@
                                                         {{ $existingStatus === 'pending' ? 'Pending Verification' : 'Declined' }}
                                                     </span>
                                                     <button type="button" class="btn btn-xs btn-outline-secondary" style="font-size:11px; padding:2px 6px;" disabled
-                                                        title="Sudah terdaftar di database ({{ $existingStatus }})">
+                                                        title="Already registered in the database ({{ $existingStatus }})">
                                                         <i class="fas fa-user-plus"></i> Register as Member
                                                     </button>
                                                 @else
@@ -235,7 +235,7 @@
                                                         </button>
                                                     @else
                                                         <button type="button" class="btn btn-xs btn-outline-secondary" style="font-size:11px; padding:2px 6px;" disabled
-                                                            title="Business Email kosong, lengkapi dulu">
+                                                            title="Business email is missing; add it first">
                                                             <i class="fas fa-user-plus"></i> Register as Member
                                                         </button>
                                                     @endif
@@ -250,7 +250,7 @@
                                                 <form method="POST"
                                                     action="{{ route('admin.partnership_events.visitors.destroy', [$event->slug, $visitor->id]) }}"
                                                     style="display:inline;"
-                                                    onsubmit="return confirm('Hapus visitor {{ addslashes($visitor->name ?: $visitor->company_name) }}?')">
+                                                    onsubmit="return confirm('Delete visitor {{ addslashes($visitor->name ?: $visitor->company_name) }}?')">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-danger">
                                                         <i class="fas fa-trash"></i>
@@ -260,7 +260,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="15" class="text-center text-muted">Belum ada data visitor untuk event ini.</td>
+                                            <td colspan="15" class="text-center text-muted">No visitors have been recorded for this event.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -282,7 +282,7 @@
 @push('bottom')
     <script>
         function openAddVisitorModal() {
-            $('#visitorFormModalTitle').text('Tambah Visitor');
+            $('#visitorFormModalTitle').text('Add Visitor');
             $('#visitorForm').attr('action', '{{ route('admin.partnership_events.visitors.store', $event->slug) }}');
             $('#visitorForm')[0].reset();
         }

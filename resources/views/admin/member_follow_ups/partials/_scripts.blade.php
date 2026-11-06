@@ -136,11 +136,11 @@
         var email = $('#efm-email').val().trim();
 
         if (!name || !email) {
-            toastr.error('Nama dan email wajib diisi.');
+            toastr.error('Name and email are required.');
             return;
         }
 
-        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm mr-1"></span> Menyimpan...');
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm mr-1"></span> Saving...');
 
         $.ajax({
             url: btn.data('update-url'),
@@ -170,20 +170,20 @@
                     $('#editFollowUpMemberModal').modal('hide');
                     setTimeout(function () { location.reload(); }, 1200);
                 } else {
-                    toastr.error(res.message || 'Gagal menyimpan.');
-                    btn.prop('disabled', false).html('<i class="fas fa-user-check mr-1"></i> Simpan & Verify');
+                    toastr.error(res.message || 'Failed to save.');
+                    btn.prop('disabled', false).html('<i class="fas fa-user-check mr-1"></i> Save & Verify');
                 }
             },
             error: function (xhr) {
-                var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Terjadi kesalahan server.';
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'A server error occurred.';
                 toastr.error(msg);
-                btn.prop('disabled', false).html('<i class="fas fa-user-check mr-1"></i> Simpan & Verify');
+                btn.prop('disabled', false).html('<i class="fas fa-user-check mr-1"></i> Save & Verify');
             }
         });
     });
 
     $('#editFollowUpMemberModal').on('hidden.bs.modal', function () {
-        $('#efm-btn-submit').prop('disabled', false).html('<i class="fas fa-user-check mr-1"></i> Simpan & Verify');
+        $('#efm-btn-submit').prop('disabled', false).html('<i class="fas fa-user-check mr-1"></i> Save & Verify');
     });
 
     // ──────────────────────────────────────────────────────────────────────
@@ -201,13 +201,13 @@
         $('#userLogsModal').modal('show');
 
         var fieldLabels = {
-            name: 'Nama', email: 'Email', job_title: 'Job Title', phone: 'Phone',
+            name: 'Name', email: 'Email', job_title: 'Job Title', phone: 'Phone',
             prefix: 'Prefix', company_name: 'Company Name', company_website: 'Company Website',
             company_category: 'Company Category', company_other: 'Company Other',
             address: 'Address', city: 'City', portal_code: 'Postal Code', country: 'Country',
             prefix_office_number: 'Prefix Office Number', office_number: 'Office Number',
             full_office_number: 'Full Office Number', is_verified: 'Company Verified',
-            status_member: 'Status Member', tier: 'Tier'
+            status_member: 'Member Status', tier: 'Tier'
         };
 
         $.ajax({ url: url, method: 'GET', dataType: 'json' })
@@ -238,7 +238,7 @@
             })
             .fail(function () {
                 $('#logs-loading').hide();
-                $('#logs-empty').text('Gagal memuat log.').show();
+                $('#logs-empty').text('Failed to load change history.').show();
             });
     });
 

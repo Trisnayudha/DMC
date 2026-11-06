@@ -10,17 +10,17 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-info py-2 small">
-                    Hanya member yang sudah approved. Untuk member lama yang tidak otomatis masuk ke Lead Follow-Up.
-                    SLA kirim sponsor kit: 48 jam dari sekarang.
+                    Only approved members can be added. Use this for existing members who were not automatically added to Lead Follow-Up.
+                    Sponsor kit deadline: 48 hours from now.
                 </div>
                 <div class="form-group">
                     <label>Member <span class="text-danger">*</span></label>
                     <select id="al-user" class="form-control" style="width:100%;"></select>
-                    <small class="text-muted">Ketik minimal 2 huruf: nama, email, atau perusahaan.</small>
+                    <small class="text-muted">Enter at least 2 characters from the name, email, or company.</small>
                 </div>
                 <div class="form-group mb-0">
                     <label>Notes</label>
-                    <textarea id="al-notes" rows="2" class="form-control" maxlength="2000" placeholder="Opsional"></textarea>
+                    <textarea id="al-notes" rows="2" class="form-control" maxlength="2000" placeholder="Optional"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
