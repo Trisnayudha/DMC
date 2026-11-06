@@ -48,7 +48,7 @@ class SurveyController extends Controller
 
         SurveyResponse::create($data);
 
-        return redirect('/survey/the-71st-djakarta-mining-club-networking-event')->with('ok', true);
+        return redirect('/survey/indonesia-energy-market-briefing-2026')->with('ok', true);
     }
 
 
