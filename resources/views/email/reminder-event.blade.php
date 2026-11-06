@@ -184,6 +184,11 @@
             @endif
         </p>
 
+            @if($isEnergyBriefing)
+                <p style="margin-top: 20px; margin-bottom: 5px; line-height: 1.5;"><strong>Have a question for our speakers?</strong><br>Submit your question ahead of the event.</p>
+                <p style="margin: 12px 0 20px;"><a href="{{ route('event-questions.create') }}" style="background-color: #d90016; color: #ffffff; display: inline-block; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-weight: bold;">Submit Your Question</a></p>
+            @endif
+
         <p style="margin-top: 20px; margin-bottom: 5px;"><strong>Collecting Your Badge</strong></p>
         <ul style="margin-top: 0; padding-left: 20px; line-height: 1.5;">
             <li>Please bring your business card to exchange for a badge at the registration table.</li>

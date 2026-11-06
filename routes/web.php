@@ -95,6 +95,9 @@ Route::get('web-view-sponsor', function () {
     return view('maps');
 });
 
+Route::get('event-questions/indonesian-energy-market-briefing-2026', [\App\Http\Controllers\EventQuestionController::class, 'create'])->name('event-questions.create');
+Route::post('event-questions/indonesian-energy-market-briefing-2026', [\App\Http\Controllers\EventQuestionController::class, 'store'])->middleware('throttle:10,1')->name('event-questions.store');
+
 Route::get('survey/indonesia-energy-market-briefing-2026', function () {
     // return redirect()->away('https://docs.google.com/forms/d/1QqFD5UTk-PQvoQucvscDZeqwIktAkhNRBivbgIVP8Ig');
     return view('survey.index');
@@ -279,6 +282,7 @@ Route::post('admin/login', [\App\Http\Controllers\Auth\CmsLoginController::class
 Route::post('admin/logout', [\App\Http\Controllers\Auth\CmsLoginController::class, 'logout'])->name('cms.logout');
 
 Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
+    Route::get('event-questions', [\App\Http\Controllers\Admin\EventQuestionController::class, 'index'])->name('admin.event-questions.index');
     Route::get('member-surveys', [MemberSurveyResponseController::class, 'index'])->name('admin.member-surveys.index');
     Route::get('member-surveys/{memberSurvey}', [MemberSurveyResponseController::class, 'show'])->name('admin.member-surveys.show');
 
