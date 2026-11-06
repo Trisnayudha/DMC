@@ -19,8 +19,7 @@
         }
 
         .header-email {
-            padding: 60px;
-            padding-bottom: 20px;
+            padding: 0 40px 20px;
             border-bottom-right-radius: 33%;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
@@ -82,10 +81,9 @@
         }
 
         .img-logo {
-            height: 200px;
+            width: 100%;
+            height: auto;
             display: block;
-            margin-left: auto;
-            margin-right: auto;
 
         }
 
@@ -121,14 +119,15 @@
 
 <body>
 
+    @php($isEnergyBriefing = ($event_slug ?? null) === 'indonesian-energy-market-briefing-2026')
     <div class="body">
         <div class="header-email">
-            <img src="https://membership.djakarta-miningclub.com/image/the71banner.png" alt="Image" class="img-logo">
+            <img src="{{ $isEnergyBriefing ? asset('image/banner_mccloskey_v8.png') : 'https://membership.djakarta-miningclub.com/image/the71banner.png' }}" alt="Event banner" class="img-logo" style="max-width: 100%; height: auto;">
         </div>
         <div class="body-email">
             <p>Dear {{ $users_name }},</p>
-            <p>You are registered to attend {{ $events_name }} | PwC's 2026 Mine Report: Ambition to Action, taking
-                place tomorrow. Your registration
+            <p>You are registered to attend {{ $events_name }}@unless($isEnergyBriefing) | PwC's 2026 Mine Report: Ambition to Action, taking
+                place tomorrow@endunless. Your registration
                 number is
                 <b
                     style="background-color: #F1B22C;
@@ -142,62 +141,49 @@
                 border-radius: 16px;">
                     {{ $code_payment }} </b>
             </p>
-            <table class="table">
+            <p style="margin-top: 20px; margin-bottom: 5px;"><strong>EVENT DETAILS :</strong></p>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                 <tr>
-                    <th colspan="3">
-                        EVENT DETAILS :
-                    </th>
+                    <td style="width: 80px; padding: 4px 0; vertical-align: top; font-weight: bold; font-size: 13px; color: #333;">Date</td>
+                    <td style="width: 15px; padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">:</td>
+                    <td style="padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">{{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }}</td>
                 </tr>
                 <tr>
-                    <th style="width: 70px; white-space: nowrap;">Date</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">
-                        {{ date('l', strtotime($start_date)) . ' - ' . date(' j F Y', strtotime($end_date)) }} </td>
-                </tr>
-                <tr>
-                    <th style="width: 70px; white-space: nowrap;">Time</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">
+                    <td style="width: 80px; padding: 4px 0; vertical-align: top; font-weight: bold; font-size: 13px; color: #333;">Time</td>
+                    <td style="width: 15px; padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">:</td>
+                    <td style="padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">
                         {{ date('h.i A', strtotime($start_time)) . ' - ' . date('h.i A', strtotime($end_time)) }}
-                        (Followed
-                        by Networking Dinner & Drinks)
+                        @unless($isEnergyBriefing)(Followed by Networking Dinner & Drinks)@endunless
                     </td>
                 </tr>
                 <tr>
-                    <th style="width: 70px; white-space: nowrap;">Venue</th>
-                    <th style="width: 10px; padding-left: 0; padding-right: 0;">:</th>
-                    <td style="padding-left: 4px;">The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26,
-                        Kebayoran Baru, 12160, Indonesia)</td>
+                    <td style="width: 80px; padding: 4px 0; vertical-align: top; font-weight: bold; font-size: 13px; color: #333;">Venue</td>
+                    <td style="width: 15px; padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">:</td>
+                    <td style="padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">The Dharmawangsa Hotel Jakarta (Jl. Brawijaya Raya No. 26, Kebayoran Baru, 12160, Indonesia)</td>
                 </tr>
             </table>
 
-            <p>You may access the event details and agenda here:
-                (https://membership.djakarta-miningclub.com/events/2026/2/ambition-to-action)</p>
-
-            <br>
-            <p>
-                <b>
-                    Collecting Your Badge
-                </b>
+            <p style="margin-top: 20px; line-height: 1.5;">You may access the event details and agenda here:
+                @if($isEnergyBriefing)
+                    <a href="https://www.djakarta-miningclub.com/events/{{ $event_slug }}">https://www.djakarta-miningclub.com/events/{{ $event_slug }}</a>
+                @else
+                    (https://membership.djakarta-miningclub.com/events/2026/2/ambition-to-action)
+                @endif
             </p>
-            <p>
-            <ul>
+
+            <p style="margin-top: 20px; margin-bottom: 5px;"><strong>Collecting Your Badge</strong></p>
+            <ul style="margin-top: 0; padding-left: 20px; line-height: 1.5;">
                 <li>Please bring your business card to exchange for a badge at the registration table.</li>
                 <li>Kindly note that collecting a badge on behalf of someone else is not permitted. All attendees must
-                    collect their own badge and present a matching business card to gain entry.
-                </li>
+                    collect their own badge and present a matching business card to gain entry.</li>
             </ul>
-            </p>
-            <p><b>IMPORTANT:</b> If you are unable to attend, please contact our team for a substitution. If no
+            <p style="margin-top: 20px; line-height: 1.5;"><b>IMPORTANT:</b> If you are unable to attend, please contact our team for a substitution. If no
                 replacement is provided, we may offer your spot to the next registrant on the waitlist.</p>
-            <br>
-            <p>Should you require any assistance, please contact us at register@djakarta-miningclub.com or +62
+            <p style="margin-top: 20px; line-height: 1.5;">Should you require any assistance, please contact us at register@djakarta-miningclub.com or +62
                 811-1937-399.</p>
-            <p>
-                We look forward to meeting you in person. Thank you.</p>
-            <br>
-            <p>Yours Sincerely,</p>
-            <span>The Djakarta Mining Club Team</span>
+            <p style="margin-top: 20px; line-height: 1.5;">We look forward to meeting you in person. Thank you.</p>
+            <p style="margin-top: 25px; line-height: 1.5; margin-bottom: 0;">Yours Sincerely,<br />
+                The Djakarta Mining Club Team</p>
         </div>
         <div class="footer-email">
             Do not reply to emails to this email address. This email is sent automatically by our system.

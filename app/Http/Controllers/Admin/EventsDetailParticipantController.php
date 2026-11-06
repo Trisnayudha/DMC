@@ -422,6 +422,7 @@ The Djakarta Mining Club Team';
             'company_address' => $company->address,
             'job_title' => $profile->job_title,
             'events_name' => $event->name,
+            'event_slug' => $event->slug,
             'start_date' => $event->start_date,
             'end_date' => $event->end_date,
             'start_time' => $event->start_time,
@@ -435,10 +436,14 @@ The Djakarta Mining Club Team';
         try {
             $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
                 ->loadView('email.ticket', $data);
-            Mail::send('email.reminder-event', $data, function ($message) use ($email, $pdf, $codePayment, $event) {
+            Mail::send('email.reminder-event', $data, function ($message) use ($email, $pdf, $codePayment, $event, $data) {
                 $message->from('register@djakarta-miningclub.com');
                 $message->to($email);
-                $message->subject($codePayment . ' - Confirmation Reminder for ' . $event . '- PwC`s Mine Report: Ambition to Action');
+                $subject = $codePayment . ' - Confirmation Reminder for ' . $event;
+                if (($data['event_slug'] ?? null) !== 'indonesian-energy-market-briefing-2026') {
+                    $subject .= '- PwC`s Mine Report: Ambition to Action';
+                }
+                $message->subject($subject);
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
             });
         } catch (\Exception $e) {
