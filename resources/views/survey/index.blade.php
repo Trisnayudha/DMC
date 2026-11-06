@@ -368,7 +368,7 @@
             }).then(function() {
 
                 window.open(
-                    "https://drive.google.com/drive/folders/1ZZD_PkGOV41hJRv2zxbddRVX4gRLH_ZO?usp=sharing",
+                    "https://drive.google.com/drive/folders/13rZcnWDYB0UP8ZM3_Sj_kE8u-yx9KlDX?usp=drive_link",
                     "_blank"
                 );
 
