@@ -8,15 +8,16 @@
             'Position / Title' => $response->position, 'Email' => $response->email, 'Mobile number' => $response->phone,
             'LinkedIn / Professional Profile' => $response->linkedin,
         ],
-        'Program Expectations & Input' => [
-            'Event types' => $response->event_types, 'Other event type' => $response->event_types_other,
+        'Program Expectations & Feedback' => [
+            'Program types' => $response->event_types, 'Other program type' => $response->event_types_other,
             'Topics of interest' => $response->topics_interest, 'Recommended speakers' => $response->speaker_wishlist,
             'Award nominee' => $response->nominee_name, 'Nominee company / institution' => $response->nominee_company,
             'Reason for nomination' => $response->nominee_reason, 'Event improvement aspects' => $response->event_improvement_aspects,
             'Other event improvement' => $response->event_improvement_other, 'Previous event improvement feedback' => $response->event_improvement,
         ],
         'Marketing & Communication' => [
-            'Social media familiarity' => $response->social_familiarity, 'Platforms followed' => $response->platforms,
+            'Still receives DMC emails (EDM)' => $response->edm_received,
+            'Previous social media familiarity' => $response->social_familiarity, 'Platforms followed' => $response->platforms,
             'App & website awareness' => $response->app_awareness, 'App / website usage frequency' => $response->usage_frequency,
             'Preferred channels' => $response->preferred_channels, 'Email primary goal' => $response->email_primary_goal,
             'Other email goal' => $response->email_primary_goal_other, 'Preferred email frequency' => $response->email_frequency,

@@ -7,7 +7,7 @@
             <input type="{{ $type }}" name="{{ $name }}[]" value="{{ $option }}"
                 {{ in_array($option, $selected) ? 'checked' : '' }}>
             <span class="choice-indicator {{ $type === 'radio' ? 'is-radio' : '' }}"></span>
-            <span class="choice-label">{{ $option }}</span>
+            <span class="choice-label">{{ ($labels ?? [])[$option] ?? $option }}</span>
         </label>
     @endforeach
 </div>

@@ -42,6 +42,7 @@ class DmcMemberSurvey extends Model
          * 3. MARKETING & COMMUNICATION
          * ========================= */
         'social_familiarity',
+        'edm_received',
         'platforms',
         'app_awareness',
         'usage_frequency',

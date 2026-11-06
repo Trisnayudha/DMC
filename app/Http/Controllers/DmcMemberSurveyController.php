@@ -27,10 +27,11 @@ class DmcMemberSurveyController extends Controller
     {
         // ===== MASTER OPTIONS (BIAR AMAN & KONSISTEN) =====
         $eventTypes = [
-            'Workshops',
-            'Seminars',
-            'Networking Events',
-            'Webinars',
+            'Seminar/ Workshops/ Training Session',
+            'Conference/ Panel Discussion/ Expert Talk',
+            'Member Meetup/ Business Networking/ Informal Gatherings',
+            'Charity Events/ Community Engagement',
+            'Sport Activites/ Festive Celebrations',
             'Other',
         ];
 
@@ -72,7 +73,7 @@ class DmcMemberSurveyController extends Controller
             'event_types_other' => [Rule::requiredIf(in_array('Other', (array) $request->input('event_types', []), true)), 'nullable', 'string', 'max:255'],
             'nominee_reason' => 'nullable|string|max:255',
             'event_improvement_aspects' => 'nullable|array',
-            'event_improvement_aspects.*' => ['string', Rule::in(['Event Topics & Content', 'Speakers & Presentations', 'Event Format & Duration', 'Networking Opportunities', 'Venue & Facilities', 'Other'])],
+            'event_improvement_aspects.*' => ['string', Rule::in(['Program Topics & Content', 'Speakers & Presentation Quality', 'Program Format & Duration', 'Networking Opportunities', 'Venue & Facilities', 'Other'])],
             'event_improvement_other' => [Rule::requiredIf(in_array('Other', (array) $request->input('event_improvement_aspects', []), true)), 'nullable', 'string', 'max:255'],
             'email_frequency' => 'nullable|array|max:1',
             'email_frequency.*' => ['string', Rule::in(['1 email per week', '2 emails per week', '3 emails per week', 'Only for important announcements and event updates'])],
@@ -96,15 +97,8 @@ class DmcMemberSurveyController extends Controller
             /* =========================
              * 3. MARKETING & COMMUNICATION
              * ========================= */
-            'social_familiarity'   => 'required|array|min:1',
-            'social_familiarity.*' => [
-                'string',
-                Rule::in([
-                    'Very familiar',
-                    'Somewhat familiar',
-                    'Not familiar',
-                ]),
-            ],
+            'edm_received' => 'required|array|size:1',
+            'edm_received.*' => ['string', Rule::in(['Yes', 'No', 'Not sure'])],
 
             'platforms' => ['nullable', 'array', function ($attribute, $value, $fail) {
                 if (is_array($value) && in_array("I don't follow any", $value, true) && count($value) > 1) {
@@ -150,6 +144,7 @@ class DmcMemberSurveyController extends Controller
         ]);
 
         // ===== METADATA =====
+        $data['edm_received'] = $data['edm_received'][0];
         $data['ip_address'] = $request->ip();
         $data['user_agent'] = substr($request->userAgent() ?? '', 0, 255);
 
@@ -195,16 +190,16 @@ class DmcMemberSurveyController extends Controller
                 'Mobile Number: ' . $text($survey->phone),
                 'LinkedIn / Professional Profile: ' . $text($survey->linkedin),
                 '',
-                '*2. Program Expectations & Input*',
-                'Event types: ' . $list($survey->event_types) . ($survey->event_types_other ? ' (' . $text($survey->event_types_other) . ')' : ''),
+                '*2. Program Expectations & Feedback*',
+                'Program types: ' . $list($survey->event_types) . ($survey->event_types_other ? ' (' . $text($survey->event_types_other) . ')' : ''),
                 'Topics of interest: ' . $text($survey->topics_interest),
                 'Speaker wishlist: ' . $text($survey->speaker_wishlist),
                 'Award nominee: ' . $text($survey->nominee_name) . ' / ' . $text($survey->nominee_company),
                 'Reason for nomination: ' . $text($survey->nominee_reason),
                 'Event improvements: ' . $list($survey->event_improvement_aspects) . ($survey->event_improvement_other ? ' (' . $text($survey->event_improvement_other) . ')' : ''),
                 '',
-                '*3. Marketing & Communication Awareness*',
-                'Social media familiarity: ' . $list($survey->social_familiarity),
+                '*3. Marketing & Communications Awareness*',
+                'Still receives DMC emails (EDM): ' . $text($survey->edm_received),
                 'Platforms followed: ' . $list($survey->platforms),
                 'App & website awareness: ' . $list($survey->app_awareness),
                 'Usage frequency: ' . $list($survey->usage_frequency),

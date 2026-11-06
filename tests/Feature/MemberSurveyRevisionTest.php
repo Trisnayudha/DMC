@@ -23,6 +23,7 @@ class MemberSurveyRevisionTest extends TestCase
         (new \CreateDmcMemberSurveysTable)->up();
         (new \AddEmailPreferenceFieldsToDmcMemberSurveysTable)->up();
         (new \AddRevisionFieldsToDmcMemberSurveys)->up();
+        (require database_path('migrations/2026_11_06_000001_add_edm_received_to_dmc_member_surveys.php'))->up();
     }
 
     private function input(array $overrides = []): array
@@ -31,9 +32,9 @@ class MemberSurveyRevisionTest extends TestCase
             'full_name' => 'Test Member', 'company' => 'Test Company', 'email' => 'member@example.com',
             'event_types' => ['Other'], 'event_types_other' => 'Site visits',
             'nominee_reason' => 'Industry leadership',
-            'event_improvement_aspects' => ['Speakers & Presentations', 'Other'],
+            'event_improvement_aspects' => ['Speakers & Presentation Quality', 'Other'],
             'event_improvement_other' => 'Accessibility',
-            'social_familiarity' => ['Very familiar'], 'platforms' => ['WhatsApp Channel'],
+            'edm_received' => ['Yes'], 'platforms' => ['WhatsApp Channel'],
             'app_awareness' => ['Yes, both'], 'email_frequency' => ['2 emails per week'],
         ], $overrides);
     }
@@ -45,9 +46,10 @@ class MemberSurveyRevisionTest extends TestCase
         $request = Request::create('/survey-member', 'POST', $this->input());
         (new DmcMemberSurveyController)->store($request);
         $survey = DmcMemberSurvey::firstOrFail();
+        $this->assertSame('Yes', $survey->edm_received);
         $this->assertSame('Site visits', $survey->event_types_other);
         $this->assertSame('Industry leadership', $survey->nominee_reason);
-        $this->assertSame(['Speakers & Presentations', 'Other'], $survey->event_improvement_aspects);
+        $this->assertSame(['Speakers & Presentation Quality', 'Other'], $survey->event_improvement_aspects);
         $this->assertSame('Accessibility', $survey->event_improvement_other);
         $this->assertSame(['WhatsApp Channel'], $survey->platforms);
         $this->assertSame(['2 emails per week'], $survey->email_frequency);
@@ -57,6 +59,22 @@ class MemberSurveyRevisionTest extends TestCase
     {
         $this->expectException(ValidationException::class);
         (new DmcMemberSurveyController)->store(Request::create('/survey-member', 'POST', $this->input(['email_frequency' => ['Every day']])));
+    }
+
+    public function test_new_program_choices_and_edm_answer_are_saved(): void
+    {
+        $mock = \Mockery::mock('overload:App\\Helpers\\WhatsappApi');
+        $mock->shouldReceive('WhatsappMessageGroup')->once();
+        (new DmcMemberSurveyController)->store(Request::create('/survey-member', 'POST', $this->input([
+            'event_types' => ['Conference/ Panel Discussion/ Expert Talk', 'Sport Activites/ Festive Celebrations'],
+            'event_types_other' => null,
+            'event_improvement_aspects' => ['Program Topics & Content', 'Program Format & Duration'],
+            'event_improvement_other' => null,
+            'edm_received' => ['No'],
+        ])));
+        $survey = DmcMemberSurvey::firstOrFail();
+        $this->assertSame('No', $survey->edm_received);
+        $this->assertSame(['Program Topics & Content', 'Program Format & Duration'], $survey->event_improvement_aspects);
     }
 
     public function test_all_other_answers_require_a_description(): void
@@ -90,7 +108,7 @@ class MemberSurveyRevisionTest extends TestCase
         $mock = \Mockery::mock('overload:App\\Helpers\\WhatsappApi');
         $mock->shouldReceive('WhatsappMessageGroup')->once();
         (new DmcMemberSurveyController)->store(Request::create('/survey-member', 'POST', $this->input([
-            'event_types' => ['Workshops'], 'event_types_other' => null,
+            'event_types' => ['Seminar/ Workshops/ Training Session'], 'event_types_other' => null,
             'event_improvement_aspects' => [], 'event_improvement_other' => null,
             'email_primary_goal' => [], 'email_primary_goal_other' => null,
             'platforms' => ["I don't follow any"],

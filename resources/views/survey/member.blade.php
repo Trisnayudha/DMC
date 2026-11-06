@@ -1,4 +1,4 @@
-@php($title = '2027 Djakarta Mining Club Member Survey')
+@php($title = 'Annual Member Feedback Survey')
 <!doctype html>
 <html lang="en">
 
@@ -30,7 +30,6 @@
 
         <div class="card-survey">
 
-            {{-- BANNER --}}
             <div class="survey-banner">
                 <img src="{{ asset('image/survey/banner-dmc-2027.png') }}" alt="DMC Survey Banner 2027">
             </div>
@@ -49,27 +48,18 @@
 
                 <p>Dear Members,</p>
 
-                <p>
-                    We value your input and would like to hear your thoughts to help us improve our programs and
-                    services in 2027.
-                    This survey will take approximately <strong>5–10 minutes</strong> to complete.
-                </p>
-
+                <p>We value your input and would love to hear your feedback to help us improve our programs and services in 2027. This survey will take approximately <strong>5–10 minutes</strong> to complete.</p>
+                <p>Your feedback will help us:</p>
                 <ul>
-                    <li>Plan events and programs that match your interests and expectations</li>
-                    <li>Identify preferred speakers for 2027 programs</li>
-                    <li>Understand your awareness and usage of our communication channels</li>
-                    <li>Recognize outstanding contributions to the Indonesian mining industry</li>
+                    <li>Plan programs that align with your interests and expectations.</li>
+                    <li>Better understand your awareness and use of our communication channels.</li>
+                    <li>Recognize outstanding contributions to the Indonesian mining industry.</li>
                 </ul>
-
-                <p class="mb-4">
-                    All responses will remain confidential and used solely to enhance the value of your membership
-                    experience.
-                    Thank you for taking the time to share your feedback.
-                </p>
+                <p>All responses will be kept confidential and used solely to enhance the value of your membership experience.</p>
+                <p class="mb-4">Thank you for taking the time to share your feedback. We truly appreciate your participation!</p>
 
                 <div id="survey-steps" class="stepper">
-                    @foreach (['Member Information Update', 'Program Expectations & Input', 'Marketing & Communication Awareness', 'Additional Feedback'] as $label)
+                    @foreach (['Member Information Update', 'Program Expectations & Feedback', 'Marketing & Communications Awareness', 'Additional Feedback'] as $label)
                         <div class="stepper-item">
                             <div class="stepper-bar"></div>
                             <span class="stepper-label">{{ $loop->iteration }}. {{ $label }}</span>

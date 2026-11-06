@@ -1,12 +1,12 @@
 <div class="step-pane" data-step="3">
-    <h2 class="panel-header-title">3. Marketing & Communication Awareness</h2>
+    <h2 class="panel-header-title">3. Marketing & Communications Awareness</h2>
 
     <div class="form-group">
-        <label>How familiar are you with our social media channels? <span class="req-star">*</span></label>
+        <label>Do you still receive emails (EDM) from DMC? <span class="req-star">*</span></label>
         @include('survey.partials.member._choice', [
-            'name' => 'social_familiarity',
+            'name' => 'edm_received',
             'type' => 'radio',
-            'options' => ['Very familiar', 'Somewhat familiar', 'Not familiar'],
+            'options' => ['Yes', 'No', 'Not sure'],
             'required' => true,
         ])
     </div>

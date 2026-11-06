@@ -37,6 +37,7 @@ class MemberSurveyResponsesAdminTest extends TestCase
         (new \CreateDmcMemberSurveysTable)->up();
         (new \AddEmailPreferenceFieldsToDmcMemberSurveysTable)->up();
         (new \AddRevisionFieldsToDmcMemberSurveys)->up();
+        (require database_path('migrations/2026_11_06_000001_add_edm_received_to_dmc_member_surveys.php'))->up();
         $this->admin = CmsUser::create(['name' => 'Admin', 'email' => 'admin@example.test', 'password' => Hash::make('secret'), 'role' => 'superadmin', 'is_active' => true]);
         CmsRole::where('key', 'member_team')->update(['permissions' => ['members']]);
         $this->member = CmsUser::create(['name' => 'Member team', 'email' => 'member@example.test', 'password' => Hash::make('secret'), 'role' => 'member_team', 'is_active' => true]);
@@ -48,7 +49,7 @@ class MemberSurveyResponsesAdminTest extends TestCase
             'full_name' => 'Jane Example', 'company' => 'Acme', 'email' => 'jane@example.test',
             'event_types' => ['Other'], 'event_types_other' => 'Site visit', 'nominee_reason' => 'Leadership',
             'event_improvement_aspects' => ['Other'], 'event_improvement_other' => 'More discussion',
-            'email_frequency' => ['2 emails per week'], 'social_familiarity' => ['Very familiar'],
+            'email_frequency' => ['2 emails per week'], 'social_familiarity' => ['Very familiar'], 'edm_received' => 'Not sure',
             'app_awareness' => ['No'], 'additional_feedback' => '<script>unsafe</script>', 'event_improvement' => 'Previous feedback',
         ]);
         $first->created_at = '2026-03-01 09:00:00'; $first->save();
@@ -56,7 +57,7 @@ class MemberSurveyResponsesAdminTest extends TestCase
         $second->created_at = '2025-03-01 09:00:00'; $second->save();
         $this->actingAs($this->admin, 'cms')->get('/admin/member-surveys?search=acme&year=2026')->assertOk()->assertSee('Jane Example')->assertDontSee('Other Person');
         $this->get('/admin/member-surveys?year=2025')->assertOk()->assertSee('Other Person')->assertDontSee('Jane Example');
-        $this->get('/admin/member-surveys/' . $first->id)->assertOk()->assertSee('Site visit')->assertSee('Leadership')->assertSee('More discussion')->assertSee('2 emails per week')->assertSee('Previous feedback')->assertSee('&lt;script&gt;unsafe&lt;/script&gt;', false)->assertDontSee('<script>unsafe</script>', false);
+        $this->get('/admin/member-surveys/' . $first->id)->assertOk()->assertSee('Site visit')->assertSee('Leadership')->assertSee('More discussion')->assertSee('2 emails per week')->assertSee('Not sure')->assertSee('Very familiar')->assertSee('Previous feedback')->assertSee('&lt;script&gt;unsafe&lt;/script&gt;', false)->assertDontSee('<script>unsafe</script>', false);
         $this->assertSame('Member Survey', CmsAccess::navigation($this->admin)['Member Team — Membership'][2]['label']);
     }
 
