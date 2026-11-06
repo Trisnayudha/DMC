@@ -108,7 +108,7 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     {
         $status = strtolower((string) ($status ?? ''));
         if ($status === 'active')      return 'Active';
-        if ($status === 'declined')    return 'Disqualified';
+        if ($status === 'declined')    return 'Declined';
         if ($status === 'deactivated') return 'Deactivated';
         return 'Pending';
     }

@@ -117,20 +117,20 @@
                 var tiers = res.tiers;
                 var total = res.total;
 
-                $('#company-category-total').text(fmt(total) + ' company verified');
+                $('#company-category-total').text(fmt(total) + ' verified companies');
                 $('#company-category-list').html(tiers.map(function(t, i) {
                     var categories = t.categories.map(function(c) {
                         return '<button type="button" class="company-category-item cc-sub" data-category="' + esc(c.name) + '"'
-                            + ' title="' + esc(c.name) + ' — klik untuk detail">'
+                            + ' title="' + esc(c.name) + ' — click for details">'
                             + '<span class="cc-name">' + esc(c.name)
-                            + (c.has_subcategories ? ' <i class="fas fa-sitemap text-muted ml-1" title="Punya subcategory"></i>' : '') + '</span>'
+                            + (c.has_subcategories ? ' <i class="fas fa-sitemap text-muted ml-1" title="Has subcategories"></i>' : '') + '</span>'
                             + '<span class="cc-count">' + fmt(c.count) + '</span>'
                             + '<span class="cc-pct">' + pct(c.count, total) + '%</span>'
                             + '</button>';
                     }).join('');
                     return '<div class="cc-tier-group">'
                         + '<button type="button" class="company-category-item cc-tier" data-tier="' + esc(t.name) + '"'
-                        + ' title="' + esc(t.name) + ' — klik untuk detail">'
+                        + ' title="' + esc(t.name) + ' — click for details">'
                         + '<span class="cc-dot" style="background:' + palette[i] + ';"></span>'
                         + '<span class="cc-name"><span class="text-muted">' + esc(t.label) + '</span> ' + esc(t.name) + '</span>'
                         + '<span class="cc-count">' + fmt(t.count) + '</span>'
@@ -163,9 +163,9 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(item) {
-                                        return ' ' + fmt(item.raw) + ' company (' + pct(item.raw, total) + '%)';
+                                        return ' ' + fmt(item.raw) + ' companies (' + pct(item.raw, total) + '%)';
                                     },
-                                    footer: function() { return 'Klik untuk detail'; }
+                                    footer: function() { return 'Click for details'; }
                                 }
                             }
                         },
@@ -177,7 +177,7 @@
                 });
             })
             .fail(function() {
-                $('#company-category-loading').text('Gagal memuat data company category.');
+                $('#company-category-loading').text('Failed to load company category data.');
             });
 
         $('#company-category-list').on('click', '.company-category-item', function() {

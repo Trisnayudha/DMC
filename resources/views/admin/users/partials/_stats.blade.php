@@ -38,7 +38,7 @@
             <div class="card card-statistic-1">
                 <div class="card-icon bg-danger"><i class="fas fa-ban"></i></div>
                 <div class="card-wrap">
-                    <div class="card-header"><h4>Disqualified</h4></div>
+                    <div class="card-header"><h4>Declined</h4></div>
                     <div class="card-body">{{ $countDeclined }}</div>
                 </div>
             </div>

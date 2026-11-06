@@ -645,6 +645,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
 
     // Mailchimp Unsubscribes
     Route::get('mailchimp/unsubscribes', [MailchimpUnsubscribeController::class, 'index'])->name('admin.mailchimp_unsubscribes.index');
+    Route::post('mailchimp/unsubscribes/sync/run', [MailchimpUnsubscribeController::class, 'runPendingSync'])->name('admin.mailchimp_unsubscribes.sync.run');
+    Route::post('mailchimp/unsubscribes/sync', [MailchimpUnsubscribeController::class, 'requestSync'])->name('admin.mailchimp_unsubscribes.sync');
     Route::get('mailchimp/unsubscribes/export', [MailchimpUnsubscribeController::class, 'export'])->name('admin.mailchimp_unsubscribes.export');
     Route::post('mailchimp/unsubscribes/resubscribe', [MailchimpUnsubscribeController::class, 'resubscribe'])->name('admin.mailchimp_unsubscribes.resubscribe');
     Route::get('mailchimp/unsubscribes/{hash}/activity', [MailchimpUnsubscribeController::class, 'memberActivity'])->name('admin.mailchimp_unsubscribes.activity');

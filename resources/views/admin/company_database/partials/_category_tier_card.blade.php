@@ -8,19 +8,19 @@
                 <h4 class="mb-0">
                     Company Category Tier
                     <i class="fas fa-info-circle text-muted ml-1" data-toggle="tooltip"
-                        title="Jumlah company unik yang sudah verified dari Company Database (dedup per nama company, sama seperti tab Verified di halaman Company Database) — bukan jumlah member — dikelompokkan ke 6 grup (Category 1–6, sama dengan Dashboard & Event Detail). Klik grup atau kategori untuk lihat category detail, subcategory & daftar company."></i>
+                        title="Unique verified companies from the Company Database, deduplicated by company name as in its Verified tab. This counts companies, not members. Companies are grouped into six categories (Category 1–6), consistent with the Dashboard and Event Detail. Click a group or category to view category details, subcategories, and companies."></i>
                 </h4>
                 <span class="badge badge-light" id="company-category-total">—</span>
             </div>
             <div class="card-body">
                 <div id="company-category-loading" class="text-center text-muted py-5">
-                    <span class="spinner-border spinner-border-sm mr-2"></span>Memuat...
+                    <span class="spinner-border spinner-border-sm mr-2"></span>Loading...
                 </div>
                 <div id="company-category-content" class="row align-items-center" style="display:none;">
                     <div class="col-lg-7 mb-3 mb-lg-0">
                         <div style="position:relative; height:460px;">
                             <canvas id="companyCategoryChart" role="img" style="cursor:pointer;"
-                                aria-label="Jumlah company per company category tier"></canvas>
+                                aria-label="Number of companies by company category tier"></canvas>
                         </div>
                     </div>
                     <div class="col-lg-5">

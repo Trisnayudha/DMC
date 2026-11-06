@@ -20,7 +20,7 @@
                     <div class="reg-stat-row mb-3">
                         <div class="reg-stat-card reg-stat-total">
                             <div class="reg-stat-value" id="cc-modal-total">0</div>
-                            <div class="reg-stat-label">Total Company</div>
+                            <div class="reg-stat-label">Total Companies</div>
                         </div>
                         <div class="reg-stat-card" style="background:#eaf7ee;">
                             <div class="reg-stat-value" id="cc-modal-verified" style="color:#0a7a0a;">0</div>
@@ -39,7 +39,7 @@
                     </div>
 
                     <div class="d-flex flex-wrap align-items-center justify-content-between mb-2" style="gap:8px;">
-                        <h6 class="mb-0">Daftar Company <small class="text-muted font-weight-normal" id="cc-modal-list-note"></small></h6>
+                        <h6 class="mb-0">Company List <small class="text-muted font-weight-normal" id="cc-modal-list-note"></small></h6>
                         <div class="reg-search-wrap">
                             <i class="fas fa-search"></i>
                             <input type="text" id="cc-modal-search" class="form-control form-control-sm"
@@ -55,7 +55,7 @@
                                     <th>Company</th>
                                     <th>Category Detail</th>
                                     <th>Subcategory</th>
-                                    <th>Kota / Negara</th>
+                                    <th>City / Country</th>
                                     <th class="text-center">Record</th>
                                     <th class="text-center">Status</th>
                                     <th></th>

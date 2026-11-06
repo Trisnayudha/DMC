@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\MailchimpUnsubscribeExport;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Mailchimp\UnsubscribeSnapshotService;
+use App\Services\Mailchimp\UnsubscribeCampaignStatistics;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
@@ -39,7 +40,7 @@ class MailchimpUnsubscribeController extends Controller
         if (!$config) {
             return view('admin.mailchimp.unsubscribes', [
                 'configured'         => false,
-                'errorMessage'       => 'Konfigurasi Mailchimp belum lengkap. Pastikan MAILCHIMP_APIKEY dan MAILCHIMP_LIST_ID terisi di .env.',
+                'errorMessage'       => 'Mailchimp is not fully configured. Set MAILCHIMP_APIKEY and MAILCHIMP_LIST_ID in the .env file.',
                 'contacts'           => new LengthAwarePaginator([], 0, 25),
                 'stats'              => [],
                 'filter'             => 'all',
@@ -57,48 +58,10 @@ class MailchimpUnsubscribeController extends Controller
             ]);
         }
 
-        // Force refresh cache jika ada parameter ?refresh=1
-        if ($request->boolean('refresh')) {
-            Cache::forget(self::CACHE_KEY_MEMBERS);
-            Cache::forget(self::CACHE_KEY_STATS);
-            Cache::forget(self::CACHE_KEY_ACTIVITIES);
-        }
-
-        // Ambil data dari Mailchimp (dengan cache)
-        try {
-            $rawMembers = Cache::remember(self::CACHE_KEY_MEMBERS, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($config) {
-                return $this->fetchUnsubscribedMembersFromMailchimp($config);
-            });
-
-            $listStats = Cache::remember(self::CACHE_KEY_STATS, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($config) {
-                return $this->fetchListStatsFromMailchimp($config);
-            });
-
-            $rawActivities = Cache::remember(self::CACHE_KEY_ACTIVITIES, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($config, $rawMembers) {
-                return $this->fetchActivitiesForMembersFromMailchimp($config, $rawMembers);
-            });
-        } catch (\Throwable $e) {
-            Log::warning('MailchimpUnsubscribeController: failed to fetch: ' . $e->getMessage());
-            return view('admin.mailchimp.unsubscribes', [
-                'configured'         => true,
-                'errorMessage'       => 'Gagal menghubungi server Mailchimp: ' . $e->getMessage(),
-                'errorDetail'        => $this->lastFailureDetail ?: get_class($e) . ': ' . $e->getMessage(),
-                'contacts'           => new LengthAwarePaginator([], 0, 25),
-                'stats'              => [],
-                'filter'             => 'all',
-                'search'             => '',
-                'campaign'           => '',
-                'perPage'            => 25,
-                'dateFrom'           => '',
-                'dateTo'             => '',
-                'month'              => null,
-                'year'               => null,
-                'preset'             => '',
-                'availableYears'     => collect([now()->year]),
-                'availableCampaigns' => collect(),
-                'hasDateFilter'      => false,
-            ]);
-        }
+        $snapshot = app(UnsubscribeSnapshotService::class)->get($config['listId']);
+        $rawMembers = json_decode($snapshot->members ?? '[]', true) ?: [];
+        $rawActivities = json_decode($snapshot->activities ?? '{}', true) ?: [];
+        $listStats = json_decode($snapshot->stats ?? '{}', true) ?: [];
 
         // Cross-reference dengan tabel users di database DMC dan sertakan info aktivitas unsubscribe
         $allEnrichedContacts = $this->enrichContactsWithDmcData($rawMembers, $rawActivities);
@@ -210,6 +173,8 @@ class MailchimpUnsubscribeController extends Controller
             });
         }
 
+        $campaignStatistics = app(UnsubscribeCampaignStatistics::class)->calculate($filtered);
+
         // Paginasi manual untuk Collection
         $page = (int) $request->query('page', 1);
         $total = $filtered->count();
@@ -249,7 +214,33 @@ class MailchimpUnsubscribeController extends Controller
             'hasDateFilter'      => $hasDateFilter,
             'server'             => $config['server'],
             'listId'             => $config['listId'],
+            'snapshot'           => $snapshot,
+            'campaignStatistics' => $campaignStatistics,
         ]);
+    }
+
+    public function requestSync(Request $request)
+    {
+        $config = $this->mailchimpConfig();
+        if (!$config) return back()->with('error', 'Mailchimp is not fully configured.');
+        app(UnsubscribeSnapshotService::class)->requestSync($config['listId']);
+        return back()->with('success', 'Sync scheduled. Updated data will be available when it completes.');
+    }
+
+    public function runPendingSync(UnsubscribeSnapshotService $service)
+    {
+        $config = $this->mailchimpConfig();
+        if (!$config) {
+            return response()->json(['success' => false, 'message' => 'Mailchimp is not fully configured.'], 400);
+        }
+
+        $completed = $service->syncIfDue($config);
+        $snapshot = $service->get($config['listId']);
+        if (!$completed && !empty($snapshot->last_error) && empty($snapshot->started_at)) {
+            return response()->json(['success' => false, 'message' => 'Sync failed. The last available data is still shown.'], 503);
+        }
+
+        return response()->json(['success' => true, 'completed' => $completed]);
     }
 
     /**
@@ -259,7 +250,7 @@ class MailchimpUnsubscribeController extends Controller
     {
         $config = $this->mailchimpConfig();
         if (!$config) {
-            return response()->json(['success' => false, 'message' => 'Konfigurasi Mailchimp belum lengkap.'], 400);
+            return response()->json(['success' => false, 'message' => 'Mailchimp is not fully configured.'], 400);
         }
 
         try {
@@ -268,10 +259,7 @@ class MailchimpUnsubscribeController extends Controller
                 ->get("https://{$config['server']}.api.mailchimp.com/3.0/lists/{$config['listId']}/members/{$hash}/activity");
 
             if (!$response->successful()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal mengambil riwayat dari Mailchimp: ' . ($response->json('detail') ?: 'HTTP Error'),
-                ], 400);
+                return $this->cachedActivityResponse($request, $config, $hash);
             }
 
             $raw = $response->json('activity') ?? [];
@@ -281,13 +269,13 @@ class MailchimpUnsubscribeController extends Controller
                 $time = !empty($act['timestamp']) ? Carbon::parse($act['timestamp'])->setTimezone($timezone) : null;
                 return [
                     'action'      => $act['action'] ?? 'unknown', // unsub, open, click, sent, bounce
-                    'title'       => $act['title'] ?? ($act['type'] === 'A' ? 'Unsubscribed by Admin' : '-'),
+                    'title'       => $act['title'] ?? (($act['type'] ?? null) === 'A' ? 'Unsubscribed by Admin' : '-'),
                     'campaign_id' => $act['campaign_id'] ?? null,
                     'type'        => $act['type'] ?? null,
                     'url'         => $act['url'] ?? null,
                     'ip'          => $act['ip'] ?? null,
                     'time'        => $time ? $time->format('d M Y, H:i') : '-',
-                    'time_human'  => $time ? $time->diffForHumans() : '-',
+                    'time_human'  => $time ? $time->locale('en')->diffForHumans() : '-',
                 ];
             });
 
@@ -298,8 +286,30 @@ class MailchimpUnsubscribeController extends Controller
                 'activities' => $activities,
             ]);
         } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            return $this->cachedActivityResponse($request, $config, $hash);
         }
+    }
+
+    private function cachedActivityResponse(Request $request, array $config, string $hash)
+    {
+        $email = strtolower(trim((string) $request->query('email', '')));
+        if (!$email || md5($email) !== $hash) {
+            return response()->json(['success' => false, 'message' => 'Activity is unavailable.'], 503);
+        }
+        $snapshot = app(UnsubscribeSnapshotService::class)->get($config['listId']);
+        $cached = json_decode($snapshot->activities ?? '{}', true) ?: [];
+        if (!array_key_exists($email, $cached)) {
+            return response()->json(['success' => false, 'message' => 'Mailchimp is unreachable and no saved activity is available.'], 503);
+        }
+        $activities = collect($cached[$email])->map(function ($act) {
+            $time = !empty($act['timestamp']) ? Carbon::parse($act['timestamp'])->setTimezone(config('app.timezone', 'Asia/Jakarta')) : null;
+            return [
+                'action' => $act['action'] ?? 'unknown', 'title' => $act['title'] ?? (($act['type'] ?? null) === 'A' ? 'Unsubscribed by Admin' : '-'),
+                'campaign_id' => $act['campaign_id'] ?? null, 'type' => $act['type'] ?? null, 'url' => $act['url'] ?? null,
+                'ip' => $act['ip'] ?? null, 'time' => $time ? $time->format('d M Y, H:i') : '-', 'time_human' => $time ? $time->locale('en')->diffForHumans() : '-',
+            ];
+        });
+        return response()->json(['success' => true, 'email' => $email, 'hash' => $hash, 'activities' => $activities, 'cached' => true]);
     }
 
     /**
@@ -314,7 +324,7 @@ class MailchimpUnsubscribeController extends Controller
         $email = strtolower(trim((string) $request->email));
         $config = $this->mailchimpConfig();
         if (!$config) {
-            return back()->with('error', 'Konfigurasi Mailchimp belum lengkap.');
+            return back()->with('error', 'Mailchimp is not fully configured.');
         }
 
         try {
@@ -326,19 +336,16 @@ class MailchimpUnsubscribeController extends Controller
                 ]);
 
             if (!$response->successful()) {
-                $detail = $response->json('detail') ?: 'Respon gagal dari Mailchimp API';
-                return back()->with('error', "Gagal re-subscribe {$email}: " . $detail);
+                $detail = $response->json('detail') ?: 'Mailchimp API returned an error';
+                return back()->with('error', "Failed to resubscribe {$email}: " . $detail);
             }
 
-            // Hapus cache agar data langsung diperbarui
-            Cache::forget(self::CACHE_KEY_MEMBERS);
-            Cache::forget(self::CACHE_KEY_STATS);
-            Cache::forget(self::CACHE_KEY_ACTIVITIES);
+            app(UnsubscribeSnapshotService::class)->removeResubscribed($config['listId'], $email);
 
-            return back()->with('success', "Kontak {$email} berhasil di-subscribe ulang ke Mailchimp.");
+            return back()->with('success', "Contact {$email} was successfully resubscribed in Mailchimp.");
         } catch (\Throwable $e) {
             Log::warning('Mailchimp resubscribe failed: ' . $e->getMessage());
-            return back()->with('error', 'Gagal re-subscribe: ' . $e->getMessage());
+            return back()->with('error', 'Failed to resubscribe: ' . $e->getMessage());
         }
     }
 
@@ -349,20 +356,15 @@ class MailchimpUnsubscribeController extends Controller
     {
         $config = $this->mailchimpConfig();
         if (!$config) {
-            return back()->with('error', 'Konfigurasi Mailchimp belum lengkap.');
+            return back()->with('error', 'Mailchimp is not fully configured.');
         }
 
-        try {
-            $rawMembers = Cache::remember(self::CACHE_KEY_MEMBERS, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($config) {
-                return $this->fetchUnsubscribedMembersFromMailchimp($config);
-            });
-
-            $rawActivities = Cache::remember(self::CACHE_KEY_ACTIVITIES, now()->addMinutes(self::CACHE_TTL_MINUTES), function () use ($config, $rawMembers) {
-                return $this->fetchActivitiesForMembersFromMailchimp($config, $rawMembers);
-            });
-        } catch (\Throwable $e) {
-            return back()->with('error', 'Gagal mengambil data dari Mailchimp: ' . $e->getMessage());
+        $snapshot = app(UnsubscribeSnapshotService::class)->get($config['listId']);
+        if (!$snapshot || !$snapshot->last_synced_at) {
+            return back()->with('error', 'Data is not available yet. Please wait for the first sync to complete.');
         }
+        $rawMembers = json_decode($snapshot->members ?: '[]', true) ?: [];
+        $rawActivities = json_decode($snapshot->activities ?: '{}', true) ?: [];
 
         $allContacts = $this->enrichContactsWithDmcData($rawMembers, $rawActivities);
 
@@ -499,7 +501,7 @@ class MailchimpUnsubscribeController extends Controller
     /**
      * Fetch seluruh kontak unsubscribed dari Mailchimp API v3.
      */
-    private function fetchUnsubscribedMembersFromMailchimp(array $config): array
+    public function fetchUnsubscribedMembersFromMailchimp(array $config): array
     {
         $allMembers = [];
         $offset = 0;
@@ -564,14 +566,19 @@ class MailchimpUnsubscribeController extends Controller
             }
 
             $data = $response->json();
-            $members = $data['members'] ?? [];
-            $totalItems = (int) ($data['total_items'] ?? 0);
+            if (!is_array($data) || !isset($data['members'], $data['total_items']) || !is_array($data['members']) || !is_numeric($data['total_items'])) {
+                throw new \RuntimeException('Mailchimp returned an invalid member list.');
+            }
+            $members = $data['members'];
+            $totalItems = (int) $data['total_items'];
 
             $allMembers = array_merge($allMembers, $members);
             $offset += count($members);
 
-            // Jika sudah mencapai total atau batch kosong, hentikan
-            if (empty($members) || $offset >= $totalItems) {
+            if (empty($members) && $offset < $totalItems) {
+                throw new \RuntimeException('Mailchimp returned an incomplete member list.');
+            }
+            if ($offset >= $totalItems) {
                 break;
             }
         } while (true);
@@ -582,7 +589,7 @@ class MailchimpUnsubscribeController extends Controller
     /**
      * Fetch statistik list audience Mailchimp.
      */
-    private function fetchListStatsFromMailchimp(array $config): array
+    public function fetchListStatsFromMailchimp(array $config): array
     {
         $response = Http::withBasicAuth('anystring', $config['apiKey'])
             ->timeout(10)
@@ -624,9 +631,7 @@ class MailchimpUnsubscribeController extends Controller
             $email = strtolower(trim((string) ($m['email_address'] ?? '')));
             $dmcUser = $dmcUsers->get($email);
 
-            $lastChanged = !empty($m['last_changed'])
-                ? Carbon::parse($m['last_changed'])->setTimezone($timezone)
-                : null;
+            $lastChanged = null;
             $reason = trim((string) ($m['unsubscribe_reason'] ?? ''));
             if ($reason === '' || strtolower($reason) === 'none given') {
                 $reason = 'None given';
@@ -656,6 +661,10 @@ class MailchimpUnsubscribeController extends Controller
                 }
             }
 
+            if (!empty($unsubAct['timestamp'])) {
+                $lastChanged = Carbon::parse($unsubAct['timestamp'])->setTimezone($timezone);
+            }
+
             $unsubCampaignTitle = !empty($unsubAct['title']) ? trim($unsubAct['title']) : null;
             $unsubCampaignId    = !empty($unsubAct['campaign_id']) ? trim($unsubAct['campaign_id']) : null;
             $unsubType          = $unsubAct['type'] ?? null;
@@ -670,7 +679,7 @@ class MailchimpUnsubscribeController extends Controller
                 'rating'                 => (int) ($m['member_rating'] ?? 0),
                 'reason'                 => $reason,
                 'unsubscribed_at'        => $lastChanged ? $lastChanged->format('d M Y, H:i') : '-',
-                'unsubscribed_human'     => $lastChanged ? $lastChanged->diffForHumans() : '-',
+                'unsubscribed_human'     => $lastChanged ? $lastChanged->locale('en')->diffForHumans() : '-',
                 'unsubscribed_timestamp' => $lastChanged ? $lastChanged->timestamp : 0,
                 'unsubscribed_date'      => $lastChanged ? $lastChanged->format('Y-m-d') : null,
                 'unsubscribed_month'     => $lastChanged ? (int) $lastChanged->format('n') : null,
@@ -695,7 +704,7 @@ class MailchimpUnsubscribeController extends Controller
     /**
      * Fetch aktivitas anggota unsubscribed dari Mailchimp secara paralel via Http::pool.
      */
-    private function fetchActivitiesForMembersFromMailchimp(array $config, array $rawMembers): array
+    public function fetchActivitiesForMembersFromMailchimp(array $config, array $rawMembers): array
     {
         $activitiesByEmail = [];
         // Mailchimp membatasi ±10 koneksi bersamaan; di atas itu request ditolak.
@@ -718,10 +727,8 @@ class MailchimpUnsubscribeController extends Controller
                 if ($email === '') continue;
 
                 $r = $responses[$email] ?? null;
-                if ($r && $r->successful()) {
+                if ($r instanceof \Illuminate\Http\Client\Response && $r->successful()) {
                     $activitiesByEmail[$email] = $r->json('activity') ?? [];
-                } else {
-                    $activitiesByEmail[$email] = [];
                 }
             }
         }
@@ -732,7 +739,7 @@ class MailchimpUnsubscribeController extends Controller
     /**
      * Konfigurasi kredensial Mailchimp dari .env / config.
      */
-    private function mailchimpConfig(): ?array
+    public function mailchimpConfig(): ?array
     {
         $apiKey = trim((string) (config('newsletter.apiKey') ?: env('MAILCHIMP_APIKEY')));
         $listId = trim((string) (config('newsletter.lists.subscribers.id') ?: env('MAILCHIMP_LIST_ID')));

@@ -21,7 +21,7 @@
         </span>
     @endif
 @elseif ($isDeclined)
-    <span class="badge badge-danger member-status-badge mini-badge">Disqualified</span>
+    <span class="badge badge-danger member-status-badge mini-badge">Declined</span>
 @elseif ($isInVerification)
     <span class="badge badge-warning member-status-badge mini-badge"
         title="Admin review started — SLA is running" data-toggle="tooltip">Verification</span>

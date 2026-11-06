@@ -211,7 +211,7 @@
                     if ((res.leads_count || 0) > 0) {
                         $('#reg-breakdown-leads-split').html(
                             '<span class="viable">' + (res.leads_viable || 0) + ' Active Prospects</span>' +
-                            (res.leads_dead ? ' &nbsp;·&nbsp; <span class="dead">' + res.leads_dead + ' Disqualified</span>' : '')
+                            (res.leads_dead ? ' &nbsp;·&nbsp; <span class="dead">' + res.leads_dead + ' Declined</span>' : '')
                         );
                     }
 
