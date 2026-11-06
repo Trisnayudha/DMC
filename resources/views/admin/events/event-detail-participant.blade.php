@@ -114,7 +114,7 @@
                         @if ($errors->any())
                             <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
                                 <i class="fas fa-exclamation-triangle mr-2"></i>
-                                <strong>Whoops!</strong> @lang('general.validation_error_message')
+                                <strong>Whoops!</strong> Please correct the errors below.
                                 <ul class="mb-0 mt-1">
                                     @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>

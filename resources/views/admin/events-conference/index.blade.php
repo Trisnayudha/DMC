@@ -23,7 +23,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -55,7 +55,7 @@
                                                 <th width="10px">No</th>
                                                 <th>Name Conference</th>
                                                 <th>Event</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -71,7 +71,7 @@
                                                             <span class="fa fa-edit"></span>
                                                         </a>
                                                         <button class="btn btn-danger" value="`+ row.id +`"
-                                                            id="deleteProgram" type="submit" title="Hapus Data">
+                                                            id="deleteProgram" type="submit" title="Delete">
                                                             <span class="fa fa-trash"></span></button>
                                                     </td>
 

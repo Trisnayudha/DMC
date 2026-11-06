@@ -23,7 +23,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -60,7 +60,7 @@
                                                 class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                                 id="addNewCategory">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Tambah Notif</a>
+                                                Add Notification</a>
 
                                         </div>
                                     </div>
@@ -80,7 +80,7 @@
                                                 <th>Uname</th>
                                                 <th>Users Id</th>
                                                 <th>All Users</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -283,7 +283,7 @@
             });
             $('#addNewCategory').click(function() {
                 $('#addEditCategoryForm').trigger("reset");
-                $('#ajaxCategoryModel').html("Add Category");
+                $('#ajaxCategoryModel').html("Add Notification");
                 $('#category-model').modal('show');
             });
 
@@ -299,7 +299,7 @@
                     },
                     dataType: 'json',
                     success: function(res) {
-                        $('#ajaxCategoryModel').html("Edit Category");
+                        $('#ajaxCategoryModel').html("Edit Notification");
                         $('#category-model').modal('show');
                         $('#id').val(res.id);
                         $('#image').val(res.image);
@@ -312,8 +312,8 @@
 
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
+                    title: "Are you sure?",
+                    text: "Do you want to delete this notification?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -354,7 +354,7 @@
 
                 if (!title || !message || location == "" || type == "" || all_users == "" || category ==
                     "") {
-                    alert("Semua field harus diisi!");
+                    alert("All fields are required!");
                     return false;
                 }
                 var form = $('#addEditCategoryForm')[0];

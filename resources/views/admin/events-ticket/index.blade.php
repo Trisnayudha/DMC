@@ -23,7 +23,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -60,7 +60,7 @@
                                                 class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                                 id="addNewCategory">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Tambah Ticket</a>
+                                                Add Ticket</a>
 
                                         </div>
                                     </div>
@@ -72,12 +72,12 @@
                                             <tr>
                                                 <th width="10px">No</th>
                                                 <th>Event</th>
-                                                <th>Nama Ticket</th>
+                                                <th>Ticket Name</th>
                                                 <th>Price Rupiah</th>
                                                 <th>Price USD</th>
                                                 <th>Status Ticket</th>
                                                 <th>Status Sold</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -281,8 +281,8 @@
 
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
+                    title: "Are you sure?",
+                    text: "Do you want to delete this record?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',

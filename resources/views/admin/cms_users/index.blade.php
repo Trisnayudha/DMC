@@ -46,11 +46,11 @@
                                     <thead class="thead-light">
                                         <tr>
                                             <th width="40">#</th>
-                                            <th>Nama</th>
+                                            <th>Name</th>
                                             <th>Email</th>
                                             <th>Level</th>
                                             <th width="80" class="text-center">Status</th>
-                                            <th width="120" class="text-center">Aksi</th>
+                                            <th width="120" class="text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -107,7 +107,7 @@
                                                                     class="btn btn-sm btn-outline-danger"
                                                                     title="Delete"
                                                                     style="padding:4px 8px;"
-                                                                    onclick="return confirm('Hapus {{ addslashes($admin->name) }}? Tidak bisa di-undo.')">
+                                                                    onclick="return confirm('Delete {{ addslashes($admin->name) }}? This cannot be undone.')">
                                                                     <i class="fas fa-trash" style="font-size:11px;"></i>
                                                                 </button>
                                                             </form>
@@ -126,13 +126,13 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="mb-0"><i class="fas fa-user-plus mr-2"></i>Tambah Admin</h4>
+                            <h4 class="mb-0"><i class="fas fa-user-plus mr-2"></i>Add Admin</h4>
                         </div>
                         <div class="card-body">
                             <form method="POST" action="{{ route('admin.cms_users.store') }}">
                                 @csrf
                                 <div class="form-group">
-                                    <label class="small font-weight-bold">Nama</label>
+                                    <label class="small font-weight-bold">Name</label>
                                     <input type="text" name="name" class="form-control form-control-sm @error('name') is-invalid @enderror"
                                         value="{{ old('name') }}" required placeholder="Full name">
                                     @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -146,7 +146,7 @@
                                 <div class="form-group">
                                     <label class="small font-weight-bold">Password</label>
                                     <input type="password" name="password" class="form-control form-control-sm @error('password') is-invalid @enderror"
-                                        required placeholder="Min 6 karakter">
+                                        required placeholder="At least 6 characters">
                                     @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="form-group">
@@ -156,7 +156,7 @@
                                     </select>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block btn-sm">
-                                    <i class="fas fa-plus mr-1"></i> Tambah Admin
+                                    <i class="fas fa-plus mr-1"></i> Add Admin
                                 </button>
                             </form>
                         </div>
@@ -180,7 +180,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="small font-weight-bold">Nama</label>
+                        <label class="small font-weight-bold">Name</label>
                         <input type="text" name="name" id="editName" class="form-control form-control-sm" required>
                     </div>
                     <div class="form-group">
@@ -194,7 +194,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="small font-weight-bold">Password <small class="text-muted font-weight-normal">(kosongkan jika tidak diubah)</small></label>
+                        <label class="small font-weight-bold">Password <small class="text-muted font-weight-normal">(leave blank to keep unchanged)</small></label>
                         <input type="password" name="password" class="form-control form-control-sm" placeholder="••••••••">
                     </div>
                 </div>

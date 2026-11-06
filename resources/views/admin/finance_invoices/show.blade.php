@@ -29,7 +29,7 @@
                             <div class="card-body">
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <div class="text-muted small text-uppercase">Ditagihkan ke</div>
+                                        <div class="text-muted small text-uppercase">Bill To</div>
                                         <strong>{{ $invoice->bill_to_company ?: $invoice->bill_to_name }}</strong><br>
                                         @if ($invoice->bill_to_company){{ $invoice->bill_to_name }}<br>@endif
                                         {{ $invoice->bill_to_email }}
@@ -38,13 +38,13 @@
                                         @if ($invoice->bill_to_address)<br><small>{!! nl2br(e($invoice->bill_to_address)) !!}</small>@endif
                                     </div>
                                     <div class="col-md-6 text-md-right">
-                                        <div class="text-muted small text-uppercase">Tanggal / Jatuh Tempo</div>
+                                        <div class="text-muted small text-uppercase">Issue Date / Due Date</div>
                                         {{ $invoice->issued_date->format('d M Y') }} / {{ $invoice->due_date->format('d M Y') }}
                                         @if ($invoice->sponsor)
                                             <div class="mt-2 small">Sponsor: <strong>{{ $invoice->sponsor->name }}</strong></div>
                                         @endif
                                         @if ($invoice->sponsorRenewal)
-                                            <div class="small">Kontrak: {{ $invoice->sponsorRenewal->contract_start }} s/d {{ $invoice->sponsorRenewal->contract_end }}
+                                            <div class="small">Contract: {{ $invoice->sponsorRenewal->contract_start }} to {{ $invoice->sponsorRenewal->contract_end }}
                                                 · Paid Date: {{ $invoice->sponsorRenewal->paid_date ? $invoice->sponsorRenewal->paid_date->format('d M Y') : '—' }}</div>
                                         @endif
                                         @if ($invoice->event)
@@ -55,7 +55,7 @@
 
                                 <table class="table table-sm">
                                     <thead class="thead-light">
-                                        <tr><th>Deskripsi</th><th class="text-center">Qty</th><th class="text-right">Harga Satuan</th><th class="text-right">Jumlah</th></tr>
+                                        <tr><th>Description</th><th class="text-center">Qty</th><th class="text-right">Unit Price</th><th class="text-right">Amount</th></tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($invoice->items as $item)
@@ -70,13 +70,13 @@
                                     <tfoot>
                                         <tr><td colspan="3" class="text-right">Subtotal</td><td class="text-right">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</td></tr>
                                         @if ($invoice->vat_amount > 0)
-                                            <tr><td colspan="3" class="text-right">PPN {{ rtrim(rtrim(number_format($invoice->vat_percent, 2, '.', ''), '0'), '.') }}%</td><td class="text-right">Rp {{ number_format($invoice->vat_amount, 0, ',', '.') }}</td></tr>
+                                            <tr><td colspan="3" class="text-right">VAT {{ rtrim(rtrim(number_format($invoice->vat_percent, 2, '.', ''), '0'), '.') }}%</td><td class="text-right">Rp {{ number_format($invoice->vat_amount, 0, ',', '.') }}</td></tr>
                                         @endif
                                         <tr class="font-weight-bold"><td colspan="3" class="text-right">Total</td><td class="text-right">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</td></tr>
                                     </tfoot>
                                 </table>
                                 @if ($invoice->notes)
-                                    <div class="small text-muted">Catatan: {!! nl2br(e($invoice->notes)) !!}</div>
+                                    <div class="small text-muted">Notes: {!! nl2br(e($invoice->notes)) !!}</div>
                                 @endif
                             </div>
                         </div>

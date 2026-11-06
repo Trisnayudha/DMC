@@ -61,7 +61,7 @@ class AdvertisementController extends Controller
         $advertisement = AdvertisementModel::find($id);
 
         if (!$advertisement) {
-            return response()->json(['message' => 'Iklan tidak ditemukan.'], 404);
+            return response()->json(['message' => 'Advertisement not found.'], 404);
         }
 
         // Hapus gambar terkait dari penyimpanan jika ada
@@ -71,6 +71,6 @@ class AdvertisementController extends Controller
 
         $advertisement->delete();
 
-        return response()->json(['message' => 'Iklan berhasil dihapus.']);
+        return response()->json(['message' => 'Advertisement deleted successfully.']);
     }
 }

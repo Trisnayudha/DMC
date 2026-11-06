@@ -13,10 +13,10 @@
     <div class="section-body">
         <div class="card">
             <div class="card-header">
-                <h4>Daftar Ngrok Link</h4>
+                <h4>Ngrok Links</h4>
                 <div class="card-header-action">
                     <button class="btn btn-primary" data-toggle="modal" data-target="#addModal">
-                        <i class="fas fa-plus"></i> Tambah Link
+                        <i class="fas fa-plus"></i> Add Link
                     </button>
                 </div>
             </div>
@@ -28,8 +28,8 @@
                             <tr>
                                 <th width="50px">No</th>
                                 <th>Link</th>
-                                <th>Dibuat</th>
-                                <th width="150px">Aksi</th>
+                                <th>Created</th>
+                                <th width="150px">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -54,7 +54,7 @@
                             </tr>
                             @empty
                             <tr id="empty-row">
-                                <td colspan="4" class="text-center text-muted">Belum ada data ngrok.</td>
+                                <td colspan="4" class="text-center text-muted">No ngrok links yet.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -70,7 +70,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Ngrok Link</h5>
+                <h5 class="modal-title">Add Ngrok Link</h5>
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body">
@@ -80,8 +80,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnSave">Simpan</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSave">Save</button>
             </div>
         </div>
     </div>
@@ -103,7 +103,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-warning" id="btnUpdate">Update</button>
             </div>
         </div>
@@ -123,7 +123,7 @@
     // Tambah
     $('#btnSave').click(function () {
         var link = $('#addLink').val().trim();
-        if (!link) { showAlert('Link tidak boleh kosong.', 'danger'); return; }
+        if (!link) { showAlert('Link is required.', 'danger'); return; }
 
         $.ajax({
             url: '{{ route("admin.ngrok.store") }}',
@@ -137,7 +137,7 @@
                 setTimeout(function () { location.reload(); }, 800);
             },
             error: function (xhr) {
-                var msg = xhr.responseJSON?.message ?? 'Gagal menyimpan.';
+                var msg = xhr.responseJSON?.message ?? 'Failed to save.';
                 showAlert(msg, 'danger');
             }
         });
@@ -154,7 +154,7 @@
     $('#btnUpdate').click(function () {
         var id   = $('#editId').val();
         var link = $('#editLink').val().trim();
-        if (!link) { showAlert('Link tidak boleh kosong.', 'danger'); return; }
+        if (!link) { showAlert('Link is required.', 'danger'); return; }
 
         $.ajax({
             url: '/admin/ngrok/' + id,
@@ -167,7 +167,7 @@
                 setTimeout(function () { location.reload(); }, 800);
             },
             error: function (xhr) {
-                var msg = xhr.responseJSON?.message ?? 'Gagal mengupdate.';
+                var msg = xhr.responseJSON?.message ?? 'Failed to update.';
                 showAlert(msg, 'danger');
             }
         });
@@ -176,7 +176,7 @@
     // Hapus
     $(document).on('click', '.btn-delete', function () {
         var id = $(this).data('id');
-        if (!confirm('Yakin hapus ngrok link ini?')) return;
+        if (!confirm('Delete this ngrok link?')) return;
 
         $.ajax({
             url: '/admin/ngrok/' + id,
@@ -187,7 +187,7 @@
                 showAlert(res.message, 'success');
             },
             error: function () {
-                showAlert('Gagal menghapus.', 'danger');
+                showAlert('Failed to delete.', 'danger');
             }
         });
     });

@@ -38,7 +38,7 @@ class CmsUsersController extends Controller
             'password' => Hash::make($request->password),
             'is_active' => true, 'role' => $request->role,
         ]);
-        return back()->with('success', 'CMS user berhasil ditambahkan.');
+        return back()->with('success', 'CMS user added successfully.');
     }
 
     public function update(Request $request, $id)
@@ -54,7 +54,7 @@ class CmsUsersController extends Controller
             $user = CmsUser::lockForUpdate()->findOrFail($id);
             if ($user->role !== $request->role) {
                 if ((int) $user->id === (int) auth()->id()) {
-                    throw ValidationException::withMessages(['role' => 'Tidak bisa mengubah level akun sendiri. Gunakan Superadmin lain.']);
+                    throw ValidationException::withMessages(['role' => 'You cannot change your own account role. Ask another superadmin.']);
                 }
                 $this->protectLastSuperadmin($user, $superadmins->count());
             }
@@ -64,13 +64,13 @@ class CmsUsersController extends Controller
             }
             $user->save();
         });
-        return back()->with('success', 'CMS user berhasil diupdate.');
+        return back()->with('success', 'CMS user updated successfully.');
     }
 
     public function toggleActive($id)
     {
         if ((int) $id === (int) auth()->id()) {
-            return back()->with('error', 'Tidak bisa deactivate akun sendiri.');
+            return back()->with('error', 'You cannot deactivate your own account.');
         }
         DB::transaction(function () use ($id) {
             $superadmins = $this->lockSuperadmins();
@@ -81,13 +81,13 @@ class CmsUsersController extends Controller
             $user->is_active = !$user->is_active;
             $user->save();
         });
-        return back()->with('success', 'Status CMS user berhasil diubah.');
+        return back()->with('success', 'CMS user status updated successfully.');
     }
 
     public function destroy($id)
     {
         if ((int) $id === (int) auth()->id()) {
-            return back()->with('error', 'Tidak bisa menghapus akun sendiri.');
+            return back()->with('error', 'You cannot delete your own account.');
         }
         DB::transaction(function () use ($id) {
             $superadmins = $this->lockSuperadmins();
@@ -95,7 +95,7 @@ class CmsUsersController extends Controller
             $this->protectLastSuperadmin($user, $superadmins->count());
             $user->delete();
         });
-        return back()->with('success', 'CMS user berhasil dihapus.');
+        return back()->with('success', 'CMS user deleted successfully.');
     }
 
     public function updatePermissions(Request $request)
@@ -113,7 +113,7 @@ class CmsUsersController extends Controller
                 $role->save();
             }
         });
-        return back()->with('success', 'Hak akses menu tiap tim berhasil disimpan. Berlaku pada request berikutnya.');
+        return back()->with('success', 'Team menu permissions saved. They take effect on the next request.');
     }
 
     private function lockSuperadmins()
@@ -124,7 +124,7 @@ class CmsUsersController extends Controller
     private function protectLastSuperadmin(CmsUser $user, int $count): void
     {
         if ($user->isSuperadmin() && $user->is_active && $count <= 1) {
-            throw ValidationException::withMessages(['role' => 'Minimal harus ada satu Superadmin aktif.']);
+            throw ValidationException::withMessages(['role' => 'At least one active superadmin is required.']);
         }
     }
 }

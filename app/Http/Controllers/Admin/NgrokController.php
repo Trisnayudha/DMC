@@ -25,7 +25,7 @@ class NgrokController extends Controller
 
         NgrokModel::create(['link' => $request->link]);
 
-        return response()->json(['status' => 200, 'message' => 'Ngrok link berhasil ditambahkan']);
+        return response()->json(['status' => 200, 'message' => 'Ngrok link added successfully']);
     }
 
     public function update(Request $request, $id)
@@ -36,12 +36,12 @@ class NgrokController extends Controller
         $ngrok->link = $request->link;
         $ngrok->save();
 
-        return response()->json(['status' => 200, 'message' => 'Ngrok link berhasil diupdate']);
+        return response()->json(['status' => 200, 'message' => 'Ngrok link updated successfully']);
     }
 
     public function destroy($id)
     {
         NgrokModel::findOrFail($id)->delete();
-        return response()->json(['status' => 200, 'message' => 'Ngrok link berhasil dihapus']);
+        return response()->json(['status' => 200, 'message' => 'Ngrok link deleted successfully']);
     }
 }

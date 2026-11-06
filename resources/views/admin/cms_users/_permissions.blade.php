@@ -1,7 +1,7 @@
 <div class="card" id="team-menu-access">
-    <div class="card-header"><h4><i class="fas fa-list-alt mr-2"></i>Hak Akses Menu per Level</h4></div>
+    <div class="card-header"><h4><i class="fas fa-list-alt mr-2"></i>Menu Access by Role</h4></div>
     <div class="card-body">
-        <p class="text-muted">Centang menu yang dapat dibuka dan dikelola setiap tim. Dashboard tersedia untuk semua level. Superadmin memiliki seluruh akses dan mengelola CMS Users.</p>
+        <p class="text-muted">Select the menus each team can access and manage. The dashboard is available to all roles. Superadmins have full access and manage CMS users.</p>
         <form method="POST" action="{{ route('admin.cms_users.permissions') }}">
             @csrf
             <div class="table-responsive">
@@ -22,7 +22,7 @@
                     </tbody>
                 </table>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i>Simpan Hak Akses</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i>Save Permissions</button>
         </form>
     </div>
 </div>

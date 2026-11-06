@@ -73,7 +73,7 @@ class FinancialReportEventsTest extends TestCase
         $this->get('/admin/events')->assertForbidden();
         $this->get('/admin/financial-reports?search=Dollar')->assertOk()->assertSee('Dollar Ticket Event')
             ->assertDontSee('Paid Event Without Sales')->assertDontSee('Historical Paid Event');
-        $this->get('/admin/financial-reports?search=nonexistent')->assertOk()->assertSee('Tidak ada event berbayar yang cocok');
+        $this->get('/admin/financial-reports?search=nonexistent')->assertOk()->assertSee('No paid events match your search');
     }
 
     public function test_events_are_paginated_without_duplicate_rows_for_multiple_tickets(): void
@@ -83,9 +83,9 @@ class FinancialReportEventsTest extends TestCase
             DB::table('events_tickets')->insert(['events_id' => $i, 'price_rupiah' => 1, 'price_dollar' => 0]);
         }
         DB::table('events_tickets')->insert(['events_id' => 17, 'price_rupiah' => 5, 'price_dollar' => 0]);
-        $this->get('/admin/financial-reports')->assertOk()->assertSee('1–15 dari 17 event')
+        $this->get('/admin/financial-reports')->assertOk()->assertSee('1–15 of 17 events')
             ->assertSee('Paid 17')->assertDontSee('Paid 1</strong>', false);
-        $this->get('/admin/financial-reports?page=2')->assertOk()->assertSee('16–17 dari 17 event')->assertSee('Paid 1');
+        $this->get('/admin/financial-reports?page=2')->assertOk()->assertSee('16–17 of 17 events')->assertSee('Paid 1');
     }
 
     public function test_finance_menu_requires_financial_permission(): void

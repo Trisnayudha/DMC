@@ -23,7 +23,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -60,7 +60,7 @@
                                                 class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                                 id="addNewCategory">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Tambah Speakers</a>
+                                                Add Speaker</a>
 
                                         </div>
                                     </div>
@@ -75,7 +75,7 @@
                                                 <th>Job Title</th>
                                                 <th>Company</th>
                                                 <th>Image</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -118,7 +118,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="ajaxCategoryModel">Tambah Speaker</h5>
+                    <h5 class="modal-title" id="ajaxCategoryModel">Add Speaker</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -130,7 +130,7 @@
                         <input type="hidden" name="id" id="id">
                         <div class="form-group">
                             <label for="name">Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="name" class="form-control" placeholder="Nama speaker" required>
+                            <input type="text" name="name" id="name" class="form-control" placeholder="Speaker name" required>
                         </div>
                         <div class="form-group">
                             <label for="job_title">Job Title</label>
@@ -138,21 +138,21 @@
                         </div>
                         <div class="form-group">
                             <label for="company">Company</label>
-                            <input type="text" name="company" id="company" class="form-control" placeholder="Perusahaan / Organisasi">
+                            <input type="text" name="company" id="company" class="form-control" placeholder="Company / Organization">
                         </div>
                         <div class="form-group">
-                            <label for="image">Foto Speaker</label>
+                            <label for="image">Speaker Photo</label>
                             <input type="file" name="image" id="image" class="form-control-file" accept="image/*">
                             <div id="imagePreviewContainer" class="mt-2" style="display: none;">
-                                <small class="text-muted d-block mb-1">Foto saat ini:</small>
+                                <small class="text-muted d-block mb-1">Current photo:</small>
                                 <img id="imagePreview" src="" alt="Preview" class="img-thumbnail" style="max-height: 80px; max-width: 80px; object-fit: cover;">
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer bg-whitesmoke br">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="btn-save">
-                            <i class="fas fa-save mr-1"></i> Simpan
+                            <i class="fas fa-save mr-1"></i> Save
                         </button>
                     </div>
                 </form>
@@ -172,8 +172,8 @@
                 $('#id').val('');
                 $('#imagePreviewContainer').hide();
                 $('#imagePreview').attr('src', '');
-                $('#ajaxCategoryModel').html("Tambah Speaker");
-                $('#btn-save').html('<i class="fas fa-save mr-1"></i> Simpan').prop("disabled", false);
+                $('#ajaxCategoryModel').html("Add Speaker");
+                $('#btn-save').html('<i class="fas fa-save mr-1"></i> Save').prop("disabled", false);
                 $('#category-model').modal('show');
             });
 
@@ -186,7 +186,7 @@
                 $('#imagePreviewContainer').hide();
                 $('#imagePreview').attr('src', '');
                 $('#ajaxCategoryModel').html("Edit Speaker");
-                $('#btn-save').html('<i class="fas fa-save mr-1"></i> Simpan').prop("disabled", false);
+                $('#btn-save').html('<i class="fas fa-save mr-1"></i> Save').prop("disabled", false);
 
                 // AJAX fetch dengan cache: false untuk memastikan data selalu fresh dari database
                 $.ajax({
@@ -214,8 +214,8 @@
                     },
                     error: function(xhr) {
                         Swal.fire({
-                            title: "Gagal",
-                            text: "Gagal memuat data speaker. Silakan coba lagi.",
+                            title: "Failed",
+                            text: "Failed to load speaker details. Please try again.",
                             icon: "error"
                         });
                     }
@@ -225,14 +225,14 @@
             $(document).on('click', '.delete', function() {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin?",
-                    text: "Ingin menghapus data speaker ini?",
+                    title: "Are you sure?",
+                    text: "Do you want to delete this speaker?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: 'Yes, delete',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -242,8 +242,8 @@
                             cache: false,
                             success: function(res) {
                                 Swal.fire({
-                                    title: "Berhasil!",
-                                    text: "Data speaker berhasil dihapus.",
+                                    title: "Success!",
+                                    text: "Speaker deleted successfully.",
                                     icon: "success",
                                     showConfirmButton: false,
                                     timer: 1500
@@ -252,12 +252,12 @@
                                 });
                             },
                             error: function(xhr) {
-                                var errMsg = "Gagal menghapus data speaker.";
+                                var errMsg = "Failed to delete the speaker.";
                                 if (xhr.responseJSON && xhr.responseJSON.error) {
                                     errMsg = xhr.responseJSON.error;
                                 }
                                 Swal.fire({
-                                    title: "Gagal",
+                                    title: "Failed",
                                     text: errMsg,
                                     icon: "error"
                                 });
@@ -302,8 +302,8 @@
                     success: function(res) {
                         $('#category-model').modal('hide');
                         Swal.fire({
-                            title: "Berhasil!",
-                            text: "Data speaker berhasil disimpan.",
+                            title: "Success!",
+                            text: "Speaker saved successfully.",
                             icon: "success",
                             showConfirmButton: false,
                             timer: 1500
@@ -313,14 +313,14 @@
                     },
                     error: function(xhr) {
                         $btnSave.html(originalHtml).prop("disabled", false);
-                        var errMsg = "Gagal menyimpan data speaker.";
+                        var errMsg = "Failed to save the speaker.";
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errMsg = xhr.responseJSON.message;
                         } else if (xhr.responseJSON && xhr.responseJSON.error) {
                             errMsg = xhr.responseJSON.error;
                         }
                         Swal.fire({
-                            title: "Gagal",
+                            title: "Failed",
                             text: errMsg,
                             icon: "error"
                         });

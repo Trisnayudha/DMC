@@ -53,7 +53,7 @@ class MemberSourceController extends Controller
 
         MemberSource::create($data);
 
-        return back()->with('success', 'Source "' . $data['category'] . '/' . $data['code'] . '" berhasil ditambahkan.');
+        return back()->with('success', 'Source "' . $data['category'] . '/' . $data['code'] . '" was added successfully.');
     }
 
     public function update(Request $request, $id)
@@ -66,13 +66,13 @@ class MemberSourceController extends Controller
 
         if ($keyChanged && $this->registrationCount($source) > 0) {
             throw ValidationException::withMessages([
-                'code' => 'Category/Code tidak bisa diubah karena sudah ada member yang daftar lewat link ini. Buat source baru saja.',
+                'code' => 'Category/Code cannot be changed because members have registered through this link. Create a new source instead.',
             ]);
         }
 
         $source->update($data);
 
-        return back()->with('success', 'Source "' . $source->category . '/' . $source->code . '" berhasil diupdate.');
+        return back()->with('success', 'Source "' . $source->category . '/' . $source->code . '" was updated successfully.');
     }
 
     public function toggleActive($id)
@@ -81,9 +81,9 @@ class MemberSourceController extends Controller
         $source->is_active = !$source->is_active;
         $source->save();
 
-        $status = $source->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $status = $source->is_active ? 'activated' : 'deactivated';
 
-        return back()->with('success', 'Source "' . $source->category . '/' . $source->code . '" berhasil ' . $status . '.');
+        return back()->with('success', 'Source "' . $source->category . '/' . $source->code . '" was ' . $status . ' successfully.');
     }
 
     public function destroy($id)
@@ -93,13 +93,13 @@ class MemberSourceController extends Controller
         if ($this->registrationCount($source) > 0) {
             return back()->with(
                 'error',
-                'Source "' . $source->category . '/' . $source->code . '" sudah dipakai member untuk daftar, jadi tidak bisa dihapus. Nonaktifkan saja supaya link-nya mati tapi histori tetap utuh.'
+                'Source "' . $source->category . '/' . $source->code . '" cannot be deleted because members have registered through it. Deactivate it to disable the link while preserving its history.'
             );
         }
 
         $source->delete();
 
-        return back()->with('success', 'Source berhasil dihapus.');
+        return back()->with('success', 'Source deleted successfully.');
     }
 
     /**
@@ -127,9 +127,9 @@ class MemberSourceController extends Controller
             'name'      => 'required|string|max:255',
             'form_type' => ['required', Rule::in(array_keys(self::FORM_TYPES))],
         ], [
-            'category.regex' => 'Category hanya boleh huruf (A-Z), tanpa spasi/angka.',
-            'code.regex'     => 'Code hanya boleh huruf dan angka (A-Z, 0-9), tanpa spasi/simbol.',
-            'code.unique'    => 'Kombinasi Category/Code ini sudah ada.',
+            'category.regex' => 'Category may contain only letters (A–Z), without spaces or numbers.',
+            'code.regex'     => 'Code may contain only letters and numbers (A–Z, 0–9), without spaces or symbols.',
+            'code.unique'    => 'This Category/Code combination already exists.',
         ]);
 
         return [

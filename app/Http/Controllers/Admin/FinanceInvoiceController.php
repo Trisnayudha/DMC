@@ -86,7 +86,7 @@ class FinanceInvoiceController extends Controller
             'renewals' => $renewals->map(function ($r) {
                 return [
                     'id'             => $r->id,
-                    'label'          => trim($r->renewal_year . ' · ' . ucfirst((string) $r->package) . ' · ' . $r->contract_start . ' s/d ' . $r->contract_end
+                    'label'          => trim($r->renewal_year . ' · ' . ucfirst((string) $r->package) . ' · ' . $r->contract_start . ' to ' . $r->contract_end
                         . ($r->is_current ? ' (current)' : '') . ($r->paid_date ? ' · paid' : '')),
                     'package'        => ucfirst((string) $r->package),
                     'contract_start' => $r->contract_start,
@@ -131,11 +131,11 @@ class FinanceInvoiceController extends Controller
             Log::error('Finance invoice VA creation failed', ['invoice' => $invoice->invoice_number, 'error' => $e->getMessage()]);
             return redirect()->route('admin.finance_invoices.show', $invoice->id)->with(
                 'error',
-                'Invoice tersimpan, tapi VA Mandiri gagal dibuat: ' . $e->getMessage() . ' — coba "Buat Ulang VA".'
+                'The invoice was saved, but the Mandiri VA could not be created: ' . $e->getMessage() . ' — try "Regenerate VA".'
             );
         }
 
-        $message = 'Invoice ' . $invoice->invoice_number . ' dibuat. VA Mandiri: ' . $invoice->va_number . '.';
+        $message = 'Invoice ' . $invoice->invoice_number . ' created. Mandiri VA: ' . $invoice->va_number . '.';
         if ($request->boolean('send_email')) {
             $message .= $this->trySendEmail($invoice);
         }
@@ -161,7 +161,7 @@ class FinanceInvoiceController extends Controller
     {
         $invoice = FinanceInvoice::findOrFail($id);
         if (!$invoice->isPayable()) {
-            return back()->with('error', 'Invoice ini tidak bisa dikirim: VA belum aktif, sudah expired, lunas, atau dibatalkan.');
+            return back()->with('error', 'This invoice cannot be sent: the VA is not active or has expired, or the invoice is paid or cancelled.');
         }
 
         $result = $this->trySendEmail($invoice);
@@ -174,7 +174,7 @@ class FinanceInvoiceController extends Controller
     {
         $invoice = FinanceInvoice::findOrFail($id);
         if (in_array($invoice->status, ['paid', 'cancelled'], true)) {
-            return back()->with('error', 'Invoice yang sudah lunas atau dibatalkan tidak bisa dibuatkan VA baru.');
+            return back()->with('error', 'A new VA cannot be created for a paid or cancelled invoice.');
         }
 
         $request->validate(['due_date' => 'required|date|after_or_equal:today']);
@@ -185,10 +185,10 @@ class FinanceInvoiceController extends Controller
             FinanceInvoiceService::createVirtualAccount($invoice);
         } catch (\Throwable $e) {
             Log::error('Finance invoice VA regeneration failed', ['invoice' => $invoice->invoice_number, 'error' => $e->getMessage()]);
-            return back()->with('error', 'VA Mandiri gagal dibuat: ' . $e->getMessage());
+            return back()->with('error', 'Failed to create the Mandiri VA: ' . $e->getMessage());
         }
 
-        $message = 'VA Mandiri baru: ' . $invoice->va_number . ', berlaku sampai ' . $invoice->due_date->format('d M Y') . '.';
+        $message = 'New Mandiri VA: ' . $invoice->va_number . ', valid until ' . $invoice->due_date->format('d M Y') . '.';
         if ($request->boolean('send_email')) {
             $message .= $this->trySendEmail($invoice);
         }
@@ -200,22 +200,22 @@ class FinanceInvoiceController extends Controller
     {
         $invoice = FinanceInvoice::findOrFail($id);
         if ($invoice->status === 'paid') {
-            return back()->with('error', 'Invoice yang sudah lunas tidak bisa dibatalkan.');
+            return back()->with('error', 'A paid invoice cannot be cancelled.');
         }
 
         $invoice->forceFill(['status' => 'cancelled'])->save();
 
-        return back()->with('success', 'Invoice ' . $invoice->invoice_number . ' dibatalkan. Jangan bagikan lagi nomor VA-nya.');
+        return back()->with('success', 'Invoice ' . $invoice->invoice_number . ' cancelled. Do not share its VA number again.');
     }
 
     private function trySendEmail(FinanceInvoice $invoice): string
     {
         try {
             FinanceInvoiceService::sendInvoiceEmail($invoice);
-            return ' Email invoice terkirim ke ' . $invoice->bill_to_email . '.';
+            return ' Invoice email sent to ' . $invoice->bill_to_email . '.';
         } catch (\Throwable $e) {
             Log::error('Finance invoice email failed', ['invoice' => $invoice->invoice_number, 'error' => $e->getMessage()]);
-            return ' Email gagal dikirim: ' . $e->getMessage();
+            return ' Failed to send email: ' . $e->getMessage();
         }
     }
 
@@ -242,13 +242,13 @@ class FinanceInvoiceController extends Controller
             'sponsor_renewal_id'  => 'nullable|exists:sponsor_renewals,id',
             'events_id'           => 'required_if:type,event_ticket|nullable|exists:events,id',
         ], [
-            'sponsor_id.required_if' => 'Pilih sponsor untuk invoice sponsor renewal.',
-            'events_id.required_if'  => 'Pilih event untuk invoice tiket event.',
+            'sponsor_id.required_if' => 'Select a sponsor for a sponsor renewal invoice.',
+            'events_id.required_if'  => 'Select an event for an event ticket invoice.',
         ]);
 
         foreach ($this->ccEmails($request->bill_to_cc) as $cc) {
             if (!filter_var($cc, FILTER_VALIDATE_EMAIL)) {
-                throw ValidationException::withMessages(['bill_to_cc' => 'Email CC tidak valid: ' . $cc]);
+                throw ValidationException::withMessages(['bill_to_cc' => 'Invalid CC email address: ' . $cc]);
             }
         }
 
@@ -256,7 +256,7 @@ class FinanceInvoiceController extends Controller
         [$items, $subtotal, $vatAmount, $total] = FinanceInvoiceService::calculate($request->items, $vatPercent);
         if ($total < FinanceInvoiceService::MIN_AMOUNT) {
             throw ValidationException::withMessages([
-                'items' => 'Total invoice minimal Rp ' . number_format(FinanceInvoiceService::MIN_AMOUNT, 0, ',', '.') . ' (batas VA Mandiri).',
+                'items' => 'The minimum invoice total is Rp ' . number_format(FinanceInvoiceService::MIN_AMOUNT, 0, ',', '.') . ' (Mandiri VA limit).',
             ]);
         }
 

@@ -23,7 +23,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -60,7 +60,7 @@
                                                 class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                                 id="addNewCategory">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Tambah Videos</a>
+                                                Add Video</a>
 
                                         </div>
                                     </div>
@@ -73,7 +73,7 @@
                                                 <th width="10px">No</th>
                                                 <th>Link</th>
                                                 <th>Event</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -144,10 +144,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="events_id" class="col-sm-4">Event (opsional)</label>
+                            <label for="events_id" class="col-sm-4">Event (optional)</label>
                             <div class="col-sm-12">
                                 <select class="form-control" id="events_id" name="events_id">
-                                    <option value="">-- Tidak terhubung ke event --</option>
+                                    <option value="">-- Not linked to an event --</option>
                                     @foreach ($events as $event)
                                         <option value="{{ $event->id }}">{{ $event->name }}</option>
                                     @endforeach
@@ -233,8 +233,8 @@
             $(document).on('click', '.delete', function() {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
+                    title: "Are you sure?",
+                    text: "Do you want to delete this video?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',

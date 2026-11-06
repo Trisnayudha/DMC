@@ -45,7 +45,7 @@
                                             <th>Category / Subcategory</th>
                                             <th width="80" class="text-center">Status</th>
                                             <th width="60" class="text-center">Used</th>
-                                            <th width="120" class="text-center">Aksi</th>
+                                            <th width="120" class="text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -98,7 +98,7 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="4" class="text-muted" style="padding-left:32px;font-style:italic;">Belum ada subcategory</td>
+                                                    <td colspan="4" class="text-muted" style="padding-left:32px;font-style:italic;">No subcategories yet</td>
                                                 </tr>
                                             @endforelse
                                         @endforeach
@@ -112,7 +112,7 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="mb-0"><i class="fas fa-plus mr-2"></i>Tambah Subcategory</h4>
+                            <h4 class="mb-0"><i class="fas fa-plus mr-2"></i>Add Subcategory</h4>
                         </div>
                         <div class="card-body">
                             <form method="POST" action="{{ route('admin.company_subcategories.store') }}">
@@ -120,7 +120,7 @@
                                 <div class="form-group">
                                     <label class="small font-weight-bold">Parent Category</label>
                                     <select name="company_category_id" class="form-control form-control-sm @error('company_category_id') is-invalid @enderror" required>
-                                        <option value="">--Pilih Category--</option>
+                                        <option value="">--Select Category--</option>
                                         @foreach ($categories as $cat)
                                             <option value="{{ $cat->id }}" {{ old('company_category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                                         @endforeach
@@ -134,7 +134,7 @@
                                     @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block btn-sm">
-                                    <i class="fas fa-plus mr-1"></i> Tambah
+                                    <i class="fas fa-plus mr-1"></i> Add
                                 </button>
                             </form>
                         </div>
@@ -145,8 +145,8 @@
                             <h4 class="mb-0"><i class="fas fa-info-circle mr-2"></i>Info</h4>
                         </div>
                         <div class="card-body" style="font-size:12px;color:#888;">
-                            <p>Subcategory berada di bawah satu <strong>category</strong>. Company bisa memilih <strong>lebih dari satu</strong> subcategory (multi-input).</p>
-                            <p>Subcategory yang di-<strong>deactivate</strong> tidak muncul di dropdown, tapi data existing tetap aman.</p>
+                            <p>Each subcategory belongs to one <strong>category</strong>. A company can select <strong>more than one</strong> subcategory.</p>
+                            <p><strong>Inactive</strong> subcategories are hidden from dropdowns. Existing records that use them remain unchanged.</p>
                             <p class="mb-0">API endpoint: <code>GET /api/company-subcategories?category_id=</code></p>
                         </div>
                     </div>

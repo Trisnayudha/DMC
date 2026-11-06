@@ -83,7 +83,7 @@ class EventsDetailController extends Controller
         $event = Events::where('slug', $slug)->first();
         if (!$event) {
             return redirect()->route('events-details', ['slug' => $slug])
-                ->with('error', 'Event tidak ditemukan.');
+                ->with('error', 'Event not found.');
         }
 
         $rows = PaymentService::listPaymentRegister($event->id, $request->params, $request->input('sponsor_id'));
@@ -118,7 +118,7 @@ class EventsDetailController extends Controller
             }
 
             if (!empty($findPayment)) {
-                return redirect()->route('events-details', ['slug' => $slug])->with('error', 'Peserta sudah ada mendaftarkan diri');
+                return redirect()->route('events-details', ['slug' => $slug])->with('error', 'This participant is already registered.');
             }
 
             $image = QrCode::format('png')
@@ -190,7 +190,7 @@ class EventsDetailController extends Controller
                 });
             }
 
-            return redirect()->route('events-details', ['slug' => $slug])->with('success', 'Success add peserta');
+            return redirect()->route('events-details', ['slug' => $slug])->with('success', 'Participant added successfully.');
         } catch (Exception $e) {
             return redirect()->route('events-details', ['slug' => $slug])->with('error', $e->getMessage());
         }

@@ -4,12 +4,12 @@
         <div>
             <h4 class="mb-0"><i class="fas fa-link mr-1 text-primary"></i>Registration Links</h4>
             <small class="text-muted d-block mt-1">
-                Member yang daftar lewat link ini tercatat dengan source <code>CATEGORY/CODE</code>.
-                Source yang nonaktif membuat link-nya tidak bisa dipakai.
+                Members who register through these links are recorded with the source <code>CATEGORY/CODE</code>.
+                Links for inactive sources cannot be used.
             </small>
         </div>
         <button type="button" class="btn btn-sm btn-primary" id="btn-add-source">
-            <i class="fas fa-plus mr-1"></i>Tambah Source
+            <i class="fas fa-plus mr-1"></i>Add Source
         </button>
     </div>
 
@@ -20,12 +20,12 @@
                     <tr>
                         <th width="10px">No</th>
                         <th>Category / Code</th>
-                        <th>Nama</th>
+                        <th>Name</th>
                         <th>Form</th>
-                        <th>Link Pendaftaran</th>
-                        <th class="text-center">Pendaftar</th>
+                        <th>Registration Link</th>
+                        <th class="text-center">Registrations</th>
                         <th>Status</th>
-                        <th width="120px">Aksi</th>
+                        <th width="120px">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,9 +58,9 @@
                             <td class="text-center">{{ number_format($registered) }}</td>
                             <td>
                                 @if ($source->is_active)
-                                    <span class="badge badge-success mini-badge">Aktif</span>
+                                    <span class="badge badge-success mini-badge">Active</span>
                                 @else
-                                    <span class="badge badge-secondary mini-badge">Nonaktif</span>
+                                    <span class="badge badge-secondary mini-badge">Inactive</span>
                                 @endif
                             </td>
                             <td>
@@ -79,16 +79,16 @@
                                         @csrf
                                         <button type="submit"
                                             class="btn btn-icon {{ $source->is_active ? 'btn-outline-warning' : 'btn-outline-success' }}"
-                                            title="{{ $source->is_active ? 'Nonaktifkan' : 'Aktifkan' }}" data-toggle="tooltip">
+                                            title="{{ $source->is_active ? 'Deactivate' : 'Activate' }}" data-toggle="tooltip">
                                             <i class="fas {{ $source->is_active ? 'fa-pause' : 'fa-play' }}"></i>
                                         </button>
                                     </form>
                                     @if ($registered === 0)
                                         <form action="{{ route('admin.member_sources.destroy', $source->id) }}" method="POST"
                                             class="d-inline"
-                                            onsubmit="return confirm('Hapus source &quot;{{ $sourceKey }}&quot;?');">
+                                            onsubmit="return confirm('Delete source &quot;{{ $sourceKey }}&quot;?');">
                                             @csrf
-                                            <button type="submit" class="btn btn-icon btn-outline-danger" title="Hapus"
+                                            <button type="submit" class="btn btn-icon btn-outline-danger" title="Delete"
                                                 data-toggle="tooltip">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -99,7 +99,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">Belum ada source. Klik "Tambah Source" untuk membuat baru.</td>
+                            <td colspan="8" class="text-center text-muted py-4">No sources yet. Click "Add Source" to create one.</td>
                         </tr>
                     @endforelse
                 </tbody>

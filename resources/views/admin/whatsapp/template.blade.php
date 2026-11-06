@@ -4,26 +4,26 @@
     <div class="content-wrapper">
         <section class="section">
             <div class="section-header">
-                <h1>Whatsapp Template Management</h1>
+                <h1>WhatsApp Template Management</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active"><a href="">Whatsapp Template Management</a>
+                    <div class="breadcrumb-item active"><a href="">WhatsApp Template Management</a>
                     </div>
                 </div>
             </div>
             <div class="section-body">
-                <h2 class="section-title">Whatsapp Template</h2>
+                <h2 class="section-title">WhatsApp Template</h2>
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Whatsapp Template Management</h4>
+                                <h4>WhatsApp Template Management</h4>
                             </div>
                             <div class="card-body">
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -60,7 +60,7 @@
                                                 class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                                 id="addNewCategory">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Tambah Ticket</a>
+                                                Add Template</a>
 
                                         </div>
                                     </div>
@@ -74,7 +74,7 @@
                                                 <th>Text</th>
                                                 <th>Image</th>
 
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -189,7 +189,7 @@
             });
             $('#addNewCategory').click(function() {
                 $('#addEditCategoryForm').trigger("reset");
-                $('#ajaxCategoryModel').html("Add Category");
+                $('#ajaxCategoryModel').html("Add Template");
                 $('#category-model').modal('show');
             });
 
@@ -205,7 +205,7 @@
                     },
                     dataType: 'json',
                     success: function(res) {
-                        $('#ajaxCategoryModel').html("Edit Category");
+                        $('#ajaxCategoryModel').html("Edit Template");
                         $('#category-model').modal('show');
                         $('#id').val(res.id);
                         $('#text').val(res.text);
@@ -216,8 +216,8 @@
 
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
+                    title: "Are you sure?",
+                    text: "Do you want to delete this template?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',

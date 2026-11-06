@@ -20,7 +20,7 @@
                 '<td><input type="number" class="form-control form-control-sm js-qty" required min="1" name="items[' + i + '][qty]"></td>' +
                 '<td><input type="number" class="form-control form-control-sm js-price" required min="0" step="1" name="items[' + i + '][unit_price]"></td>' +
                 '<td class="text-right js-amount">Rp 0</td>' +
-                '<td><button type="button" class="btn btn-sm btn-link text-danger js-remove-item" title="Hapus"><i class="fas fa-times"></i></button></td>' +
+                '<td><button type="button" class="btn btn-sm btn-link text-danger js-remove-item" title="Remove"><i class="fas fa-times"></i></button></td>' +
                 '</tr>');
             $row.find('input').eq(0).val(item.description || '');
             $row.find('.js-qty').val(item.qty || 1);
@@ -94,7 +94,7 @@
         // ── Sponsor renewal ──
         function loadSponsor(sponsorId, keepOld) {
             var $renewal = $('#fi-renewal');
-            $renewal.html('<option value="">— Tidak dikaitkan —</option>');
+            $renewal.html('<option value="">— Not linked —</option>');
             renewalsById = {};
             if (!sponsorId) return;
 
@@ -117,7 +117,7 @@
             var r = renewalsById[$(this).val()];
             if (!r) return;
             fillOrAddItem({
-                description: 'Sponsorship ' + r.package + ' Djakarta Mining Club (' + r.contract_start + ' s/d ' + r.contract_end + ')',
+                description: 'Sponsorship ' + r.package + ' Djakarta Mining Club (' + r.contract_start + ' to ' + r.contract_end + ')',
                 qty: 1,
                 unit_price: r.amount_idr || ''
             });
@@ -126,7 +126,7 @@
         // ── Tiket event ──
         function loadTickets(eventId) {
             var $ticket = $('#fi-ticket');
-            $ticket.html('<option value="">— Pilih tiket —</option>');
+            $ticket.html('<option value="">— Select a ticket —</option>');
             if (!eventId) return;
             $.get($('#fi-event').data('url') + '/' + eventId + '/tickets', function(res) {
                 eventName = res.event;
@@ -142,7 +142,7 @@
             var $opt = $('#fi-ticket option:selected');
             if (!$opt.val()) return;
             fillOrAddItem({
-                description: 'Tiket ' + $opt.data('title') + ' - ' + eventName,
+                description: 'Ticket ' + $opt.data('title') + ' - ' + eventName,
                 qty: 1,
                 unit_price: $opt.data('price')
             });
@@ -159,7 +159,7 @@
         if ($('#fi-event').val()) loadTickets($('#fi-event').val());
 
         $('#finance-invoice-form').on('submit', function() {
-            $('#fi-submit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Membuat VA...');
+            $('#fi-submit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Creating VA...');
         });
     })();
 </script>

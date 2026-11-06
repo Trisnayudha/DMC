@@ -20,7 +20,7 @@
                         <div class="card card-statistic-1">
                             <div class="card-icon bg-warning"><i class="fas fa-hourglass-half"></i></div>
                             <div class="card-wrap">
-                                <div class="card-header"><h4>Menunggu Pembayaran</h4></div>
+                                <div class="card-header"><h4>Awaiting Payment</h4></div>
                                 <div class="card-body">{{ $summary['pending_count'] }}</div>
                             </div>
                         </div>
@@ -29,7 +29,7 @@
                         <div class="card card-statistic-1">
                             <div class="card-icon bg-primary"><i class="fas fa-file-invoice-dollar"></i></div>
                             <div class="card-wrap">
-                                <div class="card-header"><h4>Nilai Belum Dibayar</h4></div>
+                                <div class="card-header"><h4>Outstanding Amount</h4></div>
                                 <div class="card-body" style="font-size:16px;">Rp {{ number_format($summary['pending_amount'], 0, ',', '.') }}</div>
                             </div>
                         </div>
@@ -38,7 +38,7 @@
                         <div class="card card-statistic-1">
                             <div class="card-icon bg-success"><i class="fas fa-check-circle"></i></div>
                             <div class="card-wrap">
-                                <div class="card-header"><h4>Lunas Bulan Ini</h4></div>
+                                <div class="card-header"><h4>Paid This Month</h4></div>
                                 <div class="card-body">{{ $summary['paid_month'] }}</div>
                             </div>
                         </div>
@@ -47,7 +47,7 @@
                         <div class="card card-statistic-1">
                             <div class="card-icon bg-info"><i class="fas fa-coins"></i></div>
                             <div class="card-wrap">
-                                <div class="card-header"><h4>Diterima Bulan Ini</h4></div>
+                                <div class="card-header"><h4>Received This Month</h4></div>
                                 <div class="card-body" style="font-size:16px;">Rp {{ number_format($summary['paid_month_amount'], 0, ',', '.') }}</div>
                             </div>
                         </div>
@@ -56,20 +56,20 @@
 
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:10px;">
-                        <h4 class="mb-0">Daftar Invoice</h4>
+                        <h4 class="mb-0">Invoices</h4>
                         <a href="{{ route('admin.finance_invoices.create') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus mr-1"></i>Buat Invoice
+                            <i class="fas fa-plus mr-1"></i>Create Invoice
                         </a>
                     </div>
                     <div class="card-body">
                         <form method="GET" action="{{ route('admin.finance_invoices.index') }}" class="form-row mb-3">
                             <div class="col-md-5 mb-2">
                                 <input type="search" name="search" class="form-control form-control-sm" value="{{ $filters['search'] }}"
-                                    placeholder="Cari no. invoice, nama, perusahaan, email, no. VA...">
+                                    placeholder="Search invoice number, name, company, email, or VA number...">
                             </div>
                             <div class="col-md-2 mb-2">
                                 <select name="status" class="form-control form-control-sm">
-                                    <option value="">Semua status</option>
+                                    <option value="">All statuses</option>
                                     @foreach (\App\Models\Payments\FinanceInvoice::STATUSES as $key => $label)
                                         <option value="{{ $key }}" {{ $filters['status'] === $key ? 'selected' : '' }}>{{ $label }}</option>
                                     @endforeach
@@ -77,7 +77,7 @@
                             </div>
                             <div class="col-md-2 mb-2">
                                 <select name="type" class="form-control form-control-sm">
-                                    <option value="">Semua tipe</option>
+                                    <option value="">All types</option>
                                     @foreach (\App\Models\Payments\FinanceInvoice::TYPES as $key => $label)
                                         <option value="{{ $key }}" {{ $filters['type'] === $key ? 'selected' : '' }}>{{ $label }}</option>
                                     @endforeach
@@ -94,11 +94,11 @@
                                 <thead>
                                     <tr>
                                         <th>No. Invoice</th>
-                                        <th>Tipe</th>
-                                        <th>Ditagihkan ke</th>
+                                        <th>Type</th>
+                                        <th>Bill To</th>
                                         <th class="text-right">Total</th>
                                         <th>VA Mandiri</th>
-                                        <th>Jatuh Tempo</th>
+                                        <th>Due Date</th>
                                         <th>Status</th>
                                         <th></th>
                                     </tr>
@@ -124,7 +124,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="text-center text-muted py-4">Belum ada invoice.</td>
+                                            <td colspan="8" class="text-center text-muted py-4">No invoices yet.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -132,7 +132,7 @@
                         </div>
                     </div>
                     <div class="card-footer d-flex justify-content-between align-items-center flex-wrap" style="gap:10px;">
-                        <small class="text-muted">{{ $invoices->firstItem() ?? 0 }}–{{ $invoices->lastItem() ?? 0 }} dari {{ $invoices->total() }} invoice</small>
+                        <small class="text-muted">{{ $invoices->firstItem() ?? 0 }}–{{ $invoices->lastItem() ?? 0 }} of {{ $invoices->total() }} invoices</small>
                         {{ $invoices->onEachSide(1)->links('pagination::bootstrap-4') }}
                     </div>
                 </div>

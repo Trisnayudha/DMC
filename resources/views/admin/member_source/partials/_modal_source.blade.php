@@ -8,7 +8,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="member-source-modal-title">
-                        <i class="fas fa-link mr-1"></i>Tambah Source
+                        <i class="fas fa-link mr-1"></i>Add Source
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -34,21 +34,21 @@
                         </div>
                     </div>
                     <small class="text-muted d-block mb-3" id="ms-key-hint">
-                        Huruf/angka saja, tanpa spasi. <strong>EP</strong> = Partnership Event,
-                        <strong>E</strong> = DMC Event (keduanya masuk chart "Members by Source"),
+                        Category: letters only. Code: letters and numbers only. No spaces. <strong>EP</strong> = Partnership Event,
+                        <strong>E</strong> = DMC Event (both appear in the "Members by Source" chart),
                         <strong>REF</strong> = Referral.
                     </small>
                     <small class="text-warning d-none mb-3" id="ms-key-locked">
-                        <i class="fas fa-lock mr-1"></i>Category/Code dikunci karena sudah ada member yang daftar lewat link ini.
+                        <i class="fas fa-lock mr-1"></i>Category/Code is locked because members have already registered through this link.
                     </small>
                     <div class="form-group">
-                        <label>Nama</label>
+                        <label>Name</label>
                         <input type="text" name="name" id="ms-name" class="form-control" required maxlength="255"
-                            placeholder="mis. Mining Indonesia 2026" value="{{ old('name') }}">
-                        <small class="text-muted">Tampil di halaman pendaftaran dan di breakdown source admin/users.</small>
+                            placeholder="e.g. Mining Indonesia 2026" value="{{ old('name') }}">
+                        <small class="text-muted">Shown on the registration page and in the member source breakdown.</small>
                     </div>
                     <div class="form-group">
-                        <label>Tipe Form</label>
+                        <label>Form Type</label>
                         <select name="form_type" id="ms-form-type" class="form-control" required>
                             @foreach ($formTypes as $formValue => $formLabel)
                                 <option value="{{ $formValue }}" {{ old('form_type') === $formValue ? 'selected' : '' }}>
@@ -58,16 +58,16 @@
                     </div>
                     <div class="form-group form-check mb-2">
                         <input type="checkbox" class="form-check-input" name="is_active" id="ms-active" value="1" checked>
-                        <label class="form-check-label" for="ms-active">Aktif (link bisa dipakai untuk daftar)</label>
+                        <label class="form-check-label" for="ms-active">Active (registration link is available)</label>
                     </div>
                     <div class="small text-muted">
                         Link: <code id="ms-link-preview">{{ $frontendUrl }}/member/…</code>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save mr-1"></i> Simpan
+                        <i class="fas fa-save mr-1"></i> Save
                     </button>
                 </div>
             </div>

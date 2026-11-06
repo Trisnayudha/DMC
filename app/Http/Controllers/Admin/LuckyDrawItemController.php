@@ -120,7 +120,7 @@ class LuckyDrawItemController extends Controller
             if ($newChance > $remaining) {
                 return response()->json([
                     'success'   => false,
-                    'message'   => "Total peluang aktif melebihi 100%. Sisa kuota tersedia: {$remaining}%.",
+                    'message'   => "The total chance for active prizes exceeds 100%. Remaining available chance: {$remaining}%.",
                     'remaining' => $remaining,
                     'used'      => round($usedByOthers + (float) $item->chance_percent, 2),
                 ], 422);
@@ -140,7 +140,7 @@ class LuckyDrawItemController extends Controller
 
         return response()->json([
             'success'   => true,
-            'message'   => "{$item->name} berhasil diperbarui.",
+            'message'   => "{$item->name} updated successfully.",
             'item'      => [
                 'id'             => $item->id,
                 'name'           => $item->name,
@@ -167,7 +167,7 @@ class LuckyDrawItemController extends Controller
         if ($request->action === 'force_win') {
             $targetId = $request->item_id;
             if (!$targetId) {
-                return response()->json(['success' => false, 'message' => 'Item target tidak ditemukan.'], 422);
+                return response()->json(['success' => false, 'message' => 'Target prize not found.'], 422);
             }
 
             $target = LuckyDrawItem::findOrFail($targetId);
@@ -186,7 +186,7 @@ class LuckyDrawItemController extends Controller
 
             return response()->json([
                 'success'   => true,
-                'message'   => "Mode 'Pasti Keluar' aktif: {$target->name} disetel 100%. Hadiah lain dinolkan.",
+                'message'   => "Guaranteed prize mode enabled: {$target->name} is set to 100%. Other prizes are set to 0%.",
                 'used'      => $totalActive,
                 'remaining' => $remaining,
                 'items'     => LuckyDrawItem::orderBy('sort_order')->orderBy('id')->get(['id', 'chance_percent', 'is_active']),
@@ -198,7 +198,7 @@ class LuckyDrawItemController extends Controller
             $count = $activeItems->count();
 
             if ($count === 0) {
-                return response()->json(['success' => false, 'message' => 'Tidak ada hadiah yang aktif untuk dibagi rata.'], 422);
+                return response()->json(['success' => false, 'message' => 'There are no active prizes to distribute the chance among.'], 422);
             }
 
             $equalChance = round(100 / $count, 2);
@@ -214,7 +214,7 @@ class LuckyDrawItemController extends Controller
 
             return response()->json([
                 'success'   => true,
-                'message'   => "Peluang 100% berhasil dibagi rata ke {$count} hadiah aktif.",
+                'message'   => "A 100% chance was distributed equally among {$count} active prizes.",
                 'used'      => $totalActive,
                 'remaining' => $remaining,
                 'items'     => LuckyDrawItem::orderBy('sort_order')->orderBy('id')->get(['id', 'chance_percent', 'is_active']),

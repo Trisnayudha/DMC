@@ -21,7 +21,7 @@
                             <div class="card-header">
                                 <h4>Detail Registration</h4>
                                 <div class="card-header-action">
-                                    <a href="{{ route('admin.event_conversions.index', ['search' => $slug]) }}" class="btn btn-sm btn-outline-primary mr-2" title="Lihat Analisis Konversi Member">
+                                    <a href="{{ route('admin.event_conversions.index', ['search' => $slug]) }}" class="btn btn-sm btn-outline-primary mr-2" title="View member conversion analytics">
                                         <i class="fas fa-chart-line mr-1"></i> Conversion Funnel
                                     </a>
                                     <a data-collapse="#detail-registration" class="btn btn-icon btn-info" href="#"><i
@@ -38,7 +38,7 @@
                                                 </div>
                                                 <div class="card-wrap">
                                                     <div class="card-header">
-                                                        <h4>Total All Pendaftar</h4>
+                                                        <h4>Total Registrations</h4>
                                                     </div>
                                                     <div class="card-body">
                                                         {{ $allApprove }}
@@ -54,7 +54,7 @@
                                                 </div>
                                                 <div class="card-wrap">
                                                     <div class="card-header">
-                                                        <h4>Total Pendaftar <b> Sponsor</b></h4>
+                                                        <h4>Total Registrations <b> Sponsor</b></h4>
                                                     </div>
                                                     <div class="card-body">
                                                         {{ $sponsor }}
@@ -69,7 +69,7 @@
                                                 </div>
                                                 <div class="card-wrap">
                                                     <div class="card-header">
-                                                        <h4>Total Pendaftar <b> Berbayar</b></h4>
+                                                        <h4>Total Registrations <b> Paid</b></h4>
                                                     </div>
                                                     <div class="card-body">
                                                         {{ $paid }}
@@ -84,7 +84,7 @@
                                                 </div>
                                                 <div class="card-wrap">
                                                     <div class="card-header">
-                                                        <h4>Total Pendaftar <b> Gratis</b></h4>
+                                                        <h4>Total Registrations <b> Free</b></h4>
                                                     </div>
                                                     <div class="card-body">
                                                         {{ $free }}
@@ -104,7 +104,7 @@
                     <div class="col-lg-8">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Tambah Peserta</h4>
+                                <h4>Add Participant</h4>
                                 <div class="card-header-action">
                                     <a data-collapse="#tambah-peserta" class="btn btn-icon btn-info" href="#"><i
                                             class="fas fa-plus"></i></a>
@@ -118,7 +118,7 @@
                                                 @csrf
                                                 <input type="hidden" name="event" value="{{ $slug }}">
                                                 <div class="form-group">
-                                                    <label for="nama">Nama</label>
+                                                    <label for="nama">Name</label>
                                                     <select name="nama" id="nama" class="form-control select2"
                                                         required>
                                                         <option value="">Default</option>
@@ -148,8 +148,7 @@
                                                 </div>
                                                 <button type="button" class="btn btn-secondary"
                                                     data-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary add-user">Add
-                                                    peserta</button>
+                                                <button type="submit" class="btn btn-primary add-user">Add Participant</button>
                                             </form>
                                         </div>
                                     </div>
@@ -221,7 +220,7 @@
                                     <div class="btn-group btn-group-sm d-inline mr-2" role="group"
                                         aria-label="Filter keanggotaan">
                                         <button type="button" class="btn btn-outline-secondary membership-filter active"
-                                            data-mfilter="all">Semua</button>
+                                            data-mfilter="all">All</button>
                                         <button type="button" class="btn btn-outline-success membership-filter"
                                             data-mfilter="member">Member</button>
                                         <button type="button" class="btn btn-outline-warning membership-filter"
@@ -246,7 +245,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -268,7 +267,7 @@
                                         class="btn btn-block btn-icon icon-left btn-success btn-filter mb-3"
                                         id="modal-2">
                                         <i class="fas fa-plus-circle"></i>
-                                        Tambah Peserta
+                                        Add Participant
                                     </a>
                                 </div>
                                 <div class="float-right ml-3">
@@ -309,23 +308,23 @@
                                         Pendaftaran</a>
                                     <div class="dropdown-menu dropdown-menu-right">
                                         <h6 class="dropdown-header">Backend (Membership)</h6>
-                                        <a href="{{ url($slug . '/register-event') }}" class="dropdown-item">Berbayar</a>
+                                        <a href="{{ url($slug . '/register-event') }}" class="dropdown-item">Paid</a>
                                         <a href="{{ url($slug . '/register-event?referral=wa-channel') }}"
-                                            class="dropdown-item">Berbayar – WA Channel</a>
+                                            class="dropdown-item">Paid – WA Channel</a>
                                         <a href="{{ url($slug . '/register-event?referral=comitte') }}"
-                                            class="dropdown-item">Berbayar – Comitte</a>
+                                            class="dropdown-item">Paid – Committee</a>
                                         <a href="{{ url($slug . '/exclusive-invitation') }}"
-                                            class="dropdown-item">Exclusive Gratis</a>
+                                            class="dropdown-item">Exclusive Free</a>
                                         <a href="{{ url($slug . '/register-event/sponsor') }}"
                                             class="dropdown-item">Sponsors</a>
                                         <div class="dropdown-divider"></div>
                                         <h6 class="dropdown-header">Frontend (Website)</h6>
                                         <a href="https://www.djakarta-miningclub.com/events/{{ $slug }}/register"
-                                            class="dropdown-item" target="_blank">Berbayar</a>
+                                            class="dropdown-item" target="_blank">Paid</a>
                                         <a href="https://www.djakarta-miningclub.com/events/{{ $slug }}/register?referral=wa-channel"
-                                            class="dropdown-item" target="_blank">Berbayar – WA Channel</a>
+                                            class="dropdown-item" target="_blank">Paid – WA Channel</a>
                                         <a href="https://www.djakarta-miningclub.com/events/{{ $slug }}/register?referral=comitte"
-                                            class="dropdown-item" target="_blank">Berbayar – Comitte</a>
+                                            class="dropdown-item" target="_blank">Paid – Committee</a>
                                     </div>
                                 </div>
 
@@ -351,7 +350,7 @@
                                                 <th class="text-center">Mining</th>
                                                 <th class="text-center">Potential Member</th>
                                                 <th>Referral</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -563,7 +562,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <select name="sponsor_id" id="sponsor_id" class="form-control" required>
-                                <option value="">Pilih Sponsor</option>
+                                <option value="">Select Sponsor</option>
                                 @foreach ($sponsors as $sponsor)
                                     <option value="{{ $sponsor->id }}">{{ $sponsor->name }}</option>
                                 @endforeach
@@ -571,7 +570,7 @@
                         </div>
                     </div>
                     <div class="modal-footer p-2">
-                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary btn-sm">Set</button>
                     </div>
                 </div>
@@ -584,7 +583,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tambah peserta</h5>
+                    <h5 class="modal-title">Add Participant</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -642,13 +641,12 @@
                                     <div class="position-relative">
                                         <input type="text" class="form-control" name="company_name" id="company_name"
                                             autocomplete="off"
-                                            placeholder="Ketik nama company atau pilih dari verified...">
+                                            placeholder="Enter a company name or select a verified company...">
                                         <div id="inv-company-suggestions" class="list-group position-absolute w-100"
                                             style="z-index:9999; display:none; max-height:180px; overflow-y:auto; top:100%; left:0; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
                                         </div>
                                     </div>
-                                    <small class="text-muted">Ketik untuk saran dari company yang sudah
-                                        verified.</small>
+                                    <small class="text-muted">Type to see suggestions from verified companies.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="email"> Email</label>
@@ -672,7 +670,7 @@
                                     <label for="company_category" class="form-label">Company Category *</label>
                                     <select class="form-control js-example-basic-single d-block w-100"
                                         name="company_category" id="company_category" required>
-                                        @include('partials._company_category_options', ['includeInactive' => true])
+                                        @include('partials._company_category_options', ['includeInactive' => true, 'inactiveLabel' => 'Inactive categories — select a new category'])
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -694,7 +692,7 @@
                             </div>
                         </div>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button class="btn btn-primary">Tambah peserta</button>
+                        <button class="btn btn-primary">Add Participant</button>
                     </form>
                 </div>
             </div>
@@ -705,7 +703,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit peserta</h5>
+                    <h5 class="modal-title">Edit Participant</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -791,7 +789,7 @@
                                     <label>Company Category</label>
                                     <select class="form-control js-example-basic-single d-block w-100"
                                         name="company_category_edit" id="company_category_edit">
-                                        @include('partials._company_category_options', ['includeInactive' => true])
+                                        @include('partials._company_category_options', ['includeInactive' => true, 'inactiveLabel' => 'Inactive categories — select a new category'])
                                     </select>
                                 </div>
                                 <div class="form-group company_other_edit">
@@ -813,7 +811,7 @@
                         </div>
                         <input type="hidden" name="code_payment_edit" id="code_payment_edit">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button class="btn btn-warning">Update peserta</button>
+                        <button class="btn btn-warning">Update Participant</button>
                     </form>
                 </div>
             </div>
@@ -1008,7 +1006,7 @@
                 var ticket = form.find('select[name="ticket"]').val();
                 if (ticket === 'member') {
                     if (!confirm(
-                            'Warning: User baru ini belum terdaftar sebagai member. Yakin ingin daftarkan sebagai Member?'
+                            'Warning: This new user is not registered as a member. Register them as a member?'
                         )) {
                         e.preventDefault();
                         return false;
@@ -1024,8 +1022,8 @@
 
                 if ((ticket === 'member') && status !== 'active') {
                     var statusLabel = status || 'unknown';
-                    if (!confirm('Warning: User ini status membership-nya "' + statusLabel +
-                            '" (belum approved). Yakin ingin daftarkan sebagai Member?')) {
+                    if (!confirm('Warning: This user has membership status "' + statusLabel +
+                            '" (not yet approved). Register them as a member?')) {
                         e.preventDefault();
                         return false;
                     }
@@ -1271,7 +1269,7 @@
             if (!companyName) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Isi dulu nama company',
+                    title: 'Enter a company name first',
                     timer: 1500,
                     showConfirmButton: false
                 });
@@ -1293,7 +1291,7 @@
                     if (!res.found) {
                         Swal.fire({
                             icon: 'info',
-                            title: 'Data company tidak ditemukan di database',
+                            title: 'Company data was not found in the database',
                             timer: 2000,
                             showConfirmButton: false
                         });
@@ -1311,7 +1309,7 @@
 
                     Swal.fire({
                         icon: 'success',
-                        title: 'Data berhasil disync!',
+                        title: 'Data synced successfully!',
                         timer: 1500,
                         showConfirmButton: false
                     });
@@ -1319,7 +1317,7 @@
                 error: function() {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Gagal mengambil data',
+                        title: 'Failed to retrieve data',
                         timer: 1500,
                         showConfirmButton: false
                     });

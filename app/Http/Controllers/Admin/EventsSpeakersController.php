@@ -47,7 +47,7 @@ class EventsSpeakersController extends Controller
                 $model = EventsSpeakers::find($request->id);
 
                 if (!$model) {
-                    return response()->json(['error' => 'Data speaker tidak ditemukan.'], 404);
+                    return response()->json(['error' => 'Speaker not found.'], 404);
                 }
 
                 $model->update($data);
@@ -67,7 +67,7 @@ class EventsSpeakersController extends Controller
         $data = EventsSpeakers::find($id);
 
         if (!$data) {
-            return response()->json(['error' => 'Data speaker tidak ditemukan.'], 404);
+            return response()->json(['error' => 'Speaker not found.'], 404);
         }
 
         return response()->json($data, 200, [
@@ -81,7 +81,7 @@ class EventsSpeakersController extends Controller
     {
         $data = EventsSpeakers::find($id);
         if (!$data) {
-            return response()->json(['error' => 'Data speaker tidak ditemukan.'], 404);
+            return response()->json(['error' => 'Speaker not found.'], 404);
         }
 
         $data->delete();

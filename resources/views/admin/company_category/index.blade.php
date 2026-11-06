@@ -37,7 +37,7 @@
                                             <th>Category Name</th>
                                             <th width="80" class="text-center">Status</th>
                                             <th width="60" class="text-center">Used</th>
-                                            <th width="140" class="text-center">Aksi</th>
+                                            <th width="140" class="text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody id="sortableBody">
@@ -92,7 +92,7 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="mb-0"><i class="fas fa-plus mr-2"></i>Tambah Category</h4>
+                            <h4 class="mb-0"><i class="fas fa-plus mr-2"></i>Add Category</h4>
                         </div>
                         <div class="card-body">
                             <form method="POST" action="{{ route('admin.company_categories.store') }}">
@@ -104,7 +104,7 @@
                                     @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-block btn-sm">
-                                    <i class="fas fa-plus mr-1"></i> Tambah
+                                    <i class="fas fa-plus mr-1"></i> Add
                                 </button>
                             </form>
                         </div>
@@ -115,7 +115,7 @@
                             <h4 class="mb-0"><i class="fas fa-info-circle mr-2"></i>Info</h4>
                         </div>
                         <div class="card-body" style="font-size:12px;color:#888;">
-                            <p>Categories yang di-<strong>deactivate</strong> tidak akan muncul di dropdown registrasi, tapi data existing yang sudah pakai category tersebut tetap aman.</p>
+                            <p><strong>Inactive</strong> categories are hidden from registration dropdowns. Existing records that use them remain unchanged.</p>
                             <p class="mb-0">API endpoint: <code>GET /api/company-categories</code></p>
                         </div>
                     </div>

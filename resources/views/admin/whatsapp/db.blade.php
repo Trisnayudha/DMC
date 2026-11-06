@@ -4,26 +4,26 @@
     <div class="content-wrapper">
         <section class="section">
             <div class="section-header">
-                <h1>Whatsapp DB Management</h1>
+                <h1>WhatsApp DB Management</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ Route('home') }}">Dashboard</a></div>
-                    <div class="breadcrumb-item active"><a href="">Whatsapp DB Management</a>
+                    <div class="breadcrumb-item active"><a href="">WhatsApp DB Management</a>
                     </div>
                 </div>
             </div>
             <div class="section-body">
-                <h2 class="section-title">Whatsapp DB</h2>
+                <h2 class="section-title">WhatsApp DB</h2>
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>Whatsapp DB Management</h4>
+                                <h4>WhatsApp DB Management</h4>
                             </div>
                             <div class="card-body">
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -64,7 +64,7 @@
                                             class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                             id="addNewCategory">
                                             <i class="fas fa-plus-circle"></i>
-                                            Tambah Ticket</a>
+                                            Import Contacts</a>
 
                                     </div>
                                 </div>
@@ -75,11 +75,11 @@
                                             <tr>
                                                 <th width="10px">No</th>
                                                 <th>Name</th>
-                                                <th>Nomor HP</th>
+                                                <th>Phone Number</th>
                                                 <th>Company</th>
                                                 <th>Job</th>
                                                 <th>Campaign</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -172,15 +172,15 @@
             });
             $('#addNewCategory').click(function() {
                 $('#addEditCategoryForm').trigger("reset");
-                $('#ajaxCategoryModel').html("Add Category");
+                $('#ajaxCategoryModel').html("Import Contacts");
                 $('#category-model').modal('show');
             });
             $(document).on('click', '.delete', function() {
 
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
+                    title: "Are you sure?",
+                    text: "Do you want to delete this contacts?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',

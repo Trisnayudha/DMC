@@ -4,11 +4,11 @@
     <div class="content-wrapper">
         <section class="section">
             <div class="section-header">
-                <h1>Buat Invoice VA Mandiri</h1>
+                <h1>Create Mandiri VA Invoice</h1>
                 <div class="section-header-breadcrumb">
                     <div class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></div>
                     <div class="breadcrumb-item"><a href="{{ route('admin.finance_invoices.index') }}">Invoice VA Mandiri</a></div>
-                    <div class="breadcrumb-item active">Buat</div>
+                    <div class="breadcrumb-item active">Create</div>
                 </div>
             </div>
 

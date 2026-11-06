@@ -23,7 +23,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -52,14 +52,14 @@
                                             <tr>
                                                 <th width="10px">No</th>
                                                 <th>Date Register</th>
-                                                <th>Nama</th>
+                                                <th>Name</th>
                                                 <th>Job Title</th>
                                                 <th>Company</th>
                                                 <th>Email</th>
                                                 <th>Phone Number</th>
                                                 <th>Office Number</th>
                                                 <th>Status Approval</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>

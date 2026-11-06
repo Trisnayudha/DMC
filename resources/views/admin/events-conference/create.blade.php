@@ -23,7 +23,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h4>
-                                Keterangan event
+                                Event Details
                             </h4>
                         </div>
                         <div class="card-body">
@@ -34,7 +34,7 @@
                             ]) !!}
                             <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                                 {!! Form::label('Name Event *') !!}
-                                {!! Form::text('name', old('title'), ['class' => 'form-control', 'placeholder' => 'Nama Program']) !!}
+                                {!! Form::text('name', old('title'), ['class' => 'form-control', 'placeholder' => 'Event name']) !!}
                                 @if ($errors->has('name'))
                                     <span class="help-block">
                                         <strong style="color:red">{{ $errors->first('name') }}</strong>
@@ -118,7 +118,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group{{ $errors->has('start_date') ? ' has-error' : '' }}">
-                                        {!! Form::label('Tanggal Mulai *') !!}
+                                        {!! Form::label('Start Date *') !!}
                                         <div class="input-group date">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
@@ -128,7 +128,7 @@
                                             {!! Form::text('start_date', date('Y-m-d'), [
                                                 'class' => 'form-control
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     datepicker',
-                                                'placeholder' => 'Tanggal Mulai',
+                                                'placeholder' => 'Start Date',
                                             ]) !!}
                                         </div>
                                         @if ($errors->has('start_date'))
@@ -138,14 +138,14 @@
                                         @endif
                                     </div>
                                     <div class="form-group{{ $errors->has('start_time') ? ' has-error' : '' }}">
-                                        {!! Form::label('Waktu Mulai *') !!}
+                                        {!! Form::label('Start Time *') !!}
                                         <div class="input-group clockpicker" data-autoclose="true">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
                                                     <i class="fas fa-clock"></i>
                                                 </div>
                                             </div>
-                                            {!! Form::text('start_time', date('H:i'), ['class' => 'form-control ', 'placeholder' => 'Waktu Mulai']) !!}
+                                            {!! Form::text('start_time', date('H:i'), ['class' => 'form-control ', 'placeholder' => 'Start Time']) !!}
                                             <span class="input-group-addon">
                                                 <span class="fa fa-clock-o"></span>
                                             </span>
@@ -157,7 +157,7 @@
                                         @endif
                                     </div>
                                     <div class="form-group{{ $errors->has('start_time') ? ' has-error' : '' }}">
-                                        {!! Form::label('Waktu Selesai *') !!}
+                                        {!! Form::label('End Time *') !!}
                                         <div class="input-group clockpicker" data-autoclose="true">
                                             <div class="input-group-prepend">
                                                 <div class="input-group-text">
@@ -166,8 +166,7 @@
                                             </div>
                                             {!! Form::text('end_time', date('H:i'), [
                                                 'class' => 'form-control ',
-                                                'placeholder' => 'Waktu
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Selesai',
+                                                'placeholder' => 'End Time',
                                             ]) !!}
                                             <span class="input-group-addon">
                                                 <span class="fa fa-clock-o"></span>
@@ -192,7 +191,7 @@
                                 <div class="card-footer text-right">
                                     <div class="pull-right">
                                         <a href="{{ route('events') }}" class="btn btn-warning">Close</a>
-                                        <button type="submit" class="btn btn-primary">Simpan</button>
+                                        <button type="submit" class="btn btn-primary">Save</button>
                                     </div>
                                 </div>
                             </div>

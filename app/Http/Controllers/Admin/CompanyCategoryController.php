@@ -28,7 +28,7 @@ class CompanyCategoryController extends Controller
             'is_active'  => true,
         ]);
 
-        return back()->with('success', 'Category "' . $request->name . '" berhasil ditambahkan.');
+        return back()->with('success', 'Category "' . $request->name . '" was added successfully.');
     }
 
     public function update(Request $request, $id)
@@ -41,7 +41,7 @@ class CompanyCategoryController extends Controller
 
         $category->update(['name' => $request->name]);
 
-        return back()->with('success', 'Category berhasil diupdate.');
+        return back()->with('success', 'Category updated successfully.');
     }
 
     public function toggleActive($id)
@@ -51,7 +51,7 @@ class CompanyCategoryController extends Controller
         $category->save();
 
         $status = $category->is_active ? 'activated' : 'deactivated';
-        return back()->with('success', '"' . $category->name . '" berhasil di-' . $status . '.');
+        return back()->with('success', '"' . $category->name . '" was ' . $status . ' successfully.');
     }
 
     public function reorder(Request $request)

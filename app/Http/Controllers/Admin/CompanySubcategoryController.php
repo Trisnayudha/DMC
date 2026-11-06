@@ -32,7 +32,7 @@ class CompanySubcategoryController extends Controller
         if ($exists) {
             return back()
                 ->withInput()
-                ->with('error', 'Subcategory "' . $request->name . '" sudah ada di kategori tersebut.');
+                ->with('error', 'Subcategory "' . $request->name . '" already exists in this category.');
         }
 
         $maxSort = CompanySubcategory::where('company_category_id', $request->company_category_id)
@@ -45,7 +45,7 @@ class CompanySubcategoryController extends Controller
             'is_active'           => true,
         ]);
 
-        return back()->with('success', 'Subcategory "' . $request->name . '" berhasil ditambahkan.');
+        return back()->with('success', 'Subcategory "' . $request->name . '" was added successfully.');
     }
 
     public function update(Request $request, $id)
@@ -62,12 +62,12 @@ class CompanySubcategoryController extends Controller
             ->exists();
 
         if ($exists) {
-            return back()->with('error', 'Subcategory "' . $request->name . '" sudah ada di kategori tersebut.');
+            return back()->with('error', 'Subcategory "' . $request->name . '" already exists in this category.');
         }
 
         $subcategory->update(['name' => $request->name]);
 
-        return back()->with('success', 'Subcategory berhasil diupdate.');
+        return back()->with('success', 'Subcategory updated successfully.');
     }
 
     public function toggleActive($id)
@@ -77,6 +77,6 @@ class CompanySubcategoryController extends Controller
         $subcategory->save();
 
         $status = $subcategory->is_active ? 'activated' : 'deactivated';
-        return back()->with('success', '"' . $subcategory->name . '" berhasil di-' . $status . '.');
+        return back()->with('success', '"' . $subcategory->name . '" was ' . $status . ' successfully.');
     }
 }

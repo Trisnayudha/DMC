@@ -47,15 +47,15 @@
         if (used >= 100) {
             $('#badge-used-chance').removeClass('badge-primary badge-warning').addClass('badge-success');
             $('#progress-bar-used').removeClass('bg-primary bg-danger').addClass('bg-success');
-            $('#budget-status-note').html('<span class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i>Pasti keluar hadiah (ZONK 0%)</span>');
+            $('#budget-status-note').html('<span class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i>A prize is guaranteed (0% no-prize chance)</span>');
         } else if (used > 100) {
             $('#badge-used-chance').removeClass('badge-primary badge-success').addClass('badge-danger');
             $('#progress-bar-used').removeClass('bg-primary bg-success').addClass('bg-danger');
-            $('#budget-status-note').html('<span class="text-danger font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i>Peluang > 100%! Harap kurangi</span>');
+            $('#budget-status-note').html('<span class="text-danger font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i>Chance exceeds 100%! Please reduce it</span>');
         } else {
             $('#badge-used-chance').removeClass('badge-success badge-danger').addClass('badge-primary');
             $('#progress-bar-used').removeClass('bg-success bg-danger').addClass('bg-primary');
-            $('#budget-status-note').html('<span><i class="fas fa-info-circle mr-1"></i>Sisa ' + remClean + '% menjadi peluang tanpa hadiah (Zonk)</span>');
+            $('#budget-status-note').html('<span><i class="fas fa-info-circle mr-1"></i>The remaining ' + remClean + '% is the chance of no prize</span>');
         }
     }
 
@@ -69,7 +69,7 @@
     // Modal Reset & Tambah
     function resetLuckyDrawItemModal() {
         $ldiForm.attr('action', ldiStoreUrl);
-        $('#lucky-draw-item-modal-title').html('<i class="fas fa-gift mr-1"></i>Tambah Hadiah');
+        $('#lucky-draw-item-modal-title').html('<i class="fas fa-gift mr-1"></i>Add Prize');
         $('#ldi-name').val('');
         $('#ldi-chance').val('');
         $('#ldi-sort').val(0);
@@ -89,7 +89,7 @@
         resetLuckyDrawItemModal();
 
         $ldiForm.attr('action', btn.data('update-url'));
-        $('#lucky-draw-item-modal-title').html('<i class="fas fa-gift mr-1"></i>Edit Detail Hadiah');
+        $('#lucky-draw-item-modal-title').html('<i class="fas fa-gift mr-1"></i>Edit Prize Details');
         $('#ldi-name').val(btn.data('name'));
         $('#ldi-chance').val(btn.data('chance'));
         $('#ldi-sort').val(btn.data('sort'));
@@ -127,13 +127,13 @@
                 if (isActive) {
                     card.removeClass('is-inactive');
                     row.removeClass('table-light text-muted');
-                    $('#mobile-status-pill-' + itemId).removeClass('badge-secondary').addClass('badge-success').text('Aktif');
-                    $('#desktop-badge-' + itemId).removeClass('badge-secondary').addClass('badge-success').text('Aktif');
+                    $('#mobile-status-pill-' + itemId).removeClass('badge-secondary').addClass('badge-success').text('Active');
+                    $('#desktop-badge-' + itemId).removeClass('badge-secondary').addClass('badge-success').text('Active');
                 } else {
                     card.addClass('is-inactive');
                     row.addClass('table-light text-muted');
-                    $('#mobile-status-pill-' + itemId).removeClass('badge-success').addClass('badge-secondary').text('Nonaktif');
-                    $('#desktop-badge-' + itemId).removeClass('badge-success').addClass('badge-secondary').text('Nonaktif');
+                    $('#mobile-status-pill-' + itemId).removeClass('badge-success').addClass('badge-secondary').text('Inactive');
+                    $('#desktop-badge-' + itemId).removeClass('badge-success').addClass('badge-secondary').text('Inactive');
                 }
                 updateBudgetUI(res.used, res.remaining);
                 showToast('success', res.message);
@@ -141,7 +141,7 @@
             error: function (xhr) {
                 checkbox.prop('disabled', false);
                 checkbox.prop('checked', !isActive); // Kembalikan ke posisi semula jika gagal
-                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal mengubah status.';
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to change the status.';
                 showToast('error', msg);
             }
         });
@@ -170,7 +170,7 @@
                     showToast('success', res.message);
                 },
                 error: function (xhr) {
-                    var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Peluang gagal disimpan.';
+                    var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to save the chance.';
                     showToast('error', msg);
                     // Kembalikan ke sisa kuota maksimum bila tersedia
                     if (xhr.responseJSON && xhr.responseJSON.remaining !== undefined) {
@@ -230,18 +230,18 @@
         var itemId   = btn.data('id');
         var itemName = btn.data('name');
 
-        var confirmText = 'Setel "' + itemName + '" menjadi 100% keluar? Semua hadiah lain akan dinolkan (0%) agar hadiah ini PASTI keluar pada putaran berikutnya.';
+        var confirmText = 'Set "' + itemName + '" to a 100% chance? All other prizes will be set to 0%, guaranteeing this prize on the next draw.';
 
         if (typeof Swal !== 'undefined') {
             Swal.fire({
-                title: 'Mode Pasti Keluar (100%)?',
+                title: 'Guarantee This Prize (100%)?',
                 text: confirmText,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ffc107',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, Jadikan 100%!',
-                cancelButtonText: 'Batal'
+                confirmButtonText: 'Yes, set to 100%',
+                cancelButtonText: 'Cancel'
             }).then(function (result) {
                 if (result.isConfirmed) {
                     executeBatchAction('force_win', itemId);
@@ -256,18 +256,18 @@
 
     // 6. Tombol "Bagi Rata (100%)"
     $(document).on('click', '.js-btn-balance', function () {
-        var confirmText = 'Bagi rata peluang 100% ke seluruh hadiah yang sedang aktif?';
+        var confirmText = 'Distribute 100% equally among all active prizes?';
 
         if (typeof Swal !== 'undefined') {
             Swal.fire({
-                title: 'Bagi Rata Peluang?',
+                title: 'Distribute Chances Equally?',
                 text: confirmText,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#17a2b8',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, Bagi Rata',
-                cancelButtonText: 'Batal'
+                confirmButtonText: 'Yes, distribute equally',
+                cancelButtonText: 'Cancel'
             }).then(function (result) {
                 if (result.isConfirmed) {
                     executeBatchAction('balance', null);
@@ -300,14 +300,14 @@
                             $('#switch-active-' + itm.id).prop('checked', true);
                             $('#mobile-card-' + itm.id).removeClass('is-inactive');
                             $('#desktop-row-' + itm.id).removeClass('table-light text-muted');
-                            $('#mobile-status-pill-' + itm.id).removeClass('badge-secondary').addClass('badge-success').text('Aktif');
-                            $('#desktop-badge-' + itm.id).removeClass('badge-secondary').addClass('badge-success').text('Aktif');
+                            $('#mobile-status-pill-' + itm.id).removeClass('badge-secondary').addClass('badge-success').text('Active');
+                            $('#desktop-badge-' + itm.id).removeClass('badge-secondary').addClass('badge-success').text('Active');
                         } else {
                             $('#switch-active-' + itm.id).prop('checked', false);
                             $('#mobile-card-' + itm.id).addClass('is-inactive');
                             $('#desktop-row-' + itm.id).addClass('table-light text-muted');
-                            $('#mobile-status-pill-' + itm.id).removeClass('badge-success').addClass('badge-secondary').text('Nonaktif');
-                            $('#desktop-badge-' + itm.id).removeClass('badge-success').addClass('badge-secondary').text('Nonaktif');
+                            $('#mobile-status-pill-' + itm.id).removeClass('badge-success').addClass('badge-secondary').text('Inactive');
+                            $('#desktop-badge-' + itm.id).removeClass('badge-success').addClass('badge-secondary').text('Inactive');
                         }
                     });
                 }
@@ -316,7 +316,7 @@
                 showToast('success', res.message);
             },
             error: function (xhr) {
-                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal memproses aksi batch.';
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to process the bulk action.';
                 showToast('error', msg);
             }
         });

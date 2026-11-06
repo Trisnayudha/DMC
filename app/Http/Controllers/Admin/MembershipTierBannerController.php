@@ -51,14 +51,14 @@ class MembershipTierBannerController extends Controller
 
         $banner->save();
 
-        return redirect()->route('membership-tier-banners.index')->with('success', 'Banner berhasil ditambahkan.');
+        return redirect()->route('membership-tier-banners.index')->with('success', 'Banner added successfully.');
     }
 
     public function update(Request $request, $id)
     {
         $banner = MembershipTierBanner::find($id);
         if (!$banner) {
-            return redirect()->route('membership-tier-banners.index')->with('error', 'Data tidak ditemukan.');
+            return redirect()->route('membership-tier-banners.index')->with('error', 'Banner not found.');
         }
 
         $request->validate([
@@ -94,7 +94,7 @@ class MembershipTierBannerController extends Controller
 
         $banner->save();
 
-        return redirect()->route('membership-tier-banners.index')->with('success', 'Banner berhasil diupdate.');
+        return redirect()->route('membership-tier-banners.index')->with('success', 'Banner updated successfully.');
     }
 
     public function destroy($id)
@@ -102,7 +102,7 @@ class MembershipTierBannerController extends Controller
         $banner = MembershipTierBanner::find($id);
 
         if (!$banner) {
-            return response()->json(['message' => 'Data tidak ditemukan.'], 404);
+            return response()->json(['message' => 'Banner not found.'], 404);
         }
 
         if ($banner->image) {
@@ -111,6 +111,6 @@ class MembershipTierBannerController extends Controller
 
         $banner->delete();
 
-        return response()->json(['message' => 'Banner berhasil dihapus.']);
+        return response()->json(['message' => 'Banner deleted successfully.']);
     }
 }

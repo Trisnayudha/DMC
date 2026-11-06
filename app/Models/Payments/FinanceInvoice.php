@@ -17,15 +17,15 @@ class FinanceInvoice extends Model
 
     const TYPES = [
         'sponsor_renewal' => 'Sponsor Renewal',
-        'event_ticket'    => 'Tiket Event',
-        'custom'          => 'Tagihan Lainnya',
+        'event_ticket'    => 'Event Ticket',
+        'custom'          => 'Other Charges',
     ];
 
     const STATUSES = [
-        'pending'   => 'Menunggu Pembayaran',
-        'paid'      => 'Lunas',
+        'pending'   => 'Awaiting Payment',
+        'paid'      => 'Paid',
         'expired'   => 'Expired',
-        'cancelled' => 'Dibatalkan',
+        'cancelled' => 'Cancelled',
     ];
 
     protected $fillable = [

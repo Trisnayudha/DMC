@@ -70,14 +70,14 @@
                         <select name="year" class="form-control form-control-sm border-left-0 font-weight-bold" onchange="document.getElementById('filterYearForm').submit()">
                             <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>All Years</option>
                             @foreach ($years as $y)
-                                <option value="{{ $y }}" {{ (string)$selectedYear === (string)$y ? 'selected' : '' }}>Tahun {{ $y }}</option>
+                                <option value="{{ $y }}" {{ (string)$selectedYear === (string)$y ? 'selected' : '' }}>Year {{ $y }}</option>
                             @endforeach
                         </select>
                     </div>
                 </form>
 
                 <a href="{{ route('admin.event_conversions.export', ['year' => $selectedYear, 'type' => $selectedType, 'search' => $search]) }}"
-                   class="btn btn-sm btn-success" title="Download Excel Laporan Konversi Event">
+                   class="btn btn-sm btn-success" title="Download the event conversion report as Excel">
                     <i class="fas fa-file-excel mr-1"></i> Export Excel
                 </a>
             </div>
@@ -190,8 +190,8 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap: 12px;">
                     <div>
-                        <h4 class="mb-0">Rincian Konversi Member per Event</h4>
-                        <small class="text-muted">Pantau efektivitas setiap event dalam mengonversi kontak/peserta menjadi member DMC</small>
+                        <h4 class="mb-0">Member Conversion by Event</h4>
+                        <small class="text-muted">Track how each event converts contacts and attendees into DMC members</small>
                     </div>
 
                     <!-- Filter Tabs: All, Owned, Supporting -->
@@ -217,9 +217,9 @@
                         <input type="hidden" name="year" value="{{ $selectedYear }}">
                         <input type="hidden" name="type" value="{{ $selectedType }}">
                         <div class="input-group" style="max-width: 400px;">
-                            <input type="text" name="search" class="form-control form-control-sm" placeholder="Cari nama event atau lokasi..." value="{{ $search }}">
+                            <input type="text" name="search" class="form-control form-control-sm" placeholder="Search event name or location..." value="{{ $search }}">
                             <div class="input-group-append">
-                                <button class="btn btn-primary btn-sm" type="submit"><i class="fas fa-search"></i> Cari</button>
+                                <button class="btn btn-primary btn-sm" type="submit"><i class="fas fa-search"></i> Search</button>
                                 @if ($search !== '')
                                     <a href="{{ route('admin.event_conversions.index', ['year' => $selectedYear, 'type' => $selectedType]) }}" class="btn btn-outline-secondary btn-sm">Reset</a>
                                 @endif
@@ -232,16 +232,16 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th width="30px">No</th>
-                                    <th>Event &amp; Kategori</th>
-                                    <th>Tanggal &amp; Lokasi</th>
-                                    <th class="text-center" title="Total registrasi tiket atau visitor booth">Reg / Visitor</th>
-                                    <th class="text-center" title="Registrasi lunas/terkonfirmasi atau kontak valid">Confirmed</th>
-                                    <th class="text-center" title="Hadir fisik / badge check-in / booth visit">Attendance</th>
-                                    <th class="text-center" title="Member aktif DMC yang hadir">Verified Member</th>
-                                    <th class="text-center" title="Follow up interest / Prospek member">Interest</th>
-                                    <th class="text-center" title="Calon member (Pending) & Member Aktif baru">Converted Member</th>
+                                    <th>Event &amp; Category</th>
+                                    <th>Date &amp; Location</th>
+                                    <th class="text-center" title="Total ticket registrations or booth visitors">Reg / Visitor</th>
+                                    <th class="text-center" title="Paid or confirmed registrations, or valid contacts">Confirmed</th>
+                                    <th class="text-center" title="In-person attendance, badge check-in, or booth visits">Attendance</th>
+                                    <th class="text-center" title="Active DMC members who attended">Verified Member</th>
+                                    <th class="text-center" title="Follow-up interest / prospective members">Interest</th>
+                                    <th class="text-center" title="Prospective members (pending) and new active members">Converted Member</th>
                                     <th class="text-center" width="130px">Conv. Rate</th>
-                                    <th class="text-center" width="120px">Aksi</th>
+                                    <th class="text-center" width="120px">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -289,10 +289,10 @@
                                                 <button type="button" class="btn btn-sm btn-outline-primary btn-view-members"
                                                         data-id="{{ $ev->id }}"
                                                         data-name="{{ $ev->name }}"
-                                                        title="Lihat daftar member yang terkonversi dari event ini">
+                                                        title="View members converted from this event">
                                                     <i class="fas fa-users"></i> Member
                                                 </button>
-                                                <a href="{{ $ev->detail_url }}" target="_blank" class="btn btn-sm btn-light" title="Buka detail event">
+                                                <a href="{{ $ev->detail_url }}" target="_blank" class="btn btn-sm btn-light" title="Open event details">
                                                     <i class="fas fa-external-link-alt"></i>
                                                 </a>
                                             </div>
@@ -302,7 +302,7 @@
                                     <tr>
                                         <td colspan="11" class="text-center text-muted py-4">
                                             <i class="fas fa-folder-open fa-2x mb-2 d-block text-muted"></i>
-                                            Tidak ada event yang ditemukan untuk filter ini.
+                                            No events match these filters.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -323,9 +323,9 @@
             <div class="modal-header bg-dark text-white" style="background: linear-gradient(145deg, #0e273c, #1a3c5a) !important;">
                 <div>
                     <h5 class="modal-title text-white" id="modalConvertedMembersTitle">
-                        <i class="fas fa-user-check text-warning mr-2"></i>Member Terkonversi dari Event
+                        <i class="fas fa-user-check text-warning mr-2"></i>Members Converted from Event
                     </h5>
-                    <div id="modalEventSubtitle" class="text-light small mt-1">Memuat data...</div>
+                    <div id="modalEventSubtitle" class="text-light small mt-1">Loading data...</div>
                 </div>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -336,14 +336,14 @@
                     <div class="spinner-border text-primary" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
-                    <div class="mt-2 text-muted small">Mengambil rincian peserta &amp; member terkonversi...</div>
+                    <div class="mt-2 text-muted small">Loading attendee and converted member details...</div>
                 </div>
 
                 <div id="modalContentContainer" style="display: none;">
                     <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3 py-2 px-3">
                         <div>
                             <span class="badge badge-dark mr-2" id="modalBadgeType">Owned Event</span>
-                            <span class="text-muted" id="modalTotalSummary">0 kontak terkonversi</span>
+                            <span class="text-muted" id="modalTotalSummary">0 converted contacts</span>
                         </div>
                         <div class="small">
                             <span class="badge badge-warning mr-1"><i class="fas fa-clock mr-1"></i>Pending Verification</span>
@@ -356,13 +356,13 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th width="30px">No</th>
-                                    <th>Nama Member / Kontak</th>
+                                    <th>Member / Contact Name</th>
                                     <th>Email</th>
-                                    <th>Perusahaan &amp; Job Title</th>
-                                    <th>Nomor Telepon</th>
-                                    <th class="text-center">Status Keanggotaan</th>
+                                    <th>Company &amp; Job Title</th>
+                                    <th>Phone Number</th>
+                                    <th class="text-center">Membership Status</th>
                                     <th class="text-center">Source</th>
-                                    <th class="text-center">Tgl Terdaftar</th>
+                                    <th class="text-center">Registration Date</th>
                                 </tr>
                             </thead>
                             <tbody id="tbodyConvertedList">
@@ -374,14 +374,14 @@
 
                 <div id="modalEmptyState" style="display: none;" class="text-center py-4 text-muted">
                     <i class="fas fa-info-circle fa-2x mb-2 text-muted"></i>
-                    <div>Belum ada kontak dari event ini yang terkonversi menjadi calon member atau member aktif.</div>
+                    <div>No contacts from this event have converted to prospective or active members yet.</div>
                 </div>
             </div>
             <div class="modal-footer py-2">
                 <a href="{{ route('members') }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                    <i class="fas fa-users mr-1"></i> Buka Manajemen Member DMC
+                    <i class="fas fa-users mr-1"></i> Open DMC Member Management
                 </a>
-                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -398,7 +398,7 @@ $(document).ready(function() {
             order: [[0, 'asc']],
             language: {
                 search: "_INPUT_",
-                searchPlaceholder: "Filter cepat tabel..."
+                searchPlaceholder: "Quick filter..."
             }
         });
     }
@@ -466,7 +466,7 @@ $(document).ready(function() {
         var totalConv = ownedConv + suppConv;
 
         var mixData = totalConv > 0 ? [ownedConv, suppConv] : [1];
-        var mixLabels = totalConv > 0 ? ['Owned Events (' + ownedConv + ')', 'Supporting Events (' + suppConv + ')'] : ['Belum Ada Konversi (0)'];
+        var mixLabels = totalConv > 0 ? ['Owned Events (' + ownedConv + ')', 'Supporting Events (' + suppConv + ')'] : ['No Conversions Yet (0)'];
         var mixColors = totalConv > 0 ? ['#0e273c', '#b57a2b'] : ['#e2e8f0'];
 
         new Chart(ctxMix.getContext('2d'), {
@@ -498,7 +498,7 @@ $(document).ready(function() {
         var eventName = $(this).data('name');
 
         $('#modalConvertedMembersTitle').html('<i class="fas fa-user-check text-warning mr-2"></i>' + eventName);
-        $('#modalEventSubtitle').text('Memuat kontak member yang terkonversi...');
+        $('#modalEventSubtitle').text('Loading converted contacts...');
         $('#modalLoadingSpinner').show();
         $('#modalContentContainer').hide();
         $('#modalEmptyState').hide();
@@ -513,10 +513,10 @@ $(document).ready(function() {
             success: function(res) {
                 $('#modalLoadingSpinner').hide();
                 if (res.status && res.members && res.members.length > 0) {
-                    $('#modalEventSubtitle').text(res.event_type + ' • ' + res.count + ' Kontak Terkonversi');
+                    $('#modalEventSubtitle').text(res.event_type + ' • ' + res.count + ' converted contacts');
                     $('#modalBadgeType').text(res.is_supporting ? 'Supporting Event (Partnership)' : 'DMC Owned Event');
                     $('#modalBadgeType').attr('class', 'badge mr-2 ' + (res.is_supporting ? 'badge-info' : 'badge-dark'));
-                    $('#modalTotalSummary').text(res.count + ' peserta terdaftar / terkonversi menjadi member');
+                    $('#modalTotalSummary').text(res.count + ' attendees registered / converted to members');
 
                     var rowsHtml = '';
                     $.each(res.members, function(idx, m) {
@@ -539,14 +539,14 @@ $(document).ready(function() {
                     $('#tbodyConvertedList').html(rowsHtml);
                     $('#modalContentContainer').show();
                 } else {
-                    $('#modalEventSubtitle').text(res.event_type + ' • 0 Kontak');
+                    $('#modalEventSubtitle').text(res.event_type + ' • 0 contacts');
                     $('#modalEmptyState').show();
                 }
             },
             error: function() {
                 $('#modalLoadingSpinner').hide();
-                $('#modalEventSubtitle').text('Gagal memuat data');
-                $('#tbodyConvertedList').html('<tr><td colspan="8" class="text-center text-danger py-3">Terjadi kesalahan saat memuat data.</td></tr>');
+                $('#modalEventSubtitle').text('Failed to load data');
+                $('#tbodyConvertedList').html('<tr><td colspan="8" class="text-center text-danger py-3">An error occurred while loading data.</td></tr>');
                 $('#modalContentContainer').show();
             }
         });

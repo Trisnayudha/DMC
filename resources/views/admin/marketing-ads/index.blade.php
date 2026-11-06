@@ -22,7 +22,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -50,7 +50,7 @@
                                                 class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                                 id="addNewCategory">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Tambah Ads
+                                                Add Ad
                                             </a>
                                         </div>
                                     </div>
@@ -65,7 +65,7 @@
                                                 <th>Location</th>
                                                 <th>Type</th>
                                                 <th>Target ID</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -218,7 +218,7 @@
                     });
                 } else if (selectedType === 'website') {
                     var inputHtml =
-                        '<input type="text" name="target_id" id="target_id" class="form-control" placeholder="Masukkan link website">';
+                        '<input type="text" name="target_id" id="target_id" class="form-control" placeholder="Enter website URL">';
                     $('#targetGroup').html(inputHtml).show();
                 } else {
                     $('#targetGroup').hide();
@@ -237,7 +237,7 @@
             // Modal tambah
             $('#addNewCategory').click(function() {
                 $('#addEditCategoryForm').trigger("reset");
-                $('#ajaxCategoryModel').html("Add Category");
+                $('#ajaxCategoryModel').html("Add Ad");
                 $('#targetGroup').hide();
                 $('#category-model').modal('show');
             });
@@ -253,7 +253,7 @@
                     },
                     dataType: 'json',
                     success: function(res) {
-                        $('#ajaxCategoryModel').html("Edit Category");
+                        $('#ajaxCategoryModel').html("Edit Ad");
                         $('#category-model').modal('show');
                         $('#id').val(res.id);
                         $('#location').val(res.location);
@@ -270,8 +270,8 @@
             $(document).on('click', '.delete', function() {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
+                    title: "Are you sure?",
+                    text: "Do you want to delete this ad?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',

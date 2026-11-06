@@ -5,7 +5,7 @@
     <select class="form-control form-control-sm w-auto font-weight-bold" id="conversion-diagram-year">
         <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>All Years</option>
         @foreach ($years as $y)
-            <option value="{{ $y }}" {{ (string) $selectedYear === (string) $y ? 'selected' : '' }}>Tahun {{ $y }}</option>
+            <option value="{{ $y }}" {{ (string) $selectedYear === (string) $y ? 'selected' : '' }}>Year {{ $y }}</option>
         @endforeach
     </select>
 </div>

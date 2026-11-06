@@ -25,7 +25,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -48,7 +48,7 @@
                                         <a href="javascript:void(0)" class="btn btn-block btn-icon icon-left btn-success"
                                             id="btnAddNew">
                                             <i class="fas fa-plus-circle"></i>
-                                            Tambah Banner
+                                            Add Banner
                                         </a>
                                     </div>
                                 </div>
@@ -65,7 +65,7 @@
                                                 <th>Link</th>
                                                 <th>Order</th>
                                                 <th>Status</th>
-                                                <th width="18%">Aksi</th>
+                                                <th width="18%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -76,7 +76,7 @@
                                                     <td>
                                                         <img src="{{ $row->image }}" alt="" width="70">
                                                     </td>
-                                                    <td><span class="badge badge-primary">{{ $row->tier }}</span></td>
+                                                    <td><span class="badge badge-primary">{{ $row->tier === 'reguler' ? 'Regular' : ucfirst($row->tier) }}</span></td>
                                                     <td>{{ $row->section_key }}</td>
                                                     <td>{{ $row->title }}</td>
                                                     <td>{{ $row->link_url }}</td>
@@ -90,7 +90,7 @@
                                                     </td>
                                                     <td>
                                                         <button class="btn btn-warning btn-edit"
-                                                            data-id="{{ $row->id }}" data-tier="{{ $row->tier }}"
+                                                            data-id="{{ $row->id }}" data-tier="{{ $row->tier === 'reguler' ? 'Regular' : ucfirst($row->tier) }}"
                                                             data-section="{{ $row->section_key }}"
                                                             data-title="{{ $row->title }}"
                                                             data-link="{{ $row->link_url }}"
@@ -101,7 +101,7 @@
                                                         </button>
 
                                                         <button class="btn btn-danger btn-delete"
-                                                            data-id="{{ $row->id }}" title="Hapus">
+                                                            data-id="{{ $row->id }}" title="Delete">
                                                             <span class="fa fa-trash"></span>
                                                         </button>
                                                     </td>
@@ -124,7 +124,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="modalTitle">Tambah Banner</h4>
+                    <h4 class="modal-title" id="modalTitle">Add Banner</h4>
                 </div>
 
                 <div class="modal-body">
@@ -134,7 +134,7 @@
                         <input type="hidden" id="banner_id" value="">
 
                         <div class="form-group">
-                            <label>Image <small class="text-muted">(required saat add, optional saat edit)</small></label>
+                            <label>Image <small class="text-muted">(required when adding, optional when editing)</small></label>
                             <div class="custom-file">
                                 <input type="file" class="custom-file-input" id="image" name="image">
                                 <label class="custom-file-label" for="image">Choose file</label>
@@ -145,7 +145,7 @@
                             <label>Tier</label>
                             <select class="form-control" name="tier" id="tier" required>
                                 <option value="">Choose</option>
-                                <option value="reguler">Reguler</option>
+                                <option value="reguler">Regular</option>
                                 <option value="black">Black</option>
                             </select>
                         </div>
@@ -167,7 +167,7 @@
                         <div class="form-group">
                             <label>Link URL (optional)</label>
                             <input type="text" name="link_url" id="link_url" class="form-control"
-                                placeholder="https://... / atau /path">
+                                placeholder="https://... or /path">
                         </div>
 
                         <div class="form-group">
@@ -212,7 +212,7 @@
 
             // ADD
             $('#btnAddNew').click(function() {
-                $('#modalTitle').text('Tambah Banner');
+                $('#modalTitle').text('Add Banner');
                 $('#bannerForm').trigger("reset");
                 $('.custom-file-label').text('Choose file');
 
@@ -261,12 +261,12 @@
                 let token = "{{ csrf_token() }}";
 
                 Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Banner ini akan dihapus!",
+                    title: 'Are you sure?',
+                    text: "This banner will be deleted.",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: 'Yes, delete it',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -276,12 +276,12 @@
                                 "_token": token
                             },
                             success: function(response) {
-                                Swal.fire('Terhapus!', response.message, 'success');
+                                Swal.fire('Deleted!', response.message, 'success');
                                 location.reload();
                             },
                             error: function() {
-                                Swal.fire('Gagal!',
-                                    'Terjadi kesalahan saat menghapus data.',
+                                Swal.fire('Failed!',
+                                    'An error occurred while deleting the banner.',
                                     'error');
                             }
                         });

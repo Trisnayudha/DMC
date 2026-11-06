@@ -14,7 +14,7 @@
             <div class="section-body">
                 @if (auth()->user()->canAccessModule('event_conversions'))
                     <div id="conversion-diagram" data-url="{{ route('admin.event_conversions.diagram') }}">
-                        <div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat Member Conversion...</div>
+                        <div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Loading Member Conversion...</div>
                     </div>
                 @endif
                 <h2 class="section-title">Event </h2>
@@ -28,7 +28,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -48,7 +48,7 @@
                                 <div class="float-right d-flex" style="gap: 8px;">
                                     <a href="{{ route('admin.event_conversions.index') }}"
                                         class="btn btn-icon icon-left btn-outline-primary btn-filter mb-3"
-                                        title="Lihat Analisis Konversi Member dari Event">
+                                        title="View event member conversion analytics">
                                         <i class="fas fa-chart-line"></i>
                                         Member Conversion
                                     </a>
@@ -76,11 +76,11 @@
                                                 <th width="10px">No</th>
                                                 <th>Date Event</th>
                                                 <th>Image</th>
-                                                <th>Nama</th>
+                                                <th>Name</th>
                                                 <th>Category</th>
                                                 <th>Registrant</th>
                                                 <th>Status</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -133,7 +133,7 @@
                                                         </a>
 
                                                         <a href="{{ Route('events-details', $post->slug) }}"
-                                                            class="btn btn-primary" title="Lihat Peserta">
+                                                            class="btn btn-primary" title="View participants">
                                                             <span class="fa fa-user"></span></a>
                                                         <a href="{{ Route('events.edit', $post->id) }}"
                                                             class="btn btn-success" title="Edit Data">
@@ -192,8 +192,8 @@
 
             var id = $(this).data('id');
             Swal.fire({
-                title: "Anda Yakin ?",
-                text: "Ingin Menghapus Data ini.",
+                title: "Are you sure?",
+                text: "Do you want to delete this record?",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -231,7 +231,7 @@
             $box.css('opacity', 0.5);
             $.get($box.data('url'), year ? { year: year } : {})
                 .done(function (html) { $box.html(html); })
-                .fail(function () { $box.html('<div class="alert alert-light">Member Conversion gagal dimuat.</div>'); })
+                .fail(function () { $box.html('<div class="alert alert-light">Failed to load Member Conversion.</div>'); })
                 .always(function () { $box.css('opacity', ''); });
         }
         loadConversionDiagram();

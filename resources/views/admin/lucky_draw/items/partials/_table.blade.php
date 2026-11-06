@@ -10,21 +10,21 @@
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap:10px;">
         <div>
             <h4 class="mb-0">
-                <i class="fas fa-gift mr-1 text-primary"></i>Katalog Hadiah Lucky Draw
+                <i class="fas fa-gift mr-1 text-primary"></i>Lucky Draw Prize Catalog
                 <i class="fas fa-info-circle text-muted ml-1" style="font-size:12px;"
-                    title="Peluang % diatur manual per hadiah. Hadiah 0% atau nonaktif tidak akan pernah keluar. Sisanya adalah peluang pengunjung tidak mendapat hadiah (ZONK)."
+                    title="The chance for each prize is set manually. Inactive prizes and prizes with a 0% chance cannot be drawn. Any remaining chance means no prize."
                     data-toggle="tooltip"></i>
             </h4>
             <small class="text-muted d-block mt-1">
-                Atur hadiah yang siap keluar dan sesuaikan persentasenya secara instan.
+                Manage available prizes and adjust their chances instantly.
             </small>
         </div>
         <div class="d-flex align-items-center flex-wrap" style="gap:8px;">
-            <button type="button" class="btn btn-sm btn-outline-info js-btn-balance" title="Bagi rata kuota 100% ke semua hadiah aktif">
-                <i class="fas fa-balance-scale mr-1"></i>Bagi Rata (100%)
+            <button type="button" class="btn btn-sm btn-outline-info js-btn-balance" title="Distribute 100% equally among active prizes">
+                <i class="fas fa-balance-scale mr-1"></i>Distribute Equally (100%)
             </button>
             <button type="button" class="btn btn-sm btn-primary" id="btn-add-item">
-                <i class="fas fa-plus mr-1"></i>Tambah Hadiah
+                <i class="fas fa-plus mr-1"></i>Add Prize
             </button>
         </div>
     </div>
@@ -34,17 +34,17 @@
         <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap" style="gap: 6px;">
             <div class="d-flex align-items-center" style="gap: 6px;">
                 <span class="badge {{ $usedChance >= 100 ? 'badge-success' : 'badge-primary' }} px-2 py-1" id="badge-used-chance">
-                    Peluang Hadiah: <strong id="val-used-chance">{{ $fmtUsed }}%</strong>
+                    Prize Chance: <strong id="val-used-chance">{{ $fmtUsed }}%</strong>
                 </span>
                 <span class="badge badge-secondary px-2 py-1" id="badge-remaining-chance">
-                    Peluang Zonk: <strong id="val-remaining-chance">{{ $fmtRemaining }}%</strong>
+                    No-Prize Chance: <strong id="val-remaining-chance">{{ $fmtRemaining }}%</strong>
                 </span>
             </div>
             <div class="small text-muted" id="budget-status-note">
                 @if ($usedChance >= 100)
-                    <span class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i>Pasti keluar hadiah (ZONK 0%)</span>
+                    <span class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i>A prize is guaranteed (0% no-prize chance)</span>
                 @else
-                    <span><i class="fas fa-info-circle mr-1"></i>Sisa {{ $fmtRemaining }}% menjadi peluang tanpa hadiah (Zonk)</span>
+                    <span><i class="fas fa-info-circle mr-1"></i>The remaining {{ $fmtRemaining }}% is the chance of no prize</span>
                 @endif
             </div>
         </div>
@@ -71,12 +71,12 @@
                 <thead>
                     <tr>
                         <th width="10px">No</th>
-                        <th width="65px">Foto</th>
-                        <th>Nama Hadiah</th>
-                        <th class="text-nowrap" width="130px">Peluang (%)</th>
-                        <th width="70px">Urutan</th>
+                        <th width="65px">Photo</th>
+                        <th>Prize Name</th>
+                        <th class="text-nowrap" width="130px">Chance (%)</th>
+                        <th width="70px">Order</th>
                         <th width="100px">Status</th>
-                        <th width="120px">Aksi Cepat</th>
+                        <th width="120px">Quick Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -108,16 +108,16 @@
                             <td class="align-middle">{{ $item->sort_order }}</td>
                             <td class="align-middle">
                                 @if ($item->is_active)
-                                    <span class="badge badge-success mini-badge desktop-status-badge" id="desktop-badge-{{ $item->id }}">Aktif</span>
+                                    <span class="badge badge-success mini-badge desktop-status-badge" id="desktop-badge-{{ $item->id }}">Active</span>
                                 @else
-                                    <span class="badge badge-secondary mini-badge desktop-status-badge" id="desktop-badge-{{ $item->id }}">Nonaktif</span>
+                                    <span class="badge badge-secondary mini-badge desktop-status-badge" id="desktop-badge-{{ $item->id }}">Inactive</span>
                                 @endif
                             </td>
                             <td class="align-middle">
                                 <div class="btn-icon-group">
                                     <button type="button" class="btn btn-icon btn-outline-warning js-force-win-btn"
                                         data-id="{{ $item->id }}" data-name="{{ $item->name }}"
-                                        title="Jadikan 100% (Pasti Keluar)" data-toggle="tooltip">
+                                        title="Set to 100% (guaranteed prize)" data-toggle="tooltip">
                                         <i class="fas fa-star"></i>
                                     </button>
                                     <button type="button" class="btn btn-icon btn-outline-secondary btn-edit-item"
@@ -131,9 +131,9 @@
                                     </button>
                                     <form action="{{ route('admin.lucky_draw.items.destroy', $item->id) }}" method="POST"
                                         class="d-inline"
-                                        onsubmit="return confirm('Hapus hadiah &quot;{{ $item->name }}&quot;?');">
+                                        onsubmit="return confirm('Delete prize &quot;{{ $item->name }}&quot;?');">
                                         @csrf
-                                        <button type="submit" class="btn btn-icon btn-outline-danger" title="Hapus"
+                                        <button type="submit" class="btn btn-icon btn-outline-danger" title="Delete"
                                             data-toggle="tooltip">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -143,7 +143,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">Belum ada hadiah. Klik "Tambah Hadiah" untuk membuat baru.</td>
+                            <td colspan="7" class="text-center text-muted py-4">No prizes yet. Click "Add Prize" to create one.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -182,11 +182,11 @@
                                     </h6>
                                     <div class="d-flex align-items-center mt-1" style="gap:4px;">
                                         <span class="badge badge-light border text-muted px-1 py-0" style="font-size:10px;">
-                                            Urutan: {{ $item->sort_order }}
+                                            Order: {{ $item->sort_order }}
                                         </span>
                                         <span class="badge {{ $item->is_active ? 'badge-success' : 'badge-secondary' }} px-1 py-0 mobile-status-pill"
                                             id="mobile-status-pill-{{ $item->id }}" style="font-size:10px;">
-                                            {{ $item->is_active ? 'Aktif' : 'Nonaktif' }}
+                                            {{ $item->is_active ? 'Active' : 'Inactive' }}
                                         </span>
                                     </div>
                                 </div>
@@ -194,7 +194,7 @@
 
                             {{-- Toggle Switch iOS Style + Menu Aksi --}}
                             <div class="d-flex align-items-center" style="gap: 8px;">
-                                <div class="custom-control custom-switch mobile-switch-wrap" title="Nyalakan/Matikan Hadiah">
+                                <div class="custom-control custom-switch mobile-switch-wrap" title="Enable/disable prize">
                                     <input type="checkbox" class="custom-control-input js-toggle-active"
                                         id="switch-active-{{ $item->id }}"
                                         data-id="{{ $item->id }}"
@@ -214,14 +214,14 @@
                                             data-active="{{ $item->is_active ? 1 : 0 }}"
                                             data-image="{{ $item->image ? asset($item->image) : '' }}"
                                             data-update-url="{{ route('admin.lucky_draw.items.update', $item->id) }}">
-                                            <i class="fas fa-edit mr-2 text-primary"></i>Edit Detail (Foto/Nama)
+                                            <i class="fas fa-edit mr-2 text-primary"></i>Edit Details (Photo/Name)
                                         </button>
                                         <div class="dropdown-divider"></div>
                                         <form action="{{ route('admin.lucky_draw.items.destroy', $item->id) }}" method="POST"
-                                            onsubmit="return confirm('Hapus hadiah &quot;{{ $item->name }}&quot;?');">
+                                            onsubmit="return confirm('Delete prize &quot;{{ $item->name }}&quot;?');">
                                             @csrf
                                             <button type="submit" class="dropdown-item text-danger">
-                                                <i class="fas fa-trash mr-2"></i>Hapus Hadiah
+                                                <i class="fas fa-trash mr-2"></i>Delete Prize
                                             </button>
                                         </form>
                                     </div>
@@ -233,7 +233,7 @@
                         <div class="mobile-chance-control-box p-2 rounded bg-light border">
                             <div class="d-flex align-items-center justify-content-between mb-2">
                                 <span class="small font-weight-bold text-muted">
-                                    <i class="fas fa-chart-pie mr-1 text-info"></i>PELUANG KELUAR:
+                                    <i class="fas fa-chart-pie mr-1 text-info"></i>DRAW CHANCE:
                                 </span>
                                 <span class="badge badge-primary px-2 py-1 js-mobile-chance-display"
                                     id="mobile-chance-badge-{{ $item->id }}" style="font-size: 13px;">
@@ -274,8 +274,8 @@
                                 </div>
                                 <button type="button" class="btn btn-xs btn-warning font-weight-bold js-force-win-btn shadow-sm"
                                     data-id="{{ $item->id }}" data-name="{{ $item->name }}"
-                                    title="Jadikan hadiah ini 100% dan nolkan yang lain">
-                                    <i class="fas fa-star mr-1"></i>100% Pasti
+                                    title="Set this prize to 100% and all others to 0%">
+                                    <i class="fas fa-star mr-1"></i>100% Guaranteed
                                 </button>
                             </div>
                         </div>{{-- /mobile-chance-control-box --}}
@@ -285,7 +285,7 @@
             @empty
                 <div class="text-center text-muted py-5">
                     <i class="fas fa-gift fa-3x mb-2 text-light"></i>
-                    <p class="mb-0">Belum ada hadiah. Klik tombol "Tambah Hadiah" di atas.</p>
+                    <p class="mb-0">No prizes yet. Click "Add Prize" above.</p>
                 </div>
             @endforelse
         </div>

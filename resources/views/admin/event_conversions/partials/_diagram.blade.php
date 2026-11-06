@@ -11,7 +11,7 @@
                     </div>
                     <div class="col-md-4 text-md-right mt-3 mt-md-0">
                         <span class="badge badge-dark px-3 py-2" style="font-size: 12px; letter-spacing: 0.5px;">
-                            <i class="fas fa-filter mr-1 text-warning"></i> Periode: {{ $selectedYear === 'all' ? 'Semua Tahun' : 'Tahun ' . $selectedYear }}
+                            <i class="fas fa-filter mr-1 text-warning"></i> Period: {{ $selectedYear === 'all' ? 'All Years' : 'Year ' . $selectedYear }}
                         </span>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                         <div class="card-attendance-outcome">
                             <div class="d-flex justify-content-between align-items-center outcome-title mb-2">
                                 <span><i class="fas fa-calendar-check mr-2 text-info"></i>Annual attendance</span>
-                                <small class="text-muted" style="color: #94a3b8 !important;">Total Aktivitas</small>
+                                <small class="text-muted" style="color: #94a3b8 !important;">Total Activity</small>
                             </div>
                             <div class="outcome-metrics-grid">
                                 <div class="outcome-metric-box">

@@ -101,7 +101,7 @@ class CmsAccessControlTest extends TestCase
         $this->assertTrue(CmsUser::find(1)->isSuperadmin());
         $this->assertSame(6, CmsRole::count());
         $this->assertSame([], CmsRole::find('event_team')->permissions);
-        $this->actingAs(CmsUser::find(1), 'cms')->get('/admin/cms-users')->assertOk()->assertSee('Hak Akses Menu per Level')->assertSee('Secretariat Team')->assertSee('Financial Team')->assertSee('permissions[finance_team][]', false);
+        $this->actingAs(CmsUser::find(1), 'cms')->get('/admin/cms-users')->assertOk()->assertSee('Menu Access by Role')->assertSee('Secretariat Team')->assertSee('Financial Team')->assertSee('permissions[finance_team][]', false);
         $new = CmsUser::create(['name' => 'New', 'email' => 'new@example.test', 'password' => 'hash']);
         $this->assertSame('event_team', $new->fresh()->role);
     }

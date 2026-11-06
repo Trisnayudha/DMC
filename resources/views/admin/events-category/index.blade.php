@@ -23,7 +23,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -60,7 +60,7 @@
                                                 class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                                 id="addNewCategory">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Tambah Kategori</a>
+                                                Add Category</a>
 
                                         </div>
                                     </div>
@@ -71,8 +71,8 @@
                                         <thead>
                                             <tr>
                                                 <th width="10px">No</th>
-                                                <th>Nama Kategori</th>
-                                                <th width="15%">Aksi</th>
+                                                <th>Category Name</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -118,7 +118,7 @@
                         class="form-horizontal" method="POST">
                         <input type="hidden" name="id" id="id">
                         <div class="form-group">
-                            <label for="name" class="col-sm-4">Nama Category</label>
+                            <label for="name" class="col-sm-4">Category Name</label>
                             <div class="col-sm-12">
                                 <input type="text" class="form-control" id="category_name" name="category_name"
                                     placeholder="Enter Category">
@@ -175,8 +175,8 @@
 
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
+                    title: "Are you sure?",
+                    text: "Do you want to delete this record?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',

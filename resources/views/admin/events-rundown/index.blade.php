@@ -24,7 +24,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -43,7 +43,7 @@
 
                                 <div class="mb-3 text-end">
                                     <a href="javascript:void(0)" class="btn btn-success" id="addNewCategory">
-                                        <i class="fas fa-plus-circle me-1"></i> Tambah Rundown
+                                        <i class="fas fa-plus-circle me-1"></i> Add Rundown
                                     </a>
                                 </div>
 
@@ -56,7 +56,7 @@
                                                 <th>Date</th>
                                                 <th>Events</th>
                                                 <th>Speakers</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -138,17 +138,16 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <small class="text-muted d-block mt-1">Pilih lebih dari satu jika diperlukan.</small>
+                            <small class="text-muted d-block mt-1">Select more than one if needed.</small>
                         </div>
 
                         <div class="form-group mb-3">
                             <label class="mb-1">Moderator</label>
                             <div id="moderator-list" class="border rounded p-2"
                                 style="max-height: 180px; overflow-y: auto;">
-                                <small class="text-muted">Pilih speaker terlebih dahulu.</small>
+                                <small class="text-muted">Select speakers first.</small>
                             </div>
-                            <small class="text-muted d-block mt-1">Centang speaker yang bertindak sebagai
-                                moderator.</small>
+                            <small class="text-muted d-block mt-1">Select the speakers who will act as moderators.</small>
                         </div>
 
                         <div class="form-group mb-4">
@@ -215,7 +214,7 @@
                 var $list = $('#moderator-list').empty();
 
                 if (selected.length === 0) {
-                    $list.html('<small class="text-muted">Pilih speaker terlebih dahulu.</small>');
+                    $list.html('<small class="text-muted">Select speakers first.</small>');
                     return;
                 }
 
@@ -288,7 +287,7 @@
                         $('#btn-save').val('update');
                     },
                     error: function() {
-                        Swal.fire('Error', 'Data tidak ditemukan', 'error');
+                        Swal.fire('Error', 'Record not found', 'error');
                     }
                 });
             });
@@ -297,8 +296,8 @@
             $(document).on('click', '.delete', function() {
                 var id = $(this).data('id');
                 Swal.fire({
-                    title: "Anda Yakin ?",
-                    text: "Ingin Menghapus Data ini.",
+                    title: "Are you sure?",
+                    text: "Do you want to delete this record?",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -363,7 +362,7 @@
                         window.location.reload();
                     },
                     error: function(xhr) {
-                        let msg = 'Gagal menyimpan';
+                        let msg = 'Failed to save';
                         if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON
                             .message;
                         Swal.fire('Error', msg, 'error');

@@ -23,7 +23,7 @@
                                 @if ($errors->any())
                                     <div class="alert alert-warning">
                                         <div class="alert-title">Whoops!</div>
-                                        @lang('general.validation_error_message')
+                                        Please correct the errors below.
                                         <ul>
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
@@ -60,7 +60,7 @@
                                                 class="btn btn-block btn-icon icon-left btn-success btn-filter"
                                                 id="addNewCategory">
                                                 <i class="fas fa-plus-circle"></i>
-                                                Tambah Advertisement</a>
+                                                Add Advertisement</a>
 
                                         </div>
                                     </div>
@@ -74,7 +74,7 @@
                                                 <th>Image</th>
                                                 <th>Link</th>
                                                 <th>Type</th>
-                                                <th width="15%">Aksi</th>
+                                                <th width="15%">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -93,7 +93,7 @@
                                                     </td>
                                                     <td>
                                                         <button class="btn btn-danger delete-advertisement"
-                                                            data-id="{{ $post->id }}" title="Hapus Data">
+                                                            data-id="{{ $post->id }}" title="Delete">
                                                             <span class="fa fa-trash"></span>
                                                         </button>
                                                     </td>
@@ -169,12 +169,12 @@
                 let token = "{{ csrf_token() }}";
 
                 Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Iklan ini akan dihapus!",
+                    title: 'Are you sure?',
+                    text: "This advertisement will be deleted.",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
+                    confirmButtonText: 'Yes, delete it',
+                    cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -186,7 +186,7 @@
                             },
                             success: function(response) {
                                 Swal.fire(
-                                    'Terhapus!',
+                                    'Deleted!',
                                     response.message,
                                     'success'
                                 );
@@ -194,8 +194,8 @@
                             },
                             error: function(response) {
                                 Swal.fire(
-                                    'Gagal!',
-                                    'Terjadi kesalahan saat menghapus iklan.',
+                                    'Failed!',
+                                    'An error occurred while deleting the advertisement.',
                                     'error'
                                 );
                             }
@@ -208,7 +208,7 @@
             // Tampilkan modal tambah iklan
             $('#addNewCategory').click(function() {
                 $('#addEditCategoryForm').trigger("reset");
-                $('#ajaxCategoryModel').html("Tambah Iklan Baru");
+                $('#ajaxCategoryModel').html("Add Advertisement");
                 $('#category-model').modal('show');
             });
         });

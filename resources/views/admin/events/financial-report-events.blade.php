@@ -15,36 +15,36 @@
                 <div class="card-header d-flex flex-wrap justify-content-between align-items-center" style="gap:12px;">
                     <div>
                         <h4 class="mb-1">Paid Events</h4>
-                        <p class="small text-muted mb-0">Pilih event berbayar untuk melihat dan mengunduh laporan keuangannya.</p>
+                        <p class="small text-muted mb-0">Select a paid event to view and download its financial report.</p>
                     </div>
                     <form method="GET" action="{{ route('admin.financial_reports.index') }}" class="d-flex align-items-center" style="gap:8px;">
-                        <label for="financial-event-search" class="sr-only">Cari event</label>
-                        <input type="search" id="financial-event-search" name="search" class="form-control form-control-sm" value="{{ $search }}" placeholder="Cari nama event...">
-                        <button type="submit" class="btn btn-sm btn-primary">Cari</button>
+                        <label for="financial-event-search" class="sr-only">Search events</label>
+                        <input type="search" id="financial-event-search" name="search" class="form-control form-control-sm" value="{{ $search }}" placeholder="Search event name...">
+                        <button type="submit" class="btn btn-sm btn-primary">Search</button>
                         @if ($search !== '') <a href="{{ route('admin.financial_reports.index') }}" class="btn btn-sm btn-outline-secondary">Reset</a> @endif
                     </form>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-sm table-hover mb-0 financial-events-table">
-                            <thead><tr><th>No.</th><th>Event</th><th>Tanggal</th><th class="text-right">Laporan</th></tr></thead>
+                            <thead><tr><th>No.</th><th>Event</th><th>Date</th><th class="text-right">Report</th></tr></thead>
                             <tbody>
                                 @forelse ($events as $event)
                                     <tr>
                                         <td>{{ $events->firstItem() + $loop->index }}</td>
                                         <td><strong>{{ $event->name }}</strong></td>
                                         <td class="text-nowrap">{{ $event->start_date ? \Illuminate\Support\Carbon::parse($event->start_date)->format('d M Y') : '—' }}</td>
-                                        <td class="text-right"><a href="{{ route('events-financial-report', ['slug' => $event->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-bar mr-1"></i> Lihat Laporan</a></td>
+                                        <td class="text-right"><a href="{{ route('events-financial-report', ['slug' => $event->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-bar mr-1"></i> View Report</a></td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="4" class="text-center text-muted py-4">{{ $search ? 'Tidak ada event berbayar yang cocok dengan pencarian.' : 'Belum ada event dengan tiket berbayar.' }}</td></tr>
+                                    <tr><td colspan="4" class="text-center text-muted py-4">{{ $search ? 'No paid events match your search.' : 'There are no events with paid tickets yet.' }}</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="card-footer d-flex flex-wrap justify-content-between align-items-center" style="gap:10px;">
-                    <small class="text-muted">{{ $events->firstItem() ?? 0 }}–{{ $events->lastItem() ?? 0 }} dari {{ $events->total() }} event</small>
+                    <small class="text-muted">{{ $events->firstItem() ?? 0 }}–{{ $events->lastItem() ?? 0 }} of {{ $events->total() }} events</small>
                     {{ $events->onEachSide(1)->links('pagination::bootstrap-4') }}
                 </div>
             </div>

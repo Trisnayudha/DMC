@@ -27,7 +27,7 @@
         $('#ms-update-url').val(isEdit ? data.updateUrl : '');
         $('#member-source-modal-title').html(isEdit
             ? '<i class="fas fa-edit mr-1"></i>Edit Source'
-            : '<i class="fas fa-link mr-1"></i>Tambah Source');
+            : '<i class="fas fa-link mr-1"></i>Add Source');
 
         $('#ms-category').val(data.category || '');
         $('#ms-code').val(data.code || '');
