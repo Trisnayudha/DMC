@@ -121,7 +121,7 @@ class CompanyDatabaseImport implements ToCollection, WithHeadingRow
                 : trim((string) $company->company_category);
 
             if ($categoryName === '') {
-                $this->errors[] = "Row {$rowNum}: company id {$company->id} tanpa category — subcategory dilewati.";
+                $this->errors[] = "Row {$rowNum}: company ID {$company->id} has no category — subcategories skipped.";
                 continue;
             }
 
@@ -131,7 +131,7 @@ class CompanyDatabaseImport implements ToCollection, WithHeadingRow
         foreach ($idsByCategory as $categoryName => $companyIds) {
             $categoryId = DB::table('company_categories')->where('name', $categoryName)->value('id');
             if (!$categoryId) {
-                $this->errors[] = "Row {$rowNum}: category \"{$categoryName}\" tidak dikenal — subcategory dilewati.";
+                $this->errors[] = "Row {$rowNum}: category \"{$categoryName}\" is unknown — subcategories skipped.";
                 continue;
             }
 
@@ -149,7 +149,7 @@ class CompanyDatabaseImport implements ToCollection, WithHeadingRow
                 if (isset($masterByLower[$key])) {
                     $resolvedIds[] = $masterByLower[$key];
                 } else {
-                    $this->errors[] = "Row {$rowNum}: subcategory \"{$name}\" tidak ada di master category \"{$categoryName}\" — dilewati.";
+                    $this->errors[] = "Row {$rowNum}: subcategory \"{$name}\" is not registered under category \"{$categoryName}\" — skipped.";
                 }
             }
 

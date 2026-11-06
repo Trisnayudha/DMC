@@ -87,9 +87,9 @@ class CompanyDatabaseController extends Controller
         $import = new CompanyDatabaseImport();
         Excel::import($import, $request->file('file'));
 
-        $message = "Import selesai. {$import->getUpdated()} record diupdate.";
+        $message = "Import complete. {$import->getUpdated()} records updated.";
         if ($import->getSkipped() > 0) {
-            $message .= " {$import->getSkipped()} row dilewati.";
+            $message .= " {$import->getSkipped()} rows skipped.";
         }
 
         activity('company_database')
@@ -501,7 +501,7 @@ class CompanyDatabaseController extends Controller
 
         $sample = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [strtolower(trim($data['normalized_name']))])->first();
         if (!$sample) {
-            return back()->with('error', 'Company tidak ditemukan.');
+            return back()->with('error', 'Company not found.');
         }
 
         $result = CompanyModel::syncByName((string) $sample->company_name, true);
@@ -517,7 +517,7 @@ class CompanyDatabaseController extends Controller
 
         return back()->with(
             'success',
-            "Sync berhasil untuk {$sample->company_name}. Record diperbarui: {$result['updated_records']} dari {$result['total_records']} record."
+            "Sync completed for {$sample->company_name}. Updated {$result['updated_records']} of {$result['total_records']} records."
         );
     }
 
@@ -552,7 +552,7 @@ class CompanyDatabaseController extends Controller
 
         return back()->with(
             'success',
-            "Sync semua selesai. {$syncedCompanies} company diproses, {$updatedRows} record company diperbarui."
+            "Sync complete. {$syncedCompanies} companies processed and {$updatedRows} company records updated."
         );
     }
 
@@ -580,9 +580,9 @@ class CompanyDatabaseController extends Controller
         $sample = CompanyModel::whereRaw('LOWER(TRIM(company_name)) = ?', [$normalizedName])->first();
         if (!$sample) {
             if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Company tidak ditemukan.'], 422);
+                return response()->json(['success' => false, 'message' => 'Company not found.'], 422);
             }
-            return back()->with('error', 'Company tidak ditemukan.');
+            return back()->with('error', 'Company not found.');
         }
 
         $payload = [];
@@ -608,9 +608,9 @@ class CompanyDatabaseController extends Controller
 
         if (empty($payload) && !$hasSubcategoryInput) {
             if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Tidak ada data yang diubah.'], 422);
+                return response()->json(['success' => false, 'message' => 'No data was changed.'], 422);
             }
-            return back()->with('error', 'Tidak ada data yang diubah.');
+            return back()->with('error', 'No data was changed.');
         }
 
         $payload['is_verified'] = true;
@@ -647,7 +647,7 @@ class CompanyDatabaseController extends Controller
             ])
             ->log('update');
 
-        $message = "Update & sync berhasil untuk {$sample->company_name}. {$updatedRows} record company diperbarui.";
+        $message = "Update and sync completed for {$sample->company_name}. {$updatedRows} company records updated.";
 
         if ($request->ajax()) {
             return response()->json(['success' => true, 'message' => $message]);

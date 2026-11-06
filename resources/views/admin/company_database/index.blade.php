@@ -60,26 +60,26 @@
                                         <div style="font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:#adb5bd; font-weight:600;">Verified Trend</div>
                                         <div class="d-flex align-items-baseline" style="gap:6px;">
                                             <span style="font-size:30px; font-weight:700; color:#28a745; line-height:1;" id="chart-total-badge">—</span>
-                                            <span style="font-size:12px; color:#6c757d;" id="chart-range-label">30 hari terakhir</span>
+                                            <span style="font-size:12px; color:#6c757d;" id="chart-range-label">Last 30 days</span>
                                         </div>
                                     </div>
                                     <div class="d-flex" style="gap:6px;">
                                         <select id="chart-period" class="form-control form-control-sm" style="width:88px; font-size:11px;">
-                                            <option value="daily">Harian</option>
-                                            <option value="weekly">Mingguan</option>
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
                                         </select>
                                         <select id="chart-range" class="form-control form-control-sm" style="width:80px; font-size:11px;">
-                                            <option value="14">14 hari</option>
-                                            <option value="30" selected>30 hari</option>
-                                            <option value="60">60 hari</option>
-                                            <option value="90">90 hari</option>
+                                            <option value="14">14 days</option>
+                                            <option value="30" selected>30 days</option>
+                                            <option value="60">60 days</option>
+                                            <option value="90">90 days</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div style="position:relative; height:120px; margin-bottom:-4px;">
                                     <canvas id="verifiedTrendChart"></canvas>
                                     <div id="chart-empty" style="display:none; position:absolute; inset:0; align-items:center; justify-content:center;">
-                                        <span class="text-muted" style="font-size:12px;">Belum ada data verified.</span>
+                                        <span class="text-muted" style="font-size:12px;">No verification data available.</span>
                                     </div>
                                 </div>
                             </div>
@@ -96,7 +96,7 @@
                                         <span style="font-size:36px; font-weight:700; line-height:1; color:{{ $verifiedPct >= 75 ? '#28a745' : ($verifiedPct >= 40 ? '#ffc107' : '#dc3545') }};">{{ $verifiedPct }}%</span>
                                     </div>
                                     <div style="font-size:12px; color:#6c757d; margin-bottom:14px;">
-                                        {{ $totalVerified }} dari {{ $totalCompanies }} company
+                                        {{ $totalVerified }} of {{ $totalCompanies }} companies
                                     </div>
                                 </div>
 
@@ -145,7 +145,7 @@
                                 @php
                                     $maxBucket = max(array_values($completenessDistribution)) ?: 1;
                                     $bucketColors = ['≤3' => '#dc3545', '4–6' => '#fd7e14', '7–9' => '#ffc107', '10' => '#20c997', '11' => '#28a745'];
-                                    $bucketLabels = ['≤3' => '≤3 field', '4–6' => '4–6 field', '7–9' => '7–9 field', '10' => '10 field', '11' => 'Lengkap (11)'];
+                                    $bucketLabels = ['≤3' => '≤3 fields', '4–6' => '4–6 fields', '7–9' => '7–9 fields', '10' => '10 fields', '11' => 'Complete (11)'];
                                 @endphp
                                 @foreach ($completenessDistribution as $key => $count)
                                     <div class="d-flex align-items-center mb-2" style="gap:8px;">
@@ -174,7 +174,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center" style="gap:12px;">
                         <h4 class="mb-0">Company Sync Center</h4>
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <span class="badge badge-light">Total Company: {{ $totalCompanies }}</span>
+                            <span class="badge badge-light">Total Companies: {{ $totalCompanies }}</span>
                             <span class="badge badge-warning">Need Sync: {{ $totalNeedSync }}</span>
                             <span class="badge badge-primary">Duplicates: {{ $totalDuplicates }}</span>
                             <span class="badge badge-success">Verified: {{ $totalVerified }}</span>
@@ -188,12 +188,12 @@
                                 <div class="form-group col-md-5 mb-2">
                                     <label class="mb-1">Search Company</label>
                                     <input type="text" name="search" class="form-control" value="{{ $search }}"
-                                        placeholder="contoh: PT ABC">
+                                        placeholder="e.g. PT ABC">
                                 </div>
                                 <div class="form-group col-md-4 mb-2">
                                     <label class="mb-1">Scope</label>
                                     <select name="scope" class="form-control">
-                                        <option value="need_sync" {{ $scope === 'need_sync' ? 'selected' : '' }}>Need Sync (Belum Verified)</option>
+                                        <option value="need_sync" {{ $scope === 'need_sync' ? 'selected' : '' }}>Need Sync (Unverified)</option>
                                         <option value="duplicates" {{ $scope === 'duplicates' ? 'selected' : '' }}>Duplicates Only</option>
                                         <option value="verified" {{ $scope === 'verified' ? 'selected' : '' }}>Verified</option>
                                         <option value="unverified" {{ $scope === 'unverified' ? 'selected' : '' }}>Unverified</option>
@@ -213,8 +213,8 @@
                                 <input type="hidden" name="search" value="{{ $search }}">
                                 <input type="hidden" name="scope" value="{{ $scope }}">
                                 <button type="submit" class="btn btn-warning"
-                                    onclick="return confirm('Sync semua company sesuai filter saat ini?')">
-                                    <i class="fas fa-sync"></i> Sync Semua Sesuai Filter
+                                    onclick="return confirm('Sync all companies matching the current filter?')">
+                                    <i class="fas fa-sync"></i> Sync All Matching Companies
                                 </button>
                             </form>
 
@@ -235,8 +235,8 @@
                                         <th>No</th>
                                         <th>Company Name</th>
                                         <th>Status</th>
-                                        <th>Total Record</th>
-                                        <th>Incomplete Record</th>
+                                        <th>Total Records</th>
+                                        <th>Incomplete Records</th>
                                         <th>Best Data</th>
                                         <th>Users</th>
                                         <th>Last Update</th>
@@ -271,14 +271,14 @@
                                             </td>
                                             <td>
                                                 ID {{ $item->best_record_id }}
-                                                <span class="badge badge-info">{{ $item->best_score }}/{{ $item->max_score }} field</span>
+                                                <span class="badge badge-info">{{ $item->best_score }}/{{ $item->max_score }} fields</span>
                                             </td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-outline-secondary js-view-users"
                                                     data-normalized-name="{{ $item->normalized_name }}"
                                                     data-company-name="{{ $item->company_name }}"
                                                     data-total="{{ $item->total_records }}">
-                                                    <i class="fas fa-users"></i> {{ $item->total_records }} user
+                                                    <i class="fas fa-users"></i> {{ $item->total_records }} users
                                                 </button>
                                             </td>
                                             <td>{{ $item->updated_at ? \Carbon\Carbon::parse($item->updated_at)->format('d M Y H:i') : '-' }}</td>
@@ -294,7 +294,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="9" class="text-center text-muted">Data company tidak ditemukan untuk filter saat ini.</td>
+                                            <td colspan="9" class="text-center text-muted">No companies match the current filter.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -319,17 +319,17 @@
                 <div class="modal-body p-0">
                     <div id="user_list_loading" class="text-center py-4">
                         <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-2 text-muted">Memuat data users...</p>
+                        <p class="mt-2 text-muted">Loading users...</p>
                     </div>
                     <div id="user_list_empty" class="text-center py-4 text-muted" style="display:none;">
-                        Tidak ada user ditemukan untuk company ini.
+                        No users found for this company.
                     </div>
                     <div id="user_list_content" style="display:none;">
                         <table class="table table-sm table-hover mb-0">
                             <thead class="thead-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Nama</th>
+                                    <th>Name</th>
                                     <th>Email</th>
                                     <th>Job Title</th>
                                     <th>Phone</th>
@@ -342,7 +342,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -363,7 +363,7 @@
                     <div class="modal-body">
                         <div class="alert alert-light mb-3">
                             Company: <strong id="edit_company_label">-</strong><br>
-                            Perubahan akan diterapkan ke semua record company dengan nama yang sama.
+                            Changes will be applied to all company records with the same name.
                         </div>
 
                         <div class="form-row">
@@ -389,11 +389,11 @@
                                 <div class="position-relative">
                                     <input type="text" name="company_name" id="edit_company_name_input"
                                         class="form-control" required autocomplete="off"
-                                        placeholder="Ketik nama company atau pilih dari verified...">
+                                        placeholder="Enter a company name or select a verified company...">
                                     <div id="company-suggestions" class="list-group position-absolute w-100"
                                         style="z-index:9999; display:none; max-height:200px; overflow-y:auto; top:100%; left:0; box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
                                 </div>
-                                <small class="text-muted">Ketik untuk melihat saran dari company yang sudah verified.</small>
+                                <small class="text-muted">Type to see suggestions from verified companies.</small>
                             </div>
                         </div>
 
@@ -409,7 +409,7 @@
                                 <label>Company Category</label>
                                 <select name="company_category" id="edit_company_category"
                                     class="form-control company_category_edit">
-                                    @include('partials._company_category_options', ['includeInactive' => true])
+                                    @include('partials._company_category_options', ['includeInactive' => true, 'inactiveLabel' => 'Inactive categories — select a new category'])
                                 </select>
                             </div>
                             <div class="form-group col-md-6 company_other_edit" style="display:none;">
@@ -420,10 +420,10 @@
 
                         <div class="form-row">
                             <div class="form-group col-md-12">
-                                <label>Subcategory <small class="text-muted">(opsional, bisa pilih lebih dari satu)</small></label>
+                                <label>Subcategory <small class="text-muted">(optional, multiple selections allowed)</small></label>
                                 <select name="subcategory_ids[]" id="edit_subcategories" class="form-control" multiple></select>
                                 <input type="hidden" name="subcategory_ids_present" value="1">
-                                <small class="text-muted">Pilihan mengikuti <strong>Company Category</strong> di atas. Mengganti category akan memuat ulang daftar subcategory.</small>
+                                <small class="text-muted">Options depend on the <strong>Company Category</strong> above. Changing the category reloads the subcategory list.</small>
                             </div>
                         </div>
 
@@ -451,7 +451,7 @@
                             <div class="form-group col-md-12">
                                 <label>Full Office Number</label>
                                 <input type="text" name="full_office_number" id="edit_full_office_number" class="form-control" placeholder="e.g. +62 21 12345678">
-                                <small class="text-muted">Awali dengan kode negara (mis. <code>+62</code>) agar prefix terdeteksi otomatis.</small>
+                                <small class="text-muted">Start with the country code (e.g. <code>+62</code>) to detect the prefix automatically.</small>
                             </div>
                             <input type="hidden" name="prefix_office_number" id="edit_prefix_office_number">
                             <input type="hidden" name="office_number" id="edit_office_number">
@@ -461,7 +461,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary"
-                            onclick="return confirm('Simpan perubahan dan sync ke semua record company ini?')">
+                            onclick="return confirm('Save changes and sync all records for this company?')">
                             Save & Sync
                         </button>
                     </div>
@@ -482,7 +482,7 @@
                 <div class="modal-body p-0">
                     <div id="incomplete_loading" class="text-center py-4">
                         <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-2 text-muted">Memuat data...</p>
+                        <p class="mt-2 text-muted">Loading data...</p>
                     </div>
                     <div id="incomplete_content" style="display:none;">
                         <div class="table-responsive">
@@ -510,9 +510,9 @@
                         @csrf
                         <input type="hidden" name="normalized_name" id="incomplete_sync_name">
                     </form>
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-success" id="btnSyncFromIncomplete"
-                        onclick="if(confirm('Sync semua record dari best data (overwrite)?')) document.getElementById('incompleteSyncForm').submit();">
+                        onclick="if(confirm('Sync all records using the best available data? Existing values will be overwritten.')) document.getElementById('incompleteSyncForm').submit();">
                         <i class="fas fa-sync"></i> Sync Now
                     </button>
                 </div>
@@ -532,17 +532,17 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-light" style="font-size:12px;">
-                            <strong>Format Excel:</strong> <code>old_company_name</code> (wajib, untuk matching), lalu kolom data yang ingin diupdate:
+                            <strong>Excel format:</strong> <code>old_company_name</code> (required for matching), followed by the data columns to update:
                             <code>prefix, company_name, company_website, company_category, company_subcategory, address, city, portal_code, full_office_number, country</code>.
                             <div class="mt-1 text-muted">
-                                Kolom kosong = tidak diubah. Row tanpa data field = pakai target dari row di atas (merge).
+                                Empty columns remain unchanged. Rows without data fields use the target from the previous row (merge).
                             </div>
                             <div class="mt-1 text-muted">
-                                <strong>company_subcategory</strong>: opsional, boleh lebih dari satu &mdash; pisahkan dengan koma (mis. <code>Open Pit, Underground</code>). Harus sudah terdaftar di master subcategory untuk category tsb; yang belum terdaftar akan <strong>dilewati &amp; dilaporkan</strong>.
+                                <strong>company_subcategory</strong>: optional; separate multiple values with commas (e.g. <code>Open Pit, Underground</code>). Subcategories must already exist in the selected category. Unregistered values will be <strong>skipped &amp; reported</strong>.
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="small font-weight-bold">File Excel (.xlsx, .xls, .csv)</label>
+                            <label class="small font-weight-bold">Excel File (.xlsx, .xls, .csv)</label>
                             <input type="file" name="file" class="form-control-file" accept=".xlsx,.xls,.csv" required>
                             <a href="{{ route('admin.company_database.import_template') }}" class="small mt-1 d-inline-block">
                                 <i class="fas fa-download"></i> Download template
@@ -552,7 +552,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-info"
-                            onclick="return confirm('Import akan me-rename company yang ada di database. Lanjutkan?')">
+                            onclick="return confirm('Import will rename existing companies in the database. Continue?')">
                             <i class="fas fa-upload mr-1"></i> Import
                         </button>
                     </div>
@@ -579,7 +579,7 @@
                 })
                 .fail(function() {
                     window.Chart = chartV2;
-                    $('#company-category-loading').text('Gagal memuat chart.');
+                    $('#company-category-loading').text('Failed to load chart.');
                 });
         })();
     </script>
@@ -595,7 +595,7 @@
                 $('#edit_subcategories').select2({
                     dropdownParent: $('#editCompanyModal'),
                     width: '100%',
-                    placeholder: 'Pilih subcategory (opsional)',
+                    placeholder: 'Select subcategories (optional)',
                     allowClear: true
                 });
             }
@@ -625,8 +625,8 @@
                 }
 
                 var rangeText = period === 'weekly'
-                    ? 'dalam ' + Math.ceil(parseInt(range) / 7) + ' minggu'
-                    : 'dalam ' + range + ' hari';
+                    ? 'in the last ' + Math.ceil(parseInt(range) / 7) + ' weeks'
+                    : 'in the last ' + range + ' days';
                 $('#chart-range-label').text(rangeText);
 
                 $.ajax({
@@ -684,7 +684,7 @@
                                     titleFontSize: 11,
                                     bodyFontSize: 12,
                                     callbacks: {
-                                        label: function(item) { return ' ' + item.yLabel + ' company verified'; }
+                                        label: function(item) { return ' ' + item.yLabel + ' verified companies'; }
                                     }
                                 },
                                 scales: {
@@ -713,10 +713,10 @@
             $('#chart-period, #chart-range').on('change', function() {
                 if ($('#chart-period').val() === 'weekly') {
                     $('#chart-range option').each(function() {
-                        $(this).text(Math.ceil(parseInt($(this).val()) / 7) + ' minggu');
+                        $(this).text(Math.ceil(parseInt($(this).val()) / 7) + ' weeks');
                     });
                 } else {
-                    var map = { '14': '14 hari', '30': '30 hari', '60': '60 hari', '90': '90 hari' };
+                    var map = { '14': '14 days', '30': '30 days', '60': '60 days', '90': '90 days' };
                     $('#chart-range option').each(function() {
                         $(this).text(map[$(this).val()] || $(this).val());
                     });
@@ -836,7 +836,7 @@
                     },
                     error: function() {
                         $('#user_list_loading').hide();
-                        $('#user_list_empty').text('Gagal memuat data.').show();
+                        $('#user_list_empty').text('Failed to load data.').show();
                     }
                 });
             });

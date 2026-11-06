@@ -10,7 +10,7 @@
     <option value="{{ $cat->name }}">{{ $cat->name }}</option>
 @endforeach
 @if (!empty($includeInactive) && $companyCategoryRows->where('is_active', false)->isNotEmpty())
-    <optgroup label="Kategori lama (nonaktif) — pilih ulang">
+    <optgroup label="{{ $inactiveLabel ?? 'Kategori lama (nonaktif) — pilih ulang' }}">
         @foreach($companyCategoryRows->where('is_active', false) as $cat)
             <option value="{{ $cat->name }}">{{ $cat->name }}</option>
         @endforeach

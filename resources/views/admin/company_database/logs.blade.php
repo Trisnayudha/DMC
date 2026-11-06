@@ -12,7 +12,7 @@
                 </div>
                 <div class="section-header-button ml-auto">
                     <a href="{{ route('admin.company_database.index') }}" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-arrow-left"></i> Kembali
+                        <i class="fas fa-arrow-left"></i> Back
                     </a>
                 </div>
             </div>
@@ -23,9 +23,9 @@
                 <div class="card mb-3">
                     <div class="card-body py-2">
                         <form method="GET" action="{{ route('admin.company_database.logs') }}" class="form-inline flex-wrap" style="gap:8px">
-                            <input type="text" name="search" class="form-control form-control-sm" placeholder="Cari nama company…" value="{{ $search }}" style="min-width:200px">
+                            <input type="text" name="search" class="form-control form-control-sm" placeholder="Search company name…" value="{{ $search }}" style="min-width:200px">
                             <select name="action" class="form-control form-control-sm">
-                                <option value="">Semua action</option>
+                                <option value="">All actions</option>
                                 <option value="update"   {{ $action === 'update'   ? 'selected' : '' }}>update</option>
                                 <option value="sync"     {{ $action === 'sync'     ? 'selected' : '' }}>sync</option>
                                 <option value="sync_all" {{ $action === 'sync_all' ? 'selected' : '' }}>sync all</option>
@@ -45,11 +45,11 @@
                             <table class="table table-bordered table-sm table-hover mb-0" style="font-size:12px">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th style="width:120px">Waktu</th>
+                                        <th style="width:120px">Time</th>
                                         <th style="width:140px">Admin</th>
                                         <th style="width:75px; text-align:center">Action</th>
                                         <th style="width:160px">Company</th>
-                                        <th>Perubahan</th>
+                                        <th>Changes</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -61,7 +61,7 @@
                                         <tr style="vertical-align:middle">
                                             <td class="text-muted" style="white-space:nowrap; line-height:1.4">
                                                 {{ $log->created_at->setTimezone('Asia/Jakarta')->format('d M Y') }}<br>
-                                                <span style="font-size:11px">{{ $log->created_at->setTimezone('Asia/Jakarta')->format('H:i') }} WIB</span>
+                                                <span style="font-size:11px">{{ $log->created_at->setTimezone('Asia/Jakarta')->format('H:i') }} (WIB)</span>
                                             </td>
                                             <td style="line-height:1.4">
                                                 <span class="font-weight-bold">{{ $log->causer ? $log->causer->name : '—' }}</span>
@@ -85,9 +85,9 @@
                                                 @if($log->description === 'sync')
                                                     <br><span class="text-muted font-weight-normal" style="font-size:11px">{{ $props['updated_records'] ?? 0 }}/{{ $props['total_records'] ?? 0 }} record</span>
                                                 @elseif($log->description === 'sync_all')
-                                                    <br><span class="text-muted font-weight-normal" style="font-size:11px">{{ $props['synced_companies'] ?? 0 }} company · {{ $props['updated_rows'] ?? 0 }} row</span>
+                                                    <br><span class="text-muted font-weight-normal" style="font-size:11px">{{ $props['synced_companies'] ?? 0 }} companies · {{ $props['updated_rows'] ?? 0 }} rows</span>
                                                 @elseif($log->description === 'update' && !empty($changes))
-                                                    <br><span class="text-muted font-weight-normal" style="font-size:11px">{{ count($changes) }} field berubah · {{ $props['updated_records'] ?? 0 }} record</span>
+                                                    <br><span class="text-muted font-weight-normal" style="font-size:11px">{{ count($changes) }} fields changed · {{ $props['updated_records'] ?? 0 }} record</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -108,7 +108,7 @@
                                                                     @if($diff['before'] !== null && $diff['before'] !== '')
                                                                         {{ $diff['before'] }}
                                                                     @else
-                                                                        <span class="text-muted font-italic">kosong</span>
+                                                                        <span class="text-muted font-italic">empty</span>
                                                                     @endif
                                                                 </td>
                                                                 <td style="padding:1px 4px; color:#aaa; white-space:nowrap">&rarr;</td>
@@ -116,7 +116,7 @@
                                                                     @if($diff['after'] !== null && $diff['after'] !== '')
                                                                         {{ $diff['after'] }}
                                                                     @else
-                                                                        <span class="text-muted font-italic">kosong</span>
+                                                                        <span class="text-muted font-italic">empty</span>
                                                                     @endif
                                                                 </td>
                                                             </tr>
@@ -135,7 +135,7 @@
                                         <tr>
                                             <td colspan="5" class="text-center text-muted py-4">
                                                 <i class="fas fa-history fa-2x mb-2 d-block"></i>
-                                                Belum ada aktivitas tercatat.
+                                                No activity recorded yet.
                                             </td>
                                         </tr>
                                     @endforelse
@@ -147,13 +147,13 @@
                     @if($logs->hasPages())
                         <div class="card-footer d-flex justify-content-between align-items-center py-2">
                             <small class="text-muted">
-                                Menampilkan {{ $logs->firstItem() }}–{{ $logs->lastItem() }} dari {{ $logs->total() }} aktivitas
+                                Showing {{ $logs->firstItem() }}–{{ $logs->lastItem() }} of {{ $logs->total() }} activities
                             </small>
                             {{ $logs->links() }}
                         </div>
                     @else
                         <div class="card-footer py-2">
-                            <small class="text-muted">{{ $logs->total() }} aktivitas</small>
+                            <small class="text-muted">{{ $logs->total() }} activities</small>
                         </div>
                     @endif
                 </div>
