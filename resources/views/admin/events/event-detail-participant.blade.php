@@ -138,6 +138,7 @@
                             </div>
                         @endif
 
+                        <div id="confirmation-feedback" class="mt-3" role="status" aria-live="polite"></div>
                         <div class="table-responsive mt-3">
                             <table id="laravel_crud" class="table table-hover participant-table">
                                 <thead>
@@ -248,7 +249,7 @@
                                                 <td>
                                                     @if ($post->reminder == null)
                                                         <form action="{{ Route('events-send-participant') }}"
-                                                            method="post">
+                                                            method="post" class="confirmation-email-form">
                                                             @csrf
                                                             <input type="hidden" name="users_id"
                                                                 value="{{ $post->users_id }}">
@@ -1015,19 +1016,75 @@
                 table.draw();
             });
 
-            /* ── Loader: Email / Present ── */
-            $(".send, .present").on("click", function() {
+            /* ── Loader: Present ── */
+            $(document).on("click", ".present", function() {
                 $("#loader").show();
                 setTimeout(() => $("#loader").hide(), 120000);
             });
 
+            function confirmationNotice(message, success) {
+                $('#confirmation-feedback').empty().append(
+                    $('<div>').addClass('alert ' + (success ? 'alert-success' : 'alert-danger'))
+                        .attr('role', success ? 'status' : 'alert').text(message)
+                );
+            }
+
+            function updateConfirmationCell(cell, result) {
+                var info = $('<div>').addClass('sent-info');
+                info.append($('<i>').addClass('fas fa-check-circle text-success mr-1'));
+                info.append($('<span>').text(result.sent_at));
+                info.append('<br>');
+                info.append($('<small>').addClass('text-muted').text(result.sent_by || ''));
+                table.cell(cell).data(info.prop('outerHTML')).draw(false);
+            }
+
+            $(document).on('submit', '.confirmation-email-form', function(event) {
+                event.preventDefault();
+                var form = $(this), button = form.find('button'), cell = form.closest('td')[0];
+                if (button.prop('disabled')) return;
+                button.prop('disabled', true).attr('aria-busy', 'true').html('<i class="fas fa-spinner fa-spin"></i>');
+                $.ajax({ url: form.attr('action'), method: 'POST', data: form.serialize(), dataType: 'json' })
+                    .done(function(result) {
+                        updateConfirmationCell(cell, result);
+                        confirmationNotice('Confirmation email sent successfully.', true);
+                    })
+                    .fail(function(xhr) {
+                        confirmationNotice((xhr.responseJSON && xhr.responseJSON.message) || 'Could not confirm email delivery. Please check before trying again.', false);
+                        button.prop('disabled', false).removeAttr('aria-busy').html('<i class="fas fa-envelope"></i>');
+                    });
+            });
+
             /* ── Modal: WA Konfirmasi ── */
+            var whatsappCell = null;
             $(document).on('click', '.open-modal', function() {
+                if ($('#phoneForm button[type="submit"]').prop('disabled')) return;
+                whatsappCell = $(this).closest('td')[0];
                 $('#usersId').val($(this).data('users-id'));
                 $('#eventsId').val($(this).data('events-id'));
                 $('#paymentId').val($(this).data('payment-id'));
                 $('#phoneNumber').val($(this).data('phone'));
                 $('#phoneModal').modal('show');
+            });
+
+            $('#phoneForm').on('submit', function(event) {
+                event.preventDefault();
+                var form = $(this), button = form.find('button[type="submit"]'), cell = whatsappCell;
+                if (button.prop('disabled') || !cell) return;
+                button.prop('disabled', true).attr('aria-busy', 'true').html('<i class="fas fa-spinner fa-spin mr-1"></i>Sending...');
+                $.ajax({ url: form.attr('action'), method: 'POST', data: form.serialize(), dataType: 'json' })
+                    .done(function(result) {
+                        updateConfirmationCell(cell, result);
+                        $('#phoneModal').modal('hide');
+                        confirmationNotice('WhatsApp confirmation sent successfully.', true);
+                    })
+                    .fail(function(xhr) {
+                        var message = (xhr.responseJSON && xhr.responseJSON.message) || 'Could not confirm WhatsApp delivery. Please check before trying again.';
+                        $('#phoneModal').modal('hide');
+                        confirmationNotice(message, false);
+                    })
+                    .always(function() {
+                        button.prop('disabled', false).removeAttr('aria-busy').html('<i class="fab fa-whatsapp mr-1"></i>Send');
+                    });
             });
         });
 

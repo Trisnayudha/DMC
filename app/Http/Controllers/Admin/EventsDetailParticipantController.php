@@ -64,7 +64,7 @@ class EventsDetailParticipantController extends Controller
                 'users_event.reminder',
                 'users_event.reminder_wa',
                 'users_reminder.name as name_reminder',
-                'users_reminder.name as name_reminder_wa',
+                'users_reminder_wa.name as name_reminder_wa',
                 'users_event.pic_id_reminder',
                 'users_event.created_at as created',
                 'users_event.updated_at as updated',
@@ -358,6 +358,11 @@ The Djakarta Mining Club Team';
         $this->validateRequest($request);
         try {
             $payment = Payment::findOrFail($request->payment_id);
+            if ((string) $payment->events_id !== (string) $request->events_id || (string) $payment->member_id !== (string) $request->users_id) {
+                return $request->expectsJson()
+                    ? response()->json(['message' => 'Participant registration does not match this event.'], 422)
+                    : redirect()->back()->with('error', 'Participant registration does not match this event.');
+            }
             $user = User::findOrFail($payment->member_id);
             $profile = ProfileModel::where('users_id', $payment->member_id)->firstOrFail();
             $company = CompanyModel::where('users_id', $payment->member_id)->firstOrFail();
@@ -378,9 +383,19 @@ The Djakarta Mining Club Team';
                 $this->markAsPresent($userRegistration);
             }
 
+            if ($request->expectsJson()) {
+                $timestamp = $request->method === 'confirmation' ? $userRegistration->reminder : $userRegistration->reminder_wa;
+                return response()->json([
+                    'message' => 'Confirmation sent successfully.',
+                    'sent_at' => Carbon::parse($timestamp)->format('d M H:i'),
+                    'sent_by' => optional(Auth::user())->name,
+                ]);
+            }
             return redirect()->route('events-details-participant', ['slug' => $event->slug])->with('success', 'Successfully processed request.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error('Participant confirmation failed', ['payment_id' => $request->payment_id, 'method' => $request->method, 'error' => $e->getMessage()]);
+            $message = 'Sending failed or its status could not be saved. Please check before retrying.';
+            return $request->expectsJson() ? response()->json(['message' => $message], 500) : redirect()->back()->with('error', $message);
         }
     }
 
@@ -389,7 +404,8 @@ The Djakarta Mining Club Team';
         $request->validate([
             'users_id' => 'required',
             'events_id' => 'required',
-            'method' => 'required',
+            'method' => 'required|in:confirmation,confirmation_wa,present',
+            'phone' => 'required_if:method,confirmation_wa|nullable|string|max:30',
             'payment_id' => 'required|exists:payment,id'
         ]);
     }
@@ -402,10 +418,10 @@ The Djakarta Mining Club Team';
         );
     }
 
-    private function generateAndStoreQrCode($codePayment)
+    protected function generateAndStoreQrCode($codePayment)
     {
         $image = QrCode::format('png')->size(200)->errorCorrection('H')->generate($codePayment);
-        $output_file = '/public/uploads/payment/qr-code/img-' . time() . '.png';
+        $output_file = '/public/uploads/payment/qr-code/img-' . \Illuminate\Support\Str::uuid() . '.png';
         Storage::disk('local')->put($output_file, $image);
         return '/storage/uploads/payment/qr-code/img-' . time() . '.png';
     }
@@ -431,32 +447,22 @@ The Djakarta Mining Club Team';
         ];
     }
 
-    private function sendConfirmationEmail($data, $email, $codePayment, $event)
+    protected function sendConfirmationEmail($data, $email, $codePayment, $event)
     {
-        try {
-            $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
-                ->loadView('email.ticket', $data);
-            Mail::send('email.reminder-event', $data, function ($message) use ($email, $pdf, $codePayment, $event, $data) {
-                $message->from('register@djakarta-miningclub.com');
-                $message->to($email);
-                $subject = $codePayment . ' - Confirmation Reminder for ' . $event;
-                if (($data['event_slug'] ?? null) !== 'indonesian-energy-market-briefing-2026') {
-                    $subject .= '';
-                }
-                $message->subject($subject);
-                $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
-            });
-        } catch (\Exception $e) {
-            // Jika terjadi error
-            dd('Email gagal dikirim: ' . $e->getMessage());
-        }
+        $pdf = Pdf::setOptions(['isRemoteEnabled' => true])->loadView('email.ticket', $data);
+        Mail::send('email.reminder-event', $data, function ($message) use ($email, $pdf, $codePayment, $event) {
+            $message->from('register@djakarta-miningclub.com');
+            $message->to($email);
+            $message->subject($codePayment . ' - Confirmation Reminder for ' . $event);
+            $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
+        });
     }
 
-    private function sendConfirmationWhatsapp($data, $phone, $event)
+    protected function sendConfirmationWhatsapp($data, $phone, $event)
     {
         $pdf = Pdf::setOptions(['isRemoteEnabled' => true])
             ->loadView('email.ticket', $data);
-        $filename = 'ticket_' . $data['code_payment'] . '_' . time() . '.pdf';
+        $filename = 'ticket_' . $data['code_payment'] . '_' . \Illuminate\Support\Str::uuid() . '.pdf';
 
         // Store the PDF in the desired directory within the storage folder
         $pdfPath = 'public/ticket/' . $filename;
@@ -484,7 +490,9 @@ We look forward to seeing you there. Thank you. 😊🙏🏻
 Regards,
 The Djakarta Mining Club Team';
 
-        $send->WhatsappMessage();
+        if ($send->WhatsappMessage() !== 'valid') {
+            throw new \RuntimeException('WhatsApp gateway rejected the message: ' . $send->res);
+        }
     }
 
 
