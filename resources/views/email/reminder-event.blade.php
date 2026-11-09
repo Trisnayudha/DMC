@@ -173,6 +173,13 @@
                 <td style="padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">The Dharmawangsa
                     Hotel Jakarta (Jl. Brawijaya Raya No. 26, Kebayoran Baru, 12160, Indonesia)</td>
             </tr>
+            <tr>
+                <td
+                    style="width: 80px; padding: 4px 0; vertical-align: top; font-weight: bold; font-size: 13px; color: #333;">
+                    Dress Code</td>
+                <td style="width: 15px; padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">:</td>
+                <td style="padding: 4px 0; vertical-align: top; font-size: 13px; color: #333;">Business Attire</td>
+            </tr>
         </table>
 
         <p style="margin-top: 20px; line-height: 1.5;">You may access the event details and agenda here:
@@ -184,10 +191,14 @@
             @endif
         </p>
 
-            @if($isEnergyBriefing)
-                <p style="margin-top: 20px; margin-bottom: 5px; line-height: 1.5;"><strong>Have a question for our speakers?</strong><br>Submit your question ahead of the event.</p>
-                <p style="margin: 12px 0 20px;"><a href="{{ route('event-questions.create', ['code_payment' => $code_payment]) }}" style="background-color: #d90016; color: #ffffff; display: inline-block; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-weight: bold;">Submit Your Question</a></p>
-            @endif
+        @if ($isEnergyBriefing)
+            <p style="margin-top: 20px; margin-bottom: 5px; line-height: 1.5;"><strong>Have a question for our
+                    speakers?</strong><br>Submit your question ahead of the event.</p>
+            <p style="margin: 12px 0 20px;"><a
+                    href="{{ route('event-questions.create', ['code_payment' => $code_payment]) }}"
+                    style="background-color: #d90016; color: #ffffff; display: inline-block; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-weight: bold;">Submit
+                    Your Question</a></p>
+        @endif
 
         <p style="margin-top: 20px; margin-bottom: 5px;"><strong>Collecting Your Badge</strong></p>
         <ul style="margin-top: 0; padding-left: 20px; line-height: 1.5;">
