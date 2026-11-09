@@ -500,7 +500,7 @@ The Djakarta Mining Club Team';
         $eventDate = Carbon::parse($date, 'Asia/Jakarta')->startOfDay();
         $today = Carbon::today('Asia/Jakarta');
         $label = $eventDate->equalTo($today) ? '*TODAY*, '
-            : ($eventDate->equalTo($today->copy()->addDay()) ? '*TOMORROW*, ' : '');
+            : (in_array($eventDate->diffInDays($today), [1, 2], true) && $eventDate->greaterThan($today) ? '*TOMORROW*, ' : '');
 
         return $label . $eventDate->format('j F Y');
     }

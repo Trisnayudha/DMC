@@ -93,7 +93,8 @@ class ParticipantConfirmationAjaxTest extends TestCase
         $controller = new EventsDetailParticipantController();
         $this->assertSame('*TODAY*, 10 November 2026', $method->invoke($controller, '2026-11-10'));
         $this->assertSame('*TOMORROW*, 11 November 2026', $method->invoke($controller, '2026-11-11'));
-        $this->assertSame('12 November 2026', $method->invoke($controller, '2026-11-12'));
+        $this->assertSame('*TOMORROW*, 12 November 2026', $method->invoke($controller, '2026-11-12'));
+        $this->assertSame('13 November 2026', $method->invoke($controller, '2026-11-13'));
         $this->assertSame('9 November 2026', $method->invoke($controller, '2026-11-09'));
     }
 
