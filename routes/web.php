@@ -95,7 +95,7 @@ Route::get('web-view-sponsor', function () {
     return view('maps');
 });
 
-Route::get('event-questions/indonesian-energy-market-briefing-2026', [\App\Http\Controllers\EventQuestionController::class, 'create'])->name('event-questions.create');
+Route::get('event-questions/indonesian-energy-market-briefing-2026', [\App\Http\Controllers\EventQuestionController::class, 'create'])->middleware('throttle:30,1')->name('event-questions.create');
 Route::post('event-questions/indonesian-energy-market-briefing-2026', [\App\Http\Controllers\EventQuestionController::class, 'store'])->middleware('throttle:10,1')->name('event-questions.store');
 
 Route::get('survey/indonesia-energy-market-briefing-2026', function () {

@@ -23,7 +23,41 @@ class EventQuestionsTest extends TestCase
         Schema::create('company_categories', function ($table) {
             $table->id(); $table->string('name'); $table->boolean('is_active')->default(true); $table->integer('sort_order')->default(0);
         });
+        Schema::create('users', function ($table) {
+            $table->id(); $table->string('name'); $table->string('email');
+        });
+        Schema::create('events', function ($table) {
+            $table->id(); $table->string('slug');
+        });
+        Schema::create('payment', function ($table) {
+            $table->id(); $table->unsignedBigInteger('member_id'); $table->unsignedBigInteger('events_id'); $table->string('code_payment');
+        });
+        Schema::create('company', function ($table) {
+            $table->id(); $table->unsignedBigInteger('users_id'); $table->string('company_name')->nullable();
+        });
         (require database_path('migrations/2026_11_06_000000_create_event_questions_table.php'))->up();
+    }
+
+    public function test_reminder_link_prefills_only_matching_event_and_preserves_edits(): void
+    {
+        DB::table('users')->insert(['id' => 1, 'name' => 'Yudha', 'email' => 'yudha@example.test']);
+        DB::table('events')->insert([
+            ['id' => 1, 'slug' => 'indonesian-energy-market-briefing-2026'],
+            ['id' => 2, 'slug' => 'another-event'],
+        ]);
+        DB::table('payment')->insert([
+            ['member_id' => 1, 'events_id' => 1, 'code_payment' => 'MATCH123'],
+            ['member_id' => 1, 'events_id' => 2, 'code_payment' => 'OTHER123'],
+        ]);
+        DB::table('company')->insert(['users_id' => 1, 'company_name' => 'DMC']);
+
+        $this->get(route('event-questions.create', ['code_payment' => 'MATCH123']))
+            ->assertOk()->assertSee('value="Yudha"', false)->assertSee('value="yudha@example.test"', false)
+            ->assertSee('value="DMC"', false)->assertHeader('Cache-Control', 'no-store, private');
+        $this->get(route('event-questions.create', ['code_payment' => 'OTHER123']))->assertDontSee('yudha@example.test');
+        $this->get(route('event-questions.create', ['code_payment' => 'UNKNOWN']))->assertDontSee('yudha@example.test');
+        $this->withSession(['_old_input' => ['name' => 'Edited']])
+            ->get(route('event-questions.create', ['code_payment' => 'MATCH123']))->assertSee('value="Edited"', false);
     }
 
     public function test_public_submission_is_validated_and_saved(): void

@@ -207,17 +207,17 @@
                         <div class="form-section-title">Your Details &amp; Question</div>
                         <div class="form-group">
                             <label for="name">Full name <small>*</small></label>
-                            <input id="name" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" maxlength="255" required>
+                            <input id="name" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $participant->name ?? '') }}" maxlength="255" required>
                             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="form-group">
                             <label for="email">Email <small>*</small></label>
-                            <input id="email" name="email" type="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" maxlength="255" required>
+                            <input id="email" name="email" type="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $participant->email ?? '') }}" maxlength="255" required>
                             @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="form-group">
                             <label for="company">Company / organization</label>
-                            <input id="company" name="company" class="form-control @error('company') is-invalid @enderror" value="{{ old('company') }}" maxlength="255">
+                            <input id="company" name="company" class="form-control @error('company') is-invalid @enderror" value="{{ old('company', $participant->company_name ?? '') }}" maxlength="255">
                             @error('company')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="form-group mb-0">
