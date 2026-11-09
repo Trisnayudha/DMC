@@ -31,7 +31,7 @@
         <div class="card-survey">
 
             <div class="survey-banner">
-                <img src="{{ asset('image/survey/banner-dmc-2027.png') }}" alt="DMC Survey Banner 2027">
+                <img src="{{ asset('image/survey/banner-dmc-2027-v2.png') }}" alt="DMC Survey Banner 2027">
             </div>
 
             @if (session('ok'))
@@ -42,21 +42,18 @@
                 </div>
             @else
                 {{-- INTRO --}}
-                <h3 class="font-weight-bold mb-3">
-                    Welcome to the 2027 Djakarta Mining Club Member Survey!
-                </h3>
-
-                <p>Dear Members,</p>
-
-                <p>We value your input and would love to hear your feedback to help us improve our programs and services in 2027. This survey will take approximately <strong>5–10 minutes</strong> to complete.</p>
+                <p>We value your input and would love to hear your feedback to help us improve our programs and services
+                    in 2027. This survey will take approximately 5-10 minutes to complete.</p>
                 <p>Your feedback will help us:</p>
                 <ul>
                     <li>Plan programs that align with your interests and expectations.</li>
                     <li>Better understand your awareness and use of our communication channels.</li>
                     <li>Recognize outstanding contributions to the Indonesian mining industry.</li>
                 </ul>
-                <p>All responses will be kept confidential and used solely to enhance the value of your membership experience.</p>
-                <p class="mb-4">Thank you for taking the time to share your feedback. We truly appreciate your participation!</p>
+                <p>All responses will be kept confidential and used solely to enhance the value of your membership
+                    experience.</p>
+                <p class="mb-4">Thank you for taking the time to share your feedback. We truly appreciate your
+                    participation!</p>
 
                 <div id="survey-steps" class="stepper">
                     @foreach (['Member Information Update', 'Program Expectations & Feedback', 'Marketing & Communications Awareness', 'Additional Feedback'] as $label)
