@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\Admin\EventsDetailParticipantController;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -84,8 +85,21 @@ class ParticipantConfirmationAjaxTest extends TestCase
         $this->assertDatabaseCount('users_event', 0);
     }
 
+    public function test_whatsapp_event_date_uses_jakarta_day_for_today_and_tomorrow(): void
+    {
+        Carbon::setTestNow(Carbon::parse('2026-11-09 18:00:00', 'UTC')); // 10 November in Jakarta
+        $method = new \ReflectionMethod(EventsDetailParticipantController::class, 'whatsappEventDate');
+        $method->setAccessible(true);
+        $controller = new EventsDetailParticipantController();
+        $this->assertSame('*TODAY*, 10 November 2026', $method->invoke($controller, '2026-11-10'));
+        $this->assertSame('*TOMORROW*, 11 November 2026', $method->invoke($controller, '2026-11-11'));
+        $this->assertSame('12 November 2026', $method->invoke($controller, '2026-11-12'));
+        $this->assertSame('9 November 2026', $method->invoke($controller, '2026-11-09'));
+    }
+
     protected function tearDown(): void
     {
+        Carbon::setTestNow();
         DB::purge('confirmation_test');
         parent::tearDown();
     }
