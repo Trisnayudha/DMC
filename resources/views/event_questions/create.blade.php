@@ -193,6 +193,8 @@
             <img src="{{ asset('image/banner_mccloskey_v8.png') }}" class="banner-img" alt="Indonesian Energy Market Briefing 2026">
             @if(session('success'))
                 <div class="alert alert-success" role="status"><strong>Thank you!</strong> Your question has been submitted.</div>
+            @elseif (!$validCode)
+                <div class="alert alert-danger" role="alert">Your registration link is invalid. Please use the link in your reminder email.</div>
             @else
                 <div class="intro-text mb-4">
                     <p><strong>Have a question for our speakers?</strong></p>
@@ -203,23 +205,8 @@
                 @endif
                 <form method="POST" action="{{ route('event-questions.store') }}">
                     @csrf
+                    <input type="hidden" name="code_payment" value="{{ $code }}">
                     <div class="form-section">
-                        <div class="form-section-title">Your Details &amp; Question</div>
-                        <div class="form-group">
-                            <label for="name">Full name <small>*</small></label>
-                            <input id="name" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $participant->name ?? '') }}" maxlength="255" required>
-                            @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email <small>*</small></label>
-                            <input id="email" name="email" type="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $participant->email ?? '') }}" maxlength="255" required>
-                            @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
-                        <div class="form-group">
-                            <label for="company">Company / organization</label>
-                            <input id="company" name="company" class="form-control @error('company') is-invalid @enderror" value="{{ old('company', $participant->company_name ?? '') }}" maxlength="255">
-                            @error('company')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
                         <div class="form-group mb-0">
                             <label for="question">Your question <small>*</small></label>
                             <textarea id="question" name="question" rows="5" class="form-control @error('question') is-invalid @enderror" maxlength="3000" required>{{ old('question') }}</textarea>

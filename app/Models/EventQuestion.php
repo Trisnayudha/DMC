@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class EventQuestion extends Model
 {
-    protected $fillable = ['event_slug', 'name', 'email', 'company', 'question'];
+    protected $fillable = ['event_slug', 'code_payment', 'name', 'email', 'company', 'question'];
 }

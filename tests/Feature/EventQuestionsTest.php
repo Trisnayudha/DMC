@@ -36,9 +36,10 @@ class EventQuestionsTest extends TestCase
             $table->id(); $table->unsignedBigInteger('users_id'); $table->string('company_name')->nullable();
         });
         (require database_path('migrations/2026_11_06_000000_create_event_questions_table.php'))->up();
+        (require database_path('migrations/2026_11_09_000000_add_code_payment_to_event_questions.php'))->up();
     }
 
-    public function test_reminder_link_prefills_only_matching_event_and_preserves_edits(): void
+    public function test_question_uses_registration_identity_from_matching_event(): void
     {
         DB::table('users')->insert(['id' => 1, 'name' => 'Yudha', 'email' => 'yudha@example.test']);
         DB::table('events')->insert([
@@ -51,22 +52,28 @@ class EventQuestionsTest extends TestCase
         ]);
         DB::table('company')->insert(['users_id' => 1, 'company_name' => 'DMC']);
 
-        $this->get(route('event-questions.create', ['code_payment' => 'MATCH123']))
-            ->assertOk()->assertSee('value="Yudha"', false)->assertSee('value="yudha@example.test"', false)
-            ->assertSee('value="DMC"', false)->assertHeader('Cache-Control', 'no-store, private');
-        $this->get(route('event-questions.create', ['code_payment' => 'OTHER123']))->assertDontSee('yudha@example.test');
-        $this->get(route('event-questions.create', ['code_payment' => 'UNKNOWN']))->assertDontSee('yudha@example.test');
-        $this->withSession(['_old_input' => ['name' => 'Edited']])
-            ->get(route('event-questions.create', ['code_payment' => 'MATCH123']))->assertSee('value="Edited"', false);
-    }
-
-    public function test_public_submission_is_validated_and_saved(): void
-    {
-        $this->get(route('event-questions.create'))->assertOk()->assertSee('Submit Your Question');
-        $this->post(route('event-questions.store'), [])->assertSessionHasErrors(['name', 'email', 'question']);
-        $this->post(route('event-questions.store'), ['name' => 'Yudha', 'email' => 'yudha@example.test', 'company' => 'DMC', 'question' => 'What is next?'])
-            ->assertRedirect(route('event-questions.create'))->assertSessionHas('success');
-        $this->assertDatabaseHas('event_questions', ['event_slug' => 'indonesian-energy-market-briefing-2026', 'question' => 'What is next?']);
+        $url = route('event-questions.create', ['code_payment' => 'MATCH123']);
+        $this->get($url)->assertOk()->assertSee('Your question')->assertDontSee('yudha@example.test')
+            ->assertDontSee('name="name"', false)->assertDontSee('name="email"', false)->assertDontSee('name="company"', false)
+            ->assertHeader('Cache-Control', 'no-store, private');
+        $this->from($url)->post(route('event-questions.store'), ['code_payment' => 'MATCH123'])
+            ->assertSessionHasErrors('question')->assertRedirect($url);
+        $this->post(route('event-questions.store'), [
+            'code_payment' => 'MATCH123', 'question' => 'What is next?',
+            'name' => 'Impersonator', 'email' => 'fake@example.test', 'company' => 'Fake',
+        ])->assertRedirect(route('event-questions.create'))->assertSessionHas('success');
+        $this->assertDatabaseHas('event_questions', [
+            'event_slug' => 'indonesian-energy-market-briefing-2026', 'code_payment' => 'MATCH123',
+            'name' => 'Yudha', 'email' => 'yudha@example.test', 'company' => 'DMC', 'question' => 'What is next?',
+        ]);
+        $this->flushSession();
+        foreach (['OTHER123', 'UNKNOWN'] as $code) {
+            $this->get(route('event-questions.create', ['code_payment' => $code]))->assertSee('registration link is invalid')->assertDontSee('name="question"', false);
+            $this->post(route('event-questions.store'), ['code_payment' => $code, 'question' => 'Invalid'])
+                ->assertSessionHasErrors('code_payment');
+        }
+        $this->post(route('event-questions.store'), ['question' => 'Missing code'])->assertSessionHasErrors('code_payment');
+        $this->assertDatabaseCount('event_questions', 1);
     }
 
     public function test_cms_access_and_escaping(): void
