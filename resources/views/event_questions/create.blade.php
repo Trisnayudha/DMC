@@ -1,6 +1,7 @@
 @php($title = 'Submit a Question – Indonesian Energy Market Briefing 2026')
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -90,12 +91,6 @@
             margin-right: 6px;
         }
 
-        .form-section {
-            border: 1px solid var(--dmc-border);
-            border-radius: 12px;
-            padding: 16px 18px 14px;
-        }
-
         .form-section-title {
             font-size: .85rem;
             font-weight: 600;
@@ -179,44 +174,57 @@
         }
     </style>
 </head>
+
 <body>
-    <div class="page-wrapper"><div class="page-inner container">
-        <div class="page-header">
-            <img src="{{ asset('image/dmc.png') }}" alt="Djakarta Mining Club">
-            <div class="page-title">Indonesian Energy Market Briefing 2026</div>
-        </div>
-        <div class="card-shell"><div class="form-card">
-            <div class="form-header-row">
-                <div class="chip-step"><span>1</span> Submit a Question</div>
-                <small class="text-muted">* Required</small>
+    <div class="page-wrapper">
+        <div class="page-inner container">
+            <div class="page-header">
+                <img src="{{ asset('image/dmc.png') }}" alt="Djakarta Mining Club">
+                <div class="page-title">Indonesian Energy Market Briefing 2026</div>
             </div>
-            <img src="{{ asset('image/banner_mccloskey_v8.png') }}" class="banner-img" alt="Indonesian Energy Market Briefing 2026">
-            @if(session('success'))
-                <div class="alert alert-success" role="status"><strong>Thank you!</strong> Your question has been submitted.</div>
-            @elseif (!$validCode)
-                <div class="alert alert-danger" role="alert">Your registration link is invalid. Please use the link in your reminder email.</div>
-            @else
-                <div class="intro-text mb-4">
-                    <p><strong>Have a question for our speakers?</strong></p>
-                    <p>Share your question ahead of the Indonesian Energy Market Briefing 2026.</p>
-                </div>
-                @if($errors->any())
-                    <div class="alert alert-danger" role="alert">Please check the fields below and try again.</div>
-                @endif
-                <form method="POST" action="{{ route('event-questions.store') }}">
-                    @csrf
-                    <input type="hidden" name="code_payment" value="{{ $code }}">
-                    <div class="form-section">
-                        <div class="form-group mb-0">
-                            <label for="question">Your question <small>*</small></label>
-                            <textarea id="question" name="question" rows="5" class="form-control @error('question') is-invalid @enderror" maxlength="3000" required>{{ old('question') }}</textarea>
-                            @error('question')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                        </div>
+            <div class="card-shell">
+                <div class="form-card">
+                    <div class="form-header-row">
+                        <div class="chip-step"><span>1</span> Submit a Question</div>
+                        <small class="text-muted">* Required</small>
                     </div>
-                    <div class="mt-4"><button class="btn btn-primary btn-submit" type="submit">Submit Your Question</button></div>
-                </form>
-            @endif
-        </div></div>
-    </div></div>
+                    <img src="{{ asset('image/banner_mccloskey_v8.png') }}" class="banner-img"
+                        alt="Indonesian Energy Market Briefing 2026">
+                    @if (session('success'))
+                        <div class="alert alert-success" role="status"><strong>Thank you!</strong> Your question has
+                            been submitted.</div>
+                    @elseif (!$validCode)
+                        <div class="alert alert-danger" role="alert">Your registration link is invalid. Please use the
+                            link in your reminder email.</div>
+                    @else
+                        <div class="intro-text mb-3">
+                            <p class="mb-0"><strong>Have a question for our speaker or panelists?</strong></p>
+                        </div>
+                        @if ($errors->any())
+                            <div class="alert alert-danger" role="alert">Please check the fields below and try again.
+                            </div>
+                        @endif
+                        <form method="POST" action="{{ route('event-questions.store') }}">
+                            @csrf
+                            <input type="hidden" name="code_payment" value="{{ $code }}">
+                            <div class="form-section">
+                                <div class="form-group mb-0">
+                                    <label for="question">Your question <small>*</small></label>
+                                    <textarea id="question" name="question" rows="5" class="form-control @error('question') is-invalid @enderror"
+                                        maxlength="3000" required>{{ old('question') }}</textarea>
+                                    @error('question')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="mt-4"><button class="btn btn-primary btn-submit" type="submit">Submit Your
+                                    Question</button></div>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>
