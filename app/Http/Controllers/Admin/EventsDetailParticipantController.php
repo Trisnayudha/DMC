@@ -441,7 +441,7 @@ The Djakarta Mining Club Team';
                 $message->to($email);
                 $subject = $codePayment . ' - Confirmation Reminder for ' . $event;
                 if (($data['event_slug'] ?? null) !== 'indonesian-energy-market-briefing-2026') {
-                    $subject .= '- PwC`s Mine Report: Ambition to Action';
+                    $subject .= '';
                 }
                 $message->subject($subject);
                 $message->attachData($pdf->output(), $codePayment . '-' . time() . '.pdf');
@@ -465,7 +465,7 @@ The Djakarta Mining Club Team';
 
         $send = new WhatsappApi();
         $send->phone = $phone; // Menggunakan nomor telepon yang diterima dari parameter
-        $send->message = '📌 *Reminder to Attend ' . $event->name . ' – PwC\'s Mine Report: Ambition to Action.*
+        $send->message = '📌 *Reminder to Attend ' . $event->name . '.*
 
 Hi ' . $data['users_name'] . ',
 

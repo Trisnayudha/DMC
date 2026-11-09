@@ -143,9 +143,6 @@
                 border-radius: 16px;">
                 {{ $code_payment }} </b>.
         </p>
-        @if ($isEnergyBriefing)
-            <p>Your participation would be greatly appreciated. <strong>Kindly let us know if you will be attending by replying to this email.</strong></p>
-        @endif
         <p style="margin-top: 20px; margin-bottom: 5px;"><strong>EVENT DETAILS :</strong></p>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr>
@@ -209,9 +206,9 @@
             <li>Kindly note that collecting a badge on behalf of someone else is not permitted. All attendees must
                 collect their own badge and present a matching business card to gain entry.</li>
         </ul>
-        <p style="margin-top: 20px; line-height: 1.5;"><b>IMPORTANT:</b> If you are unable to attend, please contact
-            our team for a substitution. If no
-            replacement is provided, we may offer your spot to the next registrant on the waitlist.</p>
+        <p style="margin-top: 20px; line-height: 1.5;"><b>IMPORTANT:</b> Should your plans change and you are unable
+            to attend, we would appreciate it if you could notify us by replying to this email. This will help us
+            arrange a substitution and offer your spot to another registrant on the waitlist if needed.</p>
         <p style="margin-top: 20px; line-height: 1.5;">Should you require any assistance, please contact us at
             register@djakarta-miningclub.com or +62
             811-1937-399.</p>
