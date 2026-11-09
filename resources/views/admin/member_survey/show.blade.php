@@ -30,7 +30,24 @@
     <div class="section-header"><h1>Survey Response</h1><div class="section-header-breadcrumb"><div class="breadcrumb-item"><a href="{{ route('admin.member-surveys.index') }}">Member Survey</a></div><div class="breadcrumb-item active">Response #{{ $response->id }}</div></div></div>
     <div class="section-body">
         <div class="d-flex justify-content-between align-items-center flex-wrap mb-3" style="gap:10px">
-            <div><h4 class="mb-1">{{ $response->full_name }}</h4><div class="text-muted small">{{ $response->company }} &middot; Submitted {{ $response->created_at ? $response->created_at->format('d M Y H:i') : '—' }}</div></div>
+            <div>
+                <h4 class="mb-1">
+                    {{ $response->full_name ?: 'Unnamed respondent' }}
+                    @if($response->isCompleted())
+                        <span class="badge badge-success align-middle ml-1" style="font-size:11px">Completed</span>
+                    @else
+                        <span class="badge badge-warning align-middle ml-1" style="font-size:11px">In progress &middot; step {{ $response->last_step ?: 1 }} of {{ \App\Models\DmcMemberSurvey::TOTAL_STEPS }}</span>
+                    @endif
+                </h4>
+                <div class="text-muted small">
+                    {{ $response->company ?: '—' }} &middot;
+                    @if($response->isCompleted())
+                        Submitted {{ optional($response->completed_at ?: $response->created_at)->format('d M Y H:i') ?: '—' }}
+                    @else
+                        Started {{ optional($response->created_at)->format('d M Y H:i') ?: '—' }} &middot; Last saved {{ optional($response->updated_at)->format('d M Y H:i') ?: '—' }}
+                    @endif
+                </div>
+            </div>
             <a href="{{ route('admin.member-surveys.index') }}" class="btn btn-light btn-sm"><i class="fas fa-arrow-left mr-1"></i>Back to responses</a>
         </div>
         @foreach($sections as $heading => $fields)

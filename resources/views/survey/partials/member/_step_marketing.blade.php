@@ -1,5 +1,7 @@
 <div class="step-pane" data-step="3">
-    <h2 class="panel-header-title">3. Marketing & Communications Awareness</h2>
+    <div class="step-head">
+        <h2 class="panel-header-title">3. Marketing & Communications Awareness</h2>
+    </div>
 
     <div class="form-group">
         <label>Do you still receive emails (EDM) from DMC? <span class="req-star">*</span></label>

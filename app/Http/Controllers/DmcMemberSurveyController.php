@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use App\Helpers\WhatsappApi;
 use App\Models\DmcMemberSurvey;
+use App\Services\MemberSurveyDraftService;
 
 class DmcMemberSurveyController extends Controller
 {
@@ -21,28 +22,27 @@ class DmcMemberSurveyController extends Controller
     }
 
     /**
+     * Member survey form. Restores the respondent's autosaved draft (via cookie)
+     * unless we are showing the thank-you page or re-rendering validation errors.
+     */
+    public function show(Request $request, MemberSurveyDraftService $drafts)
+    {
+        $token = $drafts->resolveToken($request);
+        $draft = session('ok') || $request->session()->hasOldInput() ? null : $drafts->find($token);
+
+        return view('survey.member', [
+            'draftState' => $draft ? $drafts->toFormState($draft) : null,
+        ]);
+    }
+
+    /**
      * Store DMC Member Survey Response
      */
-    public function store(Request $request)
+    public function store(Request $request, MemberSurveyDraftService $drafts)
     {
         // ===== MASTER OPTIONS (BIAR AMAN & KONSISTEN) =====
-        $eventTypes = [
-            'Seminar/ Workshops/ Training Session',
-            'Conference/ Panel Discussion/ Expert Talk',
-            'Member Meetup/ Business Networking/ Informal Gatherings',
-            'Charity Events/ Community Engagement',
-            'Sport Activites/ Festive Celebrations',
-            'Other',
-        ];
-
-        $socialPlatforms = [
-            'LinkedIn',
-            'Instagram',
-            'Facebook',
-            'YouTube',
-            'WhatsApp Channel',
-            "I don't follow any",
-        ];
+        $eventTypes = DmcMemberSurvey::OPTIONS['event_types'];
+        $socialPlatforms = DmcMemberSurvey::OPTIONS['platforms'];
 
         $preferredChannels = [
             'Email',
@@ -149,7 +149,9 @@ class DmcMemberSurveyController extends Controller
         $data['user_agent'] = substr($request->userAgent() ?? '', 0, 255);
 
         // ===== SAVE =====
-        $survey = DmcMemberSurvey::create($data);
+        // Completes the respondent's autosaved draft row, or creates a new one
+        $survey = $drafts->complete($drafts->tokenFrom($request), $data);
+        $drafts->forgetToken();
 
         $this->notifySurveySubmitted($survey);
 

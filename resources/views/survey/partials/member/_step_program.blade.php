@@ -1,5 +1,7 @@
 <div class="step-pane" data-step="2">
-    <h2 class="panel-header-title">2. Program Expectations & Feedback</h2>
+    <div class="step-head">
+        <h2 class="panel-header-title">2. Program Expectations & Feedback</h2>
+    </div>
 
     <div class="form-group">
         <label>Which types of programs would you like us to organize in 2027? <span class="req-star">*</span></label>

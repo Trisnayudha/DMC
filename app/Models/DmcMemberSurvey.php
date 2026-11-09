@@ -9,6 +9,36 @@ class DmcMemberSurvey extends Model
 {
     protected $table = 'dmc_member_surveys';
 
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_COMPLETED = 'completed';
+    public const TOTAL_STEPS = 4;
+
+    /**
+     * Allowed values per multiple-choice field (shared by submit + autosave validation).
+     */
+    public const OPTIONS = [
+        'event_types' => [
+            'Seminar/ Workshops/ Training Session',
+            'Conference/ Panel Discussion/ Expert Talk',
+            'Member Meetup/ Business Networking/ Informal Gatherings',
+            'Charity Events/ Community Engagement',
+            'Sport Activites/ Festive Celebrations',
+            'Other',
+        ],
+        'event_improvement_aspects' => ['Program Topics & Content', 'Speakers & Presentation Quality', 'Program Format & Duration', 'Networking Opportunities', 'Venue & Facilities', 'Other'],
+        'edm_received' => ['Yes', 'No', 'Not sure'],
+        'platforms' => ['LinkedIn', 'Instagram', 'Facebook', 'YouTube', 'WhatsApp Channel', "I don't follow any"],
+        'app_awareness' => ['Yes, both', 'Yes, mobile app only', 'Yes, website only', 'No'],
+        'usage_frequency' => ['Frequently', 'Occasionally', 'Rarely'],
+        'email_primary_goal' => [
+            'Seeking information on upcoming events (Registration / Agenda)',
+            'Obtaining industry news and updates',
+            'Looking for networking opportunities',
+            'Other',
+        ],
+        'email_frequency' => ['1 email per week', '2 emails per week', '3 emails per week', 'Only for important announcements and event updates'],
+    ];
+
     /**
      * Mass assignable attributes
      */
@@ -65,7 +95,17 @@ class DmcMemberSurvey extends Model
          * ========================= */
         'ip_address',
         'user_agent',
+
+        /* =========================
+         * AUTOSAVE / COMPLETION
+         * ========================= */
+        'status',
+        'draft_token',
+        'last_step',
+        'completed_at',
     ];
+
+    protected $hidden = ['draft_token'];
 
     /**
      * Cast attributes
@@ -84,6 +124,9 @@ class DmcMemberSurvey extends Model
         // === NEW ===
         'email_primary_goal'  => 'array',
         'email_best_day'      => 'array',
+
+        'last_step'           => 'integer',
+        'completed_at'        => 'datetime',
     ];
 
     /**
@@ -108,6 +151,21 @@ class DmcMemberSurvey extends Model
      * OPTIONAL SCOPES
      * =========================
      */
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', self::STATUS_COMPLETED);
+    }
+
+    public function scopeInProgress($query)
+    {
+        return $query->where('status', self::STATUS_IN_PROGRESS);
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status !== self::STATUS_IN_PROGRESS;
+    }
 
     // Filter by company
     public function scopeCompany($query, $company)

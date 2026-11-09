@@ -13,7 +13,9 @@ class MemberSurveyResponseController extends Controller
         $filters = $request->validate([
             'search' => 'nullable|string|max:255',
             'year' => 'nullable|integer|min:2000|max:2100',
+            'status' => 'nullable|in:' . DmcMemberSurvey::STATUS_COMPLETED . ',' . DmcMemberSurvey::STATUS_IN_PROGRESS,
         ]);
+        $status = $filters['status'] ?? null;
         $search = trim($filters['search'] ?? '');
         $year = $filters['year'] ?? null;
         $responses = DmcMemberSurvey::query()
@@ -25,10 +27,15 @@ class MemberSurveyResponseController extends Controller
                 });
             })
             ->when($year, function ($query) use ($year) { $query->whereYear('created_at', $year); })
-            ->orderByDesc('created_at')->orderByDesc('id')
+            ->when($status, function ($query) use ($status) { $query->where('status', $status); })
+            ->orderByDesc('updated_at')->orderByDesc('id')
             ->paginate(25)->withQueryString();
 
-        return view('admin.member_survey.index', compact('responses', 'search', 'year'));
+        $statusCounts = app(\App\Services\MemberSurveyDraftService::class)->enabled()
+            ? DmcMemberSurvey::query()->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status')
+            : collect();
+
+        return view('admin.member_survey.index', compact('responses', 'search', 'year', 'status', 'statusCounts'));
     }
 
     public function show(DmcMemberSurvey $memberSurvey)

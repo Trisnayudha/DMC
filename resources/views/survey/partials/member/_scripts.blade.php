@@ -127,6 +127,7 @@
         /* ---------- Step navigation ---------- */
         function showStep(step) {
             currentStep = step;
+            furthestStep = Math.max(furthestStep, step);
             panes.forEach(function(pane, i) {
                 pane.classList.toggle('active', i === step - 1);
             });
@@ -142,7 +143,10 @@
         }
 
         btnNext.addEventListener('click', function() {
-            if (validateStep(currentStep)) showStep(currentStep + 1);
+            if (validateStep(currentStep)) {
+                showStep(currentStep + 1);
+                saveToServer(false);
+            }
         });
 
         btnBack.addEventListener('click', function() {
@@ -157,13 +161,107 @@
             }
         });
 
-        // Warn before refresh / close once the user is past step 1, since answers are not saved until submit
+        /* ---------- Autosave ----------
+           Every change is kept in localStorage right away and backed up to the
+           database (status in_progress) shortly after, so an unfinished survey
+           can be resumed later and the team still has the partial answers. */
+        var DRAFT_URL = @json(route('survey.member.draft'));
+        var LOCAL_KEY = 'dmc_member_survey_draft';
+        var serverDraft = @json($draftState ?? null);
         var isSubmitting = false;
-        window.addEventListener('beforeunload', function(e) {
-            if (isSubmitting || currentStep < 2) return;
-            e.preventDefault();
-            e.returnValue = '';
+        var isDirty = false;
+        var saveTimer = null;
+        var furthestStep = 1;
+
+        function collectState() {
+            var fields = {};
+            Array.prototype.forEach.call(form.elements, function(el) {
+                if (!el.name || el.name === '_token' || el.type === 'submit' || el.type === 'button') return;
+                if (el.name.slice(-2) === '[]') {
+                    var key = el.name.slice(0, -2);
+                    fields[key] = fields[key] || [];
+                    if (el.checked) fields[key].push(el.value);
+                } else {
+                    fields[el.name] = el === phoneInput ? phoneValue() : el.value;
+                }
+            });
+            return { fields: fields, last_step: furthestStep };
+        }
+
+        function phoneValue() {
+            return (iti && iti.getNumber()) || phoneInput.value;
+        }
+
+        function readLocal() {
+            try { return JSON.parse(localStorage.getItem(LOCAL_KEY)); } catch (e) { return null; }
+        }
+
+        function writeLocal() {
+            try { localStorage.setItem(LOCAL_KEY, JSON.stringify(collectState())); } catch (e) {}
+        }
+
+        function saveToServer(useBeacon) {
+            clearTimeout(saveTimer);
+            if (isSubmitting) return;
+
+            var payload = new FormData(form);
+            payload.set('phone', phoneValue());
+            payload.set('last_step', furthestStep);
+            isDirty = false;
+
+            if (useBeacon && navigator.sendBeacon) {
+                navigator.sendBeacon(DRAFT_URL, payload);
+                return;
+            }
+            fetch(DRAFT_URL, {
+                method: 'POST',
+                body: payload,
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            }).catch(function() { isDirty = true; });
+        }
+
+        function queueSave() {
+            if (isSubmitting) return;
+            isDirty = true;
+            writeLocal();
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(function() { saveToServer(false); }, 1500);
+        }
+
+        form.addEventListener('input', queueSave);
+        form.addEventListener('change', queueSave);
+
+        // Leaving / switching tab: flush whatever has not reached the server yet
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden' && isDirty) saveToServer(true);
         });
+        window.addEventListener('pagehide', function() {
+            if (isDirty) saveToServer(true);
+        });
+
+        // Put saved answers back into the form; returns the step to reopen
+        function applyState(state) {
+            if (!state || !state.fields) return 1;
+            Object.keys(state.fields).forEach(function(name) {
+                var value = state.fields[name];
+                if (Array.isArray(value)) {
+                    form.querySelectorAll('input[name="' + name + '[]"]').forEach(function(input) {
+                        input.checked = value.indexOf(input.value) !== -1;
+                    });
+                    return;
+                }
+                var input = form.querySelector('[name="' + name + '"]');
+                if (!input || input.type === 'hidden' || value === null) return;
+                if (input === phoneInput && iti && String(value).charAt(0) === '+') {
+                    iti.setNumber(value);
+                } else {
+                    input.value = value;
+                }
+            });
+            form.querySelectorAll('[data-choice-group]').forEach(syncChoiceGroup);
+            return Math.min(Math.max(parseInt(state.last_step, 10) || 1, 1), totalSteps);
+        }
 
         form.addEventListener('submit', function(e) {
             for (var step = 1; step <= totalSteps; step++) {
@@ -195,6 +293,11 @@
                 startStep = i + 1;
                 break;
             }
+        }
+
+        // No validation errors: resume an unfinished survey (this browser first, then the database backup)
+        if (!errorFields.length) {
+            startStep = applyState(readLocal() || serverDraft);
         }
 
         toggleConditionalFields();

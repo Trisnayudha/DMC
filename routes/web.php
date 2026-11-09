@@ -69,6 +69,7 @@ use App\Http\Controllers\Admin\PartnershipVisitorDatabaseController;
 use App\Http\Controllers\Admin\EventConversionController;
 use App\Http\Controllers\Admin\MailchimpUnsubscribeController;
 use App\Http\Controllers\DmcMemberSurveyController;
+use App\Http\Controllers\MemberSurveyDraftController;
 use App\Http\Controllers\EditorUploadController;
 use App\Http\Controllers\SponsorSurveyController;
 use App\Http\Controllers\SurveyController;
@@ -102,9 +103,7 @@ Route::get('survey/indonesia-energy-market-briefing-2026', function () {
     // return redirect()->away('https://docs.google.com/forms/d/1QqFD5UTk-PQvoQucvscDZeqwIktAkhNRBivbgIVP8Ig');
     return view('survey.index');
 });
-Route::get('survey-member', function () {
-    return view('survey.member');
-});
+Route::get('survey-member', [DmcMemberSurveyController::class, 'show'])->name('survey.member');
 
 Route::get('survey-sponsor', function () {
     return view('survey.sponsor');
@@ -115,6 +114,7 @@ Route::get('/survey/the-71st-djakarta-mining-club-networking-event', function ()
     return redirect('/survey/indonesia-energy-market-briefing-2026');
 });
 Route::post('/survey-member', [DmcMemberSurveyController::class, 'store'])->name('survey.member.store');
+Route::post('/survey-member/draft', [MemberSurveyDraftController::class, 'store'])->middleware('throttle:60,1')->name('survey.member.draft');
 // web.php
 Route::post('/survey/sponsor', [SponsorSurveyController::class, 'store'])->name('survey.dmc.store');
 

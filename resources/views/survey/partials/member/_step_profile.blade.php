@@ -1,5 +1,7 @@
 <div class="step-pane" data-step="1">
-    <h2 class="panel-header-title">1. Member Information Update</h2>
+    <div class="step-head">
+        <h2 class="panel-header-title">1. Member Information Update</h2>
+    </div>
 
     <div class="row">
         <div class="col-md-6 form-group">
