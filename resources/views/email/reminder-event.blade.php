@@ -141,8 +141,11 @@
                 display: inline-block;
                 margin: 4px 2px;
                 border-radius: 16px;">
-                {{ $code_payment }} </b>
+                {{ $code_payment }} </b>.
         </p>
+        @if ($isEnergyBriefing)
+            <p>Your participation would be greatly appreciated. <strong>Kindly let us know if you will be attending by replying to this email.</strong></p>
+        @endif
         <p style="margin-top: 20px; margin-bottom: 5px;"><strong>EVENT DETAILS :</strong></p>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr>
@@ -217,7 +220,11 @@
             The Djakarta Mining Club Team</p>
     </div>
     <div class="footer-email">
-        Do not reply to emails to this email address. This email is sent automatically by our system.
+        @if ($isEnergyBriefing)
+            This email is sent automatically by our system.
+        @else
+            Do not reply to emails to this email address. This email is sent automatically by our system.
+        @endif
     </div>
 </div>
 
