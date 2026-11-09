@@ -193,7 +193,7 @@
 
         @if ($isEnergyBriefing)
             <p style="margin-top: 20px; margin-bottom: 5px; line-height: 1.5;"><strong>Have a question for our
-                    speakers?</strong><br>Submit your question ahead of the event.</p>
+                    speaker or panelists?</strong><br>Submit it here!</p>
             <p style="margin: 12px 0 20px;"><a
                     href="{{ route('event-questions.create', ['code_payment' => $code_payment]) }}"
                     style="background-color: #d90016; color: #ffffff; display: inline-block; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-weight: bold;">Submit
@@ -206,7 +206,9 @@
             <li>Kindly note that collecting a badge on behalf of someone else is not permitted. All attendees must
                 collect their own badge and present a matching business card to gain entry.</li>
         </ul>
-        <p style="margin-top: 20px; line-height: 1.5;"><b>IMPORTANT :</b> If you are unable to attend, <strong>please let us know by replying to this email</strong> so we can arrange a substitution or offer your spot to the next registrant on the waitlist.</p>
+        <p style="margin-top: 20px; line-height: 1.5;"><b>IMPORTANT :</b> If you are unable to attend,
+            <strong>please let us know by replying to this email</strong> so we can arrange a substitution or offer
+            your spot to the next registrant on the waitlist.</p>
         <p style="margin-top: 20px; line-height: 1.5;">Should you require any assistance, please contact us at
             register@djakarta-miningclub.com or +62
             811-1937-399.</p>
