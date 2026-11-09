@@ -233,11 +233,9 @@
                     must
                     collect their own badge and present a matching business card to gain entry.</li>
             </ul>
-            <p style="margin-top: 20px; line-height: 1.5;"><b>IMPORTANT:</b> Should your plans change and you are
-                unable
-                to attend, we would appreciate it if you could notify us by replying to this email. This will help
-                us
-                arrange a substitution and offer your spot to another registrant on the waitlist if needed.</p>
+            <p style="margin-top: 20px; line-height: 1.5;"><b>IMPORTANT :</b> If you are unable to attend,
+                <strong>please let us know by replying to this email</strong> so we can arrange a substitution or
+                offer your spot to the next registrant on the waitlist.</p>
             <p style="margin-top: 20px; line-height: 1.5;">Should you require any assistance, please contact us at
                 register@djakarta-miningclub.com or +62
                 811-1937-399.</p>
