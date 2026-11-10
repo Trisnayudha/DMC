@@ -230,6 +230,18 @@
         transition: border-color .25s, box-shadow .25s, color .25s;
     }
 
+    /* Desktop: fixed 2 x 2 grid instead of uneven wrapping */
+    @media (min-width: 992px) {
+        .stepper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .stepper-item {
+            white-space: normal;
+        }
+    }
+
     /* Top strip */
     .stepper-bar {
         position: absolute;

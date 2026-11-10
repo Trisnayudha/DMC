@@ -76,7 +76,7 @@ class DmcMemberSurveyController extends Controller
             'event_improvement_aspects.*' => ['string', Rule::in(['Program Topics & Content', 'Speakers & Presentation Quality', 'Program Format & Duration', 'Networking Opportunities', 'Venue & Facilities', 'Other'])],
             'event_improvement_other' => [Rule::requiredIf(in_array('Other', (array) $request->input('event_improvement_aspects', []), true)), 'nullable', 'string', 'max:255'],
             'email_frequency' => 'nullable|array|max:1',
-            'email_frequency.*' => ['string', Rule::in(['1 email per week', '2 emails per week', '3 emails per week', 'Only for important announcements and event updates'])],
+            'email_frequency.*' => ['string', Rule::in(DmcMemberSurvey::OPTIONS['email_frequency'])],
 
             'topics_interest'   => 'nullable|string',
             'speaker_wishlist'  => 'nullable|string',

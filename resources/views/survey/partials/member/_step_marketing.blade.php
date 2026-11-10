@@ -18,7 +18,7 @@
         @include('survey.partials.member._choice', [
             'name' => 'email_frequency',
             'type' => 'radio',
-            'options' => ['1 email per week', '2 emails per week', '3 emails per week', 'Only for important announcements and event updates'],
+            'options' => \App\Models\DmcMemberSurvey::OPTIONS['email_frequency'],
         ])
     </div>
 
@@ -27,12 +27,7 @@
         @include('survey.partials.member._choice', [
             'name' => 'email_primary_goal',
             'type' => 'radio',
-            'options' => [
-                'Seeking information on upcoming events (Registration / Agenda)',
-                'Obtaining industry news and updates',
-                'Looking for networking opportunities',
-                'Other',
-            ],
+            'options' => \App\Models\DmcMemberSurvey::OPTIONS['email_primary_goal'],
             'cols' => 1,
         ])
         <input type="text" name="email_primary_goal_other" id="email_primary_goal_other"

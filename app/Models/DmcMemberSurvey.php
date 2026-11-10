@@ -31,12 +31,12 @@ class DmcMemberSurvey extends Model
         'app_awareness' => ['Yes, both', 'Yes, mobile app only', 'Yes, website only', "I'm aware of them but haven't used either", 'No'],
         'usage_frequency' => ['Frequently', 'Occasionally', 'Rarely'],
         'email_primary_goal' => [
-            'Seeking information on upcoming events (Registration / Agenda)',
+            'Seeking information on upcoming programs (Registration / Agenda)',
             'Obtaining industry news and updates',
             'Looking for networking opportunities',
             'Other',
         ],
-        'email_frequency' => ['1 email per week', '2 emails per week', '3 emails per week', 'Only for important announcements and event updates'],
+        'email_frequency' => ['1 email per week', '2 emails per week', '3 emails per week'],
     ];
 
     /**
