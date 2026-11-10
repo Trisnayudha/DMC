@@ -31,6 +31,7 @@ class SurveyController extends Controller
             'liked_most'            => 'required|string|max:2000',
             'improvement_feedback'  => 'required|string|max:2000',
             'topic_recommendation'  => 'required|string|max:2000',
+            'wants_expert_contact'  => 'required|in:0,1',
         ]);
 
         $data = [
@@ -42,6 +43,7 @@ class SurveyController extends Controller
             'liked_most'            => $validated['liked_most'],
             'improvement_feedback'  => $validated['improvement_feedback'],
             'topic_recommendation'  => $validated['topic_recommendation'],
+            'wants_expert_contact'  => (int) $validated['wants_expert_contact'],
             'ip'                    => $request->ip(),
             'ua'                    => substr($request->userAgent() ?? '', 0, 255),
         ];

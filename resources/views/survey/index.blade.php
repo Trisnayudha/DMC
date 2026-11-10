@@ -312,6 +312,22 @@
                                     This field is required.
                                 </div>
                             </div>
+
+                            {{-- 7. Speak with McCloskey experts --}}
+                            <div class="form-group">
+                                <label>Please indicate if you want to speak further with the McCloskey experts for
+                                    deeper insights and a free trial <small>*</small></label>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="expertYes" name="wants_expert_contact" value="1"
+                                        class="custom-control-input" required>
+                                    <label class="custom-control-label" for="expertYes">Yes</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="expertNo" name="wants_expert_contact" value="0"
+                                        class="custom-control-input" required>
+                                    <label class="custom-control-label" for="expertNo">No</label>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-end mt-3">

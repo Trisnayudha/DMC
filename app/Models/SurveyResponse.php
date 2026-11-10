@@ -27,6 +27,7 @@ class SurveyResponse extends Model
         'improvement_feedback',
         'topic_recommendation',
         'app_activated',
+        'wants_expert_contact',
 
         'ip',
         'ua',
@@ -39,5 +40,6 @@ class SurveyResponse extends Model
         'event_rating' => 'integer',
         'rating_content' => 'integer',
         'rating_networking' => 'integer',
+        'wants_expert_contact' => 'boolean',
     ];
 }
