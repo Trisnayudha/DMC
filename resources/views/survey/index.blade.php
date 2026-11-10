@@ -215,11 +215,15 @@
                         </p>
                         <p>
                             We kindly invite you to take a few moments to complete our post-event survey.
-                            Your feedback is invaluable in helping us enhance the quality of future events.
+                            Your feedback is invaluable in helping us improve the quality of our future events.
                         </p>
                         <p>
-                            Once you have completed the survey, you will receive links to download the speakers'
+                            Upon completing the survey, you will receive links to download the speakers'
                             presentation materials.
+                        </p>
+                        <p>
+                            Thank you for your time and valuable feedback. We look forward to welcoming you to our
+                            future events.
                         </p>
                     </div>
 
