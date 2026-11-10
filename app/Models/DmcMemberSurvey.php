@@ -28,7 +28,7 @@ class DmcMemberSurvey extends Model
         'event_improvement_aspects' => ['Program Topics & Content', 'Speakers & Presentation Quality', 'Program Format & Duration', 'Networking Opportunities', 'Venue & Facilities', 'Other'],
         'edm_received' => ['Yes', 'No', 'Not sure'],
         'platforms' => ['LinkedIn', 'Instagram', 'Facebook', 'YouTube', 'WhatsApp Channel', "I don't follow any"],
-        'app_awareness' => ['Yes, both', 'Yes, mobile app only', 'Yes, website only', 'No'],
+        'app_awareness' => ['Yes, both', 'Yes, mobile app only', 'Yes, website only', "I'm aware of them but haven't used either", 'No'],
         'usage_frequency' => ['Frequently', 'Occasionally', 'Rarely'],
         'email_primary_goal' => [
             'Seeking information on upcoming events (Registration / Agenda)',

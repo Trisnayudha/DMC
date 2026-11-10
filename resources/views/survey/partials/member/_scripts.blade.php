@@ -52,16 +52,6 @@
         }
 
         function toggleConditionalFields() {
-            var usageGroup = document.getElementById('usage-frequency-group');
-            var notAware = checkedValue('app_awareness') === 'No';
-            usageGroup.style.display = notAware ? 'none' : '';
-            if (notAware) {
-                usageGroup.querySelectorAll('input').forEach(function(input) {
-                    input.checked = false;
-                });
-                syncChoiceGroup(usageGroup.querySelector('[data-choice-group]'));
-            }
-
             ['event_types', 'event_improvement_aspects'].forEach(function(name) {
                 var input = document.getElementById(name === 'event_types' ? 'event_types_other' : 'event_improvement_other');
                 var selected = form.querySelector('input[name="' + name + '[]"][value="Other"]:checked');

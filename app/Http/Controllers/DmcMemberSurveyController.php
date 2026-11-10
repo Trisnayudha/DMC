@@ -108,26 +108,7 @@ class DmcMemberSurveyController extends Controller
             'platforms.*' => ['string', Rule::in($socialPlatforms)],
 
             'app_awareness'   => 'required|array|min:1',
-            'app_awareness.*' => [
-                'string',
-                Rule::in([
-                    'Yes, both',
-                    'Yes, mobile app only',
-                    'Yes, website only',
-                    'No',
-                ]),
-            ],
-
-
-            'usage_frequency'   => 'nullable|array',
-            'usage_frequency.*' => [
-                'string',
-                Rule::in([
-                    'Frequently',
-                    'Occasionally',
-                    'Rarely',
-                ]),
-            ],
+            'app_awareness.*' => ['string', Rule::in(DmcMemberSurvey::OPTIONS['app_awareness'])],
 
 
             'preferred_channels'   => 'nullable|array',
@@ -202,11 +183,10 @@ class DmcMemberSurveyController extends Controller
                 '',
                 '*3. Marketing & Communications Awareness*',
                 'Still receives DMC emails (EDM): ' . $text($survey->edm_received),
-                'Platforms followed: ' . $list($survey->platforms),
-                'App & website awareness: ' . $list($survey->app_awareness),
-                'Usage frequency: ' . $list($survey->usage_frequency),
-                'Email primary goal: ' . $emailGoal,
                 'Preferred email frequency: ' . $list($survey->email_frequency),
+                'Email primary goal: ' . $emailGoal,
+                'App & website awareness / usage: ' . $list($survey->app_awareness),
+                'Platforms followed: ' . $list($survey->platforms),
                 'Communication suggestions: ' . $text($survey->communication_feedback),
                 '',
                 '*4. Additional Feedback*',

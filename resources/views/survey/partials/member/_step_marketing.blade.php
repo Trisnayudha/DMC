@@ -14,30 +14,11 @@
     </div>
 
     <div class="form-group">
-        <label>Which social media platforms do you follow us on? <small><i>(Select all that apply)</i></small></label>
+        <label>How frequently would you prefer to receive emails from DMC?</label>
         @include('survey.partials.member._choice', [
-            'name' => 'platforms',
-            'type' => 'checkbox',
-            'options' => ['LinkedIn', 'Instagram', 'Facebook', 'YouTube', 'WhatsApp Channel', "I don't follow any"],
-        ])
-    </div>
-
-    <div class="form-group">
-        <label>Are you aware of the Djakarta Mining Club mobile app and website? <span class="req-star">*</span></label>
-        @include('survey.partials.member._choice', [
-            'name' => 'app_awareness',
+            'name' => 'email_frequency',
             'type' => 'radio',
-            'options' => ['Yes, both', 'Yes, mobile app only', 'Yes, website only', 'No'],
-            'required' => true,
-        ])
-    </div>
-
-    <div class="form-group" id="usage-frequency-group">
-        <label>If yes, how often do you use the mobile app or visit the website?</label>
-        @include('survey.partials.member._choice', [
-            'name' => 'usage_frequency',
-            'type' => 'radio',
-            'options' => ['Frequently', 'Occasionally', 'Rarely'],
+            'options' => ['1 email per week', '2 emails per week', '3 emails per week', 'Only for important announcements and event updates'],
         ])
     </div>
 
@@ -61,16 +42,27 @@
     </div>
 
     <div class="form-group">
-        <label>How many emails would you prefer to receive from DMC per week?</label>
+        <label>Are you aware of and have you used the Djakarta Mining Club mobile app and website? <span class="req-star">*</span></label>
         @include('survey.partials.member._choice', [
-            'name' => 'email_frequency',
+            'name' => 'app_awareness',
             'type' => 'radio',
-            'options' => ['1 email per week', '2 emails per week', '3 emails per week', 'Only for important announcements and event updates'],
+            'options' => \App\Models\DmcMemberSurvey::OPTIONS['app_awareness'],
+            'required' => true,
+            'cols' => 1,
         ])
     </div>
 
     <div class="form-group">
-        <label for="communication_feedback">Suggestions to improve communication and engagement</label>
+        <label>Which DMC social media platforms do you currently follow? <small><i>(Select all that apply)</i></small></label>
+        @include('survey.partials.member._choice', [
+            'name' => 'platforms',
+            'type' => 'checkbox',
+            'options' => ['LinkedIn', 'Instagram', 'Facebook', 'YouTube', 'WhatsApp Channel', "I don't follow any"],
+        ])
+    </div>
+
+    <div class="form-group">
+        <label for="communication_feedback">Do you have any suggestions to improve DMC's marketing communications and social media engagement?</label>
         <textarea name="communication_feedback" id="communication_feedback" rows="3" class="form-control-dark">{{ old('communication_feedback') }}</textarea>
     </div>
 </div>
