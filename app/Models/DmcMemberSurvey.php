@@ -31,7 +31,7 @@ class DmcMemberSurvey extends Model
         'app_awareness' => ['Yes, both', 'Yes, mobile app only', 'Yes, website only', "I'm aware of them but haven't used either", 'No'],
         'usage_frequency' => ['Frequently', 'Occasionally', 'Rarely'],
         'email_primary_goal' => [
-            'Seeking information on upcoming programs (Registration / Agenda)',
+            'Seeking information on upcoming programs',
             'Obtaining industry news and updates',
             'Looking for networking opportunities',
             'Other',
