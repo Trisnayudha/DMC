@@ -56,7 +56,8 @@ return [
         'interviews' => ['Interview Schedule', 'Secretariat Team', 'interview-schedule/sponsor', 'microphone-alt', ['SponsorInterviewScheduleController']],
         'scholarship' => ['Scholarship', 'Secretariat Team', 'scholarship', 'graduation-cap', ['ScholarshipController']],
         // Financial Team
-        'payments' => ['Expenses Report', 'Financial Team', 'financial-reports', 'credit-card', ['PaymentController', 'InvoiceController', 'FinancialReportController']],
+        // FinanceReportController (menu Financial Reports) ikut izin payments — Finance sudah punya.
+        'payments' => ['Expenses Report', 'Financial Team', 'financial-reports', 'credit-card', ['PaymentController', 'InvoiceController', 'FinancialReportController', 'FinanceReportController']],
         'finance_invoices' => ['Invoice VA Mandiri', 'Financial Team', 'finance-invoices', 'file-invoice-dollar', ['FinanceInvoiceController']],
         // System
         'edit_logs' => ['User Edit Logs', 'System', 'users/edit-logs', 'history', []],
@@ -101,6 +102,16 @@ return [
         'partnership_events' => 'partnership-events',
     ],
     'team_menus' => [
+        // Finance: Event Payments, Sponsorship Renewals (dulu "Sponsorship Financial
+        // Reports"), Financial Reports (invoice sponsor + tiket, Unpaid / Paid).
+        'finance_team' => [
+            'Finance' => [
+                ['Event Payments', 'financial-reports', 'payments', 'credit-card'],
+                ['Sponsorship Renewals', 'sponsors/annual-report', 'sponsor_annual_report', 'sync-alt'],
+                ['Financial Reports', 'finance-reports', 'payments', 'file-invoice-dollar'],
+                ['Invoice VA Mandiri', 'finance-invoices', 'finance_invoices', 'file-invoice-dollar'],
+            ],
+        ],
         'member_team' => [
             'Membership' => [
                 ['New Member', 'users?status_member=pending', 'members', 'user-clock'],
@@ -152,6 +163,8 @@ return [
         'SponsorRenewalFormController@getNextFormNumber' => ['sponsor_annual_report'],
         'SponsorRenewalFormController@sponsorOptions' => ['sponsor_annual_report'],
         'SponsorFollowupController@index' => ['sponsor_annual_report'],
+        // Finance records invoice follow-ups; the controller limits each type to its team.
+        'SponsorFollowupController@store' => ['sponsor_annual_report'],
     ],
     'actions' => [
         'UsersController@member' => 'member_intake',

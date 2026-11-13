@@ -1,7 +1,11 @@
 {{-- Finance Team hanya punya izin sponsor_annual_report: lihat, download, generate/preview
      renewal form, Confirm Renewal dan Edit Contract Record (cms_access.shared_actions).
      Follow-up log, Mark Not Renewed dan Reactivate tetap butuh izin Sponsors. --}}
-@php $canManageSponsors = auth()->user()->canAccessModule('sponsors'); @endphp
+@php
+    $canManageSponsors = auth()->user()->canAccessModule('sponsors');
+    // Finance melihat halaman ini sebagai menu "Sponsorship Renewals" (cms_access.team_menus).
+    $pageTitle = auth()->user()->role === 'finance_team' ? 'Sponsorship Renewals' : 'Renewal Status';
+@endphp
 @extends('layouts.inspire.master')
 
 {{--
@@ -14,13 +18,13 @@
 <div class="content-wrapper">
     <section class="section">
         <div class="section-header">
-            <h1>Renewal Status {{ $year }}</h1>
+            <h1>{{ $pageTitle }} {{ $year }}</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></div>
                 @if ($canManageSponsors)
                     <div class="breadcrumb-item"><a href="{{ route('sponsors.index') }}">Sponsors</a></div>
                 @endif
-                <div class="breadcrumb-item active">Renewal Status {{ $year }}</div>
+                <div class="breadcrumb-item active">{{ $pageTitle }} {{ $year }}</div>
             </div>
         </div>
 

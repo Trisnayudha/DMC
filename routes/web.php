@@ -449,6 +449,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
         ->name('events-generate-wa-template');
 
     Route::get('financial-reports', [\App\Http\Controllers\Admin\FinancialReportController::class, 'events'])->name('admin.financial_reports.index');
+    // Menu Finance "Financial Reports": invoice sponsor + tiket event, Unpaid / Paid per periode.
+    Route::get('finance-reports', [\App\Http\Controllers\Admin\FinanceReportController::class, 'index'])->name('admin.finance_reports.index');
 
     // Invoice Finance — dibayar lewat VA Mandiri (Xendit)
     Route::get('finance-invoices', [\App\Http\Controllers\Admin\FinanceInvoiceController::class, 'index'])->name('admin.finance_invoices.index');
