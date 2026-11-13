@@ -40,6 +40,12 @@ class EventsHighlightController extends Controller
                 $image->storeAs('public/events-highlight', $imageName);
 
                 $compressedImage = Image::make($image);
+
+                // Apply EXIF orientation so portrait photos from phones/cameras are not saved sideways
+                if (function_exists('exif_read_data')) {
+                    $compressedImage->orientate();
+                }
+
                 $compressedImage->resize(1400, null, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
