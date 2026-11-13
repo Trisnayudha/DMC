@@ -403,7 +403,7 @@
                      form tambah follow-up khusus izin Sponsors. --}}
                 <div>
                     <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
-                        <i class="fas fa-phone-volume mr-1"></i> Step 2 — Follow-up
+                        <i class="fas fa-phone-volume mr-1"></i> Step 2 — Renewal Follow-up
                     </div>
 
                     {{-- Locked until the renewal form exists for the selected year --}}
@@ -466,6 +466,82 @@
                             <div class="text-right">
                                 <button type="submit" class="btn" style="background:#f39c12;color:#fff;" id="followupSubmitBtn">
                                     <i class="fas fa-save mr-1"></i> Save Follow-up
+                                </button>
+                            </div>
+                        </form>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- ═══ STEP 3 — Invoice Follow-up ═══ Follow-up penagihan oleh Finance setelah invoice
+                     terbit, sampai sponsor bayar. Riwayat terlihat semua yang buka modal (termasuk
+                     Secretariat); form tambah khusus Finance. --}}
+                @php $canRecordInvoiceFollowup = \App\Models\Sponsors\SponsorFollowup::userCanRecord('invoice', auth()->user()); @endphp
+                <div class="mt-4">
+                    <div class="font-weight-600 text-uppercase text-muted mb-2" style="font-size:11px;letter-spacing:.5px;">
+                        <i class="fas fa-file-invoice-dollar mr-1"></i> Step 3 — Invoice Follow-up
+                    </div>
+
+                    {{-- Locked until the renewal is confirmed with an invoice number for the selected year --}}
+                    <div id="invoiceFollowupLocked" class="border rounded p-3 text-center text-muted" style="display:none;background:#fafbfc;">
+                        <i class="fas fa-lock mb-1 d-block" style="opacity:.4;"></i>
+                        <span style="font-size:12.5px;">Available once the renewal is confirmed and the invoice number is recorded.</span>
+                    </div>
+
+                    <div id="invoiceFollowupContent" style="display:none;">
+                        <div id="invoiceFollowupInfo" class="border rounded px-3 py-2 mb-2" style="font-size:12.5px;background:#eef0fd;border-color:#c9cff8!important;"></div>
+
+                        <div class="mb-3">
+                            <div id="invoiceFollowupTimeline" class="border rounded p-2" style="max-height:200px;overflow-y:auto;background:#fafbfc;"></div>
+                        </div>
+
+                        @if ($canRecordInvoiceFollowup)
+                        <form id="invoiceFollowupForm" enctype="multipart/form-data">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Follow-up Date <span class="text-danger">*</span></label>
+                                        <input type="date" name="followed_up_at" id="invoiceFollowupDate" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Channel</label>
+                                        <select name="channel" id="invoiceFollowupChannel" class="form-control">
+                                            <option value="email">Email</option>
+                                            <option value="whatsapp">WhatsApp</option>
+                                            <option value="call">Phone Call</option>
+                                            <option value="meeting">Meeting</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Notes</label>
+                                <textarea name="notes" id="invoiceFollowupNotes" class="form-control" rows="2"
+                                    placeholder="e.g. Sent payment reminder, sponsor will process payment next week..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Proof / Evidence of Follow-up <span class="text-danger">*</span></label>
+                                <input type="file" name="proof" id="invoiceFollowupProof" class="form-control-file" accept=".jpg,.jpeg,.png,.pdf" required>
+                                <small class="text-muted">Required — chat/email screenshot, payment slip or bank statement (JPG/PNG/PDF, max 5 MB)</small>
+                            </div>
+                            <div class="form-group border rounded p-2" style="background:#eafaf0;">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" name="confirmed" value="1" id="invoiceFollowupPaid" class="custom-control-input">
+                                    <label class="custom-control-label font-weight-600" for="invoiceFollowupPaid">
+                                        Payment received
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block" style="margin-left:24px;">
+                                    Tick this once the payment has been received — the follow-up date is saved as the Paid Date and the Secretariat will be notified. Upload the payment proof.
+                                </small>
+                            </div>
+                            <div class="text-right">
+                                <button type="submit" class="btn" style="background:#6777ef;color:#fff;" id="invoiceFollowupSubmitBtn">
+                                    <i class="fas fa-save mr-1"></i> Save Invoice Follow-up
                                 </button>
                             </div>
                         </form>

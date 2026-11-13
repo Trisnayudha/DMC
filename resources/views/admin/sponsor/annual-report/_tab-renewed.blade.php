@@ -67,6 +67,24 @@
                                         </td>
                                         <td style="padding:12px 16px; color:#555; font-size:12px; font-family:monospace;">
                                             {{ $r->invoice_number ?? '—' }}
+                                            @if($r->invoice_number)
+                                                {{-- Step 3 di modal Renewal Process: follow-up penagihan Finance, terlihat juga oleh Secretariat. --}}
+                                                <div class="d-flex align-items-center mt-1" style="gap:6px;font-family:inherit;">
+                                                    <button class="btn btn-sm action-icon-btn followup-btn"
+                                                        style="background:#6777ef;color:#fff;"
+                                                        data-id="{{ $r->sponsor_id }}"
+                                                        data-name="{{ $r->sponsor ? $r->sponsor->name : '' }}"
+                                                        data-year="{{ $r->renewal_year }}"
+                                                        data-toggle="tooltip" title="Invoice Follow-up">
+                                                        <i class="fas fa-file-invoice-dollar"></i>
+                                                    </button>
+                                                    @if($r->paid_date)
+                                                        <span style="font-size:10px;font-weight:700;color:#47c363;"><i class="fas fa-check-circle"></i> Paid {{ $r->paid_date->format('d M Y') }}</span>
+                                                    @else
+                                                        <span style="font-size:10px;font-weight:700;color:#fc544b;">Unpaid</span>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         </td>
                                         <td style="padding:12px 16px;">
                                             @include('admin.sponsor.annual-report._pic-contact', ['pic' => $pic, 'color' => '#6777ef'])

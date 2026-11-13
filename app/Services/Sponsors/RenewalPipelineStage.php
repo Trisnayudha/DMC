@@ -33,6 +33,7 @@ class RenewalPipelineStage
         $ids       = $sponsors->pluck('id');
         $forms     = SponsorRenewalForm::whereIn('sponsor_id', $ids)->get()->keyBy(fn ($f) => $f->sponsor_id . '-' . $f->renewal_year);
         $followups = SponsorFollowup::whereIn('sponsor_id', $ids)
+            ->ofType(SponsorFollowup::TYPE_RENEWAL)
             ->selectRaw('sponsor_id, renewal_year, MAX(created_at) AS last_at')
             ->groupBy('sponsor_id', 'renewal_year')
             ->get()

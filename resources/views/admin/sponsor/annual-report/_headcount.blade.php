@@ -1,5 +1,5 @@
 {{-- ═══ DASHBOARD CARDS ═══
-     5 main cards: Total Sponsor, This Year Sponsor, Pending Renewal, Expired, Not Renewed --}}
+     4 main cards: Total Sponsor, This Year Sponsor, Pending Renewal (incl. expired), Not Renewed --}}
 @if (isset($dashboardCards))
     @php $dc = $dashboardCards; @endphp
     <div class="row">
@@ -54,33 +54,20 @@
                             <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">Pending Renewal</div>
                             <div class="font-weight-700" style="font-size:28px;line-height:1.1;color:#2d3748;">{{ $dc['pendingRenewalCount'] }}</div>
                             <div style="font-size:10px;color:#888;">needs follow-up</div>
+                            {{-- Expired is a subset of Pending Renewal (no decision yet, contract already ended),
+                                 so it is shown here instead of as a separate card to avoid double counting. --}}
+                            @if ($dc['expiredCount'] > 0)
+                                <div style="font-size:10px;color:#e3342f;font-weight:600;">
+                                    <i class="fas fa-exclamation-circle"></i> incl. {{ $dc['expiredCount'] }} expired
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- 4. Expired --}}
-        <div class="col-lg col-md-6 col-sm-6 mb-4 d-flex">
-            <div class="card mb-0 flex-fill" role="button" title="View 30-day priority contracts"
-                 onclick="document.getElementById('priorityContracts').scrollIntoView({behavior:'smooth'});"
-                 style="border-bottom: 3px solid #e3342f; cursor:pointer;">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center" style="gap:12px;">
-                        <div style="width:44px;height:44px;border-radius:10px;background:#e3342f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted text-uppercase font-weight-600" style="font-size:10px;letter-spacing:.5px;">Expired</div>
-                            <div class="font-weight-700" style="font-size:28px;line-height:1.1;color:#2d3748;">{{ $dc['expiredCount'] }}</div>
-                            <div style="font-size:10px;color:#888;">contract has expired</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- 5. Not Renew --}}
+        {{-- 4. Not Renew --}}
         <div class="col-lg col-md-6 col-sm-6 mb-4 d-flex">
             <div class="card mb-0 flex-fill" role="button" title="View not renewed list"
                  onclick="document.getElementById('notrenewed-tab').click(); document.getElementById('reportTabs').scrollIntoView({behavior:'smooth'});"

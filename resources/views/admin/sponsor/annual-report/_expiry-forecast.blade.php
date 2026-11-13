@@ -385,6 +385,7 @@
                                                     style="background:#f39c12;color:#fff;"
                                                     data-id="{{ $er->sponsor_id }}"
                                                     data-name="{{ $er->sponsor ? $er->sponsor->name : '' }}"
+                                                    data-year="{{ $er->followup_record ? $er->followup_record->renewal_year : '' }}"
                                                     data-toggle="tooltip" title="Renewal Form & Follow-up History">
                                                     <i class="fas fa-phone-volume"></i>
                                                 </button>

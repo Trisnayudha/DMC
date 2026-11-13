@@ -309,6 +309,7 @@
         // ══ Renewal Process: Step 1 Generate Renewal Form → Step 2 Follow-up ══
         var followupData        = []; // all follow-ups for the open sponsor
         var renewalFormData     = []; // all renewal forms for the open sponsor
+        var invoiceData         = []; // invoiced renewed contracts per year {renewal_year, invoice_number, invoice_date, invoice_sent_date, paid_date}
         var billingData         = null; // billing contact {name, title, email, phone, from_pic} for the open sponsor
         var sponsorOptionsData  = []; // {id, name, last_amount_usd, last_amount_idr}
         var sponsorOptionsReady = false;
@@ -576,11 +577,72 @@
             $('#followupTimeline').html(html);
         }
 
+        function followupsFor(year, type) {
+            return followupData.filter(function(f) {
+                return parseInt(f.renewal_year, 10) === year && (f.type || 'renewal') === type;
+            });
+        }
+
+        function invoiceForYear(year) {
+            for (var i = 0; i < invoiceData.length; i++) {
+                if (parseInt(invoiceData[i].renewal_year, 10) === year) return invoiceData[i];
+            }
+            return null;
+        }
+
+        // Step 3: Finance payment follow-ups after the invoice is issued, until paid.
+        function renderInvoiceStep(year) {
+            var inv = invoiceForYear(year);
+            if (!inv) {
+                $('#invoiceFollowupContent').hide();
+                $('#invoiceFollowupLocked').show();
+                return;
+            }
+            $('#invoiceFollowupLocked').hide();
+            $('#invoiceFollowupContent').show();
+
+            var esc = function(s) { return $('<span>').text(s || '').html(); };
+            $('#invoiceFollowupInfo').html(
+                '<i class="fas fa-file-invoice mr-1" style="color:#6777ef;"></i><strong>Invoice ' + esc(inv.invoice_number) + '</strong>' +
+                (inv.invoice_date ? ' &middot; issued ' + esc(inv.invoice_date) : '') +
+                ' &middot; ' + (inv.invoice_sent_date ? 'sent ' + esc(inv.invoice_sent_date) : '<span class="text-warning">not sent yet</span>') +
+                ' &middot; ' + (inv.paid_date
+                    ? '<span class="text-success font-weight-600"><i class="fas fa-check-circle"></i> Paid ' + esc(inv.paid_date) + '</span>'
+                    : '<span class="text-danger font-weight-600">Unpaid</span>')
+            );
+
+            var items = followupsFor(year, 'invoice');
+            var html = '';
+            if (!items.length) {
+                html = '<div class="text-muted text-center py-2" style="font-size:12px;">No invoice follow-up recorded yet.</div>';
+            }
+            items.forEach(function(f, idx) {
+                html += '<div class="d-flex align-items-start py-2 px-2" style="gap:10px;border-bottom:1px dashed #eee;">' +
+                    '<span class="badge" style="background:#6777ef;color:#fff;border-radius:50%;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">' + (idx + 1) + '</span>' +
+                    '<div style="flex:1;min-width:0;">' +
+                    '<div style="font-size:13px;font-weight:600;color:#333;">Invoice Follow Up ' + (idx + 1) +
+                    (f.confirmed ? ' <span class="badge badge-success ml-1" style="font-size:10px;"><i class="fas fa-check mr-1"></i>Payment Received</span>' : '') + '</div>' +
+                    '<div style="font-size:12px;color:#555;">' + f.followed_up_at +
+                    (f.created_by ? ' <span class="text-muted">| ' + esc(f.created_by) + '</span>' : '') +
+                    (f.channel ? ' <span class="text-muted">&middot; via ' + f.channel + '</span>' : '') + '</div>' +
+                    (f.notes ? '<div class="text-muted" style="font-size:12px;">' + $('<div>').text(f.notes).html() + '</div>' : '') +
+                    '</div>' +
+                    '<a href="' + f.proof_url + '" target="_blank" class="btn btn-sm btn-light border" style="flex-shrink:0;" title="View proof">' +
+                    '<i class="fas fa-paperclip mr-1"></i>Proof</a>' +
+                    '</div>';
+            });
+            $('#invoiceFollowupTimeline').html(html);
+
+            // Already paid → nothing left to follow up.
+            $('#invoiceFollowupForm').toggle(!inv.paid_date);
+        }
+
         // Toggle Step 1 / Step 2 based on whether a renewal form exists for the year
         function refreshRenewalUI() {
             var year = rfCurrentYear();
             var form = rfFormForYear(year);
-            var yearFollowups = followupData.filter(function(f) { return parseInt(f.renewal_year, 10) === year; });
+            var yearFollowups = followupsFor(year, 'renewal');
+            renderInvoiceStep(year);
 
             if (form) {
                 renderGeneratedBox(form);
@@ -603,11 +665,13 @@
             $.get('/admin/sponsors/' + sponsorId + '/followups', function(res) {
                 followupData    = res.followups || [];
                 renewalFormData = res.renewalForms || [];
+                invoiceData     = res.invoices || [];
                 billingData     = res.billing || null;
                 refreshRenewalUI();
             }).fail(function() {
                 followupData = [];
                 renewalFormData = [];
+                invoiceData = [];
                 billingData = null;
                 $('#followupTimeline').html('<div class="text-center text-danger py-3" style="font-size:12px;">Failed to load renewal data.</div>');
             });
@@ -631,11 +695,17 @@
             var name = $(this).data('name');
             $('#followupSponsorId').val(id);
             $('#followupSponsorName').text(name);
-            $('#renewalYear').val(new Date().getFullYear());
+            // data-year: buka langsung di tahun kontrak yang dimaksud (mis. kontrak sudah renewed
+            // mulai tahun depan); default tahun berjalan.
+            $('#renewalYear').val($(this).data('year') || new Date().getFullYear());
             $('#followupDate').val(new Date().toISOString().slice(0, 10));
             $('#followupNotes').val('');
             $('#followupProof').val('');
             $('#followupConfirmed').prop('checked', false);
+            $('#invoiceFollowupDate').val(new Date().toISOString().slice(0, 10));
+            $('#invoiceFollowupNotes').val('');
+            $('#invoiceFollowupProof').val('');
+            $('#invoiceFollowupPaid').prop('checked', false);
             $('#followupModal').modal('show');
             // Muat daftar sponsor dulu (butuh last-paid USD), lalu pilih & muat datanya
             loadSponsorOptions(function() {
@@ -729,6 +799,7 @@
             var sponsorId = $('#followupSponsorId').val();
             var formData = new FormData(this);
             formData.append('renewal_year', $('#renewalYear').val());
+            formData.append('type', 'renewal');
             $('#followupSubmitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
             $.ajax({
                 url: '/admin/sponsors/' + sponsorId + '/followups',
@@ -754,6 +825,42 @@
                 },
                 complete: function() {
                     $('#followupSubmitBtn').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Follow-up');
+                }
+            });
+        });
+
+        // Submit: Invoice Follow-up (Step 3, Finance, multipart — with proof upload)
+        $('#invoiceFollowupForm').on('submit', function(e) {
+            e.preventDefault();
+            var sponsorId = $('#followupSponsorId').val();
+            var formData = new FormData(this);
+            formData.append('renewal_year', $('#renewalYear').val());
+            formData.append('type', 'invoice');
+            $('#invoiceFollowupSubmitBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
+            $.ajax({
+                url: '/admin/sponsors/' + sponsorId + '/followups',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    toastr.success(response.message, 'Success', { positionClass: 'toast-top-right' });
+                    $('#invoiceFollowupNotes').val('');
+                    $('#invoiceFollowupProof').val('');
+                    $('#invoiceFollowupPaid').prop('checked', false);
+                    loadRenewalData(sponsorId);
+                },
+                error: function(xhr) {
+                    var msg = 'Failed to save invoice follow-up.';
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        msg = Object.values(xhr.responseJSON.errors)[0][0];
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    toastr.error(msg, 'Error', { positionClass: 'toast-top-right' });
+                },
+                complete: function() {
+                    $('#invoiceFollowupSubmitBtn').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Invoice Follow-up');
                 }
             });
         });

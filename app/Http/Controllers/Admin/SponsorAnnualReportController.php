@@ -55,7 +55,7 @@ class SponsorAnnualReportController extends Controller
             'peakExpiryMonth'    => $this->peakExpiryMonth($expiryForecast),
             'pendingRenewals'    => $pendingRenewals,
             'headcount'          => $this->sponsorHeadcount($year),
-            'dashboardCards'     => $this->dashboardCards($year, $expiryForecast, $pendingRenewals),
+            'dashboardCards'     => $this->dashboardCards($year, $pendingRenewals),
             'chartData'          => $this->chartData($year),
         ] + $this->summaryCounts($year));
     }
@@ -329,6 +329,7 @@ class SponsorAnnualReportController extends Controller
 
         $logs = SponsorFollowup::whereIn('sponsor_id', $sponsorIds)
             ->where('renewal_year', $year)
+            ->ofType(SponsorFollowup::TYPE_RENEWAL)
             ->with('creator:id,name')
             ->orderBy('followed_up_at')
             ->orderBy('id')
@@ -367,8 +368,16 @@ class SponsorAnnualReportController extends Controller
             ->get(['id', 'sponsor_id', 'renewal_year', 'form_number'])
             ->keyBy(fn($f) => $f->sponsor_id . '-' . $f->renewal_year);
 
-        $expiryForecast->each(function ($group) use ($forms) {
-            $group->each(function ($er) use ($forms) {
+        // Jumlah follow-up invoice (Finance) per sponsor-tahun, untuk detail tahap Invoice Sent.
+        $invoiceFollowups = SponsorFollowup::whereIn('sponsor_id', $sponsorIds)
+            ->ofType(SponsorFollowup::TYPE_INVOICE)
+            ->selectRaw('sponsor_id, renewal_year, COUNT(*) AS total')
+            ->groupBy('sponsor_id', 'renewal_year')
+            ->get()
+            ->keyBy(fn($f) => $f->sponsor_id . '-' . $f->renewal_year);
+
+        $expiryForecast->each(function ($group) use ($forms, $invoiceFollowups) {
+            $group->each(function ($er) use ($forms, $invoiceFollowups) {
                 $er->renewal_step = null;
                 if (($er->followup_status ?? 'pending') === 'stopped' || !$er->contract_end) {
                     return;
@@ -380,7 +389,14 @@ class SponsorAnnualReportController extends Controller
                     return;
                 }
                 if ($rec && $rec->invoice_sent_date) {
-                    $er->renewal_step = ['label' => 'Invoice Sent', 'color' => '#6777ef', 'icon' => 'fa-paper-plane'];
+                    $fu    = $invoiceFollowups->get($rec->sponsor_id . '-' . $rec->renewal_year);
+                    $total = $fu ? (int) $fu->total : 0;
+                    $er->renewal_step = [
+                        'label'  => 'Invoice Sent',
+                        'color'  => '#6777ef',
+                        'icon'   => 'fa-paper-plane',
+                        'detail' => $total > 0 ? $total . ' payment follow-up' . ($total > 1 ? 's' : '') : null,
+                    ];
                     return;
                 }
 
@@ -425,6 +441,7 @@ class SponsorAnnualReportController extends Controller
 
         $followups = SponsorFollowup::whereIn('sponsor_id', $pending->pluck('sponsor_id')->unique())
             ->where('renewal_year', $year)
+            ->ofType(SponsorFollowup::TYPE_RENEWAL)
             ->with('creator:id,name')
             ->orderBy('followed_up_at')
             ->orderBy('id')
@@ -498,7 +515,7 @@ class SponsorAnnualReportController extends Controller
         ];
     }
 
-    private function dashboardCards(int $year, Collection $expiryForecast, Collection $pendingRenewals): array
+    private function dashboardCards(int $year, Collection $pendingRenewals): array
     {
         $totalSponsor = Sponsor::where('status', 'publish')->count();
 
@@ -513,13 +530,13 @@ class SponsorAnnualReportController extends Controller
 
         $pendingRenewalCount = $pendingRenewals->count();
 
-        // Kadaluarsa = kontrak pending yang sudah jatuh tempo: berakhir bulan ini ATAU
-        // bulan-bulan sebelumnya, tapi belum ada keputusan confirm/not-renew.
+        // Expired = the part of Pending Renewal whose contract already ended (this month
+        // or earlier) with no confirm/not-renew decision yet. Counted from the pending
+        // list itself so it is always a subset of the Pending Renewal card.
         $nowYm = now()->format('Y-m');
-        $expiredCount = $expiryForecast->flatten()
+        $expiredCount = $pendingRenewals
             ->filter(function ($er) use ($nowYm) {
-                return $er->followup_status === 'pending'
-                    && $er->contract_end <= $nowYm;
+                return $er->contract_end <= $nowYm;
             })
             ->count();
 
