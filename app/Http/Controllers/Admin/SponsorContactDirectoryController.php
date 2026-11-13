@@ -27,32 +27,43 @@ class SponsorContactDirectoryController extends Controller
     {
         $search  = $request->get('search', '');
         $package = $request->get('package', '');
+        $roles   = $this->selectedRoles($request);
 
-        $sponsors = $this->getSponsorsWithContactRows($search, $package);
+        $sponsors = $this->getSponsorsWithContactRows($search, $package, $roles);
 
-        $totalPics     = $sponsors->sum(function ($s) { return $s->contactRows->filter(function ($row) { return SponsorContactRowBuilder::sourceIds($row, 'pic'); })->count(); });
+        $totalPics    = $sponsors->sum(function ($s) { return $s->contactRows->filter(function ($row) { return SponsorContactRowBuilder::sourceIds($row, 'pic'); })->count(); });
         $totalCcs = $sponsors->sum(function ($s) { return $s->contactRows->filter(function ($row) { return SponsorContactRowBuilder::sourceIds($row, 'cc'); })->count(); });
         $totalBillings = $sponsors->sum(function ($s) { return $s->contactRows->filter(function ($row) { return SponsorContactRowBuilder::sourceIds($row, 'billing'); })->count(); });
         $totalReps     = $sponsors->sum(function ($s) { return $s->contactRows->where('role', 'representative')->count(); });
 
         return view('admin.sponsor.contact_directory', compact(
-            'sponsors', 'search', 'package',
+            'sponsors', 'search', 'package', 'roles',
             'totalPics', 'totalCcs', 'totalBillings', 'totalReps'
         ));
     }
 
     public function export(Request $request)
     {
-        $role    = $request->get('role', 'all');
         $search  = $request->get('search', '');
         $package = $request->get('package', '');
+        $roles   = $this->selectedRoles($request);
 
-        $sponsors = $this->getSponsorsWithContactRows($search, $package);
+        $sponsors = $this->getSponsorsWithContactRows($search, $package, $roles);
 
-        $suffix   = $role === 'all' ? 'contacts' : $role;
+        $suffix   = $roles ? implode('-', $roles) : 'contacts';
         $filename = 'sponsor-contact-directory-' . $suffix . '-' . now()->format('Y-m-d') . '.xlsx';
 
-        return Excel::download(new SponsorContactDirectoryExport($sponsors, $role), $filename);
+        return Excel::download(new SponsorContactDirectoryExport($sponsors, $roles), $filename);
+    }
+
+    /**
+     * Filter tipe kontak: roles[] (multi, mis. PIC + CC) atau role (link lama satu tipe).
+     * Kosong / 'all' = semua kontak.
+     */
+    private function selectedRoles(Request $request): array
+    {
+        $roles = (array) $request->get('roles', $request->get('role', []));
+        return array_values(array_intersect(array_keys(SponsorContactDirectoryExport::ROLE_LABELS), $roles));
     }
 
     public function store(Request $request)
@@ -252,7 +263,7 @@ class SponsorContactDirectoryController extends Controller
         SponsorLog::record($sponsorId, 'Member Contact', $member->id, 'updated', $changes, 'Member profile ' . $member->email . ' edited from Contact Directory');
     }
 
-    private function getSponsorsWithContactRows($search, $package)
+    private function getSponsorsWithContactRows($search, $package, array $roles = [])
     {
         $query = Sponsor::with(['pics', 'ccContacts', 'billings', 'representatives', 'members'])
             ->where('status', 'publish')
@@ -273,7 +284,21 @@ class SponsorContactDirectoryController extends Controller
         $builder  = new SponsorContactRowBuilder();
 
         foreach ($sponsors as $sponsor) {
-            $sponsor->contactRows = $builder->build($sponsor);
+            $rows = $builder->build($sponsor);
+            if ($roles) {
+                // Kontak yang punya minimal satu tipe terpilih (tampil sekali walau cocok >1 tipe).
+                $rows = $rows->filter(function ($row) use ($roles) {
+                    return (bool) array_intersect(SponsorContactDirectoryExport::contactRoles($row), $roles);
+                })->values();
+            }
+            $sponsor->contactRows = $rows;
+        }
+
+        // Dengan filter tipe kontak, sponsor tanpa kontak yang cocok tidak ditampilkan.
+        if ($roles) {
+            $sponsors = $sponsors->filter(function ($sponsor) {
+                return $sponsor->contactRows->isNotEmpty();
+            })->values();
         }
 
         return $sponsors;

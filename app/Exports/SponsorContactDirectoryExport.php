@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Services\Sponsors\SponsorContactRowBuilder;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -16,16 +17,16 @@ class SponsorContactDirectoryExport implements FromCollection, WithHeadings, Sho
     ];
 
     protected $sponsors;
-    protected $role;
+    protected $roles;
 
     /**
      * @param \Illuminate\Support\Collection $sponsors sponsor dengan contactRows yang sudah ter-dedup
-     * @param string $role pic|billing|representative|all
+     * @param array $roles subset of pic|cc|billing|representative; empty = all contacts
      */
-    public function __construct($sponsors, $role = 'all')
+    public function __construct($sponsors, array $roles = [])
     {
         $this->sponsors = $sponsors;
-        $this->role = $role;
+        $this->roles = $roles;
     }
 
     public function headings(): array
@@ -42,21 +43,19 @@ class SponsorContactDirectoryExport implements FromCollection, WithHeadings, Sho
 
         foreach ($this->sponsors as $sponsor) {
             foreach ($sponsor->contactRows as $contact) {
-                if ($this->role !== 'all' && $contact['role'] !== $this->role && !\App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, $this->role)) {
+                $contactRoles = self::contactRoles($contact);
+
+                // Satu kontak masuk sekali walau cocok dengan beberapa tipe terpilih.
+                $shownRoles = $this->roles ? array_values(array_intersect($contactRoles, $this->roles)) : $contactRoles;
+                if ($this->roles && !$shownRoles) {
                     continue;
                 }
 
-                $roles = [];
-                foreach (['pic', 'cc', 'billing', 'representative'] as $type) {
-                    if ($contact['role'] === $type || \App\Services\Sponsors\SponsorContactRowBuilder::sourceIds($contact, $type)) {
-                        $roles[] = self::ROLE_LABELS[$type];
-                    }
-                }
                 $rows->push([
                     'Sponsor'          => $sponsor->branding_name ?: $sponsor->name,
                     'Package'          => sponsor_package_label($sponsor->package),
                     'Name'             => $contact['name'] ?? '-',
-                    'Role'             => $this->role === 'all' ? implode(', ', $roles) : (self::ROLE_LABELS[$this->role] ?? $contact['role']),
+                    'Role'             => implode(', ', array_map(function ($type) { return self::ROLE_LABELS[$type]; }, $shownRoles)),
                     'Title / Position' => $contact['title'] ?: '-',
                     'Email'            => $contact['email'] ?: '-',
                     'Phone'            => $contact['phone'] ?: '-',
@@ -67,5 +66,17 @@ class SponsorContactDirectoryExport implements FromCollection, WithHeadings, Sho
         }
 
         return $rows;
+    }
+
+    /** Semua tipe yang dimiliki satu baris kontak (bisa lebih dari satu). */
+    public static function contactRoles(array $contact): array
+    {
+        $roles = [];
+        foreach (array_keys(self::ROLE_LABELS) as $type) {
+            if ($contact['role'] === $type || SponsorContactRowBuilder::sourceIds($contact, $type)) {
+                $roles[] = $type;
+            }
+        }
+        return $roles;
     }
 }
