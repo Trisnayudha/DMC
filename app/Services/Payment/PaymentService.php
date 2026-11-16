@@ -6,7 +6,13 @@ use App\Models\Payments\Payment;
 
 class PaymentService extends Payment
 {
-    public static function listPaymentRegister($events_id, $params, $sponsorId = null)
+    /** ?status= filter key on the event registration list => payment.status_registration value. */
+    const REGISTRATION_STATUS_FILTERS = [
+        'waiting'  => 'Waiting',
+        'rejected' => 'Reject',
+    ];
+
+    public static function listPaymentRegister($events_id, $params, $sponsorId = null, $status = null)
     {
         $packages = ['nonmember', 'member', 'onsite', 'table', 'free', 'sponsor'];
         $query = Payment::join('users as member_users', 'member_users.id', '=', 'payment.member_id')
@@ -46,6 +52,10 @@ class PaymentService extends Payment
             $query->whereIn('payment.package', ['free']);
         } elseif ($params === 'potential_member') {
             $query->where('payment.is_membership_prospect', 1);
+        }
+
+        if (isset(self::REGISTRATION_STATUS_FILTERS[$status])) {
+            $query->where('payment.status_registration', self::REGISTRATION_STATUS_FILTERS[$status]);
         }
 
         $payments = $query->get();

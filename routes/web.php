@@ -598,7 +598,8 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('users/data', [UsersController::class, 'usersData'])->name('users.data');
     Route::get('users/registration-source-breakdown', [UsersController::class, 'registrationSourceBreakdown'])->name('users.registration_source_breakdown');
     Route::get('users/stats', [UsersController::class, 'stats'])->name('users.stats');
-    Route::get('users/job-tier-detail', [App\Http\Controllers\Admin\JobTierDetailController::class, 'show'])->name('users.job_tier_detail');
+    Route::get('users/company-options', [App\Http\Controllers\Admin\MemberCompanyFilterController::class, 'options'])->name('users.company_options');
+    Route::get('users/job-tier-detail',[App\Http\Controllers\Admin\JobTierDetailController::class, 'show'])->name('users.job_tier_detail');
     Route::post('users/{id}/verification/start', [UsersController::class, 'startVerification'])->name('users.verification.start');
 
     Route::get('company-follow-ups', [MemberCompanyFollowUpController::class, 'index'])->name('admin.member_follow_ups.index');
@@ -649,6 +650,11 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     // Event & Member Conversion Analytics
     Route::get('event-conversions', [EventConversionController::class, 'index'])->name('admin.event_conversions.index');
     Route::get('event-conversions/diagram', [EventConversionController::class, 'diagram'])->name('admin.event_conversions.diagram');
+    Route::get('event-conversions/converted-members', [EventConversionController::class, 'convertedMembersSummary'])->name('admin.event_conversions.converted_members');
+    Route::get('event-conversions/registrants', [EventConversionController::class, 'registrantSummary'])->name('admin.event_conversions.registrants');
+    Route::get('event-conversions/check-ins', [EventConversionController::class, 'checkInSummary'])->name('admin.event_conversions.check_ins');
+    Route::get('event-conversions/booth-visitors', [EventConversionController::class, 'boothVisitorSummary'])->name('admin.event_conversions.booth_visitors');
+    Route::get('event-conversions/interest', [EventConversionController::class, 'interestSummary'])->name('admin.event_conversions.interest');
     Route::get('event-conversions/{id}/members', [EventConversionController::class, 'convertedMembers'])->name('admin.event_conversions.members');
     Route::get('event-conversions/export', [EventConversionController::class, 'export'])->name('admin.event_conversions.export');
 

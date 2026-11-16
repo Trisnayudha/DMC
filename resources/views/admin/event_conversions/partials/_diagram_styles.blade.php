@@ -159,6 +159,16 @@
         padding: 8px 6px;
     }
 
+    a.outcome-metric-box,
+    a.outcome-metric-box:hover {
+        color: inherit;
+        cursor: pointer;
+    }
+
+    a.outcome-metric-box:hover {
+        background: rgba(0, 0, 0, 0.28);
+    }
+
     .outcome-metric-value {
         font-size: 18px;
         font-weight: 800;

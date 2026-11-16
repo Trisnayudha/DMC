@@ -207,7 +207,15 @@ class PaymentController extends Controller
                 $company->users_id = $user->id;
                 $company->company_name = $companies[$index];
                 $company->address = $address[$index];
+                // Optional — the web form does not send these yet.
+                $company->company_category = $request->input("company_category.$index") ?: null;
+                $company->office_number = $request->input("office_number.$index") ?: null;
                 $company->save();
+
+                // Fill category / office number etc. from an existing record of the same company.
+                if (!empty($companies[$index])) {
+                    CompanyModel::syncByName($companies[$index]);
+                }
             }
 
             // Check and create Profile

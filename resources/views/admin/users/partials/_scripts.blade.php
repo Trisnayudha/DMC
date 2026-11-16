@@ -569,6 +569,28 @@
     });
 
     // =========================================================
+    // COMPANY FILTER — multi-select, options searched on the server
+    // =========================================================
+    if ($.fn.select2) {
+        $('.member-company-filter').each(function() {
+            const $sel = $(this);
+            $sel.select2({
+                placeholder: $sel.data('placeholder'),
+                allowClear: true,
+                width: 'resolve',
+                minimumInputLength: 0,
+                ajax: {
+                    url: $sel.data('url'),
+                    dataType: 'json',
+                    delay: 300,
+                    data: function(params) { return { q: params.term || '' }; },
+                    processResults: function(data) { return data; },
+                },
+            });
+        });
+    }
+
+    // =========================================================
     // JOB TIER — ubah langsung dari tabel (select kecil di kolom Job Title)
     // =========================================================
     $(document).on('change', '.job-tier-select', function() {
@@ -898,6 +920,7 @@
                     d.year          = '{{ request('year') }}';
                     d.source        = @json(array_values((array) request('source', [])));
                     d.job_tier      = '{{ request('job_tier') }}';
+                    d.company       = @json(array_values(array_filter((array) request('company', []))));
                 }
             },
             dom: 'frtip',

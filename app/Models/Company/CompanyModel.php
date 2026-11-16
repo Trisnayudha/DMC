@@ -36,6 +36,48 @@ class CompanyModel extends Model
     ];
 
     /**
+     * Several forms (admin Add Invitation, multi-ticket booking, sponsor representative,
+     * profile update) save office_number without full_office_number, while lists and
+     * exports read full_office_number — so the number looked missing. Keep it in sync.
+     */
+    protected static function booted()
+    {
+        static::saving(function (CompanyModel $company) {
+            if ($company->isDirty(['office_number', 'prefix_office_number']) && !$company->isDirty('full_office_number')) {
+                $company->full_office_number = self::composeOfficeNumber($company->prefix_office_number, $company->office_number);
+            }
+        });
+    }
+
+    /** prefix + number, without doubling a prefix the number already starts with. */
+    public static function composeOfficeNumber($prefix, $number): ?string
+    {
+        $prefix = trim((string) $prefix);
+        $number = trim((string) $number);
+        if ($number === '' || $number === '-') {
+            return null;
+        }
+
+        $prefixDigits = ltrim($prefix, '+');
+        if ($prefixDigits === '' || strpos(ltrim($number, '+'), $prefixDigits) === 0) {
+            return $number;
+        }
+
+        return $prefix . $number;
+    }
+
+    /** Office number to show in lists/exports: full number, falling back to prefix + office_number. */
+    public static function displayOfficeNumber($row): string
+    {
+        $full = trim((string) ($row->full_office_number ?? ''));
+        if ($full !== '') {
+            return $full;
+        }
+
+        return (string) self::composeOfficeNumber($row->prefix_office_number ?? null, $row->office_number ?? null);
+    }
+
+    /**
      * Relasi ke User
      * Satu company dimiliki oleh satu user (users_id)
      */

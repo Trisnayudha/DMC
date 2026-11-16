@@ -70,32 +70,9 @@ class EventConversionController extends Controller
             $selectedYear = in_array($currentYear, $years, true) ? (string) $currentYear : (string) ($years[0] ?? 'all');
         }
 
-        // Query events
-        $eventsQuery = Events::query();
+        $events = $this->filteredEvents((string) $selectedYear, (string) $selectedType, $search);
 
-        if ($selectedYear !== 'all') {
-            $eventsQuery->where(function ($q) use ($selectedYear) {
-                $q->whereYear('start_date', $selectedYear)
-                    ->orWhereYear('end_date', $selectedYear);
-            });
-        }
-
-        if ($selectedType === 'owned') {
-            $eventsQuery->where('event_type', '!=', 'Partnership Event');
-        } elseif ($selectedType === 'supporting') {
-            $eventsQuery->where('event_type', 'Partnership Event');
-        }
-
-        if ($search !== '') {
-            $eventsQuery->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('location', 'LIKE', '%' . $search . '%');
-            });
-        }
-
-        $events = $eventsQuery->orderBy('start_date', 'desc')->get();
-
-        $cacheKey = 'dmc_event_conv_metrics_' . md5($selectedYear . '_' . $selectedType . '_' . $search);
+        $cacheKey = 'dmc_event_conv_metrics_v5_' . md5($selectedYear . '_' . $selectedType . '_' . $search);
         if ($request->boolean('refresh')) {
             Cache::forget($cacheKey);
         }
@@ -107,7 +84,8 @@ class EventConversionController extends Controller
 
             $funnelOwned = [
                 'events'        => 0,
-                'registrations' => 0,
+                'all_registrations' => 0, // every status
+                'registrations' => 0,     // Paid Off only
                 'confirmed'     => 0,
                 'attendance'    => 0,
                 'interest'      => 0,
@@ -119,6 +97,8 @@ class EventConversionController extends Controller
 
             $funnelSupporting = [
                 'events'        => 0,
+                'events_with_data' => 0, // partnership events that have booth-visitor data
+
                 'registrations' => 0,
                 'confirmed'     => 0,
                 'attendance'    => 0,
@@ -132,6 +112,9 @@ class EventConversionController extends Controller
             $allUniqueAttendeeEmails = collect();
             $allVerifiedMemberEmails = collect();
             $totalEntries = 0;
+            // Same sets split by event type, for the ⓘ breakdown on Annual attendance.
+            $uniqueByType = ['owned' => collect(), 'partner' => collect()];
+            $verifiedByType = ['owned' => collect(), 'partner' => collect()];
 
             foreach ($events as $event) {
                 $isSupporting = ($event->event_type === 'Partnership Event');
@@ -140,6 +123,9 @@ class EventConversionController extends Controller
                     $supportingCount++;
                     $eventData = $this->calculateSupportingEventMetrics($event);
                     $funnelSupporting['events']++;
+                    if ($eventData->registration_count > 0) {
+                        $funnelSupporting['events_with_data']++;
+                    }
                     $funnelSupporting['registrations'] += $eventData->registration_count;
                     $funnelSupporting['confirmed']     += $eventData->confirmed_count;
                     $funnelSupporting['attendance']    += $eventData->attendance_count;
@@ -152,6 +138,7 @@ class EventConversionController extends Controller
                     $eventData = $this->calculateOwnedEventMetrics($event);
                     $funnelOwned['events']++;
                     $funnelOwned['registrations'] += $eventData->registration_count;
+                    $funnelOwned['all_registrations'] += $eventData->all_registration_count;
                     $funnelOwned['confirmed']     += $eventData->confirmed_count;
                     $funnelOwned['attendance']    += $eventData->attendance_count;
                     $funnelOwned['interest']      += $eventData->interest_count;
@@ -161,12 +148,15 @@ class EventConversionController extends Controller
                 }
 
                 $totalEntries += $eventData->attendance_count;
+                $typeKey = $isSupporting ? 'partner' : 'owned';
 
                 if (!empty($eventData->attendee_emails)) {
                     $allUniqueAttendeeEmails = $allUniqueAttendeeEmails->merge($eventData->attendee_emails);
+                    $uniqueByType[$typeKey] = $uniqueByType[$typeKey]->merge($eventData->attendee_emails);
                 }
                 if (!empty($eventData->verified_member_emails)) {
                     $allVerifiedMemberEmails = $allVerifiedMemberEmails->merge($eventData->verified_member_emails);
+                    $verifiedByType[$typeKey] = $verifiedByType[$typeKey]->merge($eventData->verified_member_emails);
                 }
 
                 $processedEvents[] = $eventData;
@@ -184,6 +174,10 @@ class EventConversionController extends Controller
                 'entries'          => $totalEntries,
                 'unique_people'    => $allUniqueAttendeeEmails->unique()->count(),
                 'verified_members' => $allVerifiedMemberEmails->unique()->count(),
+                'unique_owned'     => $uniqueByType['owned']->unique()->count(),
+                'unique_partner'   => $uniqueByType['partner']->unique()->count(),
+                'verified_owned'   => $verifiedByType['owned']->unique()->count(),
+                'verified_partner' => $verifiedByType['partner']->unique()->count(),
             ];
 
             // Overall Member Conversion
@@ -280,10 +274,7 @@ class EventConversionController extends Controller
                 ->pluck('email')
                 ->map(fn ($e) => strtolower(trim($e)));
 
-            // Waktu pertama tiap email masuk ke booth event ini.
-            $enteredByEmail = $visitors->filter(fn ($v) => !empty($v->business_email))
-                ->groupBy(fn ($v) => strtolower(trim($v->business_email)))
-                ->map(fn ($group) => $group->min('created_at'));
+            $enteredByEmail = $this->boothEnteredAt($visitors, $event);
 
             // Hanya yang mendaftar jadi member di tahun event ini DAN bukan
             // sebelum masuk ke event ini yang dihitung konversi.
@@ -300,10 +291,10 @@ class EventConversionController extends Controller
         }
         $verifiedMembersCount = $verifiedMemberEmails->count();
 
-        // Follow up interest (giveaway, merchandise, remarks)
-        $interestCount = $visitors->filter(function ($v) {
-            return !empty($v->merchandise) || !empty($v->remarks);
-        })->count();
+        // Follow up interest = booth visitors already in the users table who showed
+        // sponsorship interest (see sponsorInterestRows). Not "Merchandise or Remarks
+        // filled": Remarks is mostly a day/visitor-type note, which counted almost everyone.
+        $interestCount = count($this->sponsorInterestRows($event, $visitors));
 
         $totalConverted = $pendingConverted + $activeConverted;
         $nonMemberPool = max(0, $uniqueCount - $verifiedMembersCount);
@@ -344,13 +335,12 @@ class EventConversionController extends Controller
     private function calculateOwnedEventMetrics(Events $event): object
     {
         $payments = Payment::where('events_id', $event->id)->get();
-        $regCount = $payments->count();
 
-        // Confirmed / Paid Off registrations
-        $confirmedCount = $payments->filter(function ($p) {
-            return in_array($p->status_registration, ['Paid Off', 'Confirmed', 'paid', 'approved'], true)
-                || $p->package === 'free';
-        })->count();
+        // Registration & Confirmation = approved registrations only (Paid Off). Waiting,
+        // Reject, Cancel and Expired are left out; a free ticket counts once approved.
+        $regCount = $payments->where('status_registration', 'Paid Off')->count();
+        $confirmedCount = $regCount;
+        $allRegCount = $payments->count(); // every status — "Registrants" on the DMC owned events card
 
         // Check-in and attendance from users_event (present is not null)
         $attendeeRegisters = UserRegister::where('events_id', $event->id)
@@ -393,7 +383,7 @@ class EventConversionController extends Controller
         $allUserIds = $attendeeUserIds->merge($conversionCandidateIds)->unique()->values();
         $usersMap = collect();
         if ($allUserIds->isNotEmpty()) {
-            $usersMap = User::whereIn('id', $allUserIds)->get($this->conversionUserColumns(['id', 'email', 'status_member']))->keyBy('id');
+            $usersMap = User::whereIn('id', $allUserIds)->get($this->conversionUserColumns(['id', 'email', 'status_member', 'source']))->keyBy('id');
         }
 
         $attendeeEmails = collect();
@@ -420,7 +410,9 @@ class EventConversionController extends Controller
             $candidateUsers = $conversionCandidateIds
                 ->map(fn ($id) => $usersMap->get($id))
                 ->filter()
-                ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByMember->get($u->id)));
+                ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByMember->get($u->id)))
+                // Registered through a partnership booth link → counted under Partnership, not here.
+                ->reject(fn ($u) => $this->isPartnershipSource($u->source));
             $pendingConverted = $candidateUsers->where('status_member', 'pending')->count();
             $activeConverted = $candidateUsers->where('status_member', 'active')->count();
         }
@@ -442,6 +434,7 @@ class EventConversionController extends Controller
             'end_date'               => $event->end_date,
             'location'               => $event->location ?: '-',
             'registration_count'     => $regCount,
+            'all_registration_count' => $allRegCount,
             'confirmed_count'        => $confirmedCount,
             'attendance_count'       => $attendanceCount,
             'unique_count'           => $uniqueCount,
@@ -455,6 +448,20 @@ class EventConversionController extends Controller
             'attendee_emails'        => $attendeeEmails,
             'verified_member_emails' => $verifiedMemberEmails,
         ];
+    }
+
+    /**
+     * When each booth visitor (by email) "entered" the event, for the conversion cutoff.
+     * Visitor rows have no reliable visit date: created_at is when the list was typed in
+     * or imported, often days or months after the event (Mining Balikpapan: June event,
+     * list imported in October). Using it excluded everyone who registered at the booth.
+     * So the event start date is used; created_at only when the event has no date.
+     */
+    private function boothEnteredAt($visitors, Events $event)
+    {
+        return $visitors->filter(fn ($v) => !empty($v->business_email))
+            ->groupBy(fn ($v) => strtolower(trim($v->business_email)))
+            ->map(fn ($group) => $event->start_date ?: $group->min('created_at'));
     }
 
     /**
@@ -532,6 +539,353 @@ class EventConversionController extends Controller
     {
         $event = Events::findOrFail($id);
         $isSupporting = ($event->event_type === 'Partnership Event');
+        $members = $this->convertedMembersFor($event);
+
+        return response()->json([
+            'status'        => true,
+            'event_name'    => $event->name,
+            'event_type'    => $event->event_type ?: ($isSupporting ? 'Partnership Event' : 'DMC Event'),
+            'is_supporting' => $isSupporting,
+            'count'         => count($members),
+            'members'       => $members,
+        ]);
+    }
+
+    /**
+     * AJAX for the clickable "Converted Members" on the diagram cards: everyone
+     * counted as converted across all events of one type in the selected period
+     * (same events and rules as the card's number).
+     */
+    public function convertedMembersSummary(Request $request)
+    {
+        $type = in_array($request->query('type'), ['owned', 'supporting', 'all'], true) ? $request->query('type') : 'supporting';
+        $status = in_array($request->query('status'), ['pending', 'active'], true) ? $request->query('status') : null;
+        $year = (string) $request->query('year', 'all');
+
+        $members = [];
+        foreach ($this->filteredEvents($year, $type, trim((string) $request->query('search', ''))) as $event) {
+            foreach ($this->convertedMembersFor($event) as $member) {
+                if ($status !== null && $member['status_member'] !== $status) {
+                    continue;
+                }
+                $member['event'] = $event->name;
+                $member['event_type'] = $event->event_type === 'Partnership Event' ? 'Partnership' : 'DMC Owned';
+                $members[] = $member;
+            }
+        }
+
+        return response()->json([
+            'status'  => true,
+            'type'    => $type,
+            'period'  => $this->periodLabel($year),
+            'count'   => count($members),
+            'columns' => [
+                ['event_type', 'Type'], ['event', 'Event'], ['name', 'Name'], ['email', 'Email'], ['company', 'Company'],
+                ['job_title', 'Job Title'], ['status_member', 'Status'], ['source', 'Source'], ['converted_at', 'Registered'],
+            ],
+            'members' => $members,
+        ]);
+    }
+
+    /**
+     * AJAX for the clickable "Stated Interest" / "Follow up interest": DMC owned
+     * registrations flagged "Potential Member", plus partnership booth visitors in
+     * the users table with sponsorship interest.
+     */
+    public function interestSummary(Request $request)
+    {
+        $year = (string) $request->query('year', 'all');
+
+        $rows = [];
+        foreach ($this->filteredEvents($year, 'all', trim((string) $request->query('search', ''))) as $event) {
+            $rows = array_merge($rows, $event->event_type === 'Partnership Event'
+                ? $this->sponsorInterestRows($event, PartnershipEventVisitor::where('events_id', $event->id)->get())
+                : $this->prospectInterestRows($event));
+        }
+
+        return response()->json([
+            'status'  => true,
+            'period'  => $this->periodLabel($year),
+            'count'   => count($rows),
+            'columns' => [
+                ['event_type', 'Type'], ['event', 'Event'], ['name', 'Name'], ['email', 'Email'], ['company', 'Company'],
+                ['job_title', 'Job Title'], ['reason', 'Counted because'],
+            ],
+            'members' => $rows,
+        ]);
+    }
+
+    /**
+     * AJAX for the clickable "Entries (Check-in)" on the DMC owned events card —
+     * one row per check-in, same rule as attendance_count in calculateOwnedEventMetrics.
+     */
+    public function checkInSummary(Request $request)
+    {
+        $year = (string) $request->query('year', 'all');
+
+        $rows = [];
+        foreach ($this->filteredEvents($year, 'owned', trim((string) $request->query('search', ''))) as $event) {
+            $rows = array_merge($rows, $this->checkInRows($event));
+        }
+
+        return response()->json([
+            'status'  => true,
+            'period'  => $this->periodLabel($year),
+            'count'   => count($rows),
+            'columns' => [
+                ['event', 'Event'], ['name', 'Name'], ['email', 'Email'], ['company', 'Company'], ['job_title', 'Job Title'],
+                ['membership', 'Membership'], ['package', 'Package'], ['checked_in', 'Checked in'],
+            ],
+            'members' => $rows,
+        ]);
+    }
+
+    /**
+     * AJAX for "Registrants" (every status) and "Approved registrants" (?approved=1,
+     * Paid Off only) on the DMC owned events card.
+     */
+    public function registrantSummary(Request $request)
+    {
+        $year = (string) $request->query('year', 'all');
+        $approvedOnly = $request->boolean('approved');
+
+        $rows = [];
+        foreach ($this->filteredEvents($year, 'owned', trim((string) $request->query('search', ''))) as $event) {
+            $rows = array_merge($rows, $this->registrantRows($event, $approvedOnly));
+        }
+
+        return response()->json([
+            'status'  => true,
+            'period'  => $this->periodLabel($year),
+            'count'   => count($rows),
+            'columns' => [
+                ['event', 'Event'], ['name', 'Name'], ['email', 'Email'], ['company', 'Company'], ['job_title', 'Job Title'],
+                ['package', 'Package'], ['registration_status', 'Status'], ['registered', 'Registered'],
+            ],
+            'members' => $rows,
+        ]);
+    }
+
+    private function registrantRows(Events $event, bool $approvedOnly): array
+    {
+        return $this->attendeeQuery()
+            ->join('payment', 'payment.member_id', 'users.id')
+            ->where('payment.events_id', $event->id)
+            ->when($approvedOnly, function ($q) {
+                $q->where('payment.status_registration', 'Paid Off');
+            })
+            ->orderBy('payment.created_at')
+            ->get(['users.name', 'users.email', 'company.company_name', 'profiles.job_title', 'payment.package', 'payment.status_registration', 'payment.created_at'])
+            ->map(function ($r) use ($event) {
+                return [
+                    'event'               => $event->name,
+                    'name'                => $r->name,
+                    'email'               => $r->email,
+                    'company'             => $r->company_name,
+                    'job_title'           => $r->job_title,
+                    'package'             => $r->package,
+                    'registration_status' => $r->status_registration ?: '-',
+                    'registered'          => $r->created_at ? substr($r->created_at, 0, 10) : '-',
+                ];
+            })
+            ->all();
+    }
+
+    private function checkInRows(Events $event): array
+    {
+        $rows = $this->attendeeQuery()
+            ->join('users_event', 'users_event.users_id', 'users.id')
+            ->where('users_event.events_id', $event->id)
+            ->whereNotNull('users_event.present')
+            ->leftJoin('payment', 'payment.id', 'users_event.payment_id')
+            ->orderBy('users_event.present')
+            ->get(['users.name', 'users.email', 'users.status_member', 'company.company_name', 'profiles.job_title', 'payment.package', 'users_event.present as checked_in']);
+
+        // No scanner check-ins yet → the count falls back to confirmed registrations.
+        if ($rows->isEmpty()) {
+            $rows = $this->attendeeQuery()
+                ->join('payment', 'payment.member_id', 'users.id')
+                ->where('payment.events_id', $event->id)
+                ->where('payment.status_registration', 'Paid Off')
+                ->orderBy('payment.created_at')
+                ->get(['users.name', 'users.email', 'users.status_member', 'company.company_name', 'profiles.job_title', 'payment.package', DB::raw("'Not scanned (confirmed registration)' as checked_in")]);
+        }
+
+        return $rows->map(function ($r) use ($event) {
+            return [
+                'event'      => $event->name,
+                'name'       => $r->name,
+                'email'      => $r->email,
+                'company'    => $r->company_name,
+                'job_title'  => $r->job_title,
+                'membership' => $r->status_member === 'active' ? 'Member' : 'Non-member',
+                'package'    => $r->package,
+                'checked_in' => $r->checked_in,
+            ];
+        })->all();
+    }
+
+    /**
+     * AJAX for the clickable "Booth Visitors" on the Partnership events card —
+     * every visitor row, same as attendance_count in calculateSupportingEventMetrics.
+     */
+    public function boothVisitorSummary(Request $request)
+    {
+        $year = (string) $request->query('year', 'all');
+        $events = $this->filteredEvents($year, 'supporting', trim((string) $request->query('search', '')));
+
+        $visitors = PartnershipEventVisitor::whereIn('events_id', $events->pluck('id'))->orderBy('created_at')->get();
+        $eventNames = $events->pluck('name', 'id');
+        $memberStatus = User::whereIn('email', $visitors->pluck('business_email')->filter()->unique())
+            ->pluck('status_member', 'email')
+            ->mapWithKeys(function ($status, $email) {
+                return [strtolower(trim($email)) => $status];
+            });
+
+        $rows = $visitors->map(function ($v) use ($eventNames, $memberStatus) {
+            $status = $memberStatus->get(strtolower(trim((string) $v->business_email)));
+
+            return [
+                'event'      => $eventNames->get($v->events_id),
+                'name'       => $v->name,
+                'email'      => $v->business_email,
+                'mobile'     => $v->mobile_number,
+                'company'    => $v->company_name,
+                'job_title'  => $v->job_title,
+                'membership' => $status === 'active' ? 'Member' : ($status ? ucfirst($status) : 'Not a member'),
+                'remarks'    => $v->remarks,
+                'visited'    => $v->created_at ? $v->created_at->format('d M Y') : '-',
+            ];
+        })->values()->all();
+
+        return response()->json([
+            'status'  => true,
+            'period'  => $this->periodLabel($year),
+            'count'   => count($rows),
+            'columns' => [
+                ['event', 'Event'], ['name', 'Name'], ['email', 'Email'], ['mobile', 'Mobile'], ['company', 'Company'],
+                ['job_title', 'Job Title'], ['membership', 'Membership (now)'], ['remarks', 'Remarks'], ['visited', 'Visited'],
+            ],
+            'members' => $rows,
+        ]);
+    }
+
+    /** users + latest profile + company, as the base for attendee lists. */
+    private function attendeeQuery()
+    {
+        return DB::table('users')
+            ->leftJoin('profiles', 'profiles.id', DB::raw('(SELECT MAX(p2.id) FROM profiles p2 WHERE p2.users_id = users.id)'))
+            ->leftJoin('company', 'company.id', 'profiles.company_id');
+    }
+
+    /**
+     * Booth visitors of a partnership event who are already in the users table and showed
+     * sponsorship interest: the sponsorship tick on their member profile
+     * (company.explore — "receive information about corporate sponsorship opportunities")
+     * or a booth Remark mentioning sponsorship. One row per person.
+     */
+    private function sponsorInterestRows(Events $event, $visitors): array
+    {
+        $emails = $visitors->pluck('business_email')->filter()->map(fn ($e) => strtolower(trim($e)))->unique()->values();
+        if ($emails->isEmpty()) {
+            return [];
+        }
+
+        $sponsorRemark = $visitors
+            ->filter(fn ($v) => !empty($v->business_email) && stripos((string) $v->remarks, 'sponsor') !== false)
+            ->map(fn ($v) => strtolower(trim($v->business_email)))
+            ->flip();
+
+        return $this->attendeeQuery()
+            ->whereIn('users.email', $emails->all())
+            ->get(['users.name', 'users.email', 'company.company_name', 'company.explore', 'profiles.job_title'])
+            ->unique(fn ($u) => strtolower(trim($u->email)))
+            ->map(function ($u) use ($event, $sponsorRemark) {
+                $tick = in_array(strtolower(trim((string) $u->explore)), ['agree', 'aggree', 'true', '1'], true);
+                $remark = $sponsorRemark->has(strtolower(trim($u->email)));
+                if (!$tick && !$remark) {
+                    return null;
+                }
+
+                return [
+                    'event_type' => 'Partnership',
+                    'event'      => $event->name,
+                    'name'       => $u->name,
+                    'email'      => $u->email,
+                    'company'    => $u->company_name,
+                    'job_title'  => $u->job_title,
+                    'reason'     => $tick && $remark ? 'Sponsorship tick + booth remark'
+                        : ($tick ? 'Sponsorship tick on member profile' : 'Booth remark: sponsorship'),
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /** DMC owned registrations flagged "Potential Member" (same rule as calculateOwnedEventMetrics). */
+    private function prospectInterestRows(Events $event): array
+    {
+        return Payment::where('payment.events_id', $event->id)
+            ->where('payment.is_membership_prospect', 1)
+            ->leftJoin('users', 'users.id', 'payment.member_id')
+            ->leftJoin('profiles', 'profiles.id', DB::raw('(SELECT MAX(p2.id) FROM profiles p2 WHERE p2.users_id = users.id)'))
+            ->leftJoin('company', 'company.id', 'profiles.company_id')
+            ->orderBy('payment.created_at')
+            ->get(['users.name', 'users.email', 'company.company_name', 'profiles.job_title'])
+            ->map(function ($p) use ($event) {
+                return [
+                    'event_type'  => 'DMC Owned',
+                    'event'       => $event->name,
+                    'name'        => $p->name,
+                    'email'       => $p->email,
+                    'company'     => $p->company_name,
+                    'job_title'   => $p->job_title,
+                    'reason'      => 'Potential Member flag',
+                    'remarks'     => '',
+                    'merchandise' => '',
+                ];
+            })
+            ->all();
+    }
+
+    private function periodLabel(string $year): string
+    {
+        return $year === 'all' ? 'All Years' : 'Year ' . $year;
+    }
+
+    /** Events in the dashboard period, filtered by type ('all' | 'owned' | 'supporting') and search. */
+    private function filteredEvents(string $year, string $type, string $search)
+    {
+        $query = Events::query();
+
+        if ($year !== 'all') {
+            $query->where(function ($q) use ($year) {
+                $q->whereYear('start_date', $year)
+                    ->orWhereYear('end_date', $year);
+            });
+        }
+
+        if ($type === 'owned') {
+            $query->where('event_type', '!=', 'Partnership Event');
+        } elseif ($type === 'supporting') {
+            $query->where('event_type', 'Partnership Event');
+        }
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('location', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        return $query->orderBy('start_date', 'desc')->get();
+    }
+
+    /** People counted as converted by one event (the list behind its "Converted Member" number). */
+    private function convertedMembersFor(Events $event): array
+    {
+        $isSupporting = ($event->event_type === 'Partnership Event');
 
         $members = [];
 
@@ -543,9 +897,7 @@ class EventConversionController extends Controller
                 ->unique()
                 ->values();
 
-            $enteredByEmail = $visitors->filter(fn ($v) => !empty($v->business_email))
-                ->groupBy(fn ($v) => strtolower(trim($v->business_email)))
-                ->map(fn ($group) => $group->min('created_at'));
+            $enteredByEmail = $this->boothEnteredAt($visitors, $event);
 
             if ($emails->isNotEmpty()) {
                 $users = User::whereIn('email', $emails)
@@ -599,7 +951,9 @@ class EventConversionController extends Controller
                     ->whereIn('status_member', ['pending', 'active'])
                     ->with(['profile', 'profile.company'])
                     ->get()
-                    ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByMember->get($u->id)));
+                    ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByMember->get($u->id)))
+                    // Same as the card: partnership-link members are counted under Partnership.
+                    ->reject(fn ($u) => $this->isPartnershipSource($u->source));
 
                 foreach ($users as $user) {
                     $payment = $payments->firstWhere('member_id', $user->id);
@@ -623,14 +977,7 @@ class EventConversionController extends Controller
             }
         }
 
-        return response()->json([
-            'status'        => true,
-            'event_name'    => $event->name,
-            'event_type'    => $event->event_type ?: ($isSupporting ? 'Partnership Event' : 'DMC Event'),
-            'is_supporting' => $isSupporting,
-            'count'         => count($members),
-            'members'       => $members,
-        ]);
+        return $members;
     }
 
     /**

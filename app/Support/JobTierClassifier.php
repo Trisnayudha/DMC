@@ -87,6 +87,17 @@ class JobTierClassifier
         return self::DEFAULT_TIER;
     }
 
+    /**
+     * Tier for any person (member or not): the stored profiles.job_tier when set
+     * (active members, may be a manual override), otherwise derived from the job title.
+     */
+    public static function resolve($storedTier, ?string $jobTitle): int
+    {
+        $storedTier = (int) $storedTier;
+
+        return isset(self::TIERS[$storedTier]) ? $storedTier : self::classify($jobTitle);
+    }
+
     public static function label(?int $tier): string
     {
         return isset(self::TIERS[$tier]) ? 'Tier ' . $tier : '-';

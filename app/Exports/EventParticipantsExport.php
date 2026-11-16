@@ -2,6 +2,8 @@
 
 namespace App\Exports;
 
+use App\Models\Company\CompanyModel;
+use App\Support\JobTierClassifier;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -69,6 +71,7 @@ class EventParticipantsExport implements FromCollection, WithHeadings, WithMappi
             'Package',
             'Name',
             'Job Title',
+            'Job Tier',
             'Company',
             'Category',
             'Subcategory',
@@ -104,12 +107,13 @@ class EventParticipantsExport implements FromCollection, WithHeadings, WithMappi
             $package,
             $row->name,
             $row->job_title,
+            'T' . JobTierClassifier::resolve($row->job_tier ?? null, $row->job_title),
             $row->company_name,
             $category,
             $this->subcategoryMap->get($row->company_id_ref, ''),
             $row->email,
             $row->fullphone ?? $row->phone,
-            $row->full_office_number,
+            CompanyModel::displayOfficeNumber($row),
             $row->address,
             $row->status_registration,
             $row->pic_name ?: 'System',

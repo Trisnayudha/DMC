@@ -102,7 +102,7 @@ class EventAudienceStats
         }
 
         foreach ($rows as $row) {
-            $tier = isset($row->job_tier) ? (int) $row->job_tier : JobTierClassifier::classify($row->job_title);
+            $tier = JobTierClassifier::resolve($row->job_tier ?? null, $row->job_title);
             $tiers[$tier]['count']++;
             $role = JobTierRole::roleFor($tier, $row->job_title);
             $tiers[$tier]['roleCounts'][$role] = ($tiers[$tier]['roleCounts'][$role] ?? 0) + 1;

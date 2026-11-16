@@ -464,6 +464,11 @@ class UsersController extends Controller
             $query->where('profiles.job_tier', $jobTier);
         }
 
+        $companies = $this->selectedCompanyFilter($request);
+        if (!empty($companies)) {
+            $query->whereIn(DB::raw('LOWER(TRIM(company.company_name))'), $companies);
+        }
+
         $registeredAtCol = DB::raw($this->registeredAtExpr());
         if ($dateFrom) $query->whereDate($registeredAtCol, '>=', $dateFrom);
         if ($dateTo)   $query->whereDate($registeredAtCol, '<=', $dateTo);
@@ -500,6 +505,19 @@ class UsersController extends Controller
         }
 
         return $query;
+    }
+
+    /** Company names picked in the multi-select Company filter, normalized for matching. */
+    private function selectedCompanyFilter(Request $request): array
+    {
+        return collect((array) $request->input('company', []))
+            ->map(function ($name) {
+                return mb_strtolower(trim((string) $name));
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

@@ -202,19 +202,21 @@
                                         </button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item"
-                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'paid'], request()->only('sponsor_id'))) }}">Paid</a>
+                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'paid'], request()->only('sponsor_id', 'status'))) }}">Paid</a>
                                             <a class="dropdown-item"
-                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'sponsor'], request()->only('sponsor_id'))) }}">Sponsor</a>
+                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'sponsor'], request()->only('sponsor_id', 'status'))) }}">Sponsor</a>
                                             <a class="dropdown-item"
-                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'free'], request()->only('sponsor_id'))) }}">Free</a>
+                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'free'], request()->only('sponsor_id', 'status'))) }}">Free</a>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item"
-                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'potential_member'], request()->only('sponsor_id'))) }}">
+                                                href="{{ route('events-details', array_merge(['slug' => $slug, 'params' => 'potential_member'], request()->only('sponsor_id', 'status'))) }}">
                                                 <i class="fas fa-star text-warning mr-1"></i> Potential Member
                                             </a>
 
                                         </div>
                                     </div>
+
+                                    @include('admin.events.partials._registration_status_filter')
 
                                     {{-- Filter keanggotaan ASLI (client-side, bisa digabung dgn tab Paid/Free/Sponsor) --}}
                                     <div class="btn-group btn-group-sm d-inline mr-2" role="group"
@@ -232,6 +234,9 @@
                                 <form method="GET" action="{{ route('events-details', ['slug' => $slug]) }}" class="form-inline mb-3">
                                     @if (request()->filled('params'))
                                         <input type="hidden" name="params" value="{{ request('params') }}">
+                                    @endif
+                                    @if (request()->filled('status'))
+                                        <input type="hidden" name="status" value="{{ request('status') }}">
                                     @endif
                                     <label for="sponsor-company-filter" class="mr-2">Sponsor Company</label>
                                     <select name="sponsor_id" id="sponsor-company-filter" class="form-control mr-2" onchange="this.form.submit()">
@@ -291,7 +296,7 @@
 
                                 </div>
                                 <div class="float-right ml-3">
-                                    <a href="{{ route('events-details-export', array_merge(['slug' => $slug], request()->only('params', 'sponsor_id'))) }}"
+                                    <a href="{{ route('events-details-export', array_merge(['slug' => $slug], request()->only('params', 'sponsor_id', 'status'))) }}"
                                         class="btn {{ request('params') === 'potential_member' ? 'btn-warning' : 'btn-outline-success' }}">
                                         <i class="fas fa-file-excel"></i>
                                         @if(request('params') === 'potential_member')
@@ -338,6 +343,7 @@
                                                 <th>Pkg</th>
                                                 <th>Name</th>
                                                 <th>Job</th>
+                                                <th>Tier</th>
                                                 <th>Company</th>
                                                 <th>Email</th>
                                                 <th>Phone</th>
@@ -375,18 +381,19 @@
                                                         {{ $post->name }}
                                                     </td>
                                                     <td>{{ $post->job_title }}</td>
+                                                    <td>@include('admin.events.partials._job_tier_badge', ['row' => $post])</td>
                                                     <td>{{ $post->company_name }}
                                                     </td>
                                                     <td>{{ $post->email }}</td>
                                                     <td>{{ $post->fullphone ?? $post->phone }}</td>
-                                                    <td>{{ $post->full_office_number }}</td>
+                                                    <td>{{ \App\Models\Company\CompanyModel::displayOfficeNumber($post) }}</td>
                                                     <td>
                                                         {{ $post->company_category == 'other' ? $post->company_other : $post->company_category }}
                                                     </td>
                                                     <td>{{ $post->address }}</td>
                                                     <td>
                                                         <span
-                                                            class="badge badge-pill {{ $post->status_registration == 'Paid Off' ? 'badge-primary' : 'badge-warning' }}">
+                                                            class="badge badge-pill {{ $post->status_registration == 'Paid Off' ? 'badge-primary' : ($post->status_registration == 'Reject' ? 'badge-danger' : 'badge-warning') }}">
                                                             {{ $post->status_registration }}
                                                         </span>
                                                     </td>

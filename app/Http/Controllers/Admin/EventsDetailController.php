@@ -42,7 +42,7 @@ class EventsDetailController extends Controller
             $params = $request->params;
             $event = Events::where('slug', $slug)->first();
             if ($event) {
-                $list = PaymentService::listPaymentRegister($event->id, $params, $request->input('sponsor_id'));
+                $list = PaymentService::listPaymentRegister($event->id, $params, $request->input('sponsor_id'), $request->input('status'));
                 $countAll = PaymentService::countRegister(null, $event->id);
                 $countAllApprove = PaymentService::countRegisterApprove(null, $event->id);
                 $countSponsor = PaymentService::countRegister('sponsor', $event->id);
@@ -86,7 +86,7 @@ class EventsDetailController extends Controller
                 ->with('error', 'Event not found.');
         }
 
-        $rows = PaymentService::listPaymentRegister($event->id, $request->params, $request->input('sponsor_id'));
+        $rows = PaymentService::listPaymentRegister($event->id, $request->params, $request->input('sponsor_id'), $request->input('status'));
 
         $filename = 'peserta-' . $slug . '-' . date('Ymd-His') . '.xlsx';
         return Excel::download(new EventParticipantsExport($rows), $filename);

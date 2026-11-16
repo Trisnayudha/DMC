@@ -185,6 +185,16 @@
                     </select>
                 </div>
                 <div class="form-group mr-2 mb-2">
+                    <label class="mb-1 small text-muted">Company</label>
+                    <select name="company[]" multiple class="form-control form-control-sm member-company-filter"
+                        style="min-width:260px;" data-placeholder="All companies"
+                        data-url="{{ route('users.company_options', ['status_member' => request('status_member')]) }}">
+                        @foreach (array_filter((array) request('company', [])) as $companyName)
+                            <option value="{{ $companyName }}" selected>{{ $companyName }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group mr-2 mb-2">
                     <label class="mb-1 small text-muted">&nbsp;</label>
                     <div>
                         <button type="submit" class="btn btn-sm btn-primary">
