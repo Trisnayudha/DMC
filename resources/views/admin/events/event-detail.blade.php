@@ -861,6 +861,7 @@
     </style>
 @endpush
 @push('bottom')
+    @include('admin.events.partials._audience_charts_script')
     <script>
         $(document).ready(function() {
             // Saat tombol assign ditekan, masukkan payment_id ke input tersembunyi di modal
@@ -1106,68 +1107,10 @@
 
         selectCountry.addEventListener("change", handleCountryChange.bind(this));
 
-        // Pie Chart Code
-        // Company Category & Job Tier (layout Chart.js v2). Detail Registration starts
-        // collapsed, so the charts are drawn on first open (a hidden canvas has no size).
+        // Company Category & Job Tier. Detail Registration starts collapsed,
+        // so the charts are drawn on first open (a hidden canvas has no size).
         $('#detail-registration').one('shown.bs.collapse', function() {
-            var audience = @json($audience);
-            var pct = function(n) {
-                return audience.total ? (Math.round(n * 1000 / audience.total) / 10).toLocaleString('id-ID') : '0';
-            };
-            var tooltip = function(labels) {
-                return {
-                    callbacks: {
-                        label: function(item, data) {
-                            var n = data.datasets[0].data[item.index];
-                            return ' ' + labels[item.index] + ': ' + n + ' (' + pct(n) + '%)';
-                        }
-                    }
-                };
-            };
-
-            var groups = audience.categories;
-            new Chart(document.getElementById('audienceCategoryChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: groups.map(function(g) { return g.label; }),
-                    datasets: [{
-                        data: groups.map(function(g) { return g.count; }),
-                        backgroundColor: groups.map(function(g) { return g.color; }),
-                        borderColor: '#ffffff',
-                        borderWidth: 2,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutoutPercentage: 55,
-                    legend: { display: false },
-                    tooltips: tooltip(groups.map(function(g) { return g.label + ' ' + g.name; })),
-                }
-            });
-
-            var tiers = audience.tiers;
-            new Chart(document.getElementById('audienceTierChart'), {
-                type: 'horizontalBar',
-                data: {
-                    labels: tiers.map(function(t) { return t.label; }),
-                    datasets: [{
-                        data: tiers.map(function(t) { return t.count; }),
-                        backgroundColor: tiers.map(function(t) { return t.color; }),
-                        maxBarThickness: 26,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    legend: { display: false },
-                    tooltips: tooltip(tiers.map(function(t) { return t.label + ' ' + t.roles; })),
-                    scales: {
-                        xAxes: [{ ticks: { beginAtZero: true, precision: 0 }, gridLines: { color: '#eef0f3' } }],
-                        yAxes: [{ gridLines: { display: false } }]
-                    }
-                }
-            });
+            drawAudienceCharts(@json($audience));
         });
 
         $(document).ready(function() {

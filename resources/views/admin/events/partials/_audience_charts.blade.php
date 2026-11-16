@@ -1,6 +1,8 @@
 {{-- Company Category Tier & Job Tier of approved registrants — same grouping and
      look as the Members page (App\Services\Events\EventAudienceStats). --}}
 @php
+    // $audienceLabel: what the total counts, e.g. "checked-in attendees" on the Participants page.
+    $audienceLabel = $audienceLabel ?? 'approved registrants';
     $audiencePct = function ($n) use ($audience) {
         return $audience['total'] ? number_format($n * 100 / $audience['total'], 1, ',', '.') : '0';
     };
@@ -51,7 +53,7 @@
                         data-toggle="tooltip" data-html="true" data-placement="bottom"
                         title="{!! implode('<br>', \App\Support\CompanyCategoryTier::tooltipLines()) !!}"></i>
                 </h4>
-                <span class="badge badge-light">{{ number_format($audience['total']) }} approved registrants</span>
+                <span class="badge badge-light">{{ number_format($audience['total']) }} {{ $audienceLabel }}</span>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -93,9 +95,9 @@
                 <h4 class="mb-0">
                     Job Tier
                     <i class="fas fa-info-circle text-muted ml-1" style="font-size:13px;cursor:help;" data-toggle="tooltip"
-                        title="Position tier from each registrant's job title, same rules as the Members page."></i>
+                        title="Position tier from each person's job title, same rules as the Members page."></i>
                 </h4>
-                <span class="badge badge-light">{{ number_format($audience['total']) }} approved registrants</span>
+                <span class="badge badge-light">{{ number_format($audience['total']) }} {{ $audienceLabel }}</span>
             </div>
             <div class="card-body">
                 <div class="row">

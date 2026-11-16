@@ -66,6 +66,9 @@
                     </div>
                 </div>
 
+                {{-- ── COMPANY CATEGORY & JOB TIER (checked-in attendees only) ── --}}
+                @include('admin.events.partials._audience_charts', ['audienceLabel' => 'checked-in attendees'])
+
                 {{-- ── RINGKASAN PERUSAHAAN (ikut filter pill & pencarian tabel) ── --}}
                 @include('admin.events.partials._participant-company-summary')
 
@@ -950,8 +953,10 @@
 @endpush
 
 @push('bottom')
+    @include('admin.events.partials._audience_charts_script')
     <script>
         $(document).ready(function() {
+            drawAudienceCharts(@json($audience));
 
             /* ── DataTable ── */
             var table = $('#laravel_crud').DataTable({

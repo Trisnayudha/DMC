@@ -18,9 +18,13 @@ class EventAudienceStats
     /** Same palette as the Company Category Tier chart on the Members page. */
     const CATEGORY_PALETTE = ['#1d1d1f', '#8e0f15', '#4b5058', '#3c1016', '#a8896c', '#c4c6ca'];
 
-    public static function forEvent(int $eventId): array
+    /**
+     * @param bool $checkedInOnly true = only registrants who checked in at the event
+     *                            (users_event.present filled), as on the Participants page.
+     */
+    public static function forEvent(int $eventId, bool $checkedInOnly = false): array
     {
-        $rows = self::registrants($eventId);
+        $rows = self::registrants($eventId, $checkedInOnly);
 
         return [
             'total'      => $rows->count(),
@@ -30,7 +34,7 @@ class EventAudienceStats
     }
 
     /** One row per registrant (Paid Off), with their current profile & company. */
-    private static function registrants(int $eventId)
+    private static function registrants(int $eventId, bool $checkedInOnly)
     {
         $hasTierColumn = ProfileModel::hasJobTierColumn();
 
@@ -40,6 +44,15 @@ class EventAudienceStats
             ->leftJoin('company', 'company.id', 'profiles.company_id')
             ->where('payment.events_id', $eventId)
             ->where('payment.status_registration', 'Paid Off')
+            ->when($checkedInOnly, function ($query) use ($eventId) {
+                $query->whereExists(function ($sub) use ($eventId) {
+                    $sub->select(DB::raw(1))
+                        ->from('users_event')
+                        ->whereColumn('users_event.users_id', 'users.id')
+                        ->where('users_event.events_id', $eventId)
+                        ->whereNotNull('users_event.present');
+                });
+            })
             ->get(array_merge(
                 ['users.id', 'profiles.job_title', 'company.company_category'],
                 $hasTierColumn ? ['profiles.job_tier'] : []

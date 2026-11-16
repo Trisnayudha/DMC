@@ -10,6 +10,7 @@ use App\Models\Events\UserRegister;
 use App\Models\Payments\Payment;
 use App\Models\Profiles\ProfileModel;
 use App\Models\User;
+use App\Services\Events\EventAudienceStats;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -116,6 +117,8 @@ class EventsDetailParticipantController extends Controller
             'freeCount'      => $freeCount,
             'paidCount'      => $paidCount,
             'companyCount'   => $companyCount,
+            // Company Category & Job Tier charts — checked-in attendees only.
+            'audience'       => EventAudienceStats::forEvent($findEvent->id, true),
         ];
         return view('admin.events.event-detail-participant', $data);
     }
