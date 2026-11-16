@@ -285,6 +285,9 @@ Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
     Route::get('event-questions', [\App\Http\Controllers\Admin\EventQuestionController::class, 'index'])->name('admin.event-questions.index');
     Route::get('member-surveys', [MemberSurveyResponseController::class, 'index'])->name('admin.member-surveys.index');
     Route::get('member-surveys/{memberSurvey}', [MemberSurveyResponseController::class, 'show'])->name('admin.member-surveys.show');
+    Route::get('event-surveys', [\App\Http\Controllers\Admin\EventSurveyResponseController::class, 'index'])->name('admin.event-surveys.index');
+    Route::get('event-surveys/export', [\App\Http\Controllers\Admin\EventSurveyResponseController::class, 'export'])->name('admin.event-surveys.export');
+    Route::get('event-surveys/{eventSurvey}', [\App\Http\Controllers\Admin\EventSurveyResponseController::class, 'show'])->whereNumber('eventSurvey')->name('admin.event-surveys.show');
 
     //Notification
     Route::get('notification', [NotificationController::class, 'index'])->name('notification');

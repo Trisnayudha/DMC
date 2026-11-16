@@ -34,6 +34,7 @@ return [
         'event_speakers' => ['Speakers', 'Event Team', 'events/speakers', 'microphone', ['EventsSpeakersController'], 'Events'],
         'event_rundown' => ['Rundown', 'Event Team', 'events/rundown', 'list', ['EventsRundownController'], 'Events'],
         'event_questions' => ['Event Questions', 'Event Team', 'event-questions', 'question-circle', ['EventQuestionController']],
+        'event_surveys' => ['Event Survey', 'Event Team', 'event-surveys', 'poll', ['EventSurveyResponseController']],
         'partnership_events' => ['Partnership Event', 'Event Team', 'partnership-events', 'handshake', ['PartnershipEventVisitorController', 'PartnershipVisitorDatabaseController']],
         // Marketing Team
         'news' => ['News List', 'Marketing Team', 'news', 'newspaper', ['NewsController', 'NewsPartnerController'], 'News'],
@@ -85,7 +86,7 @@ return [
         'Data & Settings' => ['master_database', 'company_database', 'company_categories', 'company_subcategories', 'member_sources'],
         'Engagement' => ['event_conversions', 'lucky_draw_items', 'lucky_draw_entries'],
         'Membership' => ['membership', 'mailchimp'],
-        'Event' => ['events', 'event_sponsors', 'event_categories', 'event_tickets', 'event_conferences', 'event_highlights', 'event_schedules', 'event_speakers', 'event_rundown', 'event_questions', 'partnership_events'],
+        'Event' => ['events', 'event_sponsors', 'event_categories', 'event_tickets', 'event_conferences', 'event_highlights', 'event_schedules', 'event_speakers', 'event_rundown', 'event_questions', 'event_surveys', 'partnership_events'],
         'Content' => ['news', 'news_categories', 'program', 'digital_editions', 'videos'],
         'Campaign & Communication' => ['advertisement', 'marketing_ads', 'emails', 'notifications', 'wa_campaign', 'wa_database', 'wa_template', 'wa_blasting', 'wa_sender'],
         'Sponsor & Scholarship' => ['sponsors', 'interviews', 'scholarship'],
@@ -136,6 +137,7 @@ return [
             'Events' => [
                 ['Event DMC', 'events', 'events'],
                 ['Event Partnership', 'partnership-events', 'partnership_events'],
+                ['Event Survey', 'event-surveys', 'event_surveys'],
             ],
             'Website Inquiry' => [
                 ['Website Inquiry', 'inquiry-database', 'inquiries'],

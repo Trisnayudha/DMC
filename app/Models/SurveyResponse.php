@@ -7,6 +7,31 @@ use Illuminate\Database\Eloquent\Model;
 
 class SurveyResponse extends Model
 {
+    /** Admin filter value for the first survey rows, which have no event_code. */
+    public const LEGACY_FILTER = 'legacy';
+
+    /** Readable names for event codes; unknown codes fall back to the code itself. */
+    public const EVENT_LABELS = [
+        'DMC18_2026_IEMB2026' => 'Indonesia Energy Market Briefing 2026',
+        'DMC17_2026_71ST' => 'The 71st DMC Networking Event',
+        'DMC13_2026_MINING_INSIGHTS' => 'Mining Insights (DMC13 2026)',
+        'DMC69_2026_MINING_INSIGHTS' => 'Mining Insights (DMC69 2026)',
+    ];
+
+    public static function eventLabel($code)
+    {
+        if (!$code) {
+            return 'First Survey (Nov–Dec 2025, no event code)';
+        }
+
+        return self::EVENT_LABELS[$code] ?? $code;
+    }
+
+    public function isLegacy()
+    {
+        return !$this->event_code;
+    }
+
     protected $fillable = [
 
         // lama
