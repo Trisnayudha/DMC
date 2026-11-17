@@ -311,6 +311,8 @@ class SponsorController extends Controller
             'contract_end'    => $request->input('contract_end'),
             'package'         => $request->input('package'),
             'renewal_status'  => 'renewed',
+            // Sponsor baru dibuat dari form Create → label "New" di Sponsorship Renewals.
+            'renewal_type'    => 'new',
             'is_current'      => 1,
         ]);
 
