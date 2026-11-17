@@ -10,6 +10,12 @@ class SponsorRenewal extends Model
     use \App\Traits\LogsSponsorActivity;
 
     /**
+     * Target revenue sponsor per bulan (IDR). Garis target di grafik Sponsorship Renewals
+     * dan Financial Reports — ubah di sini saja.
+     */
+    const MONTHLY_REVENUE_TARGET = 168000000;
+
+    /**
      * Email ke secretariat sekali, saat Paid Date pertama kali terisi — dari Renew
      * Contract, Edit Contract, maupun pelunasan VA otomatis (FinanceInvoiceService).
      */

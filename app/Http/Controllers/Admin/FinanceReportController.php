@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Sponsors\SponsorRenewal;
 use App\Services\Finance\FinanceReportService;
 use Illuminate\Http\Request;
 
@@ -38,6 +39,7 @@ class FinanceReportController extends Controller
             'years'         => $years,
             'compareYears'  => $compareYears,
             'compareMonths' => $service->monthlySummary($compare, $keyword),
+            'monthlyTarget' => SponsorRenewal::MONTHLY_REVENUE_TARGET,
             'filters'       => [
                 'year'    => $year,
                 'month'   => $month,

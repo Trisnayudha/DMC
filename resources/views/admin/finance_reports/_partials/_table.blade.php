@@ -37,6 +37,7 @@
                             <td>
                                 <div class="font-weight-600" style="font-family:monospace;">{{ $row['invoice_no'] }}</div>
                                 <div class="text-muted" style="font-size:11px;">{{ $row['invoice_date']->format('d M Y') }}</div>
+                                <div class="text-muted" style="font-size:11px;">Renewal: {{ $row['renewal_month']->format('M Y') }}</div>
                             </td>
                             <td class="font-weight-600">{{ $row['sponsor'] }}</td>
                             <td class="text-muted">{{ $row['description'] }}</td>

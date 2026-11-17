@@ -35,7 +35,7 @@ class FinanceReportService
 
         if ($month) {
             $rows = $rows->filter(function ($row) use ($month) {
-                return (int) $row['invoice_date']->month === $month;
+                return (int) $row['renewal_month']->month === $month;
             });
         }
 
@@ -53,21 +53,19 @@ class FinanceReportService
         ];
     }
 
-    /** Tahun yang punya invoice sponsor (terbaru dulu), selalu termasuk tahun berjalan. */
+    /** Memo semua invoice sponsor dalam satu request (dipakai build + monthlySummary + availableYears). */
+    private $allRows;
+
+    /** Tahun yang punya invoice sponsor (berdasarkan bulan renewal, terbaru dulu), selalu termasuk tahun berjalan. */
     public function availableYears(): array
     {
-        $years = SponsorRenewal::whereNotNull('invoice_number')
-            ->whereNotNull('invoice_date')
-            ->selectRaw('DISTINCT YEAR(invoice_date) AS y')
-            ->pluck('y')
-            ->map(function ($y) { return (int) $y; })
+        return $this->allRows()
+            ->map(function ($row) { return (int) $row['renewal_month']->year; })
             ->push((int) now()->year)
             ->unique()
             ->sortDesc()
             ->values()
             ->all();
-
-        return $years;
     }
 
     /** Ringkasan 12 bulan satu tahun — dipakai grafik untuk tahun pembanding (vs). */
@@ -76,10 +74,12 @@ class FinanceReportService
         return $this->monthSummary($this->yearRows($year, $keyword));
     }
 
-    /** Invoice satu tahun (invoice_date), opsional disaring keyword nomor invoice / sponsor. */
+    /** Invoice satu tahun (bulan renewal), opsional disaring keyword nomor invoice / sponsor. */
     private function yearRows(int $year, string $keyword): Collection
     {
-        $rows = $this->sponsorRows(Carbon::create($year, 1, 1), Carbon::create($year, 12, 31));
+        $rows = $this->allRows()->filter(function ($row) use ($year) {
+            return (int) $row['renewal_month']->year === $year;
+        });
 
         if ($keyword !== '') {
             $needle = mb_strtolower($keyword);
@@ -97,7 +97,7 @@ class FinanceReportService
         $months = [];
         for ($m = 1; $m <= 12; $m++) {
             $inMonth = $rows->filter(function ($row) use ($m) {
-                return (int) $row['invoice_date']->month === $m;
+                return (int) $row['renewal_month']->month === $m;
             });
             $months[$m] = [
                 'count'  => $inMonth->count(),
@@ -123,14 +123,31 @@ class FinanceReportService
         ];
     }
 
-    /** Kontrak sponsor yang sudah punya invoice number, invoice_date di dalam periode. */
-    private function sponsorRows(Carbon $from, Carbon $to): Collection
+    /** Semua kontrak sponsor yang sudah punya invoice number (+ invoice_date), di-memo per request. */
+    private function allRows(): Collection
     {
-        return SponsorRenewal::with('sponsor:id,name,branding_name')
+        if ($this->allRows === null) {
+            $this->allRows = $this->sponsorRows();
+        }
+        return $this->allRows;
+    }
+
+    private function sponsorRows(): Collection
+    {
+        $renewals = SponsorRenewal::with('sponsor:id,name,branding_name')
             ->whereNotNull('invoice_number')
-            ->whereBetween('invoice_date', [$from->toDateString(), $to->toDateString()])
-            ->get()
-            ->map(function (SponsorRenewal $r) {
+            ->whereNotNull('invoice_date')
+            ->get();
+
+        // Kontrak lama (renewed) per sponsor — untuk mencari bulan habis kontrak sebelumnya.
+        $history = SponsorRenewal::whereIn('sponsor_id', $renewals->pluck('sponsor_id')->unique())
+            ->where('renewal_status', 'renewed')
+            ->whereNotNull('contract_end')
+            ->get(['id', 'sponsor_id', 'contract_end'])
+            ->groupBy('sponsor_id');
+
+        return $renewals->map(function (SponsorRenewal $r) use ($history) {
+                $renewalMonth = $this->renewalMonth($r, $history->get($r->sponsor_id, collect()));
                 $amount = (float) ($r->amount_idr ?? 0);
                 $vat    = floor($amount * (float) ($r->vat_percent ?? 0) / 100);
                 $pph23  = (float) ($r->pph23_amount ?? 0);
@@ -138,6 +155,7 @@ class FinanceReportService
                 return [
                     'invoice_no'   => $r->invoice_number,
                     'invoice_date' => $r->invoice_date,
+                    'renewal_month' => $renewalMonth,
                     'sponsor'      => $r->sponsor ? ($r->sponsor->branding_name ?: $r->sponsor->name) : '—',
                     'description'  => trim(sponsor_package_label($r->package) . ' Sponsorship · ' . $this->period($r->contract_start, $r->contract_end)),
                     'amount'       => $amount,
@@ -150,6 +168,28 @@ class FinanceReportService
                     'sent_date'    => $r->invoice_sent_date,
                 ];
             });
+    }
+
+    /**
+     * Bulan renewal = bulan habis kontrak sebelumnya (sama dengan daftar expiry di
+     * Sponsorship Renewals): contract_end terbaru milik sponsor yang < contract_start kontrak ini.
+     * Sponsor baru (tanpa kontrak sebelumnya) → bulan contract_start; tanpa contract_start → invoice_date.
+     */
+    private function renewalMonth(SponsorRenewal $r, Collection $history): Carbon
+    {
+        if ($r->contract_start) {
+            // Kontrak lama yang habisnya > 12 bulan sebelum kontrak ini mulai = sponsor kembali, bukan renewal.
+            $earliestEnd = Carbon::createFromFormat('Y-m-d', $r->contract_start . '-01')->subMonths(12)->format('Y-m');
+            $previousEnd = $history
+                ->filter(function ($h) use ($r, $earliestEnd) {
+                    return $h->id !== $r->id && $h->contract_end < $r->contract_start && $h->contract_end >= $earliestEnd;
+                })
+                ->max('contract_end');
+
+            return Carbon::createFromFormat('Y-m-d', ($previousEnd ?: $r->contract_start) . '-01')->startOfDay();
+        }
+
+        return $r->invoice_date->copy()->startOfMonth();
     }
 
     private function period(?string $start, ?string $end): string

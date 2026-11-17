@@ -10,6 +10,7 @@
         'amountVs' => array_values(array_map(function ($m) { return $m['amount']; }, $compareMonths)),
         'actual'   => array_values(array_map(function ($m) { return $m['actual']; }, $months)),
         'actualVs' => array_values(array_map(function ($m) { return $m['actual']; }, $compareMonths)),
+        'target'   => $monthlyTarget,
         'monthUrl' => route('admin.finance_reports.index', array_filter(['year' => $filters['year'], 'compare' => $filters['compare'], 'keyword' => $filters['keyword']])),
     ];
     $sum = function ($key, $source) { return collect($source)->sum($key); };
@@ -31,6 +32,7 @@
                     <div class="d-flex align-items-center" style="gap:12px;font-size:12px;color:#6c757d;">
                         <span><span class="fr-legend-swatch" style="background:#6777ef;"></span>{{ $filters['year'] }}</span>
                         <span><span class="fr-legend-swatch" style="background:#b8bfd6;"></span>{{ $filters['compare'] }}</span>
+                        <span title="Monthly target: Rp {{ number_format($monthlyTarget, 0, ',', '.') }}"><span class="fr-legend-line"></span>Target</span>
                         <span class="text-dark font-weight-600" title="{{ $filters['year'] }} ÷ {{ $filters['compare'] }}">
                             {{ $vs > 0 ? number_format($cur / $vs * 100, 0, ',', '.') . '%' : 'n/a' }} vs {{ $filters['compare'] }}
                         </span>
@@ -49,6 +51,7 @@
 
 <style>
     .fr-legend-swatch { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
+    .fr-legend-line { display:inline-block; width:16px; height:0; border-top:2px dashed #fc544b; margin-right:5px; vertical-align:3px; }
 </style>
 
 @push('bottom')
@@ -81,7 +84,11 @@
                     { label: String(d.compare), data: previous, backgroundColor: '#b8bfd6', hoverBackgroundColor: '#a3abc6',
                       borderColor: '#ffffff', borderWidth: 1, barPercentage: 0.9, categoryPercentage: 0.7 },
                     { label: String(d.year), data: current, backgroundColor: '#6777ef', hoverBackgroundColor: '#5563d8',
-                      borderColor: '#ffffff', borderWidth: 1, barPercentage: 0.9, categoryPercentage: 0.7 }
+                      borderColor: '#ffffff', borderWidth: 1, barPercentage: 0.9, categoryPercentage: 0.7 },
+                    // Garis target per bulan — sama dengan grafik Sponsorship Renewals.
+                    { label: 'Target', type: 'line', data: d.labels.map(function () { return d.target; }),
+                      borderColor: '#fc544b', borderWidth: 2, borderDash: [6, 3], pointRadius: 0, pointHoverRadius: 0,
+                      fill: false, lineTension: 0 }
                 ]
             },
             options: {
@@ -107,7 +114,11 @@
                         footer: function (items) {
                             if (!items.length) { return ''; }
                             var i = items[0].index;
-                            return ratio(current[i], previous[i]);
+                            var lines = [ratio(current[i], previous[i])];
+                            if (d.target) {
+                                lines.push(Math.round(current[i] / d.target * 100).toLocaleString('id-ID') + '% of target');
+                            }
+                            return lines;
                         }
                     }
                 },

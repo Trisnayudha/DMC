@@ -50,7 +50,8 @@
                 <p class="text-muted" style="font-size:12px;">
                     <i class="fas fa-info-circle mr-1"></i>
                     Sponsorship invoices only. Net Amount = Amount + VAT. Actual Amount = Amount − PPh 23 (PPh 23 as entered on the contract).
-                    Year and month are based on the invoice date.
+                    Year and month are based on the renewal month (when the previous contract ends), same as Sponsorship Renewals.
+                    New sponsors use their contract start month.
                 </p>
             </div>
         </section>

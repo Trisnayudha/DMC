@@ -511,7 +511,7 @@ class SponsorAnnualReportController extends Controller
             'sponsorYoy' => $sponsorYoy,
             'packageYoy' => $packageYoy,
             'priceYoy'   => $priceYoy,
-            'target'     => 168000000,
+            'target'     => SponsorRenewal::MONTHLY_REVENUE_TARGET,
         ];
     }
 
