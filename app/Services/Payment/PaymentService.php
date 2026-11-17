@@ -12,12 +12,23 @@ class PaymentService extends Payment
         'rejected' => 'Reject',
     ];
 
+    /**
+     * Join the company the profile points to (profiles.company_id), the same record the
+     * Members DMC page shows. A user can own several company rows; joining on
+     * company.users_id picked an arbitrary one (often an empty duplicate) and could
+     * repeat the participant row. Falls back to the user's latest company row.
+     */
+    public static function companyJoinCondition(string $usersAlias): \Illuminate\Database\Query\Expression
+    {
+        return \Illuminate\Support\Facades\DB::raw('COALESCE(profiles.company_id, (SELECT MAX(c2.id) FROM company c2 WHERE c2.users_id = ' . $usersAlias . '.id))');
+    }
+
     public static function listPaymentRegister($events_id, $params, $sponsorId = null, $status = null)
     {
         $packages = ['nonmember', 'member', 'onsite', 'table', 'free', 'sponsor'];
         $query = Payment::join('users as member_users', 'member_users.id', '=', 'payment.member_id')
-            ->leftJoin('company', 'company.users_id', '=', 'member_users.id')
             ->leftJoin('profiles', 'profiles.users_id', '=', 'member_users.id')
+            ->leftJoin('company', 'company.id', '=', self::companyJoinCondition('member_users'))
             ->leftJoin('cms_users as pic_users', 'pic_users.id', '=', 'payment.pic_id')
             ->leftJoin('event_sponsors', function ($join) {
                 $join->on('event_sponsors.code_access', '=', 'payment.sponsor_code')
@@ -114,7 +125,7 @@ class PaymentService extends Payment
         return Payment::where('payment.id', $id)
             ->leftjoin('users', 'users.id', 'payment.member_id')
             ->leftjoin('profiles', 'profiles.users_id', 'users.id')
-            ->leftjoin('company', 'company.users_id', 'users.id')
+            ->leftJoin('company', 'company.id', '=', self::companyJoinCondition('users'))
             ->leftjoin('events_tickets', 'payment.tickets_id', 'events_tickets.id')
             ->select('*', 'payment.events_id as events_id')
             ->first();

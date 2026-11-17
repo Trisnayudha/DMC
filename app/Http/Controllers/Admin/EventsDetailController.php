@@ -565,7 +565,12 @@ class EventsDetailController extends Controller
         $findUsers->email = $request->email_edit;
         $findUsers->save();
 
-        $company = CompanyModel::where('users_id', $findUsers->id)->first();
+        // Same company record the list shows: the one the profile points to (as on Members DMC).
+        $existingProfile = ProfileModel::where('users_id', $findUsers->id)->first();
+        $company = ($existingProfile && $existingProfile->company_id) ? CompanyModel::find($existingProfile->company_id) : null;
+        if (empty($company)) {
+            $company = CompanyModel::where('users_id', $findUsers->id)->orderByDesc('id')->first();
+        }
         if (empty($company)) {
             $company = new CompanyModel();
         }

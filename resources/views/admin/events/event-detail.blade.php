@@ -342,8 +342,7 @@
                                                 <th>Code</th>
                                                 <th>Pkg</th>
                                                 <th>Name</th>
-                                                <th>Job</th>
-                                                <th>Tier</th>
+                                                <th>Job Title</th>
                                                 <th>Company</th>
                                                 <th>Email</th>
                                                 <th>Phone</th>
@@ -380,8 +379,10 @@
                                                     <td>
                                                         {{ $post->name }}
                                                     </td>
-                                                    <td>{{ $post->job_title }}</td>
-                                                    <td>@include('admin.events.partials._job_tier_badge', ['row' => $post])</td>
+                                                    <td class="text-nowrap">
+                                                        @include('admin.events.partials._job_tier_badge', ['row' => $post])
+                                                        <span class="cell-truncate" title="{{ $post->job_title }}">{{ $post->job_title }}</span>
+                                                    </td>
                                                     <td>{{ $post->company_name }}
                                                     </td>
                                                     <td>{{ $post->email }}</td>
@@ -830,6 +831,16 @@
 @endsection
 @push('top')
     <style>
+        /* Job title next to its tier badge, as on the Members DMC table: truncated, full value on hover. */
+        #laravel_crud .cell-truncate {
+            display: inline-block;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
         #loader {
             position: fixed;
             top: 0;
