@@ -31,7 +31,7 @@ class EventConversionController extends Controller
      * Tampilan utama Event Database and Member Conversion.
      * Mengadopsi diagram operasional DMC:
      * - DMC Owned Events vs Supporting Events
-     * - Event Participation Funnel (Registration -> Confirmation -> Check-in -> Follow-up Interest)
+     * - Event Participation Funnel (Registration -> Confirmation -> Check-in -> Sponsorship Interest)
      * - Annual Attendance (Entries, Unique people, Verified members)
      * - Member Conversion (Consent/interest -> Pending Verification -> Active Member)
      */

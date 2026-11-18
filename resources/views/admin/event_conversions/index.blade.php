@@ -415,7 +415,7 @@ $(document).ready(function() {
         new Chart(ctxFunnel.getContext('2d'), {
             type: 'bar',
             data: {
-                labels: ['Registration / Visitors', 'Confirmation', 'Attendance / Entries', 'Follow-up Interest', 'Converted to Member'],
+                labels: ['Registration / Visitors', 'Confirmation', 'Attendance / Entries', 'Sponsorship Interest (converted)', 'Converted to Member'],
                 datasets: [
                     {
                         label: 'DMC Owned Events',

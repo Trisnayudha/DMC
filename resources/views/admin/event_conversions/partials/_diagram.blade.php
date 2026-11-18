@@ -135,8 +135,8 @@
                                     <span class="stage-badge bg-success text-white">{{ number_format($eventParticipation['attendance']) }}</span>
                                 </li>
                                 <li class="participation-stage-item">
-                                    <span><i class="fas fa-star text-warning mr-2"></i>Follow up interest
-                                        @include('admin.event_conversions.partials._stage_info', ['title' => 'Follow up interest — sources', 'sources' => [
+                                    <span><i class="fas fa-star text-warning mr-2"></i>Sponsorship interest (converted)
+                                        @include('admin.event_conversions.partials._stage_info', ['title' => 'Sponsorship interest — sources', 'sources' => [
                                             ['DMC owned events', $funnelOwned['interest'], 'Converted members of the event (Active Member conversions) who ticked "receive information about corporate sponsorship opportunities" on their member profile.'],
                                             ['Partnership events', $funnelSupporting['interest'], 'Converted members of the event (Active Member conversions) with the sponsorship tick on their member profile, or whose booth Remark mentions sponsorship.'],
                                             ['Note', null, 'Converted members only — existing members are not counted. One count per person.'],
