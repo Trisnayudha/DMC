@@ -137,8 +137,9 @@
                                 <li class="participation-stage-item">
                                     <span><i class="fas fa-star text-warning mr-2"></i>Follow up interest
                                         @include('admin.event_conversions.partials._stage_info', ['title' => 'Follow up interest — sources', 'sources' => [
-                                            ['DMC owned events', $funnelOwned['interest'], 'Registrations ticked as Potential Member on the event detail page.'],
-                                            ['Partnership events', $funnelSupporting['interest'], 'Booth visitors already in the users table who showed sponsorship interest: ticked "receive information about corporate sponsorship opportunities" on their member profile, or a booth Remark mentions sponsorship. One count per person per event.'],
+                                            ['DMC owned events', $funnelOwned['interest'], 'Registrants who are Active members and ticked "receive information about corporate sponsorship opportunities" on their member profile.'],
+                                            ['Partnership events', $funnelSupporting['interest'], 'Booth visitors who are Active members and showed sponsorship interest: the sponsorship tick on their member profile, or a booth Remark mentions sponsorship.'],
+                                            ['Note', null, 'Sponsorship interest only. One count per person per event.'],
                                         ]])
                                     </span>
                                     <span class="stage-badge bg-warning text-dark font-weight-bold">{{ number_format($eventParticipation['interest']) }}</span>
@@ -202,12 +203,13 @@
                             </div>
                             <div class="outcome-metrics-grid">
                                 <a href="#" class="outcome-metric-box cdm-open d-block text-decoration-none" title="View the people behind this number"
-                                    data-url="{{ route('admin.event_conversions.interest') }}" data-title="Stated interest">
+                                    data-url="{{ route('admin.event_conversions.interest') }}" data-title="Sponsorship interest — Active members">
                                     <div class="outcome-metric-value text-warning">{{ number_format($annualConversion['interest']) }}</div>
-                                    <div class="outcome-metric-label">Stated Interest <i class="fas fa-external-link-alt fa-xs"></i>
-                                        @include('admin.event_conversions.partials._stage_info', ['title' => 'Stated interest — sources', 'placement' => 'top', 'iconClass' => 'text-white-50', 'sources' => [
-                                            ['DMC owned events', $funnelOwned['interest'], 'Registrations ticked as Potential Member on the event detail page.'],
-                                            ['Partnership events', $funnelSupporting['interest'], 'Booth visitors already in the users table who ticked "receive information about corporate sponsorship opportunities", or whose booth Remark mentions sponsorship.'],
+                                    <div class="outcome-metric-label">Sponsorship Interest <i class="fas fa-external-link-alt fa-xs"></i>
+                                        @include('admin.event_conversions.partials._stage_info', ['title' => 'Sponsorship interest — sources', 'placement' => 'top', 'iconClass' => 'text-white-50', 'sources' => [
+                                            ['DMC owned events', $funnelOwned['interest'], 'Registrants who are Active members and ticked "receive information about corporate sponsorship opportunities" on their member profile.'],
+                                            ['Partnership events', $funnelSupporting['interest'], 'Booth visitors who are Active members with the sponsorship tick, or whose booth Remark mentions sponsorship.'],
+                                            ['Note', null, 'Active members only — a sponsorship lead signal, not a step before Pending Review / Active Member.'],
                                         ]])
                                     </div>
                                 </a>
@@ -233,7 +235,7 @@
                                 </a>
                             </div>
                             <div class="conversion-explainer">
-                                <i class="fas fa-check mr-1"></i> Consent plus direct DMC engagement or stated interest.
+                                <i class="fas fa-check mr-1"></i> Consent plus direct DMC engagement; sponsorship interest from Active members.
                             </div>
                         </div>
                     </div>

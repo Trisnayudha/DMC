@@ -238,7 +238,7 @@
                                     <th class="text-center" title="Paid or confirmed registrations, or valid contacts">Confirmed</th>
                                     <th class="text-center" title="In-person attendance, badge check-in, or booth visits">Attendance</th>
                                     <th class="text-center" title="Active DMC members who attended">Verified Member</th>
-                                    <th class="text-center" title="Follow-up interest / prospective members">Interest</th>
+                                    <th class="text-center" title="Active members with sponsorship interest">Interest</th>
                                     <th class="text-center" title="Prospective members (pending) and new active members">Converted Member</th>
                                     <th class="text-center" width="130px">Conv. Rate</th>
                                     <th class="text-center" width="120px">Actions</th>
