@@ -33,6 +33,7 @@
         $('#ms-code').val(data.code || '');
         $('#ms-name').val(data.name || '');
         $('#ms-form-type').val(data.formType || 'individual');
+        $('#ms-event').val(data.eventId ? String(data.eventId) : '');
         $('#ms-active').prop('checked', data.active === undefined ? true : !!data.active);
         setKeyLocked(!!data.locked);
         updateLinkPreview();
@@ -52,6 +53,7 @@
             code: $btn.data('code'),
             name: $btn.data('name'),
             formType: $btn.data('form-type'),
+            eventId: $btn.data('event-id'),
             active: parseInt($btn.data('active'), 10) === 1,
             locked: parseInt($btn.data('locked'), 10) === 1
         });
@@ -89,6 +91,7 @@
             code: @json(old('code')),
             name: @json(old('name')),
             formType: @json(old('form_type')),
+            eventId: @json(old('events_id')),
             active: @json((bool) old('is_active'))
         });
     @endif

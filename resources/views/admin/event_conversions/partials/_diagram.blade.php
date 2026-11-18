@@ -128,7 +128,7 @@
                                 <li class="participation-stage-item">
                                     <span><i class="fas fa-id-badge text-success mr-2"></i>Check in &amp; attendance
                                         @include('admin.event_conversions.partials._stage_info', ['title' => 'Check in & attendance — sources', 'sources' => [
-                                            ['DMC owned events', $funnelOwned['attendance'], 'Check-ins scanned at the event (Scan Present page). An event with no scans uses its confirmed registrations instead.'],
+                                            ['DMC owned events', $funnelOwned['attendance'], 'Check-ins scanned at the event (Scan Present page). Events with no scans count 0 (no fallback to registrations).'],
                                             ['Partnership events', $funnelSupporting['attendance'], 'Every booth visitor row counts as one visit.'],
                                         ]])
                                     </span>
@@ -161,7 +161,7 @@
                                     <div class="outcome-metric-value text-info">{{ number_format($annualAttendance['entries']) }}</div>
                                     <div class="outcome-metric-label">Entries
                                         @include('admin.event_conversions.partials._stage_info', ['title' => 'Entries — sources', 'placement' => 'top', 'sources' => [
-                                            ['DMC owned events', $funnelOwned['attendance'], 'Check-ins scanned at the event (Scan Present page). An event with no scans uses its approved (Paid Off) registrations.'],
+                                            ['DMC owned events', $funnelOwned['attendance'], 'Check-ins scanned at the event (Scan Present page). Events with no scans count 0.'],
                                             ['Partnership events', $funnelSupporting['attendance'], 'Booth visitor rows.'],
                                             ['Note', null, 'Counts visits, not people: someone who attended 3 events counts 3 times.'],
                                         ]])
@@ -196,7 +196,8 @@
                                 <span><i class="fas fa-user-check mr-2"></i>Member conversion</span>
                                 <span class="badge badge-light font-weight-bold text-dark">{{ number_format((float) $annualConversion['rate'], 1) }}% Rate
                                     @include('admin.event_conversions.partials._stage_info', ['title' => 'Conversion rate', 'placement' => 'top', 'sources' => [
-                                        ['Formula', null, 'Converted members (Pending Review + Active Member) ÷ Unique people in Annual attendance.'],
+                                        ['Formula', null, 'New Active members ÷ Unique people who actually attended (Annual attendance). Pending Review is not counted.'],
+                                        ['Rule', null, 'DMC owned: checked in, then joined on or after the event date (same year), Active now. Partnership: registered through the event\'s EP/ link (or at the booth), Active now. Once per person.'],
                                         ['This period', null, number_format($annualConversion['total_converted']) . ' ÷ ' . number_format($annualAttendance['unique_people']) . ' = ' . number_format((float) $annualConversion['rate'], 1) . '%'],
                                     ]])
                                 </span>
@@ -214,12 +215,12 @@
                                     </div>
                                 </a>
                                 <a href="#" class="outcome-metric-box cdm-open d-block text-decoration-none" title="View the people behind this number"
-                                    data-type="all" data-status="pending" data-title="Pending review — converted members">
+                                    data-type="all" data-status="pending" data-title="Pending review — applied after attending">
                                     <div class="outcome-metric-value text-white">{{ number_format($annualConversion['pending']) }}</div>
                                     <div class="outcome-metric-label">Pending Review <i class="fas fa-external-link-alt fa-xs"></i>
                                         @include('admin.event_conversions.partials._stage_info', ['title' => 'Pending review — sources', 'placement' => 'top', 'iconClass' => 'text-white-50', 'sources' => [
-                                            ['DMC owned events', $funnelOwned['pending'], 'Non-member attendees who applied for membership after registering for the event (same year), still waiting for admin approval.'],
-                                            ['Partnership events', $funnelSupporting['pending'], 'Booth visitors who applied for membership on or after the event start date (same year), still waiting for admin approval.'],
+                                            ['DMC owned events', $funnelOwned['pending'], 'People who checked in and applied for membership on or after the event date (same year), still waiting for admin approval.'],
+                                            ['Partnership events', $funnelSupporting['pending'], 'Registered through the event\'s EP/ link or at the booth, still waiting for admin approval.'],
                                         ]])
                                     </div>
                                 </a>
@@ -228,14 +229,14 @@
                                     <div class="outcome-metric-value" style="color: #ffffff;">{{ number_format($annualConversion['active']) }}</div>
                                     <div class="outcome-metric-label">Active Member <i class="fas fa-external-link-alt fa-xs"></i>
                                         @include('admin.event_conversions.partials._stage_info', ['title' => 'Active member — sources', 'placement' => 'top', 'iconClass' => 'text-white-50', 'sources' => [
-                                            ['DMC owned events', $funnelOwned['active'], 'Non-member attendees who became Active members after registering for the event (same year). Members who joined through a partnership booth link (EP/…) are counted under Partnership instead.'],
-                                            ['Partnership events', $funnelSupporting['active'], 'Booth visitors (matched by email) who became Active members on or after the event start date (same year) through the partnership link (EP/…) or "Register as Member" at the booth.'],
+                                            ['DMC owned events', $funnelOwned['active'], 'People who checked in and joined membership on or after the event date (same year), now Active. Registered but did not check in = not counted.'],
+                                            ['Partnership events', $funnelSupporting['active'], 'Members who registered through the event\'s EP/ link (linked in Member Sources), or booth visitors who joined via "Register as Member" at the booth on or after the event date. Now Active. Website / apps / social sign-ups are not counted.'],
                                         ]])
                                     </div>
                                 </a>
                             </div>
                             <div class="conversion-explainer">
-                                <i class="fas fa-check mr-1"></i> Consent plus direct DMC engagement; sponsorship interest from Active members.
+                                <i class="fas fa-check mr-1"></i> Conversion = attended, then joined (Active), counted once per person. Pending Review is pipeline only.
                             </div>
                         </div>
                     </div>

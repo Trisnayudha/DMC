@@ -239,8 +239,8 @@
                                     <th class="text-center" title="In-person attendance, badge check-in, or booth visits">Attendance</th>
                                     <th class="text-center" title="Active DMC members who attended">Verified Member</th>
                                     <th class="text-center" title="Active members with sponsorship interest">Interest</th>
-                                    <th class="text-center" title="Prospective members (pending) and new active members">Converted Member</th>
-                                    <th class="text-center" width="130px">Conv. Rate</th>
+                                    <th class="text-center" title="Attended, then joined and now Active — once per person (Pending Review shown below, not counted)">Converted Member</th>
+                                    <th class="text-center" width="130px" title="Converted (Active) ÷ unique people who attended">Conv. Rate</th>
                                     <th class="text-center" width="120px">Actions</th>
                                 </tr>
                             </thead>
@@ -263,7 +263,13 @@
                                         </td>
                                         <td class="text-center font-weight-bold">{{ number_format($ev->registration_count) }}</td>
                                         <td class="text-center">{{ number_format($ev->confirmed_count) }}</td>
-                                        <td class="text-center font-weight-bold text-primary">{{ number_format($ev->attendance_count) }}</td>
+                                        <td class="text-center font-weight-bold text-primary">
+                                            @if (empty($ev->has_checkin_data) && !$ev->is_supporting)
+                                                <span class="badge badge-light text-muted" title="No scanned check-ins for this event, so attendance and conversion cannot be measured.">No check-in data</span>
+                                            @else
+                                                {{ number_format($ev->attendance_count) }}
+                                            @endif
+                                        </td>
                                         <td class="text-center text-success"><i class="fas fa-check-circle mr-1"></i>{{ number_format($ev->verified_members_count) }}</td>
                                         <td class="text-center text-warning font-weight-bold">{{ number_format($ev->interest_count) }}</td>
                                         <td class="text-center">

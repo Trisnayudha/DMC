@@ -9,6 +9,7 @@ use App\Models\Events\UserRegister;
 use App\Models\PartnershipEvent\PartnershipEventVisitor;
 use App\Models\Payments\Payment;
 use App\Models\User;
+use App\Services\Events\EventConversionAttribution;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -17,9 +18,13 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class EventConversionController extends Controller
 {
-    public function __construct()
+    /** @var EventConversionAttribution */
+    private $attribution;
+
+    public function __construct(EventConversionAttribution $attribution)
     {
         // Auth handled by cms_auth middleware
+        $this->attribution = $attribution;
     }
 
     /**
@@ -72,9 +77,12 @@ class EventConversionController extends Controller
 
         $events = $this->filteredEvents((string) $selectedYear, (string) $selectedType, $search);
 
-        $cacheKey = 'dmc_event_conv_metrics_v6_' . md5($selectedYear . '_' . $selectedType . '_' . $search);
+        $cacheKey = 'dmc_event_conv_metrics_v7_' . md5($selectedYear . '_' . $selectedType . '_' . $search);
         if ($request->boolean('refresh')) {
             Cache::forget($cacheKey);
+            foreach ($selectedYear === 'all' ? $years : [(int) $selectedYear] as $y) {
+                $this->attribution->forget((int) $y);
+            }
         }
 
         $metrics = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($events) {
@@ -162,11 +170,11 @@ class EventConversionController extends Controller
                 $processedEvents[] = $eventData;
             }
 
-            // Hitung conversion rate aggregat funnel
-            $ownedBase = max(1, $funnelOwned['attendance'] > 0 ? $funnelOwned['attendance'] : $funnelOwned['registrations']);
+            // Conversion rate = new Active members ÷ unique people who actually attended.
+            $ownedBase = max(1, $uniqueByType['owned']->unique()->count());
             $funnelOwned['rate'] = round(($funnelOwned['converted'] / $ownedBase) * 100, 1);
 
-            $supportingBase = max(1, $funnelSupporting['attendance'] > 0 ? $funnelSupporting['attendance'] : $funnelSupporting['registrations']);
+            $supportingBase = max(1, $uniqueByType['partner']->unique()->count());
             $funnelSupporting['rate'] = round(($funnelSupporting['converted'] / $supportingBase) * 100, 1);
 
             // Overall Annual Attendance
@@ -184,7 +192,7 @@ class EventConversionController extends Controller
             $totalInterest = $funnelOwned['interest'] + $funnelSupporting['interest'];
             $totalPending = $funnelOwned['pending'] + $funnelSupporting['pending'];
             $totalActive = $funnelOwned['active'] + $funnelSupporting['active'];
-            $totalConverted = $totalPending + $totalActive;
+            $totalConverted = $totalActive; // Pending Review is pipeline, not a conversion
             $totalParticipants = max(1, $annualAttendance['unique_people']);
             $overallRate = round(($totalConverted / $totalParticipants) * 100, 1);
 
@@ -263,44 +271,28 @@ class EventConversionController extends Controller
 
         // Verified active members who visited the booth
         $verifiedMemberEmails = collect();
-        $pendingConverted = 0;
-        $activeConverted = 0;
-
         if ($emails->isNotEmpty()) {
-            $matchedUsers = User::whereIn('email', $emails)->get($this->conversionUserColumns(['id', 'email', 'status_member', 'source']));
-
-            $verifiedMemberEmails = $matchedUsers->where('status_member', 'active')
+            $verifiedMemberEmails = User::whereIn('email', $emails)
+                ->where('status_member', 'active')
                 ->where('source', '!=', 'Event Partnership')
                 ->pluck('email')
                 ->map(fn ($e) => strtolower(trim($e)));
-
-            $enteredByEmail = $this->boothEnteredAt($visitors, $event);
-
-            // Hanya yang mendaftar jadi member di tahun event ini DAN bukan
-            // sebelum masuk ke event ini yang dihitung konversi.
-            $pendingConverted = $matchedUsers
-                ->where('status_member', 'pending')
-                ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByEmail->get(strtolower(trim($u->email)))))
-                ->count();
-
-            $activeConverted = $matchedUsers->filter(function ($u) use ($event, $enteredByEmail) {
-                return $u->status_member === 'active'
-                    && $this->convertedByEvent($u, $event, $enteredByEmail->get(strtolower(trim($u->email))))
-                    && $this->isPartnershipSource($u->source);
-            })->count();
         }
         $verifiedMembersCount = $verifiedMemberEmails->count();
+
+        // Conversions: see EventConversionAttribution (attended, joined on/after the event,
+        // once per person — credited to the last event before joining).
+        $credited = $this->attribution->forEvent($event);
+        $pendingConverted = count($credited['pending']);
+        $activeConverted = count($credited['active']);
 
         // Sponsorship interest = booth visitors who are Active members and showed
         // sponsorship interest (see sponsorInterestRows). Not "Merchandise or Remarks
         // filled": Remarks is mostly a day/visitor-type note, which counted almost everyone.
         $interestCount = count($this->sponsorInterestRows($event, $visitors));
 
-        $totalConverted = $pendingConverted + $activeConverted;
-        $nonMemberPool = max(0, $uniqueCount - $verifiedMembersCount);
-        $convRate = $nonMemberPool > 0
-            ? round(($totalConverted / $nonMemberPool) * 100, 1)
-            : ($uniqueCount > 0 ? round(($totalConverted / $uniqueCount) * 100, 1) : 0);
+        $totalConverted = $activeConverted;
+        $convRate = $uniqueCount > 0 ? round(($totalConverted / $uniqueCount) * 100, 1) : 0;
 
         return (object) [
             'id'                     => $event->id,
@@ -308,6 +300,7 @@ class EventConversionController extends Controller
             'slug'                   => $event->slug,
             'event_type'             => $event->event_type ?: 'Partnership Event',
             'is_supporting'          => true,
+            'has_checkin_data'       => true, // every booth visitor row is a physical visit
             'category_label'         => 'Supporting Event',
             'start_date'             => $event->start_date,
             'end_date'               => $event->end_date,
@@ -353,43 +346,16 @@ class EventConversionController extends Controller
             ->unique()
             ->values();
 
+        // Only scanned check-ins count as attendance — no fallback to registrations, so an
+        // event without scans shows 0 attendance / 0 conversions and is flagged instead.
         $attendanceCount = $attendeeRegisters->count();
-
-        // Fallback jika belum check-in scanner tetapi registrasi confirmed ada
-        if ($attendanceCount === 0 && $confirmedCount > 0) {
-            $attendeeUserIds = $payments->pluck('member_id')->filter()->unique()->values();
-            $attendanceCount = $confirmedCount;
-        }
-
+        $hasCheckInData = $attendanceCount > 0;
         $uniqueCount = $attendeeUserIds->count();
-
-        // Member conversion:
-        // Peserta non-member atau prospek yang menjadi pending/active member
-        $nonMemberUserIds = $payments->whereIn('package', ['nonmember', 'onsite', 'free', 'table'])
-            ->pluck('member_id')
-            ->filter()
-            ->unique()
-            ->values();
-
-        $prospectUserIds = $payments->where('is_membership_prospect', 1)
-            ->pluck('member_id')
-            ->filter()
-            ->unique()
-            ->values();
-
-        $conversionCandidateIds = $nonMemberUserIds->merge($prospectUserIds)->unique()->values();
-
-        // Batch query all users
-        $allUserIds = $attendeeUserIds->merge($conversionCandidateIds)->unique()->values();
-        $usersMap = collect();
-        if ($allUserIds->isNotEmpty()) {
-            $usersMap = User::whereIn('id', $allUserIds)->get($this->conversionUserColumns(['id', 'email', 'status_member', 'source']))->keyBy('id');
-        }
 
         $attendeeEmails = collect();
         $verifiedMemberEmails = collect();
         if ($attendeeUserIds->isNotEmpty()) {
-            $attendeeUsers = $attendeeUserIds->map(fn ($id) => $usersMap->get($id))->filter();
+            $attendeeUsers = User::whereIn('id', $attendeeUserIds)->get(['id', 'email', 'status_member']);
             $attendeeEmails = $attendeeUsers->pluck('email')->filter()->map(fn ($e) => strtolower(trim($e)))->unique();
             $verifiedMemberEmails = $attendeeUsers->where('status_member', 'active')->pluck('email')->filter()->map(fn ($e) => strtolower(trim($e)));
         }
@@ -399,30 +365,14 @@ class EventConversionController extends Controller
         // (see ownedSponsorInterestRows) — same rule as partnership events.
         $interestCount = count($this->ownedSponsorInterestRows($event, $payments));
 
-        $pendingConverted = 0;
-        $activeConverted = 0;
-        if ($conversionCandidateIds->isNotEmpty()) {
-            // Konversi = mendaftar jadi member di tahun event dan bukan sebelum
-            // mendaftar tiket event ini (lihat convertedByEvent).
-            $enteredByMember = $payments->filter(fn ($p) => $p->member_id)
-                ->groupBy('member_id')
-                ->map(fn ($group) => $group->min('created_at'));
+        // Conversions: see EventConversionAttribution (checked in, joined on/after the event,
+        // once per person — credited to the last event before joining).
+        $credited = $this->attribution->forEvent($event);
+        $pendingConverted = count($credited['pending']);
+        $activeConverted = count($credited['active']);
 
-            $candidateUsers = $conversionCandidateIds
-                ->map(fn ($id) => $usersMap->get($id))
-                ->filter()
-                ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByMember->get($u->id)))
-                // Registered through a partnership booth link → counted under Partnership, not here.
-                ->reject(fn ($u) => $this->isPartnershipSource($u->source));
-            $pendingConverted = $candidateUsers->where('status_member', 'pending')->count();
-            $activeConverted = $candidateUsers->where('status_member', 'active')->count();
-        }
-
-        $totalConverted = $pendingConverted + $activeConverted;
-        $nonMemberPool = max(0, $uniqueCount - $verifiedMembersCount);
-        $convRate = $nonMemberPool > 0
-            ? round(($totalConverted / $nonMemberPool) * 100, 1)
-            : ($uniqueCount > 0 ? round(($totalConverted / $uniqueCount) * 100, 1) : 0);
+        $totalConverted = $activeConverted;
+        $convRate = $uniqueCount > 0 ? round(($totalConverted / $uniqueCount) * 100, 1) : 0;
 
         return (object) [
             'id'                     => $event->id,
@@ -430,6 +380,7 @@ class EventConversionController extends Controller
             'slug'                   => $event->slug,
             'event_type'             => $event->event_type ?: 'DMC Event',
             'is_supporting'          => false,
+            'has_checkin_data'       => $hasCheckInData,
             'category_label'         => 'DMC Owned Event',
             'start_date'             => $event->start_date,
             'end_date'               => $event->end_date,
@@ -452,34 +403,6 @@ class EventConversionController extends Controller
     }
 
     /**
-     * When each booth visitor (by email) "entered" the event, for the conversion cutoff.
-     * Visitor rows have no reliable visit date: created_at is when the list was typed in
-     * or imported, often days or months after the event (Mining Balikpapan: June event,
-     * list imported in October). Using it excluded everyone who registered at the booth.
-     * So the event start date is used; created_at only when the event has no date.
-     */
-    private function boothEnteredAt($visitors, Events $event)
-    {
-        return $visitors->filter(fn ($v) => !empty($v->business_email))
-            ->groupBy(fn ($v) => strtolower(trim($v->business_email)))
-            ->map(fn ($group) => $event->start_date ?: $group->min('created_at'));
-    }
-
-    /**
-     * Kolom user yang dibutuhkan untuk menentukan tanggal daftar member.
-     * member_registered_at hanya ikut di-select kalau migration-nya sudah jalan.
-     */
-    private function conversionUserColumns(array $base): array
-    {
-        $columns = array_merge($base, ['created_at']);
-        if (User::hasMemberRegisteredAtColumn()) {
-            $columns[] = 'member_registered_at';
-        }
-
-        return $columns;
-    }
-
-    /**
      * Kapan user ini mendaftar jadi member: member_registered_at (diisi saat
      * akun event-only mendaftar member), fallback users.created_at untuk data
      * lama / yang daftar member langsung.
@@ -489,47 +412,6 @@ class EventConversionController extends Controller
         $value = $user->member_registered_at ?? $user->created_at ?? null;
 
         return $value ? Carbon::parse($value) : null;
-    }
-
-    /**
-     * Source member yang berasal dari Partnership Event: 'Event Partnership'
-     * atau kode event 'EP/...' (huruf besar/kecil tidak dibedakan).
-     */
-    private function isPartnershipSource($source): bool
-    {
-        $source = strtolower(trim((string) $source));
-
-        return $source === 'event partnership' || strpos($source, 'ep/') === 0;
-    }
-
-    /**
-     * Syarat konversi event: orangnya mendaftar jadi member
-     *  (1) di TAHUN YANG SAMA dengan event, dan
-     *  (2) bukan sebelum dia masuk ke event itu ($enteredAt = pendaftaran
-     *      tiket / kunjungan booth), dengan toleransi 1 hari karena akun
-     *      dan pendaftaran event dibuat berurutan dalam satu alur.
-     * Member yang sudah daftar sebelumnya (tahun lalu, atau lebih awal di
-     * tahun yang sama) lalu ikut event hanyalah peserta member, bukan
-     * konversi dari event ini. Event tanpa tanggal tidak bisa dicocokkan
-     * tahunnya, jadi syarat (1) dilewati.
-     */
-    private function convertedByEvent($user, Events $event, $enteredAt = null): bool
-    {
-        $registeredAt = $this->memberRegisteredAt($user);
-        if ($registeredAt === null) {
-            return false;
-        }
-
-        $eventDate = $event->start_date ?: $event->end_date;
-        if ($eventDate && $registeredAt->year !== Carbon::parse($eventDate)->year) {
-            return false;
-        }
-
-        if ($enteredAt) {
-            return $registeredAt->greaterThanOrEqualTo(Carbon::parse($enteredAt)->subDay());
-        }
-
-        return true;
     }
 
     /**
@@ -560,13 +442,14 @@ class EventConversionController extends Controller
     public function convertedMembersSummary(Request $request)
     {
         $type = in_array($request->query('type'), ['owned', 'supporting', 'all'], true) ? $request->query('type') : 'supporting';
-        $status = in_array($request->query('status'), ['pending', 'active'], true) ? $request->query('status') : null;
+        // "Converted Members" = Active only (same as the card number); Pending Review asks for status=pending.
+        $status = $request->query('status') === 'pending' ? 'pending' : 'active';
         $year = (string) $request->query('year', 'all');
 
         $members = [];
         foreach ($this->filteredEvents($year, $type, trim((string) $request->query('search', ''))) as $event) {
             foreach ($this->convertedMembersFor($event) as $member) {
-                if ($status !== null && $member['status_member'] !== $status) {
+                if ($member['status_member'] !== $status) {
                     continue;
                 }
                 $member['event'] = $event->name;
@@ -700,16 +583,6 @@ class EventConversionController extends Controller
             ->leftJoin('payment', 'payment.id', 'users_event.payment_id')
             ->orderBy('users_event.present')
             ->get(['users.name', 'users.email', 'users.status_member', 'company.company_name', 'profiles.job_title', 'payment.package', 'users_event.present as checked_in']);
-
-        // No scanner check-ins yet → the count falls back to confirmed registrations.
-        if ($rows->isEmpty()) {
-            $rows = $this->attendeeQuery()
-                ->join('payment', 'payment.member_id', 'users.id')
-                ->where('payment.events_id', $event->id)
-                ->where('payment.status_registration', 'Paid Off')
-                ->orderBy('payment.created_at')
-                ->get(['users.name', 'users.email', 'users.status_member', 'company.company_name', 'profiles.job_title', 'payment.package', DB::raw("'Not scanned (confirmed registration)' as checked_in")]);
-        }
 
         return $rows->map(function ($r) use ($event) {
             return [
@@ -893,102 +766,55 @@ class EventConversionController extends Controller
         return $query->orderBy('start_date', 'desc')->get();
     }
 
-    /** People counted as converted by one event (the list behind its "Converted Member" number). */
+    /**
+     * People credited to one event by EventConversionAttribution (Active + Pending Review) —
+     * the list behind its "Converted Member" number.
+     */
     private function convertedMembersFor(Events $event): array
     {
         $isSupporting = ($event->event_type === 'Partnership Event');
-
-        $members = [];
-
-        if ($isSupporting) {
-            $visitors = PartnershipEventVisitor::where('events_id', $event->id)->get();
-            $emails = $visitors->pluck('business_email')
-                ->filter()
-                ->map(fn ($e) => strtolower(trim($e)))
-                ->unique()
-                ->values();
-
-            $enteredByEmail = $this->boothEnteredAt($visitors, $event);
-
-            if ($emails->isNotEmpty()) {
-                $users = User::whereIn('email', $emails)
-                    ->whereIn('status_member', ['pending', 'active'])
-                    ->with(['profile', 'profile.company'])
-                    ->get()
-                    ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByEmail->get(strtolower(trim($u->email)))))
-                    // Sama dengan kartu: yang sudah active dihitung konversi hanya
-                    // kalau memang daftar lewat Partnership Event (source EP/...).
-                    ->filter(fn ($u) => $u->status_member === 'pending' || $this->isPartnershipSource($u->source));
-
-                foreach ($users as $user) {
-                    $userEmail = strtolower(trim((string) $user->email));
-                    $visitor = $visitors->first(function ($v) use ($userEmail) {
-                        return strtolower(trim((string) $v->business_email)) === $userEmail;
-                    });
-
-                    $companyName = optional($user->profile)->company ? $user->profile->company->company_name : ($visitor->company_name ?? '-');
-                    $jobTitle = optional($user->profile)->job_title ?: ($visitor->job_title ?? '-');
-                    $phone = optional($user->profile)->phone ?: ($visitor->mobile_number ?? '-');
-
-                    $members[] = [
-                        'id'            => $user->id,
-                        'name'          => $user->name,
-                        'email'         => $user->email,
-                        'phone'         => $phone,
-                        'company'       => $companyName,
-                        'job_title'     => $jobTitle,
-                        'status_member' => $user->status_member,
-                        'source'        => $user->source ?: 'Event Partnership',
-                        'converted_at'  => $this->memberRegisteredAt($user) ? $this->memberRegisteredAt($user)->format('d M Y') : '-',
-                        'is_prospect'   => !empty($visitor->remarks) || !empty($visitor->merchandise),
-                    ];
-                }
-            }
-        } else {
-            $payments = Payment::where('events_id', $event->id)
-                ->where(function ($q) {
-                    $q->whereIn('package', ['nonmember', 'onsite', 'free', 'table'])
-                        ->orWhere('is_membership_prospect', 1);
-                })
-                ->get();
-
-            $memberIds = $payments->pluck('member_id')->filter()->unique()->values();
-            $enteredByMember = $payments->filter(fn ($p) => $p->member_id)
-                ->groupBy('member_id')
-                ->map(fn ($group) => $group->min('created_at'));
-
-            if ($memberIds->isNotEmpty()) {
-                $users = User::whereIn('id', $memberIds)
-                    ->whereIn('status_member', ['pending', 'active'])
-                    ->with(['profile', 'profile.company'])
-                    ->get()
-                    ->filter(fn ($u) => $this->convertedByEvent($u, $event, $enteredByMember->get($u->id)))
-                    // Same as the card: partnership-link members are counted under Partnership.
-                    ->reject(fn ($u) => $this->isPartnershipSource($u->source));
-
-                foreach ($users as $user) {
-                    $payment = $payments->firstWhere('member_id', $user->id);
-                    $companyName = optional($user->profile)->company ? $user->profile->company->company_name : '-';
-                    $jobTitle = optional($user->profile)->job_title ?: '-';
-                    $phone = optional($user->profile)->phone ?: '-';
-
-                    $members[] = [
-                        'id'            => $user->id,
-                        'name'          => $user->name,
-                        'email'         => $user->email,
-                        'phone'         => $phone,
-                        'company'       => $companyName,
-                        'job_title'     => $jobTitle,
-                        'status_member' => $user->status_member,
-                        'source'        => $user->source ?: 'DMC Event',
-                        'converted_at'  => $this->memberRegisteredAt($user) ? $this->memberRegisteredAt($user)->format('d M Y') : '-',
-                        'is_prospect'   => (bool) ($payment->is_membership_prospect ?? false),
-                    ];
-                }
-            }
+        $credited = $this->attribution->forEvent($event);
+        $userIds = array_merge($credited['active'], $credited['pending']);
+        if (!$userIds) {
+            return [];
         }
 
-        return $members;
+        $visitorsByEmail = collect();
+        $prospectIds = collect();
+        if ($isSupporting) {
+            $visitorsByEmail = PartnershipEventVisitor::where('events_id', $event->id)->get()
+                ->filter(fn ($v) => !empty($v->business_email))
+                ->keyBy(fn ($v) => strtolower(trim($v->business_email)));
+        } else {
+            $prospectIds = Payment::where('events_id', $event->id)->where('is_membership_prospect', 1)
+                ->pluck('member_id')->flip();
+        }
+
+        return User::whereIn('id', $userIds)
+            ->with(['profile', 'profile.company'])
+            ->get()
+            ->map(function ($user) use ($isSupporting, $visitorsByEmail, $prospectIds) {
+                $visitor = $visitorsByEmail->get(strtolower(trim((string) $user->email)));
+                $profile = $user->profile;
+                $registeredAt = $this->memberRegisteredAt($user);
+
+                return [
+                    'id'            => $user->id,
+                    'name'          => $user->name,
+                    'email'         => $user->email,
+                    'phone'         => optional($profile)->phone ?: ($visitor->mobile_number ?? '-'),
+                    'company'       => optional($profile)->company ? $profile->company->company_name : ($visitor->company_name ?? '-'),
+                    'job_title'     => optional($profile)->job_title ?: ($visitor->job_title ?? '-'),
+                    'status_member' => $user->status_member,
+                    'source'        => $user->source ?: ($isSupporting ? 'Event Partnership' : 'DMC Event'),
+                    'converted_at'  => $registeredAt ? $registeredAt->format('d M Y') : '-',
+                    'is_prospect'   => $isSupporting
+                        ? (!empty($visitor->remarks) || !empty($visitor->merchandise))
+                        : $prospectIds->has($user->id),
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     /**

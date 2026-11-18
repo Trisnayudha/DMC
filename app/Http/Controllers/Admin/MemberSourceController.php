@@ -36,10 +36,17 @@ class MemberSourceController extends Controller
 
     public function index()
     {
-        $sources = MemberSource::orderByDesc('is_active')->orderByDesc('id')->get();
+        $hasEventColumn = MemberSource::hasEventColumn();
+        $sources = MemberSource::when($hasEventColumn, function ($q) {
+            $q->with('event:id,name');
+        })->orderByDesc('is_active')->orderByDesc('id')->get();
 
         return view('admin.member_source.index', [
             'sources'         => $sources,
+            'hasEventColumn'  => $hasEventColumn,
+            'eventOptions'    => $hasEventColumn
+                ? \App\Models\Events\Events::orderByDesc('start_date')->get(['id', 'name', 'event_type', 'start_date'])
+                : collect(),
             'registrations'   => $this->registrationCounts($sources),
             'frontendUrl'     => rtrim(config('app.frontend_url'), '/'),
             'formTypes'       => self::FORM_TYPES,
@@ -126,19 +133,25 @@ class MemberSourceController extends Controller
             ],
             'name'      => 'required|string|max:255',
             'form_type' => ['required', Rule::in(array_keys(self::FORM_TYPES))],
+            'events_id' => ['nullable', 'integer', 'exists:events,id'],
         ], [
             'category.regex' => 'Category may contain only letters (A–Z), without spaces or numbers.',
             'code.regex'     => 'Code may contain only letters and numbers (A–Z, 0–9), without spaces or symbols.',
             'code.unique'    => 'This Category/Code combination already exists.',
         ]);
 
-        return [
+        $data = [
             'category'  => $request->category,
             'code'      => $request->code,
             'name'      => $request->name,
             'form_type' => $request->form_type,
             'is_active' => $request->boolean('is_active'),
         ];
+        if (MemberSource::hasEventColumn()) {
+            $data['events_id'] = $request->filled('events_id') ? (int) $request->events_id : null;
+        }
+
+        return $data;
     }
 
     private function registrationCount(MemberSource $source): int

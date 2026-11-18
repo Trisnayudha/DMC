@@ -43,7 +43,12 @@
                                     <div class="small text-muted">{{ $knownCategories[strtoupper($source->category)] }}</div>
                                 @endif
                             </td>
-                            <td>{{ $source->name }}</td>
+                            <td>
+                                {{ $source->name }}
+                                @if ($hasEventColumn && $source->event)
+                                    <div class="small text-muted"><i class="fas fa-calendar-alt mr-1"></i>{{ $source->event->name }}</div>
+                                @endif
+                            </td>
                             <td>{{ $formTypes[$source->form_type] ?? $source->form_type }}</td>
                             <td>
                                 <div class="d-flex align-items-center" style="gap:4px;">
@@ -68,6 +73,7 @@
                                     <button type="button" class="btn btn-icon btn-outline-secondary btn-edit-source"
                                         data-category="{{ $source->category }}" data-code="{{ $source->code }}"
                                         data-name="{{ $source->name }}" data-form-type="{{ $source->form_type }}"
+                                        data-event-id="{{ $hasEventColumn ? $source->events_id : '' }}"
                                         data-active="{{ $source->is_active ? 1 : 0 }}"
                                         data-locked="{{ $registered > 0 ? 1 : 0 }}"
                                         data-update-url="{{ route('admin.member_sources.update', $source->id) }}"

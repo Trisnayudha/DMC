@@ -56,6 +56,19 @@
                             @endforeach
                         </select>
                     </div>
+                    @if ($hasEventColumn)
+                        <div class="form-group">
+                            <label>Event <span class="text-muted font-weight-normal">(optional)</span></label>
+                            <select name="events_id" id="ms-event" class="form-control">
+                                <option value="">— Not linked to an event —</option>
+                                @foreach ($eventOptions as $eventOption)
+                                    <option value="{{ $eventOption->id }}" {{ (string) old('events_id') === (string) $eventOption->id ? 'selected' : '' }}>
+                                        {{ $eventOption->name }}{{ $eventOption->start_date ? ' (' . \Carbon\Carbon::parse($eventOption->start_date)->format('M Y') . ')' : '' }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">For EP (partnership) links: Active members who register through this link count as conversions of this event.</small>
+                        </div>
+                    @endif
                     <div class="form-group form-check mb-2">
                         <input type="checkbox" class="form-check-input" name="is_active" id="ms-active" value="1" checked>
                         <label class="form-check-label" for="ms-active">Active (registration link is available)</label>

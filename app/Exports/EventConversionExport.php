@@ -42,10 +42,10 @@ class EventConversionExport implements FromCollection, WithHeadings, WithMapping
             'Unique People',
             'Verified Members Attended',
             'Follow-up Interest (Sponsorship, Active Members)',
-            'Pending Converted Members',
+            'Pending Review (not counted)',
             'Active Converted Members',
-            'Total Converted Members',
-            'Conversion Rate (%)',
+            'Total Converted (Active)',
+            'Conversion Rate (% of unique attendees)',
         ];
     }
 
