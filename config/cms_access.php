@@ -7,7 +7,7 @@ return [
         'dashboard' => ['Dashboard', 'Main', 'home', 'tachometer-alt', ['HomeController']],
         // Member Team
         'member_intake' => ['Data Tampung', 'Member Team', 'member', 'id-badge', []],
-        'members' => ['Members DMC', 'Member Team', 'users', 'users', ['UsersController', 'JobTierDetailController']],
+        'members' => ['Members DMC', 'Member Team', 'users', 'users', ['UsersController', 'JobTierDetailController', 'MemberCompanyFilterController']],
         'member_followups' => ['Member Follow-Up', 'Member Team', 'company-follow-ups', 'exchange-alt', ['MemberCompanyFollowUpController'], 'Follow-Up'],
         'leads' => ['Lead Follow-Up', 'Member Team', 'leads', 'bullseye', ['MemberLeadFollowUpController', 'MemberLeadBulkController'], 'Follow-Up'],
         'master_database' => ['Master Database', 'Member Team', 'master-database', 'database', ['MasterDatabaseController'], 'Database'],
