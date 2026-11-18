@@ -577,7 +577,8 @@
             $sel.select2({
                 placeholder: $sel.data('placeholder'),
                 allowClear: true,
-                width: 'resolve',
+                width: '100%',
+                closeOnSelect: false,
                 minimumInputLength: 0,
                 ajax: {
                     url: $sel.data('url'),

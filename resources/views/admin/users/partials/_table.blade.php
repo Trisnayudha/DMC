@@ -184,10 +184,10 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group mr-2 mb-2">
+                <div class="form-group mr-2 mb-2 member-company-filter-group">
                     <label class="mb-1 small text-muted">Company</label>
                     <select name="company[]" multiple class="form-control form-control-sm member-company-filter"
-                        style="min-width:260px;" data-placeholder="All companies"
+                        style="width:100%;" data-placeholder="Search & select companies"
                         data-url="{{ route('users.company_options', ['status_member' => request('status_member')]) }}">
                         @foreach (array_filter((array) request('company', [])) as $companyName)
                             <option value="{{ $companyName }}" selected>{{ $companyName }}</option>
@@ -350,6 +350,19 @@
         color: #212529;
         background: #fff;
         font-weight: normal;
+    }
+
+    /* Company filter: lebar, bisa ditarik (resize) ke kanan; pilihan multi wrap ke bawah. */
+    .member-company-filter-group {
+        width: 380px;
+        min-width: 260px;
+        max-width: 100%;
+        resize: horizontal;
+        overflow: hidden;
+        padding-right: 6px;
+    }
+    .member-company-filter-group .select2-container {
+        width: 100% !important;
     }
 
     /* Long free-text fields (email/address/website/company/job title) —

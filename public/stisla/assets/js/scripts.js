@@ -331,7 +331,7 @@ $(function () {
 
     // Select2
     if (jQuery().select2) {
-        $(".select2").select2();
+        $("select.select2").not(".select2-hidden-accessible").select2();
     }
 
     // Selectric

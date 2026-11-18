@@ -135,7 +135,9 @@
 
     <script>
         $(document).ready(function() {
-            $('.select2').select2();
+            // Hanya <select>: select2 juga memberi class "select2" ke container <span>-nya, jadi
+            // '.select2' ikut menimpa select2 yang sudah di-init halaman (mis. filter Company Members).
+            $('select.select2').not('.select2-hidden-accessible').select2();
         });
     </script>
 
