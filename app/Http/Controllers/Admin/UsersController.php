@@ -644,7 +644,7 @@ class UsersController extends Controller
                     'name'          => $row->name,
                     'email'         => $row->email,
                     'company_name'  => $row->company_name,
-                    'source'        => $row->source ?: 'Unknown',
+                    'source'        => $this->normalizeSourceKey($row->source) === 'linkedin' ? 'LinkedIn' : ($row->source ?: 'Unknown'),
                     'status_member' => $row->status_member ?: 'pending',
                     'is_lead'       => $this->isLeadExplore($row->explore ?? null),
                     'created_at'    => optional($row->created_at)->format('d M Y H:i'),
@@ -791,6 +791,9 @@ class UsersController extends Controller
         $sourceKey = $this->normalizeSourceKey($sourceRaw);
         $sourceStyle = $sourceColorMap[$sourceKey] ?? ['color' => '#adb5bd', 'icon' => 'fas fa-question'];
         $sourceLabel = $sourceRaw !== '' ? $sourceRaw : 'Unknown';
+        if ($sourceKey === 'linkedin') {
+            $sourceLabel = $sourceStyle['label']; // 'd/linkedin' & 'Linkedin' → 'LinkedIn'
+        }
 
         // 'DMC Event' merges 'scanner' + legacy 'event*' registrations into one
         // filterable bucket — show the finer detail (which one it actually was)
