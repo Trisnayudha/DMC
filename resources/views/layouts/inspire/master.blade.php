@@ -7,6 +7,7 @@
     <meta name="description" content="{{ config('app.name', 'Laravel') }}">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('layouts.inspire.cms-audit')
     <title>DMC</title>
     <link rel="icon" type="image/png" href="{{ asset('image/logo-crop.png') }}" />
     <!-- General CSS Files -->

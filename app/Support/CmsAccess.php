@@ -14,7 +14,7 @@ class CmsAccess
 
     public static function configurableModules(): array
     {
-        return array_diff_key(self::modules(), array_flip(['dashboard', 'cms_users']));
+        return array_diff_key(self::modules(), array_flip(['dashboard', 'cms_users', 'users_log']));
     }
 
     public static function allows(CmsUser $user, string $module): bool
@@ -25,7 +25,7 @@ class CmsAccess
         if ($user->isSuperadmin()) {
             return true;
         }
-        if ($module === 'cms_users') {
+        if (in_array($module, ['cms_users', 'users_log'], true)) {
             return false;
         }
         return $module === 'dashboard' || in_array($module, $user->cmsRole->permissions ?? [], true);

@@ -63,6 +63,7 @@ return [
         // System
         'edit_logs' => ['User Edit Logs', 'System', 'users/edit-logs', 'history', []],
         'quick_search' => ['Quick Search (member & event history)', 'System', 'quick-search', 'search', ['QuickSearchController']],
+        'users_log' => ['Users Log', 'System', 'users_log', 'history', ['CmsUserLogController']],
         'cms_users' => ['CMS Users', 'System', 'cms-users', 'user-shield', ['CmsUsersController']],
         'ngrok' => ['Ngrok Setting', 'System', 'ngrok', 'plug', ['NgrokController']],
     ],
@@ -91,7 +92,7 @@ return [
         'Campaign & Communication' => ['advertisement', 'marketing_ads', 'emails', 'notifications', 'wa_campaign', 'wa_database', 'wa_template', 'wa_blasting', 'wa_sender'],
         'Sponsor & Scholarship' => ['sponsors', 'interviews', 'scholarship'],
         'Finance' => ['payments', 'finance_invoices', 'sponsor_annual_report'],
-        'System' => ['edit_logs', 'quick_search', 'cms_users', 'ngrok'],
+        'System' => ['edit_logs', 'quick_search', 'cms_users', 'users_log', 'ngrok'],
     ],
     // Susunan sidebar tetap untuk satu tim (menggantikan sections + urutan team_defaults).
     // Format: header => [[label, path, modul izin, icon (opsional)], ...]. Satu modul boleh

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CmsUserLogController;
+
 use App\Http\Controllers\Admin\AdvertisementController;
 use App\Http\Controllers\Admin\DigitalEditionController;
 use App\Http\Controllers\Admin\CompanyDatabaseController;
@@ -282,6 +284,14 @@ Route::post('admin/login', [\App\Http\Controllers\Auth\CmsLoginController::class
 Route::post('admin/logout', [\App\Http\Controllers\Auth\CmsLoginController::class, 'logout'])->name('cms.logout');
 
 Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
+    Route::prefix('users_log')->name('users_log.')
+        ->where(['admin' => '[0-9]+', 'menu' => '[a-zA-Z0-9_-]+'])->group(function () {
+            Route::get('/', [CmsUserLogController::class, 'index'])->name('index');
+            Route::get('/export', [CmsUserLogController::class, 'export'])->name('export');
+            Route::get('/{admin}/{menu}', [CmsUserLogController::class, 'show'])->name('show');
+            Route::get('/{admin}/{menu}/export', [CmsUserLogController::class, 'export'])->name('detail.export');
+        });
+
     Route::get('event-questions', [\App\Http\Controllers\Admin\EventQuestionController::class, 'index'])->name('admin.event-questions.index');
     Route::get('member-surveys', [MemberSurveyResponseController::class, 'index'])->name('admin.member-surveys.index');
     Route::get('member-surveys/{memberSurvey}', [MemberSurveyResponseController::class, 'show'])->name('admin.member-surveys.show');

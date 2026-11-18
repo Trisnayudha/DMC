@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\CmsUserLogController;
+use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\ReadAuditSession;
+use App\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+
 use App\Http\Controllers\Admin\EmailController;
 use App\Http\Controllers\Admin\SponsorAdvertisingController;
 use App\Http\Controllers\Admin\SponsorController;
@@ -51,6 +57,11 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::post('/cms-activity/interaction', [CmsUserLogController::class, 'interaction'])
+    ->withoutMiddleware(['throttle:api', SubstituteBindings::class])
+    ->middleware([EncryptCookies::class, ReadAuditSession::class, VerifyCsrfToken::class, 'auth:cms', 'throttle:180,1,cms-interaction'])
+    ->name('cms_activity.interaction');
 
 Route::get('/company-categories', function () {
     return \App\Models\Company\CompanyCategory::where('is_active', true)

@@ -37,3 +37,11 @@ Run `vendor/bin/phpunit tests/Feature/CmsAccessControlTest.php` to check permiss
 route coverage, sidebar links, team assignment, migration behavior and account protection.
 
 To explicitly replace Member, Marketing, Secretariat and Financial team permissions with the configured defaults, run `php artisan cms:apply-team-defaults --force`. This leaves Event Team and individual user assignments unchanged.
+
+## CMS activity log
+
+Active Superadmins can open **System > Users Log** at `/admin/users_log`. Filter by admin, menu, activity or Jakarta date, then choose **View activity** for individual entries. **Export to Excel** downloads all matching rows across pages. Timestamps use WIB, for example `11 November 2028 12:00 WIB`.
+
+The audit covers authenticated CMS requests, login and logout. The CMS layout also reports control clicks and committed field changes from the browser. The server records route templates, numeric record references, submitted field names and request outcomes. Input values and credentials are excluded. Activity history begins after the migration is applied.
+
+To install the audit table on its own, run `php artisan migrate --path=database/migrations/2026_11_19_000001_create_cms_user_logs_table.php`.
