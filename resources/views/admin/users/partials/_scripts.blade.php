@@ -571,9 +571,17 @@
     // =========================================================
     // COMPANY FILTER — multi-select, options searched on the server
     // =========================================================
-    if ($.fn.select2) {
+    // Di-init sesudah semua handler document-ready (init global '.select2' di layout/stisla),
+    // dan container select2 yang mungkin sudah menumpuk dibersihkan dulu — supaya tidak
+    // ditimpa jadi select2 kosong tanpa AJAX ("No results found").
+    function initMemberCompanyFilter() {
+        if (!$.fn.select2) return;
         $('.member-company-filter').each(function() {
             const $sel = $(this);
+            if ($sel.hasClass('select2-hidden-accessible')) {
+                $sel.select2('destroy');
+            }
+            $sel.siblings('.select2-container').remove();
             $sel.select2({
                 placeholder: $sel.data('placeholder'),
                 allowClear: true,
@@ -590,6 +598,7 @@
             });
         });
     }
+    $(function() { setTimeout(initMemberCompanyFilter, 0); });
 
     // =========================================================
     // JOB TIER — ubah langsung dari tabel (select kecil di kolom Job Title)

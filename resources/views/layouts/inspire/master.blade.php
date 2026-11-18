@@ -117,7 +117,7 @@
     <script src="/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 
     <!-- Template JS File -->
-    <script src="{{ asset('stisla/assets/js/scripts.js') }}"></script>
+    <script src="{{ asset('stisla/assets/js/scripts.js') }}?v={{ @filemtime(public_path('stisla/assets/js/scripts.js')) }}"></script>
     <script src="{{ asset('stisla/assets/js/custom.js') }}"></script>
     <script src="{{ asset('stisla/assets/js/cms-sidebar.js') }}"></script>
     <!-- JS Libraies -->
