@@ -137,9 +137,9 @@
                                 <li class="participation-stage-item">
                                     <span><i class="fas fa-star text-warning mr-2"></i>Follow up interest
                                         @include('admin.event_conversions.partials._stage_info', ['title' => 'Follow up interest — sources', 'sources' => [
-                                            ['DMC owned events', $funnelOwned['interest'], 'Registrants who are Active members and ticked "receive information about corporate sponsorship opportunities" on their member profile.'],
-                                            ['Partnership events', $funnelSupporting['interest'], 'Booth visitors who are Active members and showed sponsorship interest: the sponsorship tick on their member profile, or a booth Remark mentions sponsorship.'],
-                                            ['Note', null, 'Sponsorship interest only. One count per person per event.'],
+                                            ['DMC owned events', $funnelOwned['interest'], 'Converted members of the event (Active Member conversions) who ticked "receive information about corporate sponsorship opportunities" on their member profile.'],
+                                            ['Partnership events', $funnelSupporting['interest'], 'Converted members of the event (Active Member conversions) with the sponsorship tick on their member profile, or whose booth Remark mentions sponsorship.'],
+                                            ['Note', null, 'Converted members only — existing members are not counted. One count per person.'],
                                         ]])
                                     </span>
                                     <span class="stage-badge bg-warning text-dark font-weight-bold">{{ number_format($eventParticipation['interest']) }}</span>
@@ -204,13 +204,13 @@
                             </div>
                             <div class="outcome-metrics-grid">
                                 <a href="#" class="outcome-metric-box cdm-open d-block text-decoration-none" title="View the people behind this number"
-                                    data-url="{{ route('admin.event_conversions.interest') }}" data-title="Sponsorship interest — Active members">
+                                    data-url="{{ route('admin.event_conversions.interest') }}" data-title="Sponsorship interest — Converted members">
                                     <div class="outcome-metric-value text-warning">{{ number_format($annualConversion['interest']) }}</div>
                                     <div class="outcome-metric-label">Sponsorship Interest <i class="fas fa-external-link-alt fa-xs"></i>
                                         @include('admin.event_conversions.partials._stage_info', ['title' => 'Sponsorship interest — sources', 'placement' => 'top', 'iconClass' => 'text-white-50', 'sources' => [
-                                            ['DMC owned events', $funnelOwned['interest'], 'Registrants who are Active members and ticked "receive information about corporate sponsorship opportunities" on their member profile.'],
-                                            ['Partnership events', $funnelSupporting['interest'], 'Booth visitors who are Active members with the sponsorship tick, or whose booth Remark mentions sponsorship.'],
-                                            ['Note', null, 'Active members only — a sponsorship lead signal, not a step before Pending Review / Active Member.'],
+                                            ['DMC owned events', $funnelOwned['interest'], 'Converted members of the event (Active Member conversions) who ticked "receive information about corporate sponsorship opportunities" on their member profile.'],
+                                            ['Partnership events', $funnelSupporting['interest'], 'Converted members of the event with the sponsorship tick, or whose booth Remark mentions sponsorship.'],
+                                            ['Note', null, 'A subset of Active Member conversions — a sponsorship lead signal among new members.'],
                                         ]])
                                     </div>
                                 </a>

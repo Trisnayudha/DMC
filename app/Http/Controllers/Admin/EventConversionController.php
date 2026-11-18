@@ -286,9 +286,9 @@ class EventConversionController extends Controller
         $pendingConverted = count($credited['pending']);
         $activeConverted = count($credited['active']);
 
-        // Sponsorship interest = booth visitors who are Active members and showed
-        // sponsorship interest (see sponsorInterestRows). Not "Merchandise or Remarks
-        // filled": Remarks is mostly a day/visitor-type note, which counted almost everyone.
+        // Sponsorship interest = converted members of this event who showed sponsorship
+        // interest (see sponsorInterestRows). Not "Merchandise or Remarks filled": Remarks is
+        // mostly a day/visitor-type note, which counted almost everyone.
         $interestCount = count($this->sponsorInterestRows($event, $visitors));
 
         $totalConverted = $activeConverted;
@@ -361,9 +361,9 @@ class EventConversionController extends Controller
         }
         $verifiedMembersCount = $verifiedMemberEmails->count();
 
-        // Sponsorship interest = registrants who are Active members with the sponsorship tick
-        // (see ownedSponsorInterestRows) — same rule as partnership events.
-        $interestCount = count($this->ownedSponsorInterestRows($event, $payments));
+        // Sponsorship interest = converted members of this event with the sponsorship tick
+        // (see sponsorInterestRows) — same rule as partnership events.
+        $interestCount = count($this->sponsorInterestRows($event));
 
         // Conversions: see EventConversionAttribution (checked in, joined on/after the event,
         // once per person — credited to the last event before joining).
@@ -472,8 +472,8 @@ class EventConversionController extends Controller
     }
 
     /**
-     * AJAX for the clickable "Sponsorship Interest": Active members who registered for
-     * a DMC owned event or visited a partnership booth and showed sponsorship interest.
+     * AJAX for the clickable "Sponsorship Interest": converted members (Active conversions
+     * credited to an event) who showed sponsorship interest.
      */
     public function interestSummary(Request $request)
     {
@@ -481,9 +481,9 @@ class EventConversionController extends Controller
 
         $rows = [];
         foreach ($this->filteredEvents($year, 'all', trim((string) $request->query('search', ''))) as $event) {
-            $rows = array_merge($rows, $event->event_type === 'Partnership Event'
-                ? $this->sponsorInterestRows($event, PartnershipEventVisitor::where('events_id', $event->id)->get())
-                : $this->ownedSponsorInterestRows($event, Payment::where('events_id', $event->id)->get(['member_id'])));
+            $rows = array_merge($rows, $this->sponsorInterestRows($event, $event->event_type === 'Partnership Event'
+                ? PartnershipEventVisitor::where('events_id', $event->id)->get(['business_email', 'remarks'])
+                : null));
         }
 
         return response()->json([
@@ -658,77 +658,49 @@ class EventConversionController extends Controller
     }
 
     /**
-     * Booth visitors of a partnership event who are Active members and showed
-     * sponsorship interest: the sponsorship tick on their member profile
-     * or a booth Remark mentioning sponsorship. One row per person.
+     * Converted members of an event (Active conversions credited to it, see
+     * EventConversionAttribution) who showed sponsorship interest: the sponsorship tick on
+     * their member profile or, for partnership events, a booth Remark mentioning
+     * sponsorship. One row per person.
+     *
+     * @param \Illuminate\Support\Collection|null $visitors partnership booth visitors (for the Remark check)
      */
-    private function sponsorInterestRows(Events $event, $visitors): array
+    private function sponsorInterestRows(Events $event, $visitors = null): array
     {
-        $emails = $visitors->pluck('business_email')->filter()->map(fn ($e) => strtolower(trim($e)))->unique()->values();
-        if ($emails->isEmpty()) {
+        $userIds = $this->attribution->forEvent($event)['active'];
+        if (!$userIds) {
             return [];
         }
 
-        $sponsorRemark = $visitors
+        $sponsorRemark = collect($visitors ?: [])
             ->filter(fn ($v) => !empty($v->business_email) && stripos((string) $v->remarks, 'sponsor') !== false)
             ->map(fn ($v) => strtolower(trim($v->business_email)))
             ->flip();
+        $isPartnership = $event->event_type === 'Partnership Event';
 
         return $this->attendeeQuery()
-            ->whereIn('users.email', $emails->all())
-            ->where('users.status_member', 'active')
-            ->get(['users.name', 'users.email', 'company.company_name', 'company.explore', 'profiles.job_title'])
-            ->unique(fn ($u) => strtolower(trim($u->email)))
-            ->map(function ($u) use ($event, $sponsorRemark) {
+            ->whereIn('users.id', $userIds)
+            ->orderBy('users.name')
+            ->get(['users.id', 'users.name', 'users.email', 'company.company_name', 'company.explore', 'profiles.job_title'])
+            ->unique('id')
+            ->map(function ($u) use ($event, $sponsorRemark, $isPartnership) {
                 $tick = $this->hasSponsorshipTick($u->explore);
-                $remark = $sponsorRemark->has(strtolower(trim($u->email)));
+                $remark = $sponsorRemark->has(strtolower(trim((string) $u->email)));
                 if (!$tick && !$remark) {
                     return null;
                 }
 
                 return [
-                    'event_type' => 'Partnership',
+                    'event_type' => $isPartnership ? 'Partnership' : 'DMC Owned',
                     'event'      => $event->name,
                     'name'       => $u->name,
                     'email'      => $u->email,
                     'company'    => $u->company_name,
                     'job_title'  => $u->job_title,
-                    'reason'     => $tick ? 'Sponsorship interest' : 'Booth remark: sponsorship',
+                    'reason'     => $tick ? 'Converted member, sponsorship interest' : 'Converted member, booth remark: sponsorship',
                 ];
             })
             ->filter()
-            ->values()
-            ->all();
-    }
-
-    /**
-     * Registrants of a DMC owned event (any registration status) who are Active members
-     * with the sponsorship tick on their member profile. One row per person.
-     */
-    private function ownedSponsorInterestRows(Events $event, $payments): array
-    {
-        $userIds = $payments->pluck('member_id')->filter()->unique()->values();
-        if ($userIds->isEmpty()) {
-            return [];
-        }
-
-        return $this->attendeeQuery()
-            ->whereIn('users.id', $userIds->all())
-            ->where('users.status_member', 'active')
-            ->orderBy('users.name')
-            ->get(['users.name', 'users.email', 'company.company_name', 'company.explore', 'profiles.job_title'])
-            ->filter(fn ($u) => $this->hasSponsorshipTick($u->explore))
-            ->map(function ($u) use ($event) {
-                return [
-                    'event_type' => 'DMC Owned',
-                    'event'      => $event->name,
-                    'name'       => $u->name,
-                    'email'      => $u->email,
-                    'company'    => $u->company_name,
-                    'job_title'  => $u->job_title,
-                    'reason'     => 'Sponsorship interest',
-                ];
-            })
             ->values()
             ->all();
     }
