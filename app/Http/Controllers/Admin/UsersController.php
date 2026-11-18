@@ -496,6 +496,9 @@ class UsersController extends Controller
                         } elseif ($source === 'partner') {
                             $q->where('users.source', 'like', 'ep/%')
                               ->orWhere(DB::raw('LOWER(TRIM(users.source))'), 'event partnership');
+                        } elseif ($source === 'linkedin') {
+                            // 'Linkedin' + 'd/linkedin' (tracking link) — see normalizeSourceKey().
+                            $q->where('users.source', 'like', '%linkedin%');
                         } else {
                             $q->where(DB::raw('LOWER(TRIM(users.source))'), strtolower($source));
                         }
@@ -1318,6 +1321,11 @@ class UsersController extends Controller
 
         if ($key === 'dmc event' || $key === 'scanner' || strpos($key, 'e/') === 0 || strpos($key, 'event') === 0) {
             return 'dmc_event';
+        }
+
+        // 'd/linkedin' (tracking link) dan 'Linkedin' = channel yang sama.
+        if (strpos($key, 'linkedin') !== false) {
+            return 'linkedin';
         }
 
         $map = $this->sourceColorMap();
