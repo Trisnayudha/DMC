@@ -10,6 +10,6 @@
         @foreach (\App\Support\JobTierClassifier::TIERS as $tierNo => $tierMeta)
             <option value="{{ $tierNo }}" {{ $tierNo === $tier ? 'selected' : '' }}>T{{ $tierNo }}&nbsp;&nbsp;&nbsp;— {{ $tierMeta['roles'] }}</option>
         @endforeach
-        <option value="auto">Auto — ikut job title</option>
+        <option value="auto">Auto — from job title</option>
     </select>
 @endif

@@ -31,8 +31,8 @@ class ProfileModel extends Model
     ];
 
     /**
-     * job_tier HANYA diisi untuk member active (users.status_member = 'active');
-     * selain itu selalu NULL. Di setiap save (registrasi app/web, import, edit
+     * job_tier otomatis HANYA diisi untuk member active (users.status_member = 'active');
+     * non-member hanya menyimpan override manual dari admin, selain itu NULL. Di setiap save (registrasi app/web, import, edit
      * admin, dst) tier dihitung dari job_title, kecuali admin sudah override
      * manual. Perubahan status member ditangani User::booted() → syncJobTierForUser().
      * Tidak melakukan apa-apa sebelum migration job_tier dijalankan.
@@ -46,8 +46,10 @@ class ProfileModel extends Model
 
             $isActive = User::where('id', $profile->users_id)->value('status_member') === 'active';
             if (!$isActive) {
-                $profile->job_tier        = null;
-                $profile->job_tier_manual = false;
+                // Non-member: hanya override manual (diset admin, mis. dari Event Detail) yang disimpan.
+                if (!$profile->job_tier_manual) {
+                    $profile->job_tier = null;
+                }
                 return;
             }
 
@@ -85,7 +87,8 @@ class ProfileModel extends Model
         $profiles = DB::table('profiles')->where('users_id', $userId);
 
         if ($statusMember !== 'active') {
-            $profiles->update(['job_tier' => null, 'job_tier_manual' => false]);
+            // Override manual tetap dipertahankan (dipakai di Event Detail / audience stats).
+            $profiles->where('job_tier_manual', false)->update(['job_tier' => null]);
             return;
         }
 

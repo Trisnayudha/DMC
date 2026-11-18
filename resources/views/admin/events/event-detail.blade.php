@@ -841,6 +841,35 @@
             vertical-align: middle;
         }
 
+        /* Job tier: native <select> sized like a mini badge (same as Members DMC).
+           Only "T1".."T4" is visible; dashed outline = set manually. */
+        #laravel_crud .job-tier-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 26px;
+            height: auto;
+            padding: .25em 0 .25em .45em;
+            border: 0;
+            border-radius: .25rem;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+        #laravel_crud .job-tier-select.is-manual {
+            outline: 1px dashed currentColor;
+            outline-offset: -2px;
+        }
+        #laravel_crud .job-tier-select option {
+            color: #212529;
+            background: #fff;
+            font-weight: normal;
+        }
+
         #loader {
             position: fixed;
             top: 0;
@@ -886,6 +915,44 @@
             $('.assign-btn').on('click', function() {
                 var paymentId = $(this).data('payment-id');
                 $('#assignPaymentId').val(paymentId);
+            });
+        });
+
+        // Job tier — change directly from the table (same endpoint as Members DMC).
+        // A person can have several registrations, so every select of that person is updated.
+        $(document).on('change', '#laravel_crud .job-tier-select', function() {
+            var $sel = $(this);
+            var url = $sel.attr('data-url');
+            var prev = String($sel.attr('data-current'));
+            var $all = $('#laravel_crud .job-tier-select').filter(function() {
+                return $(this).attr('data-url') === url;
+            });
+            $all.prop('disabled', true);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: { job_tier: $sel.val() },
+                headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" }
+            }).done(function(res) {
+                if (!res || !res.success) {
+                    $sel.val(prev);
+                    Swal.fire({ icon: 'warning', title: 'Failed', text: (res && res.message) || 'Failed to update job tier.' });
+                    return;
+                }
+                // 'auto' comes back as the tier derived from the job title.
+                $all.val(String(res.tier))
+                    .attr('data-current', res.tier)
+                    .css({ 'background-color': res.color, color: res.text })
+                    .toggleClass('is-manual', !!res.manual)
+                    .attr('title', res.title)
+                    .attr('data-original-title', res.title);
+            }).fail(function(xhr) {
+                $sel.val(prev);
+                var msg = (xhr.responseJSON && xhr.responseJSON.message) || 'Failed to contact the server.';
+                Swal.fire({ icon: 'error', title: 'Failed', text: msg });
+            }).always(function() {
+                $all.prop('disabled', false);
             });
         });
         //Untuk Scan

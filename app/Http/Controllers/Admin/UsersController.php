@@ -895,31 +895,32 @@ class UsersController extends Controller
     }
 
     /**
-     * Ubah job tier langsung dari tabel Members: 'auto' = ikut job_title,
-     * 1-4 = override manual. Hanya untuk member active.
+     * Ubah job tier langsung dari tabel Members / Event Detail: 'auto' = ikut
+     * job_title, 1-4 = override manual (non-member hanya menyimpan override manual).
      */
     public function updateJobTier(Request $request, $id)
     {
         $request->validate(['job_tier' => 'required|in:auto,1,2,3,4']);
 
         $user = User::findOrFail($id);
-        if ($user->status_member !== 'active') {
-            return response()->json(['success' => false, 'message' => 'Job tier is only available for active members.'], 422);
-        }
+        $isActive = $user->status_member === 'active';
 
         $profile = ProfileModel::hasJobTierColumn() ? ProfileModel::where('users_id', $user->id)->first() : null;
         if (!$profile) {
-            return response()->json(['success' => false, 'message' => 'Member profile not found.'], 422);
+            return response()->json(['success' => false, 'message' => 'Profile not found.'], 422);
         }
 
+        // Non-member (mis. dari Event Detail): hanya override manual yang disimpan;
+        // 'auto' mengosongkan tier dan tampilannya kembali dihitung dari job title.
         $manual = $request->input('job_tier') !== 'auto';
         $tier   = $manual ? (int) $request->input('job_tier') : JobTierClassifier::classify($profile->job_title);
+        $stored = ($manual || $isActive) ? $tier : null;
 
         $old = $this->jobTierLogValue($profile->job_tier, (bool) $profile->job_tier_manual);
-        $new = $this->jobTierLogValue($tier, $manual);
+        $new = $this->jobTierLogValue($stored, $manual);
 
         $profile->job_tier_manual = $manual;
-        $profile->job_tier        = $tier;
+        $profile->job_tier        = $stored;
         $profile->save();
 
         if ($old !== $new) {

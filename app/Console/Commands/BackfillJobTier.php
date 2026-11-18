@@ -30,15 +30,14 @@ class BackfillJobTier extends Command
 
         $activeUserIds = DB::table('users')->where('status_member', 'active')->select('id');
 
-        // Job tier hanya untuk member active — kosongkan sisanya.
+        // Tier otomatis hanya untuk member active — kosongkan sisanya, kecuali override manual.
         $nonActive = DB::table('profiles')
             ->whereNotIn('users_id', $activeUserIds)
-            ->where(function ($q) {
-                $q->whereNotNull('job_tier')->orWhere('job_tier_manual', true);
-            });
+            ->where('job_tier_manual', false)
+            ->whereNotNull('job_tier');
         $cleared = (clone $nonActive)->count();
         if (!$dryRun && $cleared > 0) {
-            $nonActive->update(['job_tier' => null, 'job_tier_manual' => false]);
+            $nonActive->update(['job_tier' => null]);
         }
 
         DB::table('profiles')
