@@ -48,7 +48,7 @@
                                             <th width="40">#</th>
                                             <th>Name</th>
                                             <th>Email</th>
-                                            <th>Level</th>
+                                            <th>Level</th><th>Login OTP</th>
                                             <th width="80" class="text-center">Status</th>
                                             <th width="120" class="text-center">Actions</th>
                                         </tr>
@@ -72,7 +72,7 @@
                                                     </div>
                                                 </td>
                                                 <td><span class="text-muted">{{ $admin->email }}</span></td>
-                                                <td><span class="badge badge-light">{{ $admin->roleLabel() }}</span></td>
+                                                <td><span class="badge badge-light">{{ $admin->roleLabel() }}</span></td><td>{{ $admin->otp_enabled ? "Enabled" : "Disabled" }}</td>
                                                 <td class="text-center">
                                                     @if ($admin->is_active)
                                                         <span class="badge badge-success" style="font-size:11px;">Active</span>
@@ -87,6 +87,7 @@
                                                             data-name="{{ $admin->name }}"
                                                             data-email="{{ $admin->email }}"
                                                             data-role="{{ $admin->role }}"
+                                                            data-otp="{{ $admin->otp_enabled ? 1 : 0 }}"
                                                             title="Edit" style="padding:4px 8px;">
                                                             <i class="fas fa-pen" style="font-size:11px;"></i>
                                                         </button>
@@ -155,6 +156,8 @@
                                         @foreach ($roles as $value => $label)<option value="{{ $value }}" {{ old('role', 'event_team') === $value ? 'selected' : '' }}>{{ $label }}</option>@endforeach
                                     </select>
                                 </div>
+                                <input type="hidden" name="otp_enabled" value="0">
+                                <div class="form-check mb-3"><input type="checkbox" class="form-check-input" name="otp_enabled" value="1" id="newOtp" {{ old('otp_enabled') ? 'checked' : '' }}><label class="form-check-label" for="newOtp">Require email OTP at login</label></div>
                                 <button type="submit" class="btn btn-primary btn-block btn-sm">
                                     <i class="fas fa-plus mr-1"></i> Add Admin
                                 </button>
@@ -198,6 +201,7 @@
                         <input type="password" name="password" class="form-control form-control-sm" placeholder="••••••••">
                     </div>
                 </div>
+                <div class="px-4 pb-3"><input type="hidden" name="otp_enabled" value="0"><div class="form-check"><input type="checkbox" class="form-check-input" name="otp_enabled" value="1" id="editOtp"><label class="form-check-label" for="editOtp">Require email OTP at login</label></div></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-sm btn-primary">Update</button>
@@ -215,6 +219,7 @@
         $('#editName').val($(this).data('name'));
         $('#editEmail').val($(this).data('email'));
         $('#editRole').val($(this).data('role'));
+        $('#editOtp').prop('checked', Number($(this).data('otp')) === 1);
         $('#editCmsUserForm').attr('action', '/admin/cms-users/' + id + '/update');
         $('#editCmsUserModal').modal('show');
     });

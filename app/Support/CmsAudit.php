@@ -80,7 +80,7 @@ class CmsAudit
 
     public static function menu(Request $request): string
     {
-        if ($request->routeIs('cms.login.submit', 'cms.logout')) {
+        if ($request->routeIs('cms.login.submit', 'cms.login.otp.verify', 'cms.logout')) {
             return 'session';
         }
         $route = $request->route();
@@ -145,7 +145,7 @@ class CmsAudit
     // filenames, free-text search, payment codes, session tokens or full URLs.
     public static function safeField($name): bool
     {
-        return is_string($name) && preg_match('/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/D', $name)
+        return $name !== 'otp' && is_string($name) && preg_match('/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/D', $name)
             && !preg_match('/password|passwd|secret|token|credential|authorization|api_?key|signature|cvv|card_?number/i', $name);
     }
 

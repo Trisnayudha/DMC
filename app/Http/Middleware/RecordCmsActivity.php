@@ -15,12 +15,12 @@ class RecordCmsActivity
     public function handle(Request $request, Closure $next)
     {
         $route = $request->route();
-        $sessionAction = $request->routeIs('cms.login.submit', 'cms.logout');
+        $sessionAction = $request->routeIs('cms.login.submit', 'cms.login.otp.verify', 'cms.logout');
         if (!$sessionAction && !in_array('cms_auth', $route->middleware(), true)) {
             return $next($request);
         }
 
-        $user = $request->routeIs('cms.login.submit') ? null : $request->user('cms');
+        $user = $request->routeIs('cms.login.submit', 'cms.login.otp.verify') ? null : $request->user('cms');
         if (!$user && !$sessionAction) {
             return $next($request);
         }
@@ -46,7 +46,7 @@ class RecordCmsActivity
             $request->attributes->set('cms_audit_page', (string) Str::uuid());
         }
         $response = $next($request);
-        if ($request->routeIs('cms.login.submit')) {
+        if ($request->routeIs('cms.login.submit', 'cms.login.otp.verify')) {
             $user = $request->user('cms');
             if ($user) {
                 $entry['cms_user_id'] = $user->getAuthIdentifier();

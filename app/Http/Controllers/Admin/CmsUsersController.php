@@ -28,6 +28,7 @@ class CmsUsersController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'otp_enabled' => 'sometimes|boolean',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:cms_users,email',
             'password' => 'required|string|min:6',
@@ -36,7 +37,7 @@ class CmsUsersController extends Controller
         CmsUser::create([
             'name' => $request->name, 'email' => $request->email,
             'password' => Hash::make($request->password),
-            'is_active' => true, 'role' => $request->role,
+            'is_active' => true, 'role' => $request->role, 'otp_enabled' => $request->boolean('otp_enabled'),
         ]);
         return back()->with('success', 'CMS user added successfully.');
     }
@@ -44,6 +45,7 @@ class CmsUsersController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
+            'otp_enabled' => 'sometimes|boolean',
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('cms_users', 'email')->ignore($id)],
             'password' => 'nullable|string|min:6',
@@ -58,7 +60,7 @@ class CmsUsersController extends Controller
                 }
                 $this->protectLastSuperadmin($user, $superadmins->count());
             }
-            $user->fill($request->only('name', 'email', 'role'));
+            $user->fill($request->only('name', 'email', 'role', 'otp_enabled'));
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->password);
             }

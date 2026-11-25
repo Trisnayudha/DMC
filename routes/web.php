@@ -281,6 +281,9 @@ Route::get('login', function () {
 // CMS Login (separate from user login)
 Route::get('admin/login', [\App\Http\Controllers\Auth\CmsLoginController::class, 'showLoginForm'])->name('cms.login');
 Route::post('admin/login', [\App\Http\Controllers\Auth\CmsLoginController::class, 'login'])->name('cms.login.submit');
+Route::get('admin/login/otp', [\App\Http\Controllers\Auth\CmsLoginController::class, 'showOtp'])->name('cms.login.otp');
+Route::post('admin/login/otp', [\App\Http\Controllers\Auth\CmsLoginController::class, 'verifyOtp'])->name('cms.login.otp.verify');
+Route::post('admin/login/otp/resend', [\App\Http\Controllers\Auth\CmsLoginController::class, 'resendOtp'])->name('cms.login.otp.resend');
 Route::post('admin/logout', [\App\Http\Controllers\Auth\CmsLoginController::class, 'logout'])->name('cms.logout');
 
 Route::prefix('admin')->middleware(['cms_auth'])->group(function () {
